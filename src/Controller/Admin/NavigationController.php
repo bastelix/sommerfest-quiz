@@ -192,6 +192,41 @@ final class NavigationController
         ]);
     }
 
+    public function footerBlocks(Request $request, Response $response): Response
+    {
+        $view = Twig::fromRequest($request);
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+
+        $menuDefinitions = $this->menuDefinitions->listMenus($namespace);
+        $localeOptions = $this->resolveLocaleOptions($menuDefinitions, $namespace);
+
+        $namespaces = array_map(
+            static fn (array $entry): string => (string) ($entry['namespace'] ?? ''),
+            $availableNamespaces
+        );
+        $namespaces = array_values(array_unique(array_filter($namespaces)));
+
+        return $view->render($response, 'admin/navigation/footer-blocks.twig', [
+            'role' => $_SESSION['user']['role'] ?? '',
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
+            'available_namespaces' => $availableNamespaces,
+            'pageNamespace' => $namespace,
+            'csrf_token' => $this->ensureCsrfToken(),
+            'namespaces' => $namespaces,
+            'currentNamespace' => $namespace,
+            'localeOptions' => $localeOptions,
+            'menuDefinitions' => array_map(
+                static fn (CmsMenu $menu): array => [
+                    'id' => $menu->getId(),
+                    'label' => $menu->getLabel(),
+                    'locale' => $menu->getLocale(),
+                ],
+                $menuDefinitions
+            ),
+        ]);
+    }
+
     public function headerSettings(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);

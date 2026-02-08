@@ -1,0 +1,102 @@
+{# Render a single footer block based on its type #}
+{% if block.type == 'menu' %}
+  <div class="footer-block footer-block--menu">
+    {% if block.content.title %}
+      <h4 class="footer-block__title">{{ block.content.title }}</h4>
+    {% endif %}
+    {% if block.content.menuItems %}
+      <ul class="uk-list footer-block__menu">
+        {% for item in block.content.menuItems %}
+          <li>
+            <a href="{{ item.href|default('#') }}"{% if item.isExternal|default(false) %} target="_blank" rel="noopener"{% endif %}>
+              {% if item.icon %}<span uk-icon="icon: {{ item.icon }}"></span> {% endif %}
+              {{ item.label }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+
+{% elseif block.type == 'text' %}
+  <div class="footer-block footer-block--text">
+    {% if block.content.title %}
+      <h4 class="footer-block__title">{{ block.content.title }}</h4>
+    {% endif %}
+    <div class="footer-block__text">
+      {{ block.content.text|raw }}
+    </div>
+  </div>
+
+{% elseif block.type == 'social' %}
+  <div class="footer-block footer-block--social">
+    {% if block.content.title %}
+      <h4 class="footer-block__title">{{ block.content.title }}</h4>
+    {% endif %}
+    <div class="footer-block__social-links">
+      {% if block.content.links.facebook %}
+        <a href="{{ block.content.links.facebook }}" target="_blank" rel="noopener" class="footer-social-link" uk-icon="icon: facebook" aria-label="Facebook"></a>
+      {% endif %}
+      {% if block.content.links.twitter %}
+        <a href="{{ block.content.links.twitter }}" target="_blank" rel="noopener" class="footer-social-link" uk-icon="icon: twitter" aria-label="Twitter"></a>
+      {% endif %}
+      {% if block.content.links.linkedin %}
+        <a href="{{ block.content.links.linkedin }}" target="_blank" rel="noopener" class="footer-social-link" uk-icon="icon: linkedin" aria-label="LinkedIn"></a>
+      {% endif %}
+      {% if block.content.links.instagram %}
+        <a href="{{ block.content.links.instagram }}" target="_blank" rel="noopener" class="footer-social-link" uk-icon="icon: instagram" aria-label="Instagram"></a>
+      {% endif %}
+    </div>
+  </div>
+
+{% elseif block.type == 'contact' %}
+  <div class="footer-block footer-block--contact">
+    {% if block.content.title %}
+      <h4 class="footer-block__title">{{ block.content.title }}</h4>
+    {% endif %}
+    <div class="footer-block__contact">
+      {% if block.content.email %}
+        <div class="footer-contact-item">
+          <span uk-icon="icon: mail"></span>
+          <a href="mailto:{{ block.content.email }}">{{ block.content.email }}</a>
+        </div>
+      {% endif %}
+      {% if block.content.phone %}
+        <div class="footer-contact-item">
+          <span uk-icon="icon: phone"></span>
+          <a href="tel:{{ block.content.phone|replace({' ': '', '-': '', '(': '', ')': ''}) }}">{{ block.content.phone }}</a>
+        </div>
+      {% endif %}
+      {% if block.content.address %}
+        <div class="footer-contact-item">
+          <span uk-icon="icon: location"></span>
+          <div>{{ block.content.address|nl2br }}</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+{% elseif block.type == 'newsletter' %}
+  <div class="footer-block footer-block--newsletter">
+    {% if block.content.title %}
+      <h4 class="footer-block__title">{{ block.content.title }}</h4>
+    {% endif %}
+    {% if block.content.description %}
+      <p class="footer-block__description">{{ block.content.description }}</p>
+    {% endif %}
+    <form action="{{ block.content.actionUrl|default('/newsletter/subscribe') }}" method="post" class="footer-newsletter-form">
+      <div class="uk-inline uk-width-1-1">
+        <input type="email" name="email" class="uk-input" placeholder="Email address" required>
+        <button type="submit" class="uk-button uk-button-primary">
+          {{ block.content.buttonText|default('Subscribe') }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+{% elseif block.type == 'html' %}
+  <div class="footer-block footer-block--html">
+    {{ block.content.html|raw }}
+  </div>
+
+{% endif %}
