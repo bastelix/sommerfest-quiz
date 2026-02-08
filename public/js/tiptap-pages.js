@@ -4052,29 +4052,25 @@ async function initPageTree() {
   const activeNamespace = resolveActiveNamespace(container);
   const initialPayload = parsePageTreePayload(container.dataset.initialPayload);
 
-  if (Array.isArray(initialPayload)) {
+  if (Array.isArray(initialPayload) && initialPayload.length > 0) {
     pageIndex.set(initialPayload);
+    renderPageTreeFromState(container, emptyMessage, activeNamespace);
+    applyValidationIndicatorsToTree();
   }
-
-  renderPageTreeFromState(container, emptyMessage, activeNamespace);
-  applyValidationIndicatorsToTree();
 
   try {
     const namespaces = await loadPageIndex(container, activeNamespace);
     renderPageTreeSections(container, namespaces, emptyMessage, activeNamespace);
     applyValidationIndicatorsToTree();
-    if (loading) {
+    if (loading && loading.parentNode) {
       loading.remove();
     }
   } catch (error) {
-    if (loading) {
-      loading.textContent = errorMessage;
-    } else {
-      const errorEl = document.createElement('div');
-      errorEl.className = 'uk-text-danger';
-      errorEl.textContent = errorMessage;
-      container.appendChild(errorEl);
-    }
+    container.innerHTML = '';
+    const errorEl = document.createElement('div');
+    errorEl.className = 'uk-text-danger';
+    errorEl.textContent = errorMessage;
+    container.appendChild(errorEl);
   }
 }
 
@@ -4108,5 +4104,7 @@ const initPagesModule = () => {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initPagesModule);
 } else {
-  initPagesModule();
+  // Defer to next microtask so other module scripts (admin.js) that set
+  // window.apiFetch finish executing before we initialise.
+  Promise.resolve().then(initPagesModule);
 }
