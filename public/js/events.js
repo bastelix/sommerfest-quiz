@@ -12,6 +12,26 @@ const getStored = window.getStored || (() => null);
 const getStoredForEvent = window.getStoredForEvent || (() => null);
 const STORAGE_KEYS = window.STORAGE_KEYS || {};
 
+const resolveEventNamespace = () => {
+  const table = document.getElementById('eventsTable');
+  if (table && table.dataset.eventNamespace) {
+    return table.dataset.eventNamespace;
+  }
+  const indicator = document.querySelector('[data-event-namespace]');
+  if (indicator && indicator.dataset.eventNamespace) {
+    return indicator.dataset.eventNamespace;
+  }
+  const params = new URLSearchParams(window.location.search);
+  return params.get('namespace') || '';
+};
+
+const appendNamespaceParam = (url) => {
+  const ns = resolveEventNamespace();
+  if (!ns) return url;
+  const separator = url.includes('?') ? '&' : '?';
+  return url + separator + 'namespace=' + encodeURIComponent(ns);
+};
+
 const getCsrfToken = () =>
   document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
   currentScript?.dataset.csrf ||
@@ -386,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    csrfFetch('/events.json', { headers: { Accept: 'application/json' } })
+    csrfFetch(appendNamespaceParam('/events.json'), { headers: { Accept: 'application/json' } })
       .then((r) => {
         if (!r.ok) throw new Error('HTTP error');
         return r.json();

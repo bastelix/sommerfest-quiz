@@ -59,6 +59,7 @@ final class NamespaceRepository
             'marketing_newsletter_configs' => 'namespace',
             'newsletter_campaigns' => 'namespace',
             'user_namespaces' => 'namespace',
+            'events' => 'namespace',
         ];
 
         $namespaces = [];
@@ -205,6 +206,9 @@ final class NamespaceRepository
             && $this->hasNamespaceReference('newsletter_campaigns', 'namespace', $namespace)
         ) {
             $usage[] = 'newsletter_campaigns';
+        }
+        if ($this->hasTable('events') && $this->hasNamespaceReference('events', 'namespace', $namespace)) {
+            $usage[] = 'events';
         }
         if ($this->hasTable('config') && $this->hasNamespaceReference('config', 'event_uid', $namespace)) {
             $usage[] = 'config';

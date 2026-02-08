@@ -1,12 +1,14 @@
 {% set currentUid = currentEventUid|default('') %}
 {% set currentName = currentEventName|default('') %}
 {% set eventsList = events|default([]) %}
+{% set currentNamespace = eventNamespace|default('') %}
 {% set selectId = 'eventControlSelect-' ~ random(1000000) %}
 <div
   class="qr-event-indicator uk-alert uk-alert-primary uk-flex uk-flex-wrap uk-flex-middle uk-margin-small-bottom"
   data-current-event-indicator
   data-current-event-uid="{{ currentUid }}"
   data-current-event-name="{{ currentName }}"
+  data-event-namespace="{{ currentNamespace }}"
   data-empty="{{ t('text_event_required') }}"
   data-none="{{ t('text_no_events') }}"
   data-placeholder="{{ t('label_event_select') }}"

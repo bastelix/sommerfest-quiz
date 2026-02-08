@@ -3,6 +3,22 @@
   const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
   const withBase = (p) => basePath + p;
   let eventId = document.body?.dataset.eventId || currentScript?.dataset.eventId || window.eventId || '';
+
+  const resolveEventNamespace = () => {
+    const indicator = document.querySelector('[data-event-namespace]');
+    if (indicator && indicator.dataset.eventNamespace) {
+      return indicator.dataset.eventNamespace;
+    }
+    const params = new URLSearchParams(window.location.search);
+    return params.get('namespace') || '';
+  };
+
+  const appendNamespaceParam = (url) => {
+    const ns = resolveEventNamespace();
+    if (!ns) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return url + separator + 'namespace=' + encodeURIComponent(ns);
+  };
   const currentEventSelects = new Set();
   const notify = (message, status = 'primary') => {
     if (window.UIkit?.notification) {
@@ -740,7 +756,7 @@
       return Promise.resolve();
     }
     const requestId = ++catalogFetchEpoch;
-    return fetch(withBase('/kataloge/catalogs.json'), {
+    return fetch(withBase(appendNamespaceParam('/kataloge/catalogs.json')), {
       headers: { Accept: 'application/json' },
       credentials: 'same-origin',
       cache: 'no-store'

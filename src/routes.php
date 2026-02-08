@@ -256,6 +256,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             $request = $request->withAttribute('namespace', $namespace);
             $request = $request->withAttribute('pageNamespace', $namespace);
             $request = $request->withAttribute('domainNamespace', $namespace);
+            $request = $request->withAttribute('eventNamespace', $namespace);
         }
 
         return $handler->handle($request);
@@ -287,7 +288,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             $request = $request
                 ->withAttribute('namespace', $marketingSlug)
                 ->withAttribute('pageNamespace', $marketingSlug)
-                ->withAttribute('domainNamespace', $marketingSlug);
+                ->withAttribute('domainNamespace', $marketingSlug)
+                ->withAttribute('eventNamespace', $marketingSlug);
         }
 
         return $handler->handle($request);
@@ -356,12 +358,26 @@ return function (\Slim\App $app, TranslationService $translator) {
         $configService = new ConfigService($pdo);
         $eventService = new EventService($pdo, $configService, $tenantService, $sub);
         $params = $request->getQueryParams();
+        $eventNamespaceCandidate = $params['namespace'] ?? null;
+        $eventNamespaceCandidate = is_string($eventNamespaceCandidate) && $eventNamespaceCandidate !== ''
+            ? $eventNamespaceCandidate
+            : ($request->getAttribute('domainNamespace') ?? $request->getAttribute('pageNamespace') ?? null);
+        $resolvedEventNamespace = is_string($eventNamespaceCandidate) && $eventNamespaceCandidate !== ''
+            ? $eventNamespaceCandidate
+            : null;
+        $request = $request->withAttribute('eventNamespace', $resolvedEventNamespace);
         $evParam = (string)($params['event'] ?? '');
         $eventUid = $evParam !== '' && !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
             ? $eventService->uidBySlug($evParam) ?? ''
             : $evParam;
         if ($eventUid === '') {
             $eventUid = (string) ($_SESSION['event_uid'] ?? '');
+        }
+        if ($eventUid !== '' && $resolvedEventNamespace !== null) {
+            if (!$eventService->belongsToNamespace($eventUid, $resolvedEventNamespace)) {
+                $eventUid = '';
+                unset($_SESSION['event_uid']);
+            }
         }
         if ($eventUid !== '') {
             $_SESSION['event_uid'] = $eventUid;

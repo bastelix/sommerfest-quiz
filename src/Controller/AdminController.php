@@ -57,7 +57,10 @@ class AdminController
         }
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
-        $events = $eventSvc->getAll();
+        $eventNamespace = $request->getAttribute('eventNamespace')
+            ?? $request->getAttribute('pageNamespace');
+        $eventNamespace = is_string($eventNamespace) && $eventNamespace !== '' ? $eventNamespace : null;
+        $events = $eventSvc->getAll($eventNamespace);
         $settingsSvc = new SettingsService($pdo);
         $settings = $settingsSvc->getAll();
         $settingsForView = $settings;
@@ -415,6 +418,7 @@ class AdminController
               'available_namespaces' => $availableNamespaces,
               'default_namespace' => PageService::DEFAULT_NAMESPACE,
               'events' => $events,
+              'eventNamespace' => $eventNamespace ?? '',
               'roles' => Roles::ALL,
               'baseUrl' => $baseUrl,
               'eventUrl' => $eventUrl,

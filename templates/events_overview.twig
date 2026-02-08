@@ -26,7 +26,8 @@
              data-copy-success="Link kopiert"
              data-copy-error="Kopieren fehlgeschlagen"
              data-copy-warning="Zwischenablage nicht verfügbar"
-             data-chunk-size="25">
+             data-chunk-size="25"
+             data-event-namespace="{{ eventNamespace|default('') }}">
         <thead>
           <tr>
             <th>{{ t('column_name') }}</th>
