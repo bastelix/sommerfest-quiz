@@ -9,6 +9,7 @@ use App\Service\PhotoConsentService;
 use App\Service\SummaryPhotoService;
 use App\Service\ImageUploadService;
 use App\Service\ConfigService;
+use App\Service\EventService;
 use App\Support\HttpCacheHelper;
 use Psr\Log\LoggerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -26,6 +27,7 @@ class EvidenceController
     private ImageUploadService $images;
     private LoggerInterface $logger;
     private ConfigService $config;
+    private EventService $events;
 
     /**
      * Set up controller dependencies.
@@ -36,7 +38,8 @@ class EvidenceController
         PhotoConsentService $consent,
         SummaryPhotoService $summary,
         LoggerInterface $logger,
-        ?ImageUploadService $images = null
+        ?ImageUploadService $images = null,
+        ?EventService $events = null
     ) {
         $this->config = $config;
         $this->results = $results;
@@ -44,6 +47,7 @@ class EvidenceController
         $this->summary = $summary;
         $this->logger = $logger;
         $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
+        $this->events = $events ?? new EventService(\App\Infrastructure\Database::connectFromEnv());
     }
 
     /**
@@ -98,6 +102,13 @@ class EvidenceController
         }
 
         $uid = $this->config->getActiveEventUid();
+        // Namespace enforcement for photo uploads
+        if ($uid !== '') {
+            $namespace = $request->getAttribute('eventNamespace');
+            if (is_string($namespace) && $namespace !== '' && !$this->events->belongsToNamespace($uid, $namespace)) {
+                return $response->withStatus(403);
+            }
+        }
         $dir = $uid !== ''
             ? 'events/' . $uid . '/images/photos/' . $safeUser
             : 'photos/' . $safeUser;

@@ -52,11 +52,42 @@ class ResultController
     }
 
     /**
+     * Resolve the event UID from the request, validated against the active namespace.
+     * Returns the validated UID or empty string. Returns null for a 403 condition
+     * (explicit cross-namespace access attempt).
+     */
+    private function resolveEventUid(Request $request): ?string
+    {
+        $params = $request->getQueryParams();
+        $explicitUid = (string)($params['event_uid'] ?? ($params['event'] ?? ''));
+        $namespace = $request->getAttribute('eventNamespace');
+
+        if ($explicitUid !== '' && is_string($namespace) && $namespace !== '') {
+            $event = $this->events->getByUidInNamespace($explicitUid, $namespace);
+            if ($event === null) {
+                return null; // 403: cross-namespace access
+            }
+            return (string) $event['uid'];
+        }
+
+        // Use middleware-validated event UID
+        $resolvedUid = $request->getAttribute('resolvedEventUid');
+        if (is_string($resolvedUid) && $resolvedUid !== '') {
+            return $resolvedUid;
+        }
+
+        return $explicitUid;
+    }
+
+    /**
      * Return all stored results as JSON.
      */
     public function get(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
-        $eventUid = (string)($params['event_uid'] ?? ($params['event'] ?? ''));
+        $eventUid = $this->resolveEventUid($request);
+        if ($eventUid === null) {
+            return $response->withStatus(403);
+        }
         $shareToken = (string)($params['share_token'] ?? '');
         $variantParam = strtolower((string)($params['variant'] ?? ''));
         if ($shareToken !== '' && $eventUid !== '') {
@@ -75,7 +106,10 @@ class ResultController
      */
     public function getQuestions(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
-        $eventUid = (string)($params['event_uid'] ?? ($params['event'] ?? ''));
+        $eventUid = $this->resolveEventUid($request);
+        if ($eventUid === null) {
+            return $response->withStatus(403);
+        }
         $shareToken = (string)($params['share_token'] ?? '');
         $variantParam = strtolower((string)($params['variant'] ?? ''));
         if ($shareToken !== '' && $eventUid !== '') {
@@ -93,8 +127,10 @@ class ResultController
      * Download all results as a CSV file.
      */
     public function download(Request $request, Response $response): Response {
-        $params = $request->getQueryParams();
-        $eventUid = (string)($params['event_uid'] ?? '');
+        $eventUid = $this->resolveEventUid($request);
+        if ($eventUid === null) {
+            return $response->withStatus(403);
+        }
         $data = $this->service->getAll($eventUid);
         $rows = array_map([$this, 'mapResultRow'], $data);
         array_unshift($rows, ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Punkte', 'Max Punkte', 'Zeit', 'Rätselwort', 'Beweisfoto']);
@@ -114,13 +150,26 @@ class ResultController
      * Store a new result or mark a puzzle as solved.
      */
     public function post(Request $request, Response $response): Response {
-        $params = $request->getQueryParams();
-        $eventUid = (string)($params['event_uid'] ?? '');
+        $eventUid = $this->resolveEventUid($request);
+        if ($eventUid === null) {
+            return $response->withStatus(403);
+        }
         $data = json_decode((string) $request->getBody(), true);
         $result = ['success' => false];
         if (is_array($data)) {
             if ($eventUid === '') {
                 $eventUid = (string)($data['event_uid'] ?? '');
+                // Validate event_uid from body against namespace
+                if ($eventUid !== '') {
+                    $namespace = $request->getAttribute('eventNamespace');
+                    if (is_string($namespace) && $namespace !== '') {
+                        $event = $this->events->getByUidInNamespace($eventUid, $namespace);
+                        if ($event === null) {
+                            $response->getBody()->write(json_encode(['success' => false]));
+                            return $response->withHeader('Content-Type', 'application/json')->withStatus(403);
+                        }
+                    }
+                }
             }
             $name = (string)($data['name'] ?? '');
             if (isset($data['puzzleTime'])) {
@@ -222,8 +271,10 @@ class ResultController
      * Render the HTML results page.
      */
     public function page(Request $request, Response $response): Response {
-        $params = $request->getQueryParams();
-        $eventUid = (string)($params['event_uid'] ?? '');
+        $eventUid = $this->resolveEventUid($request);
+        if ($eventUid === null) {
+            return $response->withStatus(403);
+        }
         $view = Twig::fromRequest($request);
         $results = $this->service->getAll($eventUid);
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
@@ -267,8 +318,10 @@ class ResultController
      * Clear all results and associated photos.
      */
     public function delete(Request $request, Response $response): Response {
-        $params = $request->getQueryParams();
-        $eventUid = (string)($params['event_uid'] ?? '');
+        $eventUid = $this->resolveEventUid($request);
+        if ($eventUid === null) {
+            return $response->withStatus(403);
+        }
         $this->service->clear($eventUid);
         if (is_dir($this->photoDir)) {
             $files = new \RecursiveIteratorIterator(
@@ -295,9 +348,16 @@ class ResultController
         $teamFilter = (string) ($params['team'] ?? $request->getAttribute('team') ?? '');
         $teamEventUid = $teamFilter !== '' ? $this->teams->getEventUidByName($teamFilter) : null;
 
-        $eventUid = (string)($params['event_uid'] ?? '');
+        $eventUid = $this->resolveEventUid($request) ?? '';
         if ($eventUid === '' && $teamEventUid !== null) {
             $eventUid = $teamEventUid;
+        }
+        // Validate team-derived event UID against namespace
+        if ($eventUid !== '') {
+            $namespace = $request->getAttribute('eventNamespace');
+            if (is_string($namespace) && $namespace !== '' && !$this->events->belongsToNamespace($eventUid, $namespace)) {
+                return $response->withStatus(403);
+            }
         }
 
         $results = $this->service->getAll($eventUid);

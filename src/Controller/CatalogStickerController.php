@@ -118,6 +118,25 @@ class CatalogStickerController
         $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
     }
 
+    /**
+     * Resolve event UID from request params with namespace validation.
+     * Returns null for cross-namespace access (403 condition).
+     */
+    private function resolveEventUid(Request $request): ?string {
+        $params = $request->getQueryParams();
+        $uid = (string) ($params['event_uid'] ?? ($params['event'] ?? ''));
+        if ($uid === '') {
+            $uid = $this->config->getActiveEventUid();
+        }
+        if ($uid !== '') {
+            $namespace = $request->getAttribute('eventNamespace');
+            if (is_string($namespace) && $namespace !== '' && !$this->events->belongsToNamespace($uid, $namespace)) {
+                return null;
+            }
+        }
+        return $uid;
+    }
+
     private function pct(float|string|null $v): float {
         $f = (float) $v;
         if (!is_finite($f)) {
@@ -127,11 +146,9 @@ class CatalogStickerController
     }
 
     public function getSettings(Request $request, Response $response): Response {
-        $params = $request->getQueryParams();
-        $uid = (string) ($params['event_uid'] ?? '');
-        if ($uid === '') {
-            // default to active event when no UID is provided
-            $uid = $this->config->getActiveEventUid();
+        $uid = $this->resolveEventUid($request);
+        if ($uid === null) {
+            return $response->withStatus(403);
         }
         $cfg = $uid !== ''
             ? $this->config->getConfigForEvent($uid)
@@ -203,8 +220,13 @@ class CatalogStickerController
         }
         $uid = (string) ($data['event_uid'] ?? '');
         if ($uid === '') {
-            // fall back to active event or global configuration
             $uid = $this->config->getActiveEventUid();
+        }
+        if ($uid !== '') {
+            $namespace = $request->getAttribute('eventNamespace');
+            if (is_string($namespace) && $namespace !== '' && !$this->events->belongsToNamespace($uid, $namespace)) {
+                return $response->withStatus(403);
+            }
         }
         $tpl = in_array(
             (string)($data['stickerTemplate'] ?? ''),
@@ -247,10 +269,9 @@ class CatalogStickerController
     }
 
     public function pdf(Request $request, Response $response): Response {
-        $params = $request->getQueryParams();
-        $uid = (string)($params['event_uid'] ?? ($params['event'] ?? ''));
-        if ($uid === '') {
-            $uid = $this->config->getActiveEventUid();
+        $uid = $this->resolveEventUid($request);
+        if ($uid === null) {
+            return $response->withStatus(403);
         }
 
         $cfg = $uid !== '' ? $this->config->getConfigForEvent($uid) : $this->config->getConfig();
@@ -514,10 +535,10 @@ class CatalogStickerController
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
-        $params = $request->getQueryParams();
-        $uid = (string)($params['event_uid'] ?? '');
-        if ($uid === '') {
-            $uid = $this->config->getActiveEventUid();
+        $uid = $this->resolveEventUid($request);
+        if ($uid === null) {
+            $response->getBody()->write('namespace access denied');
+            return $response->withStatus(403)->withHeader('Content-Type', 'text/plain');
         }
 
         $dir = $uid !== '' ? 'events/' . $uid . '/images' : 'uploads';

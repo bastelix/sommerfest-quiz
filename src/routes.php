@@ -366,13 +366,21 @@ return function (\Slim\App $app, TranslationService $translator) {
             ? $eventNamespaceCandidate
             : null;
         $request = $request->withAttribute('eventNamespace', $resolvedEventNamespace);
+        // Resolve event UID from query params: ?event= (slug or uid) or ?event_uid=
         $evParam = (string)($params['event'] ?? '');
-        $eventUid = $evParam !== '' && !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
-            ? $eventService->uidBySlug($evParam) ?? ''
-            : $evParam;
+        $eventUidParam = (string)($params['event_uid'] ?? '');
+        $eventUid = '';
+        if ($eventUidParam !== '' && preg_match('/^[0-9a-fA-F]{32}$/', $eventUidParam)) {
+            $eventUid = $eventUidParam;
+        } elseif ($evParam !== '') {
+            $eventUid = !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
+                ? $eventService->uidBySlug($evParam) ?? ''
+                : $evParam;
+        }
         if ($eventUid === '') {
             $eventUid = (string) ($_SESSION['event_uid'] ?? '');
         }
+        // Validate event UID against namespace — always, not just when explicit
         if ($eventUid !== '' && $resolvedEventNamespace !== null) {
             if (!$eventService->belongsToNamespace($eventUid, $resolvedEventNamespace)) {
                 $eventUid = '';
@@ -382,6 +390,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($eventUid !== '') {
             $_SESSION['event_uid'] = $eventUid;
         }
+        // Set validated event UID as request attribute for controllers
+        $request = $request->withAttribute('resolvedEventUid', $eventUid);
         $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid);
         $resultService = new ResultService($pdo);
         $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
@@ -645,6 +655,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $request = $request
             ->withAttribute('plan', $plan)
             ->withAttribute('configService', $configService)
+            ->withAttribute('eventService', $eventService)
             ->withAttribute(
                 'configController',
                 new ConfigController(
@@ -663,7 +674,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 __DIR__ . '/../data/photos',
                 $eventService
             ))
-            ->withAttribute('teamController', new TeamController($teamService, $configService, $resultService))
+            ->withAttribute('teamController', new TeamController($teamService, $configService, $resultService, $eventService))
             ->withAttribute('teamNameController', new TeamNameController($teamNameService, $configService))
             ->withAttribute('eventController', new EventController($eventService))
             ->withAttribute(
@@ -772,7 +783,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 new QrCodeService(),
                 $imageUploadService
             ))
-            ->withAttribute('eventImageController', new EventImageController($configService))
+            ->withAttribute('eventImageController', new EventImageController($configService, $eventService))
             ->withAttribute('globalMediaController', new GlobalMediaController($configService))
             ->withAttribute('projectMediaController', new ProjectMediaController($configService))
             ->withAttribute('importController', $importController = new ImportController(
@@ -804,7 +815,8 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $consentService,
                 $summaryService,
                 new NullLogger(),
-                $imageUploadService
+                $imageUploadService,
+                $eventService
             ))
             ->withAttribute('pdo', $pdo)
             ->withAttribute('translator', $translator)
@@ -2244,6 +2256,16 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $eventUid = $config->getActiveEventUid();
             }
         }
+        // Namespace enforcement
+        if ($eventUid !== '') {
+            $namespace = $request->getAttribute('eventNamespace');
+            if (is_string($namespace) && $namespace !== '') {
+                $eventService = $request->getAttribute('eventService');
+                if ($eventService instanceof EventService && !$eventService->belongsToNamespace($eventUid, $namespace)) {
+                    return $response->withStatus(403);
+                }
+            }
+        }
         $playerUid = trim((string) ($params['player_uid'] ?? ''));
 
         /** @var PlayerService $playerService */
@@ -2276,6 +2298,16 @@ return function (\Slim\App $app, TranslationService $translator) {
             $config = $request->getAttribute('configService');
             if ($config instanceof ConfigService) {
                 $eventUid = $config->getActiveEventUid();
+            }
+        }
+        // Namespace enforcement
+        if ($eventUid !== '') {
+            $namespace = $request->getAttribute('eventNamespace');
+            if (is_string($namespace) && $namespace !== '') {
+                $eventService = $request->getAttribute('eventService');
+                if ($eventService instanceof EventService && !$eventService->belongsToNamespace($eventUid, $namespace)) {
+                    return $response->withStatus(403);
+                }
             }
         }
         $playerName = trim((string) ($data['player_name'] ?? ''));

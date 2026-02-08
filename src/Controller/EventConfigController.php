@@ -142,6 +142,11 @@ class EventConfigController
     {
         $eventNamespace = $request->getAttribute('eventNamespace');
         if (!is_string($eventNamespace) || $eventNamespace === '') {
+            // Fallback: use the validated event UID from global middleware
+            $resolvedUid = $request->getAttribute('resolvedEventUid');
+            if (is_string($resolvedUid) && $resolvedUid !== '') {
+                return ($event['uid'] ?? '') === $resolvedUid;
+            }
             return true;
         }
         $eventNs = strtolower(trim($event['namespace'] ?? 'default'));
