@@ -10,7 +10,7 @@ services:
       - postgres
 
   postgres:
-    image: postgres:16
+    image: postgres:15
     environment:
       POSTGRES_DB: quiz
       POSTGRES_USER: postgres

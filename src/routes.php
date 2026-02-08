@@ -88,6 +88,9 @@ use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\AdminAuthMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
 use App\Application\Middleware\RateLimitMiddleware;
+use App\Application\Middleware\NamespaceQueryMiddleware;
+use App\Application\Middleware\MarketingNamespaceMiddleware;
+use App\Application\Middleware\MarketingAccessResolver;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\TeamNameController;
@@ -170,167 +173,15 @@ use App\Domain\Plan;
 
 use function App\runSyncProcess;
 
-require_once __DIR__ . '/Controller/HomeController.php';
-require_once __DIR__ . '/Controller/FaqController.php';
-require_once __DIR__ . '/Controller/HelpController.php';
-require_once __DIR__ . '/Controller/DatenschutzController.php';
-require_once __DIR__ . '/Controller/ImpressumController.php';
-require_once __DIR__ . '/Controller/LizenzController.php';
-require_once __DIR__ . '/Controller/AdminController.php';
-require_once __DIR__ . '/Controller/LoginController.php';
-require_once __DIR__ . '/Controller/LogoutController.php';
-require_once __DIR__ . '/Controller/ConfigController.php';
-require_once __DIR__ . '/Controller/CatalogController.php';
-require_once __DIR__ . '/Controller/ResultController.php';
-require_once __DIR__ . '/Controller/TeamController.php';
-require_once __DIR__ . '/Controller/PasswordController.php';
-require_once __DIR__ . '/Controller/PasswordResetController.php';
-require_once __DIR__ . '/Controller/AdminCatalogController.php';
-require_once __DIR__ . '/Controller/AdminLogsController.php';
-require_once __DIR__ . '/Controller/AdminMediaController.php';
-require_once __DIR__ . '/Controller/Admin/PageController.php';
-require_once __DIR__ . '/Controller/Admin/PageAiController.php';
-require_once __DIR__ . '/Controller/Admin/ProjectPagesController.php';
-require_once __DIR__ . '/Controller/Admin/ProjectController.php';
-require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
-require_once __DIR__ . '/Controller/Admin/LandingNewsController.php';
-require_once __DIR__ . '/Controller/Admin/MarketingNewsletterController.php';
-require_once __DIR__ . '/Controller/Admin/MarketingNewsletterConfigController.php';
-require_once __DIR__ . '/Controller/Admin/NewsletterCampaignController.php';
-require_once __DIR__ . '/Controller/Admin/DomainController.php';
-require_once __DIR__ . '/Controller/Admin/MailProviderController.php';
-require_once __DIR__ . '/Controller/Admin/CmsPageWikiController.php';
-require_once __DIR__ . '/Controller/Admin/MarketingMenuController.php';
-require_once __DIR__ . '/Controller/Admin/MarketingMenuDefinitionController.php';
-require_once __DIR__ . '/Controller/Admin/MarketingMenuItemController.php';
-require_once __DIR__ . '/Controller/Admin/MarketingMenuAssignmentController.php';
-require_once __DIR__ . '/Controller/QrController.php';
-require_once __DIR__ . '/Controller/LogoController.php';
-require_once __DIR__ . '/Controller/CatalogDesignController.php';
-require_once __DIR__ . '/Controller/SummaryController.php';
-require_once __DIR__ . '/Controller/RankingController.php';
-require_once __DIR__ . '/Controller/EvidenceController.php';
-require_once __DIR__ . '/Controller/ExportController.php';
-require_once __DIR__ . '/Controller/EventController.php';
-require_once __DIR__ . '/Controller/EventListController.php';
-require_once __DIR__ . '/Controller/EventConfigController.php';
-require_once __DIR__ . '/Controller/DashboardController.php';
-require_once __DIR__ . '/Controller/SettingsController.php';
-require_once __DIR__ . '/Controller/BackupController.php';
-require_once __DIR__ . '/Controller/UserController.php';
-require_once __DIR__ . '/Controller/TenantController.php';
-require_once __DIR__ . '/Controller/Marketing/PageController.php';
-require_once __DIR__ . '/Controller/Marketing/CmsPageWikiListController.php';
-require_once __DIR__ . '/Controller/Marketing/CmsPageWikiArticleController.php';
-require_once __DIR__ . '/Controller/Marketing/MarketingChatController.php';
-require_once __DIR__ . '/Controller/Marketing/ContactController.php';
-require_once __DIR__ . '/Controller/Marketing/NewsletterController.php';
-require_once __DIR__ . '/Controller/Marketing/LandingNewsController.php';
-require_once __DIR__ . '/Controller/Marketing/LegacyCalserverLandingController.php';
-require_once __DIR__ . '/Controller/RegisterController.php';
-require_once __DIR__ . '/Controller/OnboardingController.php';
-require_once __DIR__ . '/Controller/OnboardingEmailController.php';
-require_once __DIR__ . '/Controller/OnboardingSessionController.php';
-require_once __DIR__ . '/Controller/CatalogSessionController.php';
-require_once __DIR__ . '/Controller/PlayerSessionController.php';
-require_once __DIR__ . '/Controller/StripeCheckoutController.php';
-require_once __DIR__ . '/Controller/StripeSessionController.php';
-require_once __DIR__ . '/Controller/StripeWebhookController.php';
-require_once __DIR__ . '/Controller/SubscriptionController.php';
-require_once __DIR__ . '/Controller/AdminSubscriptionCheckoutController.php';
-require_once __DIR__ . '/Controller/InvitationController.php';
-require_once __DIR__ . '/Controller/CatalogStickerController.php';
-require_once __DIR__ . '/Controller/EventImageController.php';
-require_once __DIR__ . '/Controller/GlobalMediaController.php';
-require_once __DIR__ . '/Controller/ProjectMediaController.php';
-
 use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
 
 return function (\Slim\App $app, TranslationService $translator) {
     $app->addBodyParsingMiddleware();
-    $namespaceQueryMiddleware = static function (Request $request, RequestHandlerInterface $handler): Response {
-        $params = $request->getQueryParams();
-        $namespace = $params['namespace'] ?? null;
-        if (is_string($namespace) && $namespace !== '') {
-            $request = $request->withAttribute('namespace', $namespace);
-            $request = $request->withAttribute('pageNamespace', $namespace);
-            $request = $request->withAttribute('domainNamespace', $namespace);
-            $request = $request->withAttribute('eventNamespace', $namespace);
-        }
-
-        return $handler->handle($request);
-    };
-
-    $marketingNamespaceMiddleware = static function (Request $request, RequestHandlerInterface $handler): Response {
-        $existingDomainNamespace = $request->getAttribute('domainNamespace');
-        $existingPageNamespace = $request->getAttribute('pageNamespace');
-        if (
-            (is_string($existingDomainNamespace) && $existingDomainNamespace !== '')
-            || (is_string($existingPageNamespace) && $existingPageNamespace !== '')
-        ) {
-            return $handler->handle($request);
-        }
-
-        $path = $request->getUri()->getPath();
-        $isLegacyMarketingPath = str_starts_with($path, '/m/')
-            || str_starts_with($path, '/landing/');
-        if (!$isLegacyMarketingPath) {
-            return $handler->handle($request);
-        }
-
-        $route = RouteContext::fromRequest($request)->getRoute();
-        $marketingSlug = $route?->getArgument('marketingSlug')
-            ?? $route?->getArgument('landingSlug')
-            ?? $route?->getArgument('slug');
-
-        if (is_string($marketingSlug) && $marketingSlug !== '') {
-            $request = $request
-                ->withAttribute('namespace', $marketingSlug)
-                ->withAttribute('pageNamespace', $marketingSlug)
-                ->withAttribute('domainNamespace', $marketingSlug)
-                ->withAttribute('eventNamespace', $marketingSlug);
-        }
-
-        return $handler->handle($request);
-    };
-
+    $namespaceQueryMiddleware = new NamespaceQueryMiddleware();
+    $marketingNamespaceMiddleware = new MarketingNamespaceMiddleware();
     $resolveMarketingAccess = static function (Request $request): array {
-        $domainType = $request->getAttribute('domainType');
-        if (!in_array($domainType, ['main', 'marketing'], true)) {
-            $host = strtolower($request->getUri()->getHost());
-            $normalizedHost = DomainNameHelper::normalize($host, stripAdmin: false);
-            $marketingDomainProvider = DomainNameHelper::getMarketingDomainProvider();
-            if ($marketingDomainProvider === null) {
-                $marketingDomainProvider = new MarketingDomainProvider(
-                    static function (): \PDO {
-                        return Database::connectFromEnv();
-                    }
-                );
-                DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
-            }
-            $mainDomain = strtolower((string) $marketingDomainProvider->getMainDomain());
-            $normalizedMainDomain = DomainNameHelper::normalize($mainDomain, stripAdmin: false);
-
-            $computed = 'tenant';
-            if ($normalizedMainDomain === '' || $normalizedHost === $normalizedMainDomain) {
-                $computed = 'main';
-            } else {
-                $marketingDomains = $marketingDomainProvider->getMarketingDomains(stripAdmin: false);
-                $marketingList = array_filter(array_map(
-                    static fn (string $domain): string => DomainNameHelper::normalize($domain, stripAdmin: false),
-                    $marketingDomains
-                ));
-                if ($marketingList !== [] && in_array($normalizedHost, $marketingList, true)) {
-                    $computed = 'marketing';
-                }
-            }
-
-            $request = $request->withAttribute('domainType', $computed);
-            $domainType = $computed;
-        }
-
-        return [$request, in_array($domainType, ['main', 'marketing'], true)];
+        return MarketingAccessResolver::resolve($request);
     };
         $cmsPageRouteResolver = new CmsPageRouteResolver();
         $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {

@@ -27,5 +27,5 @@ spec:
               until pg_isready -h {{ include "sommerfest-quiz.fullname" . }}-postgresql -U {{ .Values.database.user }}; do
                 sleep 2
               done
-              psql -h {{ include "sommerfest-quiz.fullname" . }}-postgresql -U {{ .Values.database.user }} -d {{ .Values.database.name }} -f docs/schema.sql
+              php scripts/run_migrations.php
               php scripts/import_to_pgsql.php
