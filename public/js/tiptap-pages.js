@@ -2,7 +2,7 @@ import { Editor, Extension, Mark } from './vendor/tiptap/core.esm.js';
 import StarterKit from './vendor/tiptap/starter-kit.esm.js';
 import BlockContentEditor from './components/block-content-editor.js';
 import PreviewCanvas from './components/preview-canvas.js';
-import { applyNamespaceDesign, resolveNamespaceAppearance } from './components/namespace-design.js';
+import { applyNamespaceDesign, resolveNamespaceAppearance, registerNamespaceDesign } from './components/namespace-design.js';
 import {
   normalizeBlockContract,
   normalizeBlockVariant,
@@ -4114,7 +4114,15 @@ const updatePageEditorMode = () => {
   // This function exists to prevent ReferenceError during initialization
 };
 
+// Register the page design in the namespace design registry
+const initPageDesign = () => {
+  if (typeof window.pageDesign === 'object' && window.pageDesign && typeof window.pageNamespace === 'string') {
+    registerNamespaceDesign(window.pageNamespace, window.pageDesign);
+  }
+};
+
 const initPagesModule = () => {
+  runInitStep('page-design', initPageDesign);
   runInitStep('page-editor-mode', updatePageEditorMode);
   runInitStep('theme-toggle', initThemeToggle);
   runInitStep('prefetch-quiz-links', prefetchQuizLinks);
