@@ -274,6 +274,7 @@ class CatalogStickerController
             return $response->withStatus(403);
         }
 
+        $params = $request->getQueryParams();
         $cfg = $uid !== '' ? $this->config->getConfigForEvent($uid) : $this->config->getConfig();
         $template = (string)($params['template'] ?? ($cfg['stickerTemplate'] ?? 'avery_l7163'));
         if (!isset(self::LABEL_TEMPLATES[$template])) {
