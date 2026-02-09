@@ -4087,6 +4087,12 @@ const runInitStep = (label, fn) => {
   }
 };
 
+// Stub function for page editor mode - currently unused but called during init
+const updatePageEditorMode = () => {
+  // No-op: PAGE_EDITOR_MODE is set at module load time via resolvePageEditorMode()
+  // This function exists to prevent ReferenceError during initialization
+};
+
 const initPagesModule = () => {
   runInitStep('page-editor-mode', updatePageEditorMode);
   runInitStep('theme-toggle', initThemeToggle);
