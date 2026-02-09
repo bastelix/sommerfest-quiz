@@ -39,6 +39,7 @@ class PagesDesignController
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $designService = $this->getDesignService($request);
+        $designService->rebuildStylesheet();
         $tokens = $designService->getTokensForNamespace($namespace);
         $defaults = $designService->getDefaults();
         $designPayload = $this->configService->resolveDesignConfig($namespace);

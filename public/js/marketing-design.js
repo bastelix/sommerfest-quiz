@@ -1610,12 +1610,15 @@ const applyMarketingDesign = () => {
   setTokenProperty('--brand-accent', 'var(--marketing-accent)', shouldSyncBrandAccent);
   setTokenProperty('--brand-secondary', 'var(--marketing-secondary)', shouldSyncBrandSecondary);
   setTokenProperty('--accent-secondary', 'var(--marketing-secondary)', shouldSyncBrandSecondary);
-  root.style.setProperty('--surface', 'var(--marketing-surface)');
-  root.style.setProperty('--surface-muted', 'var(--marketing-surface-muted)');
-  root.style.setProperty('--bg-page', 'var(--surface)');
-  root.style.setProperty('--bg-section', 'var(--surface)');
-  root.style.setProperty('--bg-card', 'var(--surface)');
-  root.style.setProperty('--bg-accent', 'var(--brand-primary)');
+  const hasExplicitSurfaceOverride = Boolean(
+    marketingSchemeValues?.surface || configColors.surface || colors.surface || variables.surface,
+  );
+  setTokenProperty('--surface', 'var(--marketing-surface)', hasExplicitSurfaceOverride);
+  setTokenProperty('--surface-muted', 'var(--marketing-surface-muted)', hasExplicitSurfaceOverride);
+  setTokenProperty('--bg-page', 'var(--surface)', hasExplicitSurfaceOverride);
+  setTokenProperty('--bg-section', 'var(--surface)', hasExplicitSurfaceOverride);
+  setTokenProperty('--bg-card', 'var(--surface)', hasExplicitSurfaceOverride);
+  setTokenProperty('--bg-accent', 'var(--brand-primary)', shouldSyncBrandPrimary);
 
   if (topbarLight) {
     root.style.setProperty('--marketing-topbar-light', topbarLight);
