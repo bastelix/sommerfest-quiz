@@ -1227,25 +1227,12 @@ class ProjectPagesController
         $pageTree = $this->pageService->getTree();
         $treePages = [];
 
-        // Debug: Log what we're looking for
-        error_log(sprintf('[PageTree Debug] Looking for namespace: "%s"', $namespace));
-        error_log(sprintf('[PageTree Debug] Total tree sections: %d', count($pageTree)));
-
         foreach ($pageTree as $section) {
             $sectionNamespace = (string) ($section['namespace'] ?? '');
-            error_log(sprintf('[PageTree Debug] Found section with namespace: "%s", pages: %d',
-                $sectionNamespace,
-                count($section['pages'] ?? [])));
-
             if ($sectionNamespace === $namespace) {
                 $treePages = $section['pages'] ?? [];
-                error_log(sprintf('[PageTree Debug] Matched namespace "%s", found %d pages', $namespace, count($treePages)));
                 break;
             }
-        }
-
-        if (empty($treePages)) {
-            error_log(sprintf('[PageTree Debug] WARNING: No tree pages found for namespace "%s"', $namespace));
         }
 
         $namespaceInfo = [
@@ -1267,21 +1254,14 @@ class ProjectPagesController
                 }
             }
         } catch (\RuntimeException $exception) {
-            error_log(sprintf('[PageTree Debug] Namespace lookup failed: %s', $exception->getMessage()));
+            // Silently ignore namespace lookup errors
         }
 
-        $mappedPages = $this->mapTreePages($treePages, $basePath, $namespace);
-        error_log(sprintf('[PageTree Debug] Mapped %d pages', count($mappedPages)));
-
-        $result = [[
+        return [[
             'namespace' => $namespace,
             'namespaceInfo' => $namespaceInfo,
-            'pages' => $mappedPages,
+            'pages' => $this->mapTreePages($treePages, $basePath, $namespace),
         ]];
-
-        error_log('[PageTree Debug] Final payload structure: ' . json_encode($result, JSON_PRETTY_PRINT));
-
-        return $result;
     }
 
     /**
