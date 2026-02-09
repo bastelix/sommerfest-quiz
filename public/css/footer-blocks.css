@@ -3,6 +3,13 @@
  * Professional business footer design with layout variants
  */
 
+/* ── Site footer base (standalone, no main.css dependency) ───── */
+.site-footer {
+  background-color: var(--surface-section, #ffffff);
+  color: var(--text-body, #111827);
+  font-family: var(--font-family, inherit);
+}
+
 /* ── Layout: footer wrapper ─────────────────────────────────── */
 .cms-footer {
   border-top: 1px solid var(--border-color, #e5e7eb);
@@ -320,6 +327,11 @@
 
 /* ── Dark mode ──────────────────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
+  .site-footer {
+    background-color: var(--surface-section-dark, #111827);
+    color: var(--text-body-dark, #e5e7eb);
+  }
+
   .cms-footer {
     border-top-color: var(--border-color-dark, #374151);
   }
