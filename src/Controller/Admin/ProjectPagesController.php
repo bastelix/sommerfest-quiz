@@ -1233,7 +1233,7 @@ class ProjectPagesController
         $treePages = [];
 
         foreach ($pageTree as $section) {
-            $sectionNamespace = (string) ($section['namespace'] ?? '');
+            $sectionNamespace = (string) $section['namespace'];
             if ($sectionNamespace === $namespace) {
                 $treePages = $section['pages'] ?? [];
                 break;
