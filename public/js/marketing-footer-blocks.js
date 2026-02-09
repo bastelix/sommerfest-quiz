@@ -1,57 +1,80 @@
 /**
- * Footer Block Editor
- * Manages footer content blocks with different types (menu, text, social, contact, newsletter, html)
+ * Footer Block Editor – Unified 3-column editor
+ * Manages footer content blocks across all three slots simultaneously.
  */
 
-let currentBlocks = [];
+const SLOTS = ['footer_1', 'footer_2', 'footer_3'];
+
+const TYPE_ICONS = {
+  menu: { abbr: 'M', cls: 'block-card__icon--menu' },
+  text: { abbr: 'T', cls: 'block-card__icon--text' },
+  social: { abbr: 'S', cls: 'block-card__icon--social' },
+  contact: { abbr: 'C', cls: 'block-card__icon--contact' },
+  newsletter: { abbr: 'N', cls: 'block-card__icon--newsletter' },
+  html: { abbr: 'H', cls: 'block-card__icon--html' },
+};
+
+let blocksBySlot = { footer_1: [], footer_2: [], footer_3: [] };
 let currentNamespace = 'default';
 let currentLocale = 'de';
-let currentSlot = 'footer_1';
+let currentLayout = 'equal';
 let editingBlockId = null;
+let editingSlot = null;
 
-// Initialize on DOM ready
+// ── Initialization ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initializeSelectors();
-  loadBlocks();
+  initializeLayoutSelector();
+  initializePresets();
   setupEventListeners();
+  loadAllSlots();
 });
 
 function initializeSelectors() {
-  const namespaceSelect = document.querySelector('[data-namespace-select]');
+  const nsSelect = document.querySelector('[data-namespace-select]');
   const localeSelect = document.querySelector('[data-locale-select]');
-  const slotSelect = document.querySelector('[data-slot-select]');
 
-  if (namespaceSelect) {
-    currentNamespace = namespaceSelect.value;
-    namespaceSelect.addEventListener('change', (e) => {
+  if (nsSelect) {
+    currentNamespace = nsSelect.value;
+    nsSelect.addEventListener('change', (e) => {
       currentNamespace = e.target.value;
-      loadBlocks();
+      loadAllSlots();
     });
   }
-
   if (localeSelect) {
     currentLocale = localeSelect.value;
     localeSelect.addEventListener('change', (e) => {
       currentLocale = e.target.value;
-      loadBlocks();
-    });
-  }
-
-  if (slotSelect) {
-    currentSlot = slotSelect.value;
-    slotSelect.addEventListener('change', (e) => {
-      currentSlot = e.target.value;
-      loadBlocks();
+      loadAllSlots();
     });
   }
 }
 
+function initializeLayoutSelector() {
+  const buttons = document.querySelectorAll('[data-layout-selector] .layout-option');
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      buttons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentLayout = btn.dataset.layout;
+    });
+  });
+}
+
+function initializePresets() {
+  document.querySelectorAll('[data-preset]').forEach((btn) => {
+    btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+  });
+}
+
 function setupEventListeners() {
-  // Add block button
-  const addBtn = document.querySelector('[data-add-block-btn]');
-  if (addBtn) {
-    addBtn.addEventListener('click', () => openBlockEditor());
-  }
+  // Per-column add buttons
+  SLOTS.forEach((slot) => {
+    const btn = document.querySelector(`[data-add-block-btn="${slot}"]`);
+    if (btn) {
+      btn.addEventListener('click', () => openBlockEditor(null, slot));
+    }
+  });
 
   // Form submit
   const form = document.querySelector('[data-block-form]');
@@ -62,91 +85,91 @@ function setupEventListeners() {
     });
   }
 
-  // Type select change
-  const typeSelect = document.querySelector('[data-type-select]');
-  if (typeSelect) {
-    typeSelect.addEventListener('change', (e) => {
+  // Type radio change
+  document.querySelectorAll('[data-type-grid] input[type="radio"]').forEach((radio) => {
+    radio.addEventListener('change', (e) => {
       renderContentFields(e.target.value);
     });
-  }
+  });
 }
 
-async function loadBlocks() {
-  const container = document.querySelector('[data-blocks-container]');
+// ── Load data ──────────────────────────────────────────────────
+async function loadAllSlots() {
+  const promises = SLOTS.map((slot) => loadSlot(slot));
+  await Promise.all(promises);
+}
+
+async function loadSlot(slot) {
+  const container = document.querySelector(`[data-blocks-container="${slot}"]`);
   if (!container) return;
 
-  container.innerHTML = '<div class="uk-text-center uk-text-muted uk-padding"><span uk-spinner></span> Loading...</div>';
+  container.innerHTML =
+    '<div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>';
 
   try {
     const response = await fetch(
-      `/admin/footer-blocks?namespace=${encodeURIComponent(currentNamespace)}&slot=${encodeURIComponent(currentSlot)}&locale=${encodeURIComponent(currentLocale)}`
+      `/admin/footer-blocks?namespace=${encodeURIComponent(currentNamespace)}&slot=${encodeURIComponent(slot)}&locale=${encodeURIComponent(currentLocale)}`
     );
-
-    if (!response.ok) {
-      throw new Error('Failed to load blocks');
-    }
+    if (!response.ok) throw new Error('Failed to load blocks');
 
     const data = await response.json();
-    currentBlocks = data.blocks || [];
-    renderBlocks();
+    blocksBySlot[slot] = data.blocks || [];
+    renderSlot(slot);
   } catch (error) {
-    console.error('Error loading blocks:', error);
-    container.innerHTML = `<div class="uk-alert uk-alert-danger">Error loading blocks: ${error.message}</div>`;
+    console.error(`Error loading ${slot}:`, error);
+    container.innerHTML = `<div class="uk-alert uk-alert-danger uk-alert-small">${error.message}</div>`;
   }
 }
 
-function renderBlocks() {
-  const container = document.querySelector('[data-blocks-container]');
+// ── Render ──────────────────────────────────────────────────────
+function renderSlot(slot) {
+  const container = document.querySelector(`[data-blocks-container="${slot}"]`);
   if (!container) return;
 
-  if (currentBlocks.length === 0) {
-    container.innerHTML = '<div class="uk-text-center uk-text-muted uk-padding">No blocks yet. Click "Add Block" to create one.</div>';
+  const blocks = blocksBySlot[slot];
+  if (blocks.length === 0) {
+    container.innerHTML =
+      '<div class="footer-editor-col__empty">Keine Blocks. Klicke "+ Block" um einen hinzuzufuegen.</div>';
     return;
   }
 
-  container.innerHTML = currentBlocks
-    .map(
-      (block) => `
-    <div class="uk-card uk-card-default uk-card-small uk-margin-small" data-block-id="${block.id}">
-      <div class="uk-card-body">
-        <div class="uk-grid-small uk-flex-middle" uk-grid>
-          <div class="uk-width-expand">
-            <div class="uk-flex uk-flex-middle">
-              <span class="uk-badge ${block.isActive ? '' : 'uk-badge-danger'}" style="margin-right: 10px;">
-                ${block.type.toUpperCase()}
-              </span>
-              <div>
-                <div class="uk-text-bold">${getBlockTitle(block)}</div>
-                <div class="uk-text-meta uk-text-small">${getBlockSummary(block)}</div>
-              </div>
-            </div>
-          </div>
-          <div class="uk-width-auto">
-            <button class="uk-button uk-button-small uk-button-default" onclick="editBlock(${block.id})">
-              <span uk-icon="icon: pencil"></span>
-            </button>
-            <button class="uk-button uk-button-small uk-button-danger" onclick="deleteBlock(${block.id})">
-              <span uk-icon="icon: trash"></span>
-            </button>
-          </div>
-        </div>
+  container.innerHTML = blocks.map((block) => renderBlockCard(block)).join('');
+}
+
+function renderBlockCard(block) {
+  const icon = TYPE_ICONS[block.type] || { abbr: '?', cls: '' };
+  const title = getBlockTitle(block);
+  const meta = getBlockSummary(block);
+  const inactiveClass = block.isActive ? '' : ' block-card--inactive';
+
+  return `
+    <div class="block-card${inactiveClass}" data-block-card="${block.id}">
+      <div class="block-card__icon ${icon.cls}">${icon.abbr}</div>
+      <div class="block-card__info">
+        <div class="block-card__title">${escapeHtml(title)}</div>
+        <div class="block-card__meta">${escapeHtml(meta)}</div>
       </div>
-    </div>
-  `
-    )
-    .join('');
+      <div class="block-card__actions">
+        <button type="button" onclick="editBlock(${block.id}, '${block.slot || ''}')" title="Bearbeiten">
+          <span uk-icon="icon: pencil; ratio: 0.7"></span>
+        </button>
+        <button type="button" class="btn-delete" onclick="deleteBlock(${block.id}, '${block.slot || ''}')" title="Loeschen">
+          <span uk-icon="icon: trash; ratio: 0.7"></span>
+        </button>
+      </div>
+    </div>`;
 }
 
 function getBlockTitle(block) {
   switch (block.type) {
     case 'menu':
-      return block.content.title || 'Menu Block';
+      return block.content.title || 'Menu';
     case 'text':
-      return block.content.title || 'Text Block';
+      return block.content.title || 'Text';
     case 'social':
-      return 'Social Media';
+      return block.content.title || 'Social Media';
     case 'contact':
-      return 'Contact Information';
+      return block.content.title || 'Kontakt';
     case 'newsletter':
       return block.content.title || 'Newsletter';
     case 'html':
@@ -158,49 +181,73 @@ function getBlockTitle(block) {
 
 function getBlockSummary(block) {
   switch (block.type) {
-    case 'menu':
-      return `Menu ID: ${block.content.menuId || 'None'}`;
-    case 'text':
+    case 'menu': {
+      const menuDef = (window.templateData?.menuDefinitions || []).find(
+        (m) => m.id === block.content.menuId
+      );
+      return menuDef ? menuDef.label : 'Kein Menu gewaehlt';
+    }
+    case 'text': {
       const text = block.content.text || '';
-      return text.substring(0, 60) + (text.length > 60 ? '...' : '');
-    case 'social':
-      const platforms = Object.keys(block.content.links || {});
-      return platforms.length > 0 ? `Platforms: ${platforms.join(', ')}` : 'No links';
+      return text.replace(/<[^>]*>/g, '').substring(0, 50) + (text.length > 50 ? '...' : '');
+    }
+    case 'social': {
+      const platforms = Object.entries(block.content.links || {})
+        .filter(([, v]) => v)
+        .map(([k]) => k);
+      return platforms.length > 0 ? platforms.join(', ') : 'Keine Links';
+    }
     case 'contact':
-      return [block.content.email, block.content.phone].filter(Boolean).join(', ') || 'No info';
+      return [block.content.email, block.content.phone].filter(Boolean).join(', ') || 'Keine Angaben';
     case 'newsletter':
-      return block.content.description || 'Newsletter signup';
+      return block.content.description || 'Newsletter-Anmeldung';
     case 'html':
-      return 'Custom HTML content';
+      return 'Eigener HTML-Inhalt';
     default:
       return '';
   }
 }
 
-function openBlockEditor(blockId = null) {
+// ── Block editor modal ──────────────────────────────────────────
+function openBlockEditor(blockId = null, slot = null) {
   editingBlockId = blockId;
-  const modal = UIkit.modal('#blockEditorModal');
+  editingSlot = slot;
   const form = document.querySelector('[data-block-form]');
   const titleEl = document.querySelector('[data-modal-title]');
 
   if (blockId) {
-    const block = currentBlocks.find((b) => b.id === blockId);
+    // Find the block across all slots
+    let block = null;
+    for (const s of SLOTS) {
+      block = blocksBySlot[s].find((b) => b.id === blockId);
+      if (block) {
+        editingSlot = s;
+        break;
+      }
+    }
     if (!block) return;
 
-    titleEl.textContent = 'Edit Block';
+    titleEl.textContent = 'Block bearbeiten';
     form.querySelector('[data-block-id]').value = block.id;
-    form.querySelector('[data-type-select]').value = block.type;
-    form.querySelector('[data-active-checkbox]').checked = block.isActive;
+    form.querySelector('[data-target-slot]').value = editingSlot;
 
+    // Set type radio
+    const radio = form.querySelector(`input[name="type"][value="${block.type}"]`);
+    if (radio) radio.checked = true;
+
+    form.querySelector('[data-active-checkbox]').checked = block.isActive;
     renderContentFields(block.type, block.content);
   } else {
-    titleEl.textContent = 'Add Block';
+    titleEl.textContent = 'Block hinzufuegen';
     form.reset();
+    form.querySelector('[data-target-slot]').value = slot || 'footer_1';
     form.querySelector('[data-active-checkbox]').checked = true;
+    const firstRadio = form.querySelector('input[name="type"][value="menu"]');
+    if (firstRadio) firstRadio.checked = true;
     renderContentFields('menu');
   }
 
-  modal.show();
+  UIkit.modal('#blockEditorModal').show();
 }
 
 function renderContentFields(type, existingContent = {}) {
@@ -213,129 +260,123 @@ function renderContentFields(type, existingContent = {}) {
     case 'menu':
       html = `
         <div class="uk-margin">
-          <label class="uk-form-label">Title</label>
-          <input type="text" name="content_title" class="uk-input" value="${existingContent.title || ''}" placeholder="Column Title">
+          <label class="uk-form-label">Titel</label>
+          <input type="text" name="content_title" class="uk-input" value="${escapeAttr(existingContent.title || '')}" placeholder="z.B. Navigation, Links, Produkte">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Menu ID</label>
+          <label class="uk-form-label">Menu</label>
           <select name="content_menuId" class="uk-select" required>
-            <option value="">Select a menu...</option>
-            ${window.menuDefinitions
-              ? window.menuDefinitions
-                  .map(
-                    (menu) =>
-                      `<option value="${menu.id}" ${existingContent.menuId == menu.id ? 'selected' : ''}>${menu.label} (${menu.locale})</option>`
-                  )
-                  .join('')
-              : ''}
+            <option value="">Menu waehlen...</option>
+            ${(window.templateData?.menuDefinitions || [])
+              .map(
+                (menu) =>
+                  `<option value="${menu.id}" ${existingContent.menuId == menu.id ? 'selected' : ''}>${escapeHtml(menu.label)} (${escapeHtml(menu.locale)})</option>`
+              )
+              .join('')}
           </select>
-        </div>
-      `;
+        </div>`;
       break;
 
     case 'text':
       html = `
         <div class="uk-margin">
-          <label class="uk-form-label">Title</label>
-          <input type="text" name="content_title" class="uk-input" value="${existingContent.title || ''}" placeholder="Block Title">
+          <label class="uk-form-label">Titel</label>
+          <input type="text" name="content_title" class="uk-input" value="${escapeAttr(existingContent.title || '')}" placeholder="z.B. Ueber uns">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Text Content</label>
-          <textarea name="content_text" class="uk-textarea" rows="5" required>${existingContent.text || ''}</textarea>
-          <div class="uk-text-meta">Supports HTML</div>
-        </div>
-      `;
+          <label class="uk-form-label">Text</label>
+          <textarea name="content_text" class="uk-textarea" rows="5" required>${escapeHtml(existingContent.text || '')}</textarea>
+          <div class="uk-text-meta">HTML wird unterstuetzt</div>
+        </div>`;
       break;
 
     case 'social':
       html = `
         <div class="uk-margin">
-          <label class="uk-form-label">Title</label>
-          <input type="text" name="content_title" class="uk-input" value="${existingContent.title || ''}" placeholder="Follow Us">
+          <label class="uk-form-label">Titel</label>
+          <input type="text" name="content_title" class="uk-input" value="${escapeAttr(existingContent.title || '')}" placeholder="Folge uns">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Facebook URL</label>
-          <input type="url" name="content_facebook" class="uk-input" value="${existingContent.links?.facebook || ''}" placeholder="https://facebook.com/...">
+          <label class="uk-form-label">Facebook</label>
+          <input type="url" name="content_facebook" class="uk-input" value="${escapeAttr(existingContent.links?.facebook || '')}" placeholder="https://facebook.com/...">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Twitter/X URL</label>
-          <input type="url" name="content_twitter" class="uk-input" value="${existingContent.links?.twitter || ''}" placeholder="https://twitter.com/...">
+          <label class="uk-form-label">Twitter / X</label>
+          <input type="url" name="content_twitter" class="uk-input" value="${escapeAttr(existingContent.links?.twitter || '')}" placeholder="https://twitter.com/...">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">LinkedIn URL</label>
-          <input type="url" name="content_linkedin" class="uk-input" value="${existingContent.links?.linkedin || ''}" placeholder="https://linkedin.com/...">
+          <label class="uk-form-label">LinkedIn</label>
+          <input type="url" name="content_linkedin" class="uk-input" value="${escapeAttr(existingContent.links?.linkedin || '')}" placeholder="https://linkedin.com/...">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Instagram URL</label>
-          <input type="url" name="content_instagram" class="uk-input" value="${existingContent.links?.instagram || ''}" placeholder="https://instagram.com/...">
-        </div>
-      `;
+          <label class="uk-form-label">Instagram</label>
+          <input type="url" name="content_instagram" class="uk-input" value="${escapeAttr(existingContent.links?.instagram || '')}" placeholder="https://instagram.com/...">
+        </div>`;
       break;
 
     case 'contact':
       html = `
         <div class="uk-margin">
-          <label class="uk-form-label">Title</label>
-          <input type="text" name="content_title" class="uk-input" value="${existingContent.title || ''}" placeholder="Contact Us">
+          <label class="uk-form-label">Titel</label>
+          <input type="text" name="content_title" class="uk-input" value="${escapeAttr(existingContent.title || '')}" placeholder="Kontakt">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Email</label>
-          <input type="email" name="content_email" class="uk-input" value="${existingContent.email || ''}" placeholder="info@example.com">
+          <label class="uk-form-label">E-Mail</label>
+          <input type="email" name="content_email" class="uk-input" value="${escapeAttr(existingContent.email || '')}" placeholder="info@example.com">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Phone</label>
-          <input type="tel" name="content_phone" class="uk-input" value="${existingContent.phone || ''}" placeholder="+49 123 456789">
+          <label class="uk-form-label">Telefon</label>
+          <input type="tel" name="content_phone" class="uk-input" value="${escapeAttr(existingContent.phone || '')}" placeholder="+49 123 456789">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Address</label>
-          <textarea name="content_address" class="uk-textarea" rows="3">${existingContent.address || ''}</textarea>
-        </div>
-      `;
+          <label class="uk-form-label">Adresse</label>
+          <textarea name="content_address" class="uk-textarea" rows="3">${escapeHtml(existingContent.address || '')}</textarea>
+        </div>`;
       break;
 
     case 'newsletter':
       html = `
         <div class="uk-margin">
-          <label class="uk-form-label">Title</label>
-          <input type="text" name="content_title" class="uk-input" value="${existingContent.title || ''}" placeholder="Newsletter">
+          <label class="uk-form-label">Titel</label>
+          <input type="text" name="content_title" class="uk-input" value="${escapeAttr(existingContent.title || '')}" placeholder="Newsletter">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Description</label>
-          <textarea name="content_description" class="uk-textarea" rows="2">${existingContent.description || ''}</textarea>
+          <label class="uk-form-label">Beschreibung</label>
+          <textarea name="content_description" class="uk-textarea" rows="2">${escapeHtml(existingContent.description || '')}</textarea>
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Button Text</label>
-          <input type="text" name="content_buttonText" class="uk-input" value="${existingContent.buttonText || ''}" placeholder="Subscribe">
+          <label class="uk-form-label">Button-Text</label>
+          <input type="text" name="content_buttonText" class="uk-input" value="${escapeAttr(existingContent.buttonText || '')}" placeholder="Abonnieren">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Action URL</label>
-          <input type="url" name="content_actionUrl" class="uk-input" value="${existingContent.actionUrl || ''}" placeholder="/newsletter/subscribe">
-        </div>
-      `;
+          <label class="uk-form-label">Ziel-URL</label>
+          <input type="url" name="content_actionUrl" class="uk-input" value="${escapeAttr(existingContent.actionUrl || '')}" placeholder="/newsletter/subscribe">
+        </div>`;
       break;
 
     case 'html':
       html = `
         <div class="uk-margin">
-          <label class="uk-form-label">Title (for reference)</label>
-          <input type="text" name="content_title" class="uk-input" value="${existingContent.title || ''}" placeholder="Custom Block">
+          <label class="uk-form-label">Titel (intern)</label>
+          <input type="text" name="content_title" class="uk-input" value="${escapeAttr(existingContent.title || '')}" placeholder="Custom Block">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">HTML Content</label>
-          <textarea name="content_html" class="uk-textarea" rows="10" required>${existingContent.html || ''}</textarea>
-          <div class="uk-text-meta">Raw HTML will be rendered as-is</div>
-        </div>
-      `;
+          <label class="uk-form-label">HTML-Inhalt</label>
+          <textarea name="content_html" class="uk-textarea" rows="10" required>${escapeHtml(existingContent.html || '')}</textarea>
+          <div class="uk-text-meta">HTML wird direkt gerendert</div>
+        </div>`;
       break;
   }
 
   container.innerHTML = html;
 }
 
+// ── Save / Delete ──────────────────────────────────────────────
 async function saveBlock() {
   const form = document.querySelector('[data-block-form]');
   const formData = new FormData(form);
   const type = formData.get('type');
+  const targetSlot = formData.get('targetSlot') || editingSlot || 'footer_1';
 
   const content = extractContentFromForm(type, formData);
 
@@ -343,12 +384,12 @@ async function saveBlock() {
     type,
     content,
     isActive: formData.get('isActive') === 'on',
-    position: currentBlocks.length,
+    position: blocksBySlot[targetSlot]?.length || 0,
   };
 
   if (!editingBlockId) {
     payload.namespace = currentNamespace;
-    payload.slot = currentSlot;
+    payload.slot = targetSlot;
     payload.locale = currentLocale;
   }
 
@@ -370,15 +411,15 @@ async function saveBlock() {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to save block');
+      throw new Error(error.error || 'Speichern fehlgeschlagen');
     }
 
     UIkit.modal('#blockEditorModal').hide();
-    loadBlocks();
-    UIkit.notification('Block saved successfully', { status: 'success' });
+    await loadSlot(targetSlot);
+    UIkit.notification('Block gespeichert', { status: 'success', pos: 'top-right' });
   } catch (error) {
     console.error('Error saving block:', error);
-    UIkit.notification(error.message, { status: 'danger' });
+    UIkit.notification(error.message, { status: 'danger', pos: 'top-right' });
   }
 }
 
@@ -390,12 +431,10 @@ function extractContentFromForm(type, formData) {
       content.title = formData.get('content_title') || '';
       content.menuId = parseInt(formData.get('content_menuId')) || null;
       break;
-
     case 'text':
       content.title = formData.get('content_title') || '';
       content.text = formData.get('content_text') || '';
       break;
-
     case 'social':
       content.title = formData.get('content_title') || '';
       content.links = {
@@ -405,21 +444,18 @@ function extractContentFromForm(type, formData) {
         instagram: formData.get('content_instagram') || '',
       };
       break;
-
     case 'contact':
       content.title = formData.get('content_title') || '';
       content.email = formData.get('content_email') || '';
       content.phone = formData.get('content_phone') || '';
       content.address = formData.get('content_address') || '';
       break;
-
     case 'newsletter':
       content.title = formData.get('content_title') || '';
       content.description = formData.get('content_description') || '';
       content.buttonText = formData.get('content_buttonText') || '';
       content.actionUrl = formData.get('content_actionUrl') || '';
       break;
-
     case 'html':
       content.title = formData.get('content_title') || '';
       content.html = formData.get('content_html') || '';
@@ -429,33 +465,111 @@ function extractContentFromForm(type, formData) {
   return content;
 }
 
-window.editBlock = (id) => {
-  openBlockEditor(id);
+// ── Presets ─────────────────────────────────────────────────────
+async function applyPreset(preset) {
+  const hasBlocks = SLOTS.some((s) => blocksBySlot[s].length > 0);
+  if (hasBlocks) {
+    if (!confirm('Vorhandene Blocks werden durch die Vorlage ersetzt. Fortfahren?')) return;
+
+    // Delete all existing blocks
+    for (const slot of SLOTS) {
+      for (const block of blocksBySlot[slot]) {
+        try {
+          await fetch(`/admin/footer-blocks/${block.id}`, { method: 'DELETE' });
+        } catch (e) {
+          // continue
+        }
+      }
+    }
+  }
+
+  const presetBlocks = getPresetBlocks(preset);
+  for (const item of presetBlocks) {
+    try {
+      await fetch('/admin/footer-blocks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          namespace: currentNamespace,
+          slot: item.slot,
+          locale: currentLocale,
+          type: item.type,
+          content: item.content,
+          isActive: true,
+          position: item.position,
+        }),
+      });
+    } catch (e) {
+      console.error('Error creating preset block:', e);
+    }
+  }
+
+  // Set layout
+  const layoutBtns = document.querySelectorAll('[data-layout-selector] .layout-option');
+  const presetLayout = preset === 'contact-focus' ? 'brand-left' : preset === 'minimal' ? 'centered' : 'equal';
+  layoutBtns.forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.layout === presetLayout);
+  });
+  currentLayout = presetLayout;
+
+  await loadAllSlots();
+  UIkit.notification('Vorlage angewendet', { status: 'success', pos: 'top-right' });
+}
+
+function getPresetBlocks(preset) {
+  switch (preset) {
+    case 'business':
+      return [
+        { slot: 'footer_1', type: 'text', position: 0, content: { title: 'Unternehmen', text: 'Kurze Beschreibung Ihres Unternehmens. Bearbeiten Sie diesen Text im Footer-Editor.' } },
+        { slot: 'footer_1', type: 'social', position: 1, content: { title: '', links: { facebook: '', twitter: '', linkedin: '', instagram: '' } } },
+        { slot: 'footer_2', type: 'menu', position: 0, content: { title: 'Navigation', menuId: null } },
+        { slot: 'footer_3', type: 'contact', position: 0, content: { title: 'Kontakt', email: 'info@example.com', phone: '+49 123 456789', address: 'Musterstrasse 1\n12345 Musterstadt' } },
+      ];
+    case 'minimal':
+      return [
+        { slot: 'footer_1', type: 'text', position: 0, content: { title: '', text: '&copy; 2026 Ihr Unternehmen. Alle Rechte vorbehalten.' } },
+      ];
+    case 'contact-focus':
+      return [
+        { slot: 'footer_1', type: 'contact', position: 0, content: { title: 'Kontakt', email: 'info@example.com', phone: '+49 123 456789', address: 'Musterstrasse 1\n12345 Musterstadt' } },
+        { slot: 'footer_1', type: 'social', position: 1, content: { title: 'Social Media', links: { facebook: '', twitter: '', linkedin: '', instagram: '' } } },
+        { slot: 'footer_2', type: 'menu', position: 0, content: { title: 'Links', menuId: null } },
+        { slot: 'footer_3', type: 'newsletter', position: 0, content: { title: 'Newsletter', description: 'Bleiben Sie informiert', buttonText: 'Abonnieren', actionUrl: '/newsletter/subscribe' } },
+      ];
+    default:
+      return [];
+  }
+}
+
+// ── Global handlers ────────────────────────────────────────────
+window.editBlock = (id, slot) => {
+  openBlockEditor(id, slot);
 };
 
-window.deleteBlock = async (id) => {
-  if (!confirm('Are you sure you want to delete this block?')) {
-    return;
-  }
+window.deleteBlock = async (id, slot) => {
+  if (!confirm('Block wirklich loeschen?')) return;
 
   try {
-    const response = await fetch(`/admin/footer-blocks/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`/admin/footer-blocks/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Loeschen fehlgeschlagen');
 
-    if (!response.ok) {
-      throw new Error('Failed to delete block');
-    }
-
-    loadBlocks();
-    UIkit.notification('Block deleted successfully', { status: 'success' });
+    // Reload the affected slot
+    const targetSlot = slot || SLOTS.find((s) => blocksBySlot[s].some((b) => b.id === id)) || 'footer_1';
+    await loadSlot(targetSlot);
+    UIkit.notification('Block geloescht', { status: 'success', pos: 'top-right' });
   } catch (error) {
     console.error('Error deleting block:', error);
-    UIkit.notification(error.message, { status: 'danger' });
+    UIkit.notification(error.message, { status: 'danger', pos: 'top-right' });
   }
 };
 
-// Expose menu definitions from template to JavaScript
-if (window.templateData?.menuDefinitions) {
-  window.menuDefinitions = window.templateData.menuDefinitions;
+// ── Helpers ─────────────────────────────────────────────────────
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function escapeAttr(str) {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

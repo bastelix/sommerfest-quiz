@@ -29,11 +29,15 @@
   {% if includeMainStyles and includeHighContrastStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   {% endif %}
+  {% if includeCmsBaseStyles %}
+    <link rel="stylesheet" href="{{ basePath }}/css/footer-blocks.css">
+  {% endif %}
 {% endblock %}
 
 {% block footer %}
   {% set footerNavigation = cmsFooterNavigation|default([]) %}
   {% include 'pages/partials/footer.twig' with {
+    cmsFooterBlocks: cmsFooterBlocks|default({}),
     cmsFooterColumns: cmsFooterColumns|default([]),
     cmsFooterNavigation: footerNavigation,
     cmsLegalNavigation: cmsLegalNavigation|default([])
