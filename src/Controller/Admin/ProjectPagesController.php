@@ -1249,7 +1249,7 @@ class ProjectPagesController
         try {
             $namespaceEntries = $this->namespaceRepository->list();
             foreach ($namespaceEntries as $entry) {
-                if (($entry['namespace'] ?? '') === $namespace) {
+                if ($entry['namespace'] === $namespace) {
                     $namespaceInfo = [
                         'label' => $entry['label'] ?? null,
                         'is_active' => $entry['is_active'],
