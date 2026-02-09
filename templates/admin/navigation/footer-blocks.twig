@@ -17,10 +17,10 @@
           <p>{{ t('text_footer_block_editor_intro') }}</p>
         </div>
 
-        <!-- Locale and Slot Selection -->
+        <!-- Namespace & Locale Selection -->
         <div class="uk-margin">
           <div class="uk-grid-small" uk-grid>
-            <div class="uk-width-1-3@s">
+            <div class="uk-width-1-4@s">
               <label class="uk-form-label">Namespace</label>
               <select id="footerBlockNamespace" class="uk-select" data-namespace-select>
                 {% for ns in namespaces %}
@@ -30,7 +30,7 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="uk-width-1-3@s">
+            <div class="uk-width-1-4@s">
               <label class="uk-form-label">Locale</label>
               <select id="footerBlockLocale" class="uk-select" data-locale-select>
                 {% for locale in localeOptions %}
@@ -38,33 +38,84 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="uk-width-1-3@s">
-              <label class="uk-form-label">Footer Slot</label>
-              <select id="footerBlockSlot" class="uk-select" data-slot-select>
-                <option value="footer_1">Footer Column 1</option>
-                <option value="footer_2">Footer Column 2</option>
-                <option value="footer_3">Footer Column 3</option>
-              </select>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label">Footer Layout</label>
+              <div class="footer-layout-selector" data-layout-selector>
+                <button type="button" class="layout-option active" data-layout="equal" title="3 gleiche Spalten">
+                  <svg width="48" height="24" viewBox="0 0 48 24"><rect x="1" y="2" width="14" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="17" y="2" width="14" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="33" y="2" width="14" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/></svg>
+                  <span>Gleich</span>
+                </button>
+                <button type="button" class="layout-option" data-layout="brand-left" title="Breit links (Branding)">
+                  <svg width="48" height="24" viewBox="0 0 48 24"><rect x="1" y="2" width="22" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="25" y="2" width="10" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="37" y="2" width="10" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/></svg>
+                  <span>Branding</span>
+                </button>
+                <button type="button" class="layout-option" data-layout="cta-right" title="Breit rechts (Newsletter/CTA)">
+                  <svg width="48" height="24" viewBox="0 0 48 24"><rect x="1" y="2" width="10" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="13" y="2" width="10" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="25" y="2" width="22" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/></svg>
+                  <span>CTA rechts</span>
+                </button>
+                <button type="button" class="layout-option" data-layout="centered" title="Zentriert (Minimal)">
+                  <svg width="48" height="24" viewBox="0 0 48 24"><rect x="12" y="2" width="24" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/></svg>
+                  <span>Zentriert</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         <hr class="uk-divider-icon">
 
-        <!-- Block List -->
-        <div class="uk-margin">
-          <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
-            <h3 class="uk-heading-bullet">{{ t('label_footer_blocks') }}</h3>
-            <button class="uk-button uk-button-primary uk-button-small" data-add-block-btn>
-              <span uk-icon="icon: plus"></span> {{ t('label_add_block') }}
-            </button>
+        <!-- Three-Column Footer Editor -->
+        <div class="footer-editor-columns" data-footer-editor>
+          <div class="footer-editor-col" data-slot="footer_1">
+            <div class="footer-editor-col__header">
+              <h4 class="uk-margin-remove">Spalte 1</h4>
+              <button class="uk-button uk-button-primary uk-button-small" data-add-block-btn="footer_1">
+                <span uk-icon="icon: plus; ratio: 0.75"></span> Block
+              </button>
+            </div>
+            <div class="footer-editor-col__blocks" data-blocks-container="footer_1">
+              <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
+            </div>
           </div>
 
-          <div id="footerBlocksList" data-blocks-container>
-            <!-- Blocks will be rendered here by JavaScript -->
-            <div class="uk-text-center uk-text-muted uk-padding">
-              <span uk-spinner></span> {{ t('label_loading') }}...
+          <div class="footer-editor-col" data-slot="footer_2">
+            <div class="footer-editor-col__header">
+              <h4 class="uk-margin-remove">Spalte 2</h4>
+              <button class="uk-button uk-button-primary uk-button-small" data-add-block-btn="footer_2">
+                <span uk-icon="icon: plus; ratio: 0.75"></span> Block
+              </button>
             </div>
+            <div class="footer-editor-col__blocks" data-blocks-container="footer_2">
+              <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
+            </div>
+          </div>
+
+          <div class="footer-editor-col" data-slot="footer_3">
+            <div class="footer-editor-col__header">
+              <h4 class="uk-margin-remove">Spalte 3</h4>
+              <button class="uk-button uk-button-primary uk-button-small" data-add-block-btn="footer_3">
+                <span uk-icon="icon: plus; ratio: 0.75"></span> Block
+              </button>
+            </div>
+            <div class="footer-editor-col__blocks" data-blocks-container="footer_3">
+              <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick-Add Presets -->
+        <div class="uk-margin-top">
+          <h4 class="uk-heading-bullet">Schnellvorlagen</h4>
+          <div class="footer-presets" data-presets>
+            <button type="button" class="uk-button uk-button-default uk-button-small uk-margin-small-right" data-preset="business">
+              <span uk-icon="icon: world; ratio: 0.8"></span> Business Standard
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-button-small uk-margin-small-right" data-preset="minimal">
+              <span uk-icon="icon: file-text; ratio: 0.8"></span> Minimal
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-button-small" data-preset="contact-focus">
+              <span uk-icon="icon: receiver; ratio: 0.8"></span> Kontakt-Fokus
+            </button>
           </div>
         </div>
       </div>
@@ -79,21 +130,46 @@
 
       <form id="blockEditorForm" data-block-form>
         <input type="hidden" name="blockId" data-block-id>
+        <input type="hidden" name="targetSlot" data-target-slot>
 
         <div class="uk-margin">
           <label class="uk-form-label">{{ t('label_block_type') }}</label>
-          <select name="type" class="uk-select" data-type-select required>
-            <option value="menu">{{ t('label_block_type_menu') }}</option>
-            <option value="text">{{ t('label_block_type_text') }}</option>
-            <option value="social">{{ t('label_block_type_social') }}</option>
-            <option value="contact">{{ t('label_block_type_contact') }}</option>
-            <option value="newsletter">{{ t('label_block_type_newsletter') }}</option>
-            <option value="html">{{ t('label_block_type_html') }}</option>
-          </select>
+          <div class="block-type-grid" data-type-grid>
+            <label class="block-type-option">
+              <input type="radio" name="type" value="menu" class="uk-radio" checked>
+              <span uk-icon="icon: list; ratio: 1.2"></span>
+              <span class="block-type-label">{{ t('label_block_type_menu') }}</span>
+            </label>
+            <label class="block-type-option">
+              <input type="radio" name="type" value="text" class="uk-radio">
+              <span uk-icon="icon: file-text; ratio: 1.2"></span>
+              <span class="block-type-label">{{ t('label_block_type_text') }}</span>
+            </label>
+            <label class="block-type-option">
+              <input type="radio" name="type" value="social" class="uk-radio">
+              <span uk-icon="icon: social; ratio: 1.2"></span>
+              <span class="block-type-label">{{ t('label_block_type_social') }}</span>
+            </label>
+            <label class="block-type-option">
+              <input type="radio" name="type" value="contact" class="uk-radio">
+              <span uk-icon="icon: receiver; ratio: 1.2"></span>
+              <span class="block-type-label">{{ t('label_block_type_contact') }}</span>
+            </label>
+            <label class="block-type-option">
+              <input type="radio" name="type" value="newsletter" class="uk-radio">
+              <span uk-icon="icon: mail; ratio: 1.2"></span>
+              <span class="block-type-label">{{ t('label_block_type_newsletter') }}</span>
+            </label>
+            <label class="block-type-option">
+              <input type="radio" name="type" value="html" class="uk-radio">
+              <span uk-icon="icon: code; ratio: 1.2"></span>
+              <span class="block-type-label">{{ t('label_block_type_html') }}</span>
+            </label>
+          </div>
         </div>
 
         <div id="blockContentFields" data-content-fields>
-          <!-- Dynamic content fields will be rendered here based on block type -->
+          <!-- Dynamic content fields rendered by JS -->
         </div>
 
         <div class="uk-margin">
@@ -114,6 +190,211 @@
       </form>
     </div>
   </div>
+
+  <style>
+    /* Footer editor admin styles */
+    .footer-editor-columns {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 960px) {
+      .footer-editor-columns {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .footer-editor-col {
+      background: #f8f9fa;
+      border: 2px dashed #dee2e6;
+      border-radius: 8px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+    }
+    .footer-editor-col__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #dee2e6;
+      background: #fff;
+      border-radius: 6px 6px 0 0;
+    }
+    .footer-editor-col__header h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #495057;
+    }
+    .footer-editor-col__blocks {
+      padding: 0.75rem;
+      flex: 1;
+    }
+    .footer-editor-col__blocks .block-card {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 0.625rem 0.75rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: grab;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .footer-editor-col__blocks .block-card:hover {
+      border-color: #1e87f0;
+      box-shadow: 0 2px 8px rgba(30,135,240,0.1);
+    }
+    .footer-editor-col__blocks .block-card:last-child {
+      margin-bottom: 0;
+    }
+    .block-card__icon {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .block-card__icon--menu { background: #1e87f0; }
+    .block-card__icon--text { background: #32d296; }
+    .block-card__icon--social { background: #f0506e; }
+    .block-card__icon--contact { background: #faa05a; }
+    .block-card__icon--newsletter { background: #7c5cbf; }
+    .block-card__icon--html { background: #6c757d; }
+    .block-card__info { flex: 1; min-width: 0; }
+    .block-card__title {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #212529;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .block-card__meta {
+      font-size: 0.7rem;
+      color: #868e96;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .block-card__actions {
+      flex-shrink: 0;
+      display: flex;
+      gap: 2px;
+    }
+    .block-card__actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      color: #868e96;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+    .block-card__actions button:hover {
+      background: #f1f3f5;
+      color: #212529;
+    }
+    .block-card__actions button.btn-delete:hover {
+      background: #fff5f5;
+      color: #f0506e;
+    }
+    .block-card--inactive {
+      opacity: 0.5;
+    }
+    .footer-editor-col__empty {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: #adb5bd;
+      font-size: 0.8rem;
+    }
+
+    /* Layout selector */
+    .footer-layout-selector {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .layout-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.5rem 0.75rem;
+      border: 2px solid #dee2e6;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: #6c757d;
+    }
+    .layout-option:hover {
+      border-color: #1e87f0;
+      color: #1e87f0;
+    }
+    .layout-option.active {
+      border-color: #1e87f0;
+      background: #f0f7ff;
+      color: #1e87f0;
+    }
+    .layout-option span {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Block type selector in modal */
+    .block-type-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+    .block-type-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.75rem 0.5rem;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+    .block-type-option:hover {
+      border-color: #1e87f0;
+      background: #f0f7ff;
+    }
+    .block-type-option:has(input:checked) {
+      border-color: #1e87f0;
+      background: #f0f7ff;
+    }
+    .block-type-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .block-type-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    /* Presets */
+    .footer-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  </style>
 {% endblock %}
 
 {% block scripts %}
