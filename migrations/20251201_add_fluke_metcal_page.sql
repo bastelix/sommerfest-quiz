@@ -1,37 +1,37 @@
--- installations where the index might be missing or was created without the
--- UNIQUE flag. This keeps the migration idempotent across environments that
--- predate the dedicated pages schema migration.
+-- Ensure unique index on (namespace, slug) exists.
+-- This migration originally created idx_pages_slug_unique on just (slug),
+-- but after 20250329_add_page_namespaces.sql the correct index is
+-- idx_pages_namespace_slug_unique on (namespace, slug).
+-- We now check for the composite index instead.
 DO $$
-DECLARE
-    slug_attnum INT2;
 BEGIN
-    SELECT attnum::INT2
-      INTO slug_attnum
-      FROM pg_attribute
-     WHERE attrelid = 'pages'::regclass
-       AND attname = 'slug';
-
-    IF slug_attnum IS NULL THEN
-        RAISE EXCEPTION 'pages.slug column is missing – cannot enforce uniqueness.';
-    END IF;
-
+    -- Create composite unique index if it doesn't exist
     IF NOT EXISTS (
         SELECT 1
-          FROM pg_index
-         WHERE indrelid = 'pages'::regclass
-           AND indisunique
-           AND indkey = ARRAY[slug_attnum]::INT2VECTOR
+          FROM pg_indexes
+         WHERE schemaname = 'public'
+           AND tablename = 'pages'
+           AND indexname = 'idx_pages_namespace_slug_unique'
     ) THEN
         BEGIN
-            -- Ensure there is a unique index on `slug` even if an older
-            -- non-unique index with a similar name exists.
-            EXECUTE 'CREATE UNIQUE INDEX idx_pages_slug_unique ON pages(slug)';
+            CREATE UNIQUE INDEX idx_pages_namespace_slug_unique ON pages(namespace, slug);
         EXCEPTION
             WHEN duplicate_table THEN
                 NULL;
             WHEN duplicate_object THEN
                 NULL;
         END;
+    END IF;
+
+    -- Drop old single-column index if it still exists
+    IF EXISTS (
+        SELECT 1
+          FROM pg_indexes
+         WHERE schemaname = 'public'
+           AND tablename = 'pages'
+           AND indexname = 'idx_pages_slug_unique'
+    ) THEN
+        DROP INDEX IF EXISTS idx_pages_slug_unique;
     END IF;
 END
 $$;
