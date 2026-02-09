@@ -132,6 +132,8 @@ class ProjectPagesController
         $pageTypeFlash = $_SESSION['page_types_flash'] ?? null;
         unset($_SESSION['page_types_flash']);
 
+        $projectTreePayload = $this->buildProjectTreePayload($namespace, $basePath);
+
         return $view->render($response, 'admin/pages/content.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
             'currentPath' => $request->getUri()->getPath(),
@@ -158,7 +160,7 @@ class ProjectPagesController
             'pageTypeLayoutOptions' => self::SECTION_LAYOUTS,
             'pageTypeBackgroundTokens' => self::BACKGROUND_TOKENS,
             'pageTypeFlash' => $pageTypeFlash,
-            'project_tree_payload' => [],
+            'project_tree_payload' => $projectTreePayload,
         ]);
     }
 
@@ -1213,5 +1215,78 @@ class ProjectPagesController
         }
 
         return $this->tenantService->getBySubdomain($subdomain);
+    }
+
+    /**
+     * Build tree payload for the current namespace
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function buildProjectTreePayload(string $namespace, string $basePath): array
+    {
+        $pageTree = $this->pageService->getTree();
+        $treePages = [];
+
+        foreach ($pageTree as $section) {
+            $sectionNamespace = (string) ($section['namespace'] ?? '');
+            if ($sectionNamespace === $namespace) {
+                $treePages = $section['pages'] ?? [];
+                break;
+            }
+        }
+
+        $namespaceInfo = [
+            'label' => null,
+            'is_active' => true,
+            'is_default' => $namespace === PageService::DEFAULT_NAMESPACE,
+        ];
+
+        try {
+            $namespaceEntries = $this->namespaceRepository->list();
+            foreach ($namespaceEntries as $entry) {
+                if (($entry['namespace'] ?? '') === $namespace) {
+                    $namespaceInfo = [
+                        'label' => $entry['label'] ?? null,
+                        'is_active' => (bool) ($entry['is_active'] ?? true),
+                        'is_default' => $namespace === PageService::DEFAULT_NAMESPACE,
+                    ];
+                    break;
+                }
+            }
+        } catch (\RuntimeException $exception) {
+            // Silently ignore namespace lookup errors
+        }
+
+        return [[
+            'namespace' => $namespace,
+            'namespaceInfo' => $namespaceInfo,
+            'pages' => $this->mapTreePages($treePages, $basePath, $namespace),
+        ]];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $nodes
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function mapTreePages(array $nodes, string $basePath, string $namespace): array
+    {
+        $mapped = [];
+        foreach ($nodes as $node) {
+            $slug = isset($node['slug']) ? (string) $node['slug'] : '';
+            $editUrl = $slug !== ''
+                ? $basePath . '/admin/pages/content?' . http_build_query(['namespace' => $namespace, 'pageSlug' => $slug])
+                : null;
+            $children = [];
+            if (isset($node['children'])) {
+                $children = $this->mapTreePages((array) $node['children'], $basePath, $namespace);
+            }
+            $mappedNode = $node;
+            $mappedNode['editUrl'] = $editUrl;
+            $mappedNode['children'] = $children;
+            $mapped[] = $mappedNode;
+        }
+
+        return $mapped;
     }
 }
