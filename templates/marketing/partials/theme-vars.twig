@@ -249,6 +249,19 @@
   {% endif %}
 {% endif %}
 
+{# Ensure essential marketing variables are always defined so that
+   color-mix() / linear-gradient() declarations in marketing.css never
+   become invalid (which with !important would reset backgrounds to
+   transparent). #}
+{% if not marketingScheme %}
+  {% set cssVars = cssVars|merge([
+    '--marketing-white: #ffffff',
+    '--marketing-black: #000000',
+    '--marketing-black-rgb: 0 0 0',
+    '--marketing-ink: var(--text-on-surface, #0f172a)'
+  ]) %}
+{% endif %}
+
 {% if cssVars is not empty %}
   <style>
     html[data-namespace="{{ normalizedNamespace }}"] {
