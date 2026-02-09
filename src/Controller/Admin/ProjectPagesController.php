@@ -252,7 +252,7 @@ class ProjectPagesController
         $mode = (string) ($request->getQueryParams()['mode'] ?? 'cms');
         $isCmsMode = $mode === 'cms';
         $namespaceList = array_values(array_unique(array_filter(array_map(
-            static fn (array $entry): string => (string) ($entry['namespace'] ?? ''),
+            static fn (array $entry): string => (string) $entry['namespace'],
             $availableNamespaces
         ), static fn (string $entryNamespace): bool => $entryNamespace !== '')));
         if ($namespaceList === [] && $namespace !== '') {
