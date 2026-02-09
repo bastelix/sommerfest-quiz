@@ -301,6 +301,7 @@
 - Enforce namespace access checks on admin content write operations
 - Link brand tokens to marketing vars when scheme is active in namespace-design
 - Resolve admin page tree loading and namespace design application
+- Restore missing pageTypeDefaultsList variable in content.twig
 
 ### Refactor
 
