@@ -154,7 +154,7 @@
   {% set namespaceTokensVersionsMap = namespaceTokensVersions|default({}) %}
   {% set namespaceTokensQuery = namespaceTokensVersionsMap[activeNamespace]|default(namespaceTokensVersion|default('now'|date('U'))) %}
   {% set namespaceTokensStyles = '' %}
-  {% set allowNamespaceTokensFallback = 'marketing-page' not in normalizedBodyClass %}
+  {% set allowNamespaceTokensFallback = true %}
   {% if includeNamespaceTokensStyles %}
     {% set namespaceTokensStyles %}
       <link

@@ -193,10 +193,19 @@ class DesignTokenService
     public function rebuildStylesheet(): void
     {
         $namespaces = $this->fetchAllNamespaceTokens();
-        $css = $this->buildCss($namespaces);
-
-        $this->writeCssFile($this->cssPath, $css);
         $namespaceList = $this->listNamespacesForStyles(array_map('strval', array_keys($namespaces)));
+
+        // Include all known namespaces in the global CSS so the fallback
+        // provides correct token values even when a namespace-specific file
+        // does not exist (e.g. namespace was created but design was never saved).
+        foreach ($namespaceList as $ns) {
+            if (!array_key_exists($ns, $namespaces)) {
+                $namespaces[$ns] = $this->getTokensForNamespace($ns);
+            }
+        }
+
+        $css = $this->buildCss($namespaces);
+        $this->writeCssFile($this->cssPath, $css);
         $this->mirrorCssToNamespacePaths($namespaceList);
     }
 
