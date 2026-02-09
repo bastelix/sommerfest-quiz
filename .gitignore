@@ -21,3 +21,10 @@ data/uploads/**
 !data/uploads/.gitkeep
 node_modules/
 test-results/
+
+certs/
+vhost.d/
+data/events/
+data/onboarding/
+data/test-logo.webp
+*.bak
