@@ -7,4 +7,4 @@ parameters:
   ignoreErrors:
     - '#Call to function is_callable.+will always evaluate to true#'
     - '#Method App\\Service\\AwardService::join\(\) is unused#'
-    - identifier: nullCoalesce.offset
+    - '#on left side of \?\? always exists and is not nullable#'
