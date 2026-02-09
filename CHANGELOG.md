@@ -302,6 +302,7 @@
 - Link brand tokens to marketing vars when scheme is active in namespace-design
 - Resolve admin page tree loading and namespace design application
 - Restore missing pageTypeDefaultsList variable in content.twig
+- Use DOMContentLoaded for page tree init and harden apiFetch fallback
 
 ### Refactor
 
