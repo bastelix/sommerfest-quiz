@@ -1247,7 +1247,7 @@ class ProjectPagesController
                 if (($entry['namespace'] ?? '') === $namespace) {
                     $namespaceInfo = [
                         'label' => $entry['label'] ?? null,
-                        'is_active' => (bool) ($entry['is_active'] ?? true),
+                        'is_active' => $entry['is_active'],
                         'is_default' => $namespace === PageService::DEFAULT_NAMESPACE,
                     ];
                     break;
