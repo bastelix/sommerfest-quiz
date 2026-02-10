@@ -8097,38 +8097,10 @@ document.addEventListener('DOMContentLoaded', function () {
       updateEventButtons(currentEventUid);
       eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     }
-    if (eventManager) {
-      apiFetch(appendNamespaceParam('/events.json'), { headers: { 'Accept': 'application/json' } })
-        .then(r => {
-          if (!r.ok) {
-            if (r.status === 401 || r.status === 403) {
-              notify('Bitte einloggen', 'warning');
-            }
-            throw new Error(`HTTP ${r.status}`);
-          }
-          return r.json();
-        })
-        .then(data => {
-          const list = data.map(d => createEventItem(d));
-          eventManager.render(list);
-          highlightCurrentEvent();
-          updateEventsCardsEmptyState();
-          syncCurrentEventState(list);
-          if (initialEmpty && list.length === 0) {
-            notify('Keine Events gefunden', 'warning');
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          const message = err instanceof TypeError
-            ? transEventsFetchError
-            : (err.message && err.message.trim() ? err.message : transEventsFetchError);
-          notify(message, 'warning');
-          if (!eventsCardsEl || eventsCardsEl.children.length === 0) {
-            updateEventsCardsEmptyState({ force: true, useError: true });
-          }
-        });
-    }
+    // initialEvents from the server are the authoritative source at page load.
+    // A redundant /events.json refetch was removed here – the selectors are
+    // already populated from window.initialEvents above and will be refreshed
+    // on demand when switching events or opening the summary tab.
   }
 
   if (!hasEventsContainer && eventAddBtn) {
