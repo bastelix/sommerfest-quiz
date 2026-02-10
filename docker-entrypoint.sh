@@ -47,6 +47,9 @@ if [ -n "${POSTGRES_PASS:-}" ]; then
 fi
 
 php_memory_limit="${PHP_MEMORY_LIMIT:-512M}"
+if [ ! -d /usr/local/etc/php/conf.d ]; then
+    mkdir -p /usr/local/etc/php/conf.d
+fi
 printf 'memory_limit = %s\n' "$php_memory_limit" > /usr/local/etc/php/conf.d/zz-memory-limit.ini
 
 php_error_log="${PHP_ERROR_LOG:-/proc/self/fd/2}"
