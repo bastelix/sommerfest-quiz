@@ -288,7 +288,12 @@ const normalizeTreePosition = value => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const flattenTreeNodes = (nodes, fallbackNamespace) => {
+const MAX_TREE_DEPTH = 50;
+
+const flattenTreeNodes = (nodes, fallbackNamespace, depth = 0) => {
+  if (depth > MAX_TREE_DEPTH) {
+    return [];
+  }
   const flat = [];
   nodes.forEach(node => {
     const namespace = normalizeTreeNamespace(node.namespace || fallbackNamespace);
@@ -305,13 +310,16 @@ const flattenTreeNodes = (nodes, fallbackNamespace) => {
       position: normalizeTreePosition(node.position ?? node.sort_order)
     });
     if (Array.isArray(node.children) && node.children.length) {
-      flat.push(...flattenTreeNodes(node.children, namespace));
+      flat.push(...flattenTreeNodes(node.children, namespace, depth + 1));
     }
   });
   return flat;
 };
 
-const sortTree = (nodes) => {
+const sortTree = (nodes, depth = 0) => {
+  if (depth > MAX_TREE_DEPTH) {
+    return;
+  }
   nodes.sort((a, b) => {
     const positionDiff = Number(a.position || 0) - Number(b.position || 0);
     if (positionDiff !== 0) {
@@ -321,7 +329,7 @@ const sortTree = (nodes) => {
   });
   nodes.forEach(node => {
     if (Array.isArray(node.children) && node.children.length) {
-      sortTree(node.children);
+      sortTree(node.children, depth + 1);
     }
   });
 };
@@ -468,6 +476,9 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
   list.className = 'uk-list uk-list-collapse';
   if (level > 0) {
     list.classList.add('uk-margin-small-left');
+  }
+  if (level > MAX_TREE_DEPTH) {
+    return list;
   }
 
   nodes.forEach(node => {
