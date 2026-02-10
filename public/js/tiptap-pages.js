@@ -2975,7 +2975,11 @@ const initImportCreatePage = () => {
       const reader = new FileReader();
       reader.onload = () => {
         try {
-          const json = JSON.parse(reader.result);
+          let text = reader.result;
+          if (typeof text === 'string' && text.charCodeAt(0) === 0xFEFF) {
+            text = text.slice(1);
+          }
+          const json = JSON.parse(text);
           parsedPayload = json;
 
           const meta = json.meta || {};
@@ -3008,9 +3012,8 @@ const initImportCreatePage = () => {
     event.preventDefault();
     setFeedback('');
 
-    const file = fileInput?.files?.[0];
-    if (!file) {
-      setFeedback('Bitte wähle eine .page.json Datei aus.');
+    if (!parsedPayload) {
+      setFeedback('Bitte wähle eine gültige .page.json Datei aus.');
       return;
     }
 
@@ -3019,22 +3022,21 @@ const initImportCreatePage = () => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
       const slugValue = (slugInput?.value || '').trim();
       const titleValue = (titleInput?.value || '').trim();
+
+      const body = { payload: parsedPayload };
       if (slugValue) {
-        formData.append('slug', slugValue);
+        body.slug = slugValue;
       }
       if (titleValue) {
-        formData.append('title', titleValue);
+        body.title = titleValue;
       }
 
       const response = await apiFetch(withNamespace('/admin/pages/import-create'), {
         method: 'POST',
-        headers: { Accept: 'application/json' },
-        body: formData
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(body)
       });
 
       const contentType = response.headers.get('content-type') || '';

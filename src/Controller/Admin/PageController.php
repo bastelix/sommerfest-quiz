@@ -287,8 +287,10 @@ class PageController
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
 
-        [$payload, $uploadedName] = $this->extractImportPayload($request);
-        if ($payload === null) {
+        $data = $this->parseRequestData($request) ?? [];
+
+        $payload = $data['payload'] ?? null;
+        if (!is_array($payload)) {
             return $this->createJsonResponse($response, ['error' => 'Invalid JSON payload.'], 400);
         }
 
@@ -311,7 +313,6 @@ class PageController
             return $this->createJsonResponse($response, ['error' => 'Missing blocks array.'], 422);
         }
 
-        $data = $this->parseRequestData($request) ?? [];
         $formSlug = trim((string) ($data['slug'] ?? ''));
         $formTitle = trim((string) ($data['title'] ?? ''));
         $slug = $formSlug !== '' ? $formSlug : (string) ($meta['slug'] ?? '');
@@ -366,7 +367,7 @@ class PageController
             'slug' => $slug,
             'userId' => $_SESSION['user']['id'] ?? null,
             'username' => $_SESSION['user']['username'] ?? null,
-            'sourceFile' => $uploadedName,
+            'sourceFile' => (string) ($meta['slug'] ?? 'json-import'),
             'blockCount' => count($blocks),
             'importedAt' => (new DateTimeImmutable())->format(DATE_ATOM),
         ]);
