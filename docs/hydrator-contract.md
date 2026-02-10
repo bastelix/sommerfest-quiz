@@ -198,11 +198,13 @@ document.addEventListener('DOMContentLoaded', hydratePage);
 
 ## 6️⃣ SSR / No-JS Fallback (verbindlich)
 
+{% raw %}
 ```twig
 <noscript>
   {{ content|raw }}
 </noscript>
 ```
+{% endraw %}
 
 ➡️ Seite **nie leer**
 ➡️ SEO & Accessibility safe
