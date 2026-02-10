@@ -29,7 +29,7 @@ final class DomainMiddlewareTest extends TestCase
     public function testMissingDomainReturnsNotFoundJsonWithContext(): void
     {
         Database::setFactory(static fn (): PDO => new PDO('sqlite::memory:'));
-        $provider = new class([]) extends MarketingDomainProvider {
+        $provider = new class ([]) extends MarketingDomainProvider {
             /** @param list<string> $domains */
             public function __construct(private array $domains)
             {
@@ -83,7 +83,7 @@ final class DomainMiddlewareTest extends TestCase
     public function testLightweightHealthCheckIsReturnedEarly(): void
     {
         Database::setFactory(static fn (): PDO => new PDO('sqlite::memory:'));
-        $provider = new class([]) extends MarketingDomainProvider {
+        $provider = new class ([]) extends MarketingDomainProvider {
             /** @param list<string> $domains */
             public function __construct(private array $domains)
             {

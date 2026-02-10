@@ -20,8 +20,7 @@ final class NamespaceService
         private NamespaceRepository $repository,
         ?NamespaceValidator $validator = null,
         ?DesignTokenService $designTokenService = null
-    )
-    {
+    ) {
         $this->validator = $validator ?? new NamespaceValidator();
         $this->designTokenService = $designTokenService ?? new DesignTokenService($this->repository->getConnection());
     }

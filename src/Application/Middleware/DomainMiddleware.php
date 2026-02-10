@@ -288,5 +288,4 @@ class DomainMiddleware implements MiddlewareInterface
 
         return str_ends_with($host, '.localhost');
     }
-
 }
