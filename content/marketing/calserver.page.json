@@ -242,7 +242,7 @@
           {
             "id": "feature-dms",
             "title": "Dateimanagement (DMS)",
-            "description": "„Nur speichern, nicht sortieren\u201d – Zuordnung läuft im Hintergrund.",
+            "description": "„Nur speichern, nicht sortieren” – Zuordnung läuft im Hintergrund.",
             "bullets": [
               "Auto-Zuordnung",
               "Versionierung",
