@@ -435,6 +435,7 @@ const applyColorsToRoot = (element, appearance) => {
     pageBackground,
   );
   const marketingMuted = resolveFirstValue(
+    marketingSchemeValues?.surfaceMuted,
     colors.marketingSurfaceMuted,
     colors.marketing_surface_muted,
     appearance?.variables?.marketingSurfaceMuted,
@@ -443,6 +444,7 @@ const applyColorsToRoot = (element, appearance) => {
     'var(--surface-muted)',
   );
   const marketingSurfaceMutedDark = resolveFirstValue(
+    marketingSchemeValues?.surfaceMutedDark,
     colors.marketingSurfaceMutedDark,
     colors.marketing_surface_muted_dark,
     colors.surfaceMutedDark,
@@ -453,6 +455,7 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.surface_muted_dark,
   );
   const marketingCardDark = resolveFirstValue(
+    marketingSchemeValues?.cardDark,
     colors.marketingCardDark,
     colors.marketing_card_dark,
     colors.cardDark,
