@@ -15,6 +15,7 @@ jobs:
           username: ${{ secrets.USER }}
           password: ${{ secrets.PASSWORD }}
           script: |
+            set -e
             cd /var/sommerfest-quiz
             git pull
             mkdir -p resources/fonts
@@ -25,7 +26,8 @@ jobs:
               exit 1
             fi
             BASE_IMAGE="${APP_IMAGE%:*}"
-            docker build -t "$APP_IMAGE" -t "${BASE_IMAGE}:latest" .
+            SOURCE_HASH=$(git rev-parse HEAD)
+            docker build --build-arg SOURCE_HASH="$SOURCE_HASH" -t "$APP_IMAGE" -t "${BASE_IMAGE}:latest" .
             export COMPOSE_PROJECT_NAME=sommerfest-quiz
             docker compose -p sommerfest-quiz up -d --build --remove-orphans --wait
             docker compose -p sommerfest-quiz exec -T slim php scripts/run_migrations.php
