@@ -263,6 +263,60 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
   let refreshContrastChecks = () => {};
   let brandIsAuto = false;
 
+  /**
+   * Compute the optimal text color (black or white) for maximum WCAG
+   * contrast against the given background color.
+   *
+   * This mirrors the server-side ColorContrastService logic so that the
+   * live preview always shows accurate contrast tokens without waiting
+   * for a server round-trip.
+   */
+  const computeOptimalTextColor = backgroundColor => {
+    if (!backgroundColor) return null;
+    const bg = parseColor(backgroundColor);
+    if (!bg) return null;
+    const black = { r: 0, g: 0, b: 0 };
+    const white = { r: 255, g: 255, b: 255 };
+    return contrastRatio(black, bg) >= contrastRatio(white, bg)
+      ? '#000000'
+      : '#ffffff';
+  };
+
+  /**
+   * Apply auto-computed contrast tokens to the preview element.
+   *
+   * Whenever brand colors change this function recalculates the optimal
+   * foreground colors for --contrast-text-on-primary, --contrast-text-on-secondary,
+   * and --contrast-text-on-accent and sets them as inline CSS properties.
+   * This ensures that every section, button, and card in the preview
+   * immediately reflects the correct readable text color.
+   */
+  const applyContrastTokensToPreview = () => {
+    if (!preview) return;
+    const tokens = resolveTokens();
+    const brand = tokens.brand || {};
+    const primary = brand.primary || previewDefaults.brandPrimary;
+    const accent = brand.accent || brand.primary || previewDefaults.brandAccent;
+    const secondary = brand.secondary || brand.accent || brand.primary || previewDefaults.brandSecondary;
+
+    const textOnPrimary = computeOptimalTextColor(primary);
+    const textOnSecondary = computeOptimalTextColor(secondary);
+    const textOnAccent = computeOptimalTextColor(accent);
+
+    if (textOnPrimary) {
+      preview.style.setProperty('--contrast-text-on-primary', textOnPrimary);
+      preview.style.setProperty('--text-on-primary', textOnPrimary);
+    }
+    if (textOnSecondary) {
+      preview.style.setProperty('--contrast-text-on-secondary', textOnSecondary);
+      preview.style.setProperty('--text-on-secondary', textOnSecondary);
+    }
+    if (textOnAccent) {
+      preview.style.setProperty('--contrast-text-on-accent', textOnAccent);
+      preview.style.setProperty('--text-on-accent', textOnAccent);
+    }
+  };
+
   const parseColorWithAlpha = value => {
     if (!value) return null;
     const trimmed = value.trim();
@@ -568,12 +622,15 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
       }
     });
 
+    let autoFixRunning = false;
+
     refreshContrastChecks = () => {
       applyOverridesFromInputs();
       if (!preview) {
         return;
       }
 
+      let needsRecheck = false;
       const originalTheme = preview.dataset.theme;
       const resultsByRow = new Map();
 
@@ -611,7 +668,50 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
         if (fixButton instanceof HTMLButtonElement) {
           fixButton.disabled = !hasResults || meetsAll;
         }
+
+        // Auto-fix: when a contrast row fails AA for the current theme,
+        // automatically apply the optimal foreground color so the user
+        // never has to manually fix basic readability issues.
+        if (anyFailed && !autoFixRunning) {
+          const rowKey = row.dataset.contrastRow;
+          const rowConfig = rowKey ? targets[rowKey] : null;
+          if (rowConfig) {
+            const currentThemeResult = stored[originalTheme || 'light'];
+            if (currentThemeResult && !currentThemeResult.meetsAA) {
+              preview.dataset.theme = originalTheme || 'light';
+              const bgValue = resolveTargetValue(rowConfig, 'background');
+              const bgColor = blendWithSurface(parseColorWithAlpha(bgValue));
+              if (bgColor) {
+                const optimal = computeOptimalTextColor(formatHex(bgColor));
+                if (optimal) {
+                  rowConfig.applyVars.forEach(variable => {
+                    preview.style.setProperty(variable, optimal);
+                  });
+                  const rowInput = inputMap[rowConfig.inputKey || rowKey];
+                  if (rowInput instanceof HTMLInputElement) {
+                    rowInput.value = optimal;
+                    rowInput.disabled = false;
+                  }
+                  needsRecheck = true;
+                }
+              }
+            }
+          }
+        }
       });
+
+      // Re-run checks once if any auto-fixes were applied, to update badges.
+      if (needsRecheck) {
+        autoFixRunning = true;
+        if (originalTheme) {
+          preview.dataset.theme = originalTheme;
+        } else {
+          delete preview.dataset.theme;
+        }
+        refreshContrastChecks();
+        autoFixRunning = false;
+        return;
+      }
     };
 
     refreshContrastChecks();
@@ -644,6 +744,7 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     preview.style.setProperty('--components-card-style', components.cardStyle || previewDefaults.cardStyle);
     preview.style.setProperty('--components-button-style', components.buttonStyle || previewDefaults.buttonStyle);
 
+    applyContrastTokensToPreview();
     syncComponentTokens();
     refreshContrastChecks();
   };

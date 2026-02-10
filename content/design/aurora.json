@@ -6,6 +6,11 @@
         "accent": "#58a6ff",
         "secondary": "#475569"
       }
+    },
+    "colors": {
+      "textOnPrimary": "#ffffff",
+      "textOnSurface": "#000000",
+      "textOnBackground": "#000000"
     }
   },
   "designTokens": {
@@ -14,5 +19,10 @@
       "accent": "#58a6ff",
       "secondary": "#475569"
     }
+  },
+  "contrastPairs": {
+    "primary": { "background": "#1f6feb", "text": "#ffffff" },
+    "secondary": { "background": "#475569", "text": "#ffffff" },
+    "accent": { "background": "#58a6ff", "text": "#000000" }
   }
 }

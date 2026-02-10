@@ -57,12 +57,15 @@ class DesignTokenService
     private NamespaceDesignFileRepository $designFiles;
     private NamespaceRepository $namespaceRepository;
 
+    private ColorContrastService $contrastService;
+
     public function __construct(
         PDO $pdo,
         ?ConfigService $configService = null,
         ?string $cssPath = null,
         ?NamespaceDesignFileRepository $designFiles = null,
-        ?NamespaceRepository $namespaceRepository = null
+        ?NamespaceRepository $namespaceRepository = null,
+        ?ColorContrastService $contrastService = null
     ) {
         $this->pdo = $pdo;
         $this->configService = $configService ?? new ConfigService($pdo);
@@ -70,6 +73,7 @@ class DesignTokenService
         $this->namespaceValidator = new NamespaceValidator();
         $this->designFiles = $designFiles ?? new NamespaceDesignFileRepository();
         $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
+        $this->contrastService = $contrastService ?? new ColorContrastService();
     }
 
     /**
@@ -458,11 +462,23 @@ class DesignTokenService
         $brandAccent = $tokens['brand']['accent'] ?? self::DEFAULT_TOKENS['brand']['accent'];
         $brandSecondary = $tokens['brand']['secondary'] ?? self::DEFAULT_TOKENS['brand']['secondary'];
 
+        $contrastTokens = $this->contrastService->resolveContrastTokens([
+            'primary' => $brandPrimary,
+            'secondary' => $brandSecondary,
+            'accent' => $brandAccent,
+        ]);
+
         $lines = [
             $selector . ' {',
             '  --brand-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
             '  --brand-accent: ' . $this->escapeCssValue($brandAccent) . ';',
             '  --brand-secondary: ' . $this->escapeCssValue($brandSecondary) . ';',
+            '  --contrast-text-on-primary: ' . $this->escapeCssValue($contrastTokens['textOnPrimary'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-secondary: ' . $this->escapeCssValue($contrastTokens['textOnSecondary'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-accent: ' . $this->escapeCssValue($contrastTokens['textOnAccent'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-surface: ' . $this->escapeCssValue($contrastTokens['textOnSurface'] ?? '#000000') . ';',
+            '  --contrast-text-on-surface-muted: ' . $this->escapeCssValue($contrastTokens['textOnSurfaceMuted'] ?? '#000000') . ';',
+            '  --contrast-text-on-page: ' . $this->escapeCssValue($contrastTokens['textOnPage'] ?? '#000000') . ';',
             '  --marketing-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
             '  --marketing-accent: ' . $this->escapeCssValue($brandAccent) . ';',
             '  --marketing-secondary: ' . $this->escapeCssValue($brandSecondary) . ';',
