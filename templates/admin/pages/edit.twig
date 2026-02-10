@@ -16,6 +16,7 @@
   {% set namespaceTokensQuery = namespaceTokensVersionsMap[activeNamespace]|default(namespaceTokensVersion|default('')) %}
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css" id="preview-uikit-css" data-preview-asset="page-preview" media="all">
   <link rel="stylesheet" href="{{ basePath }}/css/variables.css" id="preview-variables-css" data-preview-asset="page-preview" media="all">
+  <link rel="stylesheet" href="{{ basePath }}/css/sections.css" id="preview-sections-css" data-preview-asset="page-preview" media="all">
   <link
     rel="stylesheet"
     href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensQuery }}"
