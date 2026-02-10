@@ -137,6 +137,7 @@ use App\Controller\Admin\DomainPageController;
 use App\Controller\Admin\BackupController as AdminBackupController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\PageController as MarketingPageController;
+use App\Controller\Marketing\CalhelpLandingController;
 use App\Controller\Marketing\CmsPageWikiArticleController;
 use App\Controller\Marketing\CmsPageWikiListController;
 use App\Controller\Marketing\ContactController;
@@ -801,6 +802,16 @@ return function (\Slim\App $app, TranslationService $translator) {
     ) use ($redirectToCmsPage) {
         return $redirectToCmsPage($request, $response, (string) $args['newsSlug']);
     });
+    $app->get('/calhelp-landing', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+
+        $controller = new CalhelpLandingController();
+
+        return $controller($request, $response);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/calserver-legacy', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
