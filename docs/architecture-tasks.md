@@ -463,7 +463,7 @@ public/js/marketing-menu-tree.js         (1.352 Zeilen)
   - `templates/admin/results.twig`
   - `templates/admin/pages.twig`
   - `templates/admin/statistics.twig`
-- [ ] `admin.twig` als Layout-Shell belassen mit `{% include %}` Blöcken
+- [ ] `admin.twig` als Layout-Shell belassen mit {% raw %}`{% include %}`{% endraw %} Blöcken
 - [ ] Python HTML-Validity-Tests anpassen
 
 **Akzeptanzkriterium:** admin.twig < 300 Zeilen. Partials einzeln editierbar.
