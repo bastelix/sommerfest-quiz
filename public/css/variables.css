@@ -21,6 +21,7 @@
   --surface-card: #ffffff;
   --surface-muted: #eef2f7;
   --surface-subtle: #f8fafc;
+  --surface: var(--surface-section);
   --surface-card-hover: color-mix(
     in srgb,
     var(--surface-card) 84%,
@@ -62,6 +63,9 @@
 
   /* ── Spacing ── */
   --space-section: 2.25rem;
+
+  /* ── Radius ── */
+  --card-radius: 10px;
 
   /* ── Utility ── */
   --border-muted: #dfe3eb;
@@ -120,6 +124,7 @@
   --surface-card: #1a2636;
   --surface-muted: #0b111a;
   --surface-subtle: #0f1722;
+  --surface: var(--surface-section);
   --surface-card-hover: color-mix(
     in srgb,
     var(--surface-card) 78%,
@@ -161,6 +166,9 @@
 
   /* ── Spacing ── */
   --space-section: 2.25rem;
+
+  /* ── Radius ── */
+  --card-radius: 10px;
 
   /* ── Utility ── */
   --border-muted: #3b4c63;
