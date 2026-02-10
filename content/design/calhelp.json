@@ -16,6 +16,11 @@
         "cardStyle": "rounded",
         "buttonStyle": "filled"
       }
+    },
+    "colors": {
+      "textOnPrimary": "#ffffff",
+      "textOnSurface": "#000000",
+      "textOnBackground": "#000000"
     }
   },
   "designTokens": {
@@ -34,5 +39,10 @@
       "cardStyle": "rounded",
       "buttonStyle": "filled"
     }
+  },
+  "contrastPairs": {
+    "primary": { "background": "#2B5E4A", "text": "#ffffff" },
+    "secondary": { "background": "#1a1a2e", "text": "#ffffff" },
+    "accent": { "background": "#C4A35A", "text": "#000000" }
   }
 }

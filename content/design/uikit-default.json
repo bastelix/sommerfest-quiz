@@ -1,7 +1,10 @@
 {
   "config": {
     "colors": {
-      "marketingScheme": "uikit-default"
+      "marketingScheme": "uikit-default",
+      "textOnPrimary": "#ffffff",
+      "textOnSurface": "#000000",
+      "textOnBackground": "#000000"
     }
   },
   "designTokens": {
@@ -20,5 +23,10 @@
       "cardStyle": "rounded",
       "buttonStyle": "filled"
     }
+  },
+  "contrastPairs": {
+    "primary": { "background": "#1e87f0", "text": "#000000" },
+    "secondary": { "background": "#222222", "text": "#ffffff" },
+    "accent": { "background": "#222222", "text": "#ffffff" }
   }
 }

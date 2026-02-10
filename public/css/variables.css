@@ -59,7 +59,9 @@
   --text-body: #111827;
   --text-heading: #0b1728;
   --text-muted: #4b5563;
-  --text-on-primary: #ffffff;
+  --text-on-primary: var(--contrast-text-on-primary, #ffffff);
+  --text-on-secondary: var(--contrast-text-on-secondary, #ffffff);
+  --text-on-accent: var(--contrast-text-on-accent, #ffffff);
 
   /* ── Spacing ── */
   --space-section: 2.25rem;
@@ -162,7 +164,9 @@
   --text-body: #f2f5fa;
   --text-heading: #ffffff;
   --text-muted: #e0e6f1;
-  --text-on-primary: #ffffff;
+  --text-on-primary: var(--contrast-text-on-primary, #ffffff);
+  --text-on-secondary: var(--contrast-text-on-secondary, #ffffff);
+  --text-on-accent: var(--contrast-text-on-accent, #ffffff);
 
   /* ── Spacing ── */
   --space-section: 2.25rem;
