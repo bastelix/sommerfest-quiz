@@ -785,7 +785,10 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     } else {
       preview.style.removeProperty('--marketing-background-dark');
     }
-    preview.style.setProperty('--marketing-on-accent', scheme.onAccent);
+    const dynamicOnAccent = computeOptimalTextColor(scheme.primary) || scheme.onAccent;
+    preview.style.setProperty('--marketing-on-accent', dynamicOnAccent);
+    preview.style.setProperty('--contrast-text-on-primary', dynamicOnAccent);
+    preview.style.setProperty('--text-on-primary', dynamicOnAccent);
     preview.style.setProperty('--marketing-text', scheme.textOnBackground);
     preview.style.setProperty('--marketing-text-on-surface', scheme.textOnSurface);
     preview.style.setProperty('--marketing-text-on-background', scheme.textOnBackground);
