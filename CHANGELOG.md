@@ -305,6 +305,7 @@
 - Use DOMContentLoaded for page tree init and harden apiFetch fallback
 - Escape Liquid/Twig syntax in docs to fix GitHub Pages build
 - Add missing section CSS for namespace-themed block rendering
+- Add missing CSS tokens and block styles for CMS page rendering
 
 ### Refactor
 
