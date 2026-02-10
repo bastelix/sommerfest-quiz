@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main ]
 
+concurrency:
+  group: git-push-main
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -32,4 +36,22 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add VERSION
           git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }}" || exit 0
-          git push
+
+          # Retry push with exponential backoff
+          max_retries=4
+          retry_count=0
+          while [ $retry_count -lt $max_retries ]; do
+            git pull --rebase origin main
+            if git push; then
+              echo "Push successful"
+              exit 0
+            fi
+            retry_count=$((retry_count + 1))
+            if [ $retry_count -lt $max_retries ]; then
+              sleep_time=$((2 ** retry_count))
+              echo "Push failed, retrying in ${sleep_time}s... (attempt $((retry_count + 1))/$max_retries)"
+              sleep $sleep_time
+            fi
+          done
+          echo "Push failed after $max_retries attempts"
+          exit 1
