@@ -4,7 +4,7 @@
       "brand": {
         "primary": "#2B5E4A",
         "accent": "#C4A35A",
-        "secondary": "#1a1a2e"
+        "secondary": "#1a3a50"
       },
       "layout": {
         "profile": "standard"
@@ -27,7 +27,7 @@
     "brand": {
       "primary": "#2B5E4A",
       "accent": "#C4A35A",
-      "secondary": "#1a1a2e"
+      "secondary": "#1a3a50"
     },
     "layout": {
       "profile": "standard"
@@ -41,8 +41,8 @@
     }
   },
   "contrastPairs": {
-    "primary": { "background": "#2B5E4A", "text": "#ffffff" },
-    "secondary": { "background": "#1a1a2e", "text": "#ffffff" },
-    "accent": { "background": "#C4A35A", "text": "#000000" }
+    "primary":   { "background": "#2B5E4A", "text": "#ffffff", "ratio": "7.5:1", "grade": "AAA" },
+    "secondary": { "background": "#1a3a50", "text": "#ffffff", "ratio": "11.9:1", "grade": "AAA" },
+    "accent":    { "background": "#C4A35A", "text": "#000000", "ratio": "8.7:1", "grade": "AAA" }
   }
 }

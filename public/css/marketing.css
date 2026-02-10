@@ -119,7 +119,7 @@
   --marketing-text-muted-on-surface-dark: var(--text-muted-on-surface-dark, var(--marketing-text-muted-on-surface-dark-default, #e0e6f1));
   --marketing-text-muted-on-background-dark: var(--text-muted-on-background-dark, var(--marketing-text-muted-on-background-dark-default, #e0e6f1));
 
-  --marketing-on-accent: var(--text-on-primary, var(--marketing-text-on-primary-default, #ffffff));
+  --marketing-on-accent: var(--contrast-text-on-primary, var(--text-on-primary, #ffffff));
   --marketing-text-on-primary: var(--marketing-on-accent);
 
   --marketing-link: var(--brand-primary, var(--marketing-primary, #1e87f0));

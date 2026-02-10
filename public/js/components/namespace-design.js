@@ -897,7 +897,8 @@ const applyColorsToRoot = (element, appearance) => {
       element.style.setProperty('--brand-accent', accent);
     }
   }
-  element.style.setProperty('--marketing-on-accent', marketingOnAccent);
+  const nsContrastToken = getComputedStyle(element).getPropertyValue('--contrast-text-on-primary').trim();
+  element.style.setProperty('--marketing-on-accent', nsContrastToken || marketingOnAccent);
   if (marketingText) {
     element.style.setProperty('--marketing-text', marketingText);
   }

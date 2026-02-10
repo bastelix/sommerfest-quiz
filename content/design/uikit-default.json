@@ -2,7 +2,7 @@
   "config": {
     "colors": {
       "marketingScheme": "uikit-default",
-      "textOnPrimary": "#ffffff",
+      "textOnPrimary": "#000000",
       "textOnSurface": "#000000",
       "textOnBackground": "#000000"
     }
@@ -10,8 +10,8 @@
   "designTokens": {
     "brand": {
       "primary": "#1e87f0",
-      "accent": "#222",
-      "secondary": "#222"
+      "accent": "#222222",
+      "secondary": "#222222"
     },
     "layout": {
       "profile": "standard"
@@ -25,8 +25,8 @@
     }
   },
   "contrastPairs": {
-    "primary": { "background": "#1e87f0", "text": "#000000" },
-    "secondary": { "background": "#222222", "text": "#ffffff" },
-    "accent": { "background": "#222222", "text": "#ffffff" }
+    "primary":   { "background": "#1e87f0", "text": "#000000", "ratio": "5.8:1", "grade": "AA" },
+    "secondary": { "background": "#222222", "text": "#ffffff", "ratio": "15.9:1", "grade": "AAA" },
+    "accent":    { "background": "#222222", "text": "#ffffff", "ratio": "15.9:1", "grade": "AAA" }
   }
 }
