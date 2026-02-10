@@ -1,0 +1,38 @@
+{
+  "config": {
+    "designTokens": {
+      "brand": {
+        "primary": "#2B5E4A",
+        "accent": "#C4A35A",
+        "secondary": "#1a1a2e"
+      },
+      "layout": {
+        "profile": "standard"
+      },
+      "typography": {
+        "preset": "classic"
+      },
+      "components": {
+        "cardStyle": "rounded",
+        "buttonStyle": "filled"
+      }
+    }
+  },
+  "designTokens": {
+    "brand": {
+      "primary": "#2B5E4A",
+      "accent": "#C4A35A",
+      "secondary": "#1a1a2e"
+    },
+    "layout": {
+      "profile": "standard"
+    },
+    "typography": {
+      "preset": "classic"
+    },
+    "components": {
+      "cardStyle": "rounded",
+      "buttonStyle": "filled"
+    }
+  }
+}
