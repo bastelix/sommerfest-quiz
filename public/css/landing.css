@@ -494,6 +494,38 @@ body.page-render .qr-page-renderer table {
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.05);
 }
 
+/* ------------------------------------------------------------------ */
+/*  Card/panel contrast reset on coloured sections                     */
+/* ------------------------------------------------------------------ */
+
+.section[data-section-intent="highlight"] .section__inner--card,
+.section[data-section-intent="highlight"] .section__inner--panel,
+.section[data-section-intent="highlight"][data-section-layout="card"] .section__inner,
+.section[data-section-intent="hero"] .section__inner--card:not(.section__inner--hero),
+.section[data-section-intent="hero"] .section__inner--panel,
+.section[data-section-intent="hero"][data-section-layout="card"] .section__inner:not(.section__inner--hero),
+.section[data-appearance-legacy="contrast"] .section__inner--card,
+.section[data-appearance-legacy="contrast"] .section__inner--panel,
+.section[data-appearance-legacy="contrast"][data-section-layout="card"] .section__inner {
+  color: var(--contrast-text-on-surface, var(--color-text, #111827));
+}
+
+.section[data-section-intent="highlight"] .section__inner--card a,
+.section[data-section-intent="highlight"] .section__inner--panel a,
+.section[data-section-intent="highlight"][data-section-layout="card"] .section__inner a,
+.section[data-section-intent="hero"] .section__inner--card:not(.section__inner--hero) a,
+.section[data-section-intent="hero"] .section__inner--panel a,
+.section[data-section-intent="hero"][data-section-layout="card"] .section__inner:not(.section__inner--hero) a,
+.section[data-appearance-legacy="contrast"] .section__inner--card a,
+.section[data-appearance-legacy="contrast"] .section__inner--panel a,
+.section[data-appearance-legacy="contrast"][data-section-layout="card"] .section__inner a {
+  color: var(--link-color, var(--accent-primary, var(--brand-primary, #1e87f0)));
+}
+
+/* ------------------------------------------------------------------ */
+/*  Link colours on dark surfaces                                      */
+/* ------------------------------------------------------------------ */
+
 .section[data-section-intent="highlight"] a,
 .section[data-section-intent="hero"] a {
   color: inherit;
@@ -1593,6 +1625,14 @@ body.marketing-page .uk-text-muted {
   --stat-card-surface-muted: var(--section-surface-muted, var(--surface-muted));
   --stat-card-text: var(--section-text-color, var(--color-text));
   --stat-card-accent: var(--accent-primary, var(--brand-primary, #1e87f0));
+}
+
+.section[data-block-type="stat_strip"][data-section-intent="highlight"][data-section-layout="card"],
+.section[data-block-type="stat_strip"][data-section-intent="hero"][data-section-layout="card"],
+.section[data-block-type="stat_strip"][data-appearance-legacy="contrast"][data-section-layout="card"] {
+  --stat-card-text: var(--contrast-text-on-surface, var(--color-text, #111827));
+  --stat-card-surface: var(--surface);
+  --stat-card-surface-muted: var(--surface-muted);
 }
 
 .stat-strip__grid {

@@ -212,6 +212,45 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Card/panel contrast reset on coloured sections                     */
+/* ------------------------------------------------------------------ */
+
+/*
+ * When a card or panel layout wraps content inside a coloured-background
+ * intent (highlight, hero, legacy-contrast), the inner element receives a
+ * light surface (--surface).  Text and link colours must revert to normal
+ * body values so they remain readable on the light card background.
+ *
+ * The :not(.section__inner--hero) guard prevents overriding the hero inner
+ * panel which carries its own dark surface and intentionally white text.
+ */
+
+.section[data-section-intent="highlight"] .section__inner--card,
+.section[data-section-intent="highlight"] .section__inner--panel,
+.section[data-section-intent="highlight"][data-section-layout="card"] .section__inner,
+.section[data-section-intent="hero"] .section__inner--card:not(.section__inner--hero),
+.section[data-section-intent="hero"] .section__inner--panel,
+.section[data-section-intent="hero"][data-section-layout="card"] .section__inner:not(.section__inner--hero),
+.section[data-appearance-legacy="contrast"] .section__inner--card,
+.section[data-appearance-legacy="contrast"] .section__inner--panel,
+.section[data-appearance-legacy="contrast"][data-section-layout="card"] .section__inner {
+  color: var(--contrast-text-on-surface, var(--color-text, #111827));
+}
+
+/* Links inside cards on coloured sections revert to normal link styling. */
+.section[data-section-intent="highlight"] .section__inner--card a,
+.section[data-section-intent="highlight"] .section__inner--panel a,
+.section[data-section-intent="highlight"][data-section-layout="card"] .section__inner a,
+.section[data-section-intent="hero"] .section__inner--card:not(.section__inner--hero) a,
+.section[data-section-intent="hero"] .section__inner--panel a,
+.section[data-section-intent="hero"][data-section-layout="card"] .section__inner:not(.section__inner--hero) a,
+.section[data-appearance-legacy="contrast"] .section__inner--card a,
+.section[data-appearance-legacy="contrast"] .section__inner--panel a,
+.section[data-appearance-legacy="contrast"][data-section-layout="card"] .section__inner a {
+  color: var(--link-color, var(--accent-primary, var(--brand-primary, #1e87f0)));
+}
+
+/* ------------------------------------------------------------------ */
 /*  Link colours on dark surfaces                                      */
 /* ------------------------------------------------------------------ */
 
@@ -269,6 +308,17 @@
   --stat-card-surface-muted: var(--section-surface-muted, var(--surface-muted));
   --stat-card-text: var(--section-text-color, var(--color-text));
   --stat-card-accent: var(--accent-primary, var(--brand-primary, #1e87f0));
+}
+
+/* When stat_strip sits inside a card layout on a coloured section,
+   inline/centered variants have no own card background and sit directly
+   on the light card surface → text must be dark. */
+.section[data-block-type="stat_strip"][data-section-intent="highlight"][data-section-layout="card"],
+.section[data-block-type="stat_strip"][data-section-intent="hero"][data-section-layout="card"],
+.section[data-block-type="stat_strip"][data-appearance-legacy="contrast"][data-section-layout="card"] {
+  --stat-card-text: var(--contrast-text-on-surface, var(--color-text, #111827));
+  --stat-card-surface: var(--surface);
+  --stat-card-surface-muted: var(--surface-muted);
 }
 
 .stat-strip__grid {
