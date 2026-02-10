@@ -937,16 +937,19 @@ function renderFeatureListDetailedCards(block, options = {}) {
 function renderFeatureListGridBullets(block, options = {}) {
   const context = options?.context || 'frontend';
   const items = normalizeFeatureListItems(block);
+  const eyebrow = renderEyebrow(block, '', context);
   const intro = block.data?.intro
     ? `<p class="uk-text-meta uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.intro', context)}>${escapeHtml(block.data.intro)}</p>`
     : '';
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
-  const subtitle = block.data?.subtitle
-    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
+  const leadOrSubtitle = block.data?.lead || block.data?.subtitle;
+  const leadField = block.data?.lead ? 'data.lead' : 'data.subtitle';
+  const subtitle = leadOrSubtitle
+    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, leadField, context)}>${escapeHtml(leadOrSubtitle)}</p>`
     : '';
-  const header = (intro || title || subtitle) ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${intro}${title}${subtitle}</div>` : '';
+  const header = (eyebrow || intro || title || subtitle) ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${eyebrow}${intro}${title}${subtitle}</div>` : '';
 
   const cards = items
     .map(item => {
@@ -956,8 +959,10 @@ function renderFeatureListGridBullets(block, options = {}) {
     .join('');
 
   const grid = `<div class="uk-grid uk-grid-small" data-uk-grid>${cards}</div>`;
+  const ctas = renderHeroCtas(block.data?.cta);
+  const footer = ctas || '';
 
-  return renderSection({ block, variant: 'grid-bullets', content: `${header}${grid}` });
+  return renderSection({ block, variant: 'grid-bullets', content: `${header}${grid}${footer}` });
 }
 
 function renderFeatureListSlider(block, options = {}) {
@@ -1349,21 +1354,86 @@ function renderContactForm(block, variant = 'default', options = {}) {
   return renderSection({ block, variant: normalizedVariant, content: gridContent });
 }
 
-function renderTestimonialSingle(block) {
-  const author = block.data?.author?.name ? ` by ${escapeHtml(block.data.author.name)}` : '';
-  return renderSection({
-    block,
-    variant: 'single_quote',
-    content: `<!-- testimonial:single_quote${author} -->`
-  });
+function renderTestimonialSingle(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const quote = block.data?.quote;
+  if (!quote) {
+    return renderSection({ block, variant: 'single_quote', content: '<!-- testimonial: no quote -->' });
+  }
+
+  const authorName = block.data?.author?.name;
+  const authorRole = block.data?.author?.role;
+  const source = block.data?.source;
+  const inlineHtml = block.data?.inlineHtml;
+
+  const quoteText = `<blockquote class="uk-margin-remove"><p class="uk-text-lead uk-margin-remove"${buildEditableAttributes(block, 'data.quote', context)}>\u201E${escapeHtml(quote)}\u201C</p></blockquote>`;
+
+  const authorParts = [];
+  if (authorName) {
+    authorParts.push(`<span class="uk-text-bold"${buildEditableAttributes(block, 'data.author.name', context)}>${escapeHtml(authorName)}</span>`);
+  }
+  if (authorRole) {
+    authorParts.push(`<span class="uk-text-muted">${escapeHtml(authorRole)}</span>`);
+  }
+  const authorLine = authorParts.length
+    ? `<div class="uk-margin-small-top">${authorParts.join(' · ')}</div>`
+    : '';
+
+  const sourceBadge = source
+    ? `<div class="uk-margin-small-top"><span class="uk-label uk-label-default">${escapeHtml(source)}</span></div>`
+    : '';
+
+  const inlineBlock = typeof inlineHtml === 'string' && inlineHtml.trim()
+    ? `<div class="uk-margin-small-top testimonial__inline">${inlineHtml}</div>`
+    : '';
+
+  const footer = (authorLine || sourceBadge || inlineBlock)
+    ? `<footer class="uk-margin-medium-top">${authorLine}${sourceBadge}${inlineBlock}</footer>`
+    : '';
+
+  const inner = `<div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-2-3@m uk-margin-auto">${quoteText}${footer}</div>`;
+
+  return renderSection({ block, variant: 'single_quote', content: inner });
 }
 
-function renderTestimonialWall(block) {
-  return renderSection({
-    block,
-    variant: 'quote_wall',
-    content: '<!-- testimonial:quote_wall | grouped quotes -->'
-  });
+function renderTestimonialWall(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const quotes = Array.isArray(block.data?.quotes) ? block.data.quotes : [];
+
+  if (!quotes.length) {
+    const singleQuote = block.data?.quote;
+    if (singleQuote) {
+      return renderTestimonialSingle(block, options);
+    }
+    return renderSection({ block, variant: 'quote_wall', content: '<!-- testimonial: no quotes -->' });
+  }
+
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom uk-text-center"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const header = title ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${title}</div>` : '';
+
+  const cards = quotes.map((item, index) => {
+    const q = typeof item.quote === 'string' ? item.quote : '';
+    const name = item.author?.name || '';
+    const role = item.author?.role || '';
+    const source = item.source || '';
+    const inlineHtml = typeof item.inlineHtml === 'string' ? item.inlineHtml.trim() : '';
+
+    const quoteText = q ? `<blockquote class="uk-margin-remove"><p class="uk-margin-remove">\u201E${escapeHtml(q)}\u201C</p></blockquote>` : '';
+    const authorParts = [];
+    if (name) { authorParts.push(`<span class="uk-text-bold">${escapeHtml(name)}</span>`); }
+    if (role) { authorParts.push(`<span class="uk-text-muted">${escapeHtml(role)}</span>`); }
+    const authorLine = authorParts.length ? `<div class="uk-margin-small-top">${authorParts.join(' · ')}</div>` : '';
+    const sourceBadge = source ? `<div class="uk-margin-small-top"><span class="uk-label uk-label-default">${escapeHtml(source)}</span></div>` : '';
+    const inlineBlock = inlineHtml ? `<div class="uk-margin-small-top testimonial__inline">${inlineHtml}</div>` : '';
+    const footer = (authorLine || sourceBadge || inlineBlock) ? `<footer class="uk-margin-small-top">${authorLine}${sourceBadge}${inlineBlock}</footer>` : '';
+
+    return `<div class="uk-width-1-1 uk-width-1-2@m"><div class="uk-card uk-card-default uk-card-body uk-height-1-1">${quoteText}${footer}</div></div>`;
+  }).join('');
+
+  const grid = `<div class="uk-grid uk-grid-medium" data-uk-grid>${cards}</div>`;
+  return renderSection({ block, variant: 'quote_wall', content: `${header}${grid}` });
 }
 
 function renderRichTextProse(block, options = {}) {

@@ -696,6 +696,10 @@
         },
         "source": {
           "type": "string"
+        },
+        "inlineHtml": {
+          "type": "string",
+          "description": "Optional inline HTML for embedding review platform widgets (e.g. ProvenExpert or Google review links)."
         }
       }
     },
