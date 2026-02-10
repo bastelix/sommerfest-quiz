@@ -310,6 +310,7 @@
 - Connect theme blocks to contrast system, improve palettes
 - Reset text/link color inside cards on coloured section backgrounds
 - Resolve GitHub Actions race condition with concurrency groups
+- Remove margin-top between sections that caused unfilled gaps
 
 ### Refactor
 
