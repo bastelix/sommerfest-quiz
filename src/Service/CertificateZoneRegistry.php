@@ -145,8 +145,7 @@ final class CertificateZoneRegistry
         ?string $error,
         ?DateTimeImmutable $issuedAt,
         ?DateTimeImmutable $nextRenewalAfter = null
-    ): void
-    {
+    ): void {
         $normalized = strtolower(trim($zone));
         if ($normalized === '') {
             throw new RuntimeException('Zone cannot be empty.');

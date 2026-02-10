@@ -888,8 +888,7 @@ final class CmsPageMenuService
         string $namespace,
         ?string $locale,
         bool $onlyActive
-    ): array
-    {
+    ): array {
         $normalizedLocale = null;
         if ($locale !== null) {
             $candidate = strtolower(trim($locale));
@@ -1497,8 +1496,7 @@ final class CmsPageMenuService
         string $namespace,
         array $items,
         ?int $parentId
-    ): void
-    {
+    ): void {
         foreach ($items as $item) {
             $entity = $this->createMenuItemForMenu(
                 $menuId,
@@ -1629,8 +1627,7 @@ final class CmsPageMenuService
         array $definition,
         int $menuId,
         string $namespace
-    ): void
-    {
+    ): void {
         $locales = $definition['locales'] ?? ['de', 'en'];
         if (!is_array($locales) || $locales === []) {
             $locales = ['de', 'en'];

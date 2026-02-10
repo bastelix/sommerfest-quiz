@@ -63,8 +63,7 @@ class DesignTokenService
         ?string $cssPath = null,
         ?NamespaceDesignFileRepository $designFiles = null,
         ?NamespaceRepository $namespaceRepository = null
-    )
-    {
+    ) {
         $this->pdo = $pdo;
         $this->configService = $configService ?? new ConfigService($pdo);
         $this->cssPath = $cssPath ?? dirname(__DIR__, 2) . '/public/css/namespace-tokens.css';
@@ -598,5 +597,4 @@ class DesignTokenService
 
         return $sorted;
     }
-
 }

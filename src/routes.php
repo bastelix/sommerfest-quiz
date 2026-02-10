@@ -171,11 +171,10 @@ use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 use App\Domain\Roles;
 use App\Domain\Plan;
-
-use function App\runSyncProcess;
-
 use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
+
+use function App\runSyncProcess;
 
 return function (\Slim\App $app, TranslationService $translator) {
     $app->addBodyParsingMiddleware();
@@ -191,320 +190,320 @@ return function (\Slim\App $app, TranslationService $translator) {
             }
 
             $base = Database::connectFromEnv();
-        MigrationRuntime::ensureUpToDate($base, __DIR__ . '/../migrations', 'base');
+            MigrationRuntime::ensureUpToDate($base, __DIR__ . '/../migrations', 'base');
 
-        $host = $request->getUri()->getHost();
-        $domainType = $request->getAttribute('domainType');
-        $sub = $domainType === 'main' ? 'main' : explode('.', $host)[0];
-        $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
-        $stmt->execute([$sub]);
-        $schema = $stmt->fetchColumn();
-        $schema = $schema === false || $schema === 'main' ? 'public' : (string) $schema;
+            $host = $request->getUri()->getHost();
+            $domainType = $request->getAttribute('domainType');
+            $sub = $domainType === 'main' ? 'main' : explode('.', $host)[0];
+            $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
+            $stmt->execute([$sub]);
+            $schema = $stmt->fetchColumn();
+            $schema = $schema === false || $schema === 'main' ? 'public' : (string) $schema;
 
-        $pdo = Database::connectWithSchema($schema);
-        MigrationRuntime::ensureUpToDate($pdo, __DIR__ . '/../migrations', 'schema:' . $schema);
+            $pdo = Database::connectWithSchema($schema);
+            MigrationRuntime::ensureUpToDate($pdo, __DIR__ . '/../migrations', 'schema:' . $schema);
 
-        $nginxService = new NginxService();
-        $tenantService = new TenantService($base, null, $nginxService);
+            $nginxService = new NginxService();
+            $tenantService = new TenantService($base, null, $nginxService);
 
-        $configService = new ConfigService($pdo);
-        $eventService = new EventService($pdo, $configService, $tenantService, $sub);
-        $params = $request->getQueryParams();
-        $eventNamespaceCandidate = $params['namespace'] ?? null;
-        $eventNamespaceCandidate = is_string($eventNamespaceCandidate) && $eventNamespaceCandidate !== ''
+            $configService = new ConfigService($pdo);
+            $eventService = new EventService($pdo, $configService, $tenantService, $sub);
+            $params = $request->getQueryParams();
+            $eventNamespaceCandidate = $params['namespace'] ?? null;
+            $eventNamespaceCandidate = is_string($eventNamespaceCandidate) && $eventNamespaceCandidate !== ''
             ? $eventNamespaceCandidate
             : ($request->getAttribute('domainNamespace') ?? $request->getAttribute('pageNamespace') ?? null);
-        $resolvedEventNamespace = is_string($eventNamespaceCandidate) && $eventNamespaceCandidate !== ''
+            $resolvedEventNamespace = is_string($eventNamespaceCandidate) && $eventNamespaceCandidate !== ''
             ? $eventNamespaceCandidate
             : null;
-        $request = $request->withAttribute('eventNamespace', $resolvedEventNamespace);
+            $request = $request->withAttribute('eventNamespace', $resolvedEventNamespace);
         // Resolve event UID from query params: ?event= (slug or uid) or ?event_uid=
-        $evParam = (string)($params['event'] ?? '');
-        $eventUidParam = (string)($params['event_uid'] ?? '');
-        $eventUid = '';
-        if ($eventUidParam !== '' && preg_match('/^[0-9a-fA-F]{32}$/', $eventUidParam)) {
-            $eventUid = $eventUidParam;
-        } elseif ($evParam !== '') {
-            $eventUid = !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
+            $evParam = (string)($params['event'] ?? '');
+            $eventUidParam = (string)($params['event_uid'] ?? '');
+            $eventUid = '';
+            if ($eventUidParam !== '' && preg_match('/^[0-9a-fA-F]{32}$/', $eventUidParam)) {
+                $eventUid = $eventUidParam;
+            } elseif ($evParam !== '') {
+                $eventUid = !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
                 ? $eventService->uidBySlug($evParam) ?? ''
                 : $evParam;
-        }
-        if ($eventUid === '') {
-            $eventUid = (string) ($_SESSION['event_uid'] ?? '');
-        }
+            }
+            if ($eventUid === '') {
+                $eventUid = (string) ($_SESSION['event_uid'] ?? '');
+            }
         // Validate event UID against namespace — always, not just when explicit
-        if ($eventUid !== '' && $resolvedEventNamespace !== null) {
-            if (!$eventService->belongsToNamespace($eventUid, $resolvedEventNamespace)) {
-                $eventUid = '';
-                unset($_SESSION['event_uid']);
+            if ($eventUid !== '' && $resolvedEventNamespace !== null) {
+                if (!$eventService->belongsToNamespace($eventUid, $resolvedEventNamespace)) {
+                    $eventUid = '';
+                    unset($_SESSION['event_uid']);
+                }
             }
-        }
-        if ($eventUid !== '') {
-            $_SESSION['event_uid'] = $eventUid;
-        }
+            if ($eventUid !== '') {
+                $_SESSION['event_uid'] = $eventUid;
+            }
         // Set validated event UID as request attribute for controllers
-        $request = $request->withAttribute('resolvedEventUid', $eventUid);
-        $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid);
-        $resultService = new ResultService($pdo);
-        $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
+            $request = $request->withAttribute('resolvedEventUid', $eventUid);
+            $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid);
+            $resultService = new ResultService($pdo);
+            $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
 
-        $teamNameAiClient = null;
-        $teamNameAiEnabled = true;
-        $teamNameAiModelEnv = getenv('RAG_CHAT_SERVICE_MODEL');
+            $teamNameAiClient = null;
+            $teamNameAiEnabled = true;
+            $teamNameAiModelEnv = getenv('RAG_CHAT_SERVICE_MODEL');
 
-        try {
-            $endpointEnv = getenv('RAG_CHAT_SERVICE_URL');
-            $endpoint = $endpointEnv !== false ? trim((string) $endpointEnv) : '';
-            if ($endpoint === '') {
-                throw new \RuntimeException('Chat service URL is not configured.');
-            }
-
-            $tokenEnv = getenv('RAG_CHAT_SERVICE_TOKEN');
-            $token = $tokenEnv !== false ? trim((string) $tokenEnv) : null;
-            $token = $token === '' ? null : $token;
-
-            $driverEnv = getenv('RAG_CHAT_SERVICE_DRIVER');
-            $forceOpenAiEnv = getenv('RAG_CHAT_SERVICE_FORCE_OPENAI');
-            $modelEnv = $teamNameAiModelEnv !== false ? trim((string) $teamNameAiModelEnv) : null;
-
-            $isTruthy = static function (?string $value): bool {
-                if ($value === null) {
-                    return false;
+            try {
+                $endpointEnv = getenv('RAG_CHAT_SERVICE_URL');
+                $endpoint = $endpointEnv !== false ? trim((string) $endpointEnv) : '';
+                if ($endpoint === '') {
+                    throw new \RuntimeException('Chat service URL is not configured.');
                 }
 
-                $normalised = strtolower(trim($value));
+                $tokenEnv = getenv('RAG_CHAT_SERVICE_TOKEN');
+                $token = $tokenEnv !== false ? trim((string) $tokenEnv) : null;
+                $token = $token === '' ? null : $token;
 
-                return $normalised !== '' && in_array($normalised, ['1', 'true', 'yes', 'on'], true);
-            };
+                $driverEnv = getenv('RAG_CHAT_SERVICE_DRIVER');
+                $forceOpenAiEnv = getenv('RAG_CHAT_SERVICE_FORCE_OPENAI');
+                $modelEnv = $teamNameAiModelEnv !== false ? trim((string) $teamNameAiModelEnv) : null;
 
-            $shouldUseOpenAi = false;
-            if ($driverEnv !== false) {
-                $normalisedDriver = strtolower(trim((string) $driverEnv));
-                if ($normalisedDriver === 'openai') {
-                    $shouldUseOpenAi = true;
-                } elseif ($normalisedDriver !== '') {
-                    $shouldUseOpenAi = false;
-                }
-            }
-
-            if (!$shouldUseOpenAi) {
-                $parts = parse_url($endpoint);
-                if (is_array($parts)) {
-                    $host = $parts['host'] ?? null;
-                    if (is_string($host) && $host === 'api.openai.com') {
-                        $shouldUseOpenAi = true;
+                $isTruthy = static function (?string $value): bool {
+                    if ($value === null) {
+                        return false;
                     }
 
-                    if (!$shouldUseOpenAi) {
-                        $pathValue = $parts['path'] ?? null;
-                        $path = is_string($pathValue) ? rtrim($pathValue, '/') : '';
-                        if ($path === '/v1' || $path === '/v1/models' || str_ends_with($path, '/v1/chat/completions')) {
-                            $shouldUseOpenAi = true;
-                        }
-                    }
-                }
-            }
+                    $normalised = strtolower(trim($value));
 
-            if (!$shouldUseOpenAi && $isTruthy($forceOpenAiEnv !== false ? (string) $forceOpenAiEnv : null)) {
-                $shouldUseOpenAi = true;
-            }
-
-            if ($shouldUseOpenAi) {
-                $normalizeOpenAiEndpoint = static function (string $value): string {
-                    $trimmed = trim($value);
-                    if ($trimmed === '') {
-                        return $value;
-                    }
-
-                    $parts = parse_url($trimmed);
-                    if ($parts === false) {
-                        return $value;
-                    }
-
-                    $scheme = $parts['scheme'] ?? null;
-                    $host = $parts['host'] ?? null;
-                    if (!is_string($scheme) || $scheme === '' || !is_string($host) || $host === '') {
-                        return $value;
-                    }
-
-                    $pathValue = $parts['path'] ?? null;
-                    $path = is_string($pathValue) ? $pathValue : '';
-                    $normalisePath = static function (string $path): string {
-                        $normalised = rtrim($path, '/');
-                        if ($normalised === '' || $normalised === '/v1' || $normalised === '/v1/models') {
-                            return '/v1/chat/completions';
-                        }
-
-                        if (str_ends_with($normalised, '/v1/chat/completions')) {
-                            return $normalised;
-                        }
-
-                        return $path === '' ? '/v1/chat/completions' : $path;
-                    };
-
-                    $rebuilt = $scheme . '://';
-
-                    $userInfo = '';
-                    $user = $parts['user'] ?? null;
-                    if (is_string($user) && $user !== '') {
-                        $userInfo = $user;
-                        $pass = $parts['pass'] ?? null;
-                        if (is_string($pass)) {
-                            $userInfo .= ':' . $pass;
-                        }
-                        $userInfo .= '@';
-                    }
-
-                    $port = isset($parts['port']) ? ':' . $parts['port'] : '';
-                    $rebuilt .= $userInfo . $host . $port . $normalisePath($path);
-
-                    $query = $parts['query'] ?? null;
-                    if (is_string($query) && $query !== '') {
-                        $rebuilt .= '?' . $query;
-                    }
-
-                    $fragment = $parts['fragment'] ?? null;
-                    if (is_string($fragment) && $fragment !== '') {
-                        $rebuilt .= '#' . $fragment;
-                    }
-
-                    return $rebuilt;
+                    return $normalised !== '' && in_array($normalised, ['1', 'true', 'yes', 'on'], true);
                 };
 
-                $options = [];
-                $temperatureEnv = getenv('RAG_CHAT_SERVICE_TEMPERATURE');
-                $temperature = $temperatureEnv !== false ? trim((string) $temperatureEnv) : '';
-                if ($temperature !== '' && is_numeric($temperature)) {
-                    $options['temperature'] = (float) $temperature;
+                $shouldUseOpenAi = false;
+                if ($driverEnv !== false) {
+                    $normalisedDriver = strtolower(trim((string) $driverEnv));
+                    if ($normalisedDriver === 'openai') {
+                        $shouldUseOpenAi = true;
+                    } elseif ($normalisedDriver !== '') {
+                        $shouldUseOpenAi = false;
+                    }
                 }
 
-                $topPEnv = getenv('RAG_CHAT_SERVICE_TOP_P');
-                $topP = $topPEnv !== false ? trim((string) $topPEnv) : '';
-                if ($topP !== '' && is_numeric($topP)) {
-                    $options['top_p'] = (float) $topP;
+                if (!$shouldUseOpenAi) {
+                    $parts = parse_url($endpoint);
+                    if (is_array($parts)) {
+                        $host = $parts['host'] ?? null;
+                        if (is_string($host) && $host === 'api.openai.com') {
+                            $shouldUseOpenAi = true;
+                        }
+
+                        if (!$shouldUseOpenAi) {
+                            $pathValue = $parts['path'] ?? null;
+                            $path = is_string($pathValue) ? rtrim($pathValue, '/') : '';
+                            if ($path === '/v1' || $path === '/v1/models' || str_ends_with($path, '/v1/chat/completions')) {
+                                $shouldUseOpenAi = true;
+                            }
+                        }
+                    }
                 }
 
-                $presenceEnv = getenv('RAG_CHAT_SERVICE_PRESENCE_PENALTY');
-                $presence = $presenceEnv !== false ? trim((string) $presenceEnv) : '';
-                if ($presence !== '' && is_numeric($presence)) {
-                    $options['presence_penalty'] = (float) $presence;
+                if (!$shouldUseOpenAi && $isTruthy($forceOpenAiEnv !== false ? (string) $forceOpenAiEnv : null)) {
+                    $shouldUseOpenAi = true;
                 }
 
-                $frequencyEnv = getenv('RAG_CHAT_SERVICE_FREQUENCY_PENALTY');
-                $frequency = $frequencyEnv !== false ? trim((string) $frequencyEnv) : '';
-                if ($frequency !== '' && is_numeric($frequency)) {
-                    $options['frequency_penalty'] = (float) $frequency;
+                if ($shouldUseOpenAi) {
+                    $normalizeOpenAiEndpoint = static function (string $value): string {
+                        $trimmed = trim($value);
+                        if ($trimmed === '') {
+                            return $value;
+                        }
+
+                        $parts = parse_url($trimmed);
+                        if ($parts === false) {
+                            return $value;
+                        }
+
+                        $scheme = $parts['scheme'] ?? null;
+                        $host = $parts['host'] ?? null;
+                        if (!is_string($scheme) || $scheme === '' || !is_string($host) || $host === '') {
+                            return $value;
+                        }
+
+                        $pathValue = $parts['path'] ?? null;
+                        $path = is_string($pathValue) ? $pathValue : '';
+                        $normalisePath = static function (string $path): string {
+                            $normalised = rtrim($path, '/');
+                            if ($normalised === '' || $normalised === '/v1' || $normalised === '/v1/models') {
+                                return '/v1/chat/completions';
+                            }
+
+                            if (str_ends_with($normalised, '/v1/chat/completions')) {
+                                return $normalised;
+                            }
+
+                            return $path === '' ? '/v1/chat/completions' : $path;
+                        };
+
+                        $rebuilt = $scheme . '://';
+
+                        $userInfo = '';
+                        $user = $parts['user'] ?? null;
+                        if (is_string($user) && $user !== '') {
+                            $userInfo = $user;
+                            $pass = $parts['pass'] ?? null;
+                            if (is_string($pass)) {
+                                $userInfo .= ':' . $pass;
+                            }
+                            $userInfo .= '@';
+                        }
+
+                        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+                        $rebuilt .= $userInfo . $host . $port . $normalisePath($path);
+
+                        $query = $parts['query'] ?? null;
+                        if (is_string($query) && $query !== '') {
+                            $rebuilt .= '?' . $query;
+                        }
+
+                        $fragment = $parts['fragment'] ?? null;
+                        if (is_string($fragment) && $fragment !== '') {
+                            $rebuilt .= '#' . $fragment;
+                        }
+
+                        return $rebuilt;
+                    };
+
+                    $options = [];
+                    $temperatureEnv = getenv('RAG_CHAT_SERVICE_TEMPERATURE');
+                    $temperature = $temperatureEnv !== false ? trim((string) $temperatureEnv) : '';
+                    if ($temperature !== '' && is_numeric($temperature)) {
+                        $options['temperature'] = (float) $temperature;
+                    }
+
+                    $topPEnv = getenv('RAG_CHAT_SERVICE_TOP_P');
+                    $topP = $topPEnv !== false ? trim((string) $topPEnv) : '';
+                    if ($topP !== '' && is_numeric($topP)) {
+                        $options['top_p'] = (float) $topP;
+                    }
+
+                    $presenceEnv = getenv('RAG_CHAT_SERVICE_PRESENCE_PENALTY');
+                    $presence = $presenceEnv !== false ? trim((string) $presenceEnv) : '';
+                    if ($presence !== '' && is_numeric($presence)) {
+                        $options['presence_penalty'] = (float) $presence;
+                    }
+
+                    $frequencyEnv = getenv('RAG_CHAT_SERVICE_FREQUENCY_PENALTY');
+                    $frequency = $frequencyEnv !== false ? trim((string) $frequencyEnv) : '';
+                    if ($frequency !== '' && is_numeric($frequency)) {
+                        $options['frequency_penalty'] = (float) $frequency;
+                    }
+
+                    $maxTokensEnv = getenv('RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS');
+                    $maxTokens = $maxTokensEnv !== false ? trim((string) $maxTokensEnv) : '';
+                    if ($maxTokens !== '' && is_numeric($maxTokens)) {
+                        $options['max_completion_tokens'] = (int) $maxTokens;
+                    }
+
+                    $teamNameAiResponder = new OpenAiChatResponder(
+                        $normalizeOpenAiEndpoint($endpoint),
+                        null,
+                        $token,
+                        null,
+                        $modelEnv,
+                        $options === [] ? null : $options
+                    );
+                } else {
+                    $teamNameAiResponder = new HttpChatResponder($endpoint, null, $token);
                 }
 
-                $maxTokensEnv = getenv('RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS');
-                $maxTokens = $maxTokensEnv !== false ? trim((string) $maxTokensEnv) : '';
-                if ($maxTokens !== '' && is_numeric($maxTokens)) {
-                    $options['max_completion_tokens'] = (int) $maxTokens;
-                }
-
-                $teamNameAiResponder = new OpenAiChatResponder(
-                    $normalizeOpenAiEndpoint($endpoint),
-                    null,
-                    $token,
-                    null,
+                $teamNameAiClient = new TeamNameAiClient(
+                    $teamNameAiResponder,
                     $modelEnv,
-                    $options === [] ? null : $options
+                    $pdo
                 );
-            } else {
-                $teamNameAiResponder = new HttpChatResponder($endpoint, null, $token);
+            } catch (\RuntimeException $exception) {
+                $teamNameAiClient = null;
+                $teamNameAiEnabled = false;
             }
 
-            $teamNameAiClient = new TeamNameAiClient(
-                $teamNameAiResponder,
-                $modelEnv,
-                $pdo
+            if ($teamNameAiClient === null) {
+                $teamNameAiEnabled = false;
+            }
+
+            $teamNameAiCacheRepository = new TeamNameAiCacheRepository($pdo);
+            $teamNameWarmupDispatcher = new TeamNameWarmupDispatcher($schema);
+
+            $teamNameService = new TeamNameService(
+                $pdo,
+                __DIR__ . '/../resources/team-names/lexicon.json',
+                $teamNameAiCacheRepository,
+                600,
+                $teamNameAiClient,
+                $teamNameAiEnabled,
+                null,
+                $teamNameWarmupDispatcher
             );
-        } catch (\RuntimeException $exception) {
-            $teamNameAiClient = null;
-            $teamNameAiEnabled = false;
-        }
-
-        if ($teamNameAiClient === null) {
-            $teamNameAiEnabled = false;
-        }
-
-        $teamNameAiCacheRepository = new TeamNameAiCacheRepository($pdo);
-        $teamNameWarmupDispatcher = new TeamNameWarmupDispatcher($schema);
-
-        $teamNameService = new TeamNameService(
-            $pdo,
-            __DIR__ . '/../resources/team-names/lexicon.json',
-            $teamNameAiCacheRepository,
-            600,
-            $teamNameAiClient,
-            $teamNameAiEnabled,
-            null,
-            $teamNameWarmupDispatcher
-        );
-        $configService->setTeamNameService($teamNameService);
-        $configService->setTeamNameWarmupDispatcher($teamNameWarmupDispatcher);
-        $consentService = new PhotoConsentService($pdo, $configService);
-        $summaryService = new SummaryPhotoService($pdo, $configService);
-        $plan = $tenantService->getPlanBySubdomain($sub);
-        $userService = new \App\Service\UserService($pdo);
-        $settingsService = new \App\Service\SettingsService($pdo);
-        $domainService = new DomainService($pdo);
-        $certificateZoneRegistry = new CertificateZoneRegistry($pdo);
-        $domainContactTemplateService = new DomainContactTemplateService($pdo);
-        $promptTemplateService = new PromptTemplateService($pdo);
-        $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
-        $marketingDomainProvider = DomainNameHelper::getMarketingDomainProvider();
-        if ($marketingDomainProvider === null) {
-            $marketingDomainProvider = new MarketingDomainProvider(
-                static function () use ($schema): \PDO {
-                    return Database::connectWithSchema($schema);
-                }
+            $configService->setTeamNameService($teamNameService);
+            $configService->setTeamNameWarmupDispatcher($teamNameWarmupDispatcher);
+            $consentService = new PhotoConsentService($pdo, $configService);
+            $summaryService = new SummaryPhotoService($pdo, $configService);
+            $plan = $tenantService->getPlanBySubdomain($sub);
+            $userService = new \App\Service\UserService($pdo);
+            $settingsService = new \App\Service\SettingsService($pdo);
+            $domainService = new DomainService($pdo);
+            $certificateZoneRegistry = new CertificateZoneRegistry($pdo);
+            $domainContactTemplateService = new DomainContactTemplateService($pdo);
+            $promptTemplateService = new PromptTemplateService($pdo);
+            $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
+            $marketingDomainProvider = DomainNameHelper::getMarketingDomainProvider();
+            if ($marketingDomainProvider === null) {
+                $marketingDomainProvider = new MarketingDomainProvider(
+                    static function () use ($schema): \PDO {
+                        return Database::connectWithSchema($schema);
+                    }
+                );
+                DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
+            }
+            $passwordResetService = new PasswordResetService(
+                $pdo,
+                3600,
+                getenv('PASSWORD_RESET_SECRET') ?: ''
             );
-            DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
-        }
-        $passwordResetService = new PasswordResetService(
-            $pdo,
-            3600,
-            getenv('PASSWORD_RESET_SECRET') ?: ''
-        );
-        $passwordPolicy = new PasswordPolicy();
-        $emailConfirmService = new EmailConfirmationService($pdo);
-        $auditLogger = new AuditLogger($pdo);
-        $sessionService = new SessionService($pdo);
-        $usernameGuard = UsernameGuard::fromConfigFile(null, $pdo);
-        $playerService = new PlayerService($pdo, $usernameGuard);
-        $playerContactOptInService = new PlayerContactOptInService($pdo, $playerService);
-        $imageUploadService = new ImageUploadService();
-        $mediaLibraryService = new MediaLibraryService($configService, $imageUploadService);
-        $pageService = new PageService($pdo);
-        $namespaceService = new NamespaceService(new \App\Repository\NamespaceRepository($pdo));
-        $landingReferenceService = new LandingMediaReferenceService(
-            $pageService,
-            new PageSeoConfigService($pdo),
-            $configService,
-            new LandingNewsService($pdo)
-        );
-        $domainDocumentStorage = new DomainDocumentStorage();
-        $wikiArticleService = new CmsPageWikiArticleService($pdo);
-        $domainWikiSelectionService = new DomainWikiSelectionService($pdo);
-        $domainIndexManager = new DomainIndexManager(
-            $domainDocumentStorage,
-            null,
-            'python3',
-            $domainWikiSelectionService,
-            $wikiArticleService
-        );
-        $mailProviderRepository = null;
-        try {
-            $mailProviderRepository = new MailProviderRepository($pdo);
-        } catch (\RuntimeException $exception) {
+            $passwordPolicy = new PasswordPolicy();
+            $emailConfirmService = new EmailConfirmationService($pdo);
+            $auditLogger = new AuditLogger($pdo);
+            $sessionService = new SessionService($pdo);
+            $usernameGuard = UsernameGuard::fromConfigFile(null, $pdo);
+            $playerService = new PlayerService($pdo, $usernameGuard);
+            $playerContactOptInService = new PlayerContactOptInService($pdo, $playerService);
+            $imageUploadService = new ImageUploadService();
+            $mediaLibraryService = new MediaLibraryService($configService, $imageUploadService);
+            $pageService = new PageService($pdo);
+            $namespaceService = new NamespaceService(new \App\Repository\NamespaceRepository($pdo));
+            $landingReferenceService = new LandingMediaReferenceService(
+                $pageService,
+                new PageSeoConfigService($pdo),
+                $configService,
+                new LandingNewsService($pdo)
+            );
+            $domainDocumentStorage = new DomainDocumentStorage();
+            $wikiArticleService = new CmsPageWikiArticleService($pdo);
+            $domainWikiSelectionService = new DomainWikiSelectionService($pdo);
+            $domainIndexManager = new DomainIndexManager(
+                $domainDocumentStorage,
+                null,
+                'python3',
+                $domainWikiSelectionService,
+                $wikiArticleService
+            );
             $mailProviderRepository = null;
-        }
-        $namespaceResolver = new NamespaceResolver();
-        $mailNamespace = $namespaceResolver->resolve($request)->getNamespace();
-        $mailProviderManager = new MailProviderManager($settingsService, [], $mailProviderRepository, $mailNamespace);
+            try {
+                $mailProviderRepository = new MailProviderRepository($pdo);
+            } catch (\RuntimeException $exception) {
+                $mailProviderRepository = null;
+            }
+            $namespaceResolver = new NamespaceResolver();
+            $mailNamespace = $namespaceResolver->resolve($request)->getNamespace();
+            $mailProviderManager = new MailProviderManager($settingsService, [], $mailProviderRepository, $mailNamespace);
 
-        $request = $request
+            $request = $request
             ->withAttribute('plan', $plan)
             ->withAttribute('configService', $configService)
             ->withAttribute('eventService', $eventService)
@@ -675,8 +674,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('lang', $translator->getLocale())
             ->withAttribute('playerService', $playerService);
 
-        return $handler->handle($request);
-    });
+            return $handler->handle($request);
+        });
 
     $app->add(static function (Request $request, RequestHandlerInterface $handler): Response {
         if ($request->getMethod() === 'OPTIONS') {

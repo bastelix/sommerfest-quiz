@@ -13,6 +13,7 @@ use function json_decode;
 use function pathinfo;
 use function rtrim;
 use function strtolower;
+
 use const PATHINFO_FILENAME;
 
 /**

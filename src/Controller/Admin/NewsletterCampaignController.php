@@ -37,8 +37,7 @@ class NewsletterCampaignController
         ?MailProviderRepository $providers = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?NamespaceRepository $namespaceRepository = null
-    )
-    {
+    ) {
         $pdo = Database::connectFromEnv();
         $this->campaigns = $campaigns ?? new NewsletterCampaignService($pdo);
         $this->landingNews = $landingNews ?? new LandingNewsService($pdo);

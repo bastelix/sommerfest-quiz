@@ -203,8 +203,7 @@ class CmsPageNamespaceDesignTest extends TestCase
         ?CmsPageMenuService $cmsMenuOverride = null,
         ?PageService $pageServiceOverride = null,
         string $slug = 'styled'
-    ): PageController
-    {
+    ): PageController {
         $page = new Page(1, $contentNamespace, $slug, 'Styled', '<p>Styled</p>', null, null, 0, null, null, null, null, false);
 
         $pageService = $pageServiceOverride ?? $this->createMock(PageService::class);
@@ -339,4 +338,3 @@ class CmsPageNamespaceDesignTest extends TestCase
         return $controller;
     }
 }
-

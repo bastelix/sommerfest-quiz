@@ -246,7 +246,7 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testImportPreservesValidBlocksAndFlagsInvalidOnes(): void { 
+    public function testImportPreservesValidBlocksAndFlagsInvalidOnes(): void {
         $pdo = $this->getDatabase();
         $this->seedPage($pdo, 'calserver', 'Calserver', '<p>legacy</p>');
 
