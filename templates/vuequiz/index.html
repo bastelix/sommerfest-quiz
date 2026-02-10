@@ -11,26 +11,171 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.23.9/dist/css/uikit.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.9/dist/js/uikit.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.9/dist/js/uikit-icons.min.js"></script>
+  <style>
+    [v-cloak] { display: none; }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .quiz-container {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s ease;
+    }
+
+    .question-card {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .score-badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 600;
+    }
+
+    .result-card {
+      transition: all 0.3s ease;
+    }
+
+    .result-card:hover {
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .swipe-card {
+      touch-action: none;
+      user-select: none;
+    }
+
+    .btn-answer {
+      transition: all 0.2s ease;
+    }
+
+    .btn-answer:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  </style>
 </head>
-<body class="bg-gray-100 p-4">
-<div id="app" class="max-w-3xl mx-auto" v-cloak>
-  <div v-if="loading" class="text-center text-lg">Lade Fragen...</div>
+<body class="p-4 md:p-8">
+<div id="app" class="max-w-4xl mx-auto" v-cloak>
+  <div v-if="loading" class="quiz-container p-8 text-center">
+    <div class="uk-text-lead">Lade Fragen...</div>
+    <div uk-spinner="ratio: 2" class="mt-4"></div>
+  </div>
 
   <div v-else>
     <div v-if="currentIndex < questions.length">
-      <div class="mb-4 flex justify-between items-center">
-        <div>Frage {{ currentIndex + 1 }} von {{ questions.length }}</div>
-        <div>Punkte: {{ score }}</div>
+      <!-- Header mit Fortschrittsanzeige -->
+      <div class="quiz-container p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <div class="text-sm text-gray-600">
+            Frage <span class="font-bold text-purple-600">{{ currentIndex + 1 }}</span> von {{ questions.length }}
+          </div>
+          <div class="score-badge">
+            <span uk-icon="icon: star; ratio: 0.8"></span> {{ score }} Punkte
+          </div>
+        </div>
+
+        <!-- Fortschrittsbalken -->
+        <div class="progress-bar">
+          <div class="progress-fill" :style="{ width: ((currentIndex / questions.length) * 100) + '%' }"></div>
+        </div>
       </div>
-      <component :is="currentComponent" :question="currentQuestion" @answered="onAnswered"></component>
-      <button v-if="answered" @click="next" class="uk-button uk-button-primary uk-margin-top">Nächste Frage</button>
+
+      <!-- Fragenkarte -->
+      <div class="quiz-container p-6 md:p-8 question-card">
+        <component :is="currentComponent" :question="currentQuestion" @answered="onAnswered"></component>
+        <button v-if="answered" @click="next" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top uk-text-large">
+          <span v-if="currentIndex < questions.length - 1">Nächste Frage</span>
+          <span v-else>Zum Ergebnis</span>
+          <span uk-icon="icon: arrow-right; ratio: 1.2" class="uk-margin-small-left"></span>
+        </button>
+      </div>
     </div>
+
+    <!-- Auswertungsseite -->
     <div v-else>
-      <h2 class="text-xl font-bold mb-4">Auswertung</h2>
-      <p class="mb-4">Es wurden {{ score }} von {{ questions.length }} Punkten erreicht.</p>
-      <div v-for="(q, idx) in questions" :key="idx" class="mb-4">
-        <p class="font-semibold">{{ q.question }}</p>
-        <p>Gegebene Antwort: {{ formatAnswer(userAnswers[idx]) }}</p>
+      <div class="quiz-container p-8">
+        <div class="text-center mb-8">
+          <h2 class="uk-text-large uk-text-bold mb-4">Quiz abgeschlossen!</h2>
+
+          <!-- Ergebnis-Visualisierung -->
+          <div class="inline-block p-8 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 mb-6">
+            <div class="text-6xl font-bold" :class="scorePercentage >= 70 ? 'text-green-600' : scorePercentage >= 40 ? 'text-yellow-600' : 'text-red-600'">
+              {{ scorePercentage }}%
+            </div>
+          </div>
+
+          <p class="uk-text-lead mb-4">
+            Du hast <span class="font-bold text-purple-600">{{ score }}</span> von
+            <span class="font-bold">{{ questions.length }}</span> Punkten erreicht.
+          </p>
+
+          <!-- Ergebnis-Bewertung -->
+          <div class="mb-6 p-4 rounded-lg" :class="scorePercentage >= 70 ? 'bg-green-50' : scorePercentage >= 40 ? 'bg-yellow-50' : 'bg-red-50'">
+            <p class="uk-text-large font-semibold" :class="scorePercentage >= 70 ? 'text-green-700' : scorePercentage >= 40 ? 'text-yellow-700' : 'text-red-700'">
+              {{ scoreMessage }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Detaillierte Antworten -->
+        <h3 class="uk-text-large font-bold mb-4">Deine Antworten im Detail:</h3>
+        <div class="space-y-4">
+          <div v-for="(q, idx) in questions" :key="idx" class="result-card p-4 rounded-lg border" :class="isCorrect(idx) ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0 mt-1">
+                <span v-if="isCorrect(idx)" uk-icon="icon: check; ratio: 1.5" class="text-green-600"></span>
+                <span v-else uk-icon="icon: close; ratio: 1.5" class="text-red-600"></span>
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold mb-2">{{ q.question }}</p>
+                <p class="text-sm text-gray-700">
+                  <span class="font-medium">Deine Antwort:</span> {{ formatAnswer(userAnswers[idx]) }}
+                </p>
+                <p v-if="!isCorrect(idx)" class="text-sm text-gray-700 mt-1">
+                  <span class="font-medium">Richtige Antwort:</span> {{ formatCorrectAnswer(q) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aktionen -->
+        <div class="mt-8 flex gap-4 justify-center">
+          <button @click="restart" class="uk-button uk-button-primary uk-button-large">
+            <span uk-icon="icon: refresh"></span> Quiz wiederholen
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -47,6 +192,7 @@ createApp({
     const score = ref(0);
     const answered = ref(false);
     const userAnswers = reactive({});
+    const correctAnswers = reactive({});
 
     const jsonHeaders = { Accept: 'application/json' };
 
@@ -67,15 +213,42 @@ createApp({
       return 'div';
     });
 
+    const scorePercentage = Vue.computed(() => {
+      if (questions.value.length === 0) return 0;
+      return Math.round((score.value / questions.value.length) * 100);
+    });
+
+    const scoreMessage = Vue.computed(() => {
+      const pct = scorePercentage.value;
+      if (pct >= 90) return '🎉 Hervorragend! Du bist ein Quiz-Meister!';
+      if (pct >= 70) return '👏 Sehr gut! Du hast die meisten Fragen richtig beantwortet!';
+      if (pct >= 50) return '👍 Gut gemacht! Du bist auf dem richtigen Weg!';
+      if (pct >= 30) return '💪 Nicht schlecht! Mit etwas Übung wird es noch besser!';
+      return '📚 Weiter üben! Beim nächsten Mal klappt es besser!';
+    });
+
     function onAnswered(result) {
       answered.value = true;
       if (result.correct) score.value++;
       userAnswers[currentIndex.value] = result.answer;
+      correctAnswers[currentIndex.value] = result.correct;
     }
 
     function next() {
       answered.value = false;
       currentIndex.value++;
+    }
+
+    function restart() {
+      currentIndex.value = 0;
+      score.value = 0;
+      answered.value = false;
+      Object.keys(userAnswers).forEach(key => delete userAnswers[key]);
+      Object.keys(correctAnswers).forEach(key => delete correctAnswers[key]);
+    }
+
+    function isCorrect(idx) {
+      return correctAnswers[idx] === true;
     }
 
     function formatAnswer(ans) {
@@ -88,7 +261,26 @@ createApp({
       return ans;
     }
 
-    return { questions, loading, currentIndex, currentQuestion, currentComponent, answered, score, next, onAnswered, userAnswers, formatAnswer };
+    function formatCorrectAnswer(q) {
+      switch(q.type) {
+        case 'choice':
+          return q.options[q.correct];
+        case 'sort':
+          return q.correctOrder.map(idx => q.items[idx]).join(', ');
+        case 'match':
+          return q.pairs.map(p => `${p.term}: ${p.definition}`).join('; ');
+        case 'swipe':
+          return q.cards.map(c => `${c.text}: ${c.correct ? (c.rightLabel || q.rightLabel || 'Ja') : (c.leftLabel || q.leftLabel || 'Nein')}`).join('; ');
+        default:
+          return 'N/A';
+      }
+    }
+
+    return {
+      questions, loading, currentIndex, currentQuestion, currentComponent, answered, score,
+      next, onAnswered, userAnswers, formatAnswer, scorePercentage, scoreMessage,
+      restart, isCorrect, formatCorrectAnswer
+    };
   }
 })
 .component('choice-question', {
@@ -109,20 +301,27 @@ createApp({
       emit('answered', { correct, answer: props.question.options[idx] });
     }
     function btnClass(idx) {
-      if (selected.value === null) return 'uk-button uk-button-default';
-      if (idx === props.question.correct) return 'uk-button uk-button-success';
-      if (idx === selected.value) return 'uk-button uk-button-danger';
-      return 'uk-button uk-button-default';
+      if (selected.value === null) return 'uk-button uk-button-default uk-button-large btn-answer';
+      if (idx === props.question.correct) return 'uk-button uk-button-success uk-button-large';
+      if (idx === selected.value) return 'uk-button uk-button-danger uk-button-large';
+      return 'uk-button uk-button-default uk-button-large opacity-50';
     }
     return { selected, select, btnClass };
   },
   template: `
     <div>
-      <p class="mb-4">{{ question.question }}</p>
-      <button v-for="(opt, idx) in question.options" :key="idx" @click="select(idx)"
-        :class="btnClass(idx) + ' uk-width-1-1 uk-text-left uk-margin-small-bottom'">
-        {{ opt }}
-      </button>
+      <h3 class="uk-text-large font-semibold mb-6">{{ question.question }}</h3>
+      <div class="space-y-3">
+        <button v-for="(opt, idx) in question.options" :key="idx" @click="select(idx)"
+          :class="btnClass(idx) + ' uk-width-1-1 uk-text-left'"
+          style="min-height: 60px; border-radius: 12px;">
+          <div class="flex items-center justify-between">
+            <span>{{ opt }}</span>
+            <span v-if="selected !== null && idx === question.correct" uk-icon="icon: check; ratio: 1.2"></span>
+            <span v-else-if="selected === idx" uk-icon="icon: close; ratio: 1.2"></span>
+          </div>
+        </button>
+      </div>
     </div>
   `
 })
@@ -226,22 +425,66 @@ createApp({
   },
   template: `
     <div>
-      <p class="mb-4 uk-text-lead">{{ question.question }}</p>
-      <div class="relative w-full h-64 select-none">
-        <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pointer-events-none uk-text-danger uk-text-lead" style="writing-mode: vertical-rl; transform: translate(-50%, -50%) rotate(180deg);">
-          {{ question.leftLabel || 'Falsch' }}
+      <h3 class="uk-text-large font-semibold mb-6">{{ question.question }}</h3>
+      <div class="relative w-full mb-6" style="height: 400px;">
+        <!-- Linkes Label -->
+        <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pointer-events-none opacity-60"
+          style="writing-mode: vertical-rl; transform: translate(-100%, -50%) rotate(180deg);">
+          <div class="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-bold text-lg">
+            {{ question.leftLabel || 'Falsch' }}
+          </div>
         </div>
-        <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pointer-events-none uk-text-success uk-text-lead" style="writing-mode: vertical-rl;">
-          {{ question.rightLabel || 'Richtig' }}
+
+        <!-- Rechtes Label -->
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pointer-events-none opacity-60"
+          style="writing-mode: vertical-rl; transform: translate(100%, -50%);">
+          <div class="bg-green-100 text-green-600 px-4 py-2 rounded-lg font-bold text-lg">
+            {{ question.rightLabel || 'Richtig' }}
+          </div>
         </div>
-        <div class="absolute inset-y-0 left-0 w-1/3 overflow-hidden cursor-pointer" @click="swipe('left')"></div>
-        <div class="absolute inset-y-0 right-0 w-1/3 overflow-hidden cursor-pointer" @click="swipe('right')"></div>
-        <div v-for="(c, idx) in cards" :key="idx" class="absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center transition-transform duration-300" :style="styleCard(idx)" @pointerdown="idx === cards.length-1 && start($event)" @pointermove="idx === cards.length-1 && move($event)" @pointerup="idx === cards.length-1 && end()" @pointercancel="idx === cards.length-1 && end()">
-          <span class="p-4 text-center text-black uk-text-large">{{ c.text }}</span>
+
+        <!-- Klickbare Bereiche -->
+        <div class="absolute inset-y-0 left-0 w-1/3 overflow-hidden cursor-pointer z-10" @click="swipe('left')"></div>
+        <div class="absolute inset-y-0 right-0 w-1/3 overflow-hidden cursor-pointer z-10" @click="swipe('right')"></div>
+
+        <!-- Karten -->
+        <div v-for="(c, idx) in cards" :key="idx"
+          class="absolute inset-0 bg-white rounded-2xl shadow-2xl flex items-center justify-center transition-transform duration-300 swipe-card border-4 border-gray-200"
+          :style="styleCard(idx)"
+          @pointerdown="idx === cards.length-1 && start($event)"
+          @pointermove="idx === cards.length-1 && move($event)"
+          @pointerup="idx === cards.length-1 && end()"
+          @pointercancel="idx === cards.length-1 && end()">
+          <div class="p-8 text-center">
+            <span class="text-2xl md:text-3xl font-medium text-gray-800">{{ c.text }}</span>
+          </div>
         </div>
-        <div v-if="dragging" class="absolute top-4 left-4 text-2xl font-bold pointer-events-none" :class="offsetX >= 0 ? 'text-green-600' : 'text-red-600'">{{ label }}</div>
+
+        <!-- Feedback-Label beim Ziehen -->
+        <div v-if="dragging" class="absolute top-8 left-1/2 -translate-x-1/2 text-4xl font-bold pointer-events-none z-20 animate-pulse"
+          :class="offsetX >= 0 ? 'text-green-600' : 'text-red-600'">
+          {{ label }}
+        </div>
       </div>
-      <p v-if="cards.length === 0" class="mt-4 text-center uk-text-lead">Keine Karten mehr</p>
+
+      <!-- Anleitung -->
+      <div class="text-center text-gray-600 mb-4">
+        <p v-if="cards.length > 0" class="text-sm">
+          <span uk-icon="icon: info" class="mr-1"></span>
+          Wische die Karten nach links oder rechts, oder klicke auf die Seiten
+        </p>
+        <p v-else class="uk-text-lead text-green-600 font-semibold">
+          <span uk-icon="icon: check; ratio: 1.5" class="mr-2"></span>
+          Alle Karten bearbeitet!
+        </p>
+      </div>
+
+      <!-- Counter -->
+      <div class="text-center">
+        <span class="inline-block px-4 py-2 bg-purple-100 text-purple-700 rounded-full font-semibold">
+          {{ cards.length }} Karte(n) übrig
+        </span>
+      </div>
     </div>
   `
 })
@@ -264,18 +507,32 @@ createApp({
   },
   template: `
     <div>
-      <p class="mb-4">{{ question.question }}</p>
+      <h3 class="uk-text-large font-semibold mb-6">{{ question.question }}</h3>
+      <p class="text-sm text-gray-600 mb-4">
+        <span uk-icon="icon: move" class="mr-1"></span>
+        Ziehe die Elemente in die richtige Reihenfolge
+      </p>
       <p id="sort-desc" class="uk-hidden-visually">Benutze die Pfeiltasten hoch und runter, um Elemente in dieser Liste zu verschieben.</p>
-      <draggable v-model="items" class="bg-white p-2" item-key="text" ghost-class="opacity-50"
+      <draggable v-model="items" class="bg-gray-50 p-4 rounded-lg mb-4" item-key="text" ghost-class="opacity-50"
         aria-dropeffect="move" aria-label="Sortierbare Liste" aria-describedby="sort-desc">
-        <template #item="{element}">
-          <div class="p-2 mb-2 border bg-gray-100 cursor-move">{{ element }}</div>
+        <template #item="{element, index}">
+          <div class="p-4 mb-3 border-2 border-gray-300 bg-white rounded-lg cursor-move hover:border-purple-400 hover:shadow-md transition-all flex items-center gap-3">
+            <span class="bg-purple-100 text-purple-700 font-bold px-3 py-1 rounded-full text-sm">{{ index + 1 }}</span>
+            <span class="flex-1">{{ element }}</span>
+            <span uk-icon="icon: menu" class="text-gray-400"></span>
+          </div>
         </template>
       </draggable>
-      <button @click="check" class="uk-button uk-button-primary uk-margin-top">Antwort prüfen</button>
-      <p v-if="checked" class="mt-2 font-semibold" :class="correct ? 'text-green-600' : 'text-red-600'">
-        {{ correct ? 'Richtig!' : 'Leider falsch.' }}
-      </p>
+      <button @click="check" class="uk-button uk-button-primary uk-button-large uk-width-1-1">
+        <span uk-icon="icon: check"></span> Antwort prüfen
+      </button>
+      <div v-if="checked" class="mt-4 p-4 rounded-lg" :class="correct ? 'bg-green-100' : 'bg-red-100'">
+        <p class="font-semibold text-lg" :class="correct ? 'text-green-700' : 'text-red-700'">
+          <span v-if="correct" uk-icon="icon: check; ratio: 1.2"></span>
+          <span v-else uk-icon="icon: close; ratio: 1.2"></span>
+          {{ correct ? '🎉 Richtig! Perfekte Reihenfolge!' : '❌ Leider falsch. Versuche es nochmal!' }}
+        </p>
+      </div>
     </div>
   `
 })
@@ -299,36 +556,59 @@ createApp({
   },
   template: `
     <div>
-      <p class="mb-4">{{ question.question }}</p>
-      <div class="flex flex-col md:flex-row gap-4">
+      <h3 class="uk-text-large font-semibold mb-6">{{ question.question }}</h3>
+      <p class="text-sm text-gray-600 mb-4">
+        <span uk-icon="icon: move" class="mr-1"></span>
+        Ziehe die Begriffe zu den passenden Definitionen
+      </p>
+      <div class="flex flex-col md:flex-row gap-6">
         <div class="md:w-1/3">
-          <p class="font-semibold mb-2">Begriffe</p>
+          <p class="font-semibold mb-3 text-purple-700">
+            <span uk-icon="icon: tag" class="mr-1"></span>
+            Begriffe
+          </p>
           <p id="match-pool-desc" class="uk-hidden-visually">Benutze die Pfeiltasten hoch und runter, um Elemente in dieser Liste zu verschieben.</p>
-          <draggable v-model="pool" group="items" class="min-h-[50px] p-2 bg-gray-100 rounded"
+          <draggable v-model="pool" group="items" class="min-h-[100px] p-3 bg-purple-50 rounded-lg border-2 border-purple-200"
             aria-dropeffect="move" aria-label="Begriffe" aria-describedby="match-pool-desc">
             <template #item="{element}">
-              <div class="p-2 m-1 bg-blue-200 rounded cursor-move">{{ element }}</div>
+              <div class="p-3 m-2 bg-purple-500 text-white rounded-lg cursor-move hover:bg-purple-600 transition-colors shadow-md font-medium">
+                {{ element }}
+              </div>
             </template>
           </draggable>
         </div>
         <div class="flex-1">
-          <p class="font-semibold mb-2">Definitionen</p>
+          <p class="font-semibold mb-3 text-indigo-700">
+            <span uk-icon="icon: list" class="mr-1"></span>
+            Definitionen
+          </p>
           <div v-for="(pair, idx) in question.pairs" :key="idx" class="mb-4">
-            <div class="p-2 bg-gray-200 rounded mb-2">{{ pair.definition }}</div>
+            <div class="p-3 bg-indigo-50 border-2 border-indigo-200 rounded-lg mb-2">
+              <span class="font-medium text-indigo-900">{{ pair.definition }}</span>
+            </div>
             <p :id="'match-drop-desc-' + idx" class="uk-hidden-visually">Benutze die Pfeiltasten hoch und runter, um Elemente in dieser Liste zu verschieben.</p>
-            <draggable v-model="answers[idx]" group="items" :animation="150" class="min-h-[40px] p-2 border rounded"
+            <draggable v-model="answers[idx]" group="items" :animation="150"
+              class="min-h-[50px] p-2 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:border-purple-400 hover:bg-purple-50 transition-colors"
               aria-dropeffect="move" :aria-label="'Ablagefeld ' + (idx + 1)" :aria-describedby="'match-drop-desc-' + idx">
               <template #item="{element}">
-                <div class="p-2 bg-blue-200 rounded cursor-move">{{ element }}</div>
+                <div class="p-3 bg-purple-500 text-white rounded-lg cursor-move shadow-md font-medium">
+                  {{ element }}
+                </div>
               </template>
             </draggable>
           </div>
         </div>
       </div>
-      <button @click="check" class="uk-button uk-button-primary uk-margin-top">Antwort prüfen</button>
-      <p v-if="checked" class="mt-2 font-semibold" :class="correct ? 'text-green-600' : 'text-red-600'">
-        {{ correct ? 'Richtig!' : 'Leider falsch.' }}
-      </p>
+      <button @click="check" class="uk-button uk-button-primary uk-button-large uk-width-1-1 uk-margin-top">
+        <span uk-icon="icon: check"></span> Antwort prüfen
+      </button>
+      <div v-if="checked" class="mt-4 p-4 rounded-lg" :class="correct ? 'bg-green-100' : 'bg-red-100'">
+        <p class="font-semibold text-lg" :class="correct ? 'text-green-700' : 'text-red-700'">
+          <span v-if="correct" uk-icon="icon: check; ratio: 1.2"></span>
+          <span v-else uk-icon="icon: close; ratio: 1.2"></span>
+          {{ correct ? '🎉 Richtig! Alle Zuordnungen stimmen!' : '❌ Leider falsch. Prüfe deine Zuordnungen nochmal!' }}
+        </p>
+      </div>
     </div>
   `
 })
