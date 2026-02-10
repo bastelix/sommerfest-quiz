@@ -50,10 +50,6 @@ RUN mkdir -p /var/www/backup \
 # include custom PHP configuration
 COPY config/php.ini /usr/local/etc/php/conf.d/custom.ini
 
-# run static analysis during image build
-# increase memory limit for phpstan to avoid out-of-memory errors
-RUN if [ -f vendor/bin/phpstan ]; then vendor/bin/phpstan --no-progress --memory-limit=512M; fi
-
 # entrypoint to install dependencies if host volume lacks vendor/
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
