@@ -38,8 +38,7 @@ class PageController
 
     private const LEGACY_VARIANT_NORMALIZATION = [
         'hero' => [
-            'media_right' => 'media-right',
-            'centered_cta' => 'centered-cta',
+            'centered-cta' => 'centered_cta',
         ],
         'process_steps' => [
             'timeline_vertical' => 'numbered-vertical',

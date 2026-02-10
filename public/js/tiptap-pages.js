@@ -3033,7 +3033,9 @@ const initImportCreatePage = () => {
             preview.hidden = false;
           }
         } catch (err) {
-          setFeedback('Die Datei enthält kein gültiges JSON.');
+          console.error('JSON import parse error:', err);
+          const detail = err instanceof SyntaxError ? ` (${err.message})` : '';
+          setFeedback(`Die Datei enthält kein gültiges JSON.${detail}`);
         }
       };
       reader.onerror = () => {
