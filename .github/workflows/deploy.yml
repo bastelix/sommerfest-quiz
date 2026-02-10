@@ -17,7 +17,8 @@ jobs:
           script: |
             set -e
             cd /var/sommerfest-quiz
-            git pull
+            git fetch origin main
+            git reset --hard origin/main
             mkdir -p resources/fonts
             curl -L -o resources/fonts/NotoSans-Bold.ttf https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Bold.ttf
             export $(grep -E '^[A-Za-z_][A-Za-z_0-9]*=' .env | sed 's/[[:space:]]#.*//' | xargs) 2>/dev/null || true
