@@ -311,6 +311,8 @@
 - Reset text/link color inside cards on coloured section backgrounds
 - Resolve GitHub Actions race condition with concurrency groups
 - Remove margin-top between sections that caused unfilled gaps
+- Hero text contrast on colored sections + eyebrow tag option
+- FAQ accordion contrast — inherit section text color, adaptive icons
 
 ### Refactor
 
