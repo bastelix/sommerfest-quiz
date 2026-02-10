@@ -307,6 +307,7 @@
 - Escape Liquid/Twig syntax in docs to fix GitHub Pages build
 - Add missing section CSS for namespace-themed block rendering
 - Add missing CSS tokens and block styles for CMS page rendering
+- Connect theme blocks to contrast system, improve palettes
 
 ### Refactor
 
