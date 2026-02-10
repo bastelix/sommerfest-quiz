@@ -1,0 +1,330 @@
+{
+  "meta": {
+    "namespace": "calhelp",
+    "slug": "calhelp-landing",
+    "title": "calHelp – Praxiswissen für die Kalibrierbranche | René Buske",
+    "schemaVersion": "block-contract-v1"
+  },
+  "blocks": [
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "centered_cta",
+      "meta": {
+        "sectionStyle": {
+          "layout": "full",
+          "intent": "hero",
+          "background": {
+            "mode": "color",
+            "colorToken": "secondary"
+          }
+        }
+      },
+      "data": {
+        "eyebrow": "Seit 2009 in der Kalibrierbranche",
+        "headline": "Dein Partner für Kalibriertechnik und Labormanagement",
+        "subheadline": "Praxiswissen, deutschsprachige MET/CAL-Dokumentation und eine Labormanagement-Plattform – alles aus einer Hand. Von René Buske.",
+        "cta": {
+          "label": "Kostenlose MET/CAL-Doku sichern",
+          "href": "#newsletter"
+        }
+      }
+    },
+    {
+      "id": "stats",
+      "type": "stat_strip",
+      "variant": "three-up",
+      "meta": {
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "highlight"
+        }
+      },
+      "data": {
+        "metrics": [
+          {
+            "id": "experience",
+            "value": "20+",
+            "label": "Jahre Erfahrung",
+            "benefit": "Kalibriertechnik ist seit über zwei Jahrzehnten unser Fachgebiet."
+          },
+          {
+            "id": "participants",
+            "value": "1.000+",
+            "label": "Schulungsteilnehmer",
+            "benefit": "Über 100 Schulungen für MET/CAL und Kalibriersoftware durchgeführt."
+          },
+          {
+            "id": "recommendation",
+            "value": "100 %",
+            "label": "Weiterempfehlung",
+            "benefit": "4.91 von 5 Sternen bei ProvenExpert – 63 Bewertungen."
+          }
+        ],
+        "marquee": [
+          "4.91 / 5 bei ProvenExpert",
+          "Von DAkkS-Laboren bis Konzerne",
+          "Hosting in Deutschland (ISO 27001)",
+          "DSGVO-konform"
+        ]
+      }
+    },
+    {
+      "id": "about-timeline",
+      "type": "process_steps",
+      "variant": "timeline",
+      "meta": {
+        "anchor": "about",
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "content"
+        }
+      },
+      "data": {
+        "title": "René Buske – Kalibriertechnik ist nicht nur ein Job",
+        "intro": "Über den Gründer",
+        "steps": [
+          {
+            "id": "career",
+            "title": "Kalibriertechniker bei der Bundeswehr",
+            "description": "Über 10 Jahre praktische Erfahrung im Kalibrierlabor – dort, wo Präzision keine Option, sondern Pflicht ist."
+          },
+          {
+            "id": "fluke",
+            "title": "Deutscher Fluke MET/CAL-Support",
+            "description": "Als Referent beim deutschen Exklusiv-Vertriebspartner für Fluke MET/CAL und MET/TEAM hat René über 100 Schulungen mit mehr als 1.000 Teilnehmern durchgeführt."
+          },
+          {
+            "id": "founding",
+            "title": "Gründung calHelp (2009)",
+            "description": "Beginn als unabhängiger Berater, Schulungsanbieter und Support für Kalibriersoftware. Aufbau des calhelp-Forums als Anlaufstelle der Branche."
+          },
+          {
+            "id": "today",
+            "title": "Entwickler von calServer",
+            "description": "Aus der jahrelangen Erfahrung mit den Problemen im Laboralltag entstand calServer – eine moderne, flexible Labormanagement-Plattform."
+          }
+        ],
+        "closing": {
+          "title": "Erfahrung, die sich abhebt",
+          "body": "Es gibt keine Alternative als calHelp. Die Erfahrung und Kompetenz hebt sich einfach ab zu allen anderen in dem Bereich. — Kundenbewertung auf ProvenExpert (63 Bewertungen · 4.91/5 · 100 % Weiterempfehlung)"
+        }
+      }
+    },
+    {
+      "id": "pillars",
+      "type": "feature_list",
+      "variant": "detailed-cards",
+      "meta": {
+        "anchor": "services",
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "feature",
+          "background": {
+            "mode": "color",
+            "colorToken": "muted"
+          }
+        }
+      },
+      "data": {
+        "eyebrow": "Was calHelp bietet",
+        "title": "Drei Säulen für deinen Laborerfolg",
+        "items": [
+          {
+            "id": "metcal-wissen",
+            "title": "MET/CAL-Wissen",
+            "description": "Die einzige deutschsprachige MET/CAL-Dokumentation – praxisnah, mit Beispielcode und einem roten Faden durch die Prozedurentwicklung. Dazu Schulungen und ein Einstiegskurs.",
+            "bullets": [
+              "Deutschsprachiges Grundlagenhandbuch",
+              "Praxiserprobte Beispiele und Beispielcode",
+              "Kostenlos nach Newsletter-Anmeldung"
+            ]
+          },
+          {
+            "id": "beratung-support",
+            "title": "Beratung & Support",
+            "description": "Individuelle Unterstützung bei Kalibrierprozessen, MET/CAL-Prozeduren, Laboraufbau und Systemoptimierung. Persönlich, direkt und auf den Punkt.",
+            "bullets": [
+              "Kalibrierprozesse und MET/CAL-Prozeduren",
+              "Laboraufbau und Systemoptimierung",
+              "Persönlich und direkt"
+            ]
+          },
+          {
+            "id": "calserver",
+            "title": "calServer",
+            "description": "Die flexible Labormanagement-Plattform – Prüfmittelverwaltung, Kalibrierplanung, Dokumentenmanagement und Auftragsabwicklung in einem System.",
+            "bullets": [
+              "Prüfmittelverwaltung und Kalibrierplanung",
+              "Dokumentenmanagement und Auftragsabwicklung",
+              "Cloud oder Self-Hosting (Docker-basiert)"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "testimonial-1",
+      "type": "testimonial",
+      "variant": "single_quote",
+      "meta": {
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "highlight"
+        }
+      },
+      "data": {
+        "quote": "Wirklich sehr netter Kontakt und individuell aufgebautes Seminar, genau auf unsere Anforderungen zugeschnitten. Hat uns um Monate nach vorn gebracht – und das nach nicht mal einer Woche Wartezeit.",
+        "author": {
+          "name": "MET/CAL Schulungsteilnehmer"
+        },
+        "source": "ProvenExpert"
+      }
+    },
+    {
+      "id": "testimonial-2",
+      "type": "testimonial",
+      "variant": "single_quote",
+      "meta": {
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "content"
+        }
+      },
+      "data": {
+        "quote": "Es ist sehr praktisch, alle erforderlichen Schritte in einer Software unternehmen zu können. Ob ich gerade ein Angebot erstelle, einen Kalibrierschein versende oder Rechnungen einpflege – ich bleibe immer in calServer.",
+        "author": {
+          "name": "KSW Kalibrierservice GmbH"
+        },
+        "source": "ProvenExpert"
+      }
+    },
+    {
+      "id": "testimonial-3",
+      "type": "testimonial",
+      "variant": "single_quote",
+      "meta": {
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "content"
+        }
+      },
+      "data": {
+        "quote": "Vom ersten telefonischen Kontakt bis zur letzten Minute der Leistungserbringung wurden unsere Belange zur vollsten Zufriedenheit erfüllt. Funktionsfähige Umgebung mit migrierten Daten übergeben.",
+        "author": {
+          "name": "Migrationsprojekt"
+        },
+        "source": "ProvenExpert"
+      }
+    },
+    {
+      "id": "testimonial-4",
+      "type": "testimonial",
+      "variant": "single_quote",
+      "meta": {
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "content"
+        }
+      },
+      "data": {
+        "quote": "Sehr professioneller und individueller Service. Besonders die breitbandige Unterstützung durch die Unabhängigkeit und Erfahrung hat uns sehr weitergeholfen. Klare Empfehlung.",
+        "author": {
+          "name": "Langjähriger Kunde"
+        },
+        "source": "ProvenExpert"
+      }
+    },
+    {
+      "id": "calserver-bridge",
+      "type": "feature_list",
+      "variant": "grid-bullets",
+      "meta": {
+        "anchor": "calserver",
+        "sectionStyle": {
+          "layout": "card",
+          "intent": "feature"
+        }
+      },
+      "data": {
+        "eyebrow": "Das Produkt",
+        "title": "calServer – dein Labor in einer Plattform",
+        "lead": "Entstanden aus der täglichen Arbeit mit Kalibriertechnikern. calServer vereint Prüfmittelverwaltung, Kalibrierplanung, Dokumentenmanagement und Auftragsabwicklung – ohne Medienbrüche, ohne Excel-Listen.",
+        "items": [
+          {
+            "id": "geraeteverwaltung",
+            "title": "Prüfmittel- und Geräteverwaltung",
+            "description": "Vollständige Lebensakte für jedes Gerät mit Stammdaten, Dokumenten und Historie.",
+            "bullets": [
+              "Geräteakten mit Lebensakte",
+              "Automatische Kalibrierplanung",
+              "E-Mail-Abruflisten"
+            ]
+          },
+          {
+            "id": "dms",
+            "title": "Dokumentenmanagement",
+            "description": "Integriertes DMS mit automatischer Versionierung und revisionssicherer Ablage.",
+            "bullets": [
+              "Versionierung",
+              "Automatische Zuordnung",
+              "PDF-Viewer"
+            ]
+          },
+          {
+            "id": "auftraege",
+            "title": "Auftrags- und Kundenmanagement",
+            "description": "Vom Angebot bis zur Rechnung – mit Ticketsystem und Risikobewertung.",
+            "bullets": [
+              "Angebot bis Rechnung",
+              "Ticketsystem mit Risikobewertung",
+              "Cloud oder Self-Hosting (Docker)"
+            ]
+          },
+          {
+            "id": "hosting",
+            "title": "Sicherheit und Hosting",
+            "description": "Gehostet in Deutschland mit ISO 27001 und DSGVO-Konformität.",
+            "bullets": [
+              "Hosted in Deutschland",
+              "ISO 27001 zertifiziert",
+              "DSGVO-konform"
+            ]
+          }
+        ],
+        "cta": {
+          "label": "calServer kennenlernen",
+          "href": "https://calserver.com"
+        }
+      }
+    },
+    {
+      "id": "newsletter-cta",
+      "type": "cta",
+      "variant": "split",
+      "meta": {
+        "anchor": "newsletter",
+        "sectionStyle": {
+          "layout": "full",
+          "intent": "highlight",
+          "background": {
+            "mode": "color",
+            "colorToken": "primary"
+          }
+        }
+      },
+      "data": {
+        "title": "Praxiswissen direkt ins Postfach",
+        "body": "Erhalte regelmäßig Tipps zu Kalibriertechnik, MET/CAL, Normen-Updates und Labormanagement. Geschrieben von René Buske – kein Marketing-Blabla, sondern echtes Fachwissen aus 20+ Jahren Praxis. Gratis MET/CAL-Dokumentation als Willkommensgeschenk.",
+        "primary": {
+          "label": "Newsletter abonnieren",
+          "href": "#contact-form"
+        },
+        "secondary": {
+          "label": "Kontakt aufnehmen",
+          "href": "mailto:office@calhelp.de"
+        }
+      }
+    }
+  ]
+}
