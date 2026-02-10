@@ -303,6 +303,7 @@
 - Resolve admin page tree loading and namespace design application
 - Restore missing pageTypeDefaultsList variable in content.twig
 - Use DOMContentLoaded for page tree init and harden apiFetch fallback
+- Escape Liquid/Twig syntax in docs to fix GitHub Pages build
 
 ### Refactor
 
