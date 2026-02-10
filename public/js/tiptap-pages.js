@@ -2924,6 +2924,30 @@ const initPageCreation = () => {
       }
     }
   });
+
+  if (modalEl) {
+    modalEl.addEventListener('beforeshow', () => {
+      form.reset();
+      setFeedback('');
+      const importForm = document.getElementById('importCreatePageForm');
+      const importFeedback = document.getElementById('importCreateFeedback');
+      const importPreview = document.getElementById('importCreatePreview');
+      if (importForm) {
+        importForm.reset();
+      }
+      if (importFeedback) {
+        importFeedback.hidden = true;
+        importFeedback.textContent = '';
+      }
+      if (importPreview) {
+        importPreview.hidden = true;
+      }
+      const tabContainer = modalEl.querySelector('[uk-tab]');
+      if (tabContainer && window.UIkit) {
+        window.UIkit.tab(tabContainer).show(0);
+      }
+    });
+  }
 };
 
 const initImportCreatePage = () => {
