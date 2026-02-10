@@ -24,9 +24,6 @@
   background: var(--section-bg-color);
 }
 
-.section + .section {
-  margin-top: var(--marketing-section-gap, var(--section-gap));
-}
 
 /* ------------------------------------------------------------------ */
 /*  Intent presets                                                     */
