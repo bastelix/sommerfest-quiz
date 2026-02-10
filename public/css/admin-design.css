@@ -24,12 +24,12 @@
 }
 
 .design-preview__viewport {
-  --preview-surface-bg: var(--bg-subtle, #f8fafc);
-  --preview-surface-ink: var(--text-primary, #0b1018);
-  --preview-surface-heading: var(--text-heading, #0b1728);
-  --preview-surface-secondary: var(--text-secondary, #4b5563);
-  --preview-card-bg: var(--bg-section, #ffffff);
-  --preview-card-border: var(--border-muted, #e5e7eb);
+  --preview-surface-bg: var(--marketing-surface, var(--bg-subtle, #f8fafc));
+  --preview-surface-ink: var(--marketing-text-on-surface, var(--text-primary, #0b1018));
+  --preview-surface-heading: var(--marketing-text-on-surface, var(--text-heading, #0b1728));
+  --preview-surface-secondary: var(--marketing-text-muted-on-surface, var(--text-secondary, #4b5563));
+  --preview-card-bg: var(--marketing-surface-glass, var(--bg-section, #ffffff));
+  --preview-card-border: var(--marketing-border, var(--border-muted, #e5e7eb));
   border: 1px solid var(--preview-card-border);
   border-radius: 16px;
   padding: 12px;
@@ -56,19 +56,19 @@
 }
 
 .design-preview__viewport[data-theme="dark"] {
-  --preview-surface-bg: color-mix(in srgb, #0f172a 92%, var(--bg-muted, #0b1018));
-  --preview-surface-ink: #e5e7eb;
-  --preview-surface-heading: #f8fafc;
-  --preview-surface-secondary: #cbd5e1;
-  --preview-card-bg: #111827;
-  --preview-card-border: rgba(255, 255, 255, 0.12);
-  background: var(--bg-muted, #0b1018);
+  --preview-surface-bg: var(--marketing-surface-dark, #0f172a);
+  --preview-surface-ink: var(--marketing-text-on-surface-dark, #e5e7eb);
+  --preview-surface-heading: var(--marketing-text-on-surface-dark, #f8fafc);
+  --preview-surface-secondary: var(--marketing-text-muted-on-surface-dark, #cbd5e1);
+  --preview-card-bg: var(--marketing-card-dark, #111827);
+  --preview-card-border: var(--marketing-border-light, rgba(255, 255, 255, 0.12));
+  background: var(--marketing-background-dark, var(--bg-muted, #0b1018));
 }
 
 .design-preview__surface {
   border-radius: 12px;
   padding: 24px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--brand-primary, #1e87f0) 12%, var(--preview-surface-bg)), var(--preview-surface-bg));
+  background: var(--preview-surface-bg);
   color: var(--preview-surface-ink);
   min-height: 420px;
   position: relative;
@@ -76,7 +76,7 @@
 }
 
 .design-preview__viewport[data-theme="dark"] .design-preview__surface {
-  background: color-mix(in srgb, var(--brand-primary, #1e87f0) 12%, var(--preview-surface-bg));
+  background: var(--preview-surface-bg);
   color: var(--preview-surface-ink);
 }
 
@@ -86,7 +86,7 @@
   gap: 6px;
   padding: 6px 10px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--brand-accent, #f97316) 15%, var(--preview-surface-ink));
+  background: color-mix(in srgb, var(--marketing-accent, var(--brand-accent, #f97316)) 15%, var(--preview-surface-ink));
   color: #fff;
   font-size: 12px;
   letter-spacing: 0.4px;
@@ -112,15 +112,18 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;
-  color: color-mix(in srgb, var(--brand-accent, #f97316) 80%, var(--preview-surface-ink));
+  color: var(--marketing-accent, var(--brand-accent, #f97316));
   font-size: 12px;
 }
 
 .design-preview__headline {
   font-size: 32px;
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--marketing-heading-letter-spacing, -0.02em);
   color: var(--preview-surface-heading);
+  font-family: var(--marketing-heading-font-stack, inherit);
+  font-weight: var(--marketing-heading-weight, 700);
+  line-height: var(--marketing-heading-line-height, 1.15);
 }
 
 .design-preview__copy {
@@ -136,29 +139,21 @@
 
 .design-preview__button,
 .design-preview__button-secondary {
-  border-radius: 12px;
+  border-radius: var(--marketing-card-radius, 12px);
   padding: 10px 16px;
   font-weight: 600;
 }
 
+.design-preview__button {
+  background: var(--marketing-button-primary-bg, var(--brand-primary, #1e87f0));
+  color: var(--marketing-button-primary-text, var(--marketing-on-accent, #fff));
+  border: 1px solid var(--marketing-button-primary-border-color, transparent);
+}
+
 .design-preview__button-secondary {
-  background: color-mix(in srgb, var(--brand-accent, #f97316) 12%, transparent);
-  color: var(--brand-accent, #f97316);
-  border: 1px solid color-mix(in srgb, var(--brand-accent, #f97316) 35%, transparent);
-}
-
-.design-preview__viewport[data-button-style="outline"] .design-preview__button,
-.design-preview__viewport[data-button-style="outline"] .design-preview__button-secondary {
-  background: transparent;
-  color: var(--brand-primary, #1e87f0);
-  border: 2px solid var(--brand-primary, #1e87f0);
-}
-
-.design-preview__viewport[data-button-style="ghost"] .design-preview__button,
-.design-preview__viewport[data-button-style="ghost"] .design-preview__button-secondary {
-  background: color-mix(in srgb, var(--brand-primary, #1e87f0) 12%, transparent);
-  color: var(--brand-primary, #1e87f0);
-  border: 1px dashed color-mix(in srgb, var(--brand-primary, #1e87f0) 50%, #0b1018);
+  background: var(--marketing-button-secondary-bg, transparent);
+  color: var(--marketing-button-secondary-text, var(--marketing-primary, var(--brand-primary, #1e87f0)));
+  border: 1px solid var(--marketing-button-secondary-border-color, color-mix(in srgb, var(--brand-primary, #1e87f0) 50%, transparent));
 }
 
 .design-preview__cards {
@@ -169,38 +164,19 @@
 
 .design-preview__card {
   padding: 14px 16px;
-  border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--brand-primary, #1e87f0) 40%, #e5e7eb);
-  background: color-mix(in srgb, var(--brand-primary, #1e87f0) 8%, #ffffff);
-  transition: border-color 0.2s ease;
-}
-
-.design-preview__viewport[data-card-style="square"] .design-preview__card {
-  border-radius: 8px;
-}
-
-.design-preview__viewport[data-card-style="pill"] .design-preview__card {
-  border-radius: 24px;
+  border-radius: var(--marketing-card-radius, 10px);
+  border: 1px solid var(--marketing-border, color-mix(in srgb, var(--brand-primary, #1e87f0) 40%, #e5e7eb));
+  background: var(--preview-card-bg, #ffffff);
+  box-shadow: var(--marketing-shadow-card-soft, none);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .design-preview__viewport[data-theme="dark"] .design-preview__card {
-  background: color-mix(in srgb, var(--brand-primary, #1e87f0) 10%, #0b1728);
-  border-color: color-mix(in srgb, var(--brand-primary, #1e87f0) 50%, #0f172a);
+  background: var(--preview-card-bg, #0b1728);
+  border-color: var(--preview-card-border, color-mix(in srgb, var(--brand-primary, #1e87f0) 50%, #0f172a));
 }
 
-.design-preview__viewport[data-typography-preset="classic"] .design-preview__headline {
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-weight: 600;
-}
-
-.design-preview__viewport[data-typography-preset="tech"] .design-preview__headline {
-  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-  letter-spacing: 0.01em;
-}
-
-.design-preview__viewport[data-typography-preset="modern"] .design-preview__headline {
-  font-family: 'Helvetica Neue', 'Inter', system-ui, sans-serif;
-}
+/* Typography presets are now handled by marketing.css via --marketing-heading-font-stack */
 
 .design-color-input input[type="color"] {
   max-width: 64px;
@@ -332,7 +308,7 @@
   border-radius: 50%;
   align-items: center;
   justify-content: center;
-  background: color-mix(in srgb, var(--brand-primary, #1e87f0) 15%, var(--bg-subtle, #dbeafe));
+  background: color-mix(in srgb, var(--marketing-primary, var(--brand-primary, #1e87f0)) 15%, var(--bg-subtle, #dbeafe));
   color: var(--preview-surface-heading);
   font-weight: 700;
 }
@@ -354,9 +330,9 @@
 }
 
 .design-preview__effects-item {
-  background: color-mix(in srgb, var(--brand-primary, #1e87f0) 8%, #ffffff);
-  border: 1px solid color-mix(in srgb, var(--brand-primary, #1e87f0) 20%, #e5e7eb);
-  border-radius: 10px;
+  background: var(--preview-card-bg, #ffffff);
+  border: 1px solid var(--marketing-border, color-mix(in srgb, var(--brand-primary, #1e87f0) 20%, #e5e7eb));
+  border-radius: var(--marketing-card-radius, 10px);
   padding: 10px 12px;
   display: grid;
   gap: 6px;
@@ -366,8 +342,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: color-mix(in srgb, var(--brand-accent, #f97316) 15%, #fff7ed);
-  color: #7c2d12;
+  background: color-mix(in srgb, var(--marketing-accent, var(--brand-accent, #f97316)) 15%, var(--preview-card-bg, #fff7ed));
+  color: var(--preview-surface-ink, #7c2d12);
   padding: 4px 8px;
   border-radius: 999px;
   font-size: 12px;
@@ -386,8 +362,8 @@
 .design-preview__footer {
   margin-top: 8px;
   padding: 16px;
-  border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--brand-primary, #1e87f0) 20%, var(--preview-card-border, #e5e7eb));
+  border-radius: var(--marketing-card-radius, 14px);
+  border: 1px solid var(--marketing-border, var(--preview-card-border, #e5e7eb));
   background: var(--preview-card-bg, #ffffff);
   display: grid;
   gap: 12px;
@@ -424,7 +400,7 @@
   text-transform: uppercase;
   font-weight: 700;
   margin-bottom: 6px;
-  color: color-mix(in srgb, var(--brand-primary, #1e87f0) 65%, var(--preview-surface-heading));
+  color: var(--marketing-primary, var(--brand-primary, #1e87f0));
 }
 
 .design-preview__footer-list {
@@ -443,14 +419,14 @@
 
 .design-preview__footer-link:hover,
 .design-preview__footer-link:focus {
-  color: var(--brand-primary, #1e87f0);
+  color: var(--marketing-primary, var(--brand-primary, #1e87f0));
   text-decoration: underline;
 }
 
 .design-preview__footer-meta {
   font-size: 11px;
   color: var(--preview-surface-secondary);
-  border-top: 1px solid color-mix(in srgb, var(--brand-primary, #1e87f0) 16%, var(--preview-card-border, #e5e7eb));
+  border-top: 1px solid var(--marketing-border, var(--preview-card-border, #e5e7eb));
   padding-top: 8px;
 }
 
