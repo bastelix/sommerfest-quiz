@@ -85,7 +85,7 @@ const schema = {
       "title": "Feature list block",
       "properties": {
         "type": { "const": "feature_list" },
-        "variant": { "enum": ["stacked_cards", "icon_grid", "detailed-cards", "grid-bullets", "text-columns", "card-stack"] },
+        "variant": { "enum": ["stacked_cards", "icon_grid", "detailed-cards", "grid-bullets", "text-columns", "card-stack", "slider"] },
         "data": { "$ref": "#/definitions/FeatureListData" }
       },
       "required": ["type", "variant", "data"]

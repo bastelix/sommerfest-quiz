@@ -9,7 +9,17 @@
     {
       "id": "hero",
       "type": "hero",
-      "variant": "media-right",
+      "variant": "centered_cta",
+      "meta": {
+        "sectionStyle": {
+          "layout": "full",
+          "intent": "hero",
+          "background": {
+            "mode": "color",
+            "colorToken": "secondary"
+          }
+        }
+      },
       "data": {
         "eyebrow": "Software gehostet in Deutschland",
         "headline": "Mehr Überblick, weniger Aufwand mit calServer.",
@@ -30,6 +40,12 @@
       "id": "stats",
       "type": "stat_strip",
       "variant": "three-up",
+      "meta": {
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "highlight"
+        }
+      },
       "data": {
         "metrics": [
           {
@@ -71,7 +87,11 @@
       "type": "process_steps",
       "variant": "timeline",
       "meta": {
-        "anchor": "trust"
+        "anchor": "trust",
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "content"
+        }
       },
       "data": {
         "title": "So fühlt sich calServer im Alltag an",
@@ -111,6 +131,13 @@
       "id": "metcal",
       "type": "feature_list",
       "variant": "detailed-cards",
+      "meta": {
+        "anchor": "metcal",
+        "sectionStyle": {
+          "layout": "card",
+          "intent": "feature"
+        }
+      },
       "data": {
         "eyebrow": "FLUKE MET/CAL · MET/TRACK",
         "title": "Ein System. Klare Prozesse.",
@@ -156,14 +183,21 @@
     {
       "id": "feature-grid",
       "type": "feature_list",
-      "variant": "slider",
+      "variant": "grid-bullets",
       "meta": {
-        "anchor": "features"
+        "anchor": "features",
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "feature",
+          "background": {
+            "mode": "color",
+            "colorToken": "muted"
+          }
+        }
       },
       "data": {
         "title": "Funktionen, die den Alltag erleichtern",
-        "subtitle": "Scroll & entdecke die wichtigsten Bereiche",
-        "intro": "Funktionen im Fokus",
+        "subtitle": "Alle Kernbereiche auf einen Blick",
         "items": [
           {
             "id": "feature-inventare-intervalle",
@@ -173,26 +207,6 @@
               "Automatische Erinnerungslogik",
               "Klare Statusfarben",
               "Planungs-Dashboards"
-            ]
-          },
-          {
-            "id": "feature-kalibrierscheine",
-            "title": "Kalibrierscheine digitalisieren",
-            "description": "Einfach hochladen, alles Weitere erledigt die Zuordnung mit Versionierung & Vorschau.",
-            "bullets": [
-              "Intelligente Dateinamen-Erkennung",
-              "Versionen & Freigaben",
-              "Teilen per Link"
-            ]
-          },
-          {
-            "id": "feature-email-abrufe",
-            "title": "E-Mail-Abrufe & Erinnerungen",
-            "description": "Persönlich und planbar – Serien mit System statt Einzelmails.",
-            "bullets": [
-              "Vorlagen & Platzhalter",
-              "Zeitpläne je Zielgruppe",
-              "Versandprotokoll"
             ]
           },
           {
@@ -226,29 +240,9 @@
             ]
           },
           {
-            "id": "feature-leihverwaltung",
-            "title": "Leihverwaltung",
-            "description": "Reservieren statt Telefonkette – Kalender auf, Gerät rein, fertig.",
-            "bullets": [
-              "Drag-and-Drop Kalender",
-              "Zubehör-Sets",
-              "Rückgabe-Erinnerungen"
-            ]
-          },
-          {
-            "id": "feature-dokumentationen",
-            "title": "Dokumentationen & Wiki",
-            "description": "Wissen bleibt im Team – gepflegt, versioniert und durchsuchbar.",
-            "bullets": [
-              "Editor mit Inhaltsverzeichnis",
-              "Versionen & Berechtigungen",
-              "Interne Verlinkungen"
-            ]
-          },
-          {
             "id": "feature-dms",
             "title": "Dateimanagement (DMS)",
-            "description": "„Nur speichern, nicht sortieren“ – Zuordnung läuft im Hintergrund.",
+            "description": "„Nur speichern, nicht sortieren" – Zuordnung läuft im Hintergrund.",
             "bullets": [
               "Auto-Zuordnung",
               "Versionierung",
@@ -264,16 +258,6 @@
               "Teilnehmerwechsel",
               "Benachrichtigungsketten"
             ]
-          },
-          {
-            "id": "feature-cloud",
-            "title": "Moderne Cloud-Basis",
-            "description": "Schnell, stabil und updatefreundlich – ohne großen Admin-Aufwand.",
-            "bullets": [
-              "Skalierbare Umgebung",
-              "Regelmäßige Updates",
-              "Tägliche Backups"
-            ]
           }
         ]
       }
@@ -283,7 +267,11 @@
       "type": "info_media",
       "variant": "switcher",
       "meta": {
-        "anchor": "modules"
+        "anchor": "modules",
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "feature"
+        }
       },
       "data": {
         "title": "Module, die den Unterschied machen",
@@ -352,6 +340,17 @@
       "id": "usecases",
       "type": "audience_spotlight",
       "variant": "tabs",
+      "meta": {
+        "anchor": "usecases",
+        "sectionStyle": {
+          "layout": "full",
+          "intent": "feature",
+          "background": {
+            "mode": "color",
+            "colorToken": "accent"
+          }
+        }
+      },
       "data": {
         "title": "Anwendungsfälle aus der Praxis",
         "subtitle": "Vom Labor bis zum Außendienst",
@@ -531,6 +530,13 @@
       "id": "operating-modes",
       "type": "package_summary",
       "variant": "toggle",
+      "meta": {
+        "anchor": "operating-modes",
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "content"
+        }
+      },
       "data": {
         "title": "Betriebsarten, die zu Ihnen passen",
         "subtitle": "Wählen Sie, wie calServer betrieben wird: als sichere Cloud-Lösung oder in Ihrer eigenen Umgebung.",
@@ -588,6 +594,17 @@
       "id": "pricing",
       "type": "package_summary",
       "variant": "comparison-cards",
+      "meta": {
+        "anchor": "pricing",
+        "sectionStyle": {
+          "layout": "normal",
+          "intent": "feature",
+          "background": {
+            "mode": "color",
+            "colorToken": "muted"
+          }
+        }
+      },
       "data": {
         "title": "Abomodelle",
         "subtitle": "Monatliche Laufzeit, transparente Bedingungen, DSGVO-konform.",
@@ -676,7 +693,9 @@
       "type": "faq",
       "variant": "accordion",
       "meta": {
+        "anchor": "faq",
         "sectionStyle": {
+          "layout": "normal",
           "intent": "plain"
         }
       },
@@ -720,6 +739,16 @@
       "id": "closing-cta",
       "type": "cta",
       "variant": "split",
+      "meta": {
+        "sectionStyle": {
+          "layout": "full",
+          "intent": "highlight",
+          "background": {
+            "mode": "color",
+            "colorToken": "primary"
+          }
+        }
+      },
       "data": {
         "primary": {
           "label": "Jetzt testen",
