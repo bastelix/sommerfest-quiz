@@ -1248,26 +1248,45 @@ body.admin-page {
   border: 1px solid var(--border-muted, #e5e7eb);
   background: var(--surface-card, #fff);
   border-radius: 10px;
-  padding: 12px;
+  padding: 20px;
   display: grid;
-  gap: 10px;
+  gap: 16px;
   width: 100%;
   box-sizing: border-box;
 }
 
-.page-editor [data-template-list="true"] {
+.template-picker-grid {
   display: grid;
-  gap: 10px;
-  padding: 0;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
   margin: 0;
-  list-style: none;
 }
 
-.page-editor [data-template-entry] {
-  border: 1px solid var(--border-muted, #e5e7eb);
-  border-radius: 10px;
-  padding: 10px;
-  background: var(--surface-subtle, #f9fbff);
+@media (min-width: 768px) {
+  .template-picker-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .template-picker-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.template-picker-grid .layout-style-card {
+  min-height: 180px;
+}
+
+.template-picker-grid .layout-style-card__description {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--text-muted, #6b7280);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: left;
 }
 
 .page-editor .field-label {

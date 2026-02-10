@@ -2259,25 +2259,28 @@ export class BlockContentEditor {
     title.textContent = 'Welchen Abschnitt möchtest du hinzufügen?';
     chooser.append(title);
 
-    const list = document.createElement('ul');
-    list.dataset.templateList = 'true';
+    const grid = document.createElement('div');
+    grid.className = 'template-picker-grid';
 
     SECTION_TEMPLATES.forEach(template => {
-      const entry = document.createElement('li');
-      entry.dataset.templateEntry = template.id;
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'layout-style-card';
+      card.dataset.templateId = template.id;
 
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.dataset.action = 'choose-template';
-      button.textContent = template.label;
-      button.addEventListener('click', () => this.addBlockFromTemplate(template.id));
+      const preview = buildLayoutPreview(template.type, template.variant);
+
+      const cardTitle = document.createElement('div');
+      cardTitle.className = 'layout-style-card__title';
+      cardTitle.textContent = template.label;
 
       const description = document.createElement('div');
-      description.dataset.templateDescription = 'true';
+      description.className = 'layout-style-card__description';
       description.textContent = template.description;
 
-      entry.append(button, description);
-      list.append(entry);
+      card.append(preview, cardTitle, description);
+      card.addEventListener('click', () => this.addBlockFromTemplate(template.id));
+      grid.append(card);
     });
 
     const closeBtn = document.createElement('button');
@@ -2289,7 +2292,7 @@ export class BlockContentEditor {
       this.render();
     });
 
-    chooser.append(list, closeBtn);
+    chooser.append(grid, closeBtn);
     return chooser;
   }
 
