@@ -631,7 +631,7 @@ class PageService
         $tree = [];
         foreach ($nodes as $id => &$node) {
             $parentId = $node['parent_id'];
-            if ($parentId !== null && isset($nodes[$parentId])) {
+            if ($parentId !== null && $parentId !== $id && isset($nodes[$parentId])) {
                 if ($nodes[$parentId]['namespace'] === $node['namespace']) {
                     $nodes[$parentId]['children'][] = &$node;
                     continue;
