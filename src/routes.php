@@ -499,9 +499,21 @@ return function (\Slim\App $app, TranslationService $translator) {
             } catch (\RuntimeException $exception) {
                 $mailProviderRepository = null;
             }
-            $namespaceResolver = new NamespaceResolver();
-            $mailNamespace = $namespaceResolver->resolve($request)->getNamespace();
-            $mailProviderManager = new MailProviderManager($settingsService, [], $mailProviderRepository, $mailNamespace);
+            $mailProviderManager = null;
+            try {
+                $namespaceResolver = new NamespaceResolver();
+                $mailNamespace = $namespaceResolver->resolve($request)->getNamespace();
+                $mailProviderManager = new MailProviderManager($settingsService, [], $mailProviderRepository, $mailNamespace);
+            } catch (\RuntimeException $exception) {
+                // Namespace could not be resolved at this point in the middleware stack.
+                // This can happen when:
+                // 1. No namespace query parameter is provided
+                // 2. No domain mapping exists in the database
+                // 3. Route-specific middleware hasn't run yet to set namespace attributes
+                // The MailProviderManager will be recreated later when needed by routes
+                // that have proper namespace context.
+                $mailProviderManager = null;
+            }
 
             $request = $request
             ->withAttribute('plan', $plan)
