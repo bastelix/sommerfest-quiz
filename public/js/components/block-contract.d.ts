@@ -84,6 +84,7 @@ export interface HeroVideo {
 
 export interface HeroBlockData {
   eyebrow?: string;
+  eyebrowAsTag?: boolean;
   headline: string;
   subheadline?: string;
   media?: Media;

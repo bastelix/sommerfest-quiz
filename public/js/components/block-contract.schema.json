@@ -565,6 +565,10 @@
         "eyebrow": {
           "type": "string"
         },
+        "eyebrowAsTag": {
+          "type": "boolean",
+          "description": "Render the eyebrow as a compact tag/badge instead of plain meta text."
+        },
         "headline": {
           "type": "string",
           "minLength": 1

@@ -639,6 +639,9 @@ function renderEyebrow(block, alignmentClass = '', context = 'frontend') {
   }
   const alignment = alignmentClass ? ` ${alignmentClass}` : '';
   const editable = buildEditableAttributes(block, 'data.eyebrow', context);
+  if (block?.data?.eyebrowAsTag) {
+    return `<p class="uk-margin-remove-bottom${alignment}"${editable}><span class="hero-eyebrow-tag">${escapeHtml(eyebrow)}</span></p>`;
+  }
   return `<p class="uk-text-meta uk-margin-remove-bottom${alignment}"${editable}>${escapeHtml(eyebrow)}</p>`;
 }
 
