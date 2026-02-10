@@ -224,6 +224,11 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     preview.dataset.cardStyle = cardStyle;
     preview.dataset.buttonStyle = buttonStyle;
 
+    const root = document.documentElement;
+    root.dataset.typographyPreset = typographyPreset;
+    root.dataset.cardStyle = cardStyle;
+    root.dataset.buttonStyle = buttonStyle;
+
     updateMeta('layout', layoutProfile);
     updateMeta('typography', typographyPreset);
   };
