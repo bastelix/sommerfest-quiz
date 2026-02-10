@@ -1,7 +1,19 @@
 <div class="uk-card uk-card-default uk-card-body uk-margin">
   <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
     <h3 class="uk-card-title uk-margin-remove">Seitenbaum</h3>
-    <span class="uk-text-meta">{{ t('label_project_namespace') }} · {{ t('column_domain_type') }}</span>
+    <div class="uk-flex uk-flex-middle uk-flex-wrap">
+      <span class="uk-text-meta uk-margin-small-right">{{ t('label_project_namespace') }} · {{ t('column_domain_type') }}</span>
+      <button
+        class="uk-button uk-button-default uk-button-small uk-margin-small-left"
+        type="button"
+        uk-toggle="target: #createPageModal"
+      >Neue Seite</button>
+      <button
+        class="uk-button uk-button-primary uk-button-small uk-margin-small-left"
+        type="button"
+        uk-toggle="target: #aiPageModal"
+      >{{ t('action_ai_page_create') }}</button>
+    </div>
   </div>
   <p class="uk-text-meta uk-margin-small-top">
     Strukturierte Übersicht der Seiten inklusive Parent-Beziehungen.

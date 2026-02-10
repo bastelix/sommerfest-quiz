@@ -145,47 +145,28 @@
         {% include 'admin/components/page_tree.twig' %}
 
         {% set excludedLandingSlugs = ['impressum', 'datenschutz', 'faq', 'lizenz'] %}
-        <label class="uk-form-label" for="pageContentSelect">Marketing-Seite</label>
-        <div class="uk-flex uk-flex-bottom uk-margin-small-bottom uk-flex-wrap">
-          <div class="uk-width-1-1 uk-width-expand@m uk-margin-small-bottom uk-margin-remove-bottom@m">
-            <div class="uk-form-controls">
-              <select
-                id="pageContentSelect"
-                class="uk-select"
-                data-selected="{{ selectedSlug }}"
-                data-excluded-landing="{{ excludedLandingSlugs|join(',') }}"
-                {% if not hasPages %}disabled{% endif %}
-              >
-                {% if not hasPages %}
-                  <option value="" selected>Keine Marketing-Seiten vorhanden</option>
-                {% endif %}
-                  {% for page in pagesList %}
-                    {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
-                    <option
-                      value="{{ page.slug }}"
-                      data-page-id="{{ page.id }}"
-                      data-startpage="{{ page.id == startpage_page_id ? '1' : '0' }}"
-                      {% if page.slug == selectedSlug %}selected{% endif %}
-                    >{{ pageLabel }}</option>
-                  {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="uk-margin-small-left">
-            <button
-              class="uk-button uk-button-default"
-              type="button"
-              uk-toggle="target: #createPageModal"
-            >Neue Seite</button>
-          </div>
-          <div class="uk-margin-small-left">
-            <button
-              class="uk-button uk-button-primary"
-              type="button"
-              uk-toggle="target: #aiPageModal"
-            >{{ t('action_ai_page_create') }}</button>
-          </div>
-        </div>
+        {# Hidden select kept for JS compatibility – page selection happens via the Seitenbaum #}
+        <select
+          id="pageContentSelect"
+          class="uk-select"
+          data-selected="{{ selectedSlug }}"
+          data-excluded-landing="{{ excludedLandingSlugs|join(',') }}"
+          {% if not hasPages %}disabled{% endif %}
+          hidden
+        >
+          {% if not hasPages %}
+            <option value="" selected>Keine Marketing-Seiten vorhanden</option>
+          {% endif %}
+            {% for page in pagesList %}
+              {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
+              <option
+                value="{{ page.slug }}"
+                data-page-id="{{ page.id }}"
+                data-startpage="{{ page.id == startpage_page_id ? '1' : '0' }}"
+                {% if page.slug == selectedSlug %}selected{% endif %}
+              >{{ pageLabel }}</option>
+            {% endfor %}
+        </select>
         {% set pageTypeDefaultsList = pageTypeDefaults|default([]) %}
         {% set hasPageTypes = pageTypeDefaultsList is not empty %}
         <ul class="uk-accordion uk-margin-small" uk-accordion="multiple: true">
