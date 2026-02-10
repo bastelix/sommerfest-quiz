@@ -3014,6 +3014,12 @@ const initImportCreatePage = () => {
           if (typeof text === 'string' && text.charCodeAt(0) === 0xFEFF) {
             text = text.slice(1);
           }
+          // Sanitize typographic quotes that break JSON: „ " " ' ' are fine
+          // inside strings, but a bare " (U+0022) used as typographic closing
+          // quote inside a JSON string value terminates the string prematurely.
+          // Fix: replace „...ASCII"... patterns where ASCII " appears between
+          // a typographic open „ and a non-JSON context (e.g. space, dash).
+          text = text.replace(/\u201e([^\u201d\u201c"]*?)"/g, '\u201e$1\u201d');
           const json = JSON.parse(text);
           parsedPayload = json;
 
