@@ -434,6 +434,12 @@
         <div id="createPageModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
             <h2 class="uk-modal-title">Neue Seite anlegen</h2>
+            <ul uk-tab>
+              <li class="uk-active"><a href="#">Leer</a></li>
+              <li><a href="#">Aus JSON importieren</a></li>
+            </ul>
+            <ul class="uk-switcher uk-margin-small-top">
+              <li>
             <form id="createPageForm" class="uk-form-stacked">
               <div id="createPageFeedback" class="uk-alert uk-alert-danger" hidden></div>
               <div class="uk-margin">
@@ -459,6 +465,41 @@
                 <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
               </div>
             </form>
+              </li>
+              <li>
+                <form id="importCreatePageForm" class="uk-form-stacked" enctype="multipart/form-data">
+                  <div id="importCreateFeedback" class="uk-alert uk-alert-danger" hidden></div>
+                  <div class="uk-margin">
+                    <label class="uk-form-label" for="importPageFile">.page.json Datei</label>
+                    <div class="uk-form-controls">
+                      <input class="uk-input" id="importPageFile" name="file" type="file" accept=".json,application/json" required>
+                    </div>
+                    <p class="uk-text-meta uk-margin-small-top">Slug und Titel werden aus der JSON-Datei übernommen. Du kannst sie unten überschreiben.</p>
+                  </div>
+                  <div id="importCreatePreview" hidden>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="importPageSlug">Slug</label>
+                      <div class="uk-form-controls">
+                        <input class="uk-input" id="importPageSlug" name="slug" type="text" maxlength="100" placeholder="Aus JSON übernommen">
+                      </div>
+                    </div>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="importPageTitle">Titel</label>
+                      <div class="uk-form-controls">
+                        <input class="uk-input" id="importPageTitle" name="title" type="text" placeholder="Aus JSON übernommen">
+                      </div>
+                    </div>
+                    <div class="uk-margin">
+                      <span class="uk-text-meta" data-import-create-block-count></span>
+                    </div>
+                  </div>
+                  <div class="uk-flex uk-flex-right">
+                    <button type="submit" class="uk-button uk-button-primary">Seite aus JSON erstellen</button>
+                    <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
+                  </div>
+                </form>
+              </li>
+            </ul>
           </div>
         </div>
         <div id="aiPageModal" uk-modal>

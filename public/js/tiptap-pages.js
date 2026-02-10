@@ -2926,6 +2926,157 @@ const initPageCreation = () => {
   });
 };
 
+const initImportCreatePage = () => {
+  const form = document.getElementById('importCreatePageForm');
+  if (!form) {
+    return;
+  }
+
+  const fileInput = form.querySelector('#importPageFile');
+  const slugInput = form.querySelector('#importPageSlug');
+  const titleInput = form.querySelector('#importPageTitle');
+  const feedback = document.getElementById('importCreateFeedback');
+  const preview = document.getElementById('importCreatePreview');
+  const blockCountEl = form.querySelector('[data-import-create-block-count]');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const modalEl = document.getElementById('createPageModal');
+  const modal = modalEl && window.UIkit ? window.UIkit.modal(modalEl) : null;
+
+  let parsedPayload = null;
+
+  const setFeedback = (message, status = 'danger') => {
+    if (!feedback) {
+      return;
+    }
+    feedback.classList.remove('uk-alert-danger', 'uk-alert-success');
+    if (!message) {
+      feedback.hidden = true;
+      feedback.textContent = '';
+      return;
+    }
+    feedback.textContent = message;
+    feedback.hidden = false;
+    feedback.classList.add(status === 'success' ? 'uk-alert-success' : 'uk-alert-danger');
+  };
+
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      parsedPayload = null;
+      if (preview) {
+        preview.hidden = true;
+      }
+      setFeedback('');
+
+      const file = fileInput.files?.[0];
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const json = JSON.parse(reader.result);
+          parsedPayload = json;
+
+          const meta = json.meta || {};
+          const blocks = json.blocks || [];
+
+          if (slugInput) {
+            slugInput.value = meta.slug || '';
+          }
+          if (titleInput) {
+            titleInput.value = meta.title || '';
+          }
+          if (blockCountEl) {
+            blockCountEl.textContent = `${blocks.length} Block${blocks.length !== 1 ? 'e' : ''} erkannt (Schema: ${meta.schemaVersion || 'unbekannt'})`;
+          }
+          if (preview) {
+            preview.hidden = false;
+          }
+        } catch (err) {
+          setFeedback('Die Datei enthält kein gültiges JSON.');
+        }
+      };
+      reader.onerror = () => {
+        setFeedback('Datei konnte nicht gelesen werden.');
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    setFeedback('');
+
+    const file = fileInput?.files?.[0];
+    if (!file) {
+      setFeedback('Bitte wähle eine .page.json Datei aus.');
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const slugValue = (slugInput?.value || '').trim();
+      const titleValue = (titleInput?.value || '').trim();
+      if (slugValue) {
+        formData.append('slug', slugValue);
+      }
+      if (titleValue) {
+        formData.append('title', titleValue);
+      }
+
+      const response = await apiFetch(withNamespace('/admin/pages/import-create'), {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: formData
+      });
+
+      const contentType = response.headers.get('content-type') || '';
+      const responseText = await response.text();
+      let payload = {};
+      if (contentType.includes('application/json') && responseText) {
+        try {
+          payload = JSON.parse(responseText);
+        } catch (err) {
+          throw new Error(`Serverantwort konnte nicht als JSON gelesen werden, Status ${response.status}.`);
+        }
+      } else {
+        throw new Error(`Serverantwort ist kein JSON, Status ${response.status}.`);
+      }
+
+      if (!response.ok || !payload.page) {
+        const errorMessage = payload.error || `Die Seite konnte nicht erstellt werden (Status ${response.status}).`;
+        throw new Error(errorMessage);
+      }
+
+      addPageToInterface(payload.page);
+      form.reset();
+      parsedPayload = null;
+      if (preview) {
+        preview.hidden = true;
+      }
+      if (modal) {
+        modal.hide();
+      }
+      setFeedback('');
+      notify('Seite aus JSON importiert', 'success');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Die Seite konnte nicht erstellt werden.';
+      setFeedback(message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+      }
+    }
+  });
+};
+
 const initAiPageCreation = () => {
   const form = document.getElementById('aiPageForm');
   if (!form) {
@@ -4134,6 +4285,7 @@ const initPagesModule = () => {
   runInitStep('page-selection', initPageSelection);
   runInitStep('startpage-toggle', bindStartpageToggle);
   runInitStep('page-creation', initPageCreation);
+  runInitStep('import-create-page', initImportCreatePage);
   runInitStep('ai-page-creation', initAiPageCreation);
   runInitStep('page-transfer-modal', initPageTransferModal);
   runInitStep('page-tree', initPageTree);
