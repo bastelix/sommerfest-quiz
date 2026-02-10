@@ -349,6 +349,55 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  FAQ accordion contrast                                             */
+/* ------------------------------------------------------------------ */
+
+/*
+ * UIkit .uk-accordion-title has hardcoded color:#333 and the +/- toggle
+ * SVGs use hardcoded fill:#666.  Neither responds to CSS variables or
+ * dark mode.  Override so accordion text inherits the section colour
+ * and the toggle icon follows via a mask-based approach.
+ */
+
+.section[data-block-type="faq"] .uk-accordion-title {
+  color: inherit;
+}
+
+.section[data-block-type="faq"] .uk-accordion-title:hover,
+.section[data-block-type="faq"] .uk-accordion-title:focus {
+  color: inherit;
+  opacity: 0.72;
+}
+
+.section[data-block-type="faq"] .uk-accordion-content {
+  color: inherit;
+}
+
+/* Replace hardcoded SVG with mask so icon colour follows currentColor */
+.section[data-block-type="faq"] .uk-accordion-title::before {
+  background-image: none;
+  background-color: currentColor;
+  opacity: 0.6;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 13 13'%3E%3Crect width='13' height='1' x='0' y='6'/%3E%3Crect width='1' height='13' x='6' y='0'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 13 13'%3E%3Crect width='13' height='1' x='0' y='6'/%3E%3Crect width='1' height='13' x='6' y='0'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 50% 50%;
+  mask-position: 50% 50%;
+}
+
+.section[data-block-type="faq"] .uk-open > .uk-accordion-title::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 13 13'%3E%3Crect width='13' height='1' x='0' y='6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 13 13'%3E%3Crect width='13' height='1' x='0' y='6'/%3E%3C/svg%3E");
+}
+
+/* Follow-up text uses uk-text-muted which has its own colour */
+.section[data-block-type="faq"] .uk-text-muted {
+  color: inherit;
+  opacity: 0.62;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Stat strip block                                                   */
 /* ------------------------------------------------------------------ */
 
