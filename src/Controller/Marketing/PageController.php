@@ -53,10 +53,8 @@ use function is_file;
 use function is_readable;
 use function json_decode;
 use function json_encode;
-use function max;
 use function preg_match;
 use function preg_replace;
-use function rawurlencode;
 use function strtolower;
 use function str_contains;
 use function str_starts_with;
@@ -363,7 +361,6 @@ class PageController
             'cmsWikiArticles' => $marketingPayload['featureData']['wikiArticles'],
             'provenExpertRating' => $marketingPayload['featureData']['provenExpertRating'],
             'maintenanceWindowLabel' => $marketingPayload['featureData']['maintenanceWindowLabel'],
-            'laborAssets' => $marketingPayload['featureData']['laborAssets'],
             'turnstileEnabled' => $marketingPayload['featureData']['turnstileEnabled'],
             'turnstileSiteKey' => $marketingPayload['featureData']['turnstileSiteKey'],
             'featureFlags' => $pageFeatures,
@@ -479,7 +476,6 @@ class PageController
             'wikiMenu' => false,
             'provenExpert' => false,
             'maintenanceWindow' => false,
-            'laborAssets' => false,
         ];
 
         $baseSlug = MarketingSlugResolver::resolveBaseSlug($templateSlug);
@@ -504,10 +500,6 @@ class PageController
 
         if ($baseSlug === 'calserver-maintenance') {
             $defaults['maintenanceWindow'] = true;
-        }
-
-        if ($baseSlug === 'labor') {
-            $defaults['laborAssets'] = true;
         }
 
         return $defaults;
@@ -539,7 +531,6 @@ class PageController
             'wikiArticles' => null,
             'provenExpertRating' => null,
             'maintenanceWindowLabel' => null,
-            'laborAssets' => null,
             'turnstileEnabled' => false,
             'turnstileSiteKey' => null,
         ];
@@ -660,10 +651,6 @@ class PageController
 
         if (($pageFeatures['maintenanceWindow'] ?? false) === true) {
             $data['maintenanceWindowLabel'] = $this->buildMaintenanceWindowLabel($locale);
-        }
-
-        if (($pageFeatures['laborAssets'] ?? false) === true) {
-            $data['laborAssets'] = $this->buildLaborAssetUrls($basePath);
         }
 
         return ['html' => $html, 'featureData' => $data];
@@ -1540,73 +1527,6 @@ class PageController
         ];
 
         return $menuItems;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function buildLaborAssetUrls(string $basePath): array
-    {
-        $assetConfig = [
-            '/assets/labor-hero.jpg' => ['label' => 'Labor Hero', 'width' => 1200, 'height' => 900],
-            '/assets/kalibrierung-labor-detail.jpg' => ['label' => 'Labor Detail', 'width' => 1200, 'height' => 900],
-            '/assets/messgroessen-elektrisch.jpg' => ['label' => 'Elektrische Messgrößen', 'width' => 960, 'height' => 640],
-            '/assets/temperatur.jpg' => ['label' => 'Temperatur', 'width' => 960, 'height' => 640],
-            '/assets/vor-ort.jpg' => ['label' => 'Vor-Ort-Kalibrierung', 'width' => 960, 'height' => 640],
-            '/assets/pruefmittel.jpg' => ['label' => 'Prüfmittelmanagement', 'width' => 960, 'height' => 640],
-            '/assets/calserver-dashboard.png' => ['label' => 'calServer Dashboard', 'width' => 1400, 'height' => 880],
-            '/assets/dakks-logo.png' => ['label' => 'DAkkS Logo', 'width' => 640, 'height' => 320],
-        ];
-
-        $resolved = [];
-        foreach ($assetConfig as $path => $config) {
-            $resolved[$path] = $this->resolveMarketingAsset(
-                $path,
-                $basePath,
-                (int) $config['width'],
-                (int) $config['height'],
-                (string) $config['label'],
-            );
-        }
-
-        return $resolved;
-    }
-
-    private function resolveMarketingAsset(string $path, string $basePath, int $width, int $height, string $label): string
-    {
-        $normalizedPath = '/' . ltrim($path, '/');
-        $publicPath = dirname(__DIR__, 2) . '/public' . $normalizedPath;
-
-        if (is_readable($publicPath)) {
-            return $basePath . $normalizedPath;
-        }
-
-        return $this->buildSvgPlaceholder($width, $height, $label);
-    }
-
-    private function buildSvgPlaceholder(int $width, int $height, string $label): string
-    {
-        $safeLabel = htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-        $innerWidth = max(0, $width - 48);
-        $innerHeight = max(0, $height - 48);
-
-        $svg = sprintf(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="%1$d" height="%2$d" viewBox="0 0 %1$d %2$d" role="img" aria-label="%3$s">'
-            . '<rect width="100%%" height="100%%" fill="#e5eaf1" />'
-            . '<rect x="24" y="24" width="%4$d" height="%5$d" rx="18" fill="none" stroke="#c7d1e3" stroke-width="3" />'
-            . '<text x="50%%" y="50%%" fill="#42536b" font-family="Inter, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif"'
-            . ' font-size="32" font-weight="600" text-anchor="middle" dominant-baseline="middle">%3$s</text>'
-            . '</svg>',
-            $width,
-            $height,
-            $safeLabel,
-            $innerWidth,
-            $innerHeight,
-        );
-
-        $minified = preg_replace('/\s+/', ' ', trim($svg));
-
-        return 'data:image/svg+xml;utf8,' . rawurlencode($minified ?? $svg);
     }
 
     private function extractPageBlocks(string $html): ?array

@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const accessibilityIcons = document.querySelectorAll('.accessibility-icon');
   const helpButtons = document.querySelectorAll('.help-toggle');
   const teamNameBtn = document.getElementById('teamNameBtn');
-  const isLaborLanding = document.body.classList.contains('labor-marketing');
   const PAGE_EDITOR_THEME_KEY = 'pageEditorTheme';
   const pageEditorElement = document.querySelector('.page-editor');
   const pageEditorThemeToggle = document.querySelector('[data-theme-toggle]');
@@ -190,11 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   document.body.classList.toggle('dark-mode', dark);
   if (uikitStylesheet) {
-    if (isLaborLanding) {
-      document.body.classList.remove('uk-light');
-    } else {
-      document.body.classList.toggle('uk-light', dark);
-    }
+    document.body.classList.toggle('uk-light', dark);
   }
 
   const sunSVG = `
@@ -291,11 +286,7 @@ document.addEventListener('DOMContentLoaded', function () {
       document.documentElement.dataset.theme = updatedTheme;
       document.body.classList.toggle('dark-mode', dark);
       if (uikitStylesheet) {
-        if (isLaborLanding) {
-          document.body.classList.remove('uk-light');
-        } else {
-          document.body.classList.toggle('uk-light', dark);
-        }
+        document.body.classList.toggle('uk-light', dark);
       }
       syncDarkStylesheet();
       if (typeof setStored === 'function' && typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.DARK_MODE) {

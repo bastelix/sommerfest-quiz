@@ -24,7 +24,6 @@ class CmsPageMarketingFeaturesTest extends TestCase
                         'features' => [
                             'contactTurnstile' => false,
                             'provenExpert' => true,
-                            'laborAssets' => true,
                         ],
                     ],
                 ],
@@ -36,7 +35,6 @@ class CmsPageMarketingFeaturesTest extends TestCase
         $this->assertTrue($features['landingNews']);
         $this->assertFalse($features['contactTurnstile']);
         $this->assertTrue($features['provenExpert']);
-        $this->assertTrue($features['laborAssets']);
     }
 
     public function testEnsureTurnstileMarkupAddsWidgetToContactForm(): void
