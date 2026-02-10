@@ -107,6 +107,12 @@ class PageService
         }
 
         $html = (string) $content;
+
+        // Initialize empty pages with valid block JSON for the block editor
+        if (trim($html) === '') {
+            $html = json_encode(['blocks' => []], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+
         $normalizedContentSource = $this->normalizeContentSourceInput($contentSource);
 
         $sortOrder = $this->getNextSortOrder($normalizedNamespace, null);

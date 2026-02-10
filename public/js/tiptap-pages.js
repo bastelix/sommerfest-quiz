@@ -709,13 +709,15 @@ const resolvePageEditorMode = () => {
   const explicit = explicitRaw === 'blocks' || explicitRaw === 'tiptap' ? explicitRaw : '';
   const inferred = resolveEditorModeFromContent();
 
-  if (explicit === 'blocks' && inferred !== 'blocks') {
-    return 'tiptap';
+  // If explicitly set, use that mode regardless of content
+  if (explicit) {
+    return explicit;
   }
-  if (!explicit && inferred === 'blocks') {
+  // Otherwise, infer from content or default to tiptap
+  if (inferred === 'blocks') {
     return 'blocks';
   }
-  return explicit || 'tiptap';
+  return 'tiptap';
 };
 
 const PAGE_EDITOR_MODE = resolvePageEditorMode();
@@ -1880,7 +1882,7 @@ const ensurePageEditorInitialized = form => {
       attachBlockPreview(form, existing);
       return existing;
     }
-    const initialContent = editorEl.dataset.content || editorEl.textContent || '{}';
+    const initialContent = editorEl.dataset.content || editorEl.textContent || '{"blocks":[]}';
     editorEl.dataset.content = initialContent;
     try {
       const blockEditor = new BlockContentEditor(editorEl, initialContent, { pageId: form?.dataset.pageId });
