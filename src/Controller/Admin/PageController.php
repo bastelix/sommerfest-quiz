@@ -280,6 +280,100 @@ class PageController
             ->withStatus(200);
     }
 
+    /**
+     * Create a new page from an imported .page.json file.
+     */
+    public function createFromImport(Request $request, Response $response): Response
+    {
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+
+        [$payload, $uploadedName] = $this->extractImportPayload($request);
+        if ($payload === null) {
+            return $this->createJsonResponse($response, ['error' => 'Invalid JSON payload.'], 400);
+        }
+
+        $meta = $payload['meta'] ?? [];
+        if (!is_array($meta)) {
+            return $this->createJsonResponse($response, ['error' => 'Missing meta information.'], 422);
+        }
+
+        $schemaVersion = (string) ($meta['schemaVersion'] ?? '');
+        if ($schemaVersion !== PageBlockContractMigrator::MIGRATION_VERSION) {
+            return $this->createJsonResponse(
+                $response,
+                ['error' => 'Incompatible schemaVersion in import file.'],
+                422
+            );
+        }
+
+        $blocks = $payload['blocks'] ?? null;
+        if (!is_array($blocks)) {
+            return $this->createJsonResponse($response, ['error' => 'Missing blocks array.'], 422);
+        }
+
+        $data = $this->parseRequestData($request) ?? [];
+        $formSlug = trim((string) ($data['slug'] ?? ''));
+        $formTitle = trim((string) ($data['title'] ?? ''));
+        $slug = $formSlug !== '' ? $formSlug : (string) ($meta['slug'] ?? '');
+        $title = $formTitle !== '' ? $formTitle : (string) ($meta['title'] ?? '');
+
+        if ($slug === '' || $title === '') {
+            return $this->createJsonResponse(
+                $response,
+                ['error' => 'Slug und Titel sind erforderlich (aus der JSON-Datei oder als Formularfelder).'],
+                422
+            );
+        }
+
+        $blocks = $this->normalizeImportedBlocks($blocks);
+
+        $content = [
+            'meta' => [
+                'namespace' => $namespace,
+                'slug' => $slug,
+                'title' => $title,
+                'schemaVersion' => $schemaVersion,
+            ],
+            'blocks' => $blocks,
+        ];
+
+        if (!$this->blockMigrator->isContractValid($content)) {
+            return $this->createJsonResponse(
+                $response,
+                ['error' => 'Block-Validierung fehlgeschlagen. Die JSON-Datei enthält ungültige Blöcke.'],
+                422
+            );
+        }
+
+        $encoded = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        if ($encoded === false) {
+            return $this->createJsonResponse($response, ['error' => 'Failed to encode imported content.'], 500);
+        }
+
+        try {
+            $page = $this->pageService->create($namespace, $slug, $title, $encoded);
+        } catch (InvalidArgumentException $exception) {
+            return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 422);
+        } catch (LogicException $exception) {
+            return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 409);
+        } catch (RuntimeException $exception) {
+            return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 500);
+        }
+
+        $this->audit->log('page_import_create', [
+            'pageId' => $page->getId(),
+            'namespace' => $namespace,
+            'slug' => $slug,
+            'userId' => $_SESSION['user']['id'] ?? null,
+            'username' => $_SESSION['user']['username'] ?? null,
+            'sourceFile' => $uploadedName,
+            'blockCount' => count($blocks),
+            'importedAt' => (new DateTimeImmutable())->format(DATE_ATOM),
+        ]);
+
+        return $this->createJsonResponse($response, ['page' => $page], 201);
+    }
+
     public function export(Request $request, Response $response, array $args): Response
     {
         $slug = (string) ($args['slug'] ?? '');

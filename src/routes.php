@@ -2001,6 +2001,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->sort($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->post('/admin/pages/import-create', function (Request $request, Response $response) {
+        $controller = new AdminPageController();
+        return $controller->createFromImport($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
     $app->post('/admin/pages/ai-generate', function (Request $request, Response $response) {
         $controller = new PageAiController();
 
