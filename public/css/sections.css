@@ -251,6 +251,55 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Text element contrast on coloured sections                         */
+/* ------------------------------------------------------------------ */
+
+/*
+ * UIkit classes like .uk-text-meta and .uk-text-lead carry their own
+ * colour declarations (e.g. #999) that override the section text colour.
+ * On dark section backgrounds these hard-coded grays have poor contrast.
+ * Force inherit so text respects the section (or card-reset) colour.
+ */
+
+.section[data-section-intent="highlight"] .uk-text-meta,
+.section[data-section-intent="hero"] .uk-text-meta,
+.section[data-appearance-legacy="contrast"] .uk-text-meta {
+  color: inherit;
+  opacity: 0.78;
+}
+
+.section[data-section-intent="highlight"] .uk-text-lead,
+.section[data-section-intent="hero"] .uk-text-lead,
+.section[data-appearance-legacy="contrast"] .uk-text-lead {
+  color: inherit;
+  opacity: 0.92;
+}
+
+.section[data-section-intent="highlight"] .uk-heading-medium,
+.section[data-section-intent="hero"] .uk-heading-medium,
+.section[data-appearance-legacy="contrast"] .uk-heading-medium {
+  color: inherit;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Hero eyebrow tag/badge variant                                     */
+/* ------------------------------------------------------------------ */
+
+.hero-eyebrow-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Link colours on dark surfaces                                      */
 /* ------------------------------------------------------------------ */
 

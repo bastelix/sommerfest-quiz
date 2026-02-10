@@ -3324,9 +3324,27 @@ export class BlockContentEditor {
     eyebrowSection.append(
       this.addLabeledInput('Aufhänger (optional)', block.data.eyebrow, value => this.updateBlockData(block.id, ['data', 'eyebrow'], value), {
         placeholder: 'z. B. Neu im Sommer 2024',
-        helpText: 'Ein kurzes Label wie „Neu“ oder „Beliebt“.'
+        helpText: 'Ein kurzes Label wie „Neu" oder „Beliebt".'
       })
     );
+
+    const tagToggle = document.createElement('label');
+    tagToggle.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;';
+    const tagCheckbox = document.createElement('input');
+    tagCheckbox.type = 'checkbox';
+    tagCheckbox.checked = Boolean(block.data.eyebrowAsTag);
+    tagCheckbox.addEventListener('change', () => this.updateBlockData(block.id, ['data', 'eyebrowAsTag'], tagCheckbox.checked));
+    const tagLabel = document.createElement('span');
+    tagLabel.textContent = 'Als Tag/Badge darstellen';
+    tagLabel.style.fontSize = '0.9rem';
+    tagToggle.append(tagCheckbox, tagLabel);
+    const tagHelper = createHelperText('Stellt den Aufhänger als kompaktes, abgerundetes Label dar.');
+    if (tagHelper) {
+      tagHelper.style.marginTop = '4px';
+      eyebrowSection.append(tagToggle, tagHelper);
+    } else {
+      eyebrowSection.append(tagToggle);
+    }
 
     const headlineField = document.createElement('div');
     headlineField.dataset.field = 'headline';
