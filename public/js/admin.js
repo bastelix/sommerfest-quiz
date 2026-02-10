@@ -486,6 +486,22 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
     }
     info.appendChild(title);
 
+    if (node.slug && node.editUrl) {
+      const renameBtn = document.createElement('button');
+      renameBtn.className = 'uk-button uk-button-text uk-button-small uk-margin-small-left';
+      renameBtn.type = 'button';
+      renameBtn.setAttribute('uk-icon', 'icon: pencil; ratio: 0.8');
+      renameBtn.setAttribute('uk-tooltip', 'title: Umbenennen');
+      renameBtn.setAttribute('data-page-slug', node.slug);
+      renameBtn.setAttribute('data-page-namespace', node.namespace);
+      renameBtn.setAttribute('data-page-title', node.title || node.slug);
+      renameBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        handlePageRename(node.slug, node.namespace, node.title || node.slug);
+      });
+      info.appendChild(renameBtn);
+    }
+
     if (node.slug) {
       const slug = document.createElement('span');
       slug.className = 'uk-text-meta uk-margin-small-left';
@@ -521,6 +537,51 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
   });
 
   return list;
+};
+
+const handlePageRename = async (oldSlug, namespace, currentTitle) => {
+  const newSlug = prompt('Neuer Slug für die Seite:', oldSlug);
+  if (!newSlug || newSlug === oldSlug) {
+    return;
+  }
+
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  if (!csrfToken) {
+    alert('CSRF-Token fehlt. Bitte Seite neu laden.');
+    return;
+  }
+
+  try {
+    const response = await fetch(withBase(`/admin/pages/${encodeURIComponent(oldSlug)}/rename?namespace=${encodeURIComponent(namespace)}`), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
+      },
+      body: JSON.stringify({ newSlug })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Fehler: ${response.status}`);
+    }
+
+    const result = await response.json();
+    if (window.UIkit && UIkit.notification) {
+      UIkit.notification('Seite erfolgreich umbenannt', { status: 'success' });
+    }
+
+    // Reload page to refresh the tree
+    window.location.reload();
+  } catch (error) {
+    console.error('Rename error:', error);
+    const message = error.message || 'Fehler beim Umbenennen der Seite';
+    if (window.UIkit && UIkit.notification) {
+      UIkit.notification(message, { status: 'danger' });
+    } else {
+      alert(message);
+    }
+  }
 };
 
 const createProjectEmptyState = message => {
