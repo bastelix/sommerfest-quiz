@@ -308,6 +308,7 @@
 - Add missing section CSS for namespace-themed block rendering
 - Add missing CSS tokens and block styles for CMS page rendering
 - Connect theme blocks to contrast system, improve palettes
+- Reset text/link color inside cards on coloured section backgrounds
 
 ### Refactor
 
