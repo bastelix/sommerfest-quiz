@@ -490,16 +490,27 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
       const renameBtn = document.createElement('button');
       renameBtn.className = 'uk-button uk-button-text uk-button-small uk-margin-small-left';
       renameBtn.type = 'button';
-      renameBtn.setAttribute('uk-icon', 'icon: pencil; ratio: 0.8');
+      renameBtn.style.padding = '0 5px';
+      renameBtn.style.minHeight = '20px';
       renameBtn.setAttribute('uk-tooltip', 'title: Umbenennen');
       renameBtn.setAttribute('data-page-slug', node.slug);
       renameBtn.setAttribute('data-page-namespace', node.namespace);
       renameBtn.setAttribute('data-page-title', node.title || node.slug);
+
+      const icon = document.createElement('span');
+      icon.setAttribute('uk-icon', 'icon: pencil; ratio: 0.8');
+      renameBtn.appendChild(icon);
+
       renameBtn.addEventListener('click', (e) => {
         e.preventDefault();
         handlePageRename(node.slug, node.namespace, node.title || node.slug);
       });
       info.appendChild(renameBtn);
+
+      // Initialize UIkit icon
+      if (window.UIkit && UIkit.icon) {
+        UIkit.icon(icon);
+      }
     }
 
     if (node.slug) {
