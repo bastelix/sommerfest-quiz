@@ -3,6 +3,18 @@ name: Bump Version
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - major
+          - minor
+          - patch
 
 concurrency:
   group: git-push-main
@@ -19,15 +31,65 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Bump patch version
+
+      - name: Determine bump type
+        id: determine_bump
+        run: |
+          # Manual override via workflow_dispatch
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BUMP_TYPE="${{ inputs.bump_type }}"
+          else
+            BUMP_TYPE="auto"
+          fi
+
+          # Auto-detect from conventional commits
+          if [ "$BUMP_TYPE" = "auto" ]; then
+            # Get the latest commit message
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+
+            # Check for breaking changes (major bump)
+            if echo "$COMMIT_MSG" | grep -qiE "^(.*!)|(BREAKING CHANGE:)"; then
+              BUMP_TYPE="major"
+            # Check for features (minor bump)
+            elif echo "$COMMIT_MSG" | grep -qiE "^feat(\(.+\))?:"; then
+              BUMP_TYPE="minor"
+            # Default to patch for fix, chore, docs, etc.
+            else
+              BUMP_TYPE="patch"
+            fi
+          fi
+
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+          echo "Detected bump type: $BUMP_TYPE"
+
+      - name: Bump version
         id: bump
         run: |
           version=$(cat VERSION)
           IFS='.' read -r major minor patch <<< "$version"
-          patch=$((patch + 1))
+
+          BUMP_TYPE="${{ steps.determine_bump.outputs.bump_type }}"
+
+          case "$BUMP_TYPE" in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+
           new_version="$major.$minor.$patch"
           echo "$new_version" > VERSION
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "old_version=$version" >> $GITHUB_OUTPUT
+          echo "Bumped version from $version to $new_version ($BUMP_TYPE)"
       - name: Commit and push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -35,7 +97,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add VERSION
-          git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }}" || exit 0
+
+          # Create commit message with bump type info
+          BUMP_TYPE="${{ steps.determine_bump.outputs.bump_type }}"
+          OLD_VERSION="${{ steps.bump.outputs.old_version }}"
+          NEW_VERSION="${{ steps.bump.outputs.new_version }}"
+
+          git commit -m "chore: bump version to ${NEW_VERSION} (${BUMP_TYPE})" \
+                     -m "Previous version: ${OLD_VERSION}" || exit 0
 
           # Retry push with exponential backoff
           max_retries=4
