@@ -72,7 +72,7 @@ final class ProvisionWildcardCertificatesTest extends TestCase
 
         $logContents = trim((string) file_get_contents($logFile));
         $this->assertStringContainsString('Renewing example.com (window reached)', $output);
-        $this->assertStringContainsString('--issue --dns dns_test -d example.com -d *.example.com', $logContents);
+        $this->assertStringContainsString('--issue --dns dns_hetzner -d example.com -d *.example.com', $logContents);
         $this->assertStringContainsString('--install-cert -d example.com --fullchain-file', $logContents);
 
         $row = $pdo->query('SELECT status, next_renewal_after FROM certificate_zones WHERE zone = "example.com"');
@@ -101,7 +101,7 @@ final class ProvisionWildcardCertificatesTest extends TestCase
 
         $logContents = trim((string) file_get_contents($logFile));
         $this->assertStringContainsString('Renewing forced.example.com (queued)', $output);
-        $this->assertStringContainsString('--issue --dns dns_test -d forced.example.com -d *.forced.example.com', $logContents);
+        $this->assertStringContainsString('--issue --dns dns_hetzner -d forced.example.com -d *.forced.example.com', $logContents);
     }
 
     /**
@@ -206,7 +206,7 @@ BASH;
             'POSTGRES_USER' => '',
             'POSTGRES_PASSWORD' => '',
             'ACME_SH_BIN' => $acmeBinary,
-            'ACME_WILDCARD_PROVIDER' => 'dns_test',
+            'ACME_WILDCARD_PROVIDER' => 'dns_hetzner',
             'NGINX_WILDCARD_CERT_DIR' => $certDir,
             'ACME_RELOAD_ON_SUCCESS' => '0',
             'ACME_LOG' => $logFile,

@@ -34,7 +34,7 @@ get_env_value() {
   if [ -z "$raw_value" ]; then
     printf '%s' "$default_value"
     return
-  }
+  fi
 
   value=$(printf '%s' "$raw_value" | sed 's/[[:space:]]*#.*$//' | tr -d '\r')
   value=$(printf '%s' "$value" | sed 's/^ *//;s/ *$//;s/^"//;s/"$//')
