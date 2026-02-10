@@ -542,6 +542,60 @@ class PageService
         return $this->move($sourceNamespace, $slug, $targetNamespace);
     }
 
+    /**
+     * Rename a page by updating its slug.
+     */
+    public function rename(string $namespace, string $oldSlug, string $newSlug): Page
+    {
+        $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
+        $this->assertValidNamespace($normalizedNamespace);
+
+        $normalizedOldSlug = $this->normalizeSlugInput($oldSlug);
+        $this->assertValidSlug($normalizedOldSlug);
+
+        $normalizedNewSlug = $this->normalizeSlugInput($newSlug);
+        $this->assertValidSlug($normalizedNewSlug);
+
+        if ($normalizedOldSlug === $normalizedNewSlug) {
+            throw new InvalidArgumentException('Der neue Slug muss sich vom alten unterscheiden.');
+        }
+
+        $page = $this->findByKey($normalizedNamespace, $normalizedOldSlug);
+        if ($page === null) {
+            throw new LogicException('Die Seite wurde nicht gefunden.');
+        }
+
+        $existingPage = $this->findByKey($normalizedNamespace, $normalizedNewSlug);
+        if ($existingPage !== null) {
+            throw new LogicException(
+                sprintf('Eine Seite mit dem Slug "%s" existiert bereits.', $normalizedNewSlug)
+            );
+        }
+
+        $stmt = $this->pdo->prepare('UPDATE pages SET slug = ?, updated_at = CURRENT_TIMESTAMP WHERE namespace = ? AND slug = ?');
+
+        $this->pdo->beginTransaction();
+        try {
+            $stmt->execute([$normalizedNewSlug, $normalizedNamespace, $normalizedOldSlug]);
+
+            if ((int) $stmt->rowCount() === 0) {
+                throw new RuntimeException('Die Seite konnte nicht umbenannt werden.');
+            }
+
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+            throw new RuntimeException('Die Seite konnte nicht umbenannt werden.', 0, $exception);
+        }
+
+        $renamedPage = $this->findByKey($normalizedNamespace, $normalizedNewSlug);
+        if ($renamedPage === null) {
+            throw new RuntimeException('Die umbenannte Seite konnte nicht geladen werden.');
+        }
+
+        return $renamedPage;
+    }
+
     private function loadCreatedPage(string $namespace, string $slug): Page {
         $page = $this->findByKey($namespace, $slug);
         if ($page === null) {
