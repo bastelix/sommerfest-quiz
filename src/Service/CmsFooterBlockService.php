@@ -132,23 +132,33 @@ final class CmsFooterBlockService
         string $type,
         array $content,
         int $position,
-        bool $isActive
+        bool $isActive,
+        ?string $slot = null
     ): CmsFooterBlock {
         $this->validateType($type);
 
-        $sql = 'UPDATE marketing_footer_blocks
-                SET type = :type, content = :content, position = :position, is_active = :is_active
-                WHERE id = :id
-                RETURNING id, namespace, slot, type, content, position, locale, is_active, updated_at';
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
+        $setClauses = 'type = :type, content = :content, position = :position, is_active = :is_active';
+        $params = [
             'id' => $id,
             'type' => $type,
             'content' => json_encode($content),
             'position' => $position,
             'is_active' => $isActive ? 'true' : 'false',
-        ]);
+        ];
+
+        if ($slot !== null) {
+            $this->validateSlot($slot);
+            $setClauses .= ', slot = :slot';
+            $params['slot'] = $slot;
+        }
+
+        $sql = "UPDATE marketing_footer_blocks
+                SET {$setClauses}
+                WHERE id = :id
+                RETURNING id, namespace, slot, type, content, position, locale, is_active, updated_at";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$row) {

@@ -314,6 +314,24 @@ final class ProjectSettingsService
         return $fallback;
     }
 
+    public function getFooterLayout(string $namespace): string
+    {
+        $normalized = $this->normalizeNamespace($namespace);
+
+        if (!$this->repository->hasTable()) {
+            return 'equal';
+        }
+
+        $row = $this->repository->fetch($normalized);
+        if ($row === null && $normalized !== PageService::DEFAULT_NAMESPACE) {
+            $row = $this->repository->fetch(PageService::DEFAULT_NAMESPACE);
+        }
+
+        return isset($row['footer_layout']) && is_string($row['footer_layout']) && $row['footer_layout'] !== ''
+            ? $row['footer_layout']
+            : 'equal';
+    }
+
     public function resolvePrivacyUrlForSettings(array $settings, string $locale, string $basePath): string
     {
         $normalizedLocale = strtolower(trim($locale));

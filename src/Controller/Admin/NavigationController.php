@@ -207,6 +207,8 @@ final class NavigationController
         );
         $namespaces = array_values(array_unique(array_filter($namespaces)));
 
+        $footerLayout = $this->projectSettings->getFooterLayout($namespace);
+
         return $view->render($response, 'admin/navigation/footer-blocks.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
             'currentPath' => $request->getUri()->getPath(),
@@ -217,6 +219,7 @@ final class NavigationController
             'namespaces' => $namespaces,
             'currentNamespace' => $namespace,
             'localeOptions' => $localeOptions,
+            'footerLayout' => $footerLayout,
             'menuDefinitions' => array_map(
                 static fn (CmsMenu $menu): array => [
                     'id' => $menu->getId(),
