@@ -623,7 +623,7 @@ function renderContentSliderHeader(block, context = 'frontend') {
     ? `<h2 class="uk-heading-medium uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
   const intro = block?.data?.intro
-    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.intro', context)}>${escapeHtml(block.data.intro)}</p>`
+    ? `<div class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.intro', context, { type: 'richtext' })}>${block.data.intro}</div>`
     : '';
 
   const content = [eyebrow, title, intro].filter(Boolean).join('');

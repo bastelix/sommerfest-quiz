@@ -432,6 +432,62 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Button contrast on dark / coloured sections                        */
+/* ------------------------------------------------------------------ */
+
+/*
+ * When a primary button sits on a section whose background is the primary
+ * colour (highlight intent or explicit dark token), the filled button is
+ * invisible.  Invert: white background with primary-coloured text.
+ */
+
+.section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-primary,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-primary {
+  background: var(--text-on-primary, #ffffff) !important;
+  color: var(--accent-primary, var(--brand-primary, #1e87f0)) !important;
+  border-color: var(--text-on-primary, #ffffff);
+}
+
+.section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-primary:hover,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-primary:hover {
+  background: rgba(255, 255, 255, 0.88) !important;
+}
+
+/*
+ * Secondary / default buttons on dark surfaces: translucent white fill
+ * with a visible white border so they stand out.
+ */
+
+.section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-on-primary, #ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default:hover,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* ------------------------------------------------------------------ */
 /*  Hero eyebrow tag/badge variant                                     */
 /* ------------------------------------------------------------------ */
 
