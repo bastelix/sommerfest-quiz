@@ -112,4 +112,48 @@ class NamespaceServiceTest extends TestCase
         $this->assertNotNull($entry);
         $this->assertFalse($entry['is_active']);
     }
+
+    public function testAllActiveExcludesInactiveNamespaces(): void
+    {
+        $pdo = $this->createDatabase();
+        $repository = new NamespaceRepository($pdo);
+        $service = new NamespaceService($repository);
+
+        $repository->create('active-project');
+        $repository->create('inactive-project');
+        $repository->deactivate('inactive-project');
+
+        $namespaces = $service->allActive();
+        $names = array_column($namespaces, 'namespace');
+
+        $this->assertContains('active-project', $names);
+        $this->assertNotContains('inactive-project', $names);
+    }
+
+    public function testAllActiveAlwaysIncludesDefaultNamespace(): void
+    {
+        $pdo = $this->createDatabase();
+        $repository = new NamespaceRepository($pdo);
+        $service = new NamespaceService($repository);
+
+        $namespaces = $service->allActive();
+        $names = array_column($namespaces, 'namespace');
+
+        $this->assertContains('default', $names);
+    }
+
+    public function testAllStillReturnsInactiveNamespaces(): void
+    {
+        $pdo = $this->createDatabase();
+        $repository = new NamespaceRepository($pdo);
+        $service = new NamespaceService($repository);
+
+        $repository->create('will-deactivate');
+        $repository->deactivate('will-deactivate');
+
+        $namespaces = $service->all();
+        $names = array_column($namespaces, 'namespace');
+
+        $this->assertContains('will-deactivate', $names);
+    }
 }

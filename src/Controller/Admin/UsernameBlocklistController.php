@@ -340,7 +340,7 @@ final class UsernameBlocklistController
         }
         $repository = new NamespaceRepository($pdo);
         try {
-            $availableNamespaces = $repository->list();
+            $availableNamespaces = $repository->listActive();
         } catch (RuntimeException $exception) {
             $availableNamespaces = [];
         }

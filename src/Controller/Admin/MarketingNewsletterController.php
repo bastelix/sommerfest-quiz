@@ -66,7 +66,7 @@ class MarketingNewsletterController
         $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
 
         try {
-            $availableNamespaces = $this->namespaceRepository->list();
+            $availableNamespaces = $this->namespaceRepository->listActive();
         } catch (\RuntimeException $exception) {
             $availableNamespaces = [];
         }

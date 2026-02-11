@@ -60,6 +60,41 @@ final class NamespaceService
         return $entries;
     }
 
+    /**
+     * @return list<array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}>
+     */
+    public function allActive(): array
+    {
+        try {
+            $entries = $this->repository->listActive();
+        } catch (RuntimeException) {
+            $entries = [];
+        }
+
+        $existing = [];
+        foreach ($entries as $entry) {
+            $existing[$entry['namespace']] = true;
+        }
+
+        $defaultNamespace = $this->validator->normalizeCandidate(PageService::DEFAULT_NAMESPACE);
+        if ($defaultNamespace !== null && !isset($existing[$defaultNamespace])) {
+            $entries[] = [
+                'namespace' => $defaultNamespace,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        usort(
+            $entries,
+            static fn (array $left, array $right): int => strcmp($left['namespace'], $right['namespace'])
+        );
+
+        return $entries;
+    }
+
     public function exists(string $namespace): bool
     {
         return $this->repository->exists($this->validator->normalize($namespace));

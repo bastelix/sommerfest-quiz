@@ -208,7 +208,7 @@ class AdminController
         if ($loadNamespaces) {
             $namespaceRepository = new NamespaceRepository($pdo);
             try {
-                $availableNamespaces = $namespaceRepository->list();
+                $availableNamespaces = $namespaceRepository->listActive();
             } catch (\RuntimeException $exception) {
                 $availableNamespaces = [];
             }
@@ -326,7 +326,7 @@ class AdminController
         if ($availableNamespaces === []) {
             $namespaceRepository = new NamespaceRepository($pdo);
             try {
-                $availableNamespaces = $namespaceRepository->list();
+                $availableNamespaces = $namespaceRepository->listActive();
             } catch (\RuntimeException $exception) {
                 $availableNamespaces = [];
             }
