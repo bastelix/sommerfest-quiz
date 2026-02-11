@@ -2,29 +2,29 @@
  * Auto-generated. Do not edit manually.
  */
 
-html[data-namespace="calserver"] {
-  --brand-primary: #111111;
-  --brand-accent: #222222;
-  --brand-secondary: #f97316;
+html[data-namespace="calhelp"] {
+  --brand-primary: #2b5e4a;
+  --brand-accent: #c4a35a;
+  --brand-secondary: #1a3a50;
   --contrast-text-on-primary: #ffffff;
-  --contrast-text-on-secondary: #000000;
-  --contrast-text-on-accent: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
   --contrast-text-on-surface: #000000;
   --contrast-text-on-surface-muted: #000000;
   --contrast-text-on-page: #000000;
-  --marketing-primary: #111111;
-  --marketing-accent: #222222;
-  --marketing-secondary: #f97316;
-  --marketing-link: #111111;
+  --marketing-primary: #2b5e4a;
+  --marketing-accent: #c4a35a;
+  --marketing-secondary: #1a3a50;
+  --marketing-link: #2b5e4a;
   --marketing-surface: var(--surface-card, #ffffff);
   --marketing-white: #ffffff;
   --marketing-black: #000000;
   --marketing-black-rgb: 0 0 0;
   --marketing-ink: #0f172a;
   --layout-profile: standard;
-  --typography-preset: modern;
+  --typography-preset: classic;
   --components-card-style: rounded;
-  --components-button-style: ghost;
+  --components-button-style: filled;
   --brand-surface: #0f172a;
   --brand-on-surface: #ffffff;
   --section-gap: 2.25rem;
