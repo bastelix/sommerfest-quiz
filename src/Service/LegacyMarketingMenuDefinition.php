@@ -285,5 +285,4 @@ final class LegacyMarketingMenuDefinition
             ],
         ];
     }
-
 }
