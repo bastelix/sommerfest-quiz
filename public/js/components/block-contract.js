@@ -234,7 +234,17 @@ const schema = {
         "colorToken": { "enum": TOKEN_ENUMS.background },
         "imageId": { "type": "string" },
         "attachment": { "enum": SECTION_BACKGROUND_ATTACHMENTS },
-        "overlay": { "type": "number", "minimum": 0, "maximum": 1 }
+        "overlay": { "type": "number", "minimum": 0, "maximum": 1 },
+        "bleed": { "type": "boolean" }
+      }
+    },
+    "SectionContainer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "width": { "enum": ["normal", "wide", "full"], "default": "normal" },
+        "frame": { "enum": ["none", "card"], "default": "none" },
+        "spacing": { "enum": ["compact", "normal", "generous"], "default": "normal" }
       }
     },
     "SectionStyle": {
@@ -243,7 +253,8 @@ const schema = {
       "properties": {
         "layout": { "enum": SECTION_LAYOUTS, "default": "normal" },
         "intent": { "enum": SECTION_INTENTS },
-        "background": { "$ref": "#/definitions/SectionBackground" }
+        "background": { "$ref": "#/definitions/SectionBackground" },
+        "container": { "$ref": "#/definitions/SectionContainer" }
       }
     },
     "BlockMeta": {
@@ -1042,6 +1053,20 @@ export function normalizeSectionBackground(background, legacyBackgroundImage, la
   return normalized;
 }
 
+function normalizeSectionContainer(container) {
+  if (!isPlainObject(container)) return undefined;
+
+  const WIDTHS = ['normal', 'wide', 'full'];
+  const FRAMES = ['none', 'card'];
+  const SPACINGS = ['compact', 'normal', 'generous'];
+
+  const width = WIDTHS.includes(container.width) ? container.width : 'normal';
+  const frame = FRAMES.includes(container.frame) ? container.frame : 'none';
+  const spacing = SPACINGS.includes(container.spacing) ? container.spacing : 'normal';
+
+  return { width, frame, spacing };
+}
+
 function normalizeSectionStyle(sectionStyle, legacyBackgroundImage, legacyAppearance) {
   const source = isPlainObject(sectionStyle) ? sectionStyle : {};
   const layout = normalizeSectionLayout(source.layout, legacyAppearance);
@@ -1062,6 +1087,11 @@ function normalizeSectionStyle(sectionStyle, legacyBackgroundImage, legacyAppear
   }
   if (normalizedBackground) {
     normalized.background = normalizedBackground;
+  }
+
+  const container = normalizeSectionContainer(source.container);
+  if (container) {
+    normalized.container = container;
   }
 
   return normalized;
@@ -1130,7 +1160,7 @@ export function validateSectionBackground(background, layout) {
     return false;
   }
 
-  const allowedKeys = ['mode', 'colorToken', 'imageId', 'attachment', 'overlay'];
+  const allowedKeys = ['mode', 'colorToken', 'imageId', 'attachment', 'overlay', 'bleed'];
   if (Object.keys(background).some(key => !allowedKeys.includes(key))) {
     return false;
   }
@@ -1191,7 +1221,7 @@ function validateSectionStyle(style) {
     return false;
   }
 
-  const allowedKeys = ['layout', 'background', 'intent'];
+  const allowedKeys = ['layout', 'background', 'intent', 'container'];
   if (Object.keys(style).some(key => !allowedKeys.includes(key))) {
     return false;
   }

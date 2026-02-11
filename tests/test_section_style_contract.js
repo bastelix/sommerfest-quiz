@@ -47,7 +47,7 @@ function loadModule() {
   });
   assert.deepStrictEqual(
     { ...imageToNone, background: { ...imageToNone.background } },
-    { layout: 'fullwidth', background: { mode: 'none' } }
+    { layout: 'full', background: { mode: 'none' } }
   );
 
   const legacyCard = normalizeSectionStyle(undefined, 'legacy-image', 'card');
