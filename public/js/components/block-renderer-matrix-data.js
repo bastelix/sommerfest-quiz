@@ -377,7 +377,7 @@ const SECTION_INTENT_CONFIG = {
     containerClass: 'uk-container-expand',
     innerClass: '',
     surfaceToken: 'secondary',
-    textToken: { token: 'text-on-primary', fallback: 'var(--text-on-primary, var(--marketing-text-on-primary))' }
+    textToken: { token: 'text-on-secondary', fallback: 'var(--text-on-secondary, var(--contrast-text-on-secondary, #ffffff))' }
   }
 };
 

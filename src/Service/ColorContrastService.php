@@ -169,6 +169,32 @@ class ColorContrastService
     }
 
     /**
+     * Simulate CSS color-mix(in srgb, hex1 weight%, hex2).
+     *
+     * Performs linear interpolation in sRGB space between two hex colors.
+     *
+     * @param float $weight1 Weight of the first color (0.0 – 1.0).
+     */
+    public function colorMixSrgb(string $hex1, string $hex2, float $weight1): string
+    {
+        $rgb1 = $this->hexToRgb($hex1);
+        $rgb2 = $this->hexToRgb($hex2);
+
+        if ($rgb1 === null || $rgb2 === null) {
+            return $hex1;
+        }
+
+        $weight1 = max(0.0, min(1.0, $weight1));
+        $weight2 = 1.0 - $weight1;
+
+        return $this->rgbToHex([
+            'r' => (int) round($rgb1['r'] * $weight1 + $rgb2['r'] * $weight2),
+            'g' => (int) round($rgb1['g'] * $weight1 + $rgb2['g'] * $weight2),
+            'b' => (int) round($rgb1['b'] * $weight1 + $rgb2['b'] * $weight2),
+        ]);
+    }
+
+    /**
      * Compute a full set of contrast-safe foreground tokens for a theme.
      *
      * Given the brand colors and surface colors, this returns the optimal
@@ -202,9 +228,12 @@ class ColorContrastService
             $tokens['textOnPrimary'] = $this->optimalTextColor($primary);
         }
 
-        // Text on secondary brand color
+        // Text on secondary brand color – computed against the hero
+        // background which darkens the secondary via
+        // color-mix(in srgb, secondary 85%, #0b1728) in sections.css.
         if ($secondary !== '') {
-            $tokens['textOnSecondary'] = $this->optimalTextColor($secondary);
+            $heroBg = $this->colorMixSrgb($secondary, '#0b1728', 0.85);
+            $tokens['textOnSecondary'] = $this->optimalTextColor($heroBg);
         }
 
         // Text on accent brand color
