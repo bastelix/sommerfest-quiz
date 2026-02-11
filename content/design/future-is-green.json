@@ -1,8 +1,8 @@
 {
   "meta": {
     "name": "Future is Green",
-    "description": "Modernes grünes Theme, inspiriert von der Future-is-Green-Landingpage. Frische Waldgrün-Töne mit hellen Akzenten für einen nachhaltigen, professionellen Auftritt.",
-    "version": "1.0.0",
+    "description": "Modernes gr\u00fcnes Theme, inspiriert von der Future-is-Green-Landingpage. Frische Waldgr\u00fcn-T\u00f6ne mit hellen Akzenten f\u00fcr einen nachhaltigen, professionellen Auftritt.",
+    "version": "2.0.0",
     "author": "QuizRace Design System"
   },
   "config": {
@@ -27,7 +27,19 @@
       "marketingScheme": "future-is-green",
       "textOnPrimary": "#ffffff",
       "textOnSurface": "#123524",
-      "textOnBackground": "#123524"
+      "textOnBackground": "#123524",
+      "textMutedOnSurface": "#3f5a4b",
+      "textMutedOnBackground": "#3f5a4b",
+      "textOnSurfaceDark": "#e6fff3",
+      "textOnBackgroundDark": "#e6fff3",
+      "textMutedOnSurfaceDark": "#b6d8c9",
+      "textMutedOnBackgroundDark": "#b6d8c9",
+      "surface": "#ffffff",
+      "surfaceMuted": "#f0f9f3",
+      "surfaceDark": "#071b12",
+      "surfaceMutedDark": "#0f2419",
+      "background": "#f0f9f3",
+      "backgroundDark": "#071b12"
     }
   },
   "designTokens": {
