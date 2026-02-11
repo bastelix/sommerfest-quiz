@@ -261,6 +261,7 @@
 - Add item-level card toggle with filtered sub-variants in Layout-Stil
 - Add Future-is-Green namespace design theme and design import function
 - Add fully functional contact_form block with configurable fields
+- Enhance footer editor with layout persistence, drag-and-drop, live preview, rich text and inline editing
 
 ### Fix
 
