@@ -259,7 +259,7 @@ final class NavigationController
         $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
 
         try {
-            $availableNamespaces = $this->namespaceService->all();
+            $availableNamespaces = $this->namespaceService->allActive();
         } catch (\RuntimeException $exception) {
             $availableNamespaces = [];
         }

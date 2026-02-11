@@ -49,6 +49,36 @@ final class NamespaceRepository
     }
 
     /**
+     * @return list<array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}>
+     */
+    public function listActive(): array
+    {
+        $this->assertTableExists();
+
+        $stmt = $this->pdo->query(
+            'SELECT namespace, label, is_active, created_at, updated_at FROM namespaces WHERE is_active = TRUE ORDER BY namespace'
+        );
+
+        $rows = [];
+        while (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {
+            $namespace = trim((string) ($row['namespace'] ?? ''));
+            if ($namespace === '') {
+                continue;
+            }
+            $rows[] = [
+                'namespace' => $namespace,
+                'label' => $row['label'] !== null ? (string) $row['label'] : null,
+                'is_active' => (bool) ($row['is_active'] ?? false),
+                'created_at' => $row['created_at'] ?? null,
+                'updated_at' => $row['updated_at'] ?? null,
+            ];
+        }
+        $stmt->closeCursor();
+
+        return $rows;
+    }
+
+    /**
      * @return list<string>
      */
     public function listKnownNamespaces(): array

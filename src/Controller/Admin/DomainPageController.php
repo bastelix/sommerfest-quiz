@@ -67,7 +67,7 @@ final class DomainPageController
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $repository = new NamespaceRepository($pdo);
         try {
-            $availableNamespaces = $repository->list();
+            $availableNamespaces = $repository->listActive();
         } catch (RuntimeException) {
             $availableNamespaces = [];
         }
