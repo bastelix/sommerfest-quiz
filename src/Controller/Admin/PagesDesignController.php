@@ -77,6 +77,8 @@ class PagesDesignController
         $flash = $_SESSION['page_design_flash'] ?? null;
         unset($_SESSION['page_design_flash']);
 
+        $availablePresets = $designService->listAvailablePresets();
+
         return $view->render($response, 'admin/pages/design.twig', [
             'role' => $role,
             'readOnly' => !$this->isEditRole($role),
@@ -102,6 +104,7 @@ class PagesDesignController
             'flash' => $flash,
             'canAccessBehavior' => $canAccessBehavior,
             'designUsedDefaults' => $designPayload['usedDefaults'],
+            'availablePresets' => $availablePresets,
         ]);
     }
 
@@ -136,7 +139,33 @@ class PagesDesignController
         $effectsService = new EffectsPolicyService($this->configService);
         $action = strtolower(trim((string) ($parsedBody['action'] ?? 'save')));
 
-        if ($action === 'reset_all') {
+        if ($action === 'import_design') {
+            $preset = $this->sanitizeString($parsedBody['import_preset'] ?? null);
+            if ($preset === null) {
+                $_SESSION['page_design_flash'] = [
+                    'type' => 'danger',
+                    'message' => 'Kein Design-Preset ausgewählt.',
+                ];
+
+                return $response
+                    ->withHeader('Location', $this->buildRedirectUrl($request, $namespace))
+                    ->withStatus(303);
+            }
+
+            try {
+                $designService->importDesign($namespace, $preset);
+                $message = 'Design-Preset „' . htmlspecialchars($preset, ENT_QUOTES, 'UTF-8') . '" erfolgreich importiert.';
+            } catch (\InvalidArgumentException $e) {
+                $_SESSION['page_design_flash'] = [
+                    'type' => 'danger',
+                    'message' => 'Design-Preset „' . htmlspecialchars($preset, ENT_QUOTES, 'UTF-8') . '" wurde nicht gefunden.',
+                ];
+
+                return $response
+                    ->withHeader('Location', $this->buildRedirectUrl($request, $namespace))
+                    ->withStatus(303);
+            }
+        } elseif ($action === 'reset_all') {
             $designService->resetToDefaults($namespace);
             $message = 'Design auf Standard zurückgesetzt.';
         } elseif ($action === 'save_effects') {

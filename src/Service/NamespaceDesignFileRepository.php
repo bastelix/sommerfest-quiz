@@ -87,7 +87,7 @@ class NamespaceDesignFileRepository
     /**
      * @return array<string, mixed>
      */
-    private function loadFile(string $namespace): array
+    public function loadFile(string $namespace): array
     {
         $path = $this->getDesignDirectory() . '/' . basename($namespace) . '.json';
         if (!is_readable($path)) {
