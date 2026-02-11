@@ -1440,6 +1440,9 @@ const applyMarketingDesign = () => {
   const resolvedOnAccent = contrastToken || marketingOnAccent;
   root.style.setProperty('--marketing-on-accent', resolvedOnAccent);
   root.style.setProperty('--text-on-primary', resolvedOnAccent);
+  if (!contrastToken && resolvedOnAccent) {
+    root.style.setProperty('--contrast-text-on-primary', resolvedOnAccent);
+  }
   root.style.setProperty('--marketing-text', marketingText);
   root.style.setProperty('--marketing-surface', marketingSurface);
   root.style.setProperty('--marketing-surface-muted', marketingSurfaceMuted);
