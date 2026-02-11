@@ -335,6 +335,7 @@
 - Make dark mode work for sections by preventing light-theme inline style overrides
 - Remove blank line before class closing brace in LegacyMarketingMenuDefinition
 - Block-slider intro shows raw HTML tags, CTA button invisible on highlight sections
+- Prevent double-escaping of notes in package_summary block
 
 ### Refactor
 
