@@ -32,12 +32,3 @@
   <link rel="stylesheet" href="{{ basePath }}/css/footer-blocks.css">
 {% endblock %}
 
-{% block footer %}
-  {% set footerNavigation = cmsFooterNavigation|default([]) %}
-  {% include 'pages/partials/footer.twig' with {
-    cmsFooterBlocks: cmsFooterBlocks|default({}),
-    cmsFooterColumns: cmsFooterColumns|default([]),
-    cmsFooterNavigation: footerNavigation,
-    cmsLegalNavigation: cmsLegalNavigation|default([])
-  } only %}
-{% endblock %}
