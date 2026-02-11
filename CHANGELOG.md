@@ -332,6 +332,7 @@
 - Complete all marketing schemes with missing tokens for display safety
 - Resolve PHPStan nullCoalesce.offset errors in ColorContrastService
 - Resolve missing scheme tokens and CSS fallback gaps in marketing design
+- Make dark mode work for sections by preventing light-theme inline style overrides
 
 ### Refactor
 
