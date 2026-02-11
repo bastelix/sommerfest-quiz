@@ -450,6 +450,17 @@ const schema = {
         "disclaimer": { "type": "string" }
       }
     },
+    "ContactFormField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label", "enabled"],
+      "properties": {
+        "key": { "type": "string", "enum": ["subject", "phone", "company_name"] },
+        "label": { "type": "string", "minLength": 1 },
+        "enabled": { "type": "boolean" },
+        "required": { "type": "boolean" }
+      }
+    },
     "ContactFormData": {
       "type": "object",
       "additionalProperties": false,
@@ -459,7 +470,12 @@ const schema = {
         "intro": { "type": "string", "minLength": 1 },
         "recipient": { "type": "string", "minLength": 1 },
         "submitLabel": { "type": "string", "minLength": 1 },
-        "privacyHint": { "type": "string", "minLength": 1 }
+        "privacyHint": { "type": "string", "minLength": 1 },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ContactFormField" }
+        },
+        "successMessage": { "type": "string" }
       }
     },
     "FaqData": {

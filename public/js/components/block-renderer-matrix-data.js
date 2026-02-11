@@ -164,6 +164,12 @@ function resolveContactEndpoint() {
   return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 }
 
+function resolveBlockContactEndpoint() {
+  const basePath = resolveBasePath();
+  const endpoint = `${basePath}/api/contact-form`;
+  return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+}
+
 function resolveCsrfToken() {
   if (typeof window === 'undefined') {
     return '';
@@ -1428,9 +1434,25 @@ function renderContactForm(block, variant = 'default', options = {}) {
     : '';
 
   const formId = `contact-form-${block.id ? escapeAttribute(block.id) : 'section'}`;
-  const endpoint = escapeAttribute(resolveContactEndpoint());
+  const endpoint = escapeAttribute(resolveBlockContactEndpoint());
   const csrfToken = resolveCsrfToken();
   const csrfField = csrfToken ? `<input type="hidden" name="csrf_token" value="${escapeAttribute(csrfToken)}">` : '';
+  const successMessage = escapeAttribute(block.data?.successMessage || 'Vielen Dank! Wir melden uns in Kürze.');
+
+  // Render optional extra fields
+  const extraFieldsHtml = (block.data?.fields || [])
+    .filter(f => f.enabled)
+    .map(f => {
+      const fieldId = `${formId}-${escapeAttribute(f.key)}`;
+      const req = f.required ? ' required' : '';
+      const inputType = f.key === 'phone' ? 'tel' : 'text';
+      return `
+      <div class="uk-margin">
+        <label class="uk-form-label" for="${fieldId}">${escapeHtml(f.label)}</label>
+        <input class="uk-input" id="${fieldId}" name="${escapeAttribute(f.key)}" type="${inputType}"${req}${disabledAttr}>
+      </div>`;
+    }).join('');
+
   const form = `
     <form
       id="${formId}"
@@ -1438,6 +1460,7 @@ function renderContactForm(block, variant = 'default', options = {}) {
       method="post"
       action="${endpoint}"
       data-contact-endpoint="${endpoint}"
+      data-success-message="${successMessage}"
       ${isPreview ? 'data-preview-submit="true" novalidate' : ''}
     >
       <div class="uk-margin">
@@ -1448,9 +1471,10 @@ function renderContactForm(block, variant = 'default', options = {}) {
         <label class="uk-form-label" for="${formId}-email">E-Mail</label>
         <input class="uk-input" id="${formId}-email" name="email" type="email" required${disabledAttr}>
       </div>
+      ${extraFieldsHtml}
       <div class="uk-margin">
         <label class="uk-form-label" for="${formId}-message">Nachricht</label>
-        <textarea class="uk-textarea" id="${formId}-message" name="message" rows="5" required${disabledAttr}></textarea>
+        <textarea class="uk-textarea" id="${formId}-message" name="message" rows="5"${disabledAttr}></textarea>
       </div>
       ${privacyLabel}
       <input type="hidden" name="recipient" value="${escapeAttribute(block.data?.recipient || '')}">
@@ -1459,6 +1483,7 @@ function renderContactForm(block, variant = 'default', options = {}) {
       <div class="uk-margin">
         <button class="uk-button uk-button-primary uk-width-1-1" type="${submitType}"${submitEditable}${isPreview ? ' aria-disabled="true"' : ''}>${escapeHtml(submitLabel)}</button>
       </div>
+      <div class="contact-form__status" data-contact-status aria-live="polite" hidden></div>
     </form>
   `;
 

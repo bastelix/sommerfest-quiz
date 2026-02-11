@@ -941,6 +941,12 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/calserver/contact', function (Request $request, Response $response) use ($redirectToCmsPage) {
         return $redirectToCmsPage($request, $response, 'contact', 303);
     });
+    $app->post('/api/contact-form', function (Request $request, Response $response): Response {
+        $controller = new \App\Controller\Marketing\BlockContactController();
+        return $controller($request, $response);
+    })
+        ->add(new RateLimitMiddleware(10, 3600))
+        ->add(new CsrfMiddleware());
     $app->post('/newsletter/unsubscribe', function (Request $request, Response $response): Response {
         $controller = new NewsletterController();
 

@@ -6,6 +6,9 @@
 {% if company %}
 <p><strong>Unternehmen:</strong> {{ company }}</p>
 {% endif %}
+{% for field in extra_fields|default([]) %}
+<p><strong>{{ field.label }}:</strong> {{ field.value }}</p>
+{% endfor %}
 <p>{{ message|nl2br }}</p>
 <p>Wir melden uns in Kürze.</p>
 {% endblock %}

@@ -3161,7 +3161,114 @@ export class BlockContentEditor {
       )
     );
 
-    wrapper.append(introSection, settingsSection);
+    // Configurable optional fields
+    const fieldsSection = createFieldSection('Optionale Felder', 'Zusätzliche Eingabefelder ein-/ausblenden.', { optional: true });
+    const AVAILABLE_FIELDS = [
+      { key: 'subject',      defaultLabel: 'Betreff',      description: 'Thema der Nachricht' },
+      { key: 'phone',        defaultLabel: 'Telefon',      description: 'Rückrufnummer' },
+      { key: 'company_name', defaultLabel: 'Unternehmen',  description: 'Firmenname' },
+    ];
+
+    const currentFields = block.data.fields || [];
+
+    const updateField = (fieldKey, prop, value) => {
+      const fields = [...(block.data.fields || [])];
+      const idx = fields.findIndex(f => f.key === fieldKey);
+      if (idx >= 0) {
+        fields[idx] = { ...fields[idx], [prop]: value };
+      } else {
+        const entry = { key: fieldKey, label: fieldKey, enabled: false, required: false, [prop]: value };
+        fields.push(entry);
+      }
+      this.updateBlockData(block.id, ['data', 'fields'], fields);
+      block.data.fields = fields;
+    };
+
+    AVAILABLE_FIELDS.forEach(fieldDef => {
+      const existing = currentFields.find(f => f.key === fieldDef.key);
+      const isEnabled = existing?.enabled ?? false;
+      const labelValue = existing?.label ?? fieldDef.defaultLabel;
+      const isRequired = existing?.required ?? false;
+
+      const fieldGroup = document.createElement('div');
+      fieldGroup.className = 'uk-margin-small';
+      fieldGroup.style.paddingLeft = '0.5rem';
+      fieldGroup.style.borderLeft = '2px solid var(--block-editor-border, #e5e5e5)';
+
+      // Enable toggle
+      const enableLabel = document.createElement('label');
+      enableLabel.className = 'uk-form-label';
+      enableLabel.style.display = 'flex';
+      enableLabel.style.alignItems = 'center';
+      enableLabel.style.gap = '0.4rem';
+      enableLabel.style.cursor = 'pointer';
+      const enableCheckbox = document.createElement('input');
+      enableCheckbox.type = 'checkbox';
+      enableCheckbox.className = 'uk-checkbox';
+      enableCheckbox.checked = isEnabled;
+      const enableText = document.createElement('span');
+      enableText.textContent = fieldDef.defaultLabel;
+      enableLabel.append(enableCheckbox, enableText);
+
+      // Label input
+      const labelInput = this.addLabeledInput(
+        'Bezeichnung',
+        labelValue,
+        value => updateField(fieldDef.key, 'label', value),
+        { placeholder: fieldDef.defaultLabel }
+      );
+      labelInput.hidden = !isEnabled;
+
+      // Required toggle
+      const reqLabel = document.createElement('label');
+      reqLabel.className = 'uk-form-label';
+      reqLabel.style.display = 'flex';
+      reqLabel.style.alignItems = 'center';
+      reqLabel.style.gap = '0.4rem';
+      reqLabel.style.cursor = 'pointer';
+      reqLabel.style.marginTop = '0.25rem';
+      const reqCheckbox = document.createElement('input');
+      reqCheckbox.type = 'checkbox';
+      reqCheckbox.className = 'uk-checkbox';
+      reqCheckbox.checked = isRequired;
+      const reqText = document.createElement('span');
+      reqText.textContent = 'Pflichtfeld';
+      reqLabel.append(reqCheckbox, reqText);
+      reqLabel.hidden = !isEnabled;
+
+      enableCheckbox.addEventListener('change', () => {
+        const enabled = enableCheckbox.checked;
+        labelInput.hidden = !enabled;
+        reqLabel.hidden = !enabled;
+        updateField(fieldDef.key, 'enabled', enabled);
+        if (enabled && !block.data.fields?.find(f => f.key === fieldDef.key)) {
+          updateField(fieldDef.key, 'label', fieldDef.defaultLabel);
+        }
+      });
+      reqCheckbox.addEventListener('change', () => {
+        updateField(fieldDef.key, 'required', reqCheckbox.checked);
+      });
+
+      fieldGroup.append(enableLabel, labelInput, reqLabel);
+      fieldsSection.append(fieldGroup);
+    });
+
+    // Success message
+    const feedbackSection = createFieldSection('Erfolgsmeldung', 'Text nach erfolgreicher Absendung.', { optional: true });
+    feedbackSection.append(
+      this.addLabeledInput(
+        'Erfolgsmeldung',
+        block.data.successMessage || '',
+        value => this.updateBlockData(block.id, ['data', 'successMessage'], value),
+        {
+          placeholder: 'Vielen Dank! Wir melden uns in Kürze.',
+          multiline: true,
+          rows: 2
+        }
+      )
+    );
+
+    wrapper.append(introSection, settingsSection, fieldsSection, feedbackSection);
     return wrapper;
   }
 
