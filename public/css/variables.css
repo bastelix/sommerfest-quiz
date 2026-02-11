@@ -168,6 +168,14 @@
   --text-on-secondary: var(--contrast-text-on-secondary, #ffffff);
   --text-on-accent: var(--contrast-text-on-accent, #ffffff);
 
+  /* ── Contrast overrides ──
+     namespace-tokens.css sets these to #000000 for light surfaces.
+     In dark mode the surfaces are dark, so text must be light. */
+  --contrast-text-on-surface: #f2f5fa;
+  --contrast-text-on-surface-muted: #f2f5fa;
+  --contrast-text-on-page: #f2f5fa;
+  --color-text: #f2f5fa;
+
   /* ── Spacing ── */
   --space-section: 2.25rem;
 

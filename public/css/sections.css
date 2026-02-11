@@ -77,6 +77,57 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Dark mode: section surface + text overrides                        */
+/* ------------------------------------------------------------------ */
+
+/*
+ * In dark mode the semantic surface tokens from variables.css provide dark
+ * backgrounds.  The namespace-design JS now skips setting light-theme
+ * inline styles, so the CSS cascade applies correctly.
+ *
+ * These rules reinforce the correct dark values for section intents,
+ * inner panels and contrast text so sections render with the dark palette.
+ */
+
+:root[data-theme="dark"] .section[data-section-intent="content"],
+:root[data-theme="dark"] .section[data-section-intent="plain"] {
+  --section-surface: var(--surface-section);
+  --section-text-color: var(--text-body);
+}
+
+:root[data-theme="dark"] .section[data-section-intent="feature"] {
+  --section-surface: var(--surface-muted);
+  --section-text-color: var(--text-body);
+}
+
+/* Inner panels in dark mode: use dark card surface */
+:root[data-theme="dark"] .section__inner--panel,
+:root[data-theme="dark"] .section__inner--card {
+  background: var(--surface-card);
+  border-color: var(--border-muted);
+}
+
+:root[data-theme="dark"] .section--contained .section__inner,
+:root[data-theme="dark"] .section[data-section-layout="card"] .section__inner,
+:root[data-theme="dark"] .section--full[data-section-layout="card"] .section__inner {
+  background: var(--surface-card);
+  border-color: var(--border-muted);
+}
+
+/* Card/panel contrast on coloured sections: dark mode needs light text */
+:root[data-theme="dark"] .section[data-section-intent="highlight"] .section__inner--card,
+:root[data-theme="dark"] .section[data-section-intent="highlight"] .section__inner--panel,
+:root[data-theme="dark"] .section[data-section-intent="highlight"][data-section-layout="card"] .section__inner,
+:root[data-theme="dark"] .section[data-section-intent="hero"] .section__inner--card:not(.section__inner--hero),
+:root[data-theme="dark"] .section[data-section-intent="hero"] .section__inner--panel,
+:root[data-theme="dark"] .section[data-section-intent="hero"][data-section-layout="card"] .section__inner:not(.section__inner--hero),
+:root[data-theme="dark"] .section[data-appearance-legacy="contrast"] .section__inner--card,
+:root[data-theme="dark"] .section[data-appearance-legacy="contrast"] .section__inner--panel,
+:root[data-theme="dark"] .section[data-appearance-legacy="contrast"][data-section-layout="card"] .section__inner {
+  color: var(--text-body);
+}
+
+/* ------------------------------------------------------------------ */
 /*  Background (colour / image)                                        */
 /* ------------------------------------------------------------------ */
 

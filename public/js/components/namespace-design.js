@@ -205,6 +205,12 @@ const applyColorsToRoot = (element, appearance) => {
   const colors = appearance?.colors || {};
   const brand = tokens.brand || {};
 
+  /* Detect dark mode so we can skip surface inline styles that would
+     override the CSS dark-theme definitions in variables.css. */
+  const isDark =
+    element.dataset?.theme === 'dark' ||
+    (typeof document !== 'undefined' && document.documentElement?.dataset?.theme === 'dark');
+
   const primary = resolveFirstValue(
     colors.primary,
     colors.brandPrimary,
@@ -865,11 +871,15 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.accent,
   );
 
-  if (sectionDefaultSurface && !isSectionDefaultReference(sectionDefaultSurface)) {
-    element.style.setProperty('--section-default-surface', sectionDefaultSurface);
-  }
-  if (sectionDefaultMuted && !isSectionDefaultReference(sectionDefaultMuted)) {
-    element.style.setProperty('--section-default-muted', sectionDefaultMuted);
+  /* In dark mode, skip setting section-default surface/muted as inline styles
+     so the CSS cascade can apply the dark-theme values from variables.css. */
+  if (!isDark) {
+    if (sectionDefaultSurface && !isSectionDefaultReference(sectionDefaultSurface)) {
+      element.style.setProperty('--section-default-surface', sectionDefaultSurface);
+    }
+    if (sectionDefaultMuted && !isSectionDefaultReference(sectionDefaultMuted)) {
+      element.style.setProperty('--section-default-muted', sectionDefaultMuted);
+    }
   }
   if (sectionDefaultAccent && !isSectionDefaultReference(sectionDefaultAccent)) {
     element.style.setProperty('--section-default-accent', sectionDefaultAccent);
@@ -1070,13 +1080,25 @@ const applyColorsToRoot = (element, appearance) => {
   if (marketingBlackRgb) {
     element.style.setProperty('--marketing-black-rgb', marketingBlackRgb);
   }
-  element.style.setProperty('--bg-page', pageBackground || 'var(--surface-page, var(--surface))');
+  /* In dark mode, avoid baking light-theme colours into inline styles.
+     Use dark-specific values when available, otherwise reference
+     CSS custom properties that the dark-theme block in variables.css defines. */
+  if (isDark) {
+    element.style.setProperty('--bg-page', marketingBackgroundDark || 'var(--surface-page)');
+  } else {
+    element.style.setProperty('--bg-page', pageBackground || 'var(--surface-page, var(--surface))');
+  }
   element.style.setProperty('--bg-section', 'var(--surface-section, var(--surface))');
   element.style.setProperty('--bg-card', 'var(--surface-card, var(--surface))');
   element.style.setProperty('--bg-accent', 'var(--brand-primary)');
 
-  element.style.setProperty('--marketing-surface', marketingSurface);
-  element.style.setProperty('--marketing-surface-muted', marketingMuted);
+  if (isDark) {
+    element.style.setProperty('--marketing-surface', marketingSurfaceDark || 'var(--surface-section)');
+    element.style.setProperty('--marketing-surface-muted', marketingSurfaceMutedDark || 'var(--surface-muted)');
+  } else {
+    element.style.setProperty('--marketing-surface', marketingSurface);
+    element.style.setProperty('--marketing-surface-muted', marketingMuted);
+  }
   if (marketingSurfaceDark) {
     element.style.setProperty('--marketing-surface-dark', marketingSurfaceDark);
   }
@@ -1086,19 +1108,28 @@ const applyColorsToRoot = (element, appearance) => {
   if (marketingCardDark) {
     element.style.setProperty('--marketing-card-dark', marketingCardDark);
   }
-  element.style.setProperty(
-    '--marketing-background',
-    marketingBackground || 'var(--surface-page, var(--marketing-surface))',
-  );
+  if (isDark) {
+    element.style.setProperty(
+      '--marketing-background',
+      marketingBackgroundDark || 'var(--surface-page)',
+    );
+  } else {
+    element.style.setProperty(
+      '--marketing-background',
+      marketingBackground || 'var(--surface-page, var(--marketing-surface))',
+    );
+  }
   if (marketingBackgroundDark) {
     element.style.setProperty('--marketing-background-dark', marketingBackgroundDark);
   }
 
-  if (surface) {
+  /* In dark mode, don't override --surface / --surface-muted with light values;
+     the CSS dark-theme block already provides the correct dark values. */
+  if (!isDark && surface) {
     element.style.setProperty('--surface', surface);
   }
 
-  if (muted) {
+  if (!isDark && muted) {
     element.style.setProperty('--surface-muted', muted);
   }
 

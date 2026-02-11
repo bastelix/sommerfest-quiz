@@ -154,6 +154,10 @@ const applyMarketingDesign = () => {
     return;
   }
 
+  /* Detect dark mode so we can skip surface inline styles that would
+     override the CSS dark-theme definitions in variables.css. */
+  const isDark = root.dataset?.theme === 'dark';
+
   const { appearance, config } = resolveMarketingAppearance();
   const tokens = appearance?.tokens || {};
   const colors = appearance?.colors || {};
@@ -1413,11 +1417,15 @@ const applyMarketingDesign = () => {
     variables.accent,
   );
 
-  if (sectionDefaultSurface && !isSectionDefaultReference(sectionDefaultSurface)) {
-    root.style.setProperty('--section-default-surface', sectionDefaultSurface);
-  }
-  if (sectionDefaultMuted && !isSectionDefaultReference(sectionDefaultMuted)) {
-    root.style.setProperty('--section-default-muted', sectionDefaultMuted);
+  /* In dark mode, skip setting section-default surface/muted as inline styles
+     so the CSS cascade can apply the dark-theme values from variables.css. */
+  if (!isDark) {
+    if (sectionDefaultSurface && !isSectionDefaultReference(sectionDefaultSurface)) {
+      root.style.setProperty('--section-default-surface', sectionDefaultSurface);
+    }
+    if (sectionDefaultMuted && !isSectionDefaultReference(sectionDefaultMuted)) {
+      root.style.setProperty('--section-default-muted', sectionDefaultMuted);
+    }
   }
   if (sectionDefaultAccent && !isSectionDefaultReference(sectionDefaultAccent)) {
     root.style.setProperty('--section-default-accent', sectionDefaultAccent);
@@ -1434,7 +1442,11 @@ const applyMarketingDesign = () => {
   setTokenProperty('--marketing-primary', marketingPrimary, hasMarketingPrimaryOverride);
   setTokenProperty('--marketing-accent', marketingAccent, hasMarketingAccentOverride);
   setTokenProperty('--marketing-secondary', marketingSecondary, hasMarketingSecondaryOverride);
-  root.style.setProperty('--marketing-background', marketingBackground);
+  if (isDark) {
+    root.style.setProperty('--marketing-background', marketingBackgroundDark || 'var(--surface-page)');
+  } else {
+    root.style.setProperty('--marketing-background', marketingBackground);
+  }
   if (marketingBackgroundDark) {
     root.style.setProperty('--marketing-background-dark', marketingBackgroundDark);
   }
@@ -1446,8 +1458,15 @@ const applyMarketingDesign = () => {
     root.style.setProperty('--contrast-text-on-primary', resolvedOnAccent);
   }
   root.style.setProperty('--marketing-text', marketingText);
-  root.style.setProperty('--marketing-surface', marketingSurface);
-  root.style.setProperty('--marketing-surface-muted', marketingSurfaceMuted);
+  /* In dark mode, use dark-specific surface values or fall back to CSS-managed
+     dark tokens; avoid baking light-theme surface colours into inline styles. */
+  if (isDark) {
+    root.style.setProperty('--marketing-surface', surfaceDark || 'var(--surface-section)');
+    root.style.setProperty('--marketing-surface-muted', surfaceMutedDark || 'var(--surface-muted)');
+  } else {
+    root.style.setProperty('--marketing-surface', marketingSurface);
+    root.style.setProperty('--marketing-surface-muted', marketingSurfaceMuted);
+  }
   root.style.setProperty('--marketing-text-on-surface', marketingTextOnSurface);
   root.style.setProperty('--marketing-text-on-background', marketingTextOnBackground);
   root.style.setProperty('--marketing-text-muted-on-surface', marketingTextMutedOnSurface);
@@ -1620,11 +1639,15 @@ const applyMarketingDesign = () => {
   const hasExplicitSurfaceOverride = Boolean(
     marketingSchemeValues?.surface || configColors.surface || colors.surface || variables.surface,
   );
-  setTokenProperty('--surface', 'var(--marketing-surface)', hasExplicitSurfaceOverride);
-  setTokenProperty('--surface-muted', 'var(--marketing-surface-muted)', hasExplicitSurfaceOverride);
-  setTokenProperty('--bg-page', 'var(--surface)', hasExplicitSurfaceOverride);
-  setTokenProperty('--bg-section', 'var(--surface)', hasExplicitSurfaceOverride);
-  setTokenProperty('--bg-card', 'var(--surface)', hasExplicitSurfaceOverride);
+  /* In dark mode, skip overriding --surface / --surface-muted / --bg-* with
+     inline styles so the CSS dark-theme block can provide the correct values. */
+  if (!isDark) {
+    setTokenProperty('--surface', 'var(--marketing-surface)', hasExplicitSurfaceOverride);
+    setTokenProperty('--surface-muted', 'var(--marketing-surface-muted)', hasExplicitSurfaceOverride);
+    setTokenProperty('--bg-page', 'var(--surface)', hasExplicitSurfaceOverride);
+    setTokenProperty('--bg-section', 'var(--surface)', hasExplicitSurfaceOverride);
+    setTokenProperty('--bg-card', 'var(--surface)', hasExplicitSurfaceOverride);
+  }
   setTokenProperty('--bg-accent', 'var(--brand-primary)', shouldSyncBrandPrimary);
 
   if (topbarLight) {
