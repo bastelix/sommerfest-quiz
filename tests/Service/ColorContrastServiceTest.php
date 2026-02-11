@@ -209,9 +209,13 @@ class ColorContrastServiceTest extends TestCase
             'surfacePage' => '#f7f9fb',
         ]);
 
+        // textOnSecondary is computed against the hero background
+        // (color-mix(in srgb, secondary 85%, #0b1728)), not the raw secondary.
+        $heroBg = $this->service->colorMixSrgb('#f97316', '#0b1728', 0.85);
+
         $pairs = [
             ['textOnPrimary', '#1e87f0'],
-            ['textOnSecondary', '#f97316'],
+            ['textOnSecondary', $heroBg],
             ['textOnAccent', '#f97316'],
             ['textOnSurface', '#ffffff'],
             ['textOnSurfaceMuted', '#eef2f7'],
@@ -226,6 +230,74 @@ class ColorContrastServiceTest extends TestCase
                 "$tokenKey ({$tokens[$tokenKey]} on $bgHex) has ratio $ratio, expected >= 4.5",
             );
         }
+    }
+
+    // ── colorMixSrgb ───────────────────────────────────────────────────
+
+    public function testColorMixSrgbInterpolation(): void
+    {
+        // 50/50 mix of black and white → mid grey
+        $this->assertSame('#808080', $this->service->colorMixSrgb('#000000', '#ffffff', 0.5));
+
+        // Full weight on first color
+        $this->assertSame('#ff0000', $this->service->colorMixSrgb('#ff0000', '#0000ff', 1.0));
+
+        // Full weight on second color
+        $this->assertSame('#0000ff', $this->service->colorMixSrgb('#ff0000', '#0000ff', 0.0));
+    }
+
+    public function testColorMixSrgbHeroBackground(): void
+    {
+        // Simulates sections.css: color-mix(in srgb, #f97316 85%, #0b1728)
+        $result = $this->service->colorMixSrgb('#f97316', '#0b1728', 0.85);
+
+        $rgb = $this->service->hexToRgb($result);
+        $this->assertNotNull($rgb);
+        // 249*0.85 + 11*0.15 ≈ 213, 115*0.85 + 23*0.15 ≈ 101, 22*0.85 + 40*0.15 ≈ 25
+        $this->assertEqualsWithDelta(213, $rgb['r'], 1);
+        $this->assertEqualsWithDelta(101, $rgb['g'], 1);
+        $this->assertEqualsWithDelta(25, $rgb['b'], 1);
+    }
+
+    public function testColorMixSrgbReturnsFirstOnInvalidInput(): void
+    {
+        $this->assertSame('#ff0000', $this->service->colorMixSrgb('#ff0000', 'invalid', 0.5));
+        $this->assertSame('invalid', $this->service->colorMixSrgb('invalid', '#ff0000', 0.5));
+    }
+
+    // ── textOnSecondary uses hero background ──────────────────────────
+
+    /**
+     * @dataProvider namespaceSecondaryColorsProvider
+     */
+    public function testTextOnSecondaryMeetsAAOnHeroBackground(string $secondary): void
+    {
+        $tokens = $this->service->resolveContrastTokens([
+            'primary' => '#1e87f0',
+            'secondary' => $secondary,
+            'accent' => $secondary,
+        ]);
+
+        $heroBg = $this->service->colorMixSrgb($secondary, '#0b1728', 0.85);
+        $ratio = $this->service->contrastRatioHex($tokens['textOnSecondary'], $heroBg);
+
+        $this->assertNotNull($ratio);
+        $this->assertTrue(
+            $this->service->meetsAA($ratio),
+            "textOnSecondary ({$tokens['textOnSecondary']}) on hero bg ($heroBg) from secondary $secondary has ratio $ratio, expected >= 4.5",
+        );
+    }
+
+    public static function namespaceSecondaryColorsProvider(): array
+    {
+        return [
+            'default (#f97316)' => ['#f97316'],
+            'aurora (#475569)' => ['#475569'],
+            'calhelp (#1a3a50)' => ['#1a3a50'],
+            'calserver (#f97316)' => ['#f97316'],
+            'new-namespace (#f97316)' => ['#f97316'],
+            'uikit-default (#222222)' => ['#222222'],
+        ];
     }
 
     // ── resolveContrastTokensForThemes ─────────────────────────────────
@@ -254,8 +326,9 @@ class ColorContrastServiceTest extends TestCase
 
         $result = $this->service->resolveContrastTokensForThemes($brand);
 
-        // Light theme: text on brand colors
-        foreach (['textOnPrimary' => $brand['primary'], 'textOnSecondary' => $brand['secondary'], 'textOnAccent' => $brand['accent']] as $key => $bg) {
+        // Light theme: text on brand colors (textOnSecondary uses hero background)
+        $heroBg = $this->service->colorMixSrgb($brand['secondary'], '#0b1728', 0.85);
+        foreach (['textOnPrimary' => $brand['primary'], 'textOnSecondary' => $heroBg, 'textOnAccent' => $brand['accent']] as $key => $bg) {
             $ratio = $this->service->contrastRatioHex($result['light'][$key], $bg);
             $this->assertNotNull($ratio);
             $this->assertTrue($this->service->meetsAA($ratio), "Light $key fails AA: ratio $ratio");
