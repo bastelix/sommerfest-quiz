@@ -76,15 +76,20 @@ body.qr-landing{
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
 }
 
-@media (max-width: 959px) {
+/* Mobile-first section gap: smallest base, scaling up */
+body.qr-landing {
+  --section-gap: clamp(24px, 8vw, 52px);
+}
+
+@media (min-width: 640px) {
   body.qr-landing {
     --section-gap: clamp(28px, 7vw, 56px);
   }
 }
 
-@media (max-width: 639px) {
+@media (min-width: 960px) {
   body.qr-landing {
-    --section-gap: clamp(24px, 8vw, 52px);
+    --section-gap: clamp(32px, 6vw, 64px);
   }
 }
 
@@ -977,27 +982,27 @@ body.marketing-page .uk-text-muted {
   background: var(--qr-landing-topbar-bg);
   backdrop-filter: blur(8px);
   color:var(--qr-text);
-  min-height:64px;
-  height:64px;
+  min-height:56px;
+  height:56px;
   border-bottom: 1px solid var(--qr-card-border);
   position: sticky;
   top: 0;
   z-index: 1000;
 }
 .qr-landing .qr-topbar nav.topbar{
-  --topbar-height: 64px;
+  --topbar-height: 56px;
 }
 .qr-landing .qr-topbar .uk-navbar,
 .qr-landing .qr-topbar .uk-navbar-container{
   background: var(--qr-landing-topbar-bg);
 }
-@media (max-width: 959px) {
+@media (min-width: 960px) {
   .qr-landing .qr-topbar{
-    min-height:56px;
-    height:56px;
+    min-height:64px;
+    height:64px;
   }
   .qr-landing .qr-topbar nav.topbar{
-    --topbar-height: 56px;
+    --topbar-height: 64px;
   }
 }
 .qr-landing .qr-topbar .uk-navbar-container,
@@ -1291,9 +1296,14 @@ body.marketing-page .uk-text-muted {
   box-shadow:0 6px 18px color-mix(in oklab, var(--qr-landing-primary) 35%, transparent);
   text-decoration:none;
 }
-@media (max-width: 640px) {
+/* Mobile-first: full-width CTA ghost, auto-width on larger screens */
+.cta-ghost{
+  width:100%;
+}
+
+@media (min-width: 641px) {
   .cta-ghost{
-    width:100%;
+    width:auto;
   }
 }
 :where(html:not([data-theme="dark"]) body.qr-landing:not(.dark-mode):not([data-theme="dark"])) .btn.btn-black.uk-button-secondary{
@@ -1637,9 +1647,14 @@ body.marketing-page .uk-text-muted {
   font-size: 0.95rem;
 }
 
-@media (max-width: 959px) {
+/* Mobile-first: dashboard card spacing */
+.qr-landing .live-dashboard__card {
+  margin-top: 32px;
+}
+
+@media (min-width: 960px) {
   .qr-landing .live-dashboard__card {
-    margin-top: 32px;
+    margin-top: 0;
   }
 }
 

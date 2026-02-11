@@ -1095,7 +1095,7 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
 .marketing-section { padding-block: var(--marketing-section-padding); }
 .marketing-section + .marketing-section { margin-top: var(--marketing-section-gap); }
 :is(body, .marketing-scope).marketing-page .uk-section,
-:is(body, .marketing-scope).marketing-page .page-modules { padding-top: 72px; padding-bottom: 72px; }
+:is(body, .marketing-scope).marketing-page .page-modules { padding-top: clamp(36px, 8vw, 72px); padding-bottom: clamp(36px, 8vw, 72px); }
 @media (min-width: 1200px) {
   :is(body, .marketing-scope).marketing-page .uk-section,
   :is(body, .marketing-scope).marketing-page .page-modules { padding-top: 88px; padding-bottom: 88px; }
@@ -1107,9 +1107,9 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 24px;
-  border-radius: 24px;
+  gap: clamp(12px, 3vw, 18px);
+  padding: clamp(14px, 4vw, 24px);
+  border-radius: clamp(16px, 3vw, 24px);
   background: linear-gradient(
     140deg,
     color-mix(in oklab, var(--marketing-primary) 28%, var(--qr-card) 72%) 0%,
@@ -1121,7 +1121,7 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__frame {
   position: relative;
-  border-radius: 18px;
+  border-radius: clamp(12px, 2.5vw, 18px);
   overflow: hidden;
   background: var(--qr-card);
 }
@@ -1167,8 +1167,15 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__meta-actions {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+@media (min-width: 640px) {
+  :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__meta-actions {
+    flex-direction: row;
+  }
 }
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__link,
