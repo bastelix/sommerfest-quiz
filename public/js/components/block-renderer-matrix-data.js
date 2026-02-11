@@ -1,4 +1,4 @@
-import { resolveSectionIntentInfo } from './section-intents.js';
+import { resolveSectionIntentInfo, deriveSectionIntent } from './section-intents.js';
 
 export function escapeHtml(value) {
   if (value === null || value === undefined) {
@@ -379,6 +379,57 @@ const SECTION_INTENT_CONFIG = {
   }
 };
 
+const CONTAINER_WIDTH_TO_CLASS = {
+  normal: '',
+  wide: 'uk-container-large',
+  full: 'uk-container-expand'
+};
+
+const CONTAINER_SPACING_TO_CLASS = {
+  compact: 'uk-section-medium',
+  normal: 'uk-section-medium',
+  generous: 'uk-section-large'
+};
+
+function resolveContainerPreset(block) {
+  const container = block?.meta?.sectionStyle?.container;
+  if (!container) return null;
+
+  const background = block?.meta?.sectionStyle?.background || {};
+  const intent = deriveSectionIntent(container, background);
+  const DARK_TOKENS = new Set(['primary', 'secondary', 'accent']);
+  const isDark = background.mode === 'color' && DARK_TOKENS.has(background.colorToken);
+
+  const sectionClass = CONTAINER_SPACING_TO_CLASS[container.spacing] || 'uk-section-medium';
+  const containerClass = CONTAINER_WIDTH_TO_CLASS[container.width] || '';
+  let innerClass = '';
+  if (container.frame === 'card') {
+    innerClass = '';
+  } else if (isDark) {
+    innerClass = 'section__inner--accent';
+  } else if (container.spacing !== 'generous' && container.width === 'normal') {
+    innerClass = 'section__inner--panel';
+  }
+
+  const surfaceToken = isDark
+    ? (background.colorToken === 'secondary' ? 'secondary' : 'primary')
+    : (background.mode === 'color' && background.colorToken === 'muted' ? 'muted' : 'surface');
+  const textToken = isDark
+    ? { token: 'text-on-primary', fallback: 'var(--text-on-primary, var(--marketing-text-on-primary))' }
+    : undefined;
+
+  return {
+    intent,
+    preset: {
+      sectionClass,
+      containerClass,
+      innerClass,
+      surfaceToken,
+      textToken
+    }
+  };
+}
+
 function resolveAppearanceValue(token, fallback) {
   if (!token) {
     return fallback;
@@ -460,7 +511,10 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   const hasFullBleed = layout === 'full' || (layout === 'card' && background.mode !== 'none');
   const layoutClassFlag = hasFullBleed ? 'section--full' : '';
   const backgroundStyle = resolveSectionBackgroundStyles(background);
-  const { intent, preset } = resolveSectionIntentPreset(block);
+  const containerPreset = resolveContainerPreset(block);
+  const { intent, preset } = containerPreset
+    ? { intent: containerPreset.intent, preset: { ...resolveSectionIntentPreset(block).preset, ...containerPreset.preset } }
+    : resolveSectionIntentPreset(block);
   const shouldNeutralizeInnerClass = layout === 'full' && ['content', 'feature', 'highlight', 'hero'].includes(intent);
   const bleed = hasFullBleed ? 'full' : null;
   const presetStyle = preset.styleVariables.length ? `${preset.styleVariables.join('; ')};` : '';

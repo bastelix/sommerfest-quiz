@@ -32,10 +32,10 @@ function loadModule() {
 (() => {
   const { normalizeSectionBackground, validateSectionBackground } = loadModule();
 
-  const fullwidthImage = normalizeSectionBackground({ mode: 'image', image: 'hero' }, undefined, 'fullwidth');
+  const fullwidthImage = normalizeSectionBackground({ mode: 'image', image: 'hero' }, undefined, 'full');
   assert.deepStrictEqual({ ...fullwidthImage }, { mode: 'image', imageId: 'hero', attachment: 'scroll', overlay: 0 });
 
-  const clampedOverlay = normalizeSectionBackground({ mode: 'image', image: 'hero', overlay: 2 }, undefined, 'fullwidth');
+  const clampedOverlay = normalizeSectionBackground({ mode: 'image', image: 'hero', overlay: 2 }, undefined, 'full');
   assert.strictEqual(clampedOverlay.overlay, 1);
 
   const layoutDowngrade = normalizeSectionBackground({ mode: 'image', image: 'hero', overlay: 0.5, attachment: 'fixed' }, undefined, 'card');
@@ -45,15 +45,15 @@ function loadModule() {
   assert.deepStrictEqual({ ...colorLayout }, { mode: 'color', colorToken: 'primary' });
 
   assert.strictEqual(
-    validateSectionBackground({ mode: 'image', imageId: 'hero', attachment: 'scroll', overlay: 0.25 }, 'fullwidth'),
+    validateSectionBackground({ mode: 'image', imageId: 'hero', attachment: 'scroll', overlay: 0.25 }, 'full'),
     true
   );
   assert.strictEqual(
-    validateSectionBackground({ mode: 'image', imageId: 'hero', overlay: 1.5 }, 'fullwidth'),
+    validateSectionBackground({ mode: 'image', imageId: 'hero', overlay: 1.5 }, 'full'),
     false
   );
   assert.strictEqual(
-    validateSectionBackground({ mode: 'image', imageId: 'hero', unknown: true }, 'fullwidth'),
+    validateSectionBackground({ mode: 'image', imageId: 'hero', unknown: true }, 'full'),
     false
   );
   assert.strictEqual(

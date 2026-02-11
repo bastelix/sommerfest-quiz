@@ -49,3 +49,105 @@ export function resolveSectionIntentInfo(blockOrType) {
   const type = typeof blockOrType === 'string' ? blockOrType : blockOrType?.type;
   return { intent: resolveDefaultSectionIntent(type), isExplicit: false };
 }
+
+export const CONTAINER_WIDTHS = ['normal', 'wide', 'full'];
+export const CONTAINER_FRAMES = ['none', 'card'];
+export const CONTAINER_SPACINGS = ['compact', 'normal', 'generous'];
+
+const DARK_BACKGROUND_TOKENS = new Set(['primary', 'secondary', 'accent']);
+
+export const DEFAULT_CONTAINER_BY_TYPE = {
+  hero:               { width: 'full',   frame: 'none', spacing: 'generous' },
+  feature_list:       { width: 'wide',   frame: 'none', spacing: 'generous' },
+  info_media:         { width: 'wide',   frame: 'none', spacing: 'generous' },
+  audience_spotlight: { width: 'wide',   frame: 'none', spacing: 'generous' },
+  testimonial:        { width: 'wide',   frame: 'none', spacing: 'generous' },
+  package_summary:    { width: 'wide',   frame: 'none', spacing: 'generous' },
+  contact_form:       { width: 'wide',   frame: 'none', spacing: 'generous' },
+  content_slider:     { width: 'wide',   frame: 'none', spacing: 'generous' },
+  stat_strip:         { width: 'wide',   frame: 'none', spacing: 'generous' },
+  proof:              { width: 'wide',   frame: 'none', spacing: 'generous' },
+  cta:                { width: 'wide',   frame: 'none', spacing: 'generous' },
+  process_steps:      { width: 'normal', frame: 'none', spacing: 'normal' },
+  rich_text:          { width: 'normal', frame: 'none', spacing: 'normal' },
+  faq:                { width: 'normal', frame: 'none', spacing: 'normal' }
+};
+
+export function deriveSectionIntent(container, background) {
+  const bgMode = background?.mode;
+  const colorToken = background?.colorToken;
+  const isDark = bgMode === 'color' && DARK_BACKGROUND_TOKENS.has(colorToken);
+
+  if (isDark) {
+    return colorToken === 'secondary' ? 'hero' : 'highlight';
+  }
+  if (container?.width === 'full') return 'hero';
+  if (container?.width === 'wide') return 'feature';
+  if (container?.frame === 'card') return 'content';
+  return 'content';
+}
+
+const INTENT_TO_CONTAINER_WIDTH = {
+  content: 'normal',
+  plain: 'normal',
+  feature: 'wide',
+  highlight: 'wide',
+  hero: 'full'
+};
+
+const INTENT_TO_CONTAINER_SPACING = {
+  content: 'normal',
+  plain: 'normal',
+  feature: 'generous',
+  highlight: 'generous',
+  hero: 'generous'
+};
+
+export function fromStoredSectionStyle(stored, blockType) {
+  const layout = stored?.layout || 'normal';
+  const intent = normalizeSectionIntent(stored?.intent) || resolveDefaultSectionIntent(blockType);
+  const bg = stored?.background || {};
+
+  return {
+    container: {
+      width: INTENT_TO_CONTAINER_WIDTH[intent] || 'normal',
+      frame: layout === 'card' ? 'card' : 'none',
+      spacing: INTENT_TO_CONTAINER_SPACING[intent] || 'normal'
+    },
+    background: {
+      mode: bg.mode || 'none',
+      colorToken: bg.colorToken,
+      imageId: bg.imageId,
+      attachment: bg.attachment,
+      overlay: bg.overlay,
+      bleed: layout === 'full'
+    }
+  };
+}
+
+export function toStoredSectionStyle(container, background) {
+  const bleed = background?.bleed ?? false;
+  const frame = container?.frame || 'none';
+  const layout = bleed ? 'full' : (frame === 'card' ? 'card' : 'normal');
+  const intent = deriveSectionIntent(container, background);
+
+  const storedBackground = {};
+  const bgMode = background?.mode || 'none';
+  storedBackground.mode = bgMode;
+
+  if (bgMode === 'color' && background?.colorToken) {
+    storedBackground.colorToken = background.colorToken;
+  }
+  if (bgMode === 'image') {
+    if (background?.imageId) storedBackground.imageId = background.imageId;
+    if (background?.attachment) storedBackground.attachment = background.attachment;
+    if (background?.overlay !== undefined) storedBackground.overlay = background.overlay;
+  }
+
+  const result = { layout, intent };
+  if (bgMode !== 'none') {
+    result.background = storedBackground;
+  }
+
+  return result;
+}

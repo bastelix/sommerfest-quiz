@@ -9,7 +9,17 @@ import {
   TOKEN_ALIASES,
   validateBlockContract
 } from './block-contract.js';
-import { normalizeSectionIntent, resolveSectionIntent } from './section-intents.js';
+import {
+  normalizeSectionIntent,
+  resolveSectionIntent,
+  fromStoredSectionStyle,
+  toStoredSectionStyle,
+  deriveSectionIntent,
+  CONTAINER_WIDTHS,
+  CONTAINER_FRAMES,
+  CONTAINER_SPACINGS,
+  DEFAULT_CONTAINER_BY_TYPE
+} from './section-intents.js';
 import { RENDERER_MATRIX } from './block-renderer-matrix.js';
 const BLOCK_TYPE_LABELS = {
   hero: 'Hero',
@@ -258,6 +268,71 @@ const BACKGROUND_MODES_BY_LAYOUT = {
   normal: ['none', 'color'],
   full: ['none', 'color', 'image'],
   card: ['none', 'color']
+};
+
+const CONTAINER_WIDTH_OPTIONS = [
+  { value: 'normal', label: 'Normal', description: 'Standard-Inhaltsbreite (1200 px).' },
+  { value: 'wide', label: 'Breit', description: 'Breiter Inhaltsbereich (1400 px).' },
+  { value: 'full', label: 'Volle Breite', description: 'Inhalt nutzt die gesamte Seitenbreite.' }
+];
+
+const CONTAINER_FRAME_OPTIONS = [
+  { value: 'none', label: 'Kein Rahmen', description: 'Inhalt ohne Kartenrahmen.' },
+  { value: 'card', label: 'Karte', description: 'Abschnitt als Karte mit Elevation und Radius.' }
+];
+
+const CONTAINER_SPACING_OPTIONS = [
+  { value: 'compact', label: 'Kompakt', description: 'Wenig vertikaler Abstand.' },
+  { value: 'normal', label: 'Normal', description: 'Standard-Abstand.' },
+  { value: 'generous', label: 'Grosszügig', description: 'Viel vertikaler Abstand.' }
+];
+
+const BACKGROUND_PRESET_OPTIONS = [
+  {
+    value: 'standard',
+    label: 'Keiner',
+    description: 'Kein Hintergrund.',
+    preset: { mode: 'none', bleed: false }
+  },
+  {
+    value: 'highlight',
+    label: 'Dezent',
+    description: 'Leicht getönter Hintergrund.',
+    preset: { mode: 'color', colorToken: 'muted', bleed: false }
+  },
+  {
+    value: 'accent',
+    label: 'Akzent',
+    description: 'Markanter Farbton.',
+    preset: { mode: 'color', colorToken: 'accent', bleed: true }
+  },
+  {
+    value: 'contrast',
+    label: 'Kontrast',
+    description: 'Kräftiger Kontrast.',
+    preset: { mode: 'color', colorToken: 'primary', bleed: true }
+  },
+  {
+    value: 'image',
+    label: 'Bild',
+    description: 'Hintergrundbild.',
+    preset: { mode: 'image', bleed: true }
+  }
+];
+
+const resolveContainerConfig = block => {
+  const stored = block?.meta?.sectionStyle;
+  const decomposed = fromStoredSectionStyle(stored, block?.type);
+  return decomposed;
+};
+
+const resolveBackgroundPreset = background => {
+  if (!background || background.mode === 'none') return 'standard';
+  if (background.mode === 'image') return 'image';
+  if (background.mode === 'color' && BACKGROUND_INTENT_BY_COLOR[background.colorToken]) {
+    return BACKGROUND_INTENT_BY_COLOR[background.colorToken];
+  }
+  return 'standard';
 };
 
 const normalizeAppearance = value => (SECTION_APPEARANCE_PRESETS.includes(value) ? value : 'contained');
@@ -2542,38 +2617,133 @@ export class BlockContentEditor {
     const wrapper = document.createElement('div');
     wrapper.className = 'layout-style-picker layout-style-picker--appearance';
 
-    const label = document.createElement('div');
-    label.className = 'layout-style-picker__label';
-    label.textContent = 'Abschnitts-Stil';
-    wrapper.append(label);
+    const { container, background: bgConfig } = resolveContainerConfig(block);
+    const storedStyle = resolveSectionStyle(block);
+    const { layout, background } = storedStyle;
 
-    const hint = createHelperText('Der Stil beeinflusst nur den Hintergrund dieses Abschnitts.');
-    if (hint) {
-      hint.classList.add('layout-style-picker__hint');
-      wrapper.append(hint);
+    // --- Panel 1: Abschnittsstil ---
+    const sectionPanel = document.createElement('div');
+    sectionPanel.className = 'section-config-panel';
+
+    const sectionLabel = document.createElement('div');
+    sectionLabel.className = 'layout-style-picker__label';
+    sectionLabel.textContent = 'Abschnittsstil';
+    sectionPanel.append(sectionLabel);
+
+    const sectionHint = createHelperText('Wie erscheint der Abschnitt auf der Seite?');
+    if (sectionHint) {
+      sectionHint.classList.add('layout-style-picker__hint');
+      sectionPanel.append(sectionHint);
     }
 
-    const options = document.createElement('div');
-    options.className = 'layout-style-picker__options layout-style-picker__options--appearance';
-    const sectionStyle = resolveSectionStyle(block);
-    const { layout, background, intent } = sectionStyle;
-    const allowedBackgroundModes = BACKGROUND_MODES_BY_LAYOUT[layout] || ['none'];
+    // Width picker
+    const widthGroup = document.createElement('div');
+    widthGroup.className = 'section-config-panel__group';
+    const widthLabel = document.createElement('div');
+    widthLabel.className = 'field-label';
+    widthLabel.textContent = 'Breite';
+    widthGroup.append(widthLabel);
 
-    const intentHelper = createHelperText('Der Intent steuert Polsterung, Hintergrund und Karteneinsatz.');
-    if (intentHelper) {
-      intentHelper.classList.add('layout-style-picker__hint');
-      wrapper.append(intentHelper);
+    const widthOptions = document.createElement('div');
+    widthOptions.className = 'layout-style-picker__options layout-style-picker__options--inline';
+
+    CONTAINER_WIDTH_OPTIONS.forEach(option => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'layout-style-card layout-style-card--compact';
+      const selected = option.value === container.width;
+      btn.dataset.selected = String(selected);
+      btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      btn.textContent = option.label;
+      btn.title = option.description;
+      btn.addEventListener('click', () => this.updateContainerWidth(block.id, option.value));
+      widthOptions.append(btn);
+    });
+
+    widthGroup.append(widthOptions);
+    sectionPanel.append(widthGroup);
+
+    // Frame picker
+    const frameGroup = document.createElement('div');
+    frameGroup.className = 'section-config-panel__group';
+    const frameLabel = document.createElement('div');
+    frameLabel.className = 'field-label';
+    frameLabel.textContent = 'Rahmen';
+    frameGroup.append(frameLabel);
+
+    const frameOptions = document.createElement('div');
+    frameOptions.className = 'layout-style-picker__options layout-style-picker__options--inline';
+
+    CONTAINER_FRAME_OPTIONS.forEach(option => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'layout-style-card layout-style-card--compact';
+      const selected = option.value === container.frame;
+      btn.dataset.selected = String(selected);
+      btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      btn.textContent = option.label;
+      btn.title = option.description;
+      btn.addEventListener('click', () => this.updateContainerFrame(block.id, option.value));
+      frameOptions.append(btn);
+    });
+
+    frameGroup.append(frameOptions);
+    sectionPanel.append(frameGroup);
+
+    // Spacing picker
+    const spacingGroup = document.createElement('div');
+    spacingGroup.className = 'section-config-panel__group';
+    const spacingLabel = document.createElement('div');
+    spacingLabel.className = 'field-label';
+    spacingLabel.textContent = 'Abstand';
+    spacingGroup.append(spacingLabel);
+
+    const spacingOptions = document.createElement('div');
+    spacingOptions.className = 'layout-style-picker__options layout-style-picker__options--inline';
+
+    CONTAINER_SPACING_OPTIONS.forEach(option => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'layout-style-card layout-style-card--compact';
+      const selected = option.value === container.spacing;
+      btn.dataset.selected = String(selected);
+      btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      btn.textContent = option.label;
+      btn.title = option.description;
+      btn.addEventListener('click', () => this.updateContainerSpacing(block.id, option.value));
+      spacingOptions.append(btn);
+    });
+
+    spacingGroup.append(spacingOptions);
+    sectionPanel.append(spacingGroup);
+
+    wrapper.append(sectionPanel);
+
+    // --- Panel 2: Hintergrund ---
+    const backgroundSection = document.createElement('div');
+    backgroundSection.className = 'section-background-config background-style-panel';
+
+    const backgroundLabel = document.createElement('div');
+    backgroundLabel.className = 'layout-style-picker__label';
+    backgroundLabel.textContent = 'Hintergrund';
+    backgroundSection.append(backgroundLabel);
+
+    const backgroundHelper = createHelperText('Farbe oder Bild hinter dem Abschnitt. Textkontrast passt sich automatisch an.');
+    if (backgroundHelper) {
+      backgroundHelper.classList.add('section-background-config__hint');
+      backgroundSection.append(backgroundHelper);
     }
 
-    const intentOptions = document.createElement('div');
-    intentOptions.className = 'layout-style-picker__options layout-style-picker__options--appearance';
-    const selectedIntent = normalizeSectionIntent(intent) || resolveSectionIntent(block);
+    // Background presets
+    const selectedPreset = resolveBackgroundPreset(background);
+    const presetCards = document.createElement('div');
+    presetCards.className = 'layout-style-picker__options layout-style-picker__options--appearance';
 
-    SECTION_INTENT_OPTIONS.forEach(option => {
+    BACKGROUND_PRESET_OPTIONS.forEach(option => {
       const card = document.createElement('button');
       card.type = 'button';
       card.className = 'layout-style-card layout-style-card--appearance';
-      const selected = option.value === selectedIntent;
+      const selected = option.value === selectedPreset;
       card.dataset.selected = String(selected);
       card.setAttribute('aria-pressed', selected ? 'true' : 'false');
 
@@ -2590,267 +2760,205 @@ export class BlockContentEditor {
         card.append(title);
       }
 
-      card.addEventListener('click', () => this.updateSectionIntent(block.id, option.value));
-      intentOptions.append(card);
+      card.addEventListener('click', () => this.applyBackgroundPreset(block.id, option.value));
+      presetCards.append(card);
     });
 
-    wrapper.append(intentOptions);
+    backgroundSection.append(presetCards);
 
-    SECTION_LAYOUT_OPTIONS.forEach(option => {
-      const card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'layout-style-card layout-style-card--appearance';
-      const selected = option.value === layout;
-      card.dataset.selected = String(selected);
-      card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    // Bleed checkbox
+    const bleedGroup = document.createElement('div');
+    bleedGroup.className = 'section-config-panel__group';
 
-      const title = document.createElement('div');
-      title.className = 'layout-style-card__title';
-      title.textContent = option.label;
+    const bleedLabel = document.createElement('label');
+    bleedLabel.className = 'section-config-panel__checkbox';
 
-      if (option.description) {
-        const description = document.createElement('div');
-        description.className = 'layout-style-card__description';
-        description.textContent = option.description;
-        card.append(title, description);
-      } else {
-        card.append(title);
-      }
-      card.addEventListener('click', () => this.updateSectionLayout(block.id, option.value));
-      options.append(card);
+    const bleedCheckbox = document.createElement('input');
+    bleedCheckbox.type = 'checkbox';
+    bleedCheckbox.checked = bgConfig.bleed;
+    bleedCheckbox.addEventListener('change', () => {
+      this.updateBackgroundBleed(block.id, bleedCheckbox.checked);
     });
 
-    wrapper.append(options);
+    const bleedText = document.createElement('span');
+    bleedText.textContent = 'Hintergrund über volle Seitenbreite';
 
-    const supportsBackgroundConfig = allowedBackgroundModes.some(type => type !== 'none');
+    bleedLabel.append(bleedCheckbox, bleedText);
+    bleedGroup.append(bleedLabel);
 
-    if (supportsBackgroundConfig) {
-      const backgroundSection = document.createElement('div');
-      backgroundSection.className = 'section-background-config background-style-panel';
-
-      const backgroundLabel = document.createElement('div');
-      backgroundLabel.className = 'layout-style-picker__label';
-      backgroundLabel.textContent = 'Hintergrund';
-      backgroundSection.append(backgroundLabel);
-
-      const backgroundHelper = createHelperText('Wähle die gewünschte Wirkung; Details findest du unter „Erweiterte Einstellungen“.');
-      if (backgroundHelper) {
-        backgroundHelper.classList.add('section-background-config__hint');
-        backgroundSection.append(backgroundHelper);
+    if (background.mode === 'image') {
+      const bleedHint = createHelperText('Bild-Modus erfordert volle Seitenbreite.');
+      if (bleedHint) {
+        bleedHint.classList.add('section-background-config__hint');
+        bleedGroup.append(bleedHint);
       }
-
-      const backgroundIntent = resolveBackgroundIntent(background, layout);
-      const intentOptions = BACKGROUND_INTENT_OPTIONS.filter(option => {
-        if (option.preset.mode === 'image') {
-          return allowedBackgroundModes.includes('image');
-        }
-        if (option.preset.mode === 'color') {
-          return allowedBackgroundModes.includes('color');
-        }
-        return true;
-      });
-
-      const intentCards = document.createElement('div');
-      intentCards.className = 'layout-style-picker__options layout-style-picker__options--appearance';
-
-      intentOptions.forEach(option => {
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'layout-style-card layout-style-card--appearance';
-        const selected = option.value === backgroundIntent;
-        card.dataset.selected = String(selected);
-        card.setAttribute('aria-pressed', selected ? 'true' : 'false');
-
-        const title = document.createElement('div');
-        title.className = 'layout-style-card__title';
-        title.textContent = option.label;
-
-        if (option.description) {
-          const description = document.createElement('div');
-          description.className = 'layout-style-card__description';
-          description.textContent = option.description;
-          card.append(title, description);
-        } else {
-          card.append(title);
-        }
-
-        card.addEventListener('click', () => this.applyBackgroundIntent(block.id, option.value));
-        intentCards.append(card);
-      });
-
-      backgroundSection.append(intentCards);
-
-      if (allowedBackgroundModes.includes('image')) {
-        const imageIntentHint = createHelperText('„Bildfläche“ setzt das Abschnittslayout automatisch auf „Vollbreite“.');
-        if (imageIntentHint) {
-          imageIntentHint.classList.add('section-background-config__hint');
-          backgroundSection.append(imageIntentHint);
-        }
-      }
-
-      let colorField;
-      let imageControls;
-      let imageInput;
-
-      const toggleBackgroundFields = mode => {
-        if (colorField) {
-          colorField.hidden = mode !== 'color';
-        }
-        if (imageControls) {
-          imageControls.hidden = !(layout === 'full' && mode === 'image');
-        }
-      };
-
-      const advancedControls = document.createElement('details');
-      advancedControls.className = 'section-background-config__advanced';
-
-      const advancedSummary = document.createElement('summary');
-      advancedSummary.textContent = 'Erweiterte Einstellungen';
-      advancedControls.append(advancedSummary);
-
-      const advancedBody = document.createElement('div');
-      advancedBody.className = 'section-background-config__advanced-fields';
-
-      const typeField = document.createElement('label');
-      typeField.dataset.fieldLabel = 'true';
-      const typeLabel = document.createElement('div');
-      typeLabel.className = 'field-label';
-      typeLabel.textContent = 'Technischer Modus';
-
-      const typeSelect = document.createElement('select');
-      typeSelect.className = 'uk-select';
-      BACKGROUND_MODE_OPTIONS.filter(option => allowedBackgroundModes.includes(option.value)).forEach(option => {
-        const optionEl = document.createElement('option');
-        optionEl.value = option.value;
-        optionEl.textContent = option.label;
-        optionEl.selected = option.value === background.mode;
-        typeSelect.append(optionEl);
-      });
-      typeSelect.addEventListener('change', event => {
-        const nextMode = event.target.value;
-        this.updateSectionBackground(block.id, { mode: nextMode });
-        toggleBackgroundFields(nextMode);
-        if (nextMode === 'image' && layout === 'full' && !background.imageId && imageInput) {
-          imageInput.focus();
-        }
-      });
-
-      const typeHelper = createHelperText('Feintuning für Layout- oder Theme-Szenarien.');
-      if (typeHelper) {
-        typeHelper.classList.add('section-background-config__hint');
-      }
-
-      typeField.append(typeLabel, typeSelect, typeHelper);
-      advancedBody.append(typeField);
-
-      if (allowedBackgroundModes.includes('color')) {
-        colorField = document.createElement('div');
-        colorField.dataset.fieldLabel = 'true';
-        colorField.className = 'background-color-field';
-
-        const colorLabel = document.createElement('div');
-        colorLabel.className = 'field-label';
-        colorLabel.textContent = 'Farbton';
-
-        const colorHint = createHelperText('Nutze die Markenfarben für konsistente Kontraste.');
-        const colorPicker = document.createElement('div');
-        colorPicker.className = 'background-color-picker';
-
-        BACKGROUND_COLOR_TOKENS.forEach(option => {
-          const swatch = document.createElement('button');
-          swatch.type = 'button';
-          swatch.dataset.color = option.value;
-          const selectedColor = BACKGROUND_COLOR_TOKEN_VALUES.includes(background.colorToken)
-            ? background.colorToken
-            : 'surface';
-          swatch.dataset.selected = String(selectedColor === option.value);
-          swatch.className = 'color-swatch';
-          swatch.textContent = option.label;
-          swatch.setAttribute('aria-pressed', selectedColor === option.value ? 'true' : 'false');
-          swatch.addEventListener('click', () => {
-            colorPicker.querySelectorAll('.color-swatch').forEach(btn => {
-              btn.dataset.selected = 'false';
-              btn.setAttribute('aria-pressed', 'false');
-            });
-            swatch.dataset.selected = 'true';
-            swatch.setAttribute('aria-pressed', 'true');
-            this.updateSectionBackground(block.id, { mode: 'color', colorToken: option.value });
-          });
-          swatch.style.background = BACKGROUND_COLOR_TOKEN_MAP[option.value] || 'var(--surface)';
-          colorPicker.append(swatch);
-        });
-
-        if (colorHint) {
-          colorField.append(colorLabel, colorHint, colorPicker);
-        } else {
-          colorField.append(colorLabel, colorPicker);
-        }
-
-        advancedBody.append(colorField);
-      }
-
-      if (allowedBackgroundModes.includes('image') && layout === 'full') {
-        imageControls = document.createElement('div');
-        imageControls.className = 'background-image-fields';
-
-        const imageField = this.addLabeledInput(
-          'Hintergrundbild',
-          background.imageId,
-          value => this.updateSectionBackground(block.id, { mode: 'image', imageId: value }),
-          {
-            placeholder: '/uploads/bg.jpg',
-            helpText: 'Bildquelle aus der Mediathek oder eine absolute URL.'
-          }
-        );
-
-        imageInput = imageField.querySelector('input, textarea, select');
-
-        imageControls.append(imageField);
-
-        const attachmentField = document.createElement('label');
-        attachmentField.dataset.fieldLabel = 'true';
-        const attachmentLabel = document.createElement('div');
-        attachmentLabel.className = 'field-label';
-        attachmentLabel.textContent = 'Scroll-Verhalten';
-
-        const attachmentSelect = document.createElement('select');
-        attachmentSelect.className = 'uk-select';
-        BACKGROUND_ATTACHMENTS.forEach(option => {
-          const optionEl = document.createElement('option');
-          optionEl.value = option.value;
-          optionEl.textContent = option.label;
-          optionEl.selected = option.value === background.attachment;
-          attachmentSelect.append(optionEl);
-        });
-        attachmentSelect.addEventListener('change', event => {
-          this.updateSectionBackground(block.id, { attachment: event.target.value, mode: 'image' });
-        });
-
-        const attachmentHelper = createHelperText('Nur auf Desktop sinnvoll');
-
-        attachmentField.append(attachmentLabel, attachmentSelect, attachmentHelper);
-        imageControls.append(attachmentField);
-
-        const overlayValue = typeof background.overlay === 'number' ? background.overlay : 0;
-        imageControls.append(
-          this.addLabeledInput(
-            'Overlay-Deckkraft',
-            overlayValue,
-            value => this.updateSectionBackground(block.id, { overlay: clampOverlayValue(value), mode: 'image' }),
-            { type: 'range', min: 0, max: 1, step: 0.05, helpText: 'Optionaler dunkler Verlauf über dem Bild.' }
-          )
-        );
-
-        advancedBody.append(imageControls);
-      }
-
-      advancedControls.append(advancedBody);
-      backgroundSection.append(advancedControls);
-
-      toggleBackgroundFields(background.mode);
-
-      wrapper.append(backgroundSection);
     }
+
+    backgroundSection.append(bleedGroup);
+
+    // Advanced settings
+    let colorField;
+    let imageControls;
+    let imageInput;
+    const effectiveLayout = bgConfig.bleed ? 'full' : layout;
+    const allowedBackgroundModes = bgConfig.bleed
+      ? ['none', 'color', 'image']
+      : ['none', 'color'];
+
+    const toggleBackgroundFields = mode => {
+      if (colorField) {
+        colorField.hidden = mode !== 'color';
+      }
+      if (imageControls) {
+        imageControls.hidden = !(bgConfig.bleed && mode === 'image');
+      }
+    };
+
+    const advancedControls = document.createElement('details');
+    advancedControls.className = 'section-background-config__advanced';
+
+    const advancedSummary = document.createElement('summary');
+    advancedSummary.textContent = 'Erweiterte Einstellungen';
+    advancedControls.append(advancedSummary);
+
+    const advancedBody = document.createElement('div');
+    advancedBody.className = 'section-background-config__advanced-fields';
+
+    const typeField = document.createElement('label');
+    typeField.dataset.fieldLabel = 'true';
+    const typeLabel = document.createElement('div');
+    typeLabel.className = 'field-label';
+    typeLabel.textContent = 'Technischer Modus';
+
+    const typeSelect = document.createElement('select');
+    typeSelect.className = 'uk-select';
+    BACKGROUND_MODE_OPTIONS.filter(option => allowedBackgroundModes.includes(option.value)).forEach(option => {
+      const optionEl = document.createElement('option');
+      optionEl.value = option.value;
+      optionEl.textContent = option.label;
+      optionEl.selected = option.value === background.mode;
+      typeSelect.append(optionEl);
+    });
+    typeSelect.addEventListener('change', event => {
+      const nextMode = event.target.value;
+      if (nextMode === 'image' && !bgConfig.bleed) {
+        this.updateBackgroundBleed(block.id, true);
+      }
+      this.updateSectionBackground(block.id, { mode: nextMode });
+      toggleBackgroundFields(nextMode);
+      if (nextMode === 'image' && !background.imageId && imageInput) {
+        imageInput.focus();
+      }
+    });
+
+    const typeHelper = createHelperText('Feintuning für Layout- oder Theme-Szenarien.');
+    if (typeHelper) {
+      typeHelper.classList.add('section-background-config__hint');
+    }
+
+    typeField.append(typeLabel, typeSelect, typeHelper);
+    advancedBody.append(typeField);
+
+    colorField = document.createElement('div');
+    colorField.dataset.fieldLabel = 'true';
+    colorField.className = 'background-color-field';
+
+    const colorLabel = document.createElement('div');
+    colorLabel.className = 'field-label';
+    colorLabel.textContent = 'Farbton';
+
+    const colorHint = createHelperText('Nutze die Markenfarben für konsistente Kontraste.');
+    const colorPicker = document.createElement('div');
+    colorPicker.className = 'background-color-picker';
+
+    BACKGROUND_COLOR_TOKENS.forEach(option => {
+      const swatch = document.createElement('button');
+      swatch.type = 'button';
+      swatch.dataset.color = option.value;
+      const selectedColor = BACKGROUND_COLOR_TOKEN_VALUES.includes(background.colorToken)
+        ? background.colorToken
+        : 'surface';
+      swatch.dataset.selected = String(selectedColor === option.value);
+      swatch.className = 'color-swatch';
+      swatch.textContent = option.label;
+      swatch.setAttribute('aria-pressed', selectedColor === option.value ? 'true' : 'false');
+      swatch.addEventListener('click', () => {
+        colorPicker.querySelectorAll('.color-swatch').forEach(btn => {
+          btn.dataset.selected = 'false';
+          btn.setAttribute('aria-pressed', 'false');
+        });
+        swatch.dataset.selected = 'true';
+        swatch.setAttribute('aria-pressed', 'true');
+        this.updateSectionBackground(block.id, { mode: 'color', colorToken: option.value });
+      });
+      swatch.style.background = BACKGROUND_COLOR_TOKEN_MAP[option.value] || 'var(--surface)';
+      colorPicker.append(swatch);
+    });
+
+    if (colorHint) {
+      colorField.append(colorLabel, colorHint, colorPicker);
+    } else {
+      colorField.append(colorLabel, colorPicker);
+    }
+
+    advancedBody.append(colorField);
+
+    imageControls = document.createElement('div');
+    imageControls.className = 'background-image-fields';
+
+    const imageField = this.addLabeledInput(
+      'Hintergrundbild',
+      background.imageId,
+      value => this.updateSectionBackground(block.id, { mode: 'image', imageId: value }),
+      {
+        placeholder: '/uploads/bg.jpg',
+        helpText: 'Bildquelle aus der Mediathek oder eine absolute URL.'
+      }
+    );
+
+    imageInput = imageField.querySelector('input, textarea, select');
+    imageControls.append(imageField);
+
+    const attachmentField = document.createElement('label');
+    attachmentField.dataset.fieldLabel = 'true';
+    const attachmentLabel = document.createElement('div');
+    attachmentLabel.className = 'field-label';
+    attachmentLabel.textContent = 'Scroll-Verhalten';
+
+    const attachmentSelect = document.createElement('select');
+    attachmentSelect.className = 'uk-select';
+    BACKGROUND_ATTACHMENTS.forEach(option => {
+      const optionEl = document.createElement('option');
+      optionEl.value = option.value;
+      optionEl.textContent = option.label;
+      optionEl.selected = option.value === background.attachment;
+      attachmentSelect.append(optionEl);
+    });
+    attachmentSelect.addEventListener('change', event => {
+      this.updateSectionBackground(block.id, { attachment: event.target.value, mode: 'image' });
+    });
+
+    const attachmentHelper = createHelperText('Nur auf Desktop sinnvoll');
+    attachmentField.append(attachmentLabel, attachmentSelect, attachmentHelper);
+    imageControls.append(attachmentField);
+
+    const overlayValue = typeof background.overlay === 'number' ? background.overlay : 0;
+    imageControls.append(
+      this.addLabeledInput(
+        'Overlay-Deckkraft',
+        overlayValue,
+        value => this.updateSectionBackground(block.id, { overlay: clampOverlayValue(value), mode: 'image' }),
+        { type: 'range', min: 0, max: 1, step: 0.05, helpText: 'Optionaler dunkler Verlauf über dem Bild.' }
+      )
+    );
+
+    advancedBody.append(imageControls);
+    advancedControls.append(advancedBody);
+    backgroundSection.append(advancedControls);
+
+    toggleBackgroundFields(background.mode);
+
+    wrapper.append(backgroundSection);
 
     return wrapper;
   }
@@ -4643,7 +4751,7 @@ export class BlockContentEditor {
       this.updateSectionLayout(blockId, 'full');
       layout = 'full';
       if (typeof notify === 'function') {
-        notify('Layout auf „Vollbreite“ gestellt, damit die Bildfläche funktioniert.', 'info');
+        notify('Layout auf „Vollbreite" gestellt, damit die Bildfläche funktioniert.', 'info');
       }
     }
 
@@ -4672,6 +4780,104 @@ export class BlockContentEditor {
     }
 
     this.updateSectionBackground(blockId, changes);
+  }
+
+  _applyContainerChange(blockId, patch) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+
+      const { container, background: bgConfig } = resolveContainerConfig(block);
+      const updatedContainer = { ...container, ...patch };
+      const stored = toStoredSectionStyle(updatedContainer, bgConfig);
+      return applySectionStyle(block, stored);
+    });
+
+    this.render();
+  }
+
+  updateContainerWidth(blockId, width) {
+    if (!CONTAINER_WIDTHS.includes(width)) return;
+    this._applyContainerChange(blockId, { width });
+  }
+
+  updateContainerFrame(blockId, frame) {
+    if (!CONTAINER_FRAMES.includes(frame)) return;
+    this._applyContainerChange(blockId, { frame });
+  }
+
+  updateContainerSpacing(blockId, spacing) {
+    if (!CONTAINER_SPACINGS.includes(spacing)) return;
+    this._applyContainerChange(blockId, { spacing });
+  }
+
+  updateBackgroundBleed(blockId, bleed) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+
+      const { container, background: bgConfig } = resolveContainerConfig(block);
+      const updatedBg = { ...bgConfig, bleed: !!bleed };
+
+      if (bleed && updatedBg.mode === 'none') {
+        updatedBg.mode = 'color';
+        updatedBg.colorToken = updatedBg.colorToken || 'surface';
+      }
+
+      const stored = toStoredSectionStyle(container, updatedBg);
+      return applySectionStyle(block, stored);
+    });
+
+    this.render();
+  }
+
+  applyBackgroundPreset(blockId, presetValue) {
+    const option = BACKGROUND_PRESET_OPTIONS.find(o => o.value === presetValue);
+    if (!option) return;
+
+    const targetBlock = this.state.blocks.find(block => block.id === blockId);
+    if (!targetBlock) return;
+
+    const { container, background: currentBg } = resolveContainerConfig(targetBlock);
+    const preset = option.preset;
+
+    if (preset.mode === 'image') {
+      const layout = resolveLayout(targetBlock);
+      const currentBackground = resolveSectionBackground(targetBlock, layout);
+      const updatedBg = {
+        ...currentBg,
+        mode: 'image',
+        bleed: true,
+        imageId: currentBackground.imageId || targetBlock?.backgroundImage || '',
+        attachment: currentBackground.attachment || 'scroll'
+      };
+      if (currentBackground.overlay !== undefined) {
+        updatedBg.overlay = currentBackground.overlay;
+      }
+      const stored = toStoredSectionStyle(container, updatedBg);
+      this.state.blocks = this.state.blocks.map(block =>
+        block.id === blockId ? applySectionStyle(block, stored) : block
+      );
+      this.render();
+      return;
+    }
+
+    const updatedBg = {
+      ...currentBg,
+      mode: preset.mode,
+      bleed: preset.bleed ?? currentBg.bleed
+    };
+    if (preset.colorToken) {
+      updatedBg.colorToken = preset.colorToken;
+    }
+
+    const stored = toStoredSectionStyle(container, updatedBg);
+    this.state.blocks = this.state.blocks.map(block =>
+      block.id === blockId ? applySectionStyle(block, stored) : block
+    );
+    this.render();
   }
 
   updateSectionBackground(blockId, changes = {}) {
