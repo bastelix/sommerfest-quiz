@@ -1,10 +1,45 @@
 {
+  "meta": {
+    "name": "UIKit Default",
+    "description": "Standard UIKit-Theme mit klassischem Blau. Neutrales, bewährtes Design als solide Grundlage für alle Anwendungsfälle.",
+    "version": "2.0.0",
+    "author": "QuizRace Design System"
+  },
   "config": {
+    "designTokens": {
+      "brand": {
+        "primary": "#1e87f0",
+        "accent": "#222222",
+        "secondary": "#222222"
+      },
+      "layout": {
+        "profile": "standard"
+      },
+      "typography": {
+        "preset": "modern"
+      },
+      "components": {
+        "cardStyle": "rounded",
+        "buttonStyle": "filled"
+      }
+    },
     "colors": {
       "marketingScheme": "uikit-default",
       "textOnPrimary": "#000000",
-      "textOnSurface": "#000000",
-      "textOnBackground": "#000000"
+      "textOnSurface": "#374151",
+      "textOnBackground": "#374151",
+      "textMutedOnSurface": "#6b7280",
+      "textMutedOnBackground": "#6b7280",
+      "textOnSurfaceDark": "#f3f4f6",
+      "textOnBackgroundDark": "#f3f4f6",
+      "textMutedOnSurfaceDark": "#9ca3af",
+      "textMutedOnBackgroundDark": "#9ca3af",
+      "surface": "#ffffff",
+      "surfaceMuted": "#f8f8f8",
+      "surfaceDark": "#222222",
+      "surfaceMutedDark": "#333333",
+      "background": "#ffffff",
+      "backgroundDark": "#222222"
     }
   },
   "designTokens": {
@@ -24,9 +59,39 @@
       "buttonStyle": "filled"
     }
   },
+  "effects": {
+    "effectsProfile": "quizrace.calm",
+    "sliderProfile": "calm"
+  },
   "contrastPairs": {
     "primary":   { "background": "#1e87f0", "text": "#000000", "ratio": "5.8:1", "grade": "AA" },
     "secondary": { "background": "#222222", "text": "#ffffff", "ratio": "15.9:1", "grade": "AAA" },
     "accent":    { "background": "#222222", "text": "#ffffff", "ratio": "15.9:1", "grade": "AAA" }
+  },
+  "palette": {
+    "light": {
+      "primary": "#1e87f0",
+      "primaryDark": "#0f7ae5",
+      "background": "#ffffff",
+      "surface": "#ffffff",
+      "surfaceAlt": "#f8f8f8",
+      "surfaceMuted": "rgba(30, 135, 240, 0.08)",
+      "text": "#374151",
+      "muted": "#6b7280",
+      "accent": "#222222",
+      "border": "#e5e5e5"
+    },
+    "dark": {
+      "primary": "#4da3f7",
+      "primaryDark": "#1e87f0",
+      "background": "#222222",
+      "surface": "rgba(34, 34, 34, 0.96)",
+      "surfaceAlt": "#333333",
+      "surfaceMuted": "rgba(30, 135, 240, 0.12)",
+      "text": "#f3f4f6",
+      "muted": "#9ca3af",
+      "accent": "#555555",
+      "border": "rgba(255, 255, 255, 0.18)"
+    }
   }
 }

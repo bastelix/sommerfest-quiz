@@ -1,4 +1,10 @@
 {
+  "meta": {
+    "name": "CalHelp",
+    "description": "Klassisches professionelles Theme mit warmen Teal- und Gold-Akzenten. Seriöse, vertrauenswürdige Ausstrahlung für Business-Anwendungen.",
+    "version": "2.0.0",
+    "author": "QuizRace Design System"
+  },
   "config": {
     "designTokens": {
       "brand": {
@@ -18,9 +24,22 @@
       }
     },
     "colors": {
+      "marketingScheme": "calhelp",
       "textOnPrimary": "#ffffff",
-      "textOnSurface": "#000000",
-      "textOnBackground": "#000000"
+      "textOnSurface": "#1a2e24",
+      "textOnBackground": "#1a2e24",
+      "textMutedOnSurface": "#5a7068",
+      "textMutedOnBackground": "#5a7068",
+      "textOnSurfaceDark": "#e8f0ec",
+      "textOnBackgroundDark": "#e8f0ec",
+      "textMutedOnSurfaceDark": "#a8bfb2",
+      "textMutedOnBackgroundDark": "#a8bfb2",
+      "surface": "#ffffff",
+      "surfaceMuted": "#f5f7f6",
+      "surfaceDark": "#0d1f18",
+      "surfaceMutedDark": "#152a22",
+      "background": "#f0f4f2",
+      "backgroundDark": "#081410"
     }
   },
   "designTokens": {
@@ -40,9 +59,39 @@
       "buttonStyle": "filled"
     }
   },
+  "effects": {
+    "effectsProfile": "quizrace.calm",
+    "sliderProfile": "calm"
+  },
   "contrastPairs": {
     "primary":   { "background": "#2B5E4A", "text": "#ffffff", "ratio": "7.5:1", "grade": "AAA" },
     "secondary": { "background": "#1a3a50", "text": "#ffffff", "ratio": "11.9:1", "grade": "AAA" },
     "accent":    { "background": "#C4A35A", "text": "#000000", "ratio": "8.7:1", "grade": "AAA" }
+  },
+  "palette": {
+    "light": {
+      "primary": "#2B5E4A",
+      "primaryDark": "#1f4636",
+      "background": "#f0f4f2",
+      "surface": "#ffffff",
+      "surfaceAlt": "#ffffff",
+      "surfaceMuted": "rgba(43, 94, 74, 0.08)",
+      "text": "#1a2e24",
+      "muted": "#5a7068",
+      "accent": "#C4A35A",
+      "border": "rgba(43, 94, 74, 0.18)"
+    },
+    "dark": {
+      "primary": "#5da88a",
+      "primaryDark": "#2B5E4A",
+      "background": "#081410",
+      "surface": "rgba(13, 31, 24, 0.96)",
+      "surfaceAlt": "#152a22",
+      "surfaceMuted": "rgba(43, 94, 74, 0.2)",
+      "text": "#e8f0ec",
+      "muted": "#a8bfb2",
+      "accent": "#d4be82",
+      "border": "rgba(43, 94, 74, 0.3)"
+    }
   }
 }
