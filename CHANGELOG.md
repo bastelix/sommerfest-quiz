@@ -326,6 +326,7 @@
 - Add missing eyebrowAsTag to HeroData validation schema
 - Hero block text contrast matches actual hero background
 - Persist container in sectionStyle and always include background
+- Guarantee readable text on every background surface
 
 ### Refactor
 
