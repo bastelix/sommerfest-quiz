@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "name": "Sunset",
+    "description": "Warmes, lebhaftes Theme mit Orange- und Pink-Tönen. Energiegeladene, einladende Atmosphäre für kreative und unterhaltsame Anwendungen.",
+    "version": "2.0.0",
+    "author": "QuizRace Design System"
+  },
+  "config": {
+    "designTokens": {
+      "brand": {
+        "primary": "#f97316",
+        "accent": "#ec4899",
+        "secondary": "#be185d"
+      },
+      "layout": {
+        "profile": "standard"
+      },
+      "typography": {
+        "preset": "classic"
+      },
+      "components": {
+        "cardStyle": "rounded",
+        "buttonStyle": "filled"
+      }
+    },
+    "colors": {
+      "marketingScheme": "sunset",
+      "textOnPrimary": "#ffffff",
+      "textOnSurface": "#1f2937",
+      "textOnBackground": "#1f2937",
+      "textMutedOnSurface": "#6b7280",
+      "textMutedOnBackground": "#6b7280",
+      "textOnSurfaceDark": "#f8fafc",
+      "textOnBackgroundDark": "#f8fafc",
+      "textMutedOnSurfaceDark": "#cbd5e1",
+      "textMutedOnBackgroundDark": "#cbd5e1",
+      "surface": "#fff7ed",
+      "surfaceMuted": "#fed7aa",
+      "surfaceDark": "#0f172a",
+      "surfaceMutedDark": "#1e293b",
+      "background": "#ffedd5",
+      "backgroundDark": "#020617"
+    }
+  },
+  "designTokens": {
+    "brand": {
+      "primary": "#f97316",
+      "accent": "#ec4899",
+      "secondary": "#be185d"
+    },
+    "layout": {
+      "profile": "standard"
+    },
+    "typography": {
+      "preset": "classic"
+    },
+    "components": {
+      "cardStyle": "rounded",
+      "buttonStyle": "filled"
+    }
+  },
+  "effects": {
+    "effectsProfile": "quizrace.calm",
+    "sliderProfile": "calm"
+  },
+  "contrastPairs": {
+    "primary":   { "background": "#f97316", "text": "#000000", "ratio": "7.2:1", "grade": "AAA" },
+    "secondary": { "background": "#be185d", "text": "#ffffff", "ratio": "6.4:1", "grade": "AA" },
+    "accent":    { "background": "#ec4899", "text": "#000000", "ratio": "6.1:1", "grade": "AA" }
+  },
+  "palette": {
+    "light": {
+      "primary": "#f97316",
+      "primaryDark": "#ea580c",
+      "background": "#ffedd5",
+      "surface": "#fff7ed",
+      "surfaceAlt": "#ffffff",
+      "surfaceMuted": "rgba(249, 115, 22, 0.08)",
+      "text": "#1f2937",
+      "muted": "#6b7280",
+      "accent": "#ec4899",
+      "border": "rgba(249, 115, 22, 0.18)"
+    },
+    "dark": {
+      "primary": "#fb923c",
+      "primaryDark": "#f97316",
+      "background": "#020617",
+      "surface": "rgba(15, 23, 42, 0.96)",
+      "surfaceAlt": "#1e293b",
+      "surfaceMuted": "rgba(249, 115, 22, 0.12)",
+      "text": "#f8fafc",
+      "muted": "#cbd5e1",
+      "accent": "#f472b6",
+      "border": "rgba(249, 115, 22, 0.3)"
+    }
+  }
+}

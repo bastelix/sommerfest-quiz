@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "name": "Monochrome",
+    "description": "Minimalistisches Schwarz-Weiß-Theme. Klare, reduzierte Ästhetik für zeitloses, typografisch fokussiertes Design.",
+    "version": "2.0.0",
+    "author": "QuizRace Design System"
+  },
+  "config": {
+    "designTokens": {
+      "brand": {
+        "primary": "#111111",
+        "accent": "#1f1f1f",
+        "secondary": "#333333"
+      },
+      "layout": {
+        "profile": "standard"
+      },
+      "typography": {
+        "preset": "classic"
+      },
+      "components": {
+        "cardStyle": "square",
+        "buttonStyle": "outline"
+      }
+    },
+    "colors": {
+      "marketingScheme": "monochrome",
+      "textOnPrimary": "#ffffff",
+      "textOnSurface": "#111111",
+      "textOnBackground": "#111111",
+      "textMutedOnSurface": "#4b4b4b",
+      "textMutedOnBackground": "#4b4b4b",
+      "textOnSurfaceDark": "#f2f2f2",
+      "textOnBackgroundDark": "#f2f2f2",
+      "textMutedOnSurfaceDark": "#b3b3b3",
+      "textMutedOnBackgroundDark": "#b3b3b3",
+      "surface": "#ffffff",
+      "surfaceMuted": "#f7f7f7",
+      "surfaceDark": "#121212",
+      "surfaceMutedDark": "#1a1a1a",
+      "background": "#f0f0f0",
+      "backgroundDark": "#0a0a0a"
+    }
+  },
+  "designTokens": {
+    "brand": {
+      "primary": "#111111",
+      "accent": "#1f1f1f",
+      "secondary": "#333333"
+    },
+    "layout": {
+      "profile": "standard"
+    },
+    "typography": {
+      "preset": "classic"
+    },
+    "components": {
+      "cardStyle": "square",
+      "buttonStyle": "outline"
+    }
+  },
+  "effects": {
+    "effectsProfile": "quizrace.calm",
+    "sliderProfile": "calm"
+  },
+  "contrastPairs": {
+    "primary":   { "background": "#111111", "text": "#ffffff", "ratio": "18.1:1", "grade": "AAA" },
+    "secondary": { "background": "#333333", "text": "#ffffff", "ratio": "12.6:1", "grade": "AAA" },
+    "accent":    { "background": "#1f1f1f", "text": "#ffffff", "ratio": "15.3:1", "grade": "AAA" }
+  },
+  "palette": {
+    "light": {
+      "primary": "#111111",
+      "primaryDark": "#000000",
+      "background": "#f0f0f0",
+      "surface": "#ffffff",
+      "surfaceAlt": "#f7f7f7",
+      "surfaceMuted": "rgba(17, 17, 17, 0.06)",
+      "text": "#111111",
+      "muted": "#4b4b4b",
+      "accent": "#1f1f1f",
+      "border": "#e0e0e0"
+    },
+    "dark": {
+      "primary": "#e0e0e0",
+      "primaryDark": "#b3b3b3",
+      "background": "#0a0a0a",
+      "surface": "rgba(18, 18, 18, 0.96)",
+      "surfaceAlt": "#1a1a1a",
+      "surfaceMuted": "rgba(255, 255, 255, 0.06)",
+      "text": "#f2f2f2",
+      "muted": "#b3b3b3",
+      "accent": "#d4d4d4",
+      "border": "rgba(255, 255, 255, 0.18)"
+    }
+  }
+}
