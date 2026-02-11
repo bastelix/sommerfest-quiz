@@ -1731,14 +1731,35 @@ body.page-render .qr-page-renderer table {
   }
 }
 
-/* @m breakpoint (960px) – generic fallback for child-width-1-3 */
+/* @m breakpoint (960px) – generic fallback */
+.section .uk-width-1-3\@m {
+  width: 100%;
+}
+
 .section .uk-child-width-1-3\@m > * {
   width: 100%;
 }
 
+.section .uk-width-1-4\@m {
+  width: 100%;
+}
+
+.section .uk-child-width-1-4\@m > * {
+  width: 100%;
+}
+
 @media (min-width: 960px) {
+  .section .uk-width-1-3\@m {
+    width: 33.333%;
+  }
   .section .uk-child-width-1-3\@m > * {
     width: 33.333%;
+  }
+  .section .uk-width-1-4\@m {
+    width: 25%;
+  }
+  .section .uk-child-width-1-4\@m > * {
+    width: 25%;
   }
 }
 

@@ -1030,7 +1030,11 @@ function renderFeatureListDetailedCards(block, options = {}) {
   const cards = items
     .map(item => {
       const content = renderFeatureListItemContent(item);
-      return `<div class="uk-width-1-1 uk-width-1-2@m uk-width-1-3@l"><div class="uk-card uk-card-default uk-card-hover uk-height-1-1"><div class="uk-card-body">${content}</div></div></div>`;
+      const childClass = buildResponsiveGridClasses(
+        resolveGridColumns(block, items.length, { maxColumns: 4 }),
+        { mode: 'width' }
+      );
+      return `<div class="${childClass}"><div class="uk-card uk-card-default uk-card-hover uk-height-1-1"><div class="uk-card-body">${content}</div></div></div>`;
     })
     .join('');
 
@@ -1061,7 +1065,11 @@ function renderFeatureListGridBullets(block, options = {}) {
   const cards = items
     .map(item => {
       const content = renderFeatureListItemContent(item);
-      return `<div class="uk-width-1-1 uk-width-1-2@m uk-width-1-3@l"><div class="uk-card uk-card-default uk-card-small uk-height-1-1"><div class="uk-card-body">${content}</div></div></div>`;
+      const childClass = buildResponsiveGridClasses(
+        resolveGridColumns(block, items.length, { maxColumns: 4 }),
+        { mode: 'width' }
+      );
+      return `<div class="${childClass}"><div class="uk-card uk-card-default uk-card-small uk-height-1-1"><div class="uk-card-body">${content}</div></div></div>`;
     })
     .join('');
 
@@ -1116,10 +1124,14 @@ function renderFeatureListSlider(block, options = {}) {
     })
     .join('');
 
+  const sliderGridClass = buildResponsiveGridClasses(
+    resolveGridColumns(block, items.length, { maxColumns: 4 })
+  );
+
   const slider = `
     <div id="${escapeAttribute(sliderId)}" class="uk-position-relative uk-visible-toggle feature-slider" tabindex="-1" data-uk-slider="center: true; autoplay: true; autoplay-interval: 4200; finite: false">
       <div class="uk-slider-container">
-        <ul class="uk-slider-items uk-child-width-1-1@s uk-child-width-1-2@m uk-child-width-1-3@l feature-slider__list" data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .feature-slider__item; delay: 75; repeat: true">${slides}</ul>
+        <ul class="uk-slider-items ${sliderGridClass} feature-slider__list" data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .feature-slider__item; delay: 75; repeat: true">${slides}</ul>
       </div>
       <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" data-uk-slidenav-previous data-uk-slider-item="previous" aria-label="Vorherige Funktion"></a>
       <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" data-uk-slidenav-next data-uk-slider-item="next" aria-label="Nächste Funktion"></a>
