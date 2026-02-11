@@ -317,6 +317,7 @@
 - FAQ accordion contrast — inherit section text color, adaptive icons
 - Align block renderer output with UIkit HTML reference styling
 - Resolve missing stylesheet contrast on marketing landing page
+- Regenerate namespace token CSS and load topbar styles on CMS pages
 
 ### Refactor
 
