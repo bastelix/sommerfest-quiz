@@ -2272,6 +2272,7 @@ body.marketing-page.calserver-layout .calserver-module-figure figcaption {
     flex-direction: column;
     gap: 14px;
     background: var(--qr-card);
+    color: var(--qr-text);
     border: 1px solid color-mix(in oklab, var(--calserver-primary) 22%, var(--qr-card-border) 78%);
     border-top: 1px solid color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 32%, transparent));
     border-radius: 0 0 22px 22px;
@@ -2279,10 +2280,20 @@ body.marketing-page.calserver-layout .calserver-module-figure figcaption {
 
 body.marketing-page.calserver-layout .calserver-module-figure h3 {
     margin: 0;
+    color: inherit;
+}
+
+body.marketing-page.calserver-layout .calserver-module-figure .muted {
+    color: color-mix(in oklab, var(--qr-text) 62%, var(--qr-card, var(--qr-bg)) 38%);
 }
 
 body.marketing-page.calserver-layout .calserver-module-figure .uk-list {
     margin-bottom: 0;
+    color: inherit;
+}
+
+body.marketing-page.calserver-layout .calserver-module-figure .uk-list-bullet > li::before {
+    border-color: currentColor;
 }
 
 body.marketing-page.calserver-layout .calserver-module-figure__download {
