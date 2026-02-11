@@ -322,6 +322,7 @@
 - Regenerate namespace token CSS and load topbar styles on CMS pages
 - Harden section contrast for dark backgrounds and extract renderSectionHeader helper
 - Align CTA buttons to same height when both are visible
+- Add missing eyebrowAsTag to HeroData validation schema
 
 ### Refactor
 
