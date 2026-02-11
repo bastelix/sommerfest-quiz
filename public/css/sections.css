@@ -1559,6 +1559,77 @@ body.page-render .qr-page-renderer table {
   line-height: 1.55;
 }
 
+/* Decorative heading classes: word-break + overflow handling */
+.section .uk-heading-line,
+.section .uk-heading-bullet {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* uk-h2 – UIkit default ~1.7rem */
+.section .uk-h2,
+.section h2:not([class*="uk-heading"]) {
+  font-size: clamp(1.35rem, 3.5vw, 1.7rem);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* uk-h3 – UIkit default ~1.5rem */
+.section .uk-h3,
+.section h3:not([class*="uk-heading"]):not(.uk-card-title) {
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* uk-h4 – UIkit default ~1.25rem */
+.section .uk-h4,
+.section h4 {
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* uk-h5 – UIkit default ~1rem */
+.section .uk-h5,
+.section h5 {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* uk-h6 – UIkit default ~0.875rem */
+.section .uk-h6,
+.section h6 {
+  font-size: clamp(0.8rem, 1.8vw, 0.875rem);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* uk-card-title – UIkit default ~1.5rem */
+.section .uk-card-title {
+  font-size: clamp(1.15rem, 2.8vw, 1.5rem);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* uk-text-meta – UIkit default ~0.875rem */
+.section .uk-text-meta {
+  font-size: clamp(0.75rem, 1.6vw, 0.875rem);
+  line-height: 1.4;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Shared: UIkit button responsive sizing                             */
 /* ------------------------------------------------------------------ */
