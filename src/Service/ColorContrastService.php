@@ -202,9 +202,9 @@ class ColorContrastService
      * automatically has readable text.
      *
      * @param array{
-     *     primary: string,
-     *     secondary: string,
-     *     accent: string,
+     *     primary?: string,
+     *     secondary?: string,
+     *     accent?: string,
      *     surface?: string,
      *     surfaceMuted?: string,
      *     surfacePage?: string,
@@ -262,7 +262,7 @@ class ColorContrastService
     /**
      * Resolve contrast tokens for both light and dark theme variants.
      *
-     * @param array{primary: string, secondary: string, accent: string} $brand
+     * @param array{primary?: string, secondary?: string, accent?: string} $brand
      *
      * @return array{light: array<string, string>, dark: array<string, string>}
      */
