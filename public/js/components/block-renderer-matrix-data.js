@@ -733,13 +733,13 @@ function renderHeroCtas(cta, alignmentClass = '') {
 
   if (primary?.label && primary?.href) {
     const ariaLabel = primary.ariaLabel ? ` aria-label="${escapeAttribute(primary.ariaLabel)}"` : '';
-    buttons.push(`<a class="uk-button uk-button-primary" href="${escapeAttribute(primary.href)}"${ariaLabel}>${escapeHtml(primary.label)}</a>`);
+    buttons.push(`<a class="uk-button uk-button-primary uk-button-large" href="${escapeAttribute(primary.href)}"${ariaLabel}>${escapeHtml(primary.label)}</a>`);
   }
 
   if (secondary?.label && secondary?.href) {
     const ariaLabel = secondary.ariaLabel ? ` aria-label="${escapeAttribute(secondary.ariaLabel)}"` : '';
     const marginClass = buttons.length ? ' uk-margin-small-left' : '';
-    buttons.push(`<a class="uk-button uk-button-default${marginClass}" href="${escapeAttribute(secondary.href)}"${ariaLabel}>${escapeHtml(secondary.label)}</a>`);
+    buttons.push(`<a class="uk-button uk-button-default uk-button-large${marginClass}" href="${escapeAttribute(secondary.href)}"${ariaLabel}>${escapeHtml(secondary.label)}</a>`);
   }
 
   if (!buttons.length) {
@@ -837,7 +837,7 @@ function renderFeatureMedia(media) {
 }
 
 function renderFeatureListItemContent(item) {
-  const title = `<h3 class="uk-h3 uk-margin-remove-bottom">${escapeHtml(item.title || '')}</h3>`;
+  const title = `<h3 class="uk-card-title">${escapeHtml(item.title || '')}</h3>`;
   const description = item.description
     ? `<div class="uk-margin-small-top uk-margin-remove-bottom">${item.description}</div>`
     : '';
@@ -914,23 +914,25 @@ function renderFeatureList(block, variant, options = {}) {
 function renderFeatureListDetailedCards(block, options = {}) {
   const context = options?.context || 'frontend';
   const items = normalizeFeatureListItems(block);
-  const eyebrow = renderEyebrow(block, '', context);
+  const eyebrow = renderEyebrow(block, 'uk-text-center', context);
   const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    ? `<h2 class="uk-heading-small uk-text-center"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
-  const lead = block.data?.lead
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.lead', context)}>${escapeHtml(block.data.lead)}</p>`
+  const leadOrSubtitle = block.data?.lead || block.data?.subtitle;
+  const leadField = block.data?.lead ? 'data.lead' : 'data.subtitle';
+  const lead = leadOrSubtitle
+    ? `<p class="uk-text-lead uk-text-center uk-margin-medium-bottom"${buildEditableAttributes(block, leadField, context)}>${escapeHtml(leadOrSubtitle)}</p>`
     : '';
-  const header = (eyebrow || title || lead) ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${eyebrow}${title}${lead}</div>` : '';
+  const header = (eyebrow || title || lead) ? `<div class="uk-width-1-1">${eyebrow}${title}${lead}</div>` : '';
 
   const cards = items
     .map(item => {
       const content = renderFeatureListItemContent(item);
-      return `<div class="uk-width-1-1 uk-width-1-2@m uk-width-1-3@l"><div class="uk-card uk-card-default uk-height-1-1"><div class="uk-card-body">${content}</div></div></div>`;
+      return `<div class="uk-width-1-1 uk-width-1-2@m uk-width-1-3@l"><div class="uk-card uk-card-default uk-card-hover uk-height-1-1"><div class="uk-card-body">${content}</div></div></div>`;
     })
     .join('');
 
-  const grid = `<div class="uk-grid uk-grid-medium" data-uk-grid>${cards}</div>`;
+  const grid = `<div class="uk-grid uk-grid-large uk-grid-match" data-uk-grid>${cards}</div>`;
   const ctas = renderHeroCtas(block.data?.cta);
   const footer = ctas || '';
 
@@ -1172,19 +1174,19 @@ function renderProcessSteps(block, variant, options = {}) {
   }
 
   const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    ? `<h2 class="uk-heading-small uk-text-center"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
   const summary = block.data?.summary
-    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.summary', context)}>${escapeHtml(block.data.summary)}</p>`
+    ? `<p class="uk-text-lead uk-text-center uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.summary', context)}>${escapeHtml(block.data.summary)}</p>`
     : '';
-  const header = title || summary ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${title}${summary}</div>` : '';
+  const header = title || summary ? `<div class="uk-width-1-1">${title}${summary}</div>` : '';
 
-  const renderNumberBadge = (stepNumber) => `<div class="uk-flex uk-flex-middle uk-flex-center uk-background-primary uk-light uk-border-circle uk-text-bold" style="width:48px;height:48px;">${stepNumber}</div>`;
+  const renderNumberBadge = (stepNumber) => `<div class="uk-heading-small uk-text-primary">${stepNumber}</div>`;
 
   const renderVerticalSteps = () => {
     const items = steps.map((step, index) => {
       const number = renderNumberBadge(index + 1);
-      const stepTitle = step?.title ? `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(step.title)}</h3>` : '';
+      const stepTitle = step?.title ? `<h3 class="uk-margin-small-top">${escapeHtml(step.title)}</h3>` : '';
       const stepDescription = step?.description ? `<p class="uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.description)}</p>` : '';
       const numberColumn = `<div class="uk-width-auto uk-flex uk-flex-top">${number}</div>`;
       const contentColumn = `<div class="uk-width-expand">${stepTitle}${stepDescription}</div>`;
@@ -1195,14 +1197,15 @@ function renderProcessSteps(block, variant, options = {}) {
   };
 
   const renderHorizontalSteps = () => {
+    const columnCount = Math.min(steps.length, 6);
     const items = steps.map((step, index) => {
       const number = renderNumberBadge(index + 1);
-      const stepTitle = step?.title ? `<h3 class="uk-h4 uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.title)}</h3>` : '';
-      const stepDescription = step?.description ? `<p class="uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.description)}</p>` : '';
-      return `<div class="uk-text-center uk-height-1-1"><div class="uk-flex uk-flex-center">${number}</div>${stepTitle}${stepDescription}</div>`;
+      const stepTitle = step?.title ? `<h3 class="uk-margin-small-top">${escapeHtml(step.title)}</h3>` : '';
+      const stepDescription = step?.description ? `<p>${escapeHtml(step.description)}</p>` : '';
+      return `<div class="uk-text-center">${number}${stepTitle}${stepDescription}</div>`;
     });
 
-    return `<div class="uk-grid-large uk-child-width-1-1 uk-child-width-1-3@m" data-uk-grid>${items.join('')}</div>`;
+    return `<div class="uk-grid uk-grid-large uk-child-width-1-1 uk-child-width-1-${columnCount}@m" data-uk-grid>${items.join('')}</div>`;
   };
 
   const layout = normalizedVariant === 'numbered-horizontal' || normalizedVariant === 'timeline_horizontal'
@@ -1622,24 +1625,24 @@ function renderCtaSplit(block, options = {}) {
   const titleValue = typeof block.data?.title === 'string' ? block.data.title.trim() : '';
   const bodyValue = typeof block.data?.body === 'string' ? block.data.body.trim() : '';
   const title = titleValue
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(titleValue)}</h2>`
+    ? `<h2 class="uk-heading-small"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(titleValue)}</h2>`
     : '';
   const body = bodyValue
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.body', context)}>${escapeHtml(bodyValue)}</p>`
+    ? `<p class="uk-text-lead"${buildEditableAttributes(block, 'data.body', context)}>${escapeHtml(bodyValue)}</p>`
     : '';
   const hasText = Boolean(title || body);
   const primary = block.data?.primary;
   const secondary = block.data?.secondary;
-  const buttons = renderCtaButtons(primary, secondary, {
-    alignment: hasText ? 'uk-flex-right@m' : 'uk-flex-center uk-flex-right@m',
-    margin: hasText ? 'uk-margin-small-top' : ''
-  });
-  if (!buttons) {
+  const primaryButton = renderCtaButton(primary, 'uk-button-default uk-button-large uk-margin-small-bottom');
+  const secondaryButton = renderCtaButton(secondary, 'uk-button-default uk-button-large');
+  const buttonList = [primaryButton, secondaryButton].filter(Boolean);
+  if (!buttonList.length) {
     throw new Error('CTA split variant requires at least one valid action');
   }
+  const buttonsHtml = buttonList.join('<br>');
   const layout = hasText
-    ? `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid><div class="uk-width-expand">${title}${body}</div><div class="uk-width-1-1 uk-width-auto@m">${buttons}</div></div>`
-    : buttons;
+    ? `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid><div class="uk-width-2-3@m">${title}${body}</div><div class="uk-width-1-3@m uk-text-right@m">${buttonsHtml}</div></div>`
+    : `<div class="uk-text-center">${buttonsHtml}</div>`;
 
   return renderSection({ block, variant: 'split', content: layout });
 }
@@ -1800,32 +1803,31 @@ function renderStatStripCards(block, options = {}) {
   const context = options?.context || 'frontend';
   const header = renderStatStripHeader(block, context, 'center');
   const metrics = getValidMetrics(block);
-  const gridClass = buildStatStripGridClass(block, 'stat-strip__grid uk-grid uk-grid-large uk-grid-match');
+  const gridClass = buildStatStripGridClass(block, 'stat-strip__grid uk-grid uk-grid-large uk-grid-match uk-text-center');
 
   const metricCards = metrics
     .map((metric, index) => {
       const value = renderStatMetricValue(block, metric, index, context, {
-        valueSize: 'stat-strip__value uk-heading-large',
-        alignClass: 'uk-text-left'
+        valueSize: 'stat-strip__value uk-heading-small',
+        alignClass: ''
       });
       const label = renderStatMetricLabel(block, metric, index, context, {
-        labelClass: 'stat-strip__label-text uk-text-semibold',
-        alignClass: 'uk-text-left'
+        labelClass: 'stat-strip__label-text uk-text-lead',
+        alignClass: ''
       });
       const asOf = renderStatMetricAsOf(block, metric, index, context, {
-        alignClass: 'uk-text-left',
+        alignClass: '',
         extraClass: 'stat-strip__as-of'
       });
       const benefit = renderStatMetricBenefit(block, metric, index, context, {
-        alignClass: 'uk-text-left',
+        alignClass: '',
         extraClass: 'stat-strip__benefit',
         textClass: 'uk-text-secondary'
       });
-      const benefitBlock = benefit || '<span class="stat-strip__benefit stat-strip__benefit-placeholder" aria-hidden="true"></span>';
+      const benefitBlock = benefit ? benefit : '';
 
-      return `<div role="listitem" class="stat-strip__card stat-strip__card--surface uk-card uk-card-body uk-height-1-1 uk-flex uk-flex-column">` +
-        `<div class="stat-strip__kpi uk-flex uk-flex-column">${value}${label}${asOf || ''}</div>` +
-        `${benefitBlock}</div>`;
+      return `<div role="listitem"><div class="stat-strip__card stat-strip__card--surface uk-card uk-card-default uk-card-body">` +
+        `${value}${label}${asOf || ''}${benefitBlock}</div></div>`;
     })
     .join('');
 
@@ -1962,9 +1964,9 @@ function renderProofMetricCallout(block, options = {}) {
 }
 
 function renderAudienceSpotlightCard(item) {
-  const badge = item.badge ? `<span class="uk-label uk-label-success uk-margin-small-bottom">${escapeHtml(item.badge)}</span>` : '';
-  const title = `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(item.title || '')}</h3>`;
-  const lead = item.lead ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(item.lead)}</p>` : '';
+  const badge = item.badge ? `<span class="uk-text-meta">${escapeHtml(item.badge)}</span>` : '';
+  const title = `<h3 class="uk-card-title uk-margin-small-top">${escapeHtml(item.title || '')}</h3>`;
+  const lead = item.lead ? `<p>${escapeHtml(item.lead)}</p>` : '';
   const body = item.body ? `<p class="uk-margin-small-top">${escapeHtml(item.body)}</p>` : '';
 
   const bullets = Array.isArray(item.bullets)
@@ -1972,7 +1974,7 @@ function renderAudienceSpotlightCard(item) {
         .filter(text => typeof text === 'string' && text.trim() !== '')
         .map(text => `<li>${escapeHtml(text)}</li>`)
     : [];
-  const bulletList = bullets.length ? `<ul class="uk-list uk-list-bullet uk-margin-small-top">${bullets.join('')}</ul>` : '';
+  const bulletList = bullets.length ? `<ul class="uk-list uk-list-bullet uk-margin-top">${bullets.join('')}</ul>` : '';
 
   const keyFacts = Array.isArray(item.keyFacts)
     ? item.keyFacts
@@ -2078,21 +2080,21 @@ function renderAudienceSpotlight(block, variant = block.variant || 'tabs', optio
   }
 
   const sectionTitle = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    ? `<h2 class="uk-heading-small uk-text-center"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
   const sectionSubtitle = block.data?.subtitle
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
+    ? `<p class="uk-text-lead uk-text-center uk-margin-small-top uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
     : '';
   const gridVariants = {
     tabs: 'uk-child-width-1-1 uk-child-width-1-2@m',
-    tiles: 'uk-child-width-1-1 uk-child-width-1-3@m',
+    tiles: 'uk-child-width-1-1 uk-child-width-1-2@m',
     'single-focus': 'uk-child-width-1-1'
   };
   const gridClass = gridVariants[variant] || gridVariants.tabs;
   const cards = cases.map(item => renderAudienceSpotlightCard(item)).join('') ||
     '<div><div class="uk-alert-warning" role="alert">Keine Anwendungsfälle hinterlegt.</div></div>';
 
-  const grid = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
+  const grid = `<div class="uk-margin-large-top uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
 
   return renderSection({ block, variant: safeVariant, content: `${sectionTitle}${sectionSubtitle}${grid}` });
 }
@@ -2188,37 +2190,35 @@ function renderFaqItem(block, item, index, context) {
   const questionAttributes = buildEditableAttributes(block, `data.items.${index}.question`, context);
   const answerAttributes = buildEditableAttributes(block, `data.items.${index}.answer`, context, { type: 'richtext' });
   const questionText = escapeHtml(item.question || '');
-  const question = `<a class="uk-accordion-title" href="#"><span${questionAttributes}>${questionText}</span></a>`;
+  const question = `<h3 class="uk-accordion-title"${questionAttributes}>${questionText}</h3>`;
   const answer = item.answer
-    ? `<div class="uk-accordion-content"><p class="uk-margin-remove-top"${answerAttributes}>${escapeHtml(item.answer)}</p></div>`
+    ? `<div class="uk-accordion-content"><p${answerAttributes}>${escapeHtml(item.answer)}</p></div>`
     : '';
-  return `<li>${question}${answer}</li>`;
+  return `<div class="uk-card uk-card-default uk-card-body uk-margin">${question}${answer}</div>`;
 }
 
 function renderFaq(block, options = {}) {
   const context = options?.context || 'frontend';
   const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    ? `<h2 class="uk-heading-small uk-text-center"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
   const items = Array.isArray(block.data?.items) ? block.data.items : [];
   const accordionItems = items.length
     ? items.map((item, index) => renderFaqItem(block, item, index, context)).join('')
-    : '<li><div class="uk-alert-warning" role="alert">Keine Fragen hinterlegt.</div></li>';
+    : '<div class="uk-alert-warning" role="alert">Keine Fragen hinterlegt.</div>';
   const followUpData = block.data?.followUp;
-  const followUpLinkLabel = followUpData?.linkLabel || followUpData?.text || 'Mehr erfahren';
+  const followUpText = followUpData?.text ? escapeHtml(followUpData.text) : '';
+  const followUpLinkLabel = followUpData?.linkLabel || 'Mehr erfahren';
   const followUpLink = followUpData?.href
-    ? `<a class="uk-link-heading" href="${escapeAttribute(followUpData.href)}"><span${buildEditableAttributes(block, 'data.followUp.linkLabel', context)}>${escapeHtml(followUpLinkLabel)}</span></a>`
+    ? `<a href="${escapeAttribute(followUpData.href)}" class="uk-text-primary"${buildEditableAttributes(block, 'data.followUp.linkLabel', context)}>${escapeHtml(followUpLinkLabel)}</a>`
     : '';
-  const followUpText = followUpData?.text
-    ? `<span class="uk-text-muted"${buildEditableAttributes(block, 'data.followUp.text', context)}>${escapeHtml(followUpData.text)}</span>`
-    : '';
-  const followUp = followUpLink || followUpText
-    ? `<div class="uk-margin-medium-top">${[followUpLink, followUpText].filter(Boolean).join(' ')}</div>`
+  const followUp = followUpText || followUpLink
+    ? `<p class="uk-text-center uk-margin-large-top">${followUpText}${followUpText && followUpLink ? ' ' : ''}${followUpLink}</p>`
     : '';
 
-  const accordion = `<ul class="uk-accordion" data-uk-accordion>${accordionItems}</ul>`;
+  const accordion = `<div class="uk-margin-large-top" data-uk-accordion>${accordionItems}</div>`;
 
-  return renderSection({ block, variant: 'accordion', content: `${title}${accordion}${followUp}` });
+  return renderSection({ block, variant: 'accordion', content: `${title}${accordion}${followUp}`, containerClass: 'uk-container-small' });
 }
 
 function renderLegacySystemModuleItem(item) {
