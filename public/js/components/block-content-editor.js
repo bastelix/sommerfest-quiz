@@ -54,7 +54,8 @@ const VARIANT_LABELS = {
     'text-columns': 'Spalten',
     'card-stack': 'Karten',
     stacked_cards: 'Karten',
-    icon_grid: 'Icon-Raster'
+    icon_grid: 'Icon-Raster',
+    slider: 'Slider'
   },
   content_slider: {
     words: 'Text-Slider',
@@ -81,7 +82,7 @@ const VARIANT_LABELS = {
     split: 'Geteilt'
   },
   stat_strip: {
-    inline: 'Inline (ruhig, sachlich)',
+    inline: 'Inline (ruhig)',
     cards: 'Cards (vergleichend)',
     'three-up': 'Three-up',
     centered: 'Zentriert (signalstark)',
@@ -109,6 +110,36 @@ const VARIANT_LABELS = {
   system_module: {
     switcher: 'Module'
   }
+};
+
+const CARD_VARIANT_GROUPS = {
+  feature_list: {
+    card: ['detailed-cards', 'grid-bullets', 'card-stack', 'slider'],
+    noCard: ['text-columns']
+  },
+  stat_strip: {
+    card: ['cards'],
+    noCard: ['inline', 'centered', 'highlight']
+  },
+  testimonial: {
+    card: ['quote_wall'],
+    noCard: ['single_quote']
+  }
+};
+
+const hasCardToggle = type => type in CARD_VARIANT_GROUPS;
+
+const isCardVariant = (type, variant) => {
+  const groups = CARD_VARIANT_GROUPS[type];
+  if (!groups) return false;
+  return groups.card.includes(variant);
+};
+
+const getDefaultVariantForCardMode = (type, useCards, availableVariants) => {
+  const groups = CARD_VARIANT_GROUPS[type];
+  if (!groups) return availableVariants[0];
+  const pool = useCards ? groups.card : groups.noCard;
+  return pool.find(v => availableVariants.includes(v)) || availableVariants[0];
 };
 
 const SECTION_LAYOUT_OPTIONS = [
@@ -2588,28 +2619,113 @@ export class BlockContentEditor {
       wrapper.append(notice);
     }
 
-    const cards = document.createElement('div');
-    cards.className = 'layout-style-picker__options';
-    const isCurrentVariant = variant => !hasInvalidVariant && variant === block.variant;
+    if (hasCardToggle(block.type)) {
+      const currentIsCard = isCardVariant(block.type, block.variant);
 
-    variants.forEach(variant => {
-      const card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'layout-style-card';
-      card.dataset.selected = String(isCurrentVariant(variant));
-      card.setAttribute('aria-pressed', isCurrentVariant(variant) ? 'true' : 'false');
+      const toggleGroup = document.createElement('div');
+      toggleGroup.className = 'section-config-panel__group';
+      const toggleLabel = document.createElement('div');
+      toggleLabel.className = 'field-label';
+      toggleLabel.textContent = 'Elemente als Karten';
+      toggleGroup.append(toggleLabel);
 
-      const preview = buildLayoutPreview(block.type, variant);
-      const title = document.createElement('div');
-      title.className = 'layout-style-card__title';
-      title.textContent = getVariantLabel(block.type, variant);
+      const toggleOptions = document.createElement('div');
+      toggleOptions.className = 'layout-style-picker__options layout-style-picker__options--inline';
 
-      card.append(preview, title);
-      card.addEventListener('click', () => this.updateVariant(block.id, variant));
-      cards.append(card);
-    });
+      const btnCard = document.createElement('button');
+      btnCard.type = 'button';
+      btnCard.className = 'layout-style-card layout-style-card--compact';
+      btnCard.dataset.selected = String(currentIsCard);
+      btnCard.setAttribute('aria-pressed', currentIsCard ? 'true' : 'false');
+      btnCard.textContent = 'Ja';
+      btnCard.title = 'Einzelne Elemente als Karten darstellen';
+      btnCard.addEventListener('click', () => {
+        if (!currentIsCard) {
+          const target = getDefaultVariantForCardMode(block.type, true, variants);
+          this.updateVariant(block.id, target);
+        }
+      });
 
-    wrapper.append(cards);
+      const btnNoCard = document.createElement('button');
+      btnNoCard.type = 'button';
+      btnNoCard.className = 'layout-style-card layout-style-card--compact';
+      btnNoCard.dataset.selected = String(!currentIsCard);
+      btnNoCard.setAttribute('aria-pressed', !currentIsCard ? 'true' : 'false');
+      btnNoCard.textContent = 'Nein';
+      btnNoCard.title = 'Elemente ohne Kartenrahmen darstellen';
+      btnNoCard.addEventListener('click', () => {
+        if (currentIsCard) {
+          const target = getDefaultVariantForCardMode(block.type, false, variants);
+          this.updateVariant(block.id, target);
+        }
+      });
+
+      toggleOptions.append(btnCard, btnNoCard);
+      toggleGroup.append(toggleOptions);
+      wrapper.append(toggleGroup);
+
+      const groups = CARD_VARIANT_GROUPS[block.type];
+      const filteredVariants = currentIsCard
+        ? variants.filter(v => groups.card.includes(v))
+        : variants.filter(v => groups.noCard.includes(v));
+
+      if (filteredVariants.length > 1) {
+        const subGroup = document.createElement('div');
+        subGroup.className = 'section-config-panel__group';
+        const subLabel = document.createElement('div');
+        subLabel.className = 'field-label';
+        subLabel.textContent = 'Darstellung';
+        subGroup.append(subLabel);
+
+        const subCards = document.createElement('div');
+        subCards.className = 'layout-style-picker__options';
+        const isCurrentVariant = variant => !hasInvalidVariant && variant === block.variant;
+
+        filteredVariants.forEach(variant => {
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'layout-style-card';
+          card.dataset.selected = String(isCurrentVariant(variant));
+          card.setAttribute('aria-pressed', isCurrentVariant(variant) ? 'true' : 'false');
+
+          const preview = buildLayoutPreview(block.type, variant);
+          const title = document.createElement('div');
+          title.className = 'layout-style-card__title';
+          title.textContent = getVariantLabel(block.type, variant);
+
+          card.append(preview, title);
+          card.addEventListener('click', () => this.updateVariant(block.id, variant));
+          subCards.append(card);
+        });
+
+        subGroup.append(subCards);
+        wrapper.append(subGroup);
+      }
+    } else {
+      const cards = document.createElement('div');
+      cards.className = 'layout-style-picker__options';
+      const isCurrentVariant = variant => !hasInvalidVariant && variant === block.variant;
+
+      variants.forEach(variant => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'layout-style-card';
+        card.dataset.selected = String(isCurrentVariant(variant));
+        card.setAttribute('aria-pressed', isCurrentVariant(variant) ? 'true' : 'false');
+
+        const preview = buildLayoutPreview(block.type, variant);
+        const title = document.createElement('div');
+        title.className = 'layout-style-card__title';
+        title.textContent = getVariantLabel(block.type, variant);
+
+        card.append(preview, title);
+        card.addEventListener('click', () => this.updateVariant(block.id, variant));
+        cards.append(card);
+      });
+
+      wrapper.append(cards);
+    }
+
     return wrapper;
   }
 
