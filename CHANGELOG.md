@@ -334,6 +334,7 @@
 - Resolve missing scheme tokens and CSS fallback gaps in marketing design
 - Make dark mode work for sections by preventing light-theme inline style overrides
 - Remove blank line before class closing brace in LegacyMarketingMenuDefinition
+- Block-slider intro shows raw HTML tags, CTA button invisible on highlight sections
 
 ### Refactor
 
