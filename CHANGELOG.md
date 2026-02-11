@@ -34,6 +34,7 @@
 - Add migration for sticker text toggles
 - Normalize spacing before EOF docblocks
 - Track namespace-specific token CSS and tighten .gitignore
+- Remove legacy labor.css, topbar.landing.css, and dead references
 
 ### Ci
 
