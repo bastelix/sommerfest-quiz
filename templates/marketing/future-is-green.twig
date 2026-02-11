@@ -647,7 +647,7 @@
     document.addEventListener('DOMContentLoaded', function () {
       var contactForm = document.getElementById('contact-form');
       if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
-        contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/future-is-green/contact');
+        contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/api/contact-form');
       }
 
       var contactSection = document.getElementById('contact');

@@ -427,7 +427,7 @@
       });
       var contactForm = document.getElementById('contact-form');
       if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
-        contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/calserver/contact');
+        contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/api/contact-form');
       }
     });
   </script>

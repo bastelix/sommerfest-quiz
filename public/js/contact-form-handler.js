@@ -13,7 +13,7 @@
  * @param {HTMLElement} [root=document] Container to search for forms
  */
 export function initContactForms(root = document) {
-  const forms = root.querySelectorAll('form.contact-form');
+  const forms = root.querySelectorAll('form.contact-form, form#contact-form');
   forms.forEach(attachHandler);
 }
 
