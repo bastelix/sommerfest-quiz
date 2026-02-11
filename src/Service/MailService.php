@@ -194,9 +194,12 @@ class MailService
         ?array $templateData = null,
         ?string $fromEmail = null,
         ?array $smtpOverride = null,
-        ?string $company = null
+        ?string $company = null,
+        ?string $subject = null,
+        ?array $extraFields = null
     ): void {
         $context = $this->buildContactContext($name, $replyTo, $message, $company);
+        $context['extra_fields'] = $extraFields ?? [];
         $templateArray = is_array($templateData) ? $templateData : [];
         $senderName = isset($templateArray['sender_name']) ? trim((string) $templateArray['sender_name']) : null;
         $context['sender_name'] = $senderName ?? '';
@@ -206,26 +209,24 @@ class MailService
         $senderHtml = $this->renderTemplateString($templateArray['sender_html'] ?? null, $context);
         $senderText = $this->renderTemplateString($templateArray['sender_text'] ?? null, $context);
 
+        $templateContext = [
+            'name'         => $name,
+            'email'        => $replyTo,
+            'message'      => $message,
+            'company'      => $company,
+            'extra_fields' => $extraFields ?? [],
+            'base_url'     => $this->baseUrl,
+        ];
+
         if ($recipientHtml === null) {
-            $recipientHtml = $this->twig->render('emails/contact.twig', [
-                'name'     => $name,
-                'email'    => $replyTo,
-                'message'  => $message,
-                'company'  => $company,
-                'base_url' => $this->baseUrl,
-            ]);
+            $recipientHtml = $this->twig->render('emails/contact.twig', $templateContext);
         }
         if ($recipientText === null) {
             $recipientText = $this->buildDefaultRecipientText($name, $replyTo, $message);
         }
 
         if ($senderHtml === null) {
-            $senderHtml = $this->twig->render('emails/contact_copy.twig', [
-                'name'     => $name,
-                'message'  => $message,
-                'company'  => $company,
-                'base_url' => $this->baseUrl,
-            ]);
+            $senderHtml = $this->twig->render('emails/contact_copy.twig', $templateContext);
         }
         if ($senderText === null) {
             $senderText = $this->buildDefaultSenderText($name, $message);
@@ -233,11 +234,12 @@ class MailService
 
         $fromOverride = $this->determineContactFromAddress($fromEmail, $senderName);
 
+        $emailSubject = ($subject !== null && $subject !== '') ? $subject : 'Kontaktanfrage';
         $email = (new Email())
             ->from($fromOverride)
             ->to($to)
             ->replyTo($replyTo)
-            ->subject('Kontaktanfrage')
+            ->subject($emailSubject)
             ->html($recipientHtml)
             ->text($recipientText);
 
@@ -248,10 +250,11 @@ class MailService
 
         $this->providerManager->sendMail($email, $options);
 
+        $copySubject = ($subject !== null && $subject !== '') ? 'Ihre Anfrage: ' . $subject : 'Ihre Kontaktanfrage';
         $copyEmail = (new Email())
             ->from($fromOverride)
             ->to($replyTo)
-            ->subject('Ihre Kontaktanfrage')
+            ->subject($copySubject)
             ->html($senderHtml)
             ->text($senderText);
 

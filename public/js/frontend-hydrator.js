@@ -215,6 +215,16 @@ const hydratePage = async () => {
         mode: 'frontend'
       });
     }
+
+    // Activate contact form AJAX handlers
+    try {
+      const { initContactForms } = await import(`${basePath}/js/contact-form-handler.js`);
+      if (initContactForms) {
+        initContactForms(pageRoot);
+      }
+    } catch (contactError) {
+      console.warn('[CMS] Contact form handler not available', contactError);
+    }
   } catch (error) {
     console.error('[CMS] Failed to hydrate page', error);
     showHydrationFallback(pageRoot, 'Content could not be loaded. Please refresh the page.');
