@@ -298,7 +298,8 @@ const BACKGROUND_INTENT_BY_COLOR = {
 const BACKGROUND_MODES_BY_LAYOUT = {
   normal: ['none', 'color'],
   full: ['none', 'color', 'image'],
-  card: ['none', 'color']
+  card: ['none', 'color'],
+  'full-card': ['none', 'color', 'image']
 };
 
 const CONTAINER_WIDTH_OPTIONS = [

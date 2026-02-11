@@ -112,12 +112,12 @@ export function fromStoredSectionStyle(stored, blockType) {
   const container = explicitContainer && typeof explicitContainer === 'object'
     ? {
         width: CONTAINER_WIDTHS.includes(explicitContainer.width) ? explicitContainer.width : (INTENT_TO_CONTAINER_WIDTH[intent] || 'normal'),
-        frame: CONTAINER_FRAMES.includes(explicitContainer.frame) ? explicitContainer.frame : (layout === 'card' ? 'card' : 'none'),
+        frame: CONTAINER_FRAMES.includes(explicitContainer.frame) ? explicitContainer.frame : ((layout === 'card' || layout === 'full-card') ? 'card' : 'none'),
         spacing: CONTAINER_SPACINGS.includes(explicitContainer.spacing) ? explicitContainer.spacing : (INTENT_TO_CONTAINER_SPACING[intent] || 'normal')
       }
     : {
         width: INTENT_TO_CONTAINER_WIDTH[intent] || 'normal',
-        frame: layout === 'card' ? 'card' : 'none',
+        frame: (layout === 'card' || layout === 'full-card') ? 'card' : 'none',
         spacing: INTENT_TO_CONTAINER_SPACING[intent] || 'normal'
       };
 
@@ -129,7 +129,7 @@ export function fromStoredSectionStyle(stored, blockType) {
       imageId: bg.imageId,
       attachment: bg.attachment,
       overlay: bg.overlay,
-      bleed: layout === 'full'
+      bleed: layout === 'full' || layout === 'full-card'
     }
   };
 }
@@ -137,7 +137,7 @@ export function fromStoredSectionStyle(stored, blockType) {
 export function toStoredSectionStyle(container, background) {
   const bleed = background?.bleed ?? false;
   const frame = container?.frame || 'none';
-  const layout = bleed ? 'full' : (frame === 'card' ? 'card' : 'normal');
+  const layout = bleed && frame === 'card' ? 'full-card' : bleed ? 'full' : frame === 'card' ? 'card' : 'normal';
   const intent = deriveSectionIntent(container, background);
 
   const bgMode = background?.mode || 'none';
