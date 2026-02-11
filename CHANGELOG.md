@@ -256,6 +256,7 @@
 - Add automatic WCAG color contrast checking for theme tokens
 - Add conventional commits and manual version bump support
 - Make all page module block types mobile-first responsive
+- Add responsive font-size scaling for all heading classes in modules
 
 ### Fix
 
