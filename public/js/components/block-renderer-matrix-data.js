@@ -2306,7 +2306,7 @@ function renderPackagePlan(plan) {
         .map(text => `<li>${escapeHtml(text)}</li>`)
     : [];
   const noteList = notes.length
-    ? `<div class="uk-margin-small-top"><ul class="uk-list uk-text-small uk-margin-remove">${notes.map(text => `<li>${escapeHtml(text)}</li>`).join('')}</ul></div>`
+    ? `<div class="uk-margin-small-top"><ul class="uk-list uk-text-small uk-margin-remove">${notes.join('')}</ul></div>`
     : '';
 
   const ctas = [
