@@ -35,6 +35,7 @@
 - Normalize spacing before EOF docblocks
 - Track namespace-specific token CSS and tighten .gitignore
 - Remove legacy labor.css, topbar.landing.css, and dead references
+- Add auto-generated namespace token stylesheets
 
 ### Ci
 
@@ -258,6 +259,7 @@
 - Make all page module block types mobile-first responsive
 - Add responsive font-size scaling for all heading classes in modules
 - Add item-level card toggle with filtered sub-variants in Layout-Stil
+- Add Future-is-Green namespace design theme and design import function
 
 ### Fix
 
