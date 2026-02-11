@@ -325,6 +325,7 @@
 - Align CTA buttons to same height when both are visible
 - Add missing eyebrowAsTag to HeroData validation schema
 - Hero block text contrast matches actual hero background
+- Persist container in sectionStyle and always include background
 
 ### Refactor
 
