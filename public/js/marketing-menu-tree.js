@@ -912,10 +912,53 @@ if (container) {
 
     const triggerAutoGeneration = overwrite => {
       if (!state.menuId) {
+        setFeedback('Bitte zuerst ein Menü auswählen.', 'warning');
         return;
       }
-
-      setFeedback('KI-Generierung ist für Menü-Definitionen aktuell nicht verfügbar.', 'warning');
+      const pageId = container.dataset.pageId || '';
+      if (!pageId) {
+        setFeedback('Keine Seite für die KI-Generierung verfügbar.', 'warning');
+        return;
+      }
+      if (!overwrite && !confirm('Menü-Einträge per KI generieren? Vorhandene Einträge bleiben erhalten.')) {
+        return;
+      }
+      if (overwrite && !confirm('Menü-Einträge per KI neu generieren? Vorhandene Einträge werden ersetzt.')) {
+        return;
+      }
+      setFeedback('KI-Generierung läuft…', 'primary');
+      if (generateButton) {
+        generateButton.disabled = true;
+      }
+      const locale = state.locale || null;
+      const aiPath = `${state.basePath}/admin/pages/${encodeURIComponent(pageId)}/menu/ai`;
+      const path = withNamespace(aiPath);
+      apiFetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locale, overwrite })
+      })
+        .then(response => {
+          if (!response.ok) {
+            return response.json().catch(() => ({})).then(errData => {
+              throw new Error(errData?.error || 'KI-Generierung fehlgeschlagen.');
+            });
+          }
+          return response.json();
+        })
+        .then(() => {
+          setFeedback('Menü wurde per KI generiert.', 'success');
+          loadMenuItems(state.locale);
+        })
+        .catch(error => {
+          console.error('AI menu generation failed', error);
+          setFeedback(error.message || 'KI-Generierung fehlgeschlagen.', 'danger');
+        })
+        .finally(() => {
+          if (generateButton) {
+            generateButton.disabled = false;
+          }
+        });
     };
 
     const applyVariantSelection = () => {

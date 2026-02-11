@@ -277,6 +277,7 @@
               data-locale="{{ selectedMenuLocale|e('html_attr') }}"
               data-navigation-variant-options="{{ navigationVariants|json_encode|e('html_attr') }}"
               data-selected-navigation-variant="{{ selectedVariant|e('html_attr') }}"
+              data-page-id="{{ anchor_page_id|default('')|e('html_attr') }}"
             >
                   <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
                   <div>
@@ -325,7 +326,7 @@
                   Basis: Label, Link, Sichtbarkeit. Erweitert: Layout, Icon, Locale, Startpage, Extern und SEO-Texte.
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
-                  KI-Helfer: Für Menü-Definitionen derzeit nicht verfügbar.
+                  KI-Helfer: Generiert Menü-Einträge automatisch aus dem Seiteninhalt.
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
                   Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
@@ -363,6 +364,7 @@
               data-locale="{{ selectedMenuLocale|e('html_attr') }}"
               data-navigation-variant-options="{{ navigationVariants|json_encode|e('html_attr') }}"
               data-selected-navigation-variant="{{ selectedVariant|e('html_attr') }}"
+              data-page-id="{{ anchor_page_id|default('')|e('html_attr') }}"
           >
             <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
               <div>
@@ -411,7 +413,7 @@
               Parent &amp; Layout steuern Dropdowns, Mega-Menüs und die Hierarchie. Sortierung per Drag &amp; Drop erfolgt je Ebene.
             </p>
             <p class="uk-text-meta uk-margin-small-top">
-              KI-Helfer: Für Menü-Definitionen derzeit nicht verfügbar.
+              KI-Helfer: Generiert Menü-Einträge automatisch aus dem Seiteninhalt.
             </p>
             <p class="uk-text-meta uk-margin-small-top">
               Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.

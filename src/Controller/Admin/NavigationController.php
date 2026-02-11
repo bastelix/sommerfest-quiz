@@ -97,6 +97,7 @@ final class NavigationController
             'selected_menu_id' => $selectedMenuId,
             'internal_links' => $internalLinks,
             'use_navigation_tree' => FeatureFlags::marketingNavigationTreeEnabled(),
+            'anchor_page_id' => $anchorPage?->getId(),
         ]);
     }
 
