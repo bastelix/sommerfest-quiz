@@ -255,6 +255,7 @@
 - Add advanced footer block system with content types
 - Add automatic WCAG color contrast checking for theme tokens
 - Add conventional commits and manual version bump support
+- Make all page module block types mobile-first responsive
 
 ### Fix
 
