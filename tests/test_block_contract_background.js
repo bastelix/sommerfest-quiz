@@ -5,7 +5,7 @@ const vm = require('vm');
 function loadModule() {
   const code = fs.readFileSync('public/js/components/block-contract.js', 'utf8');
   const sanitized = code
-    .replace(/^import .*\n/, '')
+    .replace(/^import[^;]+;\n/gm, '')
     .replace(/export /g, '')
     .replace(/const TOKEN_ENUMS = [\s\S]*?};\n/, '');
 
@@ -17,8 +17,14 @@ function loadModule() {
   accent: ['brandA', 'brandB', 'brandC']
 };\n`;
 
+  const sectionIntentsCode = fs
+    .readFileSync('public/js/components/section-intents.js', 'utf8')
+    .replace(/^import[^;]+;\n/gm, '')
+    .replace(/export\s+/g, '');
+
   const context = { RENDERER_MATRIX: {} };
   vm.createContext(context);
+  vm.runInContext(sectionIntentsCode, context);
   vm.runInContext(prelude + sanitized, context);
   return context;
 }
