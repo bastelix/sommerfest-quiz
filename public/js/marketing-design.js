@@ -608,12 +608,14 @@ const applyMarketingDesign = () => {
     background,
   );
   const surfaceMuted =
+    marketingSchemeValues?.surfaceMuted ||
     configColors.surfaceMuted ||
     colors.surfaceMuted ||
     colors.muted ||
     variables.surfaceMuted ||
     fallbackMuted;
   const marketingSurfaceMuted = resolveFirstValue(
+    marketingSchemeValues?.surfaceMuted,
     configColors.marketingSurfaceMuted,
     configColors.marketing_surface_muted,
     colors.marketingSurfaceMuted,
@@ -1636,6 +1638,170 @@ const applyMarketingDesign = () => {
   if (topbarLight || topbarDark) {
     root.style.setProperty('--qr-hero-grad-start', 'var(--qr-landing-topbar-bg)');
     root.style.setProperty('--qr-hero-grad-end', 'var(--qr-bg-soft)');
+  }
+
+  // Apply font/heading/card/button tokens from scheme (these are already set
+  // server-side via theme-vars.twig but must also be applied client-side for
+  // consistency and to prevent specificity conflicts with inline styles).
+  const schemeFontStack = resolveFirstValue(
+    marketingSchemeValues?.fontStack,
+    configColors.fontStack,
+    configColors.font_stack,
+    colors.fontStack,
+    variables.fontStack,
+  );
+  if (schemeFontStack) {
+    root.style.setProperty('--marketing-font-stack', schemeFontStack);
+  }
+  const schemeHeadingFontStack = resolveFirstValue(
+    marketingSchemeValues?.headingFontStack,
+    configColors.headingFontStack,
+    configColors.heading_font_stack,
+    colors.headingFontStack,
+    variables.headingFontStack,
+  );
+  if (schemeHeadingFontStack) {
+    root.style.setProperty('--marketing-heading-font-stack', schemeHeadingFontStack);
+  }
+  const schemeHeadingWeight = resolveFirstValue(
+    marketingSchemeValues?.headingWeight,
+    configColors.headingWeight,
+    configColors.heading_weight,
+    colors.headingWeight,
+    variables.headingWeight,
+  );
+  if (schemeHeadingWeight) {
+    root.style.setProperty('--marketing-heading-weight', schemeHeadingWeight);
+  }
+  const schemeHeadingLetterSpacing = resolveFirstValue(
+    marketingSchemeValues?.headingLetterSpacing,
+    configColors.headingLetterSpacing,
+    configColors.heading_letter_spacing,
+    colors.headingLetterSpacing,
+    variables.headingLetterSpacing,
+  );
+  if (schemeHeadingLetterSpacing !== null && schemeHeadingLetterSpacing !== undefined) {
+    root.style.setProperty('--marketing-heading-letter-spacing', schemeHeadingLetterSpacing);
+  }
+  const schemeHeadingLineHeight = resolveFirstValue(
+    marketingSchemeValues?.headingLineHeight,
+    configColors.headingLineHeight,
+    configColors.heading_line_height,
+    colors.headingLineHeight,
+    variables.headingLineHeight,
+  );
+  if (schemeHeadingLineHeight) {
+    root.style.setProperty('--marketing-heading-line-height', schemeHeadingLineHeight);
+  }
+  const schemeCardRadius = resolveFirstValue(
+    marketingSchemeValues?.cardRadius,
+    configColors.cardRadius,
+    configColors.card_radius,
+    colors.cardRadius,
+    variables.cardRadius,
+  );
+  if (schemeCardRadius) {
+    root.style.setProperty('--marketing-card-radius', schemeCardRadius);
+  }
+  const schemeButtonPrimaryBg = resolveFirstValue(
+    marketingSchemeValues?.buttonPrimaryBg,
+    configColors.buttonPrimaryBg,
+    configColors.button_primary_bg,
+    colors.buttonPrimaryBg,
+    variables.buttonPrimaryBg,
+  );
+  if (schemeButtonPrimaryBg) {
+    root.style.setProperty('--marketing-button-primary-bg', schemeButtonPrimaryBg);
+  }
+  const schemeButtonPrimaryText = resolveFirstValue(
+    marketingSchemeValues?.buttonPrimaryText,
+    configColors.buttonPrimaryText,
+    configColors.button_primary_text,
+    colors.buttonPrimaryText,
+    variables.buttonPrimaryText,
+  );
+  if (schemeButtonPrimaryText) {
+    root.style.setProperty('--marketing-button-primary-text', schemeButtonPrimaryText);
+  }
+  const schemeButtonPrimaryBorderColor = resolveFirstValue(
+    marketingSchemeValues?.buttonPrimaryBorderColor,
+    configColors.buttonPrimaryBorderColor,
+    configColors.button_primary_border_color,
+    colors.buttonPrimaryBorderColor,
+    variables.buttonPrimaryBorderColor,
+  );
+  if (schemeButtonPrimaryBorderColor) {
+    root.style.setProperty('--marketing-button-primary-border-color', schemeButtonPrimaryBorderColor);
+  }
+  const schemeButtonPrimaryHoverBg = resolveFirstValue(
+    marketingSchemeValues?.buttonPrimaryHoverBg,
+    configColors.buttonPrimaryHoverBg,
+    configColors.button_primary_hover_bg,
+    colors.buttonPrimaryHoverBg,
+    variables.buttonPrimaryHoverBg,
+  );
+  if (schemeButtonPrimaryHoverBg) {
+    root.style.setProperty('--marketing-button-primary-hover-bg', schemeButtonPrimaryHoverBg);
+  }
+  const schemeButtonPrimaryFocusBg = resolveFirstValue(
+    marketingSchemeValues?.buttonPrimaryFocusBg,
+    configColors.buttonPrimaryFocusBg,
+    configColors.button_primary_focus_bg,
+    colors.buttonPrimaryFocusBg,
+    variables.buttonPrimaryFocusBg,
+  );
+  if (schemeButtonPrimaryFocusBg) {
+    root.style.setProperty('--marketing-button-primary-focus-bg', schemeButtonPrimaryFocusBg);
+  }
+  const schemeButtonPrimaryActiveBg = resolveFirstValue(
+    marketingSchemeValues?.buttonPrimaryActiveBg,
+    configColors.buttonPrimaryActiveBg,
+    configColors.button_primary_active_bg,
+    colors.buttonPrimaryActiveBg,
+    variables.buttonPrimaryActiveBg,
+  );
+  if (schemeButtonPrimaryActiveBg) {
+    root.style.setProperty('--marketing-button-primary-active-bg', schemeButtonPrimaryActiveBg);
+  }
+  const schemeButtonSecondaryBg = resolveFirstValue(
+    marketingSchemeValues?.buttonSecondaryBg,
+    configColors.buttonSecondaryBg,
+    configColors.button_secondary_bg,
+    colors.buttonSecondaryBg,
+    variables.buttonSecondaryBg,
+  );
+  if (schemeButtonSecondaryBg !== null && schemeButtonSecondaryBg !== undefined) {
+    root.style.setProperty('--marketing-button-secondary-bg', schemeButtonSecondaryBg);
+  }
+  const schemeButtonSecondaryText = resolveFirstValue(
+    marketingSchemeValues?.buttonSecondaryText,
+    configColors.buttonSecondaryText,
+    configColors.button_secondary_text,
+    colors.buttonSecondaryText,
+    variables.buttonSecondaryText,
+  );
+  if (schemeButtonSecondaryText) {
+    root.style.setProperty('--marketing-button-secondary-text', schemeButtonSecondaryText);
+  }
+  const schemeButtonSecondaryBorderColor = resolveFirstValue(
+    marketingSchemeValues?.buttonSecondaryBorderColor,
+    configColors.buttonSecondaryBorderColor,
+    configColors.button_secondary_border_color,
+    colors.buttonSecondaryBorderColor,
+    variables.buttonSecondaryBorderColor,
+  );
+  if (schemeButtonSecondaryBorderColor) {
+    root.style.setProperty('--marketing-button-secondary-border-color', schemeButtonSecondaryBorderColor);
+  }
+  const schemeButtonSecondaryHoverBg = resolveFirstValue(
+    marketingSchemeValues?.buttonSecondaryHoverBg,
+    configColors.buttonSecondaryHoverBg,
+    configColors.button_secondary_hover_bg,
+    colors.buttonSecondaryHoverBg,
+    variables.buttonSecondaryHoverBg,
+  );
+  if (schemeButtonSecondaryHoverBg) {
+    root.style.setProperty('--marketing-button-secondary-hover-bg', schemeButtonSecondaryHoverBg);
   }
 
   applyComponentTokens(root);
