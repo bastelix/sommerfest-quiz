@@ -466,6 +466,9 @@ class DesignTokenService
             'primary' => $brandPrimary,
             'secondary' => $brandSecondary,
             'accent' => $brandAccent,
+            'surface' => '#ffffff',
+            'surfaceMuted' => '#eef2f7',
+            'surfacePage' => '#f7f9fb',
         ]);
 
         $lines = [

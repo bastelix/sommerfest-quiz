@@ -1,6 +1,6 @@
 export const MARKETING_SCHEMES = {
   aurora: {
-    // calServer landing palette: public/css/landing.css (--qr-landing-primary, --qr-link)
+    // calServer landing palette (--qr-landing-primary, --qr-link)
     primary: '#1f6feb',
     accent: '#58a6ff',
     secondary: '#475569',
