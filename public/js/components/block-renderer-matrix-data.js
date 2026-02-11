@@ -25,6 +25,9 @@ const DEFAULT_APPEARANCE = {
     surface: 'var(--surface, var(--marketing-surface))',
     'text-on-primary': 'var(--text-on-primary, var(--marketing-text-on-primary, #ffffff))',
     'text-on-secondary': 'var(--text-on-secondary, var(--marketing-text-on-secondary, #ffffff))',
+    'text-on-surface': 'var(--contrast-text-on-surface, var(--color-text, #111827))',
+    'text-on-muted': 'var(--contrast-text-on-surface-muted, var(--color-text, #111827))',
+    'text-on-accent': 'var(--contrast-text-on-accent, var(--text-on-accent, #ffffff))',
   },
   variables: {},
 };
@@ -351,19 +354,22 @@ const SECTION_INTENT_CONFIG = {
     sectionClass: 'uk-section-medium',
     containerClass: '',
     innerClass: 'section__inner--panel',
-    surfaceToken: 'surface'
+    surfaceToken: 'surface',
+    textToken: { token: 'text-on-surface', fallback: 'var(--contrast-text-on-surface, var(--color-text, #111827))' }
   },
   plain: {
     sectionClass: 'uk-section-medium',
     containerClass: '',
     innerClass: '',
-    surfaceToken: 'surface'
+    surfaceToken: 'surface',
+    textToken: { token: 'text-on-surface', fallback: 'var(--contrast-text-on-surface, var(--color-text, #111827))' }
   },
   feature: {
     sectionClass: 'uk-section-large',
     containerClass: 'uk-container-large',
     innerClass: '',
-    surfaceToken: 'muted'
+    surfaceToken: 'muted',
+    textToken: { token: 'text-on-muted', fallback: 'var(--contrast-text-on-surface-muted, var(--color-text, #111827))' }
   },
   highlight: {
     sectionClass: 'uk-section-large',
@@ -418,7 +424,9 @@ function resolveContainerPreset(block) {
     : (background.mode === 'color' && background.colorToken === 'muted' ? 'muted' : 'surface');
   const textToken = isDark
     ? { token: 'text-on-primary', fallback: 'var(--text-on-primary, var(--marketing-text-on-primary))' }
-    : undefined;
+    : surfaceToken === 'muted'
+      ? { token: 'text-on-muted', fallback: 'var(--contrast-text-on-surface-muted, var(--color-text, #111827))' }
+      : { token: 'text-on-surface', fallback: 'var(--contrast-text-on-surface, var(--color-text, #111827))' };
 
   return {
     intent,
@@ -479,14 +487,18 @@ function resolveSectionIntentPreset(block) {
     styleVariables.push('--section-bg-color:var(--section-default-surface)');
   }
 
-  if (textColor && (isExplicit || intent === 'highlight' || intent === 'hero')) {
-    styleVariables.push(`--section-text-color:${textColor}`);
-  } else if (hasDarkSurfaceToken) {
+  if (hasDarkSurfaceToken) {
+    // Explicit dark background token (primary/secondary/accent) overrides
+    // the intent preset – always use white-on-dark text.
     const darkFallback = resolveAppearanceValue(
       'text-on-primary',
       'var(--text-on-primary, var(--marketing-text-on-primary, #ffffff))'
     );
     styleVariables.push(`--section-text-color:${darkFallback}`);
+  } else if (textColor) {
+    // Every intent now carries a textToken (dark text for light surfaces,
+    // light text for dark surfaces) so --section-text-color is always set.
+    styleVariables.push(`--section-text-color:${textColor}`);
   }
 
   return {

@@ -480,6 +480,11 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
         backgroundSelector: '.design-preview__button-secondary',
         inputKey: 'text-on-primary',
       },
+      'text-on-accent': {
+        textVars: ['--contrast-text-on-accent', '--text-on-accent', '--marketing-on-accent'],
+        backgroundVars: ['--brand-accent', '--marketing-accent'],
+        applyVars: ['--text-on-accent', '--contrast-text-on-accent'],
+      },
     };
 
     const applyOverridesFromInputs = () => {
