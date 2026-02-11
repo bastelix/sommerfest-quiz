@@ -271,6 +271,7 @@ const schema = {
       "required": ["headline", "cta"],
       "properties": {
         "eyebrow": { "type": "string" },
+        "eyebrowAsTag": { "type": "boolean" },
         "headline": { "type": "string", "minLength": 1 },
         "subheadline": { "type": "string" },
         "media": { "$ref": "#/definitions/Media" },
