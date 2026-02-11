@@ -452,6 +452,8 @@
   --qr-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
   --qr-ring:   color-mix(in oklab, var(--marketing-primary) 55%, transparent);
 
+  --marketing-button-secondary-border-color: color-mix(in oklab, var(--marketing-primary) 80%, transparent);
+
   --qr-text:  var(--marketing-text-on-background-dark);
   --qr-muted: var(--marketing-text-muted-on-background-dark);
 

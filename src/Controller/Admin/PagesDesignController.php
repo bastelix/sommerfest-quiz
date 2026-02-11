@@ -196,6 +196,11 @@ class PagesDesignController
                 $tokensToPersist['typography'] = $defaults['typography'];
             } elseif ($action === 'reset_components') {
                 $tokensToPersist['components'] = $defaults['components'];
+            } elseif ($action === 'reset_all_overrides') {
+                $tokensToPersist['brand'] = $defaults['brand'];
+                $tokensToPersist['layout'] = $defaults['layout'];
+                $tokensToPersist['typography'] = $defaults['typography'];
+                $tokensToPersist['components'] = $defaults['components'];
             }
 
             $config = [];
@@ -206,6 +211,38 @@ class PagesDesignController
                     $currentMarketingScheme = $config['colors']['marketingScheme']
                         ?? $config['colors']['marketing_scheme']
                         ?? null;
+                }
+            }
+
+            /* When the marketing scheme changes, auto-derive component defaults
+               from the new scheme – unless the user explicitly overrode them
+               in the same save request. */
+            if ($hasAppearanceVariables && array_key_exists('marketingScheme', $appearanceVariables)) {
+                $newScheme = $appearanceVariables['marketingScheme'];
+                if ($newScheme !== null && $newScheme !== $currentMarketingScheme) {
+                    $schemeTokens = $this->loadSchemeDefaults($newScheme);
+                    if ($schemeTokens !== null) {
+                        $mapping = [
+                            'layout' => ['profile' => $schemeTokens['defaultLayout'] ?? null],
+                            'typography' => ['preset' => $schemeTokens['defaultTypography'] ?? null],
+                            'components' => [
+                                'cardStyle' => $schemeTokens['defaultCardStyle'] ?? null,
+                                'buttonStyle' => $schemeTokens['defaultButtonStyle'] ?? null,
+                            ],
+                        ];
+                        foreach ($mapping as $group => $keys) {
+                            foreach ($keys as $key => $defaultValue) {
+                                if ($defaultValue === null) {
+                                    continue;
+                                }
+                                $explicitlySet = ($incoming[$group][$key] ?? null) !== null
+                                    && ($incoming[$group][$key] ?? '') !== '';
+                                if (!$explicitlySet) {
+                                    $tokensToPersist[$group][$key] = $defaultValue;
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -221,7 +258,7 @@ class PagesDesignController
                         unset($colors['marketing_scheme']);
                     }
                 }
-                foreach (['textOnSurface', 'textOnBackground', 'textOnPrimary'] as $key) {
+                foreach (['textOnSurface', 'textOnBackground', 'textOnPrimary', 'textOnSecondary', 'textOnAccent'] as $key) {
                     if (!array_key_exists($key, $appearanceVariables)) {
                         continue;
                     }
@@ -437,7 +474,7 @@ class PagesDesignController
             return [false, []];
         }
 
-        $allowedKeys = ['marketingScheme', 'textOnSurface', 'textOnBackground', 'textOnPrimary'];
+        $allowedKeys = ['marketingScheme', 'textOnSurface', 'textOnBackground', 'textOnPrimary', 'textOnSecondary', 'textOnAccent'];
         $result = [];
         foreach ($allowedKeys as $key) {
             if (!array_key_exists($key, $variables)) {
@@ -496,6 +533,26 @@ class PagesDesignController
         }
 
         return array_keys($schemes);
+    }
+
+    /**
+     * Load default* tokens (defaultTypography, etc.) from a marketing scheme.
+     *
+     * @return array<string, string>|null
+     */
+    private function loadSchemeDefaults(string $schemeName): ?array
+    {
+        $path = dirname(__DIR__, 3) . '/config/marketing-design-tokens.php';
+        if (!is_file($path)) {
+            return null;
+        }
+
+        $schemes = require $path;
+        if (!is_array($schemes) || !isset($schemes[$schemeName])) {
+            return null;
+        }
+
+        return $schemes[$schemeName];
     }
 
     /**
