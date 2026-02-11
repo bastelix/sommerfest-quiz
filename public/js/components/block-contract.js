@@ -31,7 +31,7 @@ const SECTION_APPEARANCE_ALIASES = {
 };
 
 const SECTION_APPEARANCES = ['contained', 'full', 'card', ...Object.keys(SECTION_APPEARANCE_ALIASES)];
-const SECTION_LAYOUTS = ['normal', 'full', 'card'];
+const SECTION_LAYOUTS = ['normal', 'full', 'card', 'full-card'];
 const SECTION_LAYOUT_ALIASES = {
   fullwidth: 'full'
 };
@@ -1203,7 +1203,7 @@ export function validateSectionBackground(background, layout) {
   }
 
   if (background.mode === 'image') {
-    if (layout !== 'full') {
+    if (layout !== 'full' && layout !== 'full-card') {
       return false;
     }
 

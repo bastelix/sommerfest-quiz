@@ -184,12 +184,13 @@ function resolveCsrfToken() {
   return '';
 }
 
-const SECTION_LAYOUTS = ['normal', 'full', 'card'];
+const SECTION_LAYOUTS = ['normal', 'full', 'card', 'full-card'];
 // Keep background modes in sync with the layout options exposed in the editor UI.
 const BACKGROUND_MODES_BY_LAYOUT = {
   normal: ['none', 'color'],
   full: ['none', 'color', 'image'],
-  card: ['none', 'color']
+  card: ['none', 'color'],
+  'full-card': ['none', 'color', 'image']
 };
 
 const BACKGROUND_COLOR_TOKENS = ['primary', 'secondary', 'muted', 'accent', 'surface'];
@@ -274,7 +275,7 @@ function resolveSectionBackground(block, layout) {
   }
 
   if (mode === 'image') {
-    if (layout !== 'full' || !imageId) {
+    if ((layout !== 'full' && layout !== 'full-card') || !imageId) {
       return { mode: 'none' };
     }
 
@@ -526,9 +527,9 @@ function normalizeClassList(classes) {
 
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
   const layout = resolveSectionLayout(block);
-  const backgroundLayout = layout === 'card' ? 'full' : layout;
+  const backgroundLayout = (layout === 'card' || layout === 'full-card') ? 'full' : layout;
   const background = resolveSectionBackground(block, backgroundLayout);
-  const hasFullBleed = layout === 'full' || (layout === 'card' && background.mode !== 'none');
+  const hasFullBleed = layout === 'full' || layout === 'full-card' || (layout === 'card' && background.mode !== 'none');
   const layoutClassFlag = hasFullBleed ? 'section--full' : '';
   const backgroundStyle = resolveSectionBackgroundStyles(background);
   const containerPreset = resolveContainerPreset(block);
@@ -539,7 +540,7 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   const bleed = hasFullBleed ? 'full' : null;
   const presetStyle = preset.styleVariables.length ? `${preset.styleVariables.join('; ')};` : '';
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const layoutFlag = layout === 'card' ? 'card' : '';
+  const layoutFlag = (layout === 'card' || layout === 'full-card') ? 'card' : '';
   const classes = [
     'section',
     'uk-section',
@@ -585,8 +586,8 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   ]
     .filter(Boolean)
     .join(' ');
-  const layoutInnerClass = layout === 'card' ? 'section__inner--card' : '';
-  const heroInnerClass = layout === 'card' && intent === 'hero' ? 'section__inner--hero' : '';
+  const layoutInnerClass = (layout === 'card' || layout === 'full-card') ? 'section__inner--card' : '';
+  const heroInnerClass = (layout === 'card' || layout === 'full-card') && intent === 'hero' ? 'section__inner--hero' : '';
   const innerClassName = [
     'section__inner',
     ...normalizeClassList(shouldNeutralizeInnerClass ? '' : preset.innerClass),
