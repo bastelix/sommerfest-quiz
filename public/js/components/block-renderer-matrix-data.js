@@ -964,24 +964,34 @@ function renderFeatureListHeader(block, context = 'frontend') {
   });
 }
 
-function renderFeatureListTextColumns(items) {
+function renderFeatureListTextColumns(block, items) {
+  const childClass = buildResponsiveGridClasses(
+    resolveGridColumns(block, items.length, { maxColumns: 3 }),
+    { mode: 'width' }
+  );
+
   const columns = items
     .map(item => {
       const content = renderFeatureListItemContent(item);
-      return `<div class="uk-width-1-1 uk-width-1-2@m">${content}</div>`;
+      return `<div class="${childClass}">${content}</div>`;
     })
     .join('');
 
   return `<div class="uk-grid uk-grid-large" data-uk-grid>${columns}</div>`;
 }
 
-function renderFeatureListCardStack(items) {
+function renderFeatureListCardStack(block, items) {
+  const childClass = buildResponsiveGridClasses(
+    resolveGridColumns(block, items.length, { maxColumns: 3 }),
+    { mode: 'width' }
+  );
+
   const cards = items
     .map(item => {
       const media = renderFeatureMedia(item.media);
       const content = renderFeatureListItemContent(item);
       const body = `<div class="uk-card-body">${content}</div>`;
-      return `<div class="uk-width-1-1 uk-width-1-2@m"><div class="uk-card uk-card-default uk-height-1-1">${media}${body}</div></div>`;
+      return `<div class="${childClass}"><div class="uk-card uk-card-default uk-height-1-1">${media}${body}</div></div>`;
     })
     .join('');
 
@@ -998,7 +1008,7 @@ function renderFeatureList(block, variant, options = {}) {
   const items = normalizeFeatureListItems(block);
 
   const header = renderFeatureListHeader(block, context);
-  const grid = variant === 'card-stack' ? renderFeatureListCardStack(items) : renderFeatureListTextColumns(items);
+  const grid = variant === 'card-stack' ? renderFeatureListCardStack(block, items) : renderFeatureListTextColumns(block, items);
 
   return renderSection({ block, variant, content: `${header}${grid}` });
 }
@@ -1508,6 +1518,11 @@ function renderTestimonialWall(block, options = {}) {
     : '';
   const header = title ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${title}</div>` : '';
 
+  const quoteChildClass = buildResponsiveGridClasses(
+    resolveGridColumns(block, quotes.length, { maxColumns: 3 }),
+    { mode: 'width' }
+  );
+
   const cards = quotes.map((item, index) => {
     const q = typeof item.quote === 'string' ? item.quote : '';
     const name = item.author?.name || '';
@@ -1524,7 +1539,7 @@ function renderTestimonialWall(block, options = {}) {
     const inlineBlock = inlineHtml ? `<div class="uk-margin-small-top testimonial__inline">${inlineHtml}</div>` : '';
     const footer = (authorLine || sourceBadge || inlineBlock) ? `<footer class="uk-margin-small-top">${authorLine}${sourceBadge}${inlineBlock}</footer>` : '';
 
-    return `<div class="uk-width-1-1 uk-width-1-2@m"><div class="uk-card uk-card-default uk-card-body uk-height-1-1">${quoteText}${footer}</div></div>`;
+    return `<div class="${quoteChildClass}"><div class="uk-card uk-card-default uk-card-body uk-height-1-1">${quoteText}${footer}</div></div>`;
   }).join('');
 
   const grid = `<div class="uk-grid uk-grid-medium" data-uk-grid>${cards}</div>`;
@@ -1817,6 +1832,61 @@ function getValidMetrics(block) {
   return (Array.isArray(block.data?.metrics) ? block.data.metrics : []).filter(
     metric => metric && typeof metric.value === 'string' && typeof metric.label === 'string'
   );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Shared grid-column utilities                                       */
+/* ------------------------------------------------------------------ */
+
+function resolveGridColumns(block, itemCount, options = {}) {
+  const maxColumns = options.maxColumns ?? 4;
+
+  const explicit = Number(block.data?.columns);
+  if (Number.isFinite(explicit) && explicit >= 1) {
+    return Math.min(maxColumns, Math.max(1, Math.round(explicit)));
+  }
+
+  if (itemCount <= 0) return 1;
+  if (itemCount === 1) return 1;
+  if (itemCount === 2) return 2;
+  if (itemCount === 3) return Math.min(3, maxColumns);
+  if (itemCount === 4) return Math.min(4, maxColumns);
+  return Math.min(3, maxColumns);
+}
+
+function buildResponsiveGridClasses(columns, options = {}) {
+  const mode = options.mode || 'child-width';
+  const includeSmall = options.includeSmall !== false;
+  const prefix = mode === 'child-width' ? 'uk-child-width' : 'uk-width';
+
+  if (columns <= 1) {
+    return `${prefix}-1-1`;
+  }
+
+  const parts = [`${prefix}-1-1`];
+
+  if (includeSmall && columns >= 2) {
+    parts.push(`${prefix}-1-2@s`);
+  }
+
+  if (columns === 2) {
+    if (!includeSmall) {
+      parts.push(`${prefix}-1-2@m`);
+    }
+  } else if (columns === 3) {
+    parts.push(`${prefix}-1-3@m`);
+  } else if (columns >= 4) {
+    parts.push(`${prefix}-1-3@m`);
+    parts.push(`${prefix}-1-${columns}@l`);
+  }
+
+  return parts.join(' ');
+}
+
+function buildSmartGridClass(block, itemCount, baseClass, options = {}) {
+  const columns = resolveGridColumns(block, itemCount, options);
+  const responsiveClasses = buildResponsiveGridClasses(columns, options);
+  return `${baseClass} ${responsiveClasses}`;
 }
 
 function getStatStripColumns(block) {
@@ -2168,7 +2238,9 @@ function renderAudienceSpotlight(block, variant = block.variant || 'tabs', optio
   });
   const gridVariants = {
     tabs: 'uk-child-width-1-1 uk-child-width-1-2@m',
-    tiles: 'uk-child-width-1-1 uk-child-width-1-2@m',
+    tiles: buildResponsiveGridClasses(
+      resolveGridColumns(block, cases.length, { maxColumns: 3 })
+    ),
     'single-focus': 'uk-child-width-1-1'
   };
   const gridClass = gridVariants[variant] || gridVariants.tabs;
@@ -2202,7 +2274,7 @@ function renderPackageOption(option) {
         .join('')
     : '';
 
-  return `<div><div class="uk-card uk-card-default uk-height-1-1"><div class="uk-card-body">${title}${intro}${highlights}</div></div></div>`;
+  return `<div><div class="uk-card uk-card-default uk-height-1-1 uk-flex uk-flex-column"><div class="uk-card-body uk-flex-1">${title}${intro}${highlights}</div></div></div>`;
 }
 
 function renderPackagePlan(plan) {
@@ -2250,7 +2322,9 @@ function renderPackageSummary(block, variant, options = {}) {
   const isToggleVariant = variant === 'toggle';
   const itemsToRender = isToggleVariant ? packageOptions : plans;
   const renderItem = isToggleVariant ? renderPackageOption : renderPackagePlan;
-  const gridClass = isToggleVariant ? 'uk-child-width-1-1 uk-child-width-1-2@m' : 'uk-child-width-1-1 uk-child-width-1-3@m';
+  const gridClass = buildResponsiveGridClasses(
+    resolveGridColumns(block, itemsToRender.length, { maxColumns: isToggleVariant ? 3 : 4 })
+  );
 
   const cards = itemsToRender.length
     ? itemsToRender.map(item => renderItem(item)).join('')
@@ -2325,7 +2399,8 @@ function renderLegacySystemModule(block) {
   const gridItems = items.length
     ? items.map(item => renderLegacySystemModuleItem(item)).join('')
     : '<div><div class="uk-alert-warning" role="alert">Keine Module hinterlegt.</div></div>';
-  const grid = `<div class="uk-grid uk-grid-medium uk-child-width-1-1 uk-child-width-1-2@m" data-uk-grid>${gridItems}</div>`;
+  const gridClass = buildSmartGridClass(block, items.length, 'uk-grid uk-grid-medium', { maxColumns: 3 });
+  const grid = `<div class="${gridClass}" data-uk-grid>${gridItems}</div>`;
 
   return renderSection({ block, variant: 'switcher', content: `${legacyNote}${title}${subtitle}${grid}` });
 }
