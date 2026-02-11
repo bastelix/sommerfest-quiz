@@ -292,12 +292,12 @@
 /* Shared typographic rules (define ONCE) */
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) {
   font-family: var(--marketing-font-stack);
-  color: var(--qr-fg);
+  color: var(--qr-fg, var(--marketing-text-on-background, var(--text-body, #111827)));
 }
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) h1,
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) h2,
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) h3 {
-  color: var(--qr-text);
+  color: var(--qr-text, var(--marketing-text-on-background, var(--text-body, #111827)));
   line-height: var(--marketing-heading-line-height);
   font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
   font-weight: var(--marketing-heading-weight);
