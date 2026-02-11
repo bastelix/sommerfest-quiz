@@ -108,12 +108,21 @@ export function fromStoredSectionStyle(stored, blockType) {
   const intent = normalizeSectionIntent(stored?.intent) || resolveDefaultSectionIntent(blockType);
   const bg = stored?.background || {};
 
+  const explicitContainer = stored?.container;
+  const container = explicitContainer && typeof explicitContainer === 'object'
+    ? {
+        width: CONTAINER_WIDTHS.includes(explicitContainer.width) ? explicitContainer.width : (INTENT_TO_CONTAINER_WIDTH[intent] || 'normal'),
+        frame: CONTAINER_FRAMES.includes(explicitContainer.frame) ? explicitContainer.frame : (layout === 'card' ? 'card' : 'none'),
+        spacing: CONTAINER_SPACINGS.includes(explicitContainer.spacing) ? explicitContainer.spacing : (INTENT_TO_CONTAINER_SPACING[intent] || 'normal')
+      }
+    : {
+        width: INTENT_TO_CONTAINER_WIDTH[intent] || 'normal',
+        frame: layout === 'card' ? 'card' : 'none',
+        spacing: INTENT_TO_CONTAINER_SPACING[intent] || 'normal'
+      };
+
   return {
-    container: {
-      width: INTENT_TO_CONTAINER_WIDTH[intent] || 'normal',
-      frame: layout === 'card' ? 'card' : 'none',
-      spacing: INTENT_TO_CONTAINER_SPACING[intent] || 'normal'
-    },
+    container,
     background: {
       mode: bg.mode || 'none',
       colorToken: bg.colorToken,
@@ -131,9 +140,8 @@ export function toStoredSectionStyle(container, background) {
   const layout = bleed ? 'full' : (frame === 'card' ? 'card' : 'normal');
   const intent = deriveSectionIntent(container, background);
 
-  const storedBackground = {};
   const bgMode = background?.mode || 'none';
-  storedBackground.mode = bgMode;
+  const storedBackground = { mode: bgMode };
 
   if (bgMode === 'color' && background?.colorToken) {
     storedBackground.colorToken = background.colorToken;
@@ -144,10 +152,16 @@ export function toStoredSectionStyle(container, background) {
     if (background?.overlay !== undefined) storedBackground.overlay = background.overlay;
   }
 
-  const result = { layout, intent };
-  if (bgMode !== 'none') {
-    result.background = storedBackground;
-  }
+  const storedContainer = {
+    width: container?.width || 'normal',
+    frame: container?.frame || 'none',
+    spacing: container?.spacing || 'normal'
+  };
 
-  return result;
+  return {
+    layout,
+    intent,
+    background: storedBackground,
+    container: storedContainer
+  };
 }
