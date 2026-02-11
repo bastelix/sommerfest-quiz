@@ -2,20 +2,20 @@
  * Auto-generated. Do not edit manually.
  */
 
-html[data-namespace="uikit-default"] {
-  --brand-primary: #1e87f0;
+html[data-namespace="effect-ns"] {
+  --brand-primary: #222222;
   --brand-accent: #f97316;
   --brand-secondary: #f97316;
-  --contrast-text-on-primary: #000000;
+  --contrast-text-on-primary: #ffffff;
   --contrast-text-on-secondary: #000000;
   --contrast-text-on-accent: #000000;
   --contrast-text-on-surface: #000000;
   --contrast-text-on-surface-muted: #000000;
   --contrast-text-on-page: #000000;
-  --marketing-primary: #1e87f0;
+  --marketing-primary: #222222;
   --marketing-accent: #f97316;
   --marketing-secondary: #f97316;
-  --marketing-link: #1e87f0;
+  --marketing-link: #222222;
   --marketing-surface: var(--surface-card, #ffffff);
   --marketing-white: #ffffff;
   --marketing-black: #000000;

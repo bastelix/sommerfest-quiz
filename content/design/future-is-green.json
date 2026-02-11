@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "name": "Future is Green",
+    "description": "Modernes grünes Theme, inspiriert von der Future-is-Green-Landingpage. Frische Waldgrün-Töne mit hellen Akzenten für einen nachhaltigen, professionellen Auftritt.",
+    "version": "1.0.0",
+    "author": "QuizRace Design System"
+  },
+  "config": {
+    "designTokens": {
+      "brand": {
+        "primary": "#138f52",
+        "accent": "#9cd78f",
+        "secondary": "#123524"
+      },
+      "layout": {
+        "profile": "standard"
+      },
+      "typography": {
+        "preset": "modern"
+      },
+      "components": {
+        "cardStyle": "rounded",
+        "buttonStyle": "filled"
+      }
+    },
+    "colors": {
+      "marketingScheme": "future-is-green",
+      "textOnPrimary": "#ffffff",
+      "textOnSurface": "#123524",
+      "textOnBackground": "#123524"
+    }
+  },
+  "designTokens": {
+    "brand": {
+      "primary": "#138f52",
+      "accent": "#9cd78f",
+      "secondary": "#123524"
+    },
+    "layout": {
+      "profile": "standard"
+    },
+    "typography": {
+      "preset": "modern"
+    },
+    "components": {
+      "cardStyle": "rounded",
+      "buttonStyle": "filled"
+    }
+  },
+  "effects": {
+    "effectsProfile": "quizrace.calm",
+    "sliderProfile": "calm"
+  },
+  "contrastPairs": {
+    "primary":   { "background": "#138f52", "text": "#ffffff", "ratio": "4.6:1", "grade": "AA" },
+    "secondary": { "background": "#123524", "text": "#ffffff", "ratio": "14.2:1", "grade": "AAA" },
+    "accent":    { "background": "#9cd78f", "text": "#000000", "ratio": "10.5:1", "grade": "AAA" }
+  },
+  "palette": {
+    "light": {
+      "primary": "#138f52",
+      "primaryDark": "#0c6f3f",
+      "background": "#f0f9f3",
+      "surface": "#ffffff",
+      "surfaceAlt": "#ffffff",
+      "surfaceMuted": "rgba(19, 143, 82, 0.08)",
+      "text": "#123524",
+      "muted": "#3f5a4b",
+      "accent": "#9cd78f",
+      "border": "rgba(19, 143, 82, 0.18)"
+    },
+    "dark": {
+      "primary": "#4cc986",
+      "primaryDark": "#34ad6c",
+      "background": "#071b12",
+      "surface": "rgba(15, 36, 27, 0.96)",
+      "surfaceAlt": "#0f2419",
+      "surfaceMuted": "rgba(76, 201, 134, 0.2)",
+      "text": "#e6fff3",
+      "muted": "#b6d8c9",
+      "accent": "#7ae3b4",
+      "border": "rgba(76, 201, 134, 0.3)"
+    }
+  }
+}

@@ -193,6 +193,98 @@ class DesignTokenService
         return self::DEFAULT_TOKENS;
     }
 
+    /**
+     * Import a design preset into a namespace.
+     *
+     * Loads the preset from the content/design directory and persists
+     * both the design tokens and the color configuration for the
+     * target namespace.
+     *
+     * @return array{tokens: array<string, mixed>, colors: array<string, mixed>, effects: array<string, mixed>}
+     */
+    public function importDesign(string $namespace, string $preset): array
+    {
+        $normalizedNamespace = $this->normalizeNamespace($namespace);
+
+        $presetData = $this->designFiles->loadFile($preset);
+        if ($presetData === []) {
+            throw new InvalidArgumentException('design-preset-not-found');
+        }
+
+        $tokens = $presetData['tokens'] ?? $presetData['designTokens'] ?? [];
+        if (!is_array($tokens)) {
+            $tokens = [];
+        }
+
+        $config = $presetData['config'] ?? [];
+        if (!is_array($config)) {
+            $config = [];
+        }
+
+        $configTokens = $config['designTokens'] ?? [];
+        if (is_array($configTokens) && $configTokens !== []) {
+            $tokens = $this->mergeTokens($tokens, $configTokens);
+        }
+
+        $validated = $this->validateTokens($tokens);
+        $merged = $this->mergeWithDefaults($validated);
+
+        $this->configService->ensureConfigForEvent($normalizedNamespace);
+        $this->configService->saveConfig([
+            'event_uid' => $normalizedNamespace,
+            'designTokens' => $merged,
+        ]);
+
+        $colors = $config['colors'] ?? [];
+        if (is_array($colors) && $colors !== []) {
+            $existingConfig = $this->configService->getConfigForEvent($normalizedNamespace);
+            $existingColors = is_array($existingConfig['colors'] ?? null) ? $existingConfig['colors'] : [];
+            $mergedColors = array_merge($existingColors, $colors);
+            $this->configService->saveConfig([
+                'event_uid' => $normalizedNamespace,
+                'colors' => $mergedColors,
+            ]);
+        }
+
+        $effects = $presetData['effects'] ?? [];
+        if (is_array($effects) && $effects !== []) {
+            $effectsService = new EffectsPolicyService($this->configService);
+            $effectsService->persist($normalizedNamespace, $effects);
+        }
+
+        $this->rebuildStylesheet();
+
+        return [
+            'tokens' => $merged,
+            'colors' => is_array($colors) ? $colors : [],
+            'effects' => is_array($effects) ? $effects : [],
+        ];
+    }
+
+    /**
+     * @return list<array{name: string, label: string, description: string}>
+     */
+    public function listAvailablePresets(): array
+    {
+        $presets = [];
+
+        foreach ($this->designFiles->listNamespaces() as $name) {
+            $data = $this->designFiles->loadFile($name);
+            $meta = $data['meta'] ?? [];
+            if (!is_array($meta)) {
+                $meta = [];
+            }
+
+            $presets[] = [
+                'name' => $name,
+                'label' => is_string($meta['name'] ?? null) ? $meta['name'] : ucfirst($name),
+                'description' => is_string($meta['description'] ?? null) ? $meta['description'] : '',
+            ];
+        }
+
+        return $presets;
+    }
+
     public function rebuildStylesheet(): void
     {
         $namespaces = $this->fetchAllNamespaceTokens();

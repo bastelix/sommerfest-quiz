@@ -306,6 +306,10 @@
                         label: 'Aurora',
                         description: 'Frisches Blau mit klarem Akzent.'
                       },
+                      'future-is-green': {
+                        label: 'Future is Green',
+                        description: 'Nachhaltiges Waldgrün mit hellen Akzenten.'
+                      },
                       sunset: {
                         label: 'Sunset',
                         description: 'Warme Orange-/Pink-Töne für starke CTAs.'
@@ -623,6 +627,37 @@
                     <button class="uk-button uk-button-primary" type="submit">Speichern</button>
                   </div>
                 </form>
+
+                {% if availablePresets|default([])|length > 0 %}
+                  <div class="uk-card uk-card-default uk-card-body uk-margin-top">
+                    <h3 class="uk-card-title uk-margin-remove">Design importieren</h3>
+                    <p class="uk-text-meta uk-margin-small-bottom">
+                      Übernimm ein vordefiniertes Design-Preset für diesen Namespace.
+                      Tokens, Farben und Verhaltenseinstellungen werden vollständig überschrieben.
+                    </p>
+                    <form method="post">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                      <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
+                      <input type="hidden" name="action" value="import_design">
+
+                      <div class="uk-grid-small uk-flex-middle" uk-grid>
+                        <div class="uk-width-expand">
+                          <select class="uk-select" name="import_preset" required>
+                            <option value="">Preset auswählen…</option>
+                            {% for preset in availablePresets %}
+                              <option value="{{ preset.name|e('html_attr') }}">
+                                {{ preset.label }}{% if preset.description %} – {{ preset.description[:80] }}{% if preset.description|length > 80 %}…{% endif %}{% endif %}
+                              </option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <div class="uk-width-auto">
+                          <button class="uk-button uk-button-secondary" type="submit">Importieren</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                {% endif %}
               {% endif %}
             </div>
 
