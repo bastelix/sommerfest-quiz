@@ -370,6 +370,7 @@
 - Phase 0-2 – fix AGENTS.md, remove require_once, add namespace scoping
 - Phase 3/5/7 – extract middleware, shared JS utils, establish ADRs
 - Improve admin pages UI for clarity and reduced clutter
+- Redesign block editor section config UI into 3 clear layers
 
 ### Style
 
