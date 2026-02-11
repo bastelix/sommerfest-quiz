@@ -21,10 +21,10 @@
   --marketing-text-muted-on-surface-default: var(--text-muted, #4b5563);
   --marketing-text-muted-on-background-default: var(--text-muted, #4b5563);
 
-  --marketing-text-on-surface-dark-default: var(--text-body, #f2f5fa);
-  --marketing-text-on-background-dark-default: var(--text-body, #f2f5fa);
-  --marketing-text-muted-on-surface-dark-default: var(--text-muted, #e0e6f1);
-  --marketing-text-muted-on-background-dark-default: var(--text-muted, #e0e6f1);
+  --marketing-text-on-surface-dark-default: #f2f5fa;
+  --marketing-text-on-background-dark-default: #f2f5fa;
+  --marketing-text-muted-on-surface-dark-default: #e0e6f1;
+  --marketing-text-muted-on-background-dark-default: #e0e6f1;
 
   --marketing-text-on-primary-default: var(--text-on-primary, #ffffff);
 
