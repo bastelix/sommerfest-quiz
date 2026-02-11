@@ -257,6 +257,7 @@
 - Add conventional commits and manual version bump support
 - Make all page module block types mobile-first responsive
 - Add responsive font-size scaling for all heading classes in modules
+- Add item-level card toggle with filtered sub-variants in Layout-Stil
 
 ### Fix
 
