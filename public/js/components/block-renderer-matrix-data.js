@@ -1574,7 +1574,7 @@ function renderCtaButtons(primary, secondary, { alignment = '', margin = 'uk-mar
   const secondaryButton = renderCtaButton(
     secondary,
     ['uk-button-default', sizeClass].filter(Boolean).join(' '),
-    primaryButton ? 'uk-margin-small-top uk-margin-small-left@m' : ''
+    ''
   );
 
   const buttons = [primaryButton, secondaryButton].filter(Boolean);

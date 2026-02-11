@@ -1227,7 +1227,8 @@ body.page-render .qr-page-renderer table {
 }
 
 /* CTA buttons: stack on mobile */
-.section[data-block-type="cta"] .uk-flex-column {
+.section[data-block-type="cta"] .uk-flex-column,
+.trust-story__cta-group .uk-flex-column {
   gap: 12px;
 }
 
