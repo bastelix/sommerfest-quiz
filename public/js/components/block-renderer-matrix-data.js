@@ -2310,10 +2310,10 @@ function renderPackagePlan(plan) {
     : '';
 
   const ctas = [
-    renderCtaButton(plan.primaryCta, 'uk-button-primary'),
-    renderCtaButton(plan.secondaryCta, 'uk-button-default', 'uk-margin-small-left')
+    renderCtaButton(plan.primaryCta, 'uk-button-primary', 'uk-width-1-1'),
+    renderCtaButton(plan.secondaryCta, 'uk-button-text', 'uk-width-1-1 uk-margin-small-top')
   ].filter(Boolean);
-  const ctaGroup = ctas.length ? `<div class="uk-margin-medium-top uk-flex uk-flex-wrap uk-flex-left">${ctas.join('')}</div>` : '';
+  const ctaGroup = ctas.length ? `<div class="uk-margin-top">${ctas.join('')}</div>` : '';
 
   return `<div><div class="uk-card uk-card-default uk-height-1-1 uk-flex uk-flex-column">` +
     `<div class="uk-card-body uk-flex-1">${badge}${title}${description}${featureList}${noteList}</div>` +
