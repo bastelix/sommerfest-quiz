@@ -343,6 +343,7 @@ class ProjectPagesController
             'selected_navigation_variant' => $selectedVariant,
             'menu_definitions' => $menuDefinitionList,
             'selected_menu_id' => $selectedMenuId,
+            'anchor_page_id' => $anchorPage?->getId(),
         ]);
     }
 
