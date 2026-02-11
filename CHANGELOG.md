@@ -383,6 +383,7 @@
 - Phase 3/5/7 – extract middleware, shared JS utils, establish ADRs
 - Improve admin pages UI for clarity and reduced clutter
 - Redesign block editor section config UI into 3 clear layers
+- Consolidate namespace design editor from 6 panels to 2 panels
 
 ### Style
 
