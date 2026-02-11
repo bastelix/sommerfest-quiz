@@ -615,7 +615,7 @@ function renderContentSlider(block, variant = 'words', options = {}) {
     <div class="content-slider content-slider--${escapeAttribute(variant)}" data-uk-slider="finite: false">
       <div class="uk-position-relative">
         <div class="uk-slider-container uk-slider-container-offset">
-          <ul class="uk-slider-items uk-grid uk-grid-small uk-child-width-1-1">${sliderItems || fallback}</ul>
+          <ul class="uk-slider-items uk-grid uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-3@m">${sliderItems || fallback}</ul>
         </div>
         <div class="uk-visible@s">
           <a class="uk-position-center-left uk-position-small uk-slidenav-large" href="#" data-uk-slidenav-previous data-uk-slider-item="previous"></a>
@@ -738,7 +738,7 @@ function renderHeroCtas(cta, alignmentClass = '') {
 
   if (secondary?.label && secondary?.href) {
     const ariaLabel = secondary.ariaLabel ? ` aria-label="${escapeAttribute(secondary.ariaLabel)}"` : '';
-    const marginClass = buttons.length ? ' uk-margin-small-left' : '';
+    const marginClass = buttons.length ? ' uk-margin-small-left@m' : '';
     buttons.push(`<a class="uk-button uk-button-default uk-button-large${marginClass}" href="${escapeAttribute(secondary.href)}"${ariaLabel}>${escapeHtml(secondary.label)}</a>`);
   }
 
@@ -747,7 +747,7 @@ function renderHeroCtas(cta, alignmentClass = '') {
   }
 
   const alignment = alignmentClass ? ` ${alignmentClass}` : '';
-  return `<div class="uk-margin-medium-top uk-flex uk-flex-middle uk-flex-wrap${alignment}">${buttons.join('')}</div>`;
+  return `<div class="hero-cta-group uk-margin-medium-top uk-flex uk-flex-column uk-flex-row@m uk-flex-middle uk-flex-wrap${alignment}">${buttons.join('')}</div>`;
 }
 
 function renderHeroCenteredCta(block, options = {}) {
