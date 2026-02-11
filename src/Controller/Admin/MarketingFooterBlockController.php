@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Domain\CmsFooterBlock;
+use App\Repository\ProjectSettingsRepository;
 use App\Service\CmsFooterBlockService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -107,12 +108,15 @@ final class MarketingFooterBlockController
         $data = $validation['data'];
 
         try {
+            $slot = isset($payload['slot']) && is_string($payload['slot']) ? $payload['slot'] : null;
+
             $block = $this->blockService->updateBlock(
                 $id,
                 $data['type'],
                 $data['content'],
                 $data['position'],
-                $data['isActive']
+                $data['isActive'],
+                $slot
             );
 
             $payload = ['block' => $this->serializeBlock($block)];
@@ -141,6 +145,36 @@ final class MarketingFooterBlockController
         } catch (RuntimeException $e) {
             return $this->jsonError($response, $e->getMessage(), 404);
         }
+    }
+
+    /**
+     * PUT /admin/footer-blocks/layout
+     * Save the footer layout preference
+     */
+    public function saveLayout(Request $request, Response $response): Response
+    {
+        $payload = $this->parseJsonBody($request);
+        if ($payload === null) {
+            return $this->jsonError($response, 'Invalid payload.', 400);
+        }
+
+        $namespace = (string) ($payload['namespace'] ?? '');
+        $layout = (string) ($payload['layout'] ?? '');
+
+        if ($namespace === '') {
+            return $this->jsonError($response, 'Namespace is required.', 422);
+        }
+
+        $allowedLayouts = ['equal', 'brand-left', 'cta-right', 'centered'];
+        if (!in_array($layout, $allowedLayouts, true)) {
+            return $this->jsonError($response, 'Invalid layout. Allowed: ' . implode(', ', $allowedLayouts), 422);
+        }
+
+        $repo = new ProjectSettingsRepository();
+        $repo->updateFooterLayout($namespace, $layout);
+
+        $response->getBody()->write(json_encode(['layout' => $layout]));
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     /**

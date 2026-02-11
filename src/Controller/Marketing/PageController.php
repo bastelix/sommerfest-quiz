@@ -345,6 +345,7 @@ class PageController
             'cmsFooterNavigation' => $cmsFooterNavigation,
             'cmsFooterColumns' => $cmsFooterColumns,
             'cmsFooterBlocks' => $cmsFooterBlocks,
+            'cmsFooterLayout' => $this->projectSettings->getFooterLayout($pageNamespace),
             'cmsLegalNavigation' => $cmsLegalNavigation,
             'cmsSidebarNavigation' => $navigation['sidebar'],
             'cmsChatEndpoint' => $marketingPayload['featureData']['chatEndpoint'] ?? null,

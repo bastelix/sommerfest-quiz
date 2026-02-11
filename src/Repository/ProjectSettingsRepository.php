@@ -40,7 +40,8 @@ final class ProjectSettingsRepository
             . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, '
             . 'privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, '
             . 'show_language_toggle, show_theme_toggle, show_contrast_toggle, '
-            . 'header_logo_mode, header_logo_path, header_logo_alt, header_logo_label, updated_at '
+            . 'header_logo_mode, header_logo_path, header_logo_alt, header_logo_label, '
+            . 'footer_layout, updated_at '
             . 'FROM project_settings WHERE namespace = ?'
         );
         $stmt->execute([$namespace]);
@@ -119,6 +120,20 @@ final class ProjectSettingsRepository
             $headerLogoAlt,
             $headerLogoLabel,
         ]);
+        $stmt->closeCursor();
+    }
+
+    public function updateFooterLayout(string $namespace, string $layout): void
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO project_settings (namespace, footer_layout) '
+            . 'VALUES (?, ?) '
+            . 'ON CONFLICT (namespace) DO UPDATE SET '
+            . 'footer_layout = EXCLUDED.footer_layout, '
+            . 'updated_at = CURRENT_TIMESTAMP'
+        );
+
+        $stmt->execute([$namespace, $layout]);
         $stmt->closeCursor();
     }
 

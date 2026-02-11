@@ -1907,6 +1907,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->reorder($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->put('/admin/footer-blocks/layout', function (Request $request, Response $response) {
+        $controller = new MarketingFooterBlockController();
+
+        return $controller->saveLayout($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
     $app->post('/admin/pages/{pageId:[0-9]+}/startpage', function (Request $request, Response $response, array $args) {
         $controller = new ProjectPagesController();
 

@@ -3,6 +3,8 @@
 {% block title %}{{ t('label_footer_block_editor') }}{% endblock %}
 
 {% block content %}
+  <link rel="stylesheet" href="{{ basePath }}/css/footer-blocks.css">
+
   <div class="uk-container uk-container-large uk-margin-top">
     <main>
       <div class="uk-card uk-card-default uk-card-body">
@@ -41,7 +43,7 @@
             <div class="uk-width-1-2@s">
               <label class="uk-form-label">Footer Layout</label>
               <div class="footer-layout-selector" data-layout-selector>
-                <button type="button" class="layout-option active" data-layout="equal" title="3 gleiche Spalten">
+                <button type="button" class="layout-option" data-layout="equal" title="3 gleiche Spalten">
                   <svg width="48" height="24" viewBox="0 0 48 24"><rect x="1" y="2" width="14" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="17" y="2" width="14" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="33" y="2" width="14" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/></svg>
                   <span>Gleich</span>
                 </button>
@@ -64,7 +66,7 @@
 
         <hr class="uk-divider-icon">
 
-        <!-- Three-Column Footer Editor -->
+        <!-- Three-Column Footer Editor with Drag-and-Drop -->
         <div class="footer-editor-columns" data-footer-editor>
           <div class="footer-editor-col" data-slot="footer_1">
             <div class="footer-editor-col__header">
@@ -73,7 +75,7 @@
                 <span uk-icon="icon: plus; ratio: 0.75"></span> Block
               </button>
             </div>
-            <div class="footer-editor-col__blocks" data-blocks-container="footer_1">
+            <div class="footer-editor-col__blocks" data-blocks-container="footer_1" uk-sortable="group: footer-blocks; handle: .block-card__drag">
               <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
             </div>
           </div>
@@ -85,7 +87,7 @@
                 <span uk-icon="icon: plus; ratio: 0.75"></span> Block
               </button>
             </div>
-            <div class="footer-editor-col__blocks" data-blocks-container="footer_2">
+            <div class="footer-editor-col__blocks" data-blocks-container="footer_2" uk-sortable="group: footer-blocks; handle: .block-card__drag">
               <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
             </div>
           </div>
@@ -97,11 +99,26 @@
                 <span uk-icon="icon: plus; ratio: 0.75"></span> Block
               </button>
             </div>
-            <div class="footer-editor-col__blocks" data-blocks-container="footer_3">
+            <div class="footer-editor-col__blocks" data-blocks-container="footer_3" uk-sortable="group: footer-blocks; handle: .block-card__drag">
               <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
             </div>
           </div>
         </div>
+
+        <!-- Live Preview -->
+        <div class="uk-margin-top">
+          <div class="uk-flex uk-flex-between uk-flex-middle">
+            <h4 class="uk-heading-bullet uk-margin-remove">Vorschau</h4>
+            <button class="uk-button uk-button-default uk-button-small" type="button" data-preview-toggle>
+              <span uk-icon="icon: eye; ratio: 0.8"></span> Vorschau ein/aus
+            </button>
+          </div>
+          <div class="footer-preview-wrapper" data-footer-preview>
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <hr class="uk-divider-icon">
 
         <!-- Quick-Add Presets -->
         <div class="uk-margin-top">
@@ -122,7 +139,7 @@
     </main>
   </div>
 
-  <!-- Block Editor Modal -->
+  <!-- Block Editor Modal (for adding NEW blocks) -->
   <div id="blockEditorModal" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
       <button class="uk-modal-close-default" type="button" uk-close></button>
@@ -230,17 +247,13 @@
     .footer-editor-col__blocks {
       padding: 0.75rem;
       flex: 1;
+      min-height: 80px;
     }
     .footer-editor-col__blocks .block-card {
       background: #fff;
       border: 1px solid #dee2e6;
       border-radius: 6px;
-      padding: 0.625rem 0.75rem;
       margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: grab;
       transition: box-shadow 0.15s ease, border-color 0.15s ease;
     }
     .footer-editor-col__blocks .block-card:hover {
@@ -250,6 +263,21 @@
     .footer-editor-col__blocks .block-card:last-child {
       margin-bottom: 0;
     }
+    .block-card__summary {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.75rem;
+    }
+    .block-card__drag {
+      flex-shrink: 0;
+      cursor: grab;
+      color: #ced4da;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+    }
+    .block-card__drag:hover { color: #868e96; }
     .block-card__icon {
       flex-shrink: 0;
       width: 28px;
@@ -307,14 +335,39 @@
       background: #fff5f5;
       color: #f0506e;
     }
-    .block-card--inactive {
-      opacity: 0.5;
+    .block-card--inactive { opacity: 0.5; }
+    .block-card--editing {
+      border-color: #1e87f0;
+      box-shadow: 0 2px 12px rgba(30,135,240,0.15);
     }
     .footer-editor-col__empty {
       text-align: center;
       padding: 2rem 1rem;
       color: #adb5bd;
       font-size: 0.8rem;
+    }
+
+    /* Inline edit area (Phase 5) */
+    .block-card__edit-area {
+      border-top: 1px solid #e9ecef;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 0 0 6px 6px;
+    }
+    .block-card__edit-area .uk-form-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #495057;
+    }
+    .block-card__edit-area .uk-input,
+    .block-card__edit-area .uk-textarea,
+    .block-card__edit-area .uk-select {
+      font-size: 0.8125rem;
+    }
+    .inline-edit-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
     }
 
     /* Layout selector */
@@ -394,13 +447,131 @@
       flex-wrap: wrap;
       gap: 0.5rem;
     }
+
+    /* Live preview */
+    .footer-preview-wrapper {
+      margin-top: 0.75rem;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      position: relative;
+    }
+    .footer-preview-wrapper::before {
+      content: 'VORSCHAU';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #868e96;
+      background: #f1f3f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      z-index: 1;
+    }
+    .footer-preview-wrapper.preview-hidden {
+      display: none;
+    }
+    .footer-preview-empty {
+      text-align: center;
+      padding: 2rem;
+      color: #adb5bd;
+      font-size: 0.85rem;
+    }
+
+    /* TipTap rich text editor */
+    .footer-richtext-container {
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      min-height: 100px;
+      background: #fff;
+    }
+    .footer-richtext-toolbar {
+      display: flex;
+      gap: 2px;
+      padding: 4px 6px;
+      border-bottom: 1px solid #e9ecef;
+      background: #f8f9fa;
+      border-radius: 6px 6px 0 0;
+      flex-wrap: wrap;
+    }
+    .footer-richtext-toolbar button {
+      background: none;
+      border: 1px solid transparent;
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 3px;
+      color: #495057;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.1s ease;
+    }
+    .footer-richtext-toolbar button:hover {
+      background: #e9ecef;
+    }
+    .footer-richtext-toolbar button.is-active {
+      background: #1e87f0;
+      color: #fff;
+      border-color: #1e87f0;
+    }
+    .footer-richtext-container .ProseMirror {
+      outline: none;
+      min-height: 80px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+    .footer-richtext-container .ProseMirror p { margin: 0 0 0.5rem; }
+    .footer-richtext-container .ProseMirror p:last-child { margin-bottom: 0; }
+    .footer-richtext-container .ProseMirror strong { font-weight: 700; }
+    .footer-richtext-container .ProseMirror em { font-style: italic; }
+    .footer-richtext-container .ProseMirror ul,
+    .footer-richtext-container .ProseMirror ol { padding-left: 1.25rem; margin: 0 0 0.5rem; }
+
+    /* HTML source toggle */
+    .html-source-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 0.5rem;
+    }
+    .html-source-toggle button {
+      padding: 4px 12px;
+      border: 1px solid #dee2e6;
+      background: #f8f9fa;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #495057;
+    }
+    .html-source-toggle button:first-child { border-radius: 4px 0 0 4px; }
+    .html-source-toggle button:last-child { border-radius: 0 4px 4px 0; border-left: 0; }
+    .html-source-toggle button.active {
+      background: #1e87f0;
+      color: #fff;
+      border-color: #1e87f0;
+    }
+
+    /* Sortable placeholder */
+    .uk-sortable-placeholder {
+      border: 2px dashed #1e87f0 !important;
+      background: #f0f7ff !important;
+      border-radius: 6px;
+      min-height: 40px;
+    }
+    .uk-sortable-empty {
+      min-height: 80px;
+    }
   </style>
 {% endblock %}
 
 {% block scripts %}
   <script>
     window.templateData = {
-      menuDefinitions: {{ menuDefinitions|json_encode|raw }}
+      menuDefinitions: {{ menuDefinitions|json_encode|raw }},
+      footerLayout: {{ (footerLayout|default('equal'))|json_encode|raw }},
+      csrfToken: {{ csrf_token|json_encode|raw }}
     };
   </script>
   <script type="module" src="{{ basePath }}/js/marketing-footer-blocks.js"></script>
