@@ -316,6 +316,7 @@
 - Hero text contrast on colored sections + eyebrow tag option
 - FAQ accordion contrast — inherit section text color, adaptive icons
 - Align block renderer output with UIkit HTML reference styling
+- Resolve missing stylesheet contrast on marketing landing page
 
 ### Refactor
 
