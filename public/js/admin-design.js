@@ -82,6 +82,7 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     '--marketing-text-muted-on-surface-dark',
     '--marketing-text-muted-on-background-dark',
     '--marketing-ink',
+    '--marketing-ink-dark',
     '--marketing-surface-glass',
     '--marketing-surface-glass-dark',
     '--marketing-surface-accent-soft',
@@ -804,6 +805,7 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     preview.style.setProperty('--marketing-text-muted-on-surface-dark', scheme.textMutedOnSurfaceDark);
     preview.style.setProperty('--marketing-text-muted-on-background-dark', scheme.textMutedOnBackgroundDark);
     applySchemeToken('--marketing-ink', scheme.marketingInk || scheme.ink);
+    applySchemeToken('--marketing-ink-dark', scheme.marketingInkDark || scheme.inkDark);
     applySchemeToken('--marketing-surface-glass', scheme.surfaceGlass);
     applySchemeToken('--marketing-surface-glass-dark', scheme.surfaceGlassDark);
     applySchemeToken('--marketing-surface-accent-soft', scheme.surfaceAccentSoft);
@@ -1082,11 +1084,38 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     });
   };
 
+  /** Sync override dropdowns with scheme defaults and add hint labels. */
+  const syncOverrideDefaults = schemeKey => {
+    const scheme = schemeKey ? MARKETING_SCHEMES[schemeKey] : null;
+    const overrideSelects = editor.querySelectorAll('[data-scheme-default-key]');
+    overrideSelects.forEach(sel => {
+      const defaultKey = sel.dataset.schemeDefaultKey;
+      const defaultValue = scheme ? scheme[defaultKey] : null;
+      const label = sel.closest('.uk-form-controls')?.previousElementSibling
+        || sel.parentElement?.querySelector('.uk-form-label');
+      const hintId = `scheme-hint-${sel.id || defaultKey}`;
+      let hint = sel.parentElement?.querySelector(`#${hintId}`);
+      if (defaultValue) {
+        sel.value = defaultValue;
+        if (!hint) {
+          hint = document.createElement('div');
+          hint.id = hintId;
+          hint.className = 'uk-text-meta uk-margin-small-top';
+          sel.parentElement?.appendChild(hint);
+        }
+        hint.textContent = `(vom Preset: ${defaultValue})`;
+      } else if (hint) {
+        hint.remove();
+      }
+    });
+  };
+
   const initMarketingSchemeSelect = () => {
     const select = document.querySelector('[data-marketing-scheme-select]');
     if (!select) return;
     const applySelection = value => {
       applyMarketingSchemeToPreview(value);
+      syncOverrideDefaults(value);
       if (value === 'aurora') {
         brandIsAuto = true;
         applyBrandSchemeToInputs(value);

@@ -516,6 +516,14 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.marketingInk,
     appearance?.variables?.marketing_ink,
   );
+  const marketingInkDark = resolveFirstValue(
+    marketingSchemeValues?.marketingInkDark,
+    marketingSchemeValues?.inkDark,
+    colors.marketingInkDark,
+    colors.marketing_ink_dark,
+    appearance?.variables?.marketingInkDark,
+    appearance?.variables?.marketing_ink_dark,
+  );
   const marketingSurfaceGlass = resolveFirstValue(
     marketingSchemeValues?.surfaceGlass,
     colors.marketingSurfaceGlass,
@@ -871,9 +879,15 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.accent,
   );
 
-  /* In dark mode, skip setting section-default surface/muted as inline styles
-     so the CSS cascade can apply the dark-theme values from variables.css. */
-  if (!isDark) {
+  /* In dark mode, use scheme-specific dark surface tokens so section defaults
+     match the namespace palette instead of falling back to generic dark values.
+     In light mode, use the resolved light surface/muted values as before. */
+  if (isDark) {
+    const darkSurface = marketingSurfaceDark || 'var(--surface-section)';
+    const darkMuted = marketingSurfaceMutedDark || 'var(--surface-muted)';
+    element.style.setProperty('--section-default-surface', darkSurface);
+    element.style.setProperty('--section-default-muted', darkMuted);
+  } else {
     if (sectionDefaultSurface && !isSectionDefaultReference(sectionDefaultSurface)) {
       element.style.setProperty('--section-default-surface', sectionDefaultSurface);
     }
@@ -936,8 +950,13 @@ const applyColorsToRoot = (element, appearance) => {
   if (marketingTextMutedOnBackgroundDark) {
     element.style.setProperty('--marketing-text-muted-on-background-dark', marketingTextMutedOnBackgroundDark);
   }
-  if (marketingInk) {
+  if (isDark) {
+    element.style.setProperty('--marketing-ink', marketingInkDark || marketingTextOnSurfaceDark || marketingInk);
+  } else if (marketingInk) {
     element.style.setProperty('--marketing-ink', marketingInk);
+  }
+  if (marketingInkDark) {
+    element.style.setProperty('--marketing-ink-dark', marketingInkDark);
   }
   if (marketingSurfaceGlass) {
     element.style.setProperty('--marketing-surface-glass', marketingSurfaceGlass);
