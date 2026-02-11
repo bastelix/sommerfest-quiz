@@ -248,6 +248,70 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Dark background token contrast — any intent                        */
+/* ------------------------------------------------------------------ */
+
+/*
+ * When a section carries an explicit dark background colour token
+ * (primary, secondary, accent) on a non-highlight/hero intent, the
+ * JS renderer sets --section-text-color via inline style.  These rules
+ * reinforce contrast for UIkit elements and provide card/panel resets
+ * so that inner light-surface cards remain readable.
+ */
+
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) {
+  color: var(--section-text-color, var(--contrast-text-on-primary, var(--text-on-primary, #ffffff)));
+}
+
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) a {
+  color: inherit;
+}
+
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) .section__inner--card,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) .section__inner--panel,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+)[data-section-layout="card"] .section__inner {
+  color: var(--contrast-text-on-surface, var(--color-text, #111827));
+}
+
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) .section__inner--card a,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) .section__inner--panel a,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+)[data-section-layout="card"] .section__inner a {
+  color: var(--link-color, var(--accent-primary, var(--brand-primary, #1e87f0)));
+}
+
+/* ------------------------------------------------------------------ */
 /*  Text element contrast on coloured sections                         */
 /* ------------------------------------------------------------------ */
 
@@ -260,21 +324,44 @@
 
 .section[data-section-intent="highlight"] .uk-text-meta,
 .section[data-section-intent="hero"] .uk-text-meta,
-.section[data-appearance-legacy="contrast"] .uk-text-meta {
+.section[data-appearance-legacy="contrast"] .uk-text-meta,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) .uk-text-meta {
   color: inherit;
   opacity: 0.78;
 }
 
 .section[data-section-intent="highlight"] .uk-text-lead,
 .section[data-section-intent="hero"] .uk-text-lead,
-.section[data-appearance-legacy="contrast"] .uk-text-lead {
+.section[data-appearance-legacy="contrast"] .uk-text-lead,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) .uk-text-lead {
   color: inherit;
   opacity: 0.92;
 }
 
 .section[data-section-intent="highlight"] .uk-heading-medium,
+.section[data-section-intent="highlight"] .uk-heading-small,
 .section[data-section-intent="hero"] .uk-heading-medium,
-.section[data-appearance-legacy="contrast"] .uk-heading-medium {
+.section[data-section-intent="hero"] .uk-heading-small,
+.section[data-appearance-legacy="contrast"] .uk-heading-medium,
+.section[data-appearance-legacy="contrast"] .uk-heading-small,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) .uk-heading-medium,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) .uk-heading-small {
   color: inherit;
 }
 
@@ -301,7 +388,12 @@
 /* ------------------------------------------------------------------ */
 
 .section[data-section-intent="highlight"] a,
-.section[data-section-intent="hero"] a {
+.section[data-section-intent="hero"] a,
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) a {
   color: inherit;
 }
 

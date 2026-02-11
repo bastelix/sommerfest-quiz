@@ -23,6 +23,8 @@ const DEFAULT_APPEARANCE = {
     accent: 'var(--brand-accent, var(--accent-secondary, var(--accent-primary, var(--marketing-accent))))',
     muted: 'var(--surface-muted, var(--marketing-surface-muted))',
     surface: 'var(--surface, var(--marketing-surface))',
+    'text-on-primary': 'var(--text-on-primary, var(--marketing-text-on-primary, #ffffff))',
+    'text-on-secondary': 'var(--text-on-secondary, var(--marketing-text-on-secondary, #ffffff))',
   },
   variables: {},
 };
@@ -426,8 +428,14 @@ function resolveSectionIntentPreset(block) {
     styleVariables.push('--section-bg-color:var(--section-default-surface)');
   }
 
-  if (textColor && (isExplicit || (intent === 'hero' && hasDarkSurfaceToken))) {
+  if (textColor && (isExplicit || intent === 'highlight' || intent === 'hero')) {
     styleVariables.push(`--section-text-color:${textColor}`);
+  } else if (hasDarkSurfaceToken) {
+    const darkFallback = resolveAppearanceValue(
+      'text-on-primary',
+      'var(--text-on-primary, var(--marketing-text-on-primary, #ffffff))'
+    );
+    styleVariables.push(`--section-text-color:${darkFallback}`);
   }
 
   return {
@@ -630,6 +638,35 @@ function renderContentSlider(block, variant = 'words', options = {}) {
     </div>`;
 
   return renderSection({ block, variant, content: `${header}${slider}` });
+}
+
+function renderSectionHeader(block, {
+  headingClass = 'uk-heading-medium uk-margin-remove-bottom',
+  subtitleClass = 'uk-text-lead uk-margin-small-top',
+  subtitleField = 'subtitle',
+  subtitleFallbackField = null,
+  wrapperClass = '',
+  context = 'frontend'
+} = {}) {
+  const titleValue = block.data?.title;
+  const subtitleValue = block.data?.[subtitleField]
+    || (subtitleFallbackField ? block.data?.[subtitleFallbackField] : null);
+
+  if (!titleValue && !subtitleValue) return '';
+
+  const resolvedField = block.data?.[subtitleField]
+    ? `data.${subtitleField}`
+    : (subtitleFallbackField ? `data.${subtitleFallbackField}` : `data.${subtitleField}`);
+
+  const title = titleValue
+    ? `<h2 class="${headingClass}"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(titleValue)}</h2>`
+    : '';
+  const subtitle = subtitleValue
+    ? `<p class="${subtitleClass}"${buildEditableAttributes(block, resolvedField, context)}>${escapeHtml(subtitleValue)}</p>`
+    : '';
+
+  const content = `${title}${subtitle}`;
+  return wrapperClass ? `<div class="${wrapperClass}">${content}</div>` : content;
 }
 
 function renderEyebrow(block, alignmentClass = '', context = 'frontend') {
@@ -855,21 +892,10 @@ function normalizeFeatureListItems(block) {
 }
 
 function renderFeatureListHeader(block, context = 'frontend') {
-  const title = block?.data?.title;
-  const subtitle = block?.data?.subtitle;
-
-  if (!title && !subtitle) {
-    return '';
-  }
-
-  const heading = title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(title)}</h2>`
-    : '';
-  const subheading = subtitle
-    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(subtitle)}</p>`
-    : '';
-
-  return `<div class="uk-width-1-1 uk-margin-medium-bottom">${heading}${subheading}</div>`;
+  return renderSectionHeader(block, {
+    wrapperClass: 'uk-width-1-1 uk-margin-medium-bottom',
+    context
+  });
 }
 
 function renderFeatureListTextColumns(items) {
@@ -915,15 +941,14 @@ function renderFeatureListDetailedCards(block, options = {}) {
   const context = options?.context || 'frontend';
   const items = normalizeFeatureListItems(block);
   const eyebrow = renderEyebrow(block, 'uk-text-center', context);
-  const title = block.data?.title
-    ? `<h2 class="uk-heading-small uk-text-center"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
-    : '';
-  const leadOrSubtitle = block.data?.lead || block.data?.subtitle;
-  const leadField = block.data?.lead ? 'data.lead' : 'data.subtitle';
-  const lead = leadOrSubtitle
-    ? `<p class="uk-text-lead uk-text-center uk-margin-medium-bottom"${buildEditableAttributes(block, leadField, context)}>${escapeHtml(leadOrSubtitle)}</p>`
-    : '';
-  const header = (eyebrow || title || lead) ? `<div class="uk-width-1-1">${eyebrow}${title}${lead}</div>` : '';
+  const titleAndLead = renderSectionHeader(block, {
+    headingClass: 'uk-heading-small uk-text-center',
+    subtitleClass: 'uk-text-lead uk-text-center uk-margin-medium-bottom',
+    subtitleField: 'lead',
+    subtitleFallbackField: 'subtitle',
+    context
+  });
+  const header = (eyebrow || titleAndLead) ? `<div class="uk-width-1-1">${eyebrow}${titleAndLead}</div>` : '';
 
   const cards = items
     .map(item => {
@@ -1173,13 +1198,13 @@ function renderProcessSteps(block, variant, options = {}) {
     return renderProcessStepsTimeline(block, options);
   }
 
-  const title = block.data?.title
-    ? `<h2 class="uk-heading-small uk-text-center"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
-    : '';
-  const summary = block.data?.summary
-    ? `<p class="uk-text-lead uk-text-center uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.summary', context)}>${escapeHtml(block.data.summary)}</p>`
-    : '';
-  const header = title || summary ? `<div class="uk-width-1-1">${title}${summary}</div>` : '';
+  const header = renderSectionHeader(block, {
+    headingClass: 'uk-heading-small uk-text-center',
+    subtitleClass: 'uk-text-lead uk-text-center uk-margin-medium-bottom',
+    subtitleField: 'summary',
+    wrapperClass: 'uk-width-1-1',
+    context
+  });
 
   const renderNumberBadge = (stepNumber) => `<div class="uk-heading-small uk-text-primary">${stepNumber}</div>`;
 
@@ -1294,15 +1319,13 @@ function renderProcessStepsTimeline(block, options = {}) {
 function renderContactForm(block, variant = 'default', options = {}) {
   const context = options?.context || 'frontend';
   const normalizedVariant = variant === 'compact' ? 'compact' : 'default';
-  const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
-    : '';
-  const intro = block.data?.intro
-    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.intro', context)}>${escapeHtml(block.data.intro)}</p>`
-    : '';
+  const headerContent = renderSectionHeader(block, {
+    subtitleField: 'intro',
+    context
+  });
 
-  const copyColumn = title || intro
-    ? `<div class="uk-width-1-1 ${normalizedVariant === 'compact' ? 'uk-text-center' : 'uk-width-1-2@m'}">${title}${intro}</div>`
+  const copyColumn = headerContent
+    ? `<div class="uk-width-1-1 ${normalizedVariant === 'compact' ? 'uk-text-center' : 'uk-width-1-2@m'}">${headerContent}</div>`
     : '';
 
   const isPreview = context === 'preview';
@@ -1599,12 +1622,11 @@ function renderCtaButtons(primary, secondary, { alignment = '', margin = 'uk-mar
 
 function renderCta(block, options = {}) {
   const context = options?.context || 'frontend';
-  const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
-    : '';
-  const body = block.data?.body
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.body', context)}>${escapeHtml(block.data.body)}</p>`
-    : '';
+  const headerContent = renderSectionHeader(block, {
+    subtitleClass: 'uk-text-lead uk-margin-small-top uk-margin-remove-bottom',
+    subtitleField: 'body',
+    context
+  });
   const primary = block.data?.primary;
   const secondary = block.data?.secondary;
   const buttons = renderCtaButtons(primary, secondary, {
@@ -1615,7 +1637,7 @@ function renderCta(block, options = {}) {
   if (!buttons) {
     throw new Error('CTA block requires at least one valid action');
   }
-  const inner = `<div class="uk-text-center uk-width-1-1 uk-width-2-3@m uk-margin-auto">${title}${body}${buttons}</div>`;
+  const inner = `<div class="uk-text-center uk-width-1-1 uk-width-2-3@m uk-margin-auto">${headerContent}${buttons}</div>`;
 
   return renderSection({ block, variant: 'full_width', content: inner });
 }
@@ -1649,17 +1671,13 @@ function renderCtaSplit(block, options = {}) {
 
 function renderStatStripHeader(block, context, alignment = 'center') {
   const alignmentClass = alignment === 'left' ? 'uk-text-left' : 'uk-text-center';
-  const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom ${alignmentClass}"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
-    : '';
-  const lede = block.data?.lede
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom ${alignmentClass}"${buildEditableAttributes(block, 'data.lede', context)}>${escapeHtml(block.data.lede)}</p>`
-    : '';
-  if (!title && !lede) {
-    return '';
-  }
-  const spacing = alignment === 'left' ? 'uk-margin-medium-bottom' : 'uk-margin-medium-bottom';
-  return `<div class="uk-width-1-1 ${alignmentClass} ${spacing}">${title}${lede}</div>`;
+  return renderSectionHeader(block, {
+    headingClass: `uk-heading-medium uk-margin-remove-bottom ${alignmentClass}`,
+    subtitleClass: `uk-text-lead uk-margin-small-top uk-margin-remove-bottom ${alignmentClass}`,
+    subtitleField: 'lede',
+    wrapperClass: `uk-width-1-1 ${alignmentClass} uk-margin-medium-bottom`,
+    context
+  });
 }
 
 function renderStatStripMarquee(block) {
@@ -1928,13 +1946,11 @@ function renderStatStripHighlight(block, options = {}) {
 
 function renderProofMetricCallout(block, options = {}) {
   const context = options?.context || 'frontend';
-  const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
-    : '';
-  const subtitle = block.data?.subtitle
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
-    : '';
-  const header = title || subtitle ? `<div class="uk-width-1-1 uk-text-center uk-margin-medium-bottom">${title}${subtitle}</div>` : '';
+  const header = renderSectionHeader(block, {
+    subtitleClass: 'uk-text-lead uk-margin-small-top uk-margin-remove-bottom',
+    wrapperClass: 'uk-width-1-1 uk-text-center uk-margin-medium-bottom',
+    context
+  });
 
   const metrics = getValidMetrics(block);
   const metricCards = metrics
@@ -2079,12 +2095,11 @@ function renderAudienceSpotlight(block, variant = block.variant || 'tabs', optio
     return renderAudienceSpotlightTabs(block, cases, context);
   }
 
-  const sectionTitle = block.data?.title
-    ? `<h2 class="uk-heading-small uk-text-center"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
-    : '';
-  const sectionSubtitle = block.data?.subtitle
-    ? `<p class="uk-text-lead uk-text-center uk-margin-small-top uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
-    : '';
+  const sectionHeader = renderSectionHeader(block, {
+    headingClass: 'uk-heading-small uk-text-center',
+    subtitleClass: 'uk-text-lead uk-text-center uk-margin-small-top uk-margin-medium-bottom',
+    context
+  });
   const gridVariants = {
     tabs: 'uk-child-width-1-1 uk-child-width-1-2@m',
     tiles: 'uk-child-width-1-1 uk-child-width-1-2@m',
@@ -2096,7 +2111,7 @@ function renderAudienceSpotlight(block, variant = block.variant || 'tabs', optio
 
   const grid = `<div class="uk-margin-large-top uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
 
-  return renderSection({ block, variant: safeVariant, content: `${sectionTitle}${sectionSubtitle}${grid}` });
+  return renderSection({ block, variant: safeVariant, content: `${sectionHeader}${grid}` });
 }
 
 function renderPackageHighlightGroup(highlight) {
@@ -2158,12 +2173,10 @@ function renderPackagePlan(plan) {
 function renderPackageSummary(block, variant, options = {}) {
   const context = options?.context || 'frontend';
   const safeVariant = escapeAttribute(variant);
-  const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
-    : '';
-  const subtitle = block.data?.subtitle
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
-    : '';
+  const headerContent = renderSectionHeader(block, {
+    subtitleClass: 'uk-text-lead uk-margin-small-top uk-margin-medium-bottom',
+    context
+  });
 
   const packageOptions = Array.isArray(block.data?.options) ? block.data.options : [];
   const plans = Array.isArray(block.data?.plans) ? block.data.plans : [];
@@ -2183,7 +2196,7 @@ function renderPackageSummary(block, variant, options = {}) {
 
   const grid = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
 
-  return renderSection({ block, variant: safeVariant, content: `${title}${subtitle}${grid}${disclaimer}` });
+  return renderSection({ block, variant: safeVariant, content: `${headerContent}${grid}${disclaimer}` });
 }
 
 function renderFaqItem(block, item, index, context) {
@@ -2199,9 +2212,10 @@ function renderFaqItem(block, item, index, context) {
 
 function renderFaq(block, options = {}) {
   const context = options?.context || 'frontend';
-  const title = block.data?.title
-    ? `<h2 class="uk-heading-small uk-text-center"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
-    : '';
+  const title = renderSectionHeader(block, {
+    headingClass: 'uk-heading-small uk-text-center',
+    context
+  });
   const items = Array.isArray(block.data?.items) ? block.data.items : [];
   const accordionItems = items.length
     ? items.map((item, index) => renderFaqItem(block, item, index, context)).join('')
