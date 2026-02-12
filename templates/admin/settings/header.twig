@@ -223,37 +223,6 @@
             </div>
           </form>
         </div>
-
-        {% set navigationVariants = navigation_variants|default([]) %}
-        {% set selectedVariant = navigation_variants|first.value|default('footer_columns_2') %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
-            <div>
-              <div class="uk-text-meta uk-text-uppercase">Footer</div>
-              <h3 class="uk-card-title uk-margin-remove">{{ t('label_navigation_footer_layout') }}</h3>
-            </div>
-          </div>
-          <label class="uk-form-label" for="menuVariantSelect">Footer-Layout</label>
-          <div class="uk-form-controls">
-            <select
-              id="menuVariantSelect"
-              class="uk-select"
-              data-menu-variant-select
-              data-selected="{{ selectedVariant }}"
-            >
-              {% for variant in navigationVariants %}
-                {% set variantValue = variant.value|default('') %}
-                <option
-                  value="{{ variantValue|e('html_attr') }}"
-                  {% if variantValue == selectedVariant %}selected{% endif %}
-                >{{ variant.label|default(variantValue) }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="uk-text-meta uk-margin-small-top">
-            Steuert, wie viele Spalten im Footer befüllt werden können (z. B. 2 oder 3 Listen).
-          </div>
-        </div>
       </div>
     </main>
   </div>
