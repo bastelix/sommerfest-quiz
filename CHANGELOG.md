@@ -347,6 +347,7 @@
 - Hard-delete namespaces and clean up derived data on removal
 - Add missing mobile menu toggle to all admin templates
 - Correct admin topbar layout order and hide namespace prefix on mobile
+- Hide breadcrumb divider on small screens
 
 ### Refactor
 
