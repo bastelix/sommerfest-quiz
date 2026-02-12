@@ -947,9 +947,16 @@ body.admin-page {
   display: none;
 }
 
+.admin-page .topbar .namespace-label + li::before {
+  display: none;
+}
+
 @media (min-width: 640px) {
   .admin-page .topbar .namespace-label {
     display: list-item;
+  }
+  .admin-page .topbar .namespace-label + li::before {
+    display: inline;
   }
 }
 
