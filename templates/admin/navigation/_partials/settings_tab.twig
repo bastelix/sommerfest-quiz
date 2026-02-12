@@ -1,0 +1,182 @@
+{# Settings Tab: Header settings (logo, toggles) and footer layout variant #}
+{% set activePageNamespace = pageNamespace|default('default') %}
+{% set navSettings = navigation_settings|default({}) %}
+
+<div
+  class="uk-card uk-card-default uk-card-body uk-margin-small"
+  data-project-settings
+  data-endpoint="{{ basePath }}/admin/projects/settings"
+>
+  <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+    <div>
+      <div class="uk-text-meta uk-text-uppercase">Header</div>
+      <h3 class="uk-card-title uk-margin-remove">{{ t('label_navigation_header_settings') }}</h3>
+    </div>
+    <span class="uk-text-meta" data-project-settings-updated>
+      {% if navSettings.updated_at %}
+        Zuletzt gespeichert: {{ navSettings.updated_at }}
+      {% endif %}
+    </span>
+  </div>
+  <form class="uk-form-stacked uk-margin-small-top" data-project-settings-form enctype="multipart/form-data">
+    <div class="uk-margin">
+      <label class="uk-form-label" for="showLanguageToggle">Sprachmenü anzeigen</label>
+      <div class="uk-form-controls">
+        <label>
+          <input
+            class="uk-checkbox"
+            type="checkbox"
+            id="showLanguageToggle"
+            name="show_language_toggle"
+            {% if navSettings.show_language_toggle|default(true) %}checked{% endif %}
+          >
+          Sprache-Umschalter im Header einblenden
+        </label>
+      </div>
+    </div>
+    <div class="uk-margin">
+      <label class="uk-form-label" for="showThemeToggle">Theme-Button anzeigen</label>
+      <div class="uk-form-controls">
+        <label>
+          <input
+            class="uk-checkbox"
+            type="checkbox"
+            id="showThemeToggle"
+            name="show_theme_toggle"
+            {% if navSettings.show_theme_toggle|default(true) %}checked{% endif %}
+          >
+          Light/Dark-Umschalter sichtbar
+        </label>
+      </div>
+    </div>
+    <div class="uk-margin">
+      <label class="uk-form-label" for="showContrastToggle">Kontrast-Button anzeigen</label>
+      <div class="uk-form-controls">
+        <label>
+          <input
+            class="uk-checkbox"
+            type="checkbox"
+            id="showContrastToggle"
+            name="show_contrast_toggle"
+            {% if navSettings.show_contrast_toggle|default(true) %}checked{% endif %}
+          >
+          High-Contrast-Umschalter sichtbar
+        </label>
+      </div>
+    </div>
+    <div class="uk-margin">
+      <label class="uk-form-label">Logo-Einstellungen</label>
+      <div class="uk-form-controls">
+        <div class="uk-grid-small uk-child-width-auto uk-flex-middle" uk-grid>
+          {% set logoMode = navSettings.header_logo_mode|default('text') %}
+          <label>
+            <input
+              class="uk-radio"
+              type="radio"
+              name="header_logo_mode"
+              value="text"
+              {% if logoMode != 'image' %}checked{% endif %}
+            >
+            Schriftzug verwenden
+          </label>
+          <label>
+            <input
+              class="uk-radio"
+              type="radio"
+              name="header_logo_mode"
+              value="image"
+              {% if logoMode == 'image' %}checked{% endif %}
+            >
+            Bildlogo anzeigen
+          </label>
+        </div>
+      </div>
+      <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-margin-small-top" uk-grid>
+        <div>
+          <label class="uk-form-label" for="headerLogoFile">Logo-Datei</label>
+          <div class="uk-form-controls">
+            <input
+              class="uk-input"
+              type="file"
+              id="headerLogoFile"
+              name="headerLogoFile"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml"
+            >
+          </div>
+          <div class="uk-text-meta uk-margin-small-top">PNG, JPG, WEBP oder SVG, max. 5 MB.</div>
+          <div class="uk-text-meta uk-margin-small-top" data-current-logo-path {% if not navSettings.header_logo_path %}hidden{% endif %}>
+            Aktuelles Logo: <span data-current-logo-path-value>{{ navSettings.header_logo_path|default('') }}</span>
+          </div>
+          <input
+            type="hidden"
+            name="header_logo_path"
+            value="{{ navSettings.header_logo_path|default('')|e('html_attr') }}"
+          >
+        </div>
+        <div>
+          <label class="uk-form-label" for="headerLogoLabel">Schriftzug</label>
+          <div class="uk-form-controls">
+            <input
+              class="uk-input"
+              type="text"
+              id="headerLogoLabel"
+              name="header_logo_label"
+              value="{{ navSettings.header_logo_label|default('')|e('html_attr') }}"
+              maxlength="255"
+              placeholder="QuizRace"
+            >
+          </div>
+        </div>
+        <div>
+          <label class="uk-form-label" for="headerLogoAlt">Alternativtext (optional)</label>
+          <div class="uk-form-controls">
+            <input
+              class="uk-input"
+              type="text"
+              id="headerLogoAlt"
+              name="header_logo_alt"
+              value="{{ navSettings.header_logo_alt|default('')|e('html_attr') }}"
+              maxlength="255"
+              placeholder="QuizRace Logo"
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="uk-margin">
+      <button type="submit" class="uk-button uk-button-primary">Speichern</button>
+      <span class="uk-text-meta uk-margin-small-left" data-project-settings-status></span>
+    </div>
+  </form>
+</div>
+
+{% set navigationVariants = navigation_variants|default([]) %}
+{% set selectedVariant = navigation_variants|first.value|default('footer_columns_2') %}
+<div class="uk-card uk-card-default uk-card-body uk-margin">
+  <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+    <div>
+      <div class="uk-text-meta uk-text-uppercase">Footer</div>
+      <h3 class="uk-card-title uk-margin-remove">{{ t('label_navigation_footer_layout') }}</h3>
+    </div>
+  </div>
+  <label class="uk-form-label" for="menuVariantSelect">Footer-Layout</label>
+  <div class="uk-form-controls">
+    <select
+      id="menuVariantSelect"
+      class="uk-select"
+      data-menu-variant-select
+      data-selected="{{ selectedVariant }}"
+    >
+      {% for variant in navigationVariants %}
+        {% set variantValue = variant.value|default('') %}
+        <option
+          value="{{ variantValue|e('html_attr') }}"
+          {% if variantValue == selectedVariant %}selected{% endif %}
+        >{{ variant.label|default(variantValue) }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="uk-text-meta uk-margin-small-top">
+    Steuert, wie viele Spalten im Footer befüllt werden können (z. B. 2 oder 3 Listen).
+  </div>
+</div>
