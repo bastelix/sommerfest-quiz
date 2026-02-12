@@ -53,3 +53,24 @@
   box-sizing: border-box;
   touch-action: none;
 }
+
+/* ── Admin Config – Mobile Compact ── */
+@media (max-width: 639px) {
+
+  .admin-divider-line {
+    margin: 16px 0 8px;
+  }
+
+  .admin-divider-line--subsection {
+    margin-top: 12px;
+    margin-bottom: 6px;
+  }
+
+  .event-config-sidebar .uk-card + .uk-card {
+    margin-top: 10px;
+  }
+
+  .uk-card-body {
+    padding: 12px;
+  }
+}

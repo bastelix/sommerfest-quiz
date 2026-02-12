@@ -1765,16 +1765,12 @@ body.admin-page {
   border-radius: 12px;
 }
 
-}
-
 .section--muted {
   background: var(--surface-muted, #f5f5f5);
 }
 
 .section--transparent {
   background: transparent;
-}
-
 }
 
 /* Swipe card layout */
@@ -2991,4 +2987,148 @@ body.admin-page {
   display: block;
   height: 1.4em;
   visibility: hidden;
+}
+
+/* ==========================================================================
+   ADMIN MOBILE COMPACT OVERRIDES
+   Scope: .admin-page at max-width: 639px
+   Purpose: Reduce wasted space on mobile admin views for an edge-to-edge,
+   compact feel. Desktop layout is completely untouched.
+   ========================================================================== */
+
+@media (max-width: 639px) {
+
+  /* ── 1. Body padding ──
+     The body carries uk-padding (UIKit: 30px). On admin pages we want
+     near-zero horizontal padding so cards can fill the viewport width. */
+  body.admin-page.uk-padding {
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-bottom: 8px;
+  }
+
+  /* ── 2. Main content area ──
+     UIKit's uk-padding gives 30px on all sides. Override to tight values. */
+  .admin-page main.uk-padding,
+  .admin-page main.uk-width-expand {
+    padding: 8px 4px !important;
+  }
+
+  /* ── 3. Container constraints ──
+     Remove horizontal padding and let content fill the screen. */
+  .admin-page .uk-container,
+  .admin-page .uk-container-large {
+    padding-left: 4px;
+    padding-right: 4px;
+    max-width: 100%;
+  }
+
+  /* ── 4. Admin shell max-width ──
+     Remove max-width constraint on mobile. */
+  .admin-shell .admin-main-container,
+  .admin-shell .admin-section,
+  .admin-shell .uk-container {
+    max-width: 100%;
+  }
+
+  /* ── 5. Card border-radius ──
+     12px radius + side margins = visible unused gaps.
+     6px keeps softness without wasting space. */
+  .admin-page .uk-card,
+  .admin-page .qr-card,
+  .admin-page .uk-panel {
+    border-radius: 6px;
+  }
+
+  /* ── 6. Card body padding ──
+     20px is generous on a 375px screen. 12px is compact. */
+  .admin-page .uk-card-body {
+    padding: 12px;
+  }
+
+  /* ── 7. Dashboard grid ──
+     Lower minimum column width and tighten gap. */
+  .admin-page .dashboard-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 8px;
+  }
+
+  /* ── 8. Dashboard container ── */
+  .admin-page .dashboard-container {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .admin-page .dashboard-grid {
+    margin-left: -4px;
+  }
+
+  .admin-page .dashboard-grid > * {
+    padding-left: 4px;
+  }
+
+  /* ── 9. Dashboard tile card padding ── */
+  .admin-page .dashboard-tile > .uk-card {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  /* ── 10. UIKit grid-large override ──
+     Grid-large adds ~50px gap; reduce for mobile stacked layout. */
+  .admin-page .uk-grid-large,
+  .admin-page .uk-grid-large > * {
+    margin-left: 0;
+  }
+
+  .admin-page .uk-grid-large > .uk-grid-margin {
+    margin-top: 12px;
+  }
+
+  /* ── 11. Margin overrides ── */
+  .admin-page .uk-margin-large-top {
+    margin-top: 16px !important;
+  }
+
+  .admin-page .uk-margin-top {
+    margin-top: 12px !important;
+  }
+
+  /* ── 12. Section headings compaction ── */
+  .admin-page h1.uk-heading-bullet {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* ── 13. Switcher (tab panels) margin ── */
+  .admin-page .uk-switcher.uk-margin {
+    margin-top: 8px;
+  }
+
+  /* ── 14. Form field spacing ── */
+  .admin-page .uk-form-stacked .uk-margin {
+    margin-bottom: 12px;
+  }
+
+  /* ── 15. Alert compaction ── */
+  .admin-page .uk-alert {
+    margin-bottom: 8px;
+    padding: 10px 12px;
+  }
+
+  /* ── 16. Sticky section in event config ── */
+  .admin-page .uk-section.uk-padding-small {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .admin-page .uk-section-xsmall {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  /* ── 17. Tab bar compaction ── */
+  .admin-page [uk-tab] > li > a {
+    padding: 6px 8px;
+    font-size: 0.8125rem;
+  }
 }
