@@ -538,7 +538,7 @@ function openBlockEditor(blockId = null, slot = null) {
   const form = document.querySelector('[data-block-form]');
   const titleEl = document.querySelector('[data-modal-title]');
 
-  titleEl.textContent = 'Block hinzufuegen';
+  titleEl.textContent = titleEl.dataset.labelAddBlock || 'Block hinzufuegen';
   form.reset();
   form.querySelector('[data-target-slot]').value = slot || 'footer_1';
   form.querySelector('[data-active-checkbox]').checked = true;

@@ -1174,4 +1174,19 @@ return [
     'button_create_campaign' => 'Create campaign',
     'button_save_campaign' => 'Save campaign',
     'button_send_campaign' => 'Send now',
+
+    // Footer Block Editor
+    'label_footer_block_editor' => 'Footer Block Editor',
+    'text_footer_block_editor_intro' => 'Design your website footer with individual blocks. Drag and drop blocks to change their order.',
+    'label_add_block' => 'Add block',
+    'label_block_type' => 'Block type',
+    'label_block_type_menu' => 'Menu',
+    'label_block_type_text' => 'Text',
+    'label_block_type_social' => 'Social Media',
+    'label_block_type_contact' => 'Contact',
+    'label_block_type_newsletter' => 'Newsletter',
+    'label_block_type_html' => 'HTML',
+    'label_active' => 'Active',
+    'label_save' => 'Save',
+    'label_cancel' => 'Cancel',
 ];

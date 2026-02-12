@@ -1179,4 +1179,19 @@ return [
     'button_create_campaign' => 'Kampagne erstellen',
     'button_save_campaign' => 'Kampagne speichern',
     'button_send_campaign' => 'Jetzt senden',
+
+    // Footer Block Editor
+    'label_footer_block_editor' => 'Footer-Block-Editor',
+    'text_footer_block_editor_intro' => 'Gestalten Sie den Footer Ihrer Website mit individuellen Blöcken. Ziehen Sie Blöcke per Drag-and-Drop, um die Reihenfolge zu ändern.',
+    'label_add_block' => 'Block hinzufügen',
+    'label_block_type' => 'Blocktyp',
+    'label_block_type_menu' => 'Menü',
+    'label_block_type_text' => 'Text',
+    'label_block_type_social' => 'Social Media',
+    'label_block_type_contact' => 'Kontakt',
+    'label_block_type_newsletter' => 'Newsletter',
+    'label_block_type_html' => 'HTML',
+    'label_active' => 'Aktiv',
+    'label_save' => 'Speichern',
+    'label_cancel' => 'Abbrechen',
 ];
