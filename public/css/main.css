@@ -3138,4 +3138,173 @@ body.admin-page {
     padding: 6px 8px;
     font-size: 0.8125rem;
   }
+
+  /* ── 18. Page editor – structure view block rows ──
+     On mobile the row buttons (select, move, duplicate, delete) don't fit
+     in a single horizontal line. Wrap the row into a two-line layout:
+     label on top, action buttons below. */
+  [data-block-row="true"] {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  [data-block-row="true"] [data-block-label="true"] {
+    flex: 1 1 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  [data-block-row="true"] button {
+    font-size: 0.8125rem;
+    padding: 4px 8px;
+  }
+
+  [data-block-row="true"] [data-action="select-block"] {
+    flex: 1 1 auto;
+  }
+
+  /* ── 19. Template picker grid – single column on small screens ── */
+  .template-picker-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .template-picker-grid .layout-style-card {
+    min-height: 140px;
+  }
+
+  .page-editor [data-template-chooser="true"] {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  /* ── 20. Layout style picker – smaller cards on mobile ── */
+  .layout-style-picker__options {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+
+  .layout-style-card {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .layout-style-card__preview {
+    min-height: 64px;
+    padding: 6px;
+  }
+
+  /* ── 21. Page editor tabs – compact on mobile ── */
+  .page-editor-tabs {
+    gap: 4px;
+  }
+
+  .page-editor-tab {
+    padding: 8px 6px;
+    font-size: 0.8125rem;
+  }
+
+  .page-editor-mode-switch {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* ── 22. Block form sections – tighter padding ── */
+  .block-form-section {
+    padding: 10px;
+    gap: 8px;
+    border-radius: 8px;
+  }
+
+  .page-editor [data-block-editor="true"] {
+    padding: 10px;
+    gap: 10px;
+    border-radius: 8px;
+  }
+
+  /* ── 23. Editor body spacing ── */
+  .page-editor .content-editor-body {
+    gap: 10px;
+  }
+
+  .page-editor [data-block-list="true"] {
+    gap: 6px;
+    padding-bottom: 8px;
+  }
+
+  .page-editor [data-block-list="true"] ul {
+    gap: 6px;
+  }
+
+  /* ── 24. Section heading compact ── */
+  .section-heading__title {
+    font-size: 1rem;
+  }
+
+  .section-heading__meta {
+    font-size: 0.8125rem;
+  }
+
+  /* ── 25. Preview pane compact ── */
+  .page-preview-pane {
+    padding: 8px;
+  }
+
+  .page-preview-actions {
+    gap: 4px;
+  }
+
+  .page-preview-mode-toggle {
+    gap: 4px;
+  }
+
+  .page-preview-mode-toggle__btn {
+    padding: 4px 8px;
+    font-size: 0.8125rem;
+  }
+
+  /* ── 26. Block repeater cards ── */
+  .block-repeater-card {
+    border-radius: 8px;
+  }
+
+  /* ── 27. Editor actions row ── */
+  .page-editor [data-editor-actions="true"] {
+    flex-wrap: wrap;
+  }
+
+  .page-editor [data-editor-actions="true"] .uk-button {
+    font-size: 0.8125rem;
+    padding: 6px 12px;
+  }
+
+  /* ── 28. Page tree compaction ── */
+  .page-tree [data-page-tree-info="true"] {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .page-tree [data-page-tree-info="true"] .uk-text-meta {
+    display: none;
+  }
+
+  .page-tree .page-tree-select {
+    font-size: 0.8125rem;
+  }
+
+  .page-tree .page-tree-action {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+  }
+
+  /* ── 29. Accordion inside content page ── */
+  .admin-page .uk-accordion-title {
+    font-size: 0.875rem;
+  }
+
+  .admin-page .uk-accordion-content {
+    padding: 8px 0;
+  }
 }
