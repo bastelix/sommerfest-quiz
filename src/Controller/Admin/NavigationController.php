@@ -50,6 +50,71 @@ final class NavigationController
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
     }
 
+    public function index(Request $request, Response $response): Response
+    {
+        $view = Twig::fromRequest($request);
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $namespaceList = array_values(array_unique(array_filter(array_map(
+            static fn (array $entry): string => (string) ($entry['namespace'] ?? ''),
+            $availableNamespaces
+        ), static fn (string $entryNamespace): bool => $entryNamespace !== '')));
+        if ($namespaceList === [] && $namespace !== '') {
+            $namespaceList = [$namespace];
+        }
+
+        $pages = $this->pageService->getAllForNamespaces($namespaceList);
+        $anchorPage = $this->resolveAnchorPage($pages, $namespace, $request->getQueryParams());
+        $internalLinks = $this->buildInternalLinks($pages, $anchorPage);
+
+        $menuDefinitions = $this->menuDefinitions->listMenus($namespace);
+        $assignmentCounts = $this->countMenuAssignments($namespace);
+        $menuDefinitionList = array_map(
+            static fn (CmsMenu $menu): array => [
+                'id' => $menu->getId(),
+                'namespace' => $menu->getNamespace(),
+                'label' => $menu->getLabel(),
+                'locale' => $menu->getLocale(),
+                'isActive' => $menu->isActive(),
+                'updatedAt' => $menu->getUpdatedAt()?->format(DATE_ATOM),
+                'assignmentCount' => $assignmentCounts[$menu->getId()] ?? 0,
+            ],
+            $menuDefinitions
+        );
+
+        $selectedMenuId = (int) ($request->getQueryParams()['menuId'] ?? 0);
+        if ($selectedMenuId <= 0 && $menuDefinitionList !== []) {
+            $selectedMenuId = (int) $menuDefinitionList[0]['id'];
+        }
+
+        $pagesForNamespace = $this->pageService->getAllForNamespace($namespace);
+        $assignments = $this->menuDefinitions->listAssignments($namespace, null, null, null, null, true);
+        $pageOverrides = $this->buildOverrideSummary($pagesForNamespace, $assignments);
+
+        $navigationVariants = [
+            ['value' => 'footer_columns_2', 'label' => 'Footer (2 Spalten)', 'columns' => 2],
+            ['value' => 'footer_columns_3', 'label' => 'Footer (3 Spalten)', 'columns' => 3],
+        ];
+
+        return $view->render($response, 'admin/navigation/index.twig', [
+            'role' => $_SESSION['user']['role'] ?? '',
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
+            'available_namespaces' => $availableNamespaces,
+            'pageNamespace' => $namespace,
+            'csrf_token' => $this->ensureCsrfToken(),
+            'menu_definitions' => $menuDefinitionList,
+            'selected_menu_id' => $selectedMenuId,
+            'internal_links' => $internalLinks,
+            'use_navigation_tree' => FeatureFlags::marketingNavigationTreeEnabled(),
+            'anchor_page_id' => $anchorPage?->getId(),
+            'locale_options' => $this->resolveLocaleOptions($menuDefinitions, $namespace),
+            'page_overrides' => $pageOverrides,
+            'override_locale_options' => $this->resolveLocaleOptions([], $namespace, $assignments),
+            'navigation_settings' => $this->projectSettings->getCookieConsentSettings($namespace),
+            'navigation_variants' => $navigationVariants,
+        ]);
+    }
+
     public function menus(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);

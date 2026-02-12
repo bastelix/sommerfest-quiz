@@ -1455,22 +1455,29 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new ProjectPagesController();
         return $controller->cookies($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/navigation', function (Request $request, Response $response) {
+        $controller = new NavigationController();
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/pages/navigation', function (Request $request, Response $response) {
         return $response
-            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation/menus')
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation')
             ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/menus', function (Request $request, Response $response) {
-        $controller = new NavigationController();
-        return $controller->menus($request, $response);
+        return $response
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation')
+            ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/standards', function (Request $request, Response $response) {
-        $controller = new NavigationController();
-        return $controller->standards($request, $response);
+        return $response
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation')
+            ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/overrides', function (Request $request, Response $response) {
-        $controller = new NavigationController();
-        return $controller->overrides($request, $response);
+        return $response
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation')
+            ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/overrides/{pageId:[0-9]+}', function (Request $request, Response $response, array $args) {
         $controller = new NavigationController();
