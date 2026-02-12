@@ -342,6 +342,7 @@
 - Filter namespace selection to only show active namespaces
 - Enable AI menu generation by connecting frontend to existing backend API
 - Route all contact forms to /api/contact-form endpoint
+- Add missing mobile menu toggle on header/footer settings page
 
 ### Refactor
 
