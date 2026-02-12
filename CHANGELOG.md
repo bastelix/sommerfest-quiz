@@ -340,6 +340,7 @@
 - Prevent double-escaping of notes in package_summary block
 - Filter namespace selection to only show active namespaces
 - Enable AI menu generation by connecting frontend to existing backend API
+- Route all contact forms to /api/contact-form endpoint
 
 ### Refactor
 
