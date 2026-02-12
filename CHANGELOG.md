@@ -402,6 +402,7 @@
 - Consolidate namespace design editor from 6 panels to 2 panels
 - Simplify menu and footer template structure
 - Consolidate admin navigation into single tabbed page
+- Integrate footer block editor as 4th tab in navigation page
 
 ### Style
 
