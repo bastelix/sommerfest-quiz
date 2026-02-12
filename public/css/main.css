@@ -3081,10 +3081,15 @@ body.admin-page {
   }
 
   /* ── 10. UIKit grid-large override ──
-     Grid-large adds ~50px gap; reduce for mobile stacked layout. */
-  .admin-page .uk-grid-large,
+     Grid-large adds ~50px gap; reduce for mobile stacked layout.
+     UIKit uses padding-left on children for gutters, so reset both. */
+  .admin-page .uk-grid-large {
+    margin-left: 0;
+  }
+
   .admin-page .uk-grid-large > * {
     margin-left: 0;
+    padding-left: 0;
   }
 
   .admin-page .uk-grid-large > .uk-grid-margin {
