@@ -79,6 +79,7 @@
         <ul class="uk-subnav uk-subnav-pill uk-margin" uk-switcher="connect: #navigation-tab-content; animation: uk-animation-fade">
           <li><a href="#">{{ t('tab_navigation_menus_short') }}</a></li>
           <li><a href="#">{{ t('tab_navigation_assignments') }}</a></li>
+          <li><a href="#">{{ t('tab_navigation_footer_blocks') }}</a></li>
           <li><a href="#">{{ t('tab_navigation_settings') }}</a></li>
         </ul>
 
@@ -88,6 +89,9 @@
           </li>
           <li>
             {% include 'admin/navigation/_partials/assignments_tab.twig' %}
+          </li>
+          <li>
+            {% include 'admin/navigation/_partials/footer_blocks_tab.twig' %}
           </li>
           <li>
             {% include 'admin/navigation/_partials/settings_tab.twig' %}
@@ -105,4 +109,12 @@
   {% else %}
     <script type="module" src="{{ basePath }}/js/marketing-menu-admin.js"></script>
   {% endif %}
+  <script>
+    window.templateData = {
+      menuDefinitions: {{ footer_menu_definitions|json_encode|raw }},
+      footerLayout: {{ (footer_layout|default('equal'))|json_encode|raw }},
+      csrfToken: {{ csrf_token|json_encode|raw }}
+    };
+  </script>
+  <script type="module" src="{{ basePath }}/js/marketing-footer-blocks.js"></script>
 {% endblock %}
