@@ -348,6 +348,7 @@
 - Add missing mobile menu toggle to all admin templates
 - Correct admin topbar layout order and hide namespace prefix on mobile
 - Hide breadcrumb divider on small screens
+- Improve mobile responsiveness for page editor structure view
 
 ### Refactor
 
