@@ -349,6 +349,7 @@
 - Correct admin topbar layout order and hide namespace prefix on mobile
 - Hide breadcrumb divider on small screens
 - Improve mobile responsiveness for page editor structure view
+- Make page block style options freely combinable
 
 ### Refactor
 
