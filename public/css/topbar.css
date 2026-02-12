@@ -131,6 +131,15 @@ body[data-theme="dark"].high-contrast,
   background-color: var(--drop-bg, var(--bg-surface));
   color: var(--drop-color, var(--text-primary));
 }
+/* Offcanvas scroll & safe-area improvements */
+#qr-offcanvas .uk-offcanvas-bar {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
 .admin-page:not([data-theme="dark"]) #qr-offcanvas .uk-offcanvas-bar {
   --uk-inverse: dark;
   --drop-color: var(--text-body);
@@ -177,6 +186,8 @@ body[data-theme="dark"].high-contrast,
 .uk-offcanvas-bar .uk-nav-default>li.uk-active>a {
   background-color: var(--bg-accent-soft);
   color: var(--text-primary);
+  border-left: 3px solid var(--brand-primary, #1e87f0);
+  padding-left: 9px;
 }
 #qr-offcanvas .uk-form-label,
 #qr-offcanvas .uk-text-meta,
