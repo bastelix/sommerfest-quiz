@@ -1484,8 +1484,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->overrideDetail($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/footer-blocks', function (Request $request, Response $response) {
-        $controller = new NavigationController();
-        return $controller->footerBlocks($request, $response);
+        return $response
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation')
+            ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/settings/header', function (Request $request, Response $response) {
         $controller = new NavigationController();

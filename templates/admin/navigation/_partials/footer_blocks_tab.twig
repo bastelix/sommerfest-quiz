@@ -1,0 +1,553 @@
+{# Footer Block Editor – extracted as tab partial from footer-blocks.twig #}
+<link rel="stylesheet" href="{{ basePath }}/css/footer-blocks.css">
+
+<div class="uk-card uk-card-default uk-card-body">
+  <h2 class="uk-card-title">{{ t('label_footer_block_editor') }}</h2>
+
+  <div class="uk-alert uk-alert-primary" uk-alert>
+    <p>{{ t('text_footer_block_editor_intro') }}</p>
+  </div>
+
+  <!-- Namespace & Locale Selection -->
+  <div class="uk-margin">
+    <div class="uk-grid-small" uk-grid>
+      <div class="uk-width-1-4@s">
+        <label class="uk-form-label">Namespace</label>
+        <select id="footerBlockNamespace" class="uk-select" data-namespace-select>
+          {% for ns in footer_namespaces %}
+            <option value="{{ ns|e('html_attr') }}" {% if ns == pageNamespace %}selected{% endif %}>
+              {{ ns }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="uk-width-1-4@s">
+        <label class="uk-form-label">Locale</label>
+        <select id="footerBlockLocale" class="uk-select" data-locale-select>
+          {% for locale in locale_options %}
+            <option value="{{ locale|e('html_attr') }}">{{ locale }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="uk-width-1-2@s">
+        <label class="uk-form-label">Footer Layout</label>
+        <div class="footer-layout-selector" data-layout-selector>
+          <button type="button" class="layout-option" data-layout="equal" title="3 gleiche Spalten">
+            <svg width="48" height="24" viewBox="0 0 48 24"><rect x="1" y="2" width="14" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="17" y="2" width="14" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="33" y="2" width="14" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/></svg>
+            <span>Gleich</span>
+          </button>
+          <button type="button" class="layout-option" data-layout="brand-left" title="Breit links (Branding)">
+            <svg width="48" height="24" viewBox="0 0 48 24"><rect x="1" y="2" width="22" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="25" y="2" width="10" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="37" y="2" width="10" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/></svg>
+            <span>Branding</span>
+          </button>
+          <button type="button" class="layout-option" data-layout="cta-right" title="Breit rechts (Newsletter/CTA)">
+            <svg width="48" height="24" viewBox="0 0 48 24"><rect x="1" y="2" width="10" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="13" y="2" width="10" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/><rect x="25" y="2" width="22" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/></svg>
+            <span>CTA rechts</span>
+          </button>
+          <button type="button" class="layout-option" data-layout="centered" title="Zentriert (Minimal)">
+            <svg width="48" height="24" viewBox="0 0 48 24"><rect x="12" y="2" width="24" height="20" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="0.5"/></svg>
+            <span>Zentriert</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="uk-divider-icon">
+
+  <!-- Three-Column Footer Editor with Drag-and-Drop -->
+  <div class="footer-editor-columns" data-footer-editor>
+    <div class="footer-editor-col" data-slot="footer_1">
+      <div class="footer-editor-col__header">
+        <h4 class="uk-margin-remove">Spalte 1</h4>
+        <button class="uk-button uk-button-primary uk-button-small" data-add-block-btn="footer_1">
+          <span uk-icon="icon: plus; ratio: 0.75"></span> Block
+        </button>
+      </div>
+      <div class="footer-editor-col__blocks" data-blocks-container="footer_1" uk-sortable="group: footer-blocks; handle: .block-card__drag">
+        <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
+      </div>
+    </div>
+
+    <div class="footer-editor-col" data-slot="footer_2">
+      <div class="footer-editor-col__header">
+        <h4 class="uk-margin-remove">Spalte 2</h4>
+        <button class="uk-button uk-button-primary uk-button-small" data-add-block-btn="footer_2">
+          <span uk-icon="icon: plus; ratio: 0.75"></span> Block
+        </button>
+      </div>
+      <div class="footer-editor-col__blocks" data-blocks-container="footer_2" uk-sortable="group: footer-blocks; handle: .block-card__drag">
+        <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
+      </div>
+    </div>
+
+    <div class="footer-editor-col" data-slot="footer_3">
+      <div class="footer-editor-col__header">
+        <h4 class="uk-margin-remove">Spalte 3</h4>
+        <button class="uk-button uk-button-primary uk-button-small" data-add-block-btn="footer_3">
+          <span uk-icon="icon: plus; ratio: 0.75"></span> Block
+        </button>
+      </div>
+      <div class="footer-editor-col__blocks" data-blocks-container="footer_3" uk-sortable="group: footer-blocks; handle: .block-card__drag">
+        <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Preview -->
+  <div class="uk-margin-top">
+    <div class="uk-flex uk-flex-between uk-flex-middle">
+      <h4 class="uk-heading-bullet uk-margin-remove">Vorschau</h4>
+      <button class="uk-button uk-button-default uk-button-small" type="button" data-preview-toggle>
+        <span uk-icon="icon: eye; ratio: 0.8"></span> Vorschau ein/aus
+      </button>
+    </div>
+    <div class="footer-preview-wrapper" data-footer-preview>
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+  <hr class="uk-divider-icon">
+
+  <!-- Quick-Add Presets -->
+  <div class="uk-margin-top">
+    <h4 class="uk-heading-bullet">Schnellvorlagen</h4>
+    <div class="footer-presets" data-presets>
+      <button type="button" class="uk-button uk-button-default uk-button-small uk-margin-small-right" data-preset="business">
+        <span uk-icon="icon: world; ratio: 0.8"></span> Business Standard
+      </button>
+      <button type="button" class="uk-button uk-button-default uk-button-small uk-margin-small-right" data-preset="minimal">
+        <span uk-icon="icon: file-text; ratio: 0.8"></span> Minimal
+      </button>
+      <button type="button" class="uk-button uk-button-default uk-button-small" data-preset="contact-focus">
+        <span uk-icon="icon: receiver; ratio: 0.8"></span> Kontakt-Fokus
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Block Editor Modal (for adding NEW blocks) -->
+<div id="blockEditorModal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <button class="uk-modal-close-default" type="button" uk-close></button>
+    <h2 class="uk-modal-title" data-modal-title>{{ t('label_add_block') }}</h2>
+
+    <form id="blockEditorForm" data-block-form>
+      <input type="hidden" name="blockId" data-block-id>
+      <input type="hidden" name="targetSlot" data-target-slot>
+
+      <div class="uk-margin">
+        <label class="uk-form-label">{{ t('label_block_type') }}</label>
+        <div class="block-type-grid" data-type-grid>
+          <label class="block-type-option">
+            <input type="radio" name="type" value="menu" class="uk-radio" checked>
+            <span uk-icon="icon: list; ratio: 1.2"></span>
+            <span class="block-type-label">{{ t('label_block_type_menu') }}</span>
+          </label>
+          <label class="block-type-option">
+            <input type="radio" name="type" value="text" class="uk-radio">
+            <span uk-icon="icon: file-text; ratio: 1.2"></span>
+            <span class="block-type-label">{{ t('label_block_type_text') }}</span>
+          </label>
+          <label class="block-type-option">
+            <input type="radio" name="type" value="social" class="uk-radio">
+            <span uk-icon="icon: social; ratio: 1.2"></span>
+            <span class="block-type-label">{{ t('label_block_type_social') }}</span>
+          </label>
+          <label class="block-type-option">
+            <input type="radio" name="type" value="contact" class="uk-radio">
+            <span uk-icon="icon: receiver; ratio: 1.2"></span>
+            <span class="block-type-label">{{ t('label_block_type_contact') }}</span>
+          </label>
+          <label class="block-type-option">
+            <input type="radio" name="type" value="newsletter" class="uk-radio">
+            <span uk-icon="icon: mail; ratio: 1.2"></span>
+            <span class="block-type-label">{{ t('label_block_type_newsletter') }}</span>
+          </label>
+          <label class="block-type-option">
+            <input type="radio" name="type" value="html" class="uk-radio">
+            <span uk-icon="icon: code; ratio: 1.2"></span>
+            <span class="block-type-label">{{ t('label_block_type_html') }}</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="blockContentFields" data-content-fields>
+        <!-- Dynamic content fields rendered by JS -->
+      </div>
+
+      <div class="uk-margin">
+        <label class="uk-form-label">
+          <input type="checkbox" name="isActive" class="uk-checkbox" data-active-checkbox checked>
+          {{ t('label_active') }}
+        </label>
+      </div>
+
+      <div class="uk-margin">
+        <button type="submit" class="uk-button uk-button-primary">
+          {{ t('label_save') }}
+        </button>
+        <button type="button" class="uk-button uk-button-default uk-modal-close">
+          {{ t('label_cancel') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  /* Footer editor admin styles */
+  .footer-editor-columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 960px) {
+    .footer-editor-columns {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .footer-editor-col {
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+  }
+  .footer-editor-col__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    background: #fff;
+    border-radius: 6px 6px 0 0;
+  }
+  .footer-editor-col__header h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #495057;
+  }
+  .footer-editor-col__blocks {
+    padding: 0.75rem;
+    flex: 1;
+    min-height: 80px;
+  }
+  .footer-editor-col__blocks .block-card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .footer-editor-col__blocks .block-card:hover {
+    border-color: #1e87f0;
+    box-shadow: 0 2px 8px rgba(30,135,240,0.1);
+  }
+  .footer-editor-col__blocks .block-card:last-child {
+    margin-bottom: 0;
+  }
+  .block-card__summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+  }
+  .block-card__drag {
+    flex-shrink: 0;
+    cursor: grab;
+    color: #ced4da;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+  }
+  .block-card__drag:hover { color: #868e96; }
+  .block-card__icon {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .block-card__icon--menu { background: #1e87f0; }
+  .block-card__icon--text { background: #32d296; }
+  .block-card__icon--social { background: #f0506e; }
+  .block-card__icon--contact { background: #faa05a; }
+  .block-card__icon--newsletter { background: #7c5cbf; }
+  .block-card__icon--html { background: #6c757d; }
+  .block-card__info { flex: 1; min-width: 0; }
+  .block-card__title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #212529;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .block-card__meta {
+    font-size: 0.7rem;
+    color: #868e96;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .block-card__actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 2px;
+  }
+  .block-card__actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    color: #868e96;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .block-card__actions button:hover {
+    background: #f1f3f5;
+    color: #212529;
+  }
+  .block-card__actions button.btn-delete:hover {
+    background: #fff5f5;
+    color: #f0506e;
+  }
+  .block-card--inactive { opacity: 0.5; }
+  .block-card--editing {
+    border-color: #1e87f0;
+    box-shadow: 0 2px 12px rgba(30,135,240,0.15);
+  }
+  .footer-editor-col__empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #adb5bd;
+    font-size: 0.8rem;
+  }
+
+  /* Inline edit area */
+  .block-card__edit-area {
+    border-top: 1px solid #e9ecef;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 0 0 6px 6px;
+  }
+  .block-card__edit-area .uk-form-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #495057;
+  }
+  .block-card__edit-area .uk-input,
+  .block-card__edit-area .uk-textarea,
+  .block-card__edit-area .uk-select {
+    font-size: 0.8125rem;
+  }
+  .inline-edit-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  /* Layout selector */
+  .footer-layout-selector {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .layout-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: #6c757d;
+  }
+  .layout-option:hover {
+    border-color: #1e87f0;
+    color: #1e87f0;
+  }
+  .layout-option.active {
+    border-color: #1e87f0;
+    background: #f0f7ff;
+    color: #1e87f0;
+  }
+  .layout-option span {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Block type selector in modal */
+  .block-type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+  .block-type-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+  .block-type-option:hover {
+    border-color: #1e87f0;
+    background: #f0f7ff;
+  }
+  .block-type-option:has(input:checked) {
+    border-color: #1e87f0;
+    background: #f0f7ff;
+  }
+  .block-type-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .block-type-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  /* Presets */
+  .footer-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Live preview */
+  .footer-preview-wrapper {
+    margin-top: 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+  }
+  .footer-preview-wrapper::before {
+    content: 'VORSCHAU';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #868e96;
+    background: #f1f3f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    z-index: 1;
+  }
+  .footer-preview-wrapper.preview-hidden {
+    display: none;
+  }
+  .footer-preview-empty {
+    text-align: center;
+    padding: 2rem;
+    color: #adb5bd;
+    font-size: 0.85rem;
+  }
+
+  /* TipTap rich text editor */
+  .footer-richtext-container {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    min-height: 100px;
+    background: #fff;
+  }
+  .footer-richtext-toolbar {
+    display: flex;
+    gap: 2px;
+    padding: 4px 6px;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 6px 6px 0 0;
+    flex-wrap: wrap;
+  }
+  .footer-richtext-toolbar button {
+    background: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: #495057;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.1s ease;
+  }
+  .footer-richtext-toolbar button:hover {
+    background: #e9ecef;
+  }
+  .footer-richtext-toolbar button.is-active {
+    background: #1e87f0;
+    color: #fff;
+    border-color: #1e87f0;
+  }
+  .footer-richtext-container .ProseMirror {
+    outline: none;
+    min-height: 80px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+  .footer-richtext-container .ProseMirror p { margin: 0 0 0.5rem; }
+  .footer-richtext-container .ProseMirror p:last-child { margin-bottom: 0; }
+  .footer-richtext-container .ProseMirror strong { font-weight: 700; }
+  .footer-richtext-container .ProseMirror em { font-style: italic; }
+  .footer-richtext-container .ProseMirror ul,
+  .footer-richtext-container .ProseMirror ol { padding-left: 1.25rem; margin: 0 0 0.5rem; }
+
+  /* HTML source toggle */
+  .html-source-toggle {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0.5rem;
+  }
+  .html-source-toggle button {
+    padding: 4px 12px;
+    border: 1px solid #dee2e6;
+    background: #f8f9fa;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #495057;
+  }
+  .html-source-toggle button:first-child { border-radius: 4px 0 0 4px; }
+  .html-source-toggle button:last-child { border-radius: 0 4px 4px 0; border-left: 0; }
+  .html-source-toggle button.active {
+    background: #1e87f0;
+    color: #fff;
+    border-color: #1e87f0;
+  }
+
+  /* Sortable placeholder */
+  .uk-sortable-placeholder {
+    border: 2px dashed #1e87f0 !important;
+    background: #f0f7ff !important;
+    border-radius: 6px;
+    min-height: 40px;
+  }
+  .uk-sortable-empty {
+    min-height: 80px;
+  }
+</style>

@@ -95,6 +95,16 @@ final class NavigationController
             ['value' => 'footer_columns_3', 'label' => 'Footer (3 Spalten)', 'columns' => 3],
         ];
 
+        $footerLayout = $this->projectSettings->getFooterLayout($namespace);
+        $footerMenuDefinitions = array_map(
+            static fn (CmsMenu $menu): array => [
+                'id' => $menu->getId(),
+                'label' => $menu->getLabel(),
+                'locale' => $menu->getLocale(),
+            ],
+            $menuDefinitions
+        );
+
         return $view->render($response, 'admin/navigation/index.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
             'currentPath' => $request->getUri()->getPath(),
@@ -112,6 +122,9 @@ final class NavigationController
             'override_locale_options' => $this->resolveLocaleOptions([], $namespace, $assignments),
             'navigation_settings' => $this->projectSettings->getCookieConsentSettings($namespace),
             'navigation_variants' => $navigationVariants,
+            'footer_namespaces' => $namespaceList,
+            'footer_layout' => $footerLayout,
+            'footer_menu_definitions' => $footerMenuDefinitions,
         ]);
     }
 
