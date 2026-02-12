@@ -926,20 +926,40 @@ body.admin-page {
   order: 1;
 }
 
-.admin-page .topbar .uk-navbar-right {
+.admin-page .topbar .uk-navbar-center {
   order: 2;
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  position: static;
+  transform: none;
+}
+
+.admin-page .topbar .uk-navbar-center .uk-breadcrumb {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-page .topbar .namespace-label {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .admin-page .topbar .namespace-label {
+    display: list-item;
+  }
+}
+
+.admin-page .topbar .uk-navbar-right {
+  order: 3;
   z-index: 1;
   padding-top: 0;
   padding-bottom: 0;
   align-self: stretch;
-}
-
-.admin-page .topbar .uk-navbar-center {
-  order: 3;
-  width: auto;
-  flex: 1 1 auto;
-  position: static;
-  transform: none;
+  flex-shrink: 0;
 }
 
 .admin-page {
