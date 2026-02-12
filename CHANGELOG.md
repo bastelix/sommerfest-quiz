@@ -343,6 +343,8 @@
 - Enable AI menu generation by connecting frontend to existing backend API
 - Route all contact forms to /api/contact-form endpoint
 - Add missing mobile menu toggle on header/footer settings page
+- Stop auto-creating namespaces when domains are created
+- Hard-delete namespaces and clean up derived data on removal
 
 ### Refactor
 
