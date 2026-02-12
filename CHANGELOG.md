@@ -428,6 +428,7 @@
 - Remove extra blank line
 - Add draggable sticker handle
 - Refresh calserver card styling
+- Compact admin layout for mobile screens
 
 ### Test
 
