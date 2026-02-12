@@ -183,7 +183,8 @@ final class NamespaceService
             throw new NamespaceInUseException($usage);
         }
 
-        $this->repository->deactivate($normalized);
+        $this->repository->cleanupDerivedData($normalized);
+        $this->repository->delete($normalized);
     }
 
     private function normalizeLabel(?string $label): ?string

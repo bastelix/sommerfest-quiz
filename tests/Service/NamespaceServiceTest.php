@@ -74,7 +74,7 @@ class NamespaceServiceTest extends TestCase
         $service->delete($namespace);
     }
 
-    public function testDeleteSucceedsAfterRemovingConfig(): void
+    public function testDeleteRemovesNamespaceAndDerivedConfig(): void
     {
         $pdo = $this->createDatabase();
         $repository = new NamespaceRepository($pdo);
@@ -83,14 +83,15 @@ class NamespaceServiceTest extends TestCase
 
         $configService = new ConfigService($pdo);
         $configService->ensureConfigForEvent($namespace);
-        $pdo->prepare('DELETE FROM config WHERE event_uid = ?')->execute([$namespace]);
 
         $service = new NamespaceService($repository);
         $service->delete($namespace);
 
-        $entry = $repository->find($namespace);
-        $this->assertNotNull($entry);
-        $this->assertFalse($entry['is_active']);
+        $this->assertNull($repository->find($namespace));
+
+        $stmt = $pdo->prepare('SELECT 1 FROM config WHERE event_uid = ?');
+        $stmt->execute([$namespace]);
+        $this->assertFalse($stmt->fetchColumn());
     }
 
     public function testDeleteIgnoresUserNamespaceAssignments(): void
@@ -108,9 +109,7 @@ class NamespaceServiceTest extends TestCase
         $service = new NamespaceService($repository);
         $service->delete($namespace);
 
-        $entry = $repository->find($namespace);
-        $this->assertNotNull($entry);
-        $this->assertFalse($entry['is_active']);
+        $this->assertNull($repository->find($namespace));
     }
 
     public function testAllActiveExcludesInactiveNamespaces(): void
