@@ -13,10 +13,6 @@ class EntrypointLegacyEnvTest extends TestCase
         $projectRoot = dirname(__DIR__);
         $entrypoint = $projectRoot . '/docker-entrypoint.sh';
 
-        if (!is_dir('/usr/local/etc/php/conf.d')) {
-            mkdir('/usr/local/etc/php/conf.d', 0o755, true);
-        }
-
         $env = [
             'PATH' => getenv('PATH') ?: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
             'CONTAINER_METRICS_LOGGING' => '0',

@@ -16,6 +16,7 @@ class OnboardTenantEndpointTest extends TestCase
     {
         $envContent = <<<ENV
 TENANT_SINGLE_CONTAINER=1
+ENABLE_WILDCARD_SSL=1
 MAIN_DOMAIN=quiz.example.test
 VIRTUAL_HOST=app.example.test, marketing.example.test
 LETSENCRYPT_HOST=quiz.example.test,marketing.example.test
@@ -63,6 +64,7 @@ ENV;
         $regexHost = '~^([a-z0-9-]+\.)?quiz.example.test$';
 
         $envContent = <<<ENV
+VIRTUAL_HOST=app.example.test
 LETSENCRYPT_HOST=app.example.test,{$regexHost},quiz.example.test
 
 ENV;
@@ -159,26 +161,10 @@ BASH;
 
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            'CREATE TABLE tenants ('
-            . 'uid TEXT PRIMARY KEY,'
-            . 'subdomain TEXT UNIQUE NOT NULL,'
-            . 'plan TEXT,'
-            . 'billing_info TEXT,'
-            . 'stripe_customer_id TEXT,'
-            . 'imprint_name TEXT,'
-            . 'imprint_street TEXT,'
-            . 'imprint_zip TEXT,'
-            . 'imprint_city TEXT,'
-            . 'imprint_email TEXT,'
-            . 'custom_limits TEXT,'
-            . 'plan_started_at TEXT,'
-            . 'plan_expires_at TEXT,'
-            . 'onboarding_state TEXT DEFAULT "pending",'
-            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP'
-            . ')'
-        );
-        $pdo->exec('CREATE TABLE migrations(version TEXT PRIMARY KEY)');
+
+        $migrationsDir = dirname(__DIR__, 2) . '/migrations';
+        Migrator::setHook(null);
+        Migrator::migrate($pdo, $migrationsDir);
 
         Migrator::setHook(static function (): bool {
             return false;
@@ -193,9 +179,13 @@ BASH;
         $_ENV['DISPLAY_ERROR_DETAILS'] = '1';
         putenv('DASHBOARD_TOKEN_SECRET=test-secret');
         $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
+        putenv('PASSWORD_RESET_SECRET=test-secret');
+        $_ENV['PASSWORD_RESET_SECRET'] = 'test-secret';
 
         try {
             $pdo->exec("INSERT INTO tenants(uid, subdomain) VALUES('t-single-missing', 'singleslug')");
+            $pdo->exec("INSERT INTO domains(host, normalized_host, zone, namespace, is_active) VALUES('quiz.example.test', 'quiz.example.test', 'quiz.example.test', 'public', 1)");
+            $pdo->exec("INSERT OR IGNORE INTO namespaces(namespace, is_active) VALUES('public', 1)");
 
             $app = $this->getAppInstance();
 
@@ -206,7 +196,7 @@ BASH;
                 session_start();
             }
 
-            $_SESSION['user'] = ['id' => 1, 'role' => Roles::SERVICE_ACCOUNT];
+            $_SESSION['user'] = ['id' => 1, 'role' => Roles::ADMIN];
             $_SESSION['csrf_token'] = 'csrf-token';
 
             $request = $this->createRequest('POST', '/api/tenants/singleslug/onboard', [
@@ -274,6 +264,8 @@ BASH;
             unset($_ENV['DASHBOARD_TOKEN_SECRET']);
             putenv('PROVISION_WILDCARD_SCRIPT');
             unset($_ENV['PROVISION_WILDCARD_SCRIPT']);
+            putenv('PASSWORD_RESET_SECRET');
+            unset($_ENV['PASSWORD_RESET_SECRET']);
             Database::setFactory(null);
             Migrator::setHook(null);
         }
@@ -301,26 +293,10 @@ BASH;
 
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            'CREATE TABLE tenants ('
-            . 'uid TEXT PRIMARY KEY,'
-            . 'subdomain TEXT UNIQUE NOT NULL,'
-            . 'plan TEXT,'
-            . 'billing_info TEXT,'
-            . 'stripe_customer_id TEXT,'
-            . 'imprint_name TEXT,'
-            . 'imprint_street TEXT,'
-            . 'imprint_zip TEXT,'
-            . 'imprint_city TEXT,'
-            . 'imprint_email TEXT,'
-            . 'custom_limits TEXT,'
-            . 'plan_started_at TEXT,'
-            . 'plan_expires_at TEXT,'
-            . 'onboarding_state TEXT DEFAULT "pending",'
-            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP'
-            . ')'
-        );
-        $pdo->exec('CREATE TABLE migrations(version TEXT PRIMARY KEY)');
+
+        $migrationsDir = dirname(__DIR__, 2) . '/migrations';
+        Migrator::setHook(null);
+        Migrator::migrate($pdo, $migrationsDir);
 
         Migrator::setHook(static function (): bool {
             return false;
@@ -335,9 +311,13 @@ BASH;
         $_ENV['DISPLAY_ERROR_DETAILS'] = '1';
         putenv('DASHBOARD_TOKEN_SECRET=test-secret');
         $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
+        putenv('PASSWORD_RESET_SECRET=test-secret');
+        $_ENV['PASSWORD_RESET_SECRET'] = 'test-secret';
 
         try {
             $pdo->exec("INSERT INTO tenants(uid, subdomain) VALUES('t-single', 'singleslug')");
+            $pdo->exec("INSERT INTO domains(host, normalized_host, zone, namespace, is_active) VALUES('quiz.example.test', 'quiz.example.test', 'quiz.example.test', 'public', 1)");
+            $pdo->exec("INSERT OR IGNORE INTO namespaces(namespace, is_active) VALUES('public', 1)");
 
             $app = $this->getAppInstance();
 
@@ -348,7 +328,7 @@ BASH;
                 session_start();
             }
 
-            $_SESSION['user'] = ['id' => 1, 'role' => Roles::SERVICE_ACCOUNT];
+            $_SESSION['user'] = ['id' => 1, 'role' => Roles::ADMIN];
             $_SESSION['csrf_token'] = 'csrf-token';
 
             $request = $this->createRequest('POST', '/api/tenants/singleslug/onboard', [
@@ -398,6 +378,8 @@ BASH;
             unset($_ENV['DISPLAY_ERROR_DETAILS']);
             putenv('DASHBOARD_TOKEN_SECRET');
             unset($_ENV['DASHBOARD_TOKEN_SECRET']);
+            putenv('PASSWORD_RESET_SECRET');
+            unset($_ENV['PASSWORD_RESET_SECRET']);
             Database::setFactory(null);
             Migrator::setHook(null);
         }
@@ -412,7 +394,7 @@ BASH;
         $envFile = $projectRoot . '/.env';
         $originalEnv = is_file($envFile) ? file_get_contents($envFile) : null;
 
-        $varsToReset = ['TENANT_SINGLE_CONTAINER', 'MAIN_DOMAIN', 'DOMAIN', 'VIRTUAL_HOST', 'LETSENCRYPT_HOST'];
+        $varsToReset = ['TENANT_SINGLE_CONTAINER', 'MAIN_DOMAIN', 'DOMAIN', 'VIRTUAL_HOST', 'LETSENCRYPT_HOST', 'ENABLE_WILDCARD_SSL'];
         $previousEnv = [];
 
         foreach ($varsToReset as $var) {
