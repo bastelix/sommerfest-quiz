@@ -82,7 +82,7 @@ function initializeLayoutSelector() {
       try {
         await fetch('/admin/footer-blocks/layout', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders(),
           body: JSON.stringify({ namespace: currentNamespace, layout: currentLayout }),
         });
         UIkit.notification('Layout gespeichert', { status: 'success', pos: 'top-right', timeout: 1500 });
@@ -171,7 +171,7 @@ async function persistSlotOrder(slot) {
   try {
     await fetch('/admin/footer-blocks/reorder', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: csrfHeaders(),
       body: JSON.stringify({
         namespace: currentNamespace,
         slot,
@@ -208,7 +208,7 @@ async function handleCrossColumnDrop(e, targetSlot) {
     try {
       await fetch(`/admin/footer-blocks/${blockId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders(),
         body: JSON.stringify({
           type: block.type,
           content: block.content,
@@ -468,13 +468,14 @@ async function saveInlineBlock(block, container) {
   try {
     const response = await fetch(`/admin/footer-blocks/${block.id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: csrfHeaders(),
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Speichern fehlgeschlagen');
+      const text = await response.text();
+      const error = text ? JSON.parse(text) : {};
+      throw new Error(error.error || `Speichern fehlgeschlagen (${response.status})`);
     }
 
     closeInlineEditor(block.id);
@@ -580,13 +581,14 @@ async function saveBlockFromModal() {
   try {
     const response = await fetch('/admin/footer-blocks', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: csrfHeaders(),
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Speichern fehlgeschlagen');
+      const text = await response.text();
+      const error = text ? JSON.parse(text) : {};
+      throw new Error(error.error || `Speichern fehlgeschlagen (${response.status})`);
     }
 
     UIkit.modal('#blockEditorModal').hide();
@@ -948,7 +950,7 @@ async function deleteBlock(id) {
   if (!confirm('Block wirklich loeschen?')) return;
 
   try {
-    const response = await fetch(`/admin/footer-blocks/${id}`, { method: 'DELETE' });
+    const response = await fetch(`/admin/footer-blocks/${id}`, { method: 'DELETE', headers: csrfHeaders() });
     if (!response.ok) throw new Error('Loeschen fehlgeschlagen');
 
     const targetSlot = SLOTS.find((s) => blocksBySlot[s].some((b) => b.id === id)) || 'footer_1';
@@ -970,7 +972,7 @@ async function applyPreset(preset) {
     for (const slot of SLOTS) {
       for (const block of blocksBySlot[slot]) {
         try {
-          await fetch(`/admin/footer-blocks/${block.id}`, { method: 'DELETE' });
+          await fetch(`/admin/footer-blocks/${block.id}`, { method: 'DELETE', headers: csrfHeaders() });
         } catch (e) {
           // continue
         }
@@ -983,7 +985,7 @@ async function applyPreset(preset) {
     try {
       await fetch('/admin/footer-blocks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders(),
         body: JSON.stringify({
           namespace: currentNamespace,
           slot: item.slot,
@@ -1010,7 +1012,7 @@ async function applyPreset(preset) {
   try {
     await fetch('/admin/footer-blocks/layout', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: csrfHeaders(),
       body: JSON.stringify({ namespace: currentNamespace, layout: currentLayout }),
     });
   } catch (e) {
@@ -1047,6 +1049,13 @@ function getPresetBlocks(preset) {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────
+function csrfHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'X-CSRF-Token': window.csrfToken || window.templateData?.csrfToken || '',
+  };
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
