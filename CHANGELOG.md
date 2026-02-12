@@ -345,6 +345,7 @@
 - Add missing mobile menu toggle on header/footer settings page
 - Stop auto-creating namespaces when domains are created
 - Hard-delete namespaces and clean up derived data on removal
+- Add missing mobile menu toggle to all admin templates
 
 ### Refactor
 
