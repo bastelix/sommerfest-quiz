@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const basePath = (window.basePath || '').replace(/\/+$/, '');
-  const defaultEndpoint = `${basePath}/landing/contact`;
+  const defaultEndpoint = `${basePath}/api/contact-form`;
 
   const resolveEndpoint = (value) => {
     if (!value) {
