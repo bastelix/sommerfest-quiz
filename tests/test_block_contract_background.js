@@ -38,8 +38,8 @@ function loadModule() {
   const clampedOverlay = normalizeSectionBackground({ mode: 'image', image: 'hero', overlay: 2 }, undefined, 'full');
   assert.strictEqual(clampedOverlay.overlay, 1);
 
-  const layoutDowngrade = normalizeSectionBackground({ mode: 'image', image: 'hero', overlay: 0.5, attachment: 'fixed' }, undefined, 'card');
-  assert.deepStrictEqual({ ...layoutDowngrade }, { mode: 'none' });
+  const cardImage = normalizeSectionBackground({ mode: 'image', image: 'hero', overlay: 0.5, attachment: 'fixed' }, undefined, 'card');
+  assert.deepStrictEqual({ ...cardImage }, { mode: 'image', imageId: 'hero', attachment: 'fixed', overlay: 0.5 });
 
   const colorLayout = normalizeSectionBackground({ mode: 'color', colorToken: 'primary', overlay: 0.6 }, undefined, 'normal');
   assert.deepStrictEqual({ ...colorLayout }, { mode: 'color', colorToken: 'primary' });
@@ -58,7 +58,7 @@ function loadModule() {
   );
   assert.strictEqual(
     validateSectionBackground({ mode: 'image', imageId: 'hero', overlay: 0.3 }, 'card'),
-    false
+    true
   );
 
   console.log('ok');

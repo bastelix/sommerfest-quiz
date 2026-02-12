@@ -1031,7 +1031,7 @@ export function normalizeSectionBackground(background, legacyBackgroundImage, la
     mode = 'none';
   }
 
-  const layoutSupportsImages = layout === 'full';
+  const layoutSupportsImages = SECTION_LAYOUTS.includes(layout);
 
   const normalized = { mode };
 
@@ -1186,7 +1186,7 @@ export function validateSectionBackground(background, layout) {
     return false;
   }
 
-  const overlayAllowed = layout === 'full' && background.mode === 'image';
+  const overlayAllowed = background.mode === 'image';
   if (background.overlay !== undefined) {
     const numericOverlay = Number.parseFloat(background.overlay);
     if (!overlayAllowed || !Number.isFinite(numericOverlay) || numericOverlay < 0 || numericOverlay > 1) {
@@ -1195,7 +1195,7 @@ export function validateSectionBackground(background, layout) {
   }
 
   if (background.attachment !== undefined) {
-    if (background.mode !== 'image' || layout !== 'full') {
+    if (background.mode !== 'image') {
       return false;
     }
     if (!SECTION_BACKGROUND_ATTACHMENTS.includes(background.attachment)) {
@@ -1219,10 +1219,6 @@ export function validateSectionBackground(background, layout) {
   }
 
   if (background.mode === 'image') {
-    if (layout !== 'full' && layout !== 'full-card') {
-      return false;
-    }
-
     return hasContent(background.imageId);
   }
 
