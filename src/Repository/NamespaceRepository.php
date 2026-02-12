@@ -240,14 +240,23 @@ final class NamespaceRepository
         if ($this->hasTable('events') && $this->hasNamespaceReference('events', 'namespace', $namespace)) {
             $usage[] = 'events';
         }
-        if ($this->hasTable('config') && $this->hasNamespaceReference('config', 'event_uid', $namespace)) {
-            $usage[] = 'config';
-        }
-        if ($this->hasTable('active_event') && $this->hasNamespaceReference('active_event', 'event_uid', $namespace)) {
-            $usage[] = 'active_event';
-        }
 
         return $usage;
+    }
+
+    /**
+     * Remove derived data (config, active_event) for a namespace.
+     */
+    public function cleanupDerivedData(string $namespace): void
+    {
+        foreach (['config' => 'event_uid', 'active_event' => 'event_uid'] as $table => $column) {
+            if (!$this->hasTable($table)) {
+                continue;
+            }
+            $stmt = $this->pdo->prepare(sprintf('DELETE FROM %s WHERE %s = ?', $table, $column));
+            $stmt->execute([$namespace]);
+            $stmt->closeCursor();
+        }
     }
 
     public function deactivate(string $namespace): void
