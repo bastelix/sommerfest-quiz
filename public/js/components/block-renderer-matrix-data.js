@@ -193,9 +193,9 @@ function resolveCsrfToken() {
 const SECTION_LAYOUTS = ['normal', 'full', 'card', 'full-card'];
 // Keep background modes in sync with the layout options exposed in the editor UI.
 const BACKGROUND_MODES_BY_LAYOUT = {
-  normal: ['none', 'color'],
+  normal: ['none', 'color', 'image'],
   full: ['none', 'color', 'image'],
-  card: ['none', 'color'],
+  card: ['none', 'color', 'image'],
   'full-card': ['none', 'color', 'image']
 };
 
@@ -281,7 +281,7 @@ function resolveSectionBackground(block, layout) {
   }
 
   if (mode === 'image') {
-    if ((layout !== 'full' && layout !== 'full-card') || !imageId) {
+    if (!imageId) {
       return { mode: 'none' };
     }
 
@@ -533,8 +533,7 @@ function normalizeClassList(classes) {
 
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
   const layout = resolveSectionLayout(block);
-  const backgroundLayout = (layout === 'card' || layout === 'full-card') ? 'full' : layout;
-  const background = resolveSectionBackground(block, backgroundLayout);
+  const background = resolveSectionBackground(block, layout);
   const hasFullBleed = layout === 'full' || layout === 'full-card' || (layout === 'card' && background.mode !== 'none');
   const layoutClassFlag = hasFullBleed ? 'section--full' : '';
   const backgroundStyle = resolveSectionBackgroundStyles(background);

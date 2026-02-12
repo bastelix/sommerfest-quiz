@@ -296,9 +296,9 @@ const BACKGROUND_INTENT_BY_COLOR = {
 };
 
 const BACKGROUND_MODES_BY_LAYOUT = {
-  normal: ['none', 'color'],
+  normal: ['none', 'color', 'image'],
   full: ['none', 'color', 'image'],
-  card: ['none', 'color'],
+  card: ['none', 'color', 'image'],
   'full-card': ['none', 'color', 'image']
 };
 
@@ -324,31 +324,31 @@ const BACKGROUND_PRESET_OPTIONS = [
     value: 'standard',
     label: 'Keiner',
     description: 'Kein Hintergrund.',
-    preset: { mode: 'none', bleed: false }
+    preset: { mode: 'none' }
   },
   {
     value: 'highlight',
     label: 'Dezent',
     description: 'Leicht getönter Hintergrund.',
-    preset: { mode: 'color', colorToken: 'muted', bleed: false }
+    preset: { mode: 'color', colorToken: 'muted' }
   },
   {
     value: 'accent',
     label: 'Akzent',
     description: 'Markanter Farbton.',
-    preset: { mode: 'color', colorToken: 'accent', bleed: true }
+    preset: { mode: 'color', colorToken: 'accent' }
   },
   {
     value: 'contrast',
     label: 'Kontrast',
     description: 'Kräftiger Kontrast.',
-    preset: { mode: 'color', colorToken: 'primary', bleed: true }
+    preset: { mode: 'color', colorToken: 'primary' }
   },
   {
     value: 'image',
     label: 'Bild',
     description: 'Hintergrundbild.',
-    preset: { mode: 'image', bleed: true }
+    preset: { mode: 'image' }
   }
 ];
 
@@ -436,7 +436,7 @@ const normalizeBackgroundForLayout = (background, layout, legacyBackgroundImage,
     return { mode, colorToken };
   }
 
-  if (mode === 'image' && layout === 'full' && imageId) {
+  if (mode === 'image' && imageId) {
     const normalized = { mode, imageId, attachment };
     if (overlay !== undefined) {
       normalized.overlay = overlay;
@@ -2903,14 +2903,6 @@ export class BlockContentEditor {
     bleedLabel.append(bleedCheckbox, bleedText);
     bleedGroup.append(bleedLabel);
 
-    if (background.mode === 'image') {
-      const bleedHint = createHelperText('Bild-Modus erfordert volle Seitenbreite.');
-      if (bleedHint) {
-        bleedHint.classList.add('section-background-config__hint');
-        bleedGroup.append(bleedHint);
-      }
-    }
-
     backgroundSection.append(bleedGroup);
 
     // Advanced settings
@@ -2918,16 +2910,14 @@ export class BlockContentEditor {
     let imageControls;
     let imageInput;
     const effectiveLayout = bgConfig.bleed ? 'full' : layout;
-    const allowedBackgroundModes = bgConfig.bleed
-      ? ['none', 'color', 'image']
-      : ['none', 'color'];
+    const allowedBackgroundModes = ['none', 'color', 'image'];
 
     const toggleBackgroundFields = mode => {
       if (colorField) {
         colorField.hidden = mode !== 'color';
       }
       if (imageControls) {
-        imageControls.hidden = !(bgConfig.bleed && mode === 'image');
+        imageControls.hidden = mode !== 'image';
       }
     };
 
@@ -2958,9 +2948,6 @@ export class BlockContentEditor {
     });
     typeSelect.addEventListener('change', event => {
       const nextMode = event.target.value;
-      if (nextMode === 'image' && !bgConfig.bleed) {
-        this.updateBackgroundBleed(block.id, true);
-      }
       this.updateSectionBackground(block.id, { mode: nextMode });
       toggleBackgroundFields(nextMode);
       if (nextMode === 'image' && !background.imageId && imageInput) {
@@ -4970,14 +4957,7 @@ export class BlockContentEditor {
       return;
     }
 
-    let layout = resolveLayout(targetBlock);
-    if (preset.mode === 'image' && layout !== 'full') {
-      this.updateSectionLayout(blockId, 'full');
-      layout = 'full';
-      if (typeof notify === 'function') {
-        notify('Layout auf „Vollbreite" gestellt, damit die Bildfläche funktioniert.', 'info');
-      }
-    }
+    const layout = resolveLayout(targetBlock);
 
     if (preset.mode === 'none') {
       this.updateSectionBackground(blockId, { mode: 'none' });
@@ -5045,11 +5025,6 @@ export class BlockContentEditor {
       const { container, background: bgConfig } = resolveContainerConfig(block);
       const updatedBg = { ...bgConfig, bleed: !!bleed };
 
-      if (bleed && updatedBg.mode === 'none') {
-        updatedBg.mode = 'color';
-        updatedBg.colorToken = updatedBg.colorToken || 'surface';
-      }
-
       const stored = toStoredSectionStyle(container, updatedBg);
       return applySectionStyle(block, stored);
     });
@@ -5073,7 +5048,6 @@ export class BlockContentEditor {
       const updatedBg = {
         ...currentBg,
         mode: 'image',
-        bleed: true,
         imageId: currentBackground.imageId || targetBlock?.backgroundImage || '',
         attachment: currentBackground.attachment || 'scroll'
       };
@@ -5090,8 +5064,7 @@ export class BlockContentEditor {
 
     const updatedBg = {
       ...currentBg,
-      mode: preset.mode,
-      bleed: preset.bleed ?? currentBg.bleed
+      mode: preset.mode
     };
     if (preset.colorToken) {
       updatedBg.colorToken = preset.colorToken;

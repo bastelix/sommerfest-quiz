@@ -32,13 +32,13 @@ function loadModule() {
 (() => {
   const { normalizeSectionStyle, validateSectionStyle } = loadModule();
 
-  const fullwidthToCard = normalizeSectionStyle({
+  const cardWithImage = normalizeSectionStyle({
     layout: 'card',
     background: { mode: 'image', imageId: 'hero', overlay: 0.5, attachment: 'fixed' }
   });
   assert.deepStrictEqual(
-    { ...fullwidthToCard, background: { ...fullwidthToCard.background } },
-    { layout: 'card', background: { mode: 'none' } }
+    { ...cardWithImage, background: { ...cardWithImage.background } },
+    { layout: 'card', background: { mode: 'image', imageId: 'hero', attachment: 'fixed', overlay: 0.5 } }
   );
 
   const imageToNone = normalizeSectionStyle({
@@ -53,7 +53,7 @@ function loadModule() {
   const legacyCard = normalizeSectionStyle(undefined, 'legacy-image', 'card');
   assert.deepStrictEqual(
     { ...legacyCard, background: { ...legacyCard.background } },
-    { layout: 'card', background: { mode: 'none' } }
+    { layout: 'card', background: { mode: 'image', imageId: 'legacy-image', attachment: 'scroll', overlay: 0 } }
   );
 
   assert.strictEqual(
