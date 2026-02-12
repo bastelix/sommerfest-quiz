@@ -130,7 +130,7 @@
 <div id="blockEditorModal" uk-modal>
   <div class="uk-modal-dialog uk-modal-body">
     <button class="uk-modal-close-default" type="button" uk-close></button>
-    <h2 class="uk-modal-title" data-modal-title>{{ t('label_add_block') }}</h2>
+    <h2 class="uk-modal-title" data-modal-title data-label-add-block="{{ t('label_add_block') }}">{{ t('label_add_block') }}</h2>
 
     <form id="blockEditorForm" data-block-form>
       <input type="hidden" name="blockId" data-block-id>
@@ -395,8 +395,13 @@
   /* Block type selector in modal */
   .block-type-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
+  }
+  @media (min-width: 640px) {
+    .block-type-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
   .block-type-option {
     display: flex;
@@ -549,5 +554,43 @@
   }
   .uk-sortable-empty {
     min-height: 80px;
+  }
+
+  /* ── Modal responsive fixes ─────────────────────────────────── */
+  @media (max-width: 639px) {
+    #blockEditorModal .uk-modal-dialog {
+      margin: 0;
+      width: 100%;
+      min-height: 100vh;
+      border-radius: 0;
+    }
+    #blockEditorModal .uk-modal-body {
+      padding: 15px;
+    }
+    #blockEditorModal .uk-modal-title {
+      font-size: 1.2rem;
+    }
+    #blockEditorModal .uk-margin button {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    #blockEditorModal .uk-margin button:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Layout selector: stack on small screens */
+    .footer-layout-selector {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Presets: stack on small screens */
+    .footer-presets {
+      flex-direction: column;
+    }
+    .footer-presets .uk-button {
+      margin-right: 0 !important;
+      width: 100%;
+    }
   }
 </style>
