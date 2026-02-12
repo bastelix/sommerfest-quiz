@@ -400,6 +400,7 @@
 - Redesign block editor section config UI into 3 clear layers
 - Consolidate namespace design editor from 6 panels to 2 panels
 - Simplify menu and footer template structure
+- Consolidate admin navigation into single tabbed page
 
 ### Style
 
