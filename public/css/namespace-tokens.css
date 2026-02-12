@@ -3,19 +3,19 @@
  */
 
 :root {
-  --brand-primary: #1e87f0;
+  --brand-primary: #111111;
   --brand-accent: #f97316;
   --brand-secondary: #f97316;
-  --contrast-text-on-primary: #000000;
+  --contrast-text-on-primary: #ffffff;
   --contrast-text-on-secondary: #000000;
   --contrast-text-on-accent: #000000;
   --contrast-text-on-surface: #000000;
   --contrast-text-on-surface-muted: #000000;
   --contrast-text-on-page: #000000;
-  --marketing-primary: #1e87f0;
+  --marketing-primary: #111111;
   --marketing-accent: #f97316;
   --marketing-secondary: #f97316;
-  --marketing-link: #1e87f0;
+  --marketing-link: #111111;
   --marketing-surface: var(--surface-card, #ffffff);
   --marketing-white: #ffffff;
   --marketing-black: #000000;
@@ -24,23 +24,23 @@
   --layout-profile: standard;
   --typography-preset: modern;
   --components-card-style: rounded;
-  --components-button-style: filled;
+  --components-button-style: ghost;
 }
 
 [data-namespace="default"] {
-  --brand-primary: #1e87f0;
+  --brand-primary: #111111;
   --brand-accent: #f97316;
   --brand-secondary: #f97316;
-  --contrast-text-on-primary: #000000;
+  --contrast-text-on-primary: #ffffff;
   --contrast-text-on-secondary: #000000;
   --contrast-text-on-accent: #000000;
   --contrast-text-on-surface: #000000;
   --contrast-text-on-surface-muted: #000000;
   --contrast-text-on-page: #000000;
-  --marketing-primary: #1e87f0;
+  --marketing-primary: #111111;
   --marketing-accent: #f97316;
   --marketing-secondary: #f97316;
-  --marketing-link: #1e87f0;
+  --marketing-link: #111111;
   --marketing-surface: var(--surface-card, #ffffff);
   --marketing-white: #ffffff;
   --marketing-black: #000000;
@@ -49,7 +49,7 @@
   --layout-profile: standard;
   --typography-preset: modern;
   --components-card-style: rounded;
-  --components-button-style: filled;
+  --components-button-style: ghost;
 }
 
 [data-namespace="aurora"] {
@@ -102,20 +102,20 @@
   --components-button-style: filled;
 }
 
-[data-namespace="effect-ns"] {
-  --brand-primary: #222222;
-  --brand-accent: #f97316;
+[data-namespace="calserver"] {
+  --brand-primary: #1e87f0;
+  --brand-accent: #222222;
   --brand-secondary: #f97316;
-  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-primary: #000000;
   --contrast-text-on-secondary: #000000;
-  --contrast-text-on-accent: #000000;
+  --contrast-text-on-accent: #ffffff;
   --contrast-text-on-surface: #000000;
   --contrast-text-on-surface-muted: #000000;
   --contrast-text-on-page: #000000;
-  --marketing-primary: #222222;
-  --marketing-accent: #f97316;
+  --marketing-primary: #1e87f0;
+  --marketing-accent: #222222;
   --marketing-secondary: #f97316;
-  --marketing-link: #222222;
+  --marketing-link: #1e87f0;
   --marketing-surface: var(--surface-card, #ffffff);
   --marketing-white: #ffffff;
   --marketing-black: #000000;
