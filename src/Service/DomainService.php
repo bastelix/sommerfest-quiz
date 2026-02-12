@@ -390,7 +390,9 @@ class DomainService
         }
 
         if (!$service->exists($normalized)) {
-            $service->create($normalized);
+            throw new InvalidArgumentException(
+                sprintf('Namespace "%s" does not exist. Create it first via namespace management.', $normalized)
+            );
         }
 
         return $normalized;
