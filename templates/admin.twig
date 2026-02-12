@@ -48,7 +48,7 @@
       <button
         id="adminOffcanvasToggle"
         type="button"
-        class="uk-navbar-toggle uk-visible@s uk-hidden@m uk-margin-small-right git-btn"
+        class="uk-navbar-toggle uk-hidden@m uk-margin-small-right git-btn"
         uk-navbar-toggle-icon
         uk-toggle="target: #qr-offcanvas"
         aria-controls="qr-offcanvas"
@@ -64,15 +64,7 @@
     {% block center %}
       {% include 'admin/components/namespace_breadcrumb.twig' %}
     {% endblock %}
-    {% block offcanvas %}
-      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-        <div class="uk-offcanvas-bar">
-          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-          <h3 class="uk-margin-small">QuizRace Admin</h3>
-          {% include 'admin/_nav.twig' %}
-        </div>
-      </div>
-    {% endblock %}
+    {% block offcanvas %}{% endblock %}
     {% block right %}{% endblock %}
   {% endembed %}
   <div class="uk-grid-collapse" uk-grid>

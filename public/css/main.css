@@ -482,15 +482,72 @@ body:not(.marketing-page) .uk-icon-button {
   padding: 0;
   margin: 0;
 }
-.qr-nav-accordion-label { font-size: 0.95rem; }
-.qr-nav-accordion-chevron { transition: transform 0.2s ease-in-out; }
+.qr-nav-accordion-label { font-size: 0.8125rem; }
+.qr-nav-accordion-chevron { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
 .qr-nav-accordion .uk-accordion-content { padding: 2px 0 10px 0; }
 .qr-nav-accordion-item.uk-open .qr-nav-accordion-chevron { transform: rotate(180deg); }
 .uk-nav-default > li.uk-active > a {
-  background: var(--uk-background-muted, #f8f8f8);
+  background: color-mix(in srgb, var(--brand-primary, #1e87f0) 8%, transparent);
   border-radius: 6px;
   font-weight: 600;
   color: var(--text-body, #222);
+  border-left: 3px solid var(--brand-primary, #1e87f0);
+  padding-left: 9px;
+}
+/* Separator between accordion groups */
+.qr-nav-accordion-item + .qr-nav-accordion-item {
+  border-top: 1px solid var(--border-muted, #dfe3eb);
+  padding-top: 4px;
+  margin-top: 4px;
+}
+/* Touch feedback for nav links */
+.qr-nav-link,
+.qr-nav-sub-link,
+.qr-nav-accordion-title {
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.qr-nav-link:active,
+.qr-nav-sub-link:active,
+.qr-nav-accordion-title:active {
+  background-color: color-mix(in srgb, var(--brand-primary, #1e87f0) 12%, transparent);
+}
+/* Hide the topbar generic offcanvas toggle on admin pages */
+.admin-page #offcanvas-toggle {
+  display: none !important;
+}
+
+/* ── Mobile-optimized offcanvas nav ── */
+@media (max-width: 959px) {
+  #qr-offcanvas .qr-nav-link {
+    padding: 12px 10px;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+  #qr-offcanvas .qr-nav-sub-link {
+    padding: 10px 10px;
+    min-height: 44px;
+    box-sizing: border-box;
+    font-size: 0.9375rem;
+  }
+  #qr-offcanvas .qr-nav-accordion-title {
+    padding: 12px 10px;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+  #qr-offcanvas .uk-select {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 1rem;
+  }
+  #qr-offcanvas .qr-sidebar-nav {
+    gap: 14px;
+  }
+  #qr-offcanvas .qr-nav-accordion {
+    margin-top: 8px;
+  }
+  #qr-offcanvas .qr-nav-accordion .uk-accordion-content {
+    padding: 4px 0 14px 0;
+  }
 }
 
 @keyframes fadeIn {
