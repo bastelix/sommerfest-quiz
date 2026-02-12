@@ -90,11 +90,6 @@ final class NavigationController
         $assignments = $this->menuDefinitions->listAssignments($namespace, null, null, null, null, true);
         $pageOverrides = $this->buildOverrideSummary($pagesForNamespace, $assignments);
 
-        $navigationVariants = [
-            ['value' => 'footer_columns_2', 'label' => 'Footer (2 Spalten)', 'columns' => 2],
-            ['value' => 'footer_columns_3', 'label' => 'Footer (3 Spalten)', 'columns' => 3],
-        ];
-
         $footerLayout = $this->projectSettings->getFooterLayout($namespace);
         $footerMenuDefinitions = array_map(
             static fn (CmsMenu $menu): array => [
@@ -121,7 +116,6 @@ final class NavigationController
             'page_overrides' => $pageOverrides,
             'override_locale_options' => $this->resolveLocaleOptions([], $namespace, $assignments),
             'navigation_settings' => $this->projectSettings->getCookieConsentSettings($namespace),
-            'navigation_variants' => $navigationVariants,
             'footer_namespaces' => $namespaceList,
             'footer_layout' => $footerLayout,
             'footer_menu_definitions' => $footerMenuDefinitions,
@@ -313,11 +307,6 @@ final class NavigationController
     {
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
-        $navigationVariants = [
-            ['value' => 'footer_columns_2', 'label' => 'Footer (2 Spalten)', 'columns' => 2],
-            ['value' => 'footer_columns_3', 'label' => 'Footer (3 Spalten)', 'columns' => 3],
-        ];
-
         return $view->render($response, 'admin/settings/header.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
             'currentPath' => $request->getUri()->getPath(),
@@ -326,7 +315,6 @@ final class NavigationController
             'pageNamespace' => $namespace,
             'csrf_token' => $this->ensureCsrfToken(),
             'navigation_settings' => $this->projectSettings->getCookieConsentSettings($namespace),
-            'navigation_variants' => $navigationVariants,
         ]);
     }
 
