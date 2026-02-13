@@ -632,6 +632,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $settingsService,
                 $mailProviderManager
             ))
+            ->withAttribute('mailSettingsController', new \App\Controller\Settings\MailSettingsController(
+                $mailProviderRepository,
+                $settingsService
+            ))
             ->withAttribute('namespaceController', new \App\Controller\Admin\NamespaceController($namespaceService))
             ->withAttribute('usernameBlocklistController', new UsernameBlocklistController(
                 new UsernameBlocklistService($pdo),
@@ -2569,6 +2573,34 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/mail-providers/test', function (Request $request, Response $response) {
         $controller = $request->getAttribute('mailProviderController');
         if (!$controller instanceof MailProviderController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->testConnection($request, $response);
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
+
+    // Self-Service Mail Settings
+    $app->get('/settings/mail', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('mailSettingsController');
+        if (!$controller instanceof \App\Controller\Settings\MailSettingsController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
+
+    $app->post('/settings/mail', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('mailSettingsController');
+        if (!$controller instanceof \App\Controller\Settings\MailSettingsController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
+
+    $app->post('/settings/mail/test', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('mailSettingsController');
+        if (!$controller instanceof \App\Controller\Settings\MailSettingsController) {
             return $response->withStatus(500);
         }
 
