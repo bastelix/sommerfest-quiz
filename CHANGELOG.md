@@ -381,6 +381,7 @@
 - Forward namespace parameter to domain-chat API endpoints
 - Clear stale inline styles before re-applying on theme toggle
 - Add ALTER TABLE statements for existing SQLite databases
+- Dark mode toggle now applies all styles without page refresh
 
 ### Nav
 
