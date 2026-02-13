@@ -3171,6 +3171,9 @@ export class BlockContentEditor {
       block.data.fields = fields;
     };
 
+    const fieldsBody = document.createElement('div');
+    fieldsBody.className = 'optional-section__body';
+
     AVAILABLE_FIELDS.forEach(fieldDef => {
       const existing = currentFields.find(f => f.key === fieldDef.key);
       const isEnabled = existing?.enabled ?? false;
@@ -3178,17 +3181,11 @@ export class BlockContentEditor {
       const isRequired = existing?.required ?? false;
 
       const fieldGroup = document.createElement('div');
-      fieldGroup.className = 'uk-margin-small';
-      fieldGroup.style.paddingLeft = '0.5rem';
-      fieldGroup.style.borderLeft = '2px solid var(--block-editor-border, #e5e5e5)';
+      fieldGroup.className = 'optional-field-card';
 
       // Enable toggle
       const enableLabel = document.createElement('label');
-      enableLabel.className = 'uk-form-label';
-      enableLabel.style.display = 'flex';
-      enableLabel.style.alignItems = 'center';
-      enableLabel.style.gap = '0.4rem';
-      enableLabel.style.cursor = 'pointer';
+      enableLabel.className = 'optional-field-card__toggle';
       const enableCheckbox = document.createElement('input');
       enableCheckbox.type = 'checkbox';
       enableCheckbox.className = 'uk-checkbox';
@@ -3196,6 +3193,9 @@ export class BlockContentEditor {
       const enableText = document.createElement('span');
       enableText.textContent = fieldDef.defaultLabel;
       enableLabel.append(enableCheckbox, enableText);
+
+      // Field description
+      const descriptionEl = createHelperText(fieldDef.description);
 
       // Label input
       const labelInput = this.addLabeledInput(
@@ -3208,12 +3208,7 @@ export class BlockContentEditor {
 
       // Required toggle
       const reqLabel = document.createElement('label');
-      reqLabel.className = 'uk-form-label';
-      reqLabel.style.display = 'flex';
-      reqLabel.style.alignItems = 'center';
-      reqLabel.style.gap = '0.4rem';
-      reqLabel.style.cursor = 'pointer';
-      reqLabel.style.marginTop = '0.25rem';
+      reqLabel.className = 'optional-field-card__toggle optional-field-card__toggle--secondary';
       const reqCheckbox = document.createElement('input');
       reqCheckbox.type = 'checkbox';
       reqCheckbox.className = 'uk-checkbox';
@@ -3236,9 +3231,13 @@ export class BlockContentEditor {
         updateField(fieldDef.key, 'required', reqCheckbox.checked);
       });
 
-      fieldGroup.append(enableLabel, labelInput, reqLabel);
-      fieldsSection.append(fieldGroup);
+      fieldGroup.append(enableLabel);
+      if (descriptionEl) fieldGroup.append(descriptionEl);
+      fieldGroup.append(labelInput, reqLabel);
+      fieldsBody.append(fieldGroup);
     });
+
+    fieldsSection.append(fieldsBody);
 
     // Success message
     const feedbackSection = createFieldSection('Erfolgsmeldung', 'Text nach erfolgreicher Absendung.', { optional: true });
