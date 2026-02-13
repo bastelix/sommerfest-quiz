@@ -1902,7 +1902,7 @@ function buildResponsiveGridClasses(columns, options = {}) {
 
   const parts = [`${prefix}-1-1`];
 
-  if (includeSmall && columns >= 2) {
+  if (includeSmall && columns === 2) {
     parts.push(`${prefix}-1-2@s`);
   }
 
