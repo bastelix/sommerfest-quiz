@@ -160,10 +160,16 @@
     header: t('menu_web_structure'),
     items: [
       {
-        href: basePath ~ '/admin/navigation',
-        icon: 'list',
-        text: t('tab_navigation'),
-        activePrefixes: [basePath ~ '/admin/navigation']
+        href: basePath ~ '/admin/navigation/menus',
+        icon: 'menu',
+        text: t('tab_sidebar_menus'),
+        activePrefixes: [basePath ~ '/admin/navigation/menus', basePath ~ '/admin/navigation/standards', basePath ~ '/admin/navigation/overrides', basePath ~ '/admin/settings/header']
+      },
+      {
+        href: basePath ~ '/admin/navigation/footer',
+        icon: 'table',
+        text: t('tab_sidebar_footer'),
+        activePrefixes: [basePath ~ '/admin/navigation/footer']
       },
     ]
   },
