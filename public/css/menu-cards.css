@@ -1,0 +1,315 @@
+/**
+ * Menu Card Editor – Admin Styles
+ * Card-based menu item editor modeled after the footer block editor UX.
+ */
+
+/* ── Card container ────────────────────────────────────────── */
+.menu-cards-list {
+  min-height: 60px;
+}
+
+/* ── Individual card ───────────────────────────────────────── */
+.menu-card {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.menu-card:hover {
+  border-color: #1e87f0;
+  box-shadow: 0 2px 8px rgba(30, 135, 240, 0.1);
+}
+.menu-card:last-child {
+  margin-bottom: 0;
+}
+.menu-card--inactive {
+  opacity: 0.5;
+}
+.menu-card--editing {
+  border-color: #1e87f0;
+  box-shadow: 0 2px 12px rgba(30, 135, 240, 0.15);
+}
+.menu-card--drag-over {
+  border-color: #32d296;
+  box-shadow: 0 2px 12px rgba(50, 210, 150, 0.2);
+}
+
+/* ── Card summary row ──────────────────────────────────────── */
+.menu-card__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  cursor: pointer;
+}
+
+.menu-card__drag {
+  flex-shrink: 0;
+  cursor: grab;
+  color: #ced4da;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+.menu-card__drag:hover {
+  color: #868e96;
+}
+
+/* ── Layout type badge ─────────────────────────────────────── */
+.menu-card__type {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+}
+.menu-card__type--link { background: #1e87f0; }
+.menu-card__type--dropdown { background: #32d296; }
+.menu-card__type--mega { background: #f0506e; }
+.menu-card__type--column { background: #faa05a; }
+
+/* ── Card info (title + meta) ──────────────────────────────── */
+.menu-card__info {
+  flex: 1;
+  min-width: 0;
+}
+.menu-card__title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #212529;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.menu-card__meta {
+  font-size: 0.7rem;
+  color: #868e96;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Card action buttons ───────────────────────────────────── */
+.menu-card__actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 2px;
+}
+.menu-card__actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: #868e96;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.menu-card__actions button:hover {
+  background: #f1f3f5;
+  color: #212529;
+}
+.menu-card__actions button.btn-delete:hover {
+  background: #fff5f5;
+  color: #f0506e;
+}
+.menu-card__actions button.btn-active--off {
+  color: #ced4da;
+}
+
+/* ── Inline edit area ──────────────────────────────────────── */
+.menu-card__edit-area {
+  border-top: 1px solid #e9ecef;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 0 0 6px 6px;
+}
+.menu-card__edit-area .uk-form-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+}
+.menu-card__edit-area .uk-input,
+.menu-card__edit-area .uk-textarea,
+.menu-card__edit-area .uk-select {
+  font-size: 0.8125rem;
+}
+.menu-card__edit-area .edit-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+@media (max-width: 639px) {
+  .menu-card__edit-area .edit-row {
+    grid-template-columns: 1fr;
+  }
+}
+.menu-card__edit-area .edit-row--three {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+@media (max-width: 639px) {
+  .menu-card__edit-area .edit-row--three {
+    grid-template-columns: 1fr;
+  }
+}
+.menu-card__edit-area .edit-toggles {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.menu-card__edit-area .edit-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* Advanced section (collapsible) */
+.menu-card__advanced-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1e87f0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.menu-card__advanced-toggle:hover {
+  text-decoration: underline;
+}
+.menu-card__advanced-body {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #dee2e6;
+}
+
+.inline-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* ── Hierarchy: children container ─────────────────────────── */
+.menu-card__children {
+  margin-left: 1.5rem;
+  border-left: 2px solid #e9ecef;
+  padding-left: 0.5rem;
+  padding-top: 0.5rem;
+  min-height: 4px;
+}
+.menu-card__children:empty {
+  display: none;
+}
+.menu-card__children .menu-card__children {
+  margin-left: 1rem;
+}
+
+/* ── Sortable placeholder ──────────────────────────────────── */
+.menu-cards-list .uk-sortable-placeholder,
+.menu-card__children .uk-sortable-placeholder {
+  border: 2px dashed #1e87f0 !important;
+  background: #f0f7ff !important;
+  border-radius: 6px;
+  min-height: 40px;
+}
+.uk-sortable-empty {
+  min-height: 40px;
+}
+
+/* ── Empty state ───────────────────────────────────────────── */
+.menu-cards-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #adb5bd;
+  font-size: 0.85rem;
+}
+
+/* ── Preview panel ─────────────────────────────────────────── */
+.menu-preview-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.menu-preview-nav li {
+  margin-bottom: 2px;
+}
+.menu-preview-nav a {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8125rem;
+  color: #495057;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+.menu-preview-nav a:hover {
+  background: #f1f3f5;
+  color: #1e87f0;
+}
+.menu-preview-nav .preview-children {
+  list-style: none;
+  padding-left: 1rem;
+  margin: 0;
+}
+.menu-preview-nav .preview-item--inactive a {
+  color: #ced4da;
+  text-decoration: line-through;
+}
+.menu-preview-nav .preview-item--external a::after {
+  content: ' \2197';
+  font-size: 0.65rem;
+}
+.menu-preview-nav .preview-badge {
+  font-size: 0.6rem;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+.menu-preview-nav .preview-badge--dropdown { background: #e8f7ef; color: #32d296; }
+.menu-preview-nav .preview-badge--mega { background: #fdedf0; color: #f0506e; }
+.menu-preview-nav .preview-badge--column { background: #fff4ec; color: #faa05a; }
+
+/* ── Toolbar ───────────────────────────────────────────────── */
+.menu-cards-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── Dark mode ─────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .menu-card {
+    background: #1e1e2e;
+    border-color: #383850;
+  }
+  .menu-card:hover {
+    border-color: #1e87f0;
+  }
+  .menu-card__title { color: #e0e0e0; }
+  .menu-card__meta { color: #8888a0; }
+  .menu-card__drag { color: #555570; }
+  .menu-card__drag:hover { color: #8888a0; }
+  .menu-card__actions button { color: #8888a0; }
+  .menu-card__actions button:hover { background: #2a2a3e; color: #e0e0e0; }
+  .menu-card__actions button.btn-delete:hover { background: #3e2020; color: #f0506e; }
+  .menu-card__edit-area { background: #16161e; border-top-color: #383850; }
+  .menu-card__edit-area .uk-form-label { color: #b0b0c0; }
+  .menu-card__children { border-left-color: #383850; }
+  .menu-cards-empty { color: #555570; }
+  .menu-preview-nav a { color: #b0b0c0; }
+  .menu-preview-nav a:hover { background: #2a2a3e; color: #1e87f0; }
+}
