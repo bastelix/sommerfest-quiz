@@ -47,17 +47,19 @@ if [ -n "${POSTGRES_PASS:-}" ]; then
 fi
 
 php_memory_limit="${PHP_MEMORY_LIMIT:-512M}"
-if [ ! -d /usr/local/etc/php/conf.d ]; then
-    mkdir -p /usr/local/etc/php/conf.d
-fi
-printf 'memory_limit = %s\n' "$php_memory_limit" > /usr/local/etc/php/conf.d/zz-memory-limit.ini
-
 php_error_log="${PHP_ERROR_LOG:-/proc/self/fd/2}"
-cat <<EOF > /usr/local/etc/php/conf.d/zz-logging.ini
+php_conf_dir="/usr/local/etc/php/conf.d"
+if [ ! -d "$php_conf_dir" ]; then
+    mkdir -p "$php_conf_dir" 2>/dev/null || php_conf_dir=""
+fi
+if [ -n "$php_conf_dir" ]; then
+    printf 'memory_limit = %s\n' "$php_memory_limit" > "$php_conf_dir/zz-memory-limit.ini"
+    cat <<EOF > "$php_conf_dir/zz-logging.ini"
 log_errors = On
 error_log = ${php_error_log}
 display_errors = Off
 EOF
+fi
 
 start_container_metrics_logging() {
     metrics_interval="${CONTAINER_METRICS_LOG_INTERVAL_SECONDS:-30}"
@@ -164,7 +166,7 @@ ssl_log() {
         mkdir -p "$log_dir" 2>/dev/null || true
     fi
 
-    printf '[%s] %s\n' "$(date -Iseconds)" "$1" >> "$log_file"
+    printf '[%s] %s\n' "$(date -Iseconds)" "$1" >> "$log_file" 2>/dev/null || true
 }
 
 metrics_enabled=$(printf '%s' "${CONTAINER_METRICS_LOGGING:-true}" | tr '[:upper:]' '[:lower:]')
@@ -430,6 +432,12 @@ redact_host_list() {
 
 echo "VIRTUAL_HOST (redacted): $(redact_host_list "${VIRTUAL_HOST:-}")"
 echo "LETSENCRYPT_HOST (redacted): $(redact_host_list "${LETSENCRYPT_HOST:-}")"
+
+# When invoked with 'env' as argument, skip filesystem and database operations
+# so the script can run in test environments without the Docker filesystem layout.
+if [ "${1:-}" = "env" ]; then
+    exec "$@"
+fi
 
 # Install composer dependencies if autoloader or QR code library is missing
 if [ ! -f vendor/autoload.php ] || [ ! -d vendor/chillerlan/php-qrcode ]; then

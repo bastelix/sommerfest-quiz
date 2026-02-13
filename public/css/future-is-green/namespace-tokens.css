@@ -3,19 +3,19 @@
  */
 
 html[data-namespace="future-is-green"] {
-  --brand-primary: #1e87f0;
-  --brand-accent: #f97316;
-  --brand-secondary: #f97316;
+  --brand-primary: #138f52;
+  --brand-accent: #9cd78f;
+  --brand-secondary: #123524;
   --contrast-text-on-primary: #000000;
-  --contrast-text-on-secondary: #000000;
+  --contrast-text-on-secondary: #ffffff;
   --contrast-text-on-accent: #000000;
   --contrast-text-on-surface: #000000;
   --contrast-text-on-surface-muted: #000000;
   --contrast-text-on-page: #000000;
-  --marketing-primary: #1e87f0;
-  --marketing-accent: #f97316;
-  --marketing-secondary: #f97316;
-  --marketing-link: #1e87f0;
+  --marketing-primary: #138f52;
+  --marketing-accent: #9cd78f;
+  --marketing-secondary: #123524;
+  --marketing-link: #138f52;
   --marketing-surface: var(--surface-card, #ffffff);
   --marketing-white: #ffffff;
   --marketing-black: #000000;
