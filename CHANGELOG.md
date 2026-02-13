@@ -357,6 +357,7 @@
 - Make footer block modal responsive on mobile and add missing translations
 - Resolve CI test failures in entrypoint and onboarding tests
 - Scope admin dashboard data to the selected namespace
+- Menu editor item creation and AI generation
 
 ### Refactor
 
