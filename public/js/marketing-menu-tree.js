@@ -136,15 +136,31 @@ if (container) {
     ];
 
     const layoutOptions = [
-      { value: 'link', label: 'Link' },
-      { value: 'dropdown', label: 'Dropdown' },
-      { value: 'mega', label: 'Mega' },
-      { value: 'column', label: 'Spalte' }
+      { value: 'link', label: 'Link', cls: 'menu-tree__badge--link' },
+      { value: 'dropdown', label: 'Dropdown', cls: 'menu-tree__badge--dropdown' },
+      { value: 'mega', label: 'Mega', cls: 'menu-tree__badge--mega' },
+      { value: 'column', label: 'Spalte', cls: 'menu-tree__badge--column' }
     ];
+
+    const layoutBadgeCls = value => {
+      const found = layoutOptions.find(o => o.value === value);
+      return found ? found.cls : 'menu-tree__badge--link';
+    };
+
+    const layoutBadgeLabel = value => {
+      const found = layoutOptions.find(o => o.value === value);
+      return found ? found.label : 'Link';
+    };
+
+    const dragHandleSvg = '<svg width="12" height="16" viewBox="0 0 12 16"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="3" cy="8" r="1.5" fill="currentColor"/><circle cx="9" cy="8" r="1.5" fill="currentColor"/><circle cx="3" cy="14" r="1.5" fill="currentColor"/><circle cx="9" cy="14" r="1.5" fill="currentColor"/></svg>';
 
     const allowedSchemes = ['http', 'https', 'mailto', 'tel'];
 
     const setFeedback = (message, status = 'primary') => {
+      if (window.UIkit && typeof UIkit.notification === 'function') {
+        UIkit.notification(message, { status, pos: 'top-right', timeout: status === 'danger' ? 4000 : 1500 });
+        return;
+      }
       if (!feedback) {
         return;
       }
@@ -603,8 +619,10 @@ if (container) {
     const renderNode = (node, depth = 0) => {
       const safeId = String(normalizeId(node.id)).replace(/[^a-zA-Z0-9_-]/g, '-');
       const buildFieldId = suffix => `menu-node-${safeId}-${suffix}`;
+      const isInactive = node.isActive === false;
+
       const item = document.createElement('div');
-      item.className = 'menu-tree__item';
+      item.className = `menu-tree__item${isInactive ? ' menu-tree__item--inactive' : ''}`;
       item.dataset.id = node.id;
       item.dataset.parentId = node.parentId ?? '';
       item.style.setProperty('--menu-depth', String(depth));
@@ -616,44 +634,110 @@ if (container) {
       }
       item.draggable = !!node.id;
 
-      const row = document.createElement('div');
-      row.className = 'menu-tree__row';
+      // ── Summary row (read mode, like footer block-cards) ──
+      const summary = document.createElement('div');
+      summary.className = 'menu-tree__summary';
 
-      const dragHandle = document.createElement('button');
-      dragHandle.type = 'button';
-      dragHandle.className = 'uk-icon-button menu-tree__drag';
-      dragHandle.setAttribute('uk-icon', 'table');
+      const dragHandle = document.createElement('div');
+      dragHandle.className = 'menu-tree__drag';
+      dragHandle.innerHTML = dragHandleSvg;
+      dragHandle.title = 'Ziehen zum Verschieben';
       dragHandle.setAttribute('aria-label', 'Verschieben');
       dragHandle.setAttribute('aria-grabbed', 'false');
-      dragHandle.tabIndex = 0;
+
+      const layoutBadge = document.createElement('span');
+      const currentLayout = node.layout || 'link';
+      layoutBadge.className = `menu-tree__badge ${layoutBadgeCls(currentLayout)}`;
+      layoutBadge.textContent = layoutBadgeLabel(currentLayout);
+
+      const infoBlock = document.createElement('div');
+      infoBlock.className = 'menu-tree__info';
+
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'menu-tree__title';
+      titleSpan.textContent = node.label || 'Ohne Label';
+
+      const metaSpan = document.createElement('span');
+      metaSpan.className = 'menu-tree__meta';
+      metaSpan.textContent = formatHref(node.href || '');
+
+      infoBlock.append(titleSpan, metaSpan);
+
+      const statusBadges = document.createElement('div');
+      statusBadges.className = 'menu-tree__status-badges';
+      if (node.isStartpage) {
+        const badge = document.createElement('span');
+        badge.className = 'menu-tree__status-badge menu-tree__status-badge--startpage';
+        badge.textContent = 'Start';
+        statusBadges.appendChild(badge);
+      }
+      if (node.isExternal) {
+        const badge = document.createElement('span');
+        badge.className = 'menu-tree__status-badge menu-tree__status-badge--external';
+        badge.textContent = 'Extern';
+        statusBadges.appendChild(badge);
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'menu-tree__actions';
+
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'menu-tree__action-btn';
+      editBtn.setAttribute('uk-icon', 'icon: pencil; ratio: 0.7');
+      editBtn.title = 'Bearbeiten';
+      editBtn.setAttribute('aria-label', 'Bearbeiten');
+      actions.appendChild(editBtn);
+
+      const visibilityBtn = document.createElement('button');
+      visibilityBtn.type = 'button';
+      visibilityBtn.className = 'menu-tree__action-btn';
+      visibilityBtn.setAttribute('uk-icon', isInactive ? 'icon: ban; ratio: 0.7' : 'icon: eye; ratio: 0.7');
+      visibilityBtn.title = 'Sichtbarkeit umschalten';
+      visibilityBtn.setAttribute('aria-label', 'Sichtbarkeit umschalten');
+      visibilityBtn.setAttribute('aria-pressed', !isInactive ? 'true' : 'false');
+      actions.appendChild(visibilityBtn);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'menu-tree__action-btn menu-tree__action-btn--delete';
+      deleteBtn.setAttribute('uk-icon', 'icon: trash; ratio: 0.7');
+      deleteBtn.title = 'Eintrag entfernen';
+      deleteBtn.setAttribute('aria-label', 'Eintrag entfernen');
+      actions.appendChild(deleteBtn);
+
+      summary.append(dragHandle, layoutBadge, infoBlock, statusBadges, actions);
+      item.appendChild(summary);
+
+      // ── Edit area (hidden by default, like footer inline editing) ──
+      const editArea = document.createElement('div');
+      editArea.className = 'menu-tree__edit-area';
+      editArea.hidden = true;
 
       const labelFieldId = buildFieldId('label');
       const labelLabel = document.createElement('label');
-      labelLabel.className = 'uk-form-label uk-text-small menu-tree__field-label';
+      labelLabel.className = 'uk-form-label uk-text-small';
       labelLabel.htmlFor = labelFieldId;
       labelLabel.textContent = 'Label';
-
       const labelInput = document.createElement('input');
       labelInput.type = 'text';
-      labelInput.className = 'uk-input uk-form-small menu-tree__label-input';
+      labelInput.className = 'uk-input uk-form-small';
       labelInput.value = node.label || '';
       labelInput.placeholder = 'Label';
       labelInput.dataset.field = 'label';
-      labelInput.setAttribute('aria-label', 'Label bearbeiten');
       labelInput.id = labelFieldId;
 
       const hrefFieldId = buildFieldId('href');
       const hrefLabel = document.createElement('label');
-      hrefLabel.className = 'uk-form-label uk-text-small menu-tree__field-label';
+      hrefLabel.className = 'uk-form-label uk-text-small';
       hrefLabel.htmlFor = hrefFieldId;
       hrefLabel.textContent = 'Ziel / Link';
       const hrefInput = document.createElement('input');
       hrefInput.type = 'text';
-      hrefInput.className = 'uk-input uk-form-small menu-tree__href-input';
+      hrefInput.className = 'uk-input uk-form-small';
       hrefInput.value = node.href || '';
       hrefInput.placeholder = '/pfad, #anker oder Link';
       hrefInput.dataset.field = 'href';
-      hrefInput.setAttribute('aria-label', 'Link bearbeiten');
       hrefInput.id = hrefFieldId;
       if (hrefOptionsListId) {
         hrefInput.setAttribute('list', hrefOptionsListId);
@@ -663,45 +747,16 @@ if (container) {
       errorHint.className = 'uk-text-small uk-text-danger';
       errorHint.hidden = true;
 
-      const actions = document.createElement('div');
-      actions.className = 'menu-tree__actions';
+      editArea.append(
+        labelLabel, labelInput,
+        hrefLabel, hrefInput,
+        errorHint
+      );
+      item.appendChild(editArea);
 
-      const visibilityBtn = document.createElement('button');
-      visibilityBtn.type = 'button';
-      visibilityBtn.className = 'uk-icon-button';
-      visibilityBtn.setAttribute('uk-icon', node.isActive === false ? 'ban' : 'eye');
-      visibilityBtn.title = 'Sichtbarkeit umschalten';
-      visibilityBtn.setAttribute('aria-label', 'Sichtbarkeit umschalten');
-      visibilityBtn.setAttribute('aria-pressed', node.isActive !== false ? 'true' : 'false');
-      actions.appendChild(visibilityBtn);
-
-      const settingsBtn = document.createElement('button');
-      settingsBtn.type = 'button';
-      settingsBtn.className = 'uk-icon-button';
-      settingsBtn.setAttribute('uk-icon', 'cog');
-      settingsBtn.title = 'Erweitert anzeigen';
-      settingsBtn.setAttribute('aria-label', 'Erweitert anzeigen');
+      // ── Advanced fields ──
       const advancedId = buildFieldId('advanced');
-      settingsBtn.setAttribute('aria-expanded', 'false');
-      settingsBtn.setAttribute('aria-controls', advancedId);
-      actions.appendChild(settingsBtn);
-
-      const deleteBtn = document.createElement('button');
-      deleteBtn.type = 'button';
-      deleteBtn.className = 'uk-icon-button uk-button-danger';
-      deleteBtn.setAttribute('uk-icon', 'trash');
-      deleteBtn.title = 'Eintrag entfernen';
-      deleteBtn.setAttribute('aria-label', 'Eintrag entfernen');
-      actions.appendChild(deleteBtn);
-
-      const baseWrapper = document.createElement('div');
-      baseWrapper.className = 'menu-tree__base';
-      baseWrapper.append(labelLabel, labelInput, hrefLabel, hrefInput, errorHint);
-
-      row.append(dragHandle, baseWrapper, actions);
-      item.appendChild(row);
-
-      const advanced = renderAdvancedFields(node, item);
+      const advanced = renderAdvancedFields(node, editArea);
       advanced.id = advancedId;
 
       const childrenContainer = document.createElement('div');
@@ -709,6 +764,27 @@ if (container) {
       childrenContainer.dataset.parentId = node.id ?? '';
       childrenContainer.setAttribute('role', 'group');
       item.appendChild(childrenContainer);
+
+      // ── Event handlers ──
+      const updateSummaryFromState = () => {
+        const current = state.byId.get(normalizeId(node.id)) || node;
+        titleSpan.textContent = current.label || 'Ohne Label';
+        metaSpan.textContent = formatHref(current.href || '');
+        const lay = current.layout || 'link';
+        layoutBadge.className = `menu-tree__badge ${layoutBadgeCls(lay)}`;
+        layoutBadge.textContent = layoutBadgeLabel(lay);
+      };
+
+      editBtn.addEventListener('click', () => {
+        const isOpen = !editArea.hidden;
+        editArea.hidden = isOpen;
+        item.classList.toggle('menu-tree__item--editing', !isOpen);
+        if (isOpen) {
+          updateSummaryFromState();
+        } else {
+          labelInput.focus();
+        }
+      });
 
       labelInput.addEventListener('input', event => {
         applyInputChange(node, 'label', event.target.value.trim());
@@ -722,17 +798,13 @@ if (container) {
         applyInputChange(node, 'href', value);
       });
 
-      settingsBtn.addEventListener('click', () => {
-        advanced.hidden = !advanced.hidden;
-        settingsBtn.setAttribute('aria-expanded', advanced.hidden ? 'false' : 'true');
-      });
-
       visibilityBtn.addEventListener('click', () => {
         const current = state.byId.get(normalizeId(node.id))?.isActive !== false;
         const next = !current;
         applyInputChange(node, 'isActive', next);
-        visibilityBtn.setAttribute('uk-icon', next ? 'eye' : 'ban');
+        visibilityBtn.setAttribute('uk-icon', next ? 'icon: eye; ratio: 0.7' : 'icon: ban; ratio: 0.7');
         visibilityBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
+        item.classList.toggle('menu-tree__item--inactive', !next);
         const activeCheckbox = advanced.querySelector('input[data-field="isActive"]');
         if (activeCheckbox) {
           activeCheckbox.checked = next;
@@ -1304,7 +1376,7 @@ if (container) {
         const handle = item.querySelector('.menu-tree__drag');
 
         item.addEventListener('dragstart', event => {
-          if (event.target !== item && !event.target.closest('.menu-tree__drag')) {
+          if (event.target !== item && !event.target.closest('.menu-tree__drag') && !event.target.closest('.menu-tree__summary')) {
             event.preventDefault();
             return;
           }
