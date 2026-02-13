@@ -1439,6 +1439,43 @@ body.admin-page {
   padding: 0 12px 12px;
 }
 
+/* ── Optional section body (inside <details>) ── */
+.optional-section__body {
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+/* ── Optional field card ── */
+.optional-field-card {
+  border: 1px solid var(--border-muted, #e5e7eb);
+  background: var(--surface-subtle, #f8fafc);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 8px;
+}
+
+/* ── Toggle label (checkbox + text) ── */
+.optional-field-card__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-body, #111827);
+}
+
+.optional-field-card__toggle--secondary {
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: var(--text-muted, #4b5563);
+}
+
+.optional-field-card > .field-helper-text {
+  margin-top: -4px;
+}
+
 .block-repeater-card {
   border: 1px solid var(--border-muted, #e5e7eb);
   border-radius: 10px;
@@ -3221,6 +3258,17 @@ body.admin-page {
     padding: 10px;
     gap: 8px;
     border-radius: 8px;
+  }
+
+  .optional-section__body {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .optional-field-card {
+    padding: 8px 10px;
+    gap: 6px;
+    border-radius: 6px;
   }
 
   .page-editor [data-block-editor="true"] {
