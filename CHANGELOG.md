@@ -444,6 +444,7 @@
 - Add draggable sticker handle
 - Refresh calserver card styling
 - Compact admin layout for mobile screens
+- Improve optional contact fields UI with proper card design
 
 ### Test
 
