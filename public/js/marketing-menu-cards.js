@@ -53,7 +53,7 @@
     items: [],           // flat list from API
     byId: new Map(),     // id → item
     dirty: new Set(),    // modified item ids
-    originalJson: '',    // snapshot for cancel
+    saving: new Set(),   // currently saving item ids
     menus: [],
     basePath: '',
     namespace: '',
@@ -61,13 +61,14 @@
     editingId: null,     // currently expanded inline editor
   };
 
+  const autoSaveTimers = new Map(); // itemId → timeout
+  const AUTO_SAVE_DELAY = 800;     // ms
+
   let container = null;
   let cardsList = null;
   let feedbackEl = null;
   let previewTree = null;
   let previewEmpty = null;
-  let saveBtn = null;
-  let cancelBtn = null;
 
   /* ── Initialization ───────────────────────────────────────── */
   function init() {
@@ -83,13 +84,13 @@
 
     cardsList = container.querySelector('[data-menu-cards-list]');
     feedbackEl = container.querySelector('[data-menu-cards-feedback]');
-    previewTree = container.querySelector('[data-menu-cards-preview]');
-    previewEmpty = container.querySelector('[data-menu-cards-preview-empty]');
-    saveBtn = container.querySelector('[data-menu-cards-save]');
-    cancelBtn = container.querySelector('[data-menu-cards-cancel]');
+    /* Preview lives outside the cards container (in the aside), so query from document */
+    previewTree = document.querySelector('[data-menu-cards-preview]');
+    previewEmpty = document.querySelector('[data-menu-cards-preview-empty]');
 
-    if (saveBtn) saveBtn.addEventListener('click', saveAll);
-    if (cancelBtn) cancelBtn.addEventListener('click', cancelChanges);
+    /* Delegate card events once (not per render) */
+    attachCardEvents();
+
 
     container.querySelector('[data-menu-cards-add]')
       ?.addEventListener('click', () => addItem(null));
@@ -108,10 +109,7 @@
       menuSelect.addEventListener('change', () => {
         const newId = normalizeId(menuSelect.value);
         if (newId && newId !== state.menuId) {
-          if (state.dirty.size > 0 && !confirm('Ungespeicherte Änderungen verwerfen?')) {
-            menuSelect.value = state.menuId;
-            return;
-          }
+          flushAutoSave();
           state.menuId = newId;
           loadItems();
         }
@@ -157,12 +155,13 @@
       const data = await res.json();
       state.items = (data.items || data || []).map(normalizeItem);
       rebuildIndex();
-      state.originalJson = JSON.stringify(state.items);
       state.dirty.clear();
+      state.saving.clear();
+      autoSaveTimers.forEach((t) => clearTimeout(t));
+      autoSaveTimers.clear();
       state.editingId = null;
       renderCards();
       renderPreview();
-      updateButtons();
     } catch (err) {
       setFeedback(feedbackEl, 'Menüeinträge konnten nicht geladen werden.', 'danger');
       console.error('[menu-cards] loadItems error:', err);
@@ -212,7 +211,6 @@
     }
     cardsList.innerHTML = tree.map((node) => renderCardNode(node, 0)).join('');
     setupSortable(cardsList);
-    attachCardEvents();
     /* Re-open editing if was editing */
     if (state.editingId && state.byId.has(state.editingId)) {
       toggleInlineEditor(state.editingId, true);
@@ -399,7 +397,7 @@
     }
 
     state.dirty.add(itemId);
-    updateButtons();
+    scheduleAutoSave(itemId);
 
     /* Live-update the card summary without full re-render */
     const card = cardsList.querySelector(`[data-card-id="${itemId}"]`);
@@ -455,7 +453,7 @@
     if (!item) return;
     item.isActive = !item.isActive;
     state.dirty.add(itemId);
-    updateButtons();
+    scheduleAutoSave(itemId);
     renderCards();
     renderPreview();
   }
@@ -494,7 +492,6 @@
       const newItem = normalizeItem(created.item || created);
       state.items.push(newItem);
       rebuildIndex();
-      state.originalJson = JSON.stringify(state.items);
       renderCards();
       renderPreview();
       toggleInlineEditor(newItem.id, true);
@@ -539,13 +536,16 @@
       }
       state.items = state.items.filter((i) => !removeIds.has(i.id));
       rebuildIndex();
-      state.dirty.forEach((id) => { if (removeIds.has(id)) state.dirty.delete(id); });
-      state.originalJson = JSON.stringify(state.items);
+      state.dirty.forEach((id) => {
+        if (removeIds.has(id)) {
+          state.dirty.delete(id);
+          if (autoSaveTimers.has(id)) { clearTimeout(autoSaveTimers.get(id)); autoSaveTimers.delete(id); }
+        }
+      });
 
       if (state.editingId && removeIds.has(state.editingId)) state.editingId = null;
       renderCards();
       renderPreview();
-      updateButtons();
       setFeedback(feedbackEl, 'Eintrag gelöscht.', 'success');
       setTimeout(() => hideFeedback(feedbackEl), 2000);
     } catch (err) {
@@ -554,86 +554,63 @@
     }
   }
 
-  /* ── Save / Cancel ────────────────────────────────────────── */
-  async function saveAll() {
-    if (state.dirty.size === 0) return;
-    hideFeedback(feedbackEl);
-
-    const dirtyIds = [...state.dirty];
-    let saved = 0;
-    let errors = 0;
-
-    for (const id of dirtyIds) {
-      const item = state.byId.get(id);
-      if (!item) continue;
-
-      if (!validateHref(item.href)) {
-        setFeedback(feedbackEl, `Ungültiger Link für "${item.label}": ${item.href}`, 'warning');
-        toggleInlineEditor(id, true);
-        return;
-      }
-
-      try {
-        const res = await apiFetch(apiPath(`/admin/menus/${state.menuId}/items/${id}`), {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            label: item.label,
-            href: item.href,
-            icon: item.icon,
-            layout: item.layout,
-            locale: item.locale,
-            is_active: item.isActive,
-            is_external: item.isExternal,
-            is_startpage: item.isStartpage,
-            position: item.position,
-            parent_id: item.parentId,
-            detail_title: item.detailTitle,
-            detail_text: item.detailText,
-            detail_subline: item.detailSubline,
-          }),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        saved++;
-        state.dirty.delete(id);
-      } catch (err) {
-        errors++;
-        console.error(`[menu-cards] saveItem ${id} error:`, err);
-      }
-    }
-
-    if (errors > 0) {
-      setFeedback(feedbackEl, `${saved} gespeichert, ${errors} Fehler.`, 'warning');
-    } else {
-      setFeedback(feedbackEl, `${saved} Einträge gespeichert.`, 'success');
-      setTimeout(() => hideFeedback(feedbackEl), 2500);
-    }
-    state.originalJson = JSON.stringify(state.items);
-    updateButtons();
+  /* ── Auto-Save ────────────────────────────────────────────── */
+  function scheduleAutoSave(itemId) {
+    if (autoSaveTimers.has(itemId)) clearTimeout(autoSaveTimers.get(itemId));
+    autoSaveTimers.set(itemId, setTimeout(() => {
+      autoSaveTimers.delete(itemId);
+      autoSaveItem(itemId);
+    }, AUTO_SAVE_DELAY));
   }
 
-  function cancelChanges() {
-    if (state.dirty.size === 0) return;
-    if (!confirm('Alle ungespeicherten Änderungen verwerfen?')) return;
-    try {
-      state.items = JSON.parse(state.originalJson).map(normalizeItem);
-      rebuildIndex();
-    } catch {
-      /* fallback: reload from server */
-      loadItems();
+  function flushAutoSave() {
+    autoSaveTimers.forEach((timer, id) => {
+      clearTimeout(timer);
+      autoSaveItem(id);
+    });
+    autoSaveTimers.clear();
+  }
+
+  async function autoSaveItem(itemId) {
+    const item = state.byId.get(itemId);
+    if (!item || !state.dirty.has(itemId) || state.saving.has(itemId)) return;
+
+    if (!validateHref(item.href)) {
+      setFeedback(feedbackEl, `Ungültiger Link für „${item.label}": ${item.href}`, 'warning');
       return;
     }
-    state.dirty.clear();
-    state.editingId = null;
-    renderCards();
-    renderPreview();
-    updateButtons();
-  }
 
-  function updateButtons() {
-    const hasDirty = state.dirty.size > 0;
-    if (saveBtn) saveBtn.disabled = !hasDirty;
-    if (cancelBtn) cancelBtn.disabled = !hasDirty;
+    state.saving.add(itemId);
+    try {
+      const res = await apiFetch(apiPath(`/admin/menus/${state.menuId}/items/${itemId}`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          label: item.label,
+          href: item.href,
+          icon: item.icon,
+          layout: item.layout,
+          locale: item.locale,
+          is_active: item.isActive,
+          is_external: item.isExternal,
+          is_startpage: item.isStartpage,
+          position: item.position,
+          parent_id: item.parentId,
+          detail_title: item.detailTitle,
+          detail_text: item.detailText,
+          detail_subline: item.detailSubline,
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      state.dirty.delete(itemId);
+      setFeedback(feedbackEl, 'Gespeichert.', 'success');
+      setTimeout(() => hideFeedback(feedbackEl), 1500);
+    } catch (err) {
+      setFeedback(feedbackEl, `Fehler beim Speichern von „${item.label}": ${err.message}`, 'danger');
+      console.error(`[menu-cards] autoSaveItem ${itemId} error:`, err);
+    } finally {
+      state.saving.delete(itemId);
+    }
   }
 
   /* ── Drag & Drop (UIKit Sortable) ─────────────────────────── */
@@ -683,9 +660,9 @@
         item.position = index;
         item.parentId = newParentId;
         state.dirty.add(id);
+        scheduleAutoSave(id);
       }
     });
-    updateButtons();
     renderPreview();
   }
 

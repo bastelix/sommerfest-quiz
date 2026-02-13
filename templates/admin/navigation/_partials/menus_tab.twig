@@ -187,20 +187,6 @@
               {% if selectedMenuId == '' %}disabled{% endif %}
             ><span uk-icon="icon: bolt; ratio: 0.75"></span> KI generieren</button>
             <div class="uk-button-group">
-              <button
-                type="button"
-                class="uk-button uk-button-primary uk-button-small"
-                data-menu-cards-save
-                disabled
-              >Speichern</button>
-              <button
-                type="button"
-                class="uk-button uk-button-default uk-button-small"
-                data-menu-cards-cancel
-                disabled
-              >Abbrechen</button>
-            </div>
-            <div class="uk-button-group">
               <button type="button" class="uk-button uk-button-default uk-button-small" data-menu-cards-export {% if selectedMenuId == '' %}disabled{% endif %}><span uk-icon="icon: download; ratio: 0.75"></span> Export</button>
               <button type="button" class="uk-button uk-button-default uk-button-small" data-menu-cards-import {% if selectedMenuId == '' %}disabled{% endif %}><span uk-icon="icon: upload; ratio: 0.75"></span> Import</button>
             </div>
@@ -214,7 +200,7 @@
           </div>
         {% endif %}
         <p class="uk-text-meta uk-margin-small-top">
-          Klicke auf <span uk-icon="icon: pencil; ratio: 0.65"></span> zum Bearbeiten. Drag &amp; Drop per <span uk-icon="icon: more-vertical; ratio: 0.65"></span> ordnet Einträge um.
+          Klicke auf <span uk-icon="icon: pencil; ratio: 0.65"></span> zum Bearbeiten. Änderungen werden automatisch gespeichert. Drag &amp; Drop per <span uk-icon="icon: more-vertical; ratio: 0.65"></span> ordnet Einträge um.
         </p>
         <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-cards-feedback hidden role="status"></div>
         <div class="menu-cards-list" data-menu-cards-list>
