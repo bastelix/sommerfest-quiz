@@ -1392,6 +1392,7 @@ function buildDefaultBlock(type, variant) {
       variant,
       meta: {
         sectionStyle: {
+          layout: 'normal',
           intent: 'plain'
         }
       },
