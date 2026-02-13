@@ -1,71 +1,13 @@
-{% extends 'layout.twig' %}
+{% extends 'admin/base.twig' %}
 {% set adminLayout = 'standard' %}
 {% import 'components/standard_table.twig' as tables %}
 
-{% block config_color_styles %}{% endblock %}
-
 {% block title %}{{ t('tab_newsletter_campaigns') }}{% endblock %}
 
-{% block head %}
-  <meta name="csrf-token" content="{{ csrf_token }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-{% endblock %}
-
-{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
-
-{% block body %}
+{% block content %}
   {% set activePageNamespace = pageNamespace|default('default') %}
   {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
   {% set editCampaign = activeCampaign is defined and activeCampaign ? activeCampaign : null %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <button
-        id="sidebarToggle"
-        type="button"
-        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
-        aria-controls="adminSidebar"
-        aria-expanded="true"
-        aria-pressed="false"
-        aria-label="{{ t('menu') }}"
-      >
-        <span uk-navbar-toggle-icon></span>
-      </button>
-      <button
-        id="adminOffcanvasToggle"
-        type="button"
-        class="uk-navbar-toggle uk-visible@s uk-hidden@m uk-margin-small-right git-btn"
-        uk-navbar-toggle-icon
-        uk-toggle="target: #qr-offcanvas"
-        aria-controls="qr-offcanvas"
-        aria-expanded="false"
-        aria-haspopup="true"
-        aria-label="{{ t('menu') }}"
-      ></button>
-      <a class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s" href="{{ basePath }}/admin/dashboard">QuizRace Admin</a>
-    {% endblock %}
-    {% block center %}
-      {% include 'admin/components/namespace_breadcrumb.twig' %}
-    {% endblock %}
-    {% block offcanvas %}
-      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-        <div class="uk-offcanvas-bar">
-          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-          <h3 class="uk-margin-small">QuizRace Admin</h3>
-          {% include 'admin/_nav.twig' %}
-        </div>
-      </div>
-    {% endblock %}
-  {% endembed %}
-
-  <div class="uk-grid-collapse" uk-grid>
-    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar" aria-label="{{ t('menu') }}">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding" id="adminContent">
       <div class="uk-container uk-container-large">
         <div class="uk-flex uk-flex-between uk-flex-middle uk-padding-small uk-padding-remove-horizontal">
           <h1 class="uk-heading-bullet uk-margin-remove">{{ t('heading_newsletter_campaigns') }}</h1>
@@ -234,8 +176,6 @@
         </div>
       </div>
     </div>
-    </main>
-  </div>
 {% endblock %}
 
 {% block scripts %}
