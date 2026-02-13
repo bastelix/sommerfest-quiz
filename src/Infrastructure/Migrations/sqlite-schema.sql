@@ -109,6 +109,12 @@ CREATE TABLE IF NOT EXISTS config (
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
 
+-- Ensure columns added by migrations exist in pre-existing databases.
+ALTER TABLE config ADD COLUMN IF NOT EXISTS dashboard_sponsor_modules TEXT;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS design_tokens TEXT;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS effects_profile TEXT;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS slider_profile TEXT;
+
 -- Settings
 CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
@@ -472,6 +478,16 @@ CREATE TABLE IF NOT EXISTS project_settings (
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS footer_layout TEXT NOT NULL DEFAULT 'equal';
+ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS show_language_toggle INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS show_theme_toggle INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS show_contrast_toggle INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS marketing_wiki_themes TEXT DEFAULT '{}';
+ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS header_logo_mode TEXT NOT NULL DEFAULT 'text';
+ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS header_logo_path TEXT;
+ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS header_logo_alt TEXT;
+ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS header_logo_label TEXT;
+
 -- Active event
 CREATE TABLE IF NOT EXISTS active_event (
     event_uid TEXT PRIMARY KEY,
@@ -764,6 +780,8 @@ CREATE TABLE IF NOT EXISTS marketing_page_wiki_articles (
 
 CREATE INDEX IF NOT EXISTS marketing_page_wiki_articles_page_locale_status_idx
     ON marketing_page_wiki_articles(page_id, locale, status, sort_index, published_at);
+
+ALTER TABLE marketing_page_wiki_articles ADD COLUMN IF NOT EXISTS is_start_document INTEGER NOT NULL DEFAULT 0;
 
 CREATE UNIQUE INDEX IF NOT EXISTS marketing_page_wiki_articles_start_doc_idx
     ON marketing_page_wiki_articles(page_id, locale)
