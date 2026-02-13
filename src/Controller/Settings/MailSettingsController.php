@@ -125,7 +125,7 @@ class MailSettingsController
             return $this->jsonError($response, 'Sender email is required.', 422);
         }
 
-        if ($fromEmail !== '' && filter_var($fromEmail, FILTER_VALIDATE_EMAIL) === false) {
+        if (filter_var($fromEmail, FILTER_VALIDATE_EMAIL) === false) {
             return $this->jsonError($response, 'Invalid email address.', 422);
         }
 
