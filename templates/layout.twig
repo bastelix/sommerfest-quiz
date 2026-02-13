@@ -143,13 +143,10 @@
   {% if includeVariablesStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
   {% endif %}
-  {% set theme = attribute(cfg, 'startTheme')|default('light')|lower %}
-  {% set prefersDark = theme == 'dark' %}
   {% set includeDarkStyles = includeDarkStyles|default(true) %}
   {% set shouldIncludeDarkStyles = includeMainStyles and includeVariablesStyles and includeDarkStyles %}
-  {% set darkMedia = shouldIncludeDarkStyles ? (prefersDark ? 'all' : '(prefers-color-scheme: dark)') : 'not all' %}
   {% if shouldIncludeDarkStyles %}
-    <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="{{ darkMedia }}"{% if not prefersDark or not shouldIncludeDarkStyles %} disabled{% endif %}>
+    <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
   {% endif %}
   {% set namespaceTokensVersionsMap = namespaceTokensVersions|default({}) %}
   {% set namespaceTokensQuery = namespaceTokensVersionsMap[activeNamespace]|default(namespaceTokensVersion|default('now'|date('U'))) %}

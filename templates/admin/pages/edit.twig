@@ -4,7 +4,7 @@
 {% block title %}Seite bearbeiten{% endblock %}
 
 {% block admin_head %}
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" id="admin-dark-css" data-theme-style="dark" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" id="admin-dark-css" data-theme-style="dark" media="all">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css" id="admin-highcontrast-css" data-theme-style="high-contrast">
   {% set activeNamespace = pageNamespace|default('default') %}
   {% set hasNamespaceStyles = activeNamespace is not empty and activeNamespace != 'default' %}
