@@ -264,6 +264,7 @@
 - Add fully functional contact_form block with configurable fields
 - Enhance footer editor with layout persistence, drag-and-drop, live preview, rich text and inline editing
 - Improve admin menu for mobile with touch-optimized offcanvas nav
+- Reorganize admin navigation – split Struktur into Menüs + Footer
 
 ### Fix
 
