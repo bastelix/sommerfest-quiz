@@ -54,7 +54,8 @@ final class MarketingMenuItemValidator
             $errors['layout'] = 'Layout is invalid.';
         }
 
-        $parentId = isset($payload['parentId']) ? (int) $payload['parentId'] : null;
+        $parentId = isset($payload['parentId']) ? (int) $payload['parentId']
+            : (isset($payload['parent_id']) ? (int) $payload['parent_id'] : null);
         if ($parentId !== null && $parentId <= 0) {
             $parentId = null;
         }
@@ -64,7 +65,8 @@ final class MarketingMenuItemValidator
             $errors['locale'] = sprintf('Locale must be at most %d characters.', self::MAX_LOCALE_LENGTH);
         }
 
-        $detailTitle = isset($payload['detailTitle']) ? trim((string) $payload['detailTitle']) : null;
+        $rawDetailTitle = $payload['detailTitle'] ?? $payload['detail_title'] ?? null;
+        $detailTitle = $rawDetailTitle !== null ? trim((string) $rawDetailTitle) : null;
         if ($detailTitle !== null && $detailTitle !== '' && mb_strlen($detailTitle) > self::MAX_DETAIL_TITLE_LENGTH) {
             $errors['detailTitle'] = sprintf(
                 'Detail title must be at most %d characters.',
@@ -72,7 +74,8 @@ final class MarketingMenuItemValidator
             );
         }
 
-        $detailText = isset($payload['detailText']) ? trim((string) $payload['detailText']) : null;
+        $rawDetailText = $payload['detailText'] ?? $payload['detail_text'] ?? null;
+        $detailText = $rawDetailText !== null ? trim((string) $rawDetailText) : null;
         if ($detailText !== null && $detailText !== '' && mb_strlen($detailText) > self::MAX_DETAIL_TEXT_LENGTH) {
             $errors['detailText'] = sprintf(
                 'Detail text must be at most %d characters.',
@@ -80,7 +83,8 @@ final class MarketingMenuItemValidator
             );
         }
 
-        $detailSubline = isset($payload['detailSubline']) ? trim((string) $payload['detailSubline']) : null;
+        $rawDetailSubline = $payload['detailSubline'] ?? $payload['detail_subline'] ?? null;
+        $detailSubline = $rawDetailSubline !== null ? trim((string) $rawDetailSubline) : null;
         if (
             $detailSubline !== null
             && $detailSubline !== ''
@@ -108,10 +112,10 @@ final class MarketingMenuItemValidator
             'parentId' => $parentId,
             'layout' => $layout,
             'position' => $position,
-            'isExternal' => $this->normalizeBoolean($payload['isExternal'] ?? $payload['external'] ?? false),
+            'isExternal' => $this->normalizeBoolean($payload['isExternal'] ?? $payload['is_external'] ?? $payload['external'] ?? false),
             'locale' => $locale !== '' ? $locale : null,
-            'isActive' => $this->normalizeBoolean($payload['isActive'] ?? true),
-            'isStartpage' => $this->normalizeBoolean($payload['isStartpage'] ?? false),
+            'isActive' => $this->normalizeBoolean($payload['isActive'] ?? $payload['is_active'] ?? true),
+            'isStartpage' => $this->normalizeBoolean($payload['isStartpage'] ?? $payload['is_startpage'] ?? false),
             'detailTitle' => $detailTitle !== '' ? $detailTitle : null,
             'detailText' => $detailText !== '' ? $detailText : null,
             'detailSubline' => $detailSubline !== '' ? $detailSubline : null,

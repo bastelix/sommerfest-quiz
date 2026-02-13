@@ -472,7 +472,7 @@
 
     const body = {
       label: 'Neuer Eintrag',
-      href: '',
+      href: '#',
       layout: 'link',
       icon: '',
       locale: state.locale || 'de',
@@ -742,7 +742,7 @@
       const res = await apiFetch(apiPath(`/admin/pages/${pageId}/menu/ai`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ menuId: state.menuId }),
+        body: JSON.stringify({ menuId: state.menuId, overwrite: true, locale: state.locale || null }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setFeedback(feedbackEl, 'Menü wurde generiert.', 'success');
