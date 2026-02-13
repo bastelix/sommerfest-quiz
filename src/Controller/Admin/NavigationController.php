@@ -162,6 +162,16 @@ final class NavigationController
         $assignments = $this->menuDefinitions->listAssignments($namespace, null, null, null, null, true);
         $pageOverrides = $this->buildOverrideSummary($pagesForNamespace, $assignments);
 
+        $footerLayout = $this->projectSettings->getFooterLayout($namespace);
+        $footerMenuDefinitions = array_map(
+            static fn (CmsMenu $menu): array => [
+                'id' => $menu->getId(),
+                'label' => $menu->getLabel(),
+                'locale' => $menu->getLocale(),
+            ],
+            $menuDefinitions
+        );
+
         return $view->render($response, 'admin/navigation/menus_index.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
             'currentPath' => $request->getUri()->getPath(),
@@ -178,6 +188,9 @@ final class NavigationController
             'page_overrides' => $pageOverrides,
             'override_locale_options' => $this->resolveLocaleOptions([], $namespace, $assignments),
             'navigation_settings' => $this->projectSettings->getCookieConsentSettings($namespace),
+            'footer_namespaces' => $namespaceList,
+            'footer_layout' => $footerLayout,
+            'footer_menu_definitions' => $footerMenuDefinitions,
         ]);
     }
 
