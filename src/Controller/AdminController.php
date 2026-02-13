@@ -91,7 +91,7 @@ class AdminController
         if ($eventNamespace !== null && $uid !== '') {
             $eventBelongsToNamespace = false;
             foreach ($events as $ev) {
-                if (($ev['uid'] ?? '') === $uid) {
+                if ($ev['uid'] === $uid) {
                     $eventBelongsToNamespace = true;
                     break;
                 }
