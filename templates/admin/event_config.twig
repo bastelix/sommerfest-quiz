@@ -91,10 +91,11 @@
           <li><a href="#">Basis</a></li>
           <li><a href="#">Login &amp; Zugang</a></li>
           <li><a href="#">Spielregeln</a></li>
-          <li><a href="#">Extras</a></li>
+          <li><a href="#">Countdown</a></li>
           <li><a href="#">Integrationen</a></li>
           <li><a href="#">Dashboard</a></li>
           <li><a href="#">Freigabe</a></li>
+          <li><a href="#">Teamnamen</a></li>
         </ul>
         <ul class="uk-switcher uk-margin">
           <li>
@@ -200,41 +201,6 @@
                   <input class="uk-input" id="countdown" name="countdown" type="number" min="0" placeholder="0" value="{{ config.countdown|default('') }}">
                 </div>
                 <div class="uk-text-meta">Leer lassen oder 0 für kein globales Limit. Einzelne Fragen können ein eigenes Zeitlimit setzen.</div>
-              </div>
-              <div class="uk-margin-large-top" data-team-name-history>
-                <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
-                  <h3 class="uk-heading-bullet uk-margin-remove">Teamnamen-Verlauf</h3>
-                  <div class="uk-flex uk-flex-middle">
-                    <label class="uk-form-label uk-margin-small-right" for="teamNameHistoryLimit">Anzahl</label>
-                    <select class="uk-select uk-form-width-small" id="teamNameHistoryLimit" data-team-name-history-limit>
-                      <option value="25">25</option>
-                      <option value="50" selected>50</option>
-                      <option value="100">100</option>
-                      <option value="200">200</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="uk-text-meta uk-margin-small-bottom">Zeigt reservierte, zugewiesene und freigegebene Teamnamen für dieses Event.</div>
-                <div class="uk-alert uk-alert-warning" hidden data-team-name-history-empty>Keine Reservierungen vorhanden.</div>
-                <div class="uk-alert uk-alert-danger" hidden data-team-name-history-error>Der Verlauf konnte nicht geladen werden.</div>
-                <div class="uk-flex uk-flex-middle uk-margin-small-bottom" hidden data-team-name-history-loading>
-                  <span uk-spinner></span>
-                  <span class="uk-margin-small-left">Lade Verlauf …</span>
-                </div>
-                <div class="uk-overflow-auto">
-                  <table class="uk-table uk-table-divider uk-table-small uk-table-middle" data-team-name-history-table>
-                    <thead>
-                      <tr>
-                        <th scope="col" data-sort-key="name">Name</th>
-                        <th scope="col" data-sort-key="status">Status</th>
-                        <th scope="col" data-sort-key="reserved_at">Reserviert</th>
-                        <th scope="col" data-sort-key="assigned_at">Zugewiesen</th>
-                        <th scope="col" data-sort-key="released_at">Freigegeben</th>
-                      </tr>
-                    </thead>
-                    <tbody data-team-name-history-body></tbody>
-                  </table>
-                </div>
               </div>
             </form>
           </li>
@@ -693,6 +659,43 @@
               </div>
               <div class="uk-text-meta uk-margin-small-top">Leer lassen, um das Dashboard dauerhaft freizugeben.</div>
             </form>
+          </li>
+          <li>
+            <div data-team-name-history>
+              <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
+                <h3 class="uk-heading-bullet uk-margin-remove">Teamnamen-Verlauf</h3>
+                <div class="uk-flex uk-flex-middle">
+                  <label class="uk-form-label uk-margin-small-right" for="teamNameHistoryLimit">Anzahl</label>
+                  <select class="uk-select uk-form-width-small" id="teamNameHistoryLimit" data-team-name-history-limit>
+                    <option value="25">25</option>
+                    <option value="50" selected>50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                  </select>
+                </div>
+              </div>
+              <div class="uk-text-meta uk-margin-small-bottom">Zeigt reservierte, zugewiesene und freigegebene Teamnamen für dieses Event.</div>
+              <div class="uk-alert uk-alert-warning" hidden data-team-name-history-empty>Keine Reservierungen vorhanden.</div>
+              <div class="uk-alert uk-alert-danger" hidden data-team-name-history-error>Der Verlauf konnte nicht geladen werden.</div>
+              <div class="uk-flex uk-flex-middle uk-margin-small-bottom" hidden data-team-name-history-loading>
+                <span uk-spinner></span>
+                <span class="uk-margin-small-left">Lade Verlauf …</span>
+              </div>
+              <div class="uk-overflow-auto">
+                <table class="uk-table uk-table-divider uk-table-small uk-table-middle" data-team-name-history-table>
+                  <thead>
+                    <tr>
+                      <th scope="col" data-sort-key="name">Name</th>
+                      <th scope="col" data-sort-key="status">Status</th>
+                      <th scope="col" data-sort-key="reserved_at">Reserviert</th>
+                      <th scope="col" data-sort-key="assigned_at">Zugewiesen</th>
+                      <th scope="col" data-sort-key="released_at">Freigegeben</th>
+                    </tr>
+                  </thead>
+                  <tbody data-team-name-history-body></tbody>
+                </table>
+              </div>
+            </div>
           </li>
         </ul>
       </div>
