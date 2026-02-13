@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const offcanvas = document.getElementById('qr-offcanvas');
   const offcanvasHasItems = offcanvas && offcanvas.querySelector('li');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
-  const defaultDarkMedia = darkStylesheet ? (darkStylesheet.getAttribute('media') || 'all') : 'all';
   const uikitStylesheet = document.querySelector('link[href*="uikit"]');
   const themeIcons = document.querySelectorAll('.theme-icon');
   const accessibilityIcons = document.querySelectorAll('.accessibility-icon');
@@ -167,15 +166,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!darkStylesheet) {
       return;
     }
-    if (typeof darkStylesheet.toggleAttribute === 'function') {
-      darkStylesheet.toggleAttribute('disabled', !dark);
-    } else if (!dark) {
-      darkStylesheet.setAttribute('disabled', 'disabled');
-    } else {
-      darkStylesheet.removeAttribute('disabled');
-    }
-    darkStylesheet.disabled = !dark;
-    darkStylesheet.media = dark ? 'all' : defaultDarkMedia;
+    darkStylesheet.removeAttribute('disabled');
+    darkStylesheet.disabled = false;
+    darkStylesheet.media = 'all';
   }
 
   syncDarkStylesheet();
