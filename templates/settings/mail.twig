@@ -1,0 +1,364 @@
+{% extends 'layout.twig' %}
+
+{% set adminLayout = 'narrow' %}
+{% block config_color_styles %}{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% set settings = config.settings|default({}) %}
+
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block center %}
+      {% include 'admin/components/namespace_breadcrumb.twig' %}
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">{{ t('heading_mail_settings') }}</h2>
+      </div>
+      <div class="uk-section uk-section-small">
+        <div class="uk-container">
+          <p class="uk-text-meta">{{ t('text_mail_settings_intro') }}</p>
+
+          {% if errorMessage is defined and errorMessage is not empty %}
+            <div class="uk-alert-danger" uk-alert>
+              <p class="uk-text-small uk-margin-remove">{{ errorMessage }}</p>
+            </div>
+          {% endif %}
+
+          {% if adminConfigured %}
+            <div class="uk-alert-warning" uk-alert>
+              <p class="uk-margin-remove">{{ t('text_mail_settings_admin_override') }}</p>
+            </div>
+          {% endif %}
+
+          <div class="uk-card uk-card-default uk-card-body uk-card-small">
+            <form class="uk-form-stacked" id="mailSettingsForm" novalidate>
+              <input type="hidden" name="_token" value="{{ csrfToken }}">
+
+              <fieldset class="uk-fieldset">
+                <legend class="uk-legend">{{ t('heading_mail_sender') }}</legend>
+                <p class="uk-text-meta">{{ t('text_mail_sender_hint') }}</p>
+                <div class="uk-grid-small" uk-grid>
+                  <div class="uk-width-1-2@s">
+                    <label class="uk-form-label" for="mail-from-email">{{ t('label_mail_provider_from_email') }}</label>
+                    <div class="uk-form-controls">
+                      <input
+                        id="mail-from-email"
+                        class="uk-input"
+                        type="email"
+                        name="from_email"
+                        value="{{ settings.from_email|default('') }}"
+                        placeholder="newsletter@example.com"
+                        required
+                      >
+                    </div>
+                  </div>
+                  <div class="uk-width-1-2@s">
+                    <label class="uk-form-label" for="mail-from-name">{{ t('label_mail_provider_from_name') }}</label>
+                    <div class="uk-form-controls">
+                      <input
+                        id="mail-from-name"
+                        class="uk-input"
+                        type="text"
+                        name="from_name"
+                        value="{{ settings.from_name|default('') }}"
+                        placeholder="Mein Projekt"
+                      >
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="uk-margin-top">
+                <a class="uk-text-bold uk-link-muted" href="#" data-toggle-smtp aria-expanded="{{ hasCustomSmtp ? 'true' : 'false' }}">
+                  <span uk-icon="icon: {{ hasCustomSmtp ? 'chevron-down' : 'chevron-right' }}; ratio: 0.85" data-smtp-chevron></span>
+                  {{ t('heading_mail_custom_smtp') }}
+                  <span class="uk-text-meta uk-margin-small-left">{{ t('text_mail_custom_smtp_optional') }}</span>
+                </a>
+                <div id="smtpSection" class="uk-margin-small-top" {% if not hasCustomSmtp %}hidden{% endif %}>
+                  <fieldset class="uk-fieldset">
+                    <p class="uk-text-meta">{{ t('text_mail_custom_smtp_hint') }}</p>
+                    <div class="uk-margin-small">
+                      <label>
+                        <input type="checkbox" class="uk-checkbox" name="use_custom_smtp" {% if hasCustomSmtp %}checked{% endif %} data-smtp-toggle>
+                        {{ t('label_mail_use_custom_smtp') }}
+                      </label>
+                    </div>
+                    <div class="uk-grid-small" uk-grid data-smtp-fields>
+                      <div class="uk-width-1-2@s">
+                        <label class="uk-form-label" for="mail-smtp-host">{{ t('label_mail_provider_smtp_host') }}</label>
+                        <div class="uk-form-controls">
+                          <input
+                            id="mail-smtp-host"
+                            class="uk-input"
+                            type="text"
+                            name="smtp_host"
+                            value="{{ config.smtp_host|default('') }}"
+                            placeholder="smtp.example.com"
+                          >
+                        </div>
+                      </div>
+                      <div class="uk-width-1-4@s">
+                        <label class="uk-form-label" for="mail-smtp-port">{{ t('label_mail_provider_smtp_port') }}</label>
+                        <div class="uk-form-controls">
+                          <input
+                            id="mail-smtp-port"
+                            class="uk-input"
+                            type="number"
+                            min="1"
+                            name="smtp_port"
+                            value="{{ config.smtp_port|default('') }}"
+                            placeholder="587"
+                          >
+                        </div>
+                      </div>
+                      <div class="uk-width-1-4@s">
+                        <label class="uk-form-label" for="mail-smtp-encryption">{{ t('label_mail_provider_smtp_encryption') }}</label>
+                        <div class="uk-form-controls">
+                          {% set enc = config.smtp_encryption|default('tls') %}
+                          <select id="mail-smtp-encryption" class="uk-select" name="smtp_encryption">
+                            <option value="none"{% if enc == 'none' %} selected{% endif %}>{{ t('option_mail_provider_encryption_none') }}</option>
+                            <option value="tls"{% if enc == 'tls' %} selected{% endif %}>TLS</option>
+                            <option value="ssl"{% if enc == 'ssl' %} selected{% endif %}>SSL</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="uk-width-1-2@s">
+                        <label class="uk-form-label" for="mail-smtp-user">{{ t('label_mail_provider_smtp_user') }}</label>
+                        <div class="uk-form-controls">
+                          <input
+                            id="mail-smtp-user"
+                            class="uk-input"
+                            type="text"
+                            name="smtp_user"
+                            value="{{ config.smtp_user|default('') }}"
+                            placeholder="user@example.com"
+                            autocomplete="new-password"
+                          >
+                        </div>
+                      </div>
+                      <div class="uk-width-1-2@s">
+                        <label class="uk-form-label" for="mail-smtp-pass">{{ t('label_mail_provider_smtp_pass') }}</label>
+                        <div class="uk-form-controls">
+                          <input
+                            id="mail-smtp-pass"
+                            class="uk-input"
+                            type="password"
+                            name="smtp_pass"
+                            value="{{ config.smtp_pass|default('') }}"
+                            placeholder="********"
+                            autocomplete="new-password"
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </fieldset>
+                  <div class="uk-margin-small-top">
+                    <button class="uk-button uk-button-default uk-button-small" type="button" id="testConnectionBtn">
+                      <span uk-icon="icon: bolt; ratio: 0.85"></span>
+                      {{ t('button_mail_provider_test') }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="uk-alert uk-margin-top" hidden data-mail-feedback>
+                <p class="uk-margin-remove"></p>
+              </div>
+
+              <div class="uk-margin-top">
+                <button class="uk-button uk-button-primary" type="submit">{{ t('button_mail_provider_save') }}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/storage.js"></script>
+  <script>
+    (() => {
+      const form = document.getElementById('mailSettingsForm');
+      const feedback = document.querySelector('[data-mail-feedback]');
+      const smtpSection = document.getElementById('smtpSection');
+      const smtpToggle = document.querySelector('[data-toggle-smtp]');
+      const smtpChevron = document.querySelector('[data-smtp-chevron]');
+      const smtpCheckbox = document.querySelector('[data-smtp-toggle]');
+      const testBtn = document.getElementById('testConnectionBtn');
+      const csrf = '{{ csrfToken|e('js') }}';
+      const namespaceParam = '{{ pageNamespace|e('js') }}';
+      const baseEndpoint = '{{ basePath }}/settings/mail';
+      const nsQuery = namespaceParam
+        ? `?namespace=${encodeURIComponent(namespaceParam)}`
+        : '';
+      const saveEndpoint = `${baseEndpoint}${nsQuery}`;
+      const testEndpoint = `${baseEndpoint}/test${nsQuery}`;
+
+      function showFeedback(message, type) {
+        if (!feedback) return;
+        const p = feedback.querySelector('p');
+        if (p) p.textContent = message;
+        feedback.classList.remove('uk-alert-success', 'uk-alert-danger');
+        feedback.classList.add(type === 'success' ? 'uk-alert-success' : 'uk-alert-danger');
+        feedback.hidden = false;
+      }
+
+      function clearFeedback() {
+        if (feedback) feedback.hidden = true;
+      }
+
+      if (smtpToggle && smtpSection) {
+        smtpToggle.addEventListener('click', (e) => {
+          e.preventDefault();
+          const isHidden = smtpSection.hidden;
+          smtpSection.hidden = !isHidden;
+          smtpToggle.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+          if (smtpChevron) {
+            smtpChevron.setAttribute(
+              'uk-icon',
+              `icon: ${isHidden ? 'chevron-down' : 'chevron-right'}; ratio: 0.85`
+            );
+          }
+        });
+      }
+
+      function serialize() {
+        const data = new FormData(form);
+        const payload = {
+          from_email: (data.get('from_email') || '').trim(),
+          from_name: (data.get('from_name') || '').trim(),
+          use_custom_smtp: !!data.get('use_custom_smtp'),
+          _token: csrf
+        };
+        if (payload.use_custom_smtp) {
+          payload.smtp_host = (data.get('smtp_host') || '').trim();
+          payload.smtp_user = (data.get('smtp_user') || '').trim();
+          payload.smtp_pass = data.get('smtp_pass') || '';
+          payload.smtp_port = (data.get('smtp_port') || '').trim();
+          payload.smtp_encryption = (data.get('smtp_encryption') || 'tls').trim();
+        }
+        return payload;
+      }
+
+      function validate(payload) {
+        if (!payload.from_email) {
+          document.getElementById('mail-from-email')?.focus();
+          showFeedback('{{ t('error_mail_provider_sender_missing')|e('js') }}', 'danger');
+          return false;
+        }
+        if (payload.use_custom_smtp) {
+          const required = ['smtp_host', 'smtp_user', 'smtp_pass', 'smtp_port'];
+          for (const field of required) {
+            if (!payload[field]) {
+              document.getElementById('mail-' + field.replace(/_/g, '-'))?.focus();
+              showFeedback('{{ t('error_mail_provider_required')|e('js') }}', 'danger');
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = serialize();
+        if (!validate(payload)) return;
+        clearFeedback();
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        try {
+          const response = await fetch(saveEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-CSRF-Token': csrf,
+              'X-Requested-With': 'fetch'
+            },
+            body: JSON.stringify(payload)
+          });
+          const result = await response.json();
+          if (!response.ok || result.status === 'error') {
+            showFeedback(result.message || response.statusText, 'danger');
+            return;
+          }
+          showFeedback('{{ t('message_mail_provider_saved')|e('js') }}', 'success');
+        } catch (error) {
+          showFeedback(String(error), 'danger');
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+        }
+      });
+
+      testBtn?.addEventListener('click', async () => {
+        clearFeedback();
+        testBtn.disabled = true;
+        try {
+          const response = await fetch(testEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-CSRF-Token': csrf,
+              'X-Requested-With': 'fetch'
+            },
+            body: JSON.stringify({ provider: 'brevo', _token: csrf })
+          });
+          const result = await response.json();
+          if (!response.ok || result.status === 'error') {
+            showFeedback(result.message || response.statusText, 'danger');
+            return;
+          }
+          showFeedback('{{ t('message_mail_provider_test_success')|e('js') }}', 'success');
+        } catch (error) {
+          showFeedback(String(error), 'danger');
+        } finally {
+          testBtn.disabled = false;
+        }
+      });
+    })();
+  </script>
+{% endblock %}

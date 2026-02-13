@@ -264,6 +264,8 @@
 - Add fully functional contact_form block with configurable fields
 - Enhance footer editor with layout persistence, drag-and-drop, live preview, rich text and inline editing
 - Improve admin menu for mobile with touch-optimized offcanvas nav
+- Reorganize admin navigation – split Struktur into Menüs + Footer
+- Add self-service mail settings page (/settings/mail)
 
 ### Fix
 
@@ -354,6 +356,7 @@
 - Reset padding-left on uk-grid-large children in mobile admin view
 - Make footer block modal responsive on mobile and add missing translations
 - Resolve CI test failures in entrypoint and onboarding tests
+- Scope admin dashboard data to the selected namespace
 
 ### Refactor
 

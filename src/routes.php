@@ -632,6 +632,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $settingsService,
                 $mailProviderManager
             ))
+            ->withAttribute('mailSettingsController', new \App\Controller\Settings\MailSettingsController(
+                $mailProviderRepository,
+                $settingsService
+            ))
             ->withAttribute('namespaceController', new \App\Controller\Admin\NamespaceController($namespaceService))
             ->withAttribute('usernameBlocklistController', new UsernameBlocklistController(
                 new UsernameBlocklistService($pdo),
@@ -1456,27 +1460,31 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->cookies($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation', function (Request $request, Response $response) {
-        $controller = new NavigationController();
-        return $controller->index($request, $response);
+        return $response
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation/menus')
+            ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/pages/navigation', function (Request $request, Response $response) {
         return $response
-            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation')
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation/menus')
             ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/menus', function (Request $request, Response $response) {
-        return $response
-            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation')
-            ->withStatus(302);
+        $controller = new NavigationController();
+        return $controller->menusIndex($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/navigation/footer', function (Request $request, Response $response) {
+        $controller = new NavigationController();
+        return $controller->footerIndex($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/standards', function (Request $request, Response $response) {
         return $response
-            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation')
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation/menus')
             ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/overrides', function (Request $request, Response $response) {
         return $response
-            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation')
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation/menus')
             ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/overrides/{pageId:[0-9]+}', function (Request $request, Response $response, array $args) {
@@ -1485,7 +1493,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/footer-blocks', function (Request $request, Response $response) {
         return $response
-            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation')
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation/footer')
             ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/settings/header', function (Request $request, Response $response) {
@@ -2565,6 +2573,34 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/mail-providers/test', function (Request $request, Response $response) {
         $controller = $request->getAttribute('mailProviderController');
         if (!$controller instanceof MailProviderController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->testConnection($request, $response);
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
+
+    // Self-Service Mail Settings
+    $app->get('/settings/mail', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('mailSettingsController');
+        if (!$controller instanceof \App\Controller\Settings\MailSettingsController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
+
+    $app->post('/settings/mail', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('mailSettingsController');
+        if (!$controller instanceof \App\Controller\Settings\MailSettingsController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
+
+    $app->post('/settings/mail/test', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('mailSettingsController');
+        if (!$controller instanceof \App\Controller\Settings\MailSettingsController) {
             return $response->withStatus(500);
         }
 
