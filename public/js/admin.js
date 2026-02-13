@@ -11457,8 +11457,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const handleNamespaceDelete = id => {
       const item = namespaceTable.getData().find(entry => entry.id === id);
       if (!item) return;
-      if (item.is_default || item.is_active === false) {
-        notify(item.is_default ? messages.defaultLocked : messages.inUse, 'warning');
+      if (item.is_default) {
+        notify(messages.defaultLocked, 'warning');
         return;
       }
       if (!window.confirm(messages.confirmDelete)) {
