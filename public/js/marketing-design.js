@@ -1879,10 +1879,23 @@ const scheduleMarketingDesign = () => {
 scheduleMarketingDesign();
 
 /* Re-apply when the theme changes so dark/light inline styles stay in sync.
-   This covers both the JS toggle in app.js and external changes. */
+   This covers both the JS toggle in app.js and external changes.
+   We must clear theme-sensitive inline properties FIRST so that
+   getComputedStyle inside applyMarketingDesign() reads from the CSS
+   cascade (theme-vars, variables.css) rather than stale inline values. */
 if (typeof document !== 'undefined') {
+  const themeSensitiveProps = [
+    '--marketing-surface', '--marketing-surface-muted',
+    '--marketing-background',
+    '--marketing-text-on-surface', '--marketing-text-on-background',
+    '--marketing-text-muted-on-surface', '--marketing-text-muted-on-background',
+    '--marketing-ink', '--marketing-text',
+    '--section-default-surface', '--section-default-muted',
+  ];
   new MutationObserver(() => {
-    requestAnimationFrame(() => applyMarketingDesign());
+    const root = document.documentElement;
+    themeSensitiveProps.forEach(p => root.style.removeProperty(p));
+    applyMarketingDesign();
   }).observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['data-theme'],
