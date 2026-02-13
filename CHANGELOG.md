@@ -266,6 +266,7 @@
 - Improve admin menu for mobile with touch-optimized offcanvas nav
 - Reorganize admin navigation – split Struktur into Menüs + Footer
 - Add self-service mail settings page (/settings/mail)
+- Extract anchors from all pages for menu editor autocomplete
 
 ### Fix
 
