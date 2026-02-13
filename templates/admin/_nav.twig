@@ -160,6 +160,12 @@
     header: t('menu_web_structure'),
     items: [
       {
+        href: basePath ~ '/admin/settings/header',
+        icon: 'cog',
+        text: t('tab_navigation_settings'),
+        activePrefixes: [basePath ~ '/admin/settings/header']
+      },
+      {
         href: basePath ~ '/admin/navigation/menus',
         icon: 'list',
         text: t('tab_sidebar_menus'),
@@ -170,12 +176,6 @@
         icon: 'thumbnails',
         text: t('tab_sidebar_footer'),
         activePrefixes: [basePath ~ '/admin/navigation/footer']
-      },
-      {
-        href: basePath ~ '/admin/settings/header',
-        icon: 'cog',
-        text: t('tab_navigation_settings'),
-        activePrefixes: [basePath ~ '/admin/settings/header']
       },
     ]
   },

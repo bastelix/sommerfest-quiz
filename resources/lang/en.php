@@ -38,7 +38,7 @@ return [
     'tab_navigation_menus' => 'Navigation – Menus',
     'tab_navigation_standards' => 'Navigation – Standards',
     'tab_navigation_overrides' => 'Navigation – Page Overrides',
-    'tab_navigation_settings' => 'Header & Footer',
+    'tab_navigation_settings' => 'Header Settings',
     'tab_navigation_menus_short' => 'Menus',
     'tab_navigation_assignments' => 'Assignments',
     'tab_navigation_footer_blocks' => 'Footer Blocks',
