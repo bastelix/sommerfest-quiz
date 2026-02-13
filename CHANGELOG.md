@@ -64,6 +64,7 @@
 - Document marketing menu assignments
 - Add comprehensive architecture review against AGENTS.md
 - Add prioritized architecture task list (27 tasks in 7 phases)
+- Add harmonization plan for menu editor and footer block editor UX
 
 ### Feat
 
@@ -423,6 +424,7 @@
 - Simplify menu and footer template structure
 - Consolidate admin navigation into single tabbed page
 - Integrate footer block editor as 4th tab in navigation page
+- Harmonize menu tree editor UX with footer block editor patterns
 
 ### Style
 
