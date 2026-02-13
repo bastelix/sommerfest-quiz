@@ -378,6 +378,7 @@
 - Resolve AI menu generation HTTP 500 errors
 - Sync sqlite-schema.sql with missing migration changes
 - Swap page background and text inline styles for dark mode
+- Forward namespace parameter to domain-chat API endpoints
 
 ### Nav
 
