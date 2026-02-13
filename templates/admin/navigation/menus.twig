@@ -75,41 +75,7 @@
       <div class="uk-container uk-container-large">
         {% set activePageNamespace = pageNamespace|default('default') %}
         {% set pageNamespaceOptions = available_namespaces|default([]) %}
-        {% if pageNamespaceOptions is empty %}
-          {% set pageNamespaceOptions = [{
-            namespace: activePageNamespace,
-            label: null,
-            is_active: true
-          }] %}
-        {% endif %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
-          <div class="uk-grid-small uk-flex-middle" uk-grid>
-            <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
-              <div class="uk-form-controls">
-                <select
-                  id="pageNamespaceSelect"
-                  class="uk-select"
-                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
-                >
-                  {% for entry in pageNamespaceOptions %}
-                    {% set entryNamespace = entry.namespace|default('') %}
-                    {% set entryLabel = entry.label|default('') %}
-                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                    <option
-                      value="{{ entryNamespace|e('html_attr') }}"
-                      {% if entryNamespace == activePageNamespace %}selected{% endif %}
-                    >
-                      {{ entryNamespace }}
-                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                      {% if entryIsInactive %} – inaktiv{% endif %}
-                    </option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
+        {% include 'admin/partials/namespace_select.twig' %}
 
         {% set menuDefinitions = menu_definitions|default([]) %}
         {% set hasMenus = menuDefinitions is not empty %}
@@ -231,45 +197,45 @@
           </div>
         </div>
 
-        <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <label class="uk-form-label" for="menuDefinitionSelect">Menü auswählen</label>
-          <div class="uk-form-controls">
-            <select
-              id="menuDefinitionSelect"
-              class="uk-select"
-              data-selected="{{ selectedMenuId }}"
-              {% if not hasMenus %}disabled{% endif %}
-            >
-              {% if not hasMenus %}
-                <option value="" selected>Keine Menüs vorhanden</option>
-              {% endif %}
-              {% for menu in menuDefinitions %}
-                <option
-                  value="{{ menu.id }}"
-                  {% if menu.id == selectedMenuId %}selected{% endif %}
-                >{{ menu.label }} ({{ menu.locale }})</option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
-
         {% set marketingLocaleOptions = ['de', 'en'] %}
         {% set selectedMenuLocale = locale()|default('de') %}
         <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <label class="uk-form-label" for="menuLocaleSelect">Locale-Filter</label>
-          <div class="uk-form-controls">
-            <select id="menuLocaleSelect" class="uk-select" data-menu-locale-select>
-              <option value="">Alle Locales</option>
-              {% for localeOption in marketingLocaleOptions %}
-                <option
-                  value="{{ localeOption|e('html_attr') }}"
-                  {% if localeOption == selectedMenuLocale %}selected{% endif %}
-                >{{ localeOption }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="uk-text-meta uk-margin-small-top">
-            Optional: Ohne Auswahl werden Menüeinträge aus allen Locales angezeigt.
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="menuDefinitionSelect">Menü auswählen</label>
+              <div class="uk-form-controls">
+                <select
+                  id="menuDefinitionSelect"
+                  class="uk-select"
+                  data-selected="{{ selectedMenuId }}"
+                  {% if not hasMenus %}disabled{% endif %}
+                >
+                  {% if not hasMenus %}
+                    <option value="" selected>Keine Menüs vorhanden</option>
+                  {% endif %}
+                  {% for menu in menuDefinitions %}
+                    <option
+                      value="{{ menu.id }}"
+                      {% if menu.id == selectedMenuId %}selected{% endif %}
+                    >{{ menu.label }} ({{ menu.locale }})</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="uk-width-1-1 uk-width-medium@m">
+              <label class="uk-form-label" for="menuLocaleSelect">Locale-Filter</label>
+              <div class="uk-form-controls">
+                <select id="menuLocaleSelect" class="uk-select" data-menu-locale-select>
+                  <option value="">Alle Locales</option>
+                  {% for localeOption in marketingLocaleOptions %}
+                    <option
+                      value="{{ localeOption|e('html_attr') }}"
+                      {% if localeOption == selectedMenuLocale %}selected{% endif %}
+                    >{{ localeOption }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
           </div>
         </div>
         {% if useNavigationTree %}

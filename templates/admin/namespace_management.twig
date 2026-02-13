@@ -1,180 +1,120 @@
-{% extends 'layout.twig' %}
+{% extends 'admin/base.twig' %}
 
-{% block config_color_styles %}{% endblock %}
+{% block title %}{{ t('heading_namespace_management') }}{% endblock %}
 
-{% block head %}
-  <meta name="csrf-token" content="{{ csrfToken }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-{% endblock %}
-
-{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
-
-{% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <button
-        id="sidebarToggle"
-        type="button"
-        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
-        aria-controls="adminSidebar"
-        aria-expanded="true"
-        aria-pressed="false"
-        aria-label="{{ t('menu') }}"
+{% block content %}
+  <div class="uk-container uk-container-large">
+    <h2 class="uk-heading-bullet">{{ t('heading_namespace_management') }}</h2>
+  </div>
+  <div class="uk-section uk-section-small">
+    <div class="uk-container">
+      <p class="uk-text-meta">{{ t('text_namespace_intro') }}</p>
+      {% if namespaceFlash %}
+        <div class="uk-alert-success" uk-alert>
+          <a class="uk-alert-close" uk-close aria-label="{{ t('action_close') }}"></a>
+          <p>{{ namespaceFlash }}</p>
+        </div>
+      {% endif %}
+      {% from 'components/table.twig' import qr_rowcards %}
+      <div
+        class="uk-card uk-card-default uk-card-body uk-card-small"
+        data-namespace-management
+        data-list-url="{{ basePath }}/admin/namespaces/data"
+        data-create-url="{{ basePath }}/admin/namespaces"
+        data-update-url="{{ basePath }}/admin/namespaces/{namespace}"
+        data-delete-url="{{ basePath }}/admin/namespaces/{namespace}"
+        data-default-namespace="{{ defaultNamespace|e('html_attr') }}"
+        data-namespace-pattern="{{ namespacePattern|e('html_attr') }}"
+        data-namespace-max-length="{{ namespaceMaxLength|e('html_attr') }}"
+        data-column-count="4"
+        data-column-namespace="{{ t('column_namespace')|e('html_attr') }}"
+        data-column-label="{{ t('column_namespace_label')|e('html_attr') }}"
+        data-column-status="{{ t('column_namespace_status')|e('html_attr') }}"
+        data-message-created="{{ t('message_namespace_created')|e('html_attr') }}"
+        data-message-updated="{{ t('message_namespace_updated')|e('html_attr') }}"
+        data-message-deleted="{{ t('message_namespace_deleted')|e('html_attr') }}"
+        data-message-invalid="{{ t('error_namespace_invalid')|e('html_attr') }}"
+        data-message-invalid-empty="{{ t('error_namespace_empty')|e('html_attr') }}"
+        data-message-invalid-length="{{ t('error_namespace_invalid_length')|e('html_attr') }}"
+        data-message-invalid-format="{{ t('error_namespace_invalid_format')|e('html_attr') }}"
+        data-message-duplicate="{{ t('error_namespace_duplicate')|e('html_attr') }}"
+        data-message-not-found="{{ t('error_namespace_not_found')|e('html_attr') }}"
+        data-message-default-locked="{{ t('error_namespace_default_locked')|e('html_attr') }}"
+        data-message-in-use="{{ t('error_namespace_in_use')|e('html_attr') }}"
+        data-message-table-missing="{{ t('error_namespace_table_missing')|e('html_attr') }}"
+        data-message-error="{{ t('error_namespace_unknown')|e('html_attr') }}"
+        data-text-loading="{{ t('text_namespace_loading')|e('html_attr') }}"
+        data-text-empty="{{ t('text_namespace_empty')|e('html_attr') }}"
+        data-confirm-delete="{{ t('confirm_namespace_delete')|e('html_attr') }}"
+        data-label-save="{{ t('action_save')|e('html_attr') }}"
+        data-label-delete="{{ t('action_delete')|e('html_attr') }}"
+        data-label-default="{{ t('label_namespace_default')|e('html_attr') }}"
+        data-label-inactive="{{ t('label_namespace_inactive')|e('html_attr') }}"
       >
-        <span uk-navbar-toggle-icon></span>
-      </button>
-      <button
-        id="adminOffcanvasToggle"
-        type="button"
-        class="uk-navbar-toggle uk-hidden@m uk-margin-small-right git-btn"
-        uk-navbar-toggle-icon
-        uk-toggle="target: #qr-offcanvas"
-        aria-controls="qr-offcanvas"
-        aria-expanded="false"
-        aria-haspopup="true"
-        aria-label="{{ t('menu') }}"
-      ></button>
-      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
-        QuizRace Admin
-      </a>
-    {% endblock %}
-    {% block center %}
-      {% include 'admin/components/namespace_breadcrumb.twig' %}
-    {% endblock %}
-    {% block offcanvas %}
-      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-        <div class="uk-offcanvas-bar">
-          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-          <h3 class="uk-margin-small">QuizRace</h3>
-          {% include 'admin/_nav.twig' %}
-        </div>
-      </div>
-    {% endblock %}
-  {% endembed %}
-
-  <div class="uk-grid-collapse" uk-grid>
-    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ t('heading_namespace_management') }}</h2>
-      </div>
-      <div class="uk-section uk-section-small">
-        <div class="uk-container">
-          <p class="uk-text-meta">{{ t('text_namespace_intro') }}</p>
-          {% if namespaceFlash %}
-            <div class="uk-alert-success" uk-alert>
-              <a class="uk-alert-close" uk-close aria-label="{{ t('action_close') }}"></a>
-              <p>{{ namespaceFlash }}</p>
-            </div>
-          {% endif %}
-          {% from 'components/table.twig' import qr_rowcards %}
-          <div
-            class="uk-card uk-card-default uk-card-body uk-card-small"
-            data-namespace-management
-            data-list-url="{{ basePath }}/admin/namespaces/data"
-            data-create-url="{{ basePath }}/admin/namespaces"
-            data-update-url="{{ basePath }}/admin/namespaces/{namespace}"
-            data-delete-url="{{ basePath }}/admin/namespaces/{namespace}"
-            data-default-namespace="{{ defaultNamespace|e('html_attr') }}"
-            data-namespace-pattern="{{ namespacePattern|e('html_attr') }}"
-            data-namespace-max-length="{{ namespaceMaxLength|e('html_attr') }}"
-            data-column-count="4"
-            data-column-namespace="{{ t('column_namespace')|e('html_attr') }}"
-            data-column-label="{{ t('column_namespace_label')|e('html_attr') }}"
-            data-column-status="{{ t('column_namespace_status')|e('html_attr') }}"
-            data-message-created="{{ t('message_namespace_created')|e('html_attr') }}"
-            data-message-updated="{{ t('message_namespace_updated')|e('html_attr') }}"
-            data-message-deleted="{{ t('message_namespace_deleted')|e('html_attr') }}"
-            data-message-invalid="{{ t('error_namespace_invalid')|e('html_attr') }}"
-            data-message-invalid-empty="{{ t('error_namespace_empty')|e('html_attr') }}"
-            data-message-invalid-length="{{ t('error_namespace_invalid_length')|e('html_attr') }}"
-            data-message-invalid-format="{{ t('error_namespace_invalid_format')|e('html_attr') }}"
-            data-message-duplicate="{{ t('error_namespace_duplicate')|e('html_attr') }}"
-            data-message-not-found="{{ t('error_namespace_not_found')|e('html_attr') }}"
-            data-message-default-locked="{{ t('error_namespace_default_locked')|e('html_attr') }}"
-            data-message-in-use="{{ t('error_namespace_in_use')|e('html_attr') }}"
-            data-message-table-missing="{{ t('error_namespace_table_missing')|e('html_attr') }}"
-            data-message-error="{{ t('error_namespace_unknown')|e('html_attr') }}"
-            data-text-loading="{{ t('text_namespace_loading')|e('html_attr') }}"
-            data-text-empty="{{ t('text_namespace_empty')|e('html_attr') }}"
-            data-confirm-delete="{{ t('confirm_namespace_delete')|e('html_attr') }}"
-            data-label-save="{{ t('action_save')|e('html_attr') }}"
-            data-label-delete="{{ t('action_delete')|e('html_attr') }}"
-            data-label-default="{{ t('label_namespace_default')|e('html_attr') }}"
-            data-label-inactive="{{ t('label_namespace_inactive')|e('html_attr') }}"
-          >
-            <h3 class="uk-heading-bullet uk-margin-small-bottom">{{ t('heading_namespace_create') }}</h3>
-            <form class="uk-form-stacked" data-namespace-form method="post" action="{{ basePath }}/admin/namespaces">
-              <input type="hidden" name="csrf_token" value="{{ csrfToken }}">
-              <div class="uk-grid-small uk-child-width-1-2@m uk-margin" uk-grid>
-                <div>
-                  <label class="uk-form-label" for="namespaceInput">{{ t('label_namespace_name') }}</label>
-                  <div class="uk-form-controls">
-                    <input
-                      id="namespaceInput"
-                      class="uk-input"
-                      type="text"
-                      name="namespace"
-                      placeholder="{{ t('placeholder_namespace_name') }}"
-                      autocomplete="off"
-                      data-namespace-input
-                    >
-                  </div>
-                  <p class="uk-text-danger uk-margin-small-top uk-hidden" data-namespace-error></p>
-                  <p class="uk-text-meta uk-margin-small-top">{{ t('text_namespace_format_hint') }}</p>
-                </div>
-                <div>
-                  <label class="uk-form-label" for="namespaceLabelInput">{{ t('label_namespace_label') }}</label>
-                  <div class="uk-form-controls">
-                    <input
-                      id="namespaceLabelInput"
-                      class="uk-input"
-                      type="text"
-                      name="label"
-                      placeholder="{{ t('placeholder_namespace_label') }}"
-                      autocomplete="off"
-                      data-namespace-label-input
-                    >
-                  </div>
-                </div>
+        <h3 class="uk-heading-bullet uk-margin-small-bottom">{{ t('heading_namespace_create') }}</h3>
+        <form class="uk-form-stacked" data-namespace-form method="post" action="{{ basePath }}/admin/namespaces">
+          <input type="hidden" name="csrf_token" value="{{ csrfToken }}">
+          <div class="uk-grid-small uk-child-width-1-2@m uk-margin" uk-grid>
+            <div>
+              <label class="uk-form-label" for="namespaceInput">{{ t('label_namespace_name') }}</label>
+              <div class="uk-form-controls">
+                <input
+                  id="namespaceInput"
+                  class="uk-input"
+                  type="text"
+                  name="namespace"
+                  placeholder="{{ t('placeholder_namespace_name') }}"
+                  autocomplete="off"
+                  data-namespace-input
+                >
               </div>
-              <button class="uk-button uk-button-primary" type="submit">{{ t('button_namespace_add') }}</button>
-            </form>
-
-            <hr class="admin-divider-line">
-
-            <h3 class="uk-heading-bullet uk-margin-small-bottom">{{ t('heading_namespace_list') }}</h3>
-            <div class="uk-overflow-auto uk-visible@m">
-              <table class="uk-table uk-table-divider uk-table-middle uk-table-responsive">
-                <thead>
-                  <tr>
-                    <th data-key="namespace">{{ t('column_namespace') }}</th>
-                    <th data-key="label">{{ t('column_namespace_label') }}</th>
-                    <th data-key="status">{{ t('column_namespace_status') }}</th>
-                    <th class="uk-text-center">{{ t('column_namespace_actions') }}</th>
-                  </tr>
-                </thead>
-                <tbody data-namespace-table-body></tbody>
-              </table>
+              <p class="uk-text-danger uk-margin-small-top uk-hidden" data-namespace-error></p>
+              <p class="uk-text-meta uk-margin-small-top">{{ t('text_namespace_format_hint') }}</p>
             </div>
-            {{ qr_rowcards(
-              'namespaceCards',
-              false,
-              'uk-hidden@m uk-list uk-list-divider',
-              'ul',
-              t('text_namespace_loading'),
-              t('error_namespace_unknown')
-            ) }}
+            <div>
+              <label class="uk-form-label" for="namespaceLabelInput">{{ t('label_namespace_label') }}</label>
+              <div class="uk-form-controls">
+                <input
+                  id="namespaceLabelInput"
+                  class="uk-input"
+                  type="text"
+                  name="label"
+                  placeholder="{{ t('placeholder_namespace_label') }}"
+                  autocomplete="off"
+                  data-namespace-label-input
+                >
+              </div>
+            </div>
           </div>
+          <button class="uk-button uk-button-primary" type="submit">{{ t('button_namespace_add') }}</button>
+        </form>
+
+        <hr class="admin-divider-line">
+
+        <h3 class="uk-heading-bullet uk-margin-small-bottom">{{ t('heading_namespace_list') }}</h3>
+        <div class="uk-overflow-auto uk-visible@m">
+          <table class="uk-table uk-table-divider uk-table-middle uk-table-responsive">
+            <thead>
+              <tr>
+                <th data-key="namespace">{{ t('column_namespace') }}</th>
+                <th data-key="label">{{ t('column_namespace_label') }}</th>
+                <th data-key="status">{{ t('column_namespace_status') }}</th>
+                <th class="uk-text-center">{{ t('column_namespace_actions') }}</th>
+              </tr>
+            </thead>
+            <tbody data-namespace-table-body></tbody>
+          </table>
         </div>
+        {{ qr_rowcards(
+          'namespaceCards',
+          false,
+          'uk-hidden@m uk-list uk-list-divider',
+          'ul',
+          t('text_namespace_loading'),
+          t('error_namespace_unknown')
+        ) }}
       </div>
-    </main>
+    </div>
   </div>
 
   <div id="namespaceEditModal" class="uk-flex-top" uk-modal>
@@ -196,6 +136,8 @@
       </form>
     </div>
   </div>
+{% endblock %}
 
+{% block scripts %}
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
 {% endblock %}
