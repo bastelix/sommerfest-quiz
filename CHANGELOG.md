@@ -375,6 +375,7 @@
 - Remove redundant comparisons flagged by PHPStan
 - Swap surface text variables to dark variants in aurora dark mode
 - Add dark mode contrast-text overrides to all namespace-tokens.css
+- Resolve AI menu generation HTTP 500 errors
 
 ### Nav
 
