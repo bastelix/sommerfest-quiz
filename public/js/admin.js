@@ -5503,7 +5503,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (!window.confirm(confirmMessage)) {
             return;
           }
-          apiFetch(`/admin/domain-chat/documents/${encodeURIComponent(doc.id)}?domain=${encodeURIComponent(currentDomain)}`, {
+          apiFetch(appendNamespaceParam(`/admin/domain-chat/documents/${encodeURIComponent(doc.id)}?domain=${encodeURIComponent(currentDomain)}`), {
             method: 'DELETE'
           })
             .then(res => res.json().catch(() => ({})).then(data => {
@@ -5551,7 +5551,7 @@ document.addEventListener('DOMContentLoaded', function () {
         tableBody.appendChild(loadingRow);
       }
 
-      return apiFetch(`/admin/domain-chat/documents?domain=${encodeURIComponent(domain)}`)
+      return apiFetch(appendNamespaceParam(`/admin/domain-chat/documents?domain=${encodeURIComponent(domain)}`))
         .then(res => res.json().catch(() => ({})).then(data => {
           if (!res.ok) {
             throw new Error(data.error || domainChatTranslations.error || 'Request failed');
@@ -5619,7 +5619,7 @@ document.addEventListener('DOMContentLoaded', function () {
           downloadButton.disabled = true;
         }
 
-        apiFetch('/admin/domain-chat/documents', {
+        apiFetch(appendNamespaceParam('/admin/domain-chat/documents'), {
           method: 'POST',
           body: formData,
         })
@@ -5669,7 +5669,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         wikiSaveButton.disabled = true;
 
-        apiFetch('/admin/domain-chat/wiki-selection', {
+        apiFetch(appendNamespaceParam('/admin/domain-chat/wiki-selection'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ domain: selectedDomain, articles: selectedIds }),
@@ -5712,7 +5712,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (downloadButton) {
           downloadButton.disabled = true;
         }
-        apiFetch('/admin/domain-chat/rebuild', {
+        apiFetch(appendNamespaceParam('/admin/domain-chat/rebuild'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ domain: selectedDomain }),
@@ -5785,7 +5785,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         downloadButton.disabled = true;
 
-        apiFetch(`/admin/domain-chat/index?domain=${encodeURIComponent(selectedDomain)}`)
+        apiFetch(appendNamespaceParam(`/admin/domain-chat/index?domain=${encodeURIComponent(selectedDomain)}`))
           .then(res => {
             if (!res.ok) {
               return res.json().catch(() => ({})).then(data => {
