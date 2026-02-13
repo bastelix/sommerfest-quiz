@@ -372,6 +372,7 @@
 - Remove redundant non-empty-string comparison with empty string
 - Remove redundant null coalescing on uid which is always a non-nullable string
 - Restore footer block editor tab in navigation page
+- Remove redundant comparisons flagged by PHPStan
 
 ### Nav
 
