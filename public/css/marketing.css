@@ -440,6 +440,7 @@
 
 /* Dark mode (marketing-page) */
 :is(body.dark-mode, body[data-theme="dark"], html[data-theme="dark"] body, .marketing-scope.dark-mode, .marketing-scope[data-theme="dark"]).marketing-page:not(.high-contrast) {
+  --marketing-background: var(--marketing-background-dark, var(--surface-page));
   --marketing-surface: var(--marketing-surface-dark, var(--marketing-surface));
   --marketing-surface-muted: var(--marketing-surface-muted-dark, var(--marketing-surface-muted));
   --marketing-card: var(--marketing-card-dark, var(--marketing-surface-glass-dark));
