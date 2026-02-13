@@ -17,7 +17,6 @@ use App\Service\PageService;
 use App\Service\ProjectSettingsService;
 use App\Support\FeatureFlags;
 use App\Support\PageAnchorExtractor;
-use DateTimeImmutable;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -86,10 +85,6 @@ final class NavigationController
             $selectedMenuId = (int) $menuDefinitionList[0]['id'];
         }
 
-        $pagesForNamespace = $this->pageService->getAllForNamespace($namespace);
-        $assignments = $this->menuDefinitions->listAssignments($namespace, null, null, null, null, true);
-        $pageOverrides = $this->buildOverrideSummary($pagesForNamespace, $assignments);
-
         $footerLayout = $this->projectSettings->getFooterLayout($namespace);
         $footerMenuDefinitions = array_map(
             static fn (CmsMenu $menu): array => [
@@ -113,8 +108,6 @@ final class NavigationController
             'use_navigation_tree' => FeatureFlags::marketingNavigationTreeEnabled(),
             'anchor_page_id' => $anchorPage?->getId(),
             'locale_options' => $this->resolveLocaleOptions($menuDefinitions, $namespace),
-            'page_overrides' => $pageOverrides,
-            'override_locale_options' => $this->resolveLocaleOptions([], $namespace, $assignments),
             'navigation_settings' => $this->projectSettings->getCookieConsentSettings($namespace),
             'footer_namespaces' => $namespaceList,
             'footer_layout' => $footerLayout,
@@ -158,10 +151,6 @@ final class NavigationController
             $selectedMenuId = (int) $menuDefinitionList[0]['id'];
         }
 
-        $pagesForNamespace = $this->pageService->getAllForNamespace($namespace);
-        $assignments = $this->menuDefinitions->listAssignments($namespace, null, null, null, null, true);
-        $pageOverrides = $this->buildOverrideSummary($pagesForNamespace, $assignments);
-
         $footerLayout = $this->projectSettings->getFooterLayout($namespace);
         $footerMenuDefinitions = array_map(
             static fn (CmsMenu $menu): array => [
@@ -185,8 +174,6 @@ final class NavigationController
             'use_navigation_tree' => FeatureFlags::marketingNavigationTreeEnabled(),
             'anchor_page_id' => $anchorPage?->getId(),
             'locale_options' => $this->resolveLocaleOptions($menuDefinitions, $namespace),
-            'page_overrides' => $pageOverrides,
-            'override_locale_options' => $this->resolveLocaleOptions([], $namespace, $assignments),
             'navigation_settings' => $this->projectSettings->getCookieConsentSettings($namespace),
             'footer_namespaces' => $namespaceList,
             'footer_layout' => $footerLayout,
@@ -279,97 +266,6 @@ final class NavigationController
             'internal_links' => $internalLinks,
             'use_navigation_tree' => FeatureFlags::marketingNavigationTreeEnabled(),
             'anchor_page_id' => $anchorPage?->getId(),
-        ]);
-    }
-
-    public function standards(Request $request, Response $response): Response
-    {
-        $view = Twig::fromRequest($request);
-        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
-
-        $menuDefinitions = $this->menuDefinitions->listMenus($namespace);
-        $menuDefinitionList = array_map(
-            static fn (CmsMenu $menu): array => [
-                'id' => $menu->getId(),
-                'namespace' => $menu->getNamespace(),
-                'label' => $menu->getLabel(),
-                'locale' => $menu->getLocale(),
-                'isActive' => $menu->isActive(),
-                'updatedAt' => $menu->getUpdatedAt()?->format(DATE_ATOM),
-            ],
-            $menuDefinitions
-        );
-
-        return $view->render($response, 'admin/navigation/standards.twig', [
-            'role' => $_SESSION['user']['role'] ?? '',
-            'currentPath' => $request->getUri()->getPath(),
-            'domainType' => $request->getAttribute('domainType'),
-            'available_namespaces' => $availableNamespaces,
-            'pageNamespace' => $namespace,
-            'csrf_token' => $this->ensureCsrfToken(),
-            'menu_definitions' => $menuDefinitionList,
-            'locale_options' => $this->resolveLocaleOptions($menuDefinitions, $namespace),
-        ]);
-    }
-
-    public function overrides(Request $request, Response $response): Response
-    {
-        $view = Twig::fromRequest($request);
-        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
-        $pages = $this->pageService->getAllForNamespace($namespace);
-        $assignments = $this->menuDefinitions->listAssignments($namespace, null, null, null, null, true);
-        $pageOverrides = $this->buildOverrideSummary($pages, $assignments);
-
-        return $view->render($response, 'admin/navigation/overrides.twig', [
-            'role' => $_SESSION['user']['role'] ?? '',
-            'currentPath' => $request->getUri()->getPath(),
-            'domainType' => $request->getAttribute('domainType'),
-            'available_namespaces' => $availableNamespaces,
-            'pageNamespace' => $namespace,
-            'page_overrides' => $pageOverrides,
-            'locale_options' => $this->resolveLocaleOptions([], $namespace, $assignments),
-        ]);
-    }
-
-    /**
-     * @param array{pageId:string} $args
-     */
-    public function overrideDetail(Request $request, Response $response, array $args): Response
-    {
-        $view = Twig::fromRequest($request);
-        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
-        $pageId = (int) $args['pageId'];
-        $page = $pageId > 0 ? $this->pageService->findById($pageId) : null;
-        if ($page === null || $page->getNamespace() !== $namespace) {
-            return $response->withStatus(404);
-        }
-
-        $menuDefinitions = $this->menuDefinitions->listMenus($namespace);
-        $menuDefinitionList = array_map(
-            static fn (CmsMenu $menu): array => [
-                'id' => $menu->getId(),
-                'namespace' => $menu->getNamespace(),
-                'label' => $menu->getLabel(),
-                'locale' => $menu->getLocale(),
-                'isActive' => $menu->isActive(),
-                'updatedAt' => $menu->getUpdatedAt()?->format(DATE_ATOM),
-            ],
-            $menuDefinitions
-        );
-
-        return $view->render($response, 'admin/navigation/override_detail.twig', [
-            'role' => $_SESSION['user']['role'] ?? '',
-            'currentPath' => $request->getUri()->getPath(),
-            'domainType' => $request->getAttribute('domainType'),
-            'available_namespaces' => $availableNamespaces,
-            'pageNamespace' => $namespace,
-            'page' => [
-                'id' => $page->getId(),
-                'slug' => $page->getSlug(),
-                'title' => $page->getTitle(),
-            ],
-            'csrf_token' => $this->ensureCsrfToken(),
-            'menu_definitions' => $menuDefinitionList,
             'locale_options' => $this->resolveLocaleOptions($menuDefinitions, $namespace),
         ]);
     }
@@ -588,55 +484,6 @@ final class NavigationController
     }
 
     /**
-     * @param CmsMenuAssignment[] $assignments
-     * @return array<int, array<string, mixed>>
-     */
-    private function buildOverrideSummary(array $pages, array $assignments): array
-    {
-        $grouped = [];
-        foreach ($assignments as $assignment) {
-            $pageId = $assignment->getPageId();
-            if ($pageId === null) {
-                continue;
-            }
-            $grouped[$pageId][] = $assignment;
-        }
-
-        $result = [];
-        foreach ($pages as $page) {
-            $pageAssignments = $grouped[$page->getId()] ?? [];
-            $headerLocales = [];
-            $footerLocales = [];
-            $updatedAt = null;
-            foreach ($pageAssignments as $assignment) {
-                if (!$assignment->isActive()) {
-                    continue;
-                }
-                if ($assignment->getSlot() === 'main') {
-                    $headerLocales[$assignment->getLocale()] = true;
-                }
-                if (in_array($assignment->getSlot(), ['footer_1', 'footer_2', 'footer_3'], true)) {
-                    $footerLocales[$assignment->getLocale()] = true;
-                }
-                $updatedAt = $this->resolveLatestUpdatedAt($updatedAt, $assignment->getUpdatedAt());
-            }
-
-            $result[] = [
-                'id' => $page->getId(),
-                'slug' => $page->getSlug(),
-                'title' => $page->getTitle(),
-                'header_locales' => array_keys($headerLocales),
-                'footer_locales' => array_keys($footerLocales),
-                'has_header_override' => $headerLocales !== [],
-                'has_footer_override' => $footerLocales !== [],
-                'updated_at' => $updatedAt?->format(DATE_ATOM),
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
      * @param CmsMenu[] $menus
      * @param CmsMenuAssignment[] $assignments
      * @return list<string>
@@ -669,18 +516,6 @@ final class NavigationController
         }
 
         return $locales;
-    }
-
-    private function resolveLatestUpdatedAt(?DateTimeImmutable $current, ?DateTimeImmutable $candidate): ?DateTimeImmutable
-    {
-        if ($candidate === null) {
-            return $current;
-        }
-        if ($current === null || $candidate > $current) {
-            return $candidate;
-        }
-
-        return $current;
     }
 
     private function ensureCsrfToken(): string

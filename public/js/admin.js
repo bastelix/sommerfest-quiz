@@ -2,10 +2,7 @@
 
 import './marketing-menu-admin.js';
 import './marketing-menu-overview.js';
-import './marketing-menu-assignments.js';
 import './marketing-menu-standards.js';
-import './marketing-menu-overrides-list.js';
-import './marketing-menu-overrides-detail.js';
 import TableManager from './table-manager.js';
 import { createCellEditor } from './edit-helpers.js';
 import {

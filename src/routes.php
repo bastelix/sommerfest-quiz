@@ -1477,20 +1477,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new NavigationController();
         return $controller->footerIndex($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
-    $app->get('/admin/navigation/standards', function (Request $request, Response $response) {
-        return $response
-            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation/menus')
-            ->withStatus(302);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
-    $app->get('/admin/navigation/overrides', function (Request $request, Response $response) {
-        return $response
-            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation/menus')
-            ->withStatus(302);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
-    $app->get('/admin/navigation/overrides/{pageId:[0-9]+}', function (Request $request, Response $response, array $args) {
-        $controller = new NavigationController();
-        return $controller->overrideDetail($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/navigation/footer-blocks', function (Request $request, Response $response) {
         return $response
             ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation/footer')

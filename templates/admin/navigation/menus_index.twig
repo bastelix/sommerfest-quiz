@@ -77,17 +77,14 @@
 
         <ul class="uk-subnav uk-subnav-pill uk-margin" uk-switcher="connect: #navigation-tab-content; animation: uk-animation-fade">
           <li><a href="#">{{ t('tab_navigation_menus_short') }}</a></li>
-          <li><a href="#">{{ t('tab_navigation_assignments') }}</a></li>
           <li><a href="#">{{ t('tab_navigation_footer_blocks') }}</a></li>
           <li><a href="#">{{ t('tab_navigation_settings') }}</a></li>
         </ul>
 
         <ul id="navigation-tab-content" class="uk-switcher uk-margin">
           <li>
+            {% include 'admin/navigation/_partials/header_standard_card.twig' %}
             {% include 'admin/navigation/_partials/menus_tab.twig' %}
-          </li>
-          <li>
-            {% include 'admin/navigation/_partials/assignments_tab.twig' %}
           </li>
           <li>
             {% include 'admin/navigation/_partials/footer_blocks_tab.twig' %}
