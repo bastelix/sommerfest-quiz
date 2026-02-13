@@ -7,10 +7,7 @@ if (standardsContainer) {
     const feedback = standardsContainer.querySelector('[data-menu-standards-feedback]');
     const headerLocaleSelect = standardsContainer.querySelector('[data-header-locale-select]');
     const headerMenuSelect = standardsContainer.querySelector('[data-header-menu-select]');
-    const footerLocaleSelect = standardsContainer.querySelector('[data-footer-locale-select]');
-    const footerSelects = Array.from(standardsContainer.querySelectorAll('[data-footer-select]'));
 
-    const footerSlots = ['footer_1', 'footer_2', 'footer_3'];
     const basePath = standardsContainer.dataset.basePath || window.basePath || '';
 
     const resolveNamespace = () => {
@@ -121,7 +118,6 @@ if (standardsContainer) {
 
     const state = {
       headerAssignment: null,
-      footerAssignments: new Map(),
     };
 
     const updateHeaderSelect = () => {
@@ -131,15 +127,6 @@ if (standardsContainer) {
       const assignment = state.headerAssignment;
       headerMenuSelect.value = assignment?.menuId ? String(assignment.menuId) : '';
       headerMenuSelect.dataset.assignmentId = assignment?.id ? String(assignment.id) : '';
-    };
-
-    const updateFooterSelects = () => {
-      footerSelects.forEach(select => {
-        const slot = select.dataset.footerSelect || '';
-        const assignment = state.footerAssignments.get(slot);
-        select.value = assignment?.menuId ? String(assignment.menuId) : '';
-        select.dataset.assignmentId = assignment?.id ? String(assignment.id) : '';
-      });
     };
 
     const loadHeaderStandard = async () => {
@@ -165,35 +152,6 @@ if (standardsContainer) {
         updateHeaderSelect();
       } catch (error) {
         setFeedback('Header-Standard konnte nicht geladen werden.', 'warning');
-      }
-    };
-
-    const loadFooterStandards = async () => {
-      if (!footerLocaleSelect) {
-        return;
-      }
-      const namespace = resolveNamespace();
-      const locale = String(footerLocaleSelect.value || '').trim();
-      if (!namespace || !locale) {
-        state.footerAssignments.clear();
-        updateFooterSelects();
-        return;
-      }
-      try {
-        const assignments = await requestAssignments({
-          namespace,
-          locale,
-          includeInactive: 1
-        });
-        state.footerAssignments = new Map(
-          assignments
-            .filter(assignment => assignment && assignment.pageId === null && assignment.isActive)
-            .filter(assignment => footerSlots.includes(assignment.slot))
-            .map(assignment => [assignment.slot, assignment])
-        );
-        updateFooterSelects();
-      } catch (error) {
-        setFeedback('Footer-Standards konnten nicht geladen werden.', 'warning');
       }
     };
 
@@ -274,48 +232,8 @@ if (standardsContainer) {
       }
     };
 
-    const handleFooterChange = async (event) => {
-      const select = event.target;
-      if (!select || !footerLocaleSelect) {
-        return;
-      }
-      hideFeedback();
-      const slot = select.dataset.footerSelect || '';
-      const locale = String(footerLocaleSelect.value || '').trim();
-      if (!slot || !locale) {
-        setFeedback('Bitte Locale auswählen.', 'warning');
-        return;
-      }
-      const menuId = Number(select.value || 0);
-      const assignment = state.footerAssignments.get(slot);
-      try {
-        if (!menuId) {
-          if (assignment?.id) {
-            await deleteAssignment(assignment.id);
-          }
-          state.footerAssignments.delete(slot);
-        } else {
-          const saved = await saveAssignment({
-            assignmentId: assignment?.id,
-            menuId,
-            slot,
-            locale
-          });
-          if (saved) {
-            state.footerAssignments.set(slot, saved);
-          }
-        }
-        updateFooterSelects();
-        setFeedback('Footer-Standard gespeichert.', 'success');
-      } catch (error) {
-        setFeedback('Footer-Standard konnte nicht gespeichert werden.', 'danger');
-      }
-    };
-
     const refreshLocaleFilters = () => {
       filterMenuOptions(headerMenuSelect, headerLocaleSelect?.value);
-      const footerLocale = footerLocaleSelect?.value;
-      footerSelects.forEach(select => filterMenuOptions(select, footerLocale));
     };
 
     if (headerLocaleSelect) {
@@ -327,26 +245,15 @@ if (standardsContainer) {
     if (headerMenuSelect) {
       headerMenuSelect.addEventListener('change', handleHeaderChange);
     }
-    if (footerLocaleSelect) {
-      footerLocaleSelect.addEventListener('change', () => {
-        refreshLocaleFilters();
-        loadFooterStandards();
-      });
-    }
-    footerSelects.forEach(select => {
-      select.addEventListener('change', handleFooterChange);
-    });
 
     const namespaceSelect = document.getElementById('pageNamespaceSelect');
     if (namespaceSelect) {
       namespaceSelect.addEventListener('change', () => {
         loadHeaderStandard();
-        loadFooterStandards();
       });
     }
 
     refreshLocaleFilters();
     loadHeaderStandard();
-    loadFooterStandards();
   })();
 }
