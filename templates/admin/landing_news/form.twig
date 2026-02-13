@@ -1,7 +1,6 @@
-{% extends 'layout.twig' %}
+{% extends 'admin/base.twig' %}
 
 {% set adminLayout = 'narrow' %}
-{% block config_color_styles %}{% endblock %}
 
 {% set isEdit = entry is not null %}
 {% set formValues = override|default({}) %}
@@ -18,128 +17,69 @@
 
 {% block title %}{{ isEdit ? t('heading_news_edit') : t('heading_news_create') }}{% endblock %}
 
-{% block head %}
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-{% endblock %}
-
-{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
-
-{% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <button
-        id="sidebarToggle"
-        type="button"
-        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
-        aria-controls="adminSidebar"
-        aria-expanded="true"
-        aria-pressed="false"
-        aria-label="{{ t('menu') }}"
-      >
-        <span uk-navbar-toggle-icon></span>
-      </button>
-      <button
-        id="adminOffcanvasToggle"
-        type="button"
-        class="uk-navbar-toggle uk-hidden@m uk-margin-small-right git-btn"
-        uk-navbar-toggle-icon
-        uk-toggle="target: #qr-offcanvas"
-        aria-controls="qr-offcanvas"
-        aria-expanded="false"
-        aria-haspopup="true"
-        aria-label="{{ t('menu') }}"
-      ></button>
-      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
-        QuizRace Admin
-      </a>
-    {% endblock %}
-    {% block center %}
-      {% include 'admin/components/namespace_breadcrumb.twig' %}
-    {% endblock %}
-    {% block offcanvas %}
-      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-        <div class="uk-offcanvas-bar">
-          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-          <h3 class="uk-margin-small">QuizRace</h3>
-          {% include 'admin/_nav.twig' %}
+{% block content %}
+  <div class="uk-container uk-container-large">
+    <div class="uk-padding-small uk-padding-remove-horizontal">
+      <h1 class="uk-heading-bullet uk-margin-remove">{{ isEdit ? t('heading_news_edit') : t('heading_news_create') }}</h1>
+    </div>
+  </div>
+  <div class="uk-container uk-container-expand">
+    <form method="post" action="{{ formAction }}" class="uk-form-stacked uk-grid-small" uk-grid>
+      <input type="hidden" name="_token" value="{{ csrfToken }}">
+      <div class="uk-width-1-1 uk-width-1-2@m">
+        <label class="uk-form-label" for="landingPage">{{ t('label_news_page') }}</label>
+        <div class="uk-form-controls">
+          <select id="landingPage" name="page_id" class="uk-select" required>
+            <option value="">{{ t('placeholder_select_page') }}</option>
+            {% for page in pages %}
+              <option value="{{ page.id }}" {% if page.id == pageId %}selected{% endif %}>{{ page.title }} ({{ page.slug }})</option>
+            {% endfor %}
+          </select>
         </div>
       </div>
-    {% endblock %}
-  {% endembed %}
-
-  <div class="uk-grid-collapse" uk-grid>
-    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
-      <div class="uk-container uk-container-large">
-        <div class="uk-padding-small uk-padding-remove-horizontal">
-          <h1 class="uk-heading-bullet uk-margin-remove">{{ isEdit ? t('heading_news_edit') : t('heading_news_create') }}</h1>
+      <div class="uk-width-1-1 uk-width-1-2@m">
+        <label class="uk-form-label" for="newsSlug">{{ t('label_news_slug') }}</label>
+        <div class="uk-form-controls">
+          <input id="newsSlug" class="uk-input" type="text" name="slug" value="{{ slug|e }}" required pattern="[a-z0-9\-]+" maxlength="100">
         </div>
       </div>
-      <div class="uk-container uk-container-expand">
-        <form method="post" action="{{ formAction }}" class="uk-form-stacked uk-grid-small" uk-grid>
-          <input type="hidden" name="_token" value="{{ csrfToken }}">
-          <div class="uk-width-1-1 uk-width-1-2@m">
-            <label class="uk-form-label" for="landingPage">{{ t('label_news_page') }}</label>
-            <div class="uk-form-controls">
-              <select id="landingPage" name="page_id" class="uk-select" required>
-                <option value="">{{ t('placeholder_select_page') }}</option>
-                {% for page in pages %}
-                  <option value="{{ page.id }}" {% if page.id == pageId %}selected{% endif %}>{{ page.title }} ({{ page.slug }})</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="uk-width-1-1 uk-width-1-2@m">
-            <label class="uk-form-label" for="newsSlug">{{ t('label_news_slug') }}</label>
-            <div class="uk-form-controls">
-              <input id="newsSlug" class="uk-input" type="text" name="slug" value="{{ slug|e }}" required pattern="[a-z0-9\-]+" maxlength="100">
-            </div>
-          </div>
-          <div class="uk-width-1-1">
-            <label class="uk-form-label" for="newsTitle">{{ t('label_news_title') }}</label>
-            <div class="uk-form-controls">
-              <input id="newsTitle" class="uk-input" type="text" name="title" value="{{ titleValue|e }}" required>
-            </div>
-          </div>
-          <div class="uk-width-1-1">
-            <label class="uk-form-label" for="newsExcerpt">{{ t('label_news_excerpt') }}</label>
-            <div class="uk-form-controls">
-              <textarea id="newsExcerpt" class="uk-textarea" name="excerpt" rows="4">{{ excerptValue|e }}</textarea>
-            </div>
-          </div>
-          <div class="uk-width-1-1">
-            <label class="uk-form-label" for="newsContent">{{ t('label_news_content') }}</label>
-            <div class="uk-form-controls">
-              <textarea id="newsContent" class="uk-textarea" name="content" rows="12" required>{{ contentValue|e }}</textarea>
-            </div>
-          </div>
-          <div class="uk-width-1-1 uk-width-1-3@m">
-            <label class="uk-form-label" for="newsPublishedAt">{{ t('label_news_published_at') }}</label>
-            <div class="uk-form-controls">
-              <input id="newsPublishedAt" class="uk-input" type="datetime-local" name="published_at" value="{{ publishedAt|e }}">
-            </div>
-          </div>
-          <div class="uk-width-1-1 uk-width-1-3@m uk-flex uk-flex-middle">
-            <label><input class="uk-checkbox" type="checkbox" name="is_published" value="1" {% if published %}checked{% endif %}> {{ t('label_news_is_published') }}</label>
-          </div>
-          <div class="uk-width-1-1 uk-margin-top">
-            <button type="submit" class="uk-button uk-button-primary">{{ t('button_save') }}</button>
-            <a class="uk-button uk-button-default" href="{{ basePath }}/admin/landing-news{% if pageNamespace is not empty %}?namespace={{ pageNamespace|url_encode }}{% endif %}">{{ t('button_cancel') }}</a>
-          </div>
-          {% if error %}
-            <div class="uk-width-1-1">
-              <div class="uk-alert-danger" uk-alert>{{ error }}</div>
-            </div>
-          {% endif %}
-        </form>
+      <div class="uk-width-1-1">
+        <label class="uk-form-label" for="newsTitle">{{ t('label_news_title') }}</label>
+        <div class="uk-form-controls">
+          <input id="newsTitle" class="uk-input" type="text" name="title" value="{{ titleValue|e }}" required>
+        </div>
       </div>
-    </main>
+      <div class="uk-width-1-1">
+        <label class="uk-form-label" for="newsExcerpt">{{ t('label_news_excerpt') }}</label>
+        <div class="uk-form-controls">
+          <textarea id="newsExcerpt" class="uk-textarea" name="excerpt" rows="4">{{ excerptValue|e }}</textarea>
+        </div>
+      </div>
+      <div class="uk-width-1-1">
+        <label class="uk-form-label" for="newsContent">{{ t('label_news_content') }}</label>
+        <div class="uk-form-controls">
+          <textarea id="newsContent" class="uk-textarea" name="content" rows="12" required>{{ contentValue|e }}</textarea>
+        </div>
+      </div>
+      <div class="uk-width-1-1 uk-width-1-3@m">
+        <label class="uk-form-label" for="newsPublishedAt">{{ t('label_news_published_at') }}</label>
+        <div class="uk-form-controls">
+          <input id="newsPublishedAt" class="uk-input" type="datetime-local" name="published_at" value="{{ publishedAt|e }}">
+        </div>
+      </div>
+      <div class="uk-width-1-1 uk-width-1-3@m uk-flex uk-flex-middle">
+        <label><input class="uk-checkbox" type="checkbox" name="is_published" value="1" {% if published %}checked{% endif %}> {{ t('label_news_is_published') }}</label>
+      </div>
+      <div class="uk-width-1-1 uk-margin-top">
+        <button type="submit" class="uk-button uk-button-primary">{{ t('button_save') }}</button>
+        <a class="uk-button uk-button-default" href="{{ basePath }}/admin/landing-news{% if pageNamespace is not empty %}?namespace={{ pageNamespace|url_encode }}{% endif %}">{{ t('button_cancel') }}</a>
+      </div>
+      {% if error %}
+        <div class="uk-width-1-1">
+          <div class="uk-alert-danger" uk-alert>{{ error }}</div>
+        </div>
+      {% endif %}
+    </form>
   </div>
 {% endblock %}
 
