@@ -374,6 +374,7 @@
 - Restore footer block editor tab in navigation page
 - Remove redundant comparisons flagged by PHPStan
 - Swap surface text variables to dark variants in aurora dark mode
+- Add dark mode contrast-text overrides to all namespace-tokens.css
 
 ### Nav
 
