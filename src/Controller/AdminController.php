@@ -97,7 +97,7 @@ class AdminController
                 }
             }
             if (!$eventBelongsToNamespace) {
-                $uid = isset($events[0]['uid']) ? (string) $events[0]['uid'] : '';
+                $uid = isset($events[0]) ? $events[0]['uid'] : '';
             }
         }
 
