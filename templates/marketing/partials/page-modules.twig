@@ -2,17 +2,23 @@
 {% if moduleItems %}
   <div class="page-modules"
        data-page-modules-position="{{ position|default('')|e('html_attr') }}">
-    <div class="uk-container">
-      <div class="page-modules__grid marketing-grid">
-        {% for module in moduleItems %}
-          <div class="page-module"
-               data-page-module-id="{{ module.id|e('html_attr') }}"
-               data-page-module-type="{{ module.type|e('html_attr') }}"
-               data-page-module-position="{{ module.position|e('html_attr') }}"
-               data-page-module-config="{{ module.config|json_encode|e('html_attr') }}">
+    {% for module in moduleItems %}
+      {% if module.type == 'latest-news' %}
+        {% include 'marketing/partials/page-module-latest-news.twig' with {
+          module: module
+        } %}
+      {% else %}
+        <div class="uk-container">
+          <div class="page-modules__grid marketing-grid">
+            <div class="page-module"
+                 data-page-module-id="{{ module.id|e('html_attr') }}"
+                 data-page-module-type="{{ module.type|e('html_attr') }}"
+                 data-page-module-position="{{ module.position|e('html_attr') }}"
+                 data-page-module-config="{{ module.config|json_encode|e('html_attr') }}">
+            </div>
           </div>
-        {% endfor %}
-      </div>
-    </div>
+        </div>
+      {% endif %}
+    {% endfor %}
   </div>
 {% endif %}

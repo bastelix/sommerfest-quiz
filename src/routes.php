@@ -132,6 +132,7 @@ use App\Controller\Admin\MarketingMenuDefinitionController;
 use App\Controller\Admin\MarketingMenuItemController;
 use App\Controller\Admin\MarketingMenuAssignmentController;
 use App\Controller\Admin\MarketingFooterBlockController;
+use App\Controller\Admin\PageModuleController as AdminPageModuleController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\DomainPageController;
 use App\Controller\Admin\BackupController as AdminBackupController;
@@ -2111,6 +2112,26 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
     $app->post('/admin/landing-news/{id:\d+}/delete', function (Request $request, Response $response, array $args) {
         $controller = new AdminLandingNewsController();
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/page-modules', function (Request $request, Response $response) {
+        $controller = new AdminPageModuleController();
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/page-modules', function (Request $request, Response $response) {
+        $controller = new AdminPageModuleController();
+        return $controller->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->put('/admin/page-modules/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new AdminPageModuleController();
+        return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->delete('/admin/page-modules/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new AdminPageModuleController();
         return $controller->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
