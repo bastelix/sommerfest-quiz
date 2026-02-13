@@ -359,6 +359,7 @@
 - Scope admin dashboard data to the selected namespace
 - Menu editor item creation and AI generation
 - Allow deletion of inactive namespaces
+- Menu card editor – inline editing, auto-save, and preview
 
 ### Refactor
 
