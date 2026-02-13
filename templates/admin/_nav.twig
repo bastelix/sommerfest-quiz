@@ -54,7 +54,6 @@
   {
     header: t('menu_projects'),
     icon: 'grid',
-    admin: true,
     type: 'projects'
   },
   {
@@ -161,30 +160,24 @@
     header: t('menu_web_structure'),
     items: [
       {
-        href: basePath ~ '/admin/navigation/menus',
-        icon: 'menu',
-        text: t('tab_sidebar_menus'),
-        activePrefixes: [basePath ~ '/admin/navigation/menus', basePath ~ '/admin/navigation/standards', basePath ~ '/admin/navigation/overrides', basePath ~ '/admin/settings/header']
-      },
-      {
-        href: basePath ~ '/admin/navigation/footer',
-        icon: 'table',
-        text: t('tab_sidebar_footer'),
-        activePrefixes: [basePath ~ '/admin/navigation/footer']
+        href: basePath ~ '/admin/navigation',
+        icon: 'list',
+        text: t('tab_navigation'),
+        activePrefixes: [basePath ~ '/admin/navigation']
       },
     ]
   },
   {
     header: t('menu_web_marketing'),
     items: [
-      { href: basePath ~ '/admin/pages/seo', icon: 'search', text: t('tab_page_seo_base'), activePrefixes: [basePath ~ '/admin/pages/seo'] },
-      { href: basePath ~ '/admin/pages/cookies', icon: 'file-text', text: t('tab_cookies'), activePrefixes: [basePath ~ '/admin/pages/cookies'] },
+      { href: basePath ~ '/admin/pages/seo', icon: 'search', text: t('tab_page_seo_base'), activePrefixes: [basePath ~ '/admin/pages/seo'], roles: ['admin'] },
+      { href: basePath ~ '/admin/pages/cookies', icon: 'file-text', text: t('tab_cookies'), activePrefixes: [basePath ~ '/admin/pages/cookies'], roles: ['admin'] },
     ]
   },
   {
     header: t('menu_web_interaction'),
     items: [
-      { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat'), activePrefixes: [basePath ~ '/admin/rag-chat'] },
+      { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat'), activePrefixes: [basePath ~ '/admin/rag-chat'], roles: ['admin'] },
     ]
   },
   {
