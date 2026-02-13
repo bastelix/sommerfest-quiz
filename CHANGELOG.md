@@ -361,6 +361,7 @@
 - Menu editor item creation and AI generation
 - Allow deletion of inactive namespaces
 - Menu card editor – inline editing, auto-save, and preview
+- Pass PostgreSQL sequence names to lastInsertId() for menu operations
 
 ### Refactor
 
