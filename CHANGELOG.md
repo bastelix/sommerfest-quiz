@@ -371,6 +371,7 @@
 - Resolve PHPStan errors for null coalesce and redundant comparison
 - Remove redundant non-empty-string comparison with empty string
 - Remove redundant null coalescing on uid which is always a non-nullable string
+- Restore footer block editor tab in navigation page
 
 ### Nav
 
