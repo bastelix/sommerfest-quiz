@@ -430,6 +430,8 @@
 - Consolidate admin navigation into single tabbed page
 - Integrate footer block editor as 4th tab in navigation page
 - Harmonize menu tree editor UX with footer block editor patterns
+- Simplify admin UI by removing duplicate selectors and restructuring tabs
+- Remove hidden pageContentSelect and extract admin base layout
 
 ### Style
 
