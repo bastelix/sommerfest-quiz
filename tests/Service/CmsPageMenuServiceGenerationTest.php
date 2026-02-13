@@ -32,7 +32,9 @@ final class CmsPageMenuServiceGenerationTest extends TestCase
     public function testOverwriteReplacesExistingMenu(): void
     {
         $page = $this->seedPage('landing');
-        $this->insertMenuItem($page->getId(), 'Alt', '#alt', 0);
+        $menuId = $this->seedMenu($page->getNamespace());
+        $this->seedMenuAssignment($menuId, $page->getId(), $page->getNamespace());
+        $this->insertMenuItem($menuId, $page->getNamespace(), 'Alt', '#alt', 0);
 
         $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
             'items' => [
@@ -40,7 +42,7 @@ final class CmsPageMenuServiceGenerationTest extends TestCase
             ],
         ])), '{{slug}}');
 
-        $service = new CmsPageMenuService($this->pdo, $this->pageService, $generator);
+        $service = new CmsPageMenuService($this->pdo, $this->pageService, null, $generator);
         $items = $service->generateMenuFromPage($page, 'de', true);
 
         $this->assertCount(1, $items);
@@ -51,7 +53,9 @@ final class CmsPageMenuServiceGenerationTest extends TestCase
     public function testAppendKeepsExistingMenu(): void
     {
         $page = $this->seedPage('landing');
-        $this->insertMenuItem($page->getId(), 'Alt', '#alt', 0);
+        $menuId = $this->seedMenu($page->getNamespace());
+        $this->seedMenuAssignment($menuId, $page->getId(), $page->getNamespace());
+        $this->insertMenuItem($menuId, $page->getNamespace(), 'Alt', '#alt', 0);
 
         $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
             'items' => [
@@ -59,7 +63,7 @@ final class CmsPageMenuServiceGenerationTest extends TestCase
             ],
         ])), '{{slug}}');
 
-        $service = new CmsPageMenuService($this->pdo, $this->pageService, $generator);
+        $service = new CmsPageMenuService($this->pdo, $this->pageService, null, $generator);
         $items = $service->generateMenuFromPage($page, 'de', false);
 
         $this->assertCount(2, $items);
@@ -71,10 +75,12 @@ final class CmsPageMenuServiceGenerationTest extends TestCase
 
     public function testPersistFailurePropagatesDetailedMessage(): void
     {
-        $this->pdo->exec('CREATE UNIQUE INDEX marketing_menu_label_unique ON marketing_page_menu_items(page_id, label)');
+        $this->pdo->exec('CREATE UNIQUE INDEX marketing_menu_label_unique ON marketing_menu_items(menu_id, label)');
 
         $page = $this->seedPage('landing');
-        $this->insertMenuItem($page->getId(), 'Alt', '#alt', 0);
+        $menuId = $this->seedMenu($page->getNamespace());
+        $this->seedMenuAssignment($menuId, $page->getId(), $page->getNamespace());
+        $this->insertMenuItem($menuId, $page->getNamespace(), 'Alt', '#alt', 0);
 
         $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
             'items' => [
@@ -82,7 +88,7 @@ final class CmsPageMenuServiceGenerationTest extends TestCase
             ],
         ])), '{{slug}}');
 
-        $service = new CmsPageMenuService($this->pdo, $this->pageService, $generator);
+        $service = new CmsPageMenuService($this->pdo, $this->pageService, null, $generator);
 
         try {
             $service->generateMenuFromPage($page, 'de', false);
@@ -115,22 +121,46 @@ final class CmsPageMenuServiceGenerationTest extends TestCase
         );
 
         $this->pdo->exec(
-            'CREATE TABLE marketing_page_menu_items ('
+            'CREATE TABLE marketing_menus ('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-            . 'page_id INTEGER NOT NULL,'
             . "namespace TEXT NOT NULL DEFAULT 'default',"
+            . 'label TEXT NOT NULL,'
+            . "locale TEXT NOT NULL DEFAULT 'de',"
+            . 'is_active INTEGER NOT NULL DEFAULT 1,'
+            . 'updated_at TEXT'
+            . ')'
+        );
+
+        $this->pdo->exec(
+            'CREATE TABLE marketing_menu_assignments ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . 'menu_id INTEGER NOT NULL,'
+            . 'page_id INTEGER,'
+            . "namespace TEXT NOT NULL DEFAULT 'default',"
+            . 'slot TEXT NOT NULL,'
+            . "locale TEXT NOT NULL DEFAULT 'de',"
+            . 'is_active INTEGER NOT NULL DEFAULT 1,'
+            . 'updated_at TEXT'
+            . ')'
+        );
+
+        $this->pdo->exec(
+            'CREATE TABLE marketing_menu_items ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . 'menu_id INTEGER NOT NULL,'
             . 'parent_id INTEGER,'
+            . "namespace TEXT NOT NULL DEFAULT 'default',"
             . 'label TEXT NOT NULL,'
             . 'href TEXT NOT NULL,'
             . 'icon TEXT,'
-            . "layout TEXT NOT NULL DEFAULT 'link',"
-            . 'detail_title TEXT,'
-            . 'detail_text TEXT,'
-            . 'detail_subline TEXT,'
             . 'position INTEGER NOT NULL DEFAULT 0,'
             . 'is_external INTEGER NOT NULL DEFAULT 0,'
             . "locale TEXT NOT NULL DEFAULT 'de',"
             . 'is_active INTEGER NOT NULL DEFAULT 1,'
+            . "layout TEXT NOT NULL DEFAULT 'link',"
+            . 'detail_title TEXT,'
+            . 'detail_text TEXT,'
+            . 'detail_subline TEXT,'
             . 'is_startpage INTEGER NOT NULL DEFAULT 0,'
             . 'updated_at TEXT'
             . ')'
@@ -149,13 +179,32 @@ final class CmsPageMenuServiceGenerationTest extends TestCase
         return $this->pageService->findById((int) $this->pdo->lastInsertId());
     }
 
-    private function insertMenuItem(int $pageId, string $label, string $href, int $position): void
+    private function seedMenu(string $namespace): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO marketing_page_menu_items (page_id, namespace, parent_id, label, href, icon, layout, detail_title, '
-            . 'detail_text, detail_subline, position, is_external, locale, is_active, is_startpage) '
-            . "VALUES (?, 'default', NULL, ?, ?, NULL, 'link', NULL, NULL, NULL, ?, 0, 'de', 1, 0)"
+            "INSERT INTO marketing_menus (namespace, label, locale, is_active) VALUES (?, 'Navigation', 'de', 1)"
         );
-        $stmt->execute([$pageId, $label, $href, $position]);
+        $stmt->execute([$namespace]);
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    private function seedMenuAssignment(int $menuId, int $pageId, string $namespace): void
+    {
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO marketing_menu_assignments (menu_id, page_id, namespace, slot, locale, is_active) "
+            . "VALUES (?, ?, ?, 'main', 'de', 1)"
+        );
+        $stmt->execute([$menuId, $pageId, $namespace]);
+    }
+
+    private function insertMenuItem(int $menuId, string $namespace, string $label, string $href, int $position): void
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO marketing_menu_items (menu_id, namespace, parent_id, label, href, icon, layout, detail_title, '
+            . 'detail_text, detail_subline, position, is_external, locale, is_active, is_startpage) '
+            . "VALUES (?, ?, NULL, ?, ?, NULL, 'link', NULL, NULL, NULL, ?, 0, 'de', 1, 0)"
+        );
+        $stmt->execute([$menuId, $namespace, $label, $href, $position]);
     }
 }
