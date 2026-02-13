@@ -365,6 +365,7 @@
 - Show 3 cards side-by-side on iPad for page modules
 - Create project_settings table before altering it
 - Add missing layout to FAQ block default meta sectionStyle
+- IPad card layout — follow Ablauf pattern, drop @s intermediate for 3+ columns
 
 ### Nav
 
