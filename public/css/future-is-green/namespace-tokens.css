@@ -31,3 +31,10 @@ html[data-namespace="future-is-green"] {
   --card-radius: 10px;
   --font-heading-weight: 700;
 }
+
+html[data-namespace="future-is-green"][data-theme="dark"] {
+  --contrast-text-on-surface: #f2f5fa;
+  --contrast-text-on-surface-muted: #f2f5fa;
+  --contrast-text-on-page: #f2f5fa;
+  --marketing-ink: #e6fff3;
+}
