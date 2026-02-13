@@ -461,6 +461,10 @@
 
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
 
+  --marketing-text-on-surface: var(--marketing-text-on-surface-dark, var(--marketing-text-on-surface));
+  --marketing-text-muted-on-surface: var(--marketing-text-muted-on-surface-dark, var(--marketing-text-muted-on-surface));
+  --marketing-ink: var(--marketing-ink-dark, var(--marketing-ink));
+
   --section-card-surface: var(--marketing-card, var(--marketing-surface));
   color-scheme: dark;
 }
