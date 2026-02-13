@@ -290,7 +290,7 @@ class ProjectPagesController
             $pages
         );
         $anchorPage = $this->resolveAnchorPage($pages, $namespace, $request->getQueryParams());
-        $internalLinks = $this->buildInternalLinks($allPages, $anchorPage);
+        $internalLinks = $this->buildInternalLinks($allPages);
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
         $navigationVariants = [
             ['value' => 'footer_columns_2', 'label' => 'Footer (2 Spalten)', 'columns' => 2],
@@ -351,11 +351,10 @@ class ProjectPagesController
      * @param array<int, Page> $pages
      * @return array<int, array{value:string,label:string,group:string}>
      */
-    private function buildInternalLinks(array $pages, ?Page $anchorPage): array
+    private function buildInternalLinks(array $pages): array
     {
         $extractor = new PageAnchorExtractor();
         $pagePathOptions = [];
-        $anchorOptions = [];
         $pageAnchorOptions = [];
 
         foreach ($pages as $page) {
@@ -370,18 +369,9 @@ class ProjectPagesController
                 'label' => $namespace . ': ' . $path,
                 'group' => 'Seitenpfade',
             ];
-        }
 
-        if ($anchorPage !== null && $anchorPage->getSlug() !== '') {
-            $namespace = $anchorPage->getNamespace();
-            $path = '/' . ltrim($anchorPage->getSlug(), '/');
-            $anchorIds = $extractor->extractAnchorIds($anchorPage->getContent());
+            $anchorIds = $extractor->extractAnchorIds($page->getContent());
             foreach ($anchorIds as $anchorId) {
-                $anchorOptions[$namespace . ':' . $anchorId] = [
-                    'value' => '#' . $anchorId,
-                    'label' => $namespace . ': #' . $anchorId,
-                    'group' => 'Anker',
-                ];
                 $pageAnchorOptions[$namespace . ':' . $path . '#' . $anchorId] = [
                     'value' => $path . '#' . $anchorId,
                     'label' => $namespace . ': ' . $path . '#' . $anchorId,
@@ -391,7 +381,6 @@ class ProjectPagesController
         }
 
         uasort($pagePathOptions, static fn (array $left, array $right): int => strcmp($left['label'], $right['label']));
-        uasort($anchorOptions, static fn (array $left, array $right): int => strcmp($left['label'], $right['label']));
         uasort(
             $pageAnchorOptions,
             static fn (array $left, array $right): int => strcmp($left['label'], $right['label'])
@@ -399,7 +388,6 @@ class ProjectPagesController
 
         return array_merge(
             array_values($pagePathOptions),
-            array_values($anchorOptions),
             array_values($pageAnchorOptions)
         );
     }
