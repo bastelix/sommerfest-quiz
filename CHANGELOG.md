@@ -440,6 +440,7 @@
 - Remove hidden pageContentSelect and extract admin base layout
 - Dissolve Zuordnungen tab from navigation admin
 - Split navigation tabs into separate admin menu pages
+- Rename header settings sidebar link and reorder navigation
 
 ### Style
 
