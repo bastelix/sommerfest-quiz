@@ -1,435 +1,374 @@
-{% extends 'layout.twig' %}
+{% extends 'admin/base.twig' %}
 
-{% block config_color_styles %}
-  {{ parent() }}
-{% endblock %}
-
-{% block head %}
-  <meta name="csrf-token" content="{{ csrfToken }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-{% endblock %}
-
-{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
-
-{% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <button
-        id="sidebarToggle"
-        type="button"
-        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
-        aria-controls="adminSidebar"
-        aria-expanded="true"
-        aria-pressed="false"
-        aria-label="{{ t('menu') }}"
-      >
-        <span uk-navbar-toggle-icon></span>
-      </button>
-      <button
-        id="adminOffcanvasToggle"
-        type="button"
-        class="uk-navbar-toggle uk-hidden@m uk-margin-small-right git-btn"
-        uk-navbar-toggle-icon
-        uk-toggle="target: #qr-offcanvas"
-        aria-controls="qr-offcanvas"
-        aria-expanded="false"
-        aria-haspopup="true"
-        aria-label="{{ t('menu') }}"
-      ></button>
-      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
-        QuizRace Admin
-      </a>
-    {% endblock %}
-    {% block center %}
-      {% include 'admin/components/namespace_breadcrumb.twig' %}
-    {% endblock %}
-    {% block offcanvas %}
-      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-        <div class="uk-offcanvas-bar">
-          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-          <h3 class="uk-margin-small">QuizRace</h3>
-          {% include 'admin/_nav.twig' %}
-        </div>
-      </div>
-    {% endblock %}
-  {% endembed %}
-
-  <div class="uk-grid-collapse" uk-grid>
-    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ t('heading_username_settings') }}</h2>
-      </div>
-      <div class="uk-section uk-section-small uk-padding-remove-top">
-        <div class="uk-container">
-          {% include 'admin/components/event_controls.twig' with {
-            currentEventUid: event.uid|default(''),
-            currentEventName: event.name|default(''),
-            events: events
-          } %}
-        </div>
-      </div>
-      <div class="uk-section uk-section-small">
-        <div class="uk-container">
-          <div class="uk-card uk-card-default uk-card-body uk-card-small">
-            <h3 class="uk-heading-bullet uk-margin-small-bottom">{{ t('heading_random_name_settings') }}</h3>
-            <form class="uk-form-stacked" data-config-form>
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" type="checkbox" id="cfgRandomNames" name="randomNames" value="1" {% if config.randomNames %}checked{% endif %}> {{ t('label_random_names') }}
-                  <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_names') }}; pos: right" aria-label="{{ t('tip_random_names') }}" tabindex="0"></span>
-                </label>
-              </div>
-              {% set randomNameDomains = constant('App\\Service\\ConfigValidator::RANDOM_NAME_ALLOWED_DOMAINS') %}
-              {% set randomNameTones = constant('App\\Service\\ConfigValidator::RANDOM_NAME_ALLOWED_TONES') %}
-              {% set randomNameDomainValues = config.randomNameDomains|default([]) %}
-              {% set randomNameToneValues = config.randomNameTones|default([]) %}
-              {% set randomNameStrategies = constant('App\\Service\\ConfigValidator::RANDOM_NAME_STRATEGIES') %}
-              {% set randomNameStrategyDefault = constant('App\\Service\\ConfigValidator::RANDOM_NAME_STRATEGY_DEFAULT') %}
-              {% set randomNameStrategyValue = config.randomNameStrategy|default(randomNameStrategyDefault)|lower %}
-              {% if randomNameStrategyValue not in randomNameStrategies %}
-                {% set randomNameStrategyValue = randomNameStrategyDefault %}
-              {% endif %}
-              {% set randomNameLocaleValue = config.randomNameLocale|default('') %}
-              {% set randomNameHintKey = 'disabled' %}
-              {% if config.randomNames %}
-                {% if randomNameStrategyValue == 'lexicon' %}
-                  {% set randomNameHintKey = 'lexicon' %}
-                {% else %}
-                  {% set randomNameHintKey = 'ai' %}
-                {% endif %}
-              {% endif %}
-              <div class="uk-margin">
-                <label class="uk-form-label" for="cfgRandomNameStrategy">
-                  {{ t('label_random_name_strategy') }}
-                  <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_strategy') }}; pos: right" aria-label="{{ t('tip_random_name_strategy') }}" tabindex="0"></span>
-                </label>
-                <div class="uk-form-controls">
-                  <select class="uk-select" id="cfgRandomNameStrategy" name="random_name_strategy">
-                    <option value="ai" {% if randomNameStrategyValue == 'ai' %}selected{% endif %}>{{ t('option_random_name_strategy_ai') }}</option>
-                    <option value="lexicon" {% if randomNameStrategyValue == 'lexicon' %}selected{% endif %}>{{ t('option_random_name_strategy_lexicon') }}</option>
-                  </select>
-                </div>
-                <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_strategy_hint') }}</p>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="cfgRandomNameLocale">
-                  {{ t('label_random_name_locale') }}
-                  <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_locale') }}; pos: right" aria-label="{{ t('tip_random_name_locale') }}" tabindex="0"></span>
-                </label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" type="text" id="cfgRandomNameLocale" name="random_name_locale" value="{{ randomNameLocaleValue }}" placeholder="{{ t('placeholder_random_name_locale') }}">
-                </div>
-                <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_locale_hint') }}</p>
-              </div>
-              <div
-                class="uk-alert-primary uk-alert-small uk-margin-small"
-                uk-alert
-                data-random-name-hints
-                data-hint-ai="{{ t('text_random_name_hint_ai') }}"
-                data-hint-lexicon="{{ t('text_random_name_hint_lexicon') }}"
-                data-hint-disabled="{{ t('text_random_name_hint_disabled') }}"
-              >
-                <p class="uk-margin-remove" data-random-name-hint-text>
-                  {% if randomNameHintKey == 'ai' %}
-                    {{ t('text_random_name_hint_ai') }}
-                  {% elseif randomNameHintKey == 'lexicon' %}
-                    {{ t('text_random_name_hint_lexicon') }}
-                  {% else %}
-                    {{ t('text_random_name_hint_disabled') }}
-                  {% endif %}
-                </p>
-              </div>
-              {% set randomNameOptionsDisabled = (not config.randomNames) or (randomNameStrategyValue != 'ai') %}
-              <fieldset class="uk-fieldset uk-margin-small-top{% if randomNameOptionsDisabled %} uk-disabled{% endif %}" data-random-name-options {% if randomNameOptionsDisabled %}disabled{% endif %}>
-                <legend class="uk-legend uk-text-small uk-text-bold">{{ t('legend_random_name_preferences') }}</legend>
-                <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
-                  <div>
-                    <div class="uk-flex uk-flex-middle uk-margin-small-bottom">
-                      <span class="uk-form-label">{{ t('label_random_name_domains') }}</span>
-                      <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_domains') }}; pos: right" aria-label="{{ t('tip_random_name_domains') }}" tabindex="0"></span>
-                    </div>
-                    <div class="uk-grid-small uk-child-width-1-2@s uk-margin-small-top" uk-grid>
-                      {% for domain in randomNameDomains %}
-                        {% set domainId = 'cfgRandomNameDomain-' ~ domain|replace({'_':'-'}) %}
-                        <div>
-                          <label class="uk-display-block" for="{{ domainId }}">
-                            <input class="uk-checkbox" type="checkbox" id="{{ domainId }}" name="random_name_domains[]" value="{{ domain }}" {% if domain in randomNameDomainValues %}checked{% endif %}>
-                            {{ t('option_random_name_domain_' ~ domain) }}
-                          </label>
-                        </div>
-                      {% endfor %}
-                    </div>
-                    <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_domains_hint') }}</p>
-                  </div>
-                  <div>
-                    <div class="uk-flex uk-flex-middle uk-margin-small-bottom">
-                      <span class="uk-form-label">{{ t('label_random_name_tones') }}</span>
-                      <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_tones') }}; pos: right" aria-label="{{ t('tip_random_name_tones') }}" tabindex="0"></span>
-                    </div>
-                    <div class="uk-grid-small uk-child-width-1-2@s uk-margin-small-top" uk-grid>
-                      {% for tone in randomNameTones %}
-                        {% set toneId = 'cfgRandomNameTone-' ~ tone|replace({'_':'-'}) %}
-                        <div>
-                          <label class="uk-display-block" for="{{ toneId }}">
-                            <input class="uk-checkbox" type="checkbox" id="{{ toneId }}" name="random_name_tones[]" value="{{ tone }}" {% if tone in randomNameToneValues %}checked{% endif %}>
-                            {{ t('option_random_name_tone_' ~ tone) }}
-                          </label>
-                        </div>
-                      {% endfor %}
-                    </div>
-                    <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_tones_hint') }}</p>
-                  </div>
-                </div>
-                <div class="uk-margin-top">
-                  <label class="uk-form-label" for="cfgRandomNameBuffer">
-                    {{ t('label_random_name_buffer') }}
-                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_buffer') }}; pos: right" aria-label="{{ t('tip_random_name_buffer') }}" tabindex="0"></span>
-                  </label>
-                  <div class="uk-form-controls">
-                    <input class="uk-input" type="number" id="cfgRandomNameBuffer" name="random_name_buffer" min="{{ constant('App\\Service\\ConfigValidator::RANDOM_NAME_BUFFER_MIN') }}" max="{{ constant('App\\Service\\ConfigValidator::RANDOM_NAME_BUFFER_MAX') }}" step="1" value="{{ config.randomNameBuffer|default(0) }}">
-                  </div>
-                  <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_buffer_hint') }}</p>
-                </div>
-                <div
-                  class="uk-alert-secondary uk-alert-small uk-margin-top"
-                  uk-alert
-                  data-random-name-inventory
-                  data-inventory-loading="{{ t('text_random_name_inventory_loading') }}"
-                  data-inventory-error="{{ t('text_random_name_inventory_error') }}"
-                  data-inventory-ai-total="{{ t('text_random_name_inventory_ai_total') }}"
-                  data-inventory-ai-empty="{{ t('text_random_name_inventory_ai_empty') }}"
-                  data-inventory-lexicon="{{ t('text_random_name_inventory_lexicon') }}"
-                  data-inventory-lexicon-empty="{{ t('text_random_name_inventory_lexicon_empty') }}"
-                  hidden
-                >
-                  <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
-                    <div>
-                      <div class="uk-text-bold">{{ t('label_random_name_inventory_ai') }}</div>
-                      <div class="uk-text-meta" data-random-name-inventory-ai>{{ t('text_random_name_inventory_loading') }}</div>
-                    </div>
-                    <div>
-                      <div class="uk-text-bold">{{ t('label_random_name_inventory_lexicon') }}</div>
-                      <div class="uk-text-meta" data-random-name-inventory-lexicon>{{ t('text_random_name_inventory_loading') }}</div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="uk-margin-top"
-                  data-random-name-preview
-                  data-preview-hint="{{ t('text_random_name_preview_hint') }}"
-                  data-preview-empty="{{ t('text_random_name_preview_empty') }}"
-                  data-preview-loading="{{ t('text_random_name_preview_loading') }}"
-                  data-preview-error="{{ t('text_random_name_preview_error') }}"
-                  data-preview-none="{{ t('text_random_name_preview_none') }}"
-                  data-preview-requires-event="{{ t('text_random_name_preview_requires_event') }}"
-                  data-log-target="{{ t('text_random_name_log_target') }}"
-                  data-log-attempt="{{ t('text_random_name_log_attempt') }}"
-                  data-log-received="{{ t('text_random_name_log_received') }}"
-                  data-log-accepted="{{ t('text_random_name_log_accepted') }}"
-                  data-log-skipped-duplicate-cache="{{ t('text_random_name_log_skipped_duplicate_cache') }}"
-                  data-log-skipped-duplicate-event="{{ t('text_random_name_log_skipped_duplicate_event') }}"
-                  data-log-skipped-invalid="{{ t('text_random_name_log_skipped_invalid') }}"
-                  data-log-error="{{ t('text_random_name_log_error') }}"
-                  data-log-persisted="{{ t('text_random_name_log_persisted') }}"
-                  data-log-status-completed="{{ t('text_random_name_log_status_completed') }}"
-                  data-log-status-partial="{{ t('text_random_name_log_status_partial') }}"
-                  data-log-status-failed="{{ t('text_random_name_log_status_failed') }}"
-                  data-log-status-unchanged="{{ t('text_random_name_log_status_unchanged') }}"
-                  data-log-status-skipped="{{ t('text_random_name_log_status_skipped') }}"
-                  data-log-status-disabled="{{ t('text_random_name_log_status_disabled') }}"
-                  data-log-status-missing-event="{{ t('text_random_name_log_status_missing_event') }}"
-                  data-log-names-placeholder="{{ t('text_random_name_log_names_placeholder') }}"
-                >
-                  <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
-                    <div>
-                      <button class="uk-button uk-button-default" type="button" id="cfgRandomNamePreviewButton">
-                        {{ t('button_random_name_preview_fetch') }}
-                      </button>
-                    </div>
-                    <div class="uk-text-meta" data-random-name-preview-status>{{ t('text_random_name_preview_hint') }}</div>
-                    <div>
-                      <span class="uk-margin-small-left" uk-spinner="ratio: 0.6" hidden data-random-name-preview-spinner></span>
-                    </div>
-                  </div>
-                  <ul class="uk-list uk-list-divider uk-margin-small-top" data-random-name-preview-list hidden></ul>
-                  <div
-                    class="uk-margin-small-top"
-                    data-random-name-cache
-                    data-cache-empty="{{ t('text_random_name_cache_empty') }}"
-                    data-cache-total="{{ t('text_random_name_cache_total') }}"
-                    data-cache-label-domains="{{ t('label_random_name_domains') }}"
-                    data-cache-label-tones="{{ t('label_random_name_tones') }}"
-                    data-cache-label-locale="{{ t('label_random_name_cache_locale') }}"
-                    data-cache-none="{{ t('text_random_name_cache_no_filters') }}"
-                    data-cache-entry-count="{{ t('text_random_name_cache_entry_count') }}"
-                    data-cache-entry-empty="{{ t('text_random_name_cache_entry_empty') }}"
-                    hidden
-                  >
-                    <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
-                      <div class="uk-text-bold">{{ t('heading_random_name_cache') }}</div>
-                      <div class="uk-text-meta" data-random-name-cache-status>{{ t('text_random_name_cache_empty') }}</div>
-                    </div>
-                    <ul class="uk-list uk-list-divider uk-margin-small-top" data-random-name-cache-list hidden></ul>
-                  </div>
-                </div>
-              </fieldset>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div
-        class="uk-section uk-section-small"
-        data-username-blocklist
-        data-create-url="{{ basePath }}/admin/username-blocklist"
-        data-import-url="{{ basePath }}/admin/username-blocklist/import"
-        data-empty-message="{{ t('text_username_blocklist_empty') }}"
-        data-error-default="{{ t('error_username_blocklist_unknown') }}"
-        data-csrf-error="{{ t('error_username_blocklist_csrf') }}"
-        data-remove-label="{{ t('action_username_blocklist_remove') }}"
-        data-csrf="{{ csrfToken }}"
-      >
-        <div class="uk-container">
-          <p class="uk-text-meta">{{ t('text_username_blocklist_intro') }}</p>
-          <form class="uk-form-stacked uk-margin" data-username-blocklist-form>
-            <div class="uk-grid-small" uk-grid>
-              <div class="uk-width-expand@s">
-                <label class="uk-form-label" for="usernameBlocklistTerm">{{ t('label_username_blocklist_term') }}</label>
-                <div class="uk-form-controls">
-                  <input
-                    class="uk-input"
-                    type="text"
-                    id="usernameBlocklistTerm"
-                    name="term"
-                    minlength="3"
-                    required
-                    placeholder="{{ t('placeholder_username_blocklist_term') }}"
-                  >
-                </div>
-                <p class="uk-text-meta uk-margin-small-top">{{ t('text_username_blocklist_hint') }}</p>
-              </div>
-              <div class="uk-width-auto@s uk-flex uk-flex-bottom">
-                <button type="submit" class="uk-button uk-button-primary" data-username-blocklist-submit>
-                  <span uk-icon="icon: plus"></span>
-                  <span class="uk-visible@s uk-margin-small-left">{{ t('action_username_blocklist_add') }}</span>
-                </button>
-              </div>
-            </div>
-          </form>
-
-          <div class="uk-card uk-card-default uk-card-body uk-card-small uk-margin">
-            <div class="uk-form-label" id="usernameBlocklistPresetsLabel">{{ t('label_username_blocklist_presets') }}</div>
-            <div
-              class="uk-margin-small-top uk-flex uk-flex-wrap uk-grid-small"
-              role="group"
-              aria-labelledby="usernameBlocklistPresetsLabel"
-              uk-grid
-            >
-              <div>
-                <button
-                  type="button"
-                  class="uk-button uk-button-default uk-button-small"
-                  data-username-blocklist-import
-                  data-preset="nsfw"
-                >
-                  {{ t('label_username_blocklist_preset_nsfw') }}
-                </button>
-              </div>
-              <div>
-                <button
-                  type="button"
-                  class="uk-button uk-button-default uk-button-small"
-                  data-username-blocklist-import
-                  data-preset="ns_symbols"
-                >
-                  {{ t('label_username_blocklist_preset_ns_symbols') }}
-                </button>
-              </div>
-              <div>
-                <button
-                  type="button"
-                  class="uk-button uk-button-default uk-button-small"
-                  data-username-blocklist-import
-                  data-preset="slur"
-                >
-                  {{ t('label_username_blocklist_preset_slur') }}
-                </button>
-              </div>
-              <div>
-                <button
-                  type="button"
-                  class="uk-button uk-button-default uk-button-small"
-                  data-username-blocklist-import
-                  data-preset="general"
-                >
-                  {{ t('label_username_blocklist_preset_general') }}
-                </button>
-              </div>
-              <div>
-                <button
-                  type="button"
-                  class="uk-button uk-button-default uk-button-small"
-                  data-username-blocklist-import
-                  data-preset="admin"
-                >
-                  {{ t('label_username_blocklist_preset_admin') }}
-                </button>
-              </div>
-            </div>
-            <p class="uk-text-meta uk-margin-small-top">{{ t('text_username_blocklist_presets_hint') }}</p>
-          </div>
-
-          <div class="uk-alert" hidden data-username-blocklist-feedback></div>
-
-          <div class="uk-overflow-auto">
-            <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
-              <thead>
-                <tr>
-                  <th>{{ t('column_username_blocklist_term') }}</th>
-                  <th class="uk-table-shrink">{{ t('column_username_blocklist_created') }}</th>
-                  <th class="uk-table-shrink uk-text-right">{{ t('column_actions') }}</th>
-                </tr>
-              </thead>
-              <tbody data-username-blocklist-table data-empty="{{ t('text_username_blocklist_empty') }}">
-                {% if entries is empty %}
-                  <tr data-empty-row>
-                    <td colspan="3" class="uk-text-meta">{{ t('text_username_blocklist_empty') }}</td>
-                  </tr>
-                {% else %}
-                  {% for entry in entries %}
-                    <tr data-entry-id="{{ entry.id }}">
-                      <td class="uk-table-expand">
-                        <span class="uk-text-bold" data-term>{{ entry.term }}</span>
-                      </td>
-                      <td class="uk-text-meta" data-created="{{ entry.created_at }}">{{ entry.created_at_display }}</td>
-                      <td class="uk-table-shrink uk-text-right">
-                        <button
-                          type="button"
-                          class="uk-button uk-button-text uk-text-danger"
-                          data-username-blocklist-delete
-                          data-delete-url="{{ basePath }}/admin/username-blocklist/{{ entry.id }}"
-                          data-term="{{ entry.term }}"
-                          aria-label="{{ t('action_username_blocklist_remove') }} {{ entry.term }}"
-                        >
-                          <span uk-icon="icon: trash"></span>
-                          <span class="uk-visible@s uk-margin-small-left">{{ t('action_username_blocklist_remove') }}</span>
-                        </button>
-                      </td>
-                    </tr>
-                  {% endfor %}
-                {% endif %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </main>
+{% block content %}
+  <div class="uk-container uk-container-large">
+    <h2 class="uk-heading-bullet">{{ t('heading_username_settings') }}</h2>
   </div>
+  <div class="uk-section uk-section-small uk-padding-remove-top">
+    <div class="uk-container">
+      {% include 'admin/components/event_controls.twig' with {
+        currentEventUid: event.uid|default(''),
+        currentEventName: event.name|default(''),
+        events: events
+      } %}
+    </div>
+  </div>
+  <div class="uk-section uk-section-small">
+    <div class="uk-container">
+      <div class="uk-card uk-card-default uk-card-body uk-card-small">
+        <h3 class="uk-heading-bullet uk-margin-small-bottom">{{ t('heading_random_name_settings') }}</h3>
+        <form class="uk-form-stacked" data-config-form>
+          <div class="uk-margin">
+            <label><input class="uk-checkbox" type="checkbox" id="cfgRandomNames" name="randomNames" value="1" {% if config.randomNames %}checked{% endif %}> {{ t('label_random_names') }}
+              <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_names') }}; pos: right" aria-label="{{ t('tip_random_names') }}" tabindex="0"></span>
+            </label>
+          </div>
+          {% set randomNameDomains = constant('App\\Service\\ConfigValidator::RANDOM_NAME_ALLOWED_DOMAINS') %}
+          {% set randomNameTones = constant('App\\Service\\ConfigValidator::RANDOM_NAME_ALLOWED_TONES') %}
+          {% set randomNameDomainValues = config.randomNameDomains|default([]) %}
+          {% set randomNameToneValues = config.randomNameTones|default([]) %}
+          {% set randomNameStrategies = constant('App\\Service\\ConfigValidator::RANDOM_NAME_STRATEGIES') %}
+          {% set randomNameStrategyDefault = constant('App\\Service\\ConfigValidator::RANDOM_NAME_STRATEGY_DEFAULT') %}
+          {% set randomNameStrategyValue = config.randomNameStrategy|default(randomNameStrategyDefault)|lower %}
+          {% if randomNameStrategyValue not in randomNameStrategies %}
+            {% set randomNameStrategyValue = randomNameStrategyDefault %}
+          {% endif %}
+          {% set randomNameLocaleValue = config.randomNameLocale|default('') %}
+          {% set randomNameHintKey = 'disabled' %}
+          {% if config.randomNames %}
+            {% if randomNameStrategyValue == 'lexicon' %}
+              {% set randomNameHintKey = 'lexicon' %}
+            {% else %}
+              {% set randomNameHintKey = 'ai' %}
+            {% endif %}
+          {% endif %}
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgRandomNameStrategy">
+              {{ t('label_random_name_strategy') }}
+              <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_strategy') }}; pos: right" aria-label="{{ t('tip_random_name_strategy') }}" tabindex="0"></span>
+            </label>
+            <div class="uk-form-controls">
+              <select class="uk-select" id="cfgRandomNameStrategy" name="random_name_strategy">
+                <option value="ai" {% if randomNameStrategyValue == 'ai' %}selected{% endif %}>{{ t('option_random_name_strategy_ai') }}</option>
+                <option value="lexicon" {% if randomNameStrategyValue == 'lexicon' %}selected{% endif %}>{{ t('option_random_name_strategy_lexicon') }}</option>
+              </select>
+            </div>
+            <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_strategy_hint') }}</p>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgRandomNameLocale">
+              {{ t('label_random_name_locale') }}
+              <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_locale') }}; pos: right" aria-label="{{ t('tip_random_name_locale') }}" tabindex="0"></span>
+            </label>
+            <div class="uk-form-controls">
+              <input class="uk-input" type="text" id="cfgRandomNameLocale" name="random_name_locale" value="{{ randomNameLocaleValue }}" placeholder="{{ t('placeholder_random_name_locale') }}">
+            </div>
+            <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_locale_hint') }}</p>
+          </div>
+          <div
+            class="uk-alert-primary uk-alert-small uk-margin-small"
+            uk-alert
+            data-random-name-hints
+            data-hint-ai="{{ t('text_random_name_hint_ai') }}"
+            data-hint-lexicon="{{ t('text_random_name_hint_lexicon') }}"
+            data-hint-disabled="{{ t('text_random_name_hint_disabled') }}"
+          >
+            <p class="uk-margin-remove" data-random-name-hint-text>
+              {% if randomNameHintKey == 'ai' %}
+                {{ t('text_random_name_hint_ai') }}
+              {% elseif randomNameHintKey == 'lexicon' %}
+                {{ t('text_random_name_hint_lexicon') }}
+              {% else %}
+                {{ t('text_random_name_hint_disabled') }}
+              {% endif %}
+            </p>
+          </div>
+          {% set randomNameOptionsDisabled = (not config.randomNames) or (randomNameStrategyValue != 'ai') %}
+          <fieldset class="uk-fieldset uk-margin-small-top{% if randomNameOptionsDisabled %} uk-disabled{% endif %}" data-random-name-options {% if randomNameOptionsDisabled %}disabled{% endif %}>
+            <legend class="uk-legend uk-text-small uk-text-bold">{{ t('legend_random_name_preferences') }}</legend>
+            <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
+              <div>
+                <div class="uk-flex uk-flex-middle uk-margin-small-bottom">
+                  <span class="uk-form-label">{{ t('label_random_name_domains') }}</span>
+                  <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_domains') }}; pos: right" aria-label="{{ t('tip_random_name_domains') }}" tabindex="0"></span>
+                </div>
+                <div class="uk-grid-small uk-child-width-1-2@s uk-margin-small-top" uk-grid>
+                  {% for domain in randomNameDomains %}
+                    {% set domainId = 'cfgRandomNameDomain-' ~ domain|replace({'_':'-'}) %}
+                    <div>
+                      <label class="uk-display-block" for="{{ domainId }}">
+                        <input class="uk-checkbox" type="checkbox" id="{{ domainId }}" name="random_name_domains[]" value="{{ domain }}" {% if domain in randomNameDomainValues %}checked{% endif %}>
+                        {{ t('option_random_name_domain_' ~ domain) }}
+                      </label>
+                    </div>
+                  {% endfor %}
+                </div>
+                <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_domains_hint') }}</p>
+              </div>
+              <div>
+                <div class="uk-flex uk-flex-middle uk-margin-small-bottom">
+                  <span class="uk-form-label">{{ t('label_random_name_tones') }}</span>
+                  <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_tones') }}; pos: right" aria-label="{{ t('tip_random_name_tones') }}" tabindex="0"></span>
+                </div>
+                <div class="uk-grid-small uk-child-width-1-2@s uk-margin-small-top" uk-grid>
+                  {% for tone in randomNameTones %}
+                    {% set toneId = 'cfgRandomNameTone-' ~ tone|replace({'_':'-'}) %}
+                    <div>
+                      <label class="uk-display-block" for="{{ toneId }}">
+                        <input class="uk-checkbox" type="checkbox" id="{{ toneId }}" name="random_name_tones[]" value="{{ tone }}" {% if tone in randomNameToneValues %}checked{% endif %}>
+                        {{ t('option_random_name_tone_' ~ tone) }}
+                      </label>
+                    </div>
+                  {% endfor %}
+                </div>
+                <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_tones_hint') }}</p>
+              </div>
+            </div>
+            <div class="uk-margin-top">
+              <label class="uk-form-label" for="cfgRandomNameBuffer">
+                {{ t('label_random_name_buffer') }}
+                <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_buffer') }}; pos: right" aria-label="{{ t('tip_random_name_buffer') }}" tabindex="0"></span>
+              </label>
+              <div class="uk-form-controls">
+                <input class="uk-input" type="number" id="cfgRandomNameBuffer" name="random_name_buffer" min="{{ constant('App\\Service\\ConfigValidator::RANDOM_NAME_BUFFER_MIN') }}" max="{{ constant('App\\Service\\ConfigValidator::RANDOM_NAME_BUFFER_MAX') }}" step="1" value="{{ config.randomNameBuffer|default(0) }}">
+              </div>
+              <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_buffer_hint') }}</p>
+            </div>
+            <div
+              class="uk-alert-secondary uk-alert-small uk-margin-top"
+              uk-alert
+              data-random-name-inventory
+              data-inventory-loading="{{ t('text_random_name_inventory_loading') }}"
+              data-inventory-error="{{ t('text_random_name_inventory_error') }}"
+              data-inventory-ai-total="{{ t('text_random_name_inventory_ai_total') }}"
+              data-inventory-ai-empty="{{ t('text_random_name_inventory_ai_empty') }}"
+              data-inventory-lexicon="{{ t('text_random_name_inventory_lexicon') }}"
+              data-inventory-lexicon-empty="{{ t('text_random_name_inventory_lexicon_empty') }}"
+              hidden
+            >
+              <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
+                <div>
+                  <div class="uk-text-bold">{{ t('label_random_name_inventory_ai') }}</div>
+                  <div class="uk-text-meta" data-random-name-inventory-ai>{{ t('text_random_name_inventory_loading') }}</div>
+                </div>
+                <div>
+                  <div class="uk-text-bold">{{ t('label_random_name_inventory_lexicon') }}</div>
+                  <div class="uk-text-meta" data-random-name-inventory-lexicon>{{ t('text_random_name_inventory_loading') }}</div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="uk-margin-top"
+              data-random-name-preview
+              data-preview-hint="{{ t('text_random_name_preview_hint') }}"
+              data-preview-empty="{{ t('text_random_name_preview_empty') }}"
+              data-preview-loading="{{ t('text_random_name_preview_loading') }}"
+              data-preview-error="{{ t('text_random_name_preview_error') }}"
+              data-preview-none="{{ t('text_random_name_preview_none') }}"
+              data-preview-requires-event="{{ t('text_random_name_preview_requires_event') }}"
+              data-log-target="{{ t('text_random_name_log_target') }}"
+              data-log-attempt="{{ t('text_random_name_log_attempt') }}"
+              data-log-received="{{ t('text_random_name_log_received') }}"
+              data-log-accepted="{{ t('text_random_name_log_accepted') }}"
+              data-log-skipped-duplicate-cache="{{ t('text_random_name_log_skipped_duplicate_cache') }}"
+              data-log-skipped-duplicate-event="{{ t('text_random_name_log_skipped_duplicate_event') }}"
+              data-log-skipped-invalid="{{ t('text_random_name_log_skipped_invalid') }}"
+              data-log-error="{{ t('text_random_name_log_error') }}"
+              data-log-persisted="{{ t('text_random_name_log_persisted') }}"
+              data-log-status-completed="{{ t('text_random_name_log_status_completed') }}"
+              data-log-status-partial="{{ t('text_random_name_log_status_partial') }}"
+              data-log-status-failed="{{ t('text_random_name_log_status_failed') }}"
+              data-log-status-unchanged="{{ t('text_random_name_log_status_unchanged') }}"
+              data-log-status-skipped="{{ t('text_random_name_log_status_skipped') }}"
+              data-log-status-disabled="{{ t('text_random_name_log_status_disabled') }}"
+              data-log-status-missing-event="{{ t('text_random_name_log_status_missing_event') }}"
+              data-log-names-placeholder="{{ t('text_random_name_log_names_placeholder') }}"
+            >
+              <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
+                <div>
+                  <button class="uk-button uk-button-default" type="button" id="cfgRandomNamePreviewButton">
+                    {{ t('button_random_name_preview_fetch') }}
+                  </button>
+                </div>
+                <div class="uk-text-meta" data-random-name-preview-status>{{ t('text_random_name_preview_hint') }}</div>
+                <div>
+                  <span class="uk-margin-small-left" uk-spinner="ratio: 0.6" hidden data-random-name-preview-spinner></span>
+                </div>
+              </div>
+              <ul class="uk-list uk-list-divider uk-margin-small-top" data-random-name-preview-list hidden></ul>
+              <div
+                class="uk-margin-small-top"
+                data-random-name-cache
+                data-cache-empty="{{ t('text_random_name_cache_empty') }}"
+                data-cache-total="{{ t('text_random_name_cache_total') }}"
+                data-cache-label-domains="{{ t('label_random_name_domains') }}"
+                data-cache-label-tones="{{ t('label_random_name_tones') }}"
+                data-cache-label-locale="{{ t('label_random_name_cache_locale') }}"
+                data-cache-none="{{ t('text_random_name_cache_no_filters') }}"
+                data-cache-entry-count="{{ t('text_random_name_cache_entry_count') }}"
+                data-cache-entry-empty="{{ t('text_random_name_cache_entry_empty') }}"
+                hidden
+              >
+                <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
+                  <div class="uk-text-bold">{{ t('heading_random_name_cache') }}</div>
+                  <div class="uk-text-meta" data-random-name-cache-status>{{ t('text_random_name_cache_empty') }}</div>
+                </div>
+                <ul class="uk-list uk-list-divider uk-margin-small-top" data-random-name-cache-list hidden></ul>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div
+    class="uk-section uk-section-small"
+    data-username-blocklist
+    data-create-url="{{ basePath }}/admin/username-blocklist"
+    data-import-url="{{ basePath }}/admin/username-blocklist/import"
+    data-empty-message="{{ t('text_username_blocklist_empty') }}"
+    data-error-default="{{ t('error_username_blocklist_unknown') }}"
+    data-csrf-error="{{ t('error_username_blocklist_csrf') }}"
+    data-remove-label="{{ t('action_username_blocklist_remove') }}"
+    data-csrf="{{ csrfToken }}"
+  >
+    <div class="uk-container">
+      <p class="uk-text-meta">{{ t('text_username_blocklist_intro') }}</p>
+      <form class="uk-form-stacked uk-margin" data-username-blocklist-form>
+        <div class="uk-grid-small" uk-grid>
+          <div class="uk-width-expand@s">
+            <label class="uk-form-label" for="usernameBlocklistTerm">{{ t('label_username_blocklist_term') }}</label>
+            <div class="uk-form-controls">
+              <input
+                class="uk-input"
+                type="text"
+                id="usernameBlocklistTerm"
+                name="term"
+                minlength="3"
+                required
+                placeholder="{{ t('placeholder_username_blocklist_term') }}"
+              >
+            </div>
+            <p class="uk-text-meta uk-margin-small-top">{{ t('text_username_blocklist_hint') }}</p>
+          </div>
+          <div class="uk-width-auto@s uk-flex uk-flex-bottom">
+            <button type="submit" class="uk-button uk-button-primary" data-username-blocklist-submit>
+              <span uk-icon="icon: plus"></span>
+              <span class="uk-visible@s uk-margin-small-left">{{ t('action_username_blocklist_add') }}</span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="uk-card uk-card-default uk-card-body uk-card-small uk-margin">
+        <div class="uk-form-label" id="usernameBlocklistPresetsLabel">{{ t('label_username_blocklist_presets') }}</div>
+        <div
+          class="uk-margin-small-top uk-flex uk-flex-wrap uk-grid-small"
+          role="group"
+          aria-labelledby="usernameBlocklistPresetsLabel"
+          uk-grid
+        >
+          <div>
+            <button
+              type="button"
+              class="uk-button uk-button-default uk-button-small"
+              data-username-blocklist-import
+              data-preset="nsfw"
+            >
+              {{ t('label_username_blocklist_preset_nsfw') }}
+            </button>
+          </div>
+          <div>
+            <button
+              type="button"
+              class="uk-button uk-button-default uk-button-small"
+              data-username-blocklist-import
+              data-preset="ns_symbols"
+            >
+              {{ t('label_username_blocklist_preset_ns_symbols') }}
+            </button>
+          </div>
+          <div>
+            <button
+              type="button"
+              class="uk-button uk-button-default uk-button-small"
+              data-username-blocklist-import
+              data-preset="slur"
+            >
+              {{ t('label_username_blocklist_preset_slur') }}
+            </button>
+          </div>
+          <div>
+            <button
+              type="button"
+              class="uk-button uk-button-default uk-button-small"
+              data-username-blocklist-import
+              data-preset="general"
+            >
+              {{ t('label_username_blocklist_preset_general') }}
+            </button>
+          </div>
+          <div>
+            <button
+              type="button"
+              class="uk-button uk-button-default uk-button-small"
+              data-username-blocklist-import
+              data-preset="admin"
+            >
+              {{ t('label_username_blocklist_preset_admin') }}
+            </button>
+          </div>
+        </div>
+        <p class="uk-text-meta uk-margin-small-top">{{ t('text_username_blocklist_presets_hint') }}</p>
+      </div>
+
+      <div class="uk-alert" hidden data-username-blocklist-feedback></div>
+
+      <div class="uk-overflow-auto">
+        <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
+          <thead>
+            <tr>
+              <th>{{ t('column_username_blocklist_term') }}</th>
+              <th class="uk-table-shrink">{{ t('column_username_blocklist_created') }}</th>
+              <th class="uk-table-shrink uk-text-right">{{ t('column_actions') }}</th>
+            </tr>
+          </thead>
+          <tbody data-username-blocklist-table data-empty="{{ t('text_username_blocklist_empty') }}">
+            {% if entries is empty %}
+              <tr data-empty-row>
+                <td colspan="3" class="uk-text-meta">{{ t('text_username_blocklist_empty') }}</td>
+              </tr>
+            {% else %}
+              {% for entry in entries %}
+                <tr data-entry-id="{{ entry.id }}">
+                  <td class="uk-table-expand">
+                    <span class="uk-text-bold" data-term>{{ entry.term }}</span>
+                  </td>
+                  <td class="uk-text-meta" data-created="{{ entry.created_at }}">{{ entry.created_at_display }}</td>
+                  <td class="uk-table-shrink uk-text-right">
+                    <button
+                      type="button"
+                      class="uk-button uk-button-text uk-text-danger"
+                      data-username-blocklist-delete
+                      data-delete-url="{{ basePath }}/admin/username-blocklist/{{ entry.id }}"
+                      data-term="{{ entry.term }}"
+                      aria-label="{{ t('action_username_blocklist_remove') }} {{ entry.term }}"
+                    >
+                      <span uk-icon="icon: trash"></span>
+                      <span class="uk-visible@s uk-margin-small-left">{{ t('action_username_blocklist_remove') }}</span>
+                    </button>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
   <script>
     window.csrfToken = '{{ csrfToken|e('js') }}';
     window.quizConfig = {{ config|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
