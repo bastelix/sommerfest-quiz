@@ -358,6 +358,7 @@
 - Resolve CI test failures in entrypoint and onboarding tests
 - Scope admin dashboard data to the selected namespace
 - Menu editor item creation and AI generation
+- Allow deletion of inactive namespaces
 
 ### Refactor
 
