@@ -115,10 +115,12 @@ PROMPT;
      */
     public function generate(Page $page, ?string $locale = null, ?string $promptTemplate = null): array
     {
-        $prompt = $this->buildPrompt($page, $locale, $promptTemplate);
-        if ($prompt === '') {
+        $resolvedTemplate = $this->resolvePromptTemplate($promptTemplate);
+        if ($resolvedTemplate === '') {
             throw new RuntimeException(self::ERROR_PROMPT_MISSING);
         }
+
+        $prompt = $this->buildPrompt($page, $locale, $promptTemplate);
 
         $messages = [
             ['role' => 'system', 'content' => self::SYSTEM_PROMPT],

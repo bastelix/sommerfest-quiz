@@ -721,7 +721,10 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ menuId: state.menuId, overwrite: true, locale: state.locale || null }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData?.error || `HTTP ${res.status}`);
+      }
       setFeedback(feedbackEl, 'Menü wurde generiert.', 'success');
       setTimeout(() => hideFeedback(feedbackEl), 3000);
       await loadItems();
