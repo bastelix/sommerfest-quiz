@@ -365,6 +365,10 @@
 - Show 3 cards side-by-side on iPad for page modules
 - Create project_settings table before altering it
 
+### Nav
+
+- Nur SEO, Cookies und RAG Chat als zu technisch einschraenken
+
 ### Refactor
 
 - Centralize SMTP config loading
