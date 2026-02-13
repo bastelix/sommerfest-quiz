@@ -781,6 +781,16 @@ const applyMarketingDesign = () => {
     variables.marketing_ink,
     fallbackInk,
   );
+  const marketingInkDark = resolveFirstValue(
+    marketingSchemeValues?.marketingInkDark,
+    marketingSchemeValues?.inkDark,
+    configColors.marketingInkDark,
+    configColors.marketing_ink_dark,
+    colors.marketingInkDark,
+    colors.marketing_ink_dark,
+    variables.marketingInkDark,
+    variables.marketing_ink_dark,
+  );
   const marketingSurfaceGlass = resolveFirstValue(
     marketingSchemeValues?.surfaceGlass,
     marketingSchemeValues?.marketingSurfaceGlass,
@@ -1467,16 +1477,25 @@ const applyMarketingDesign = () => {
     root.style.setProperty('--marketing-surface', marketingSurface);
     root.style.setProperty('--marketing-surface-muted', marketingSurfaceMuted);
   }
-  root.style.setProperty('--marketing-text-on-surface', marketingTextOnSurface);
-  root.style.setProperty('--marketing-text-on-background', marketingTextOnBackground);
-  root.style.setProperty('--marketing-text-muted-on-surface', marketingTextMutedOnSurface);
-  root.style.setProperty('--marketing-text-muted-on-background', marketingTextMutedOnBackground);
+  /* In dark mode, swap text-on-surface/background and ink to their dark
+     variants so inline styles on <html> don't override the CSS dark cascade. */
+  if (isDark) {
+    root.style.setProperty('--marketing-text-on-surface', marketingTextOnSurfaceDark || marketingTextOnSurface);
+    root.style.setProperty('--marketing-text-on-background', marketingTextOnBackgroundDark || marketingTextOnBackground);
+    root.style.setProperty('--marketing-text-muted-on-surface', marketingTextMutedOnSurfaceDark || marketingTextMutedOnSurface);
+    root.style.setProperty('--marketing-text-muted-on-background', marketingTextMutedOnBackgroundDark || marketingTextMutedOnBackground);
+  } else {
+    root.style.setProperty('--marketing-text-on-surface', marketingTextOnSurface);
+    root.style.setProperty('--marketing-text-on-background', marketingTextOnBackground);
+    root.style.setProperty('--marketing-text-muted-on-surface', marketingTextMutedOnSurface);
+    root.style.setProperty('--marketing-text-muted-on-background', marketingTextMutedOnBackground);
+  }
   root.style.setProperty('--marketing-text-on-surface-dark', marketingTextOnSurfaceDark);
   root.style.setProperty('--marketing-text-on-background-dark', marketingTextOnBackgroundDark);
   root.style.setProperty('--marketing-text-muted-on-surface-dark', marketingTextMutedOnSurfaceDark);
   root.style.setProperty('--marketing-text-muted-on-background-dark', marketingTextMutedOnBackgroundDark);
   if (marketingInk) {
-    root.style.setProperty('--marketing-ink', marketingInk);
+    root.style.setProperty('--marketing-ink', isDark ? (marketingInkDark || marketingInk) : marketingInk);
   }
   if (marketingSurfaceGlass) {
     root.style.setProperty('--marketing-surface-glass', marketingSurfaceGlass);
@@ -1858,3 +1877,14 @@ const scheduleMarketingDesign = () => {
 };
 
 scheduleMarketingDesign();
+
+/* Re-apply when the theme changes so dark/light inline styles stay in sync.
+   This covers both the JS toggle in app.js and external changes. */
+if (typeof document !== 'undefined') {
+  new MutationObserver(() => {
+    requestAnimationFrame(() => applyMarketingDesign());
+  }).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  });
+}
