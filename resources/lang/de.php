@@ -40,7 +40,7 @@ return [
     'tab_navigation_menus' => 'Navigation – Menüs',
     'tab_navigation_standards' => 'Navigation – Standards',
     'tab_navigation_overrides' => 'Navigation – Seiten-Overrides',
-    'tab_navigation_settings' => 'Header & Footer',
+    'tab_navigation_settings' => 'Header-Einstellungen',
     'tab_navigation_menus_short' => 'Menüs',
     'tab_navigation_assignments' => 'Zuordnungen',
     'tab_navigation_footer_blocks' => 'Footer-Bausteine',
