@@ -124,7 +124,7 @@
   {
     header: t('menu_web_dashboard'),
     items: [
-      { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview'), activePrefixes: [basePath ~ '/admin/projects'], roles: ['admin'] },
+      { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview'), activePrefixes: [basePath ~ '/admin/projects'] },
     ]
   },
   {
@@ -138,9 +138,9 @@
         activePrefixes: [basePath ~ '/admin/pages/content']
       },
       { href: basePath ~ '/admin/pages/wiki', icon: 'file-text', text: t('tab_wiki'), activePrefixes: [basePath ~ '/admin/pages/wiki'] },
-      { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), activePrefixes: [basePath ~ '/admin/landing-news'], roles: ['admin'] },
-      { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), activePrefixes: [basePath ~ '/admin/newsletter'], roles: ['admin'] },
-      { href: basePath ~ '/admin/newsletter-campaigns', icon: 'bell', text: t('tab_newsletter_campaigns'), activePrefixes: [basePath ~ '/admin/newsletter-campaigns'], roles: ['admin'] },
+      { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), activePrefixes: [basePath ~ '/admin/landing-news'] },
+      { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), activePrefixes: [basePath ~ '/admin/newsletter'] },
+      { href: basePath ~ '/admin/newsletter-campaigns', icon: 'bell', text: t('tab_newsletter_campaigns'), activePrefixes: [basePath ~ '/admin/newsletter-campaigns'] },
     ]
   },
   {
@@ -163,8 +163,7 @@
         href: basePath ~ '/admin/navigation',
         icon: 'list',
         text: t('tab_navigation'),
-        activePrefixes: [basePath ~ '/admin/navigation'],
-        roles: ['admin']
+        activePrefixes: [basePath ~ '/admin/navigation']
       },
     ]
   },
