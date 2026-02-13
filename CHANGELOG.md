@@ -36,6 +36,7 @@
 - Track namespace-specific token CSS and tighten .gitignore
 - Remove legacy labor.css, topbar.landing.css, and dead references
 - Add auto-generated namespace token stylesheets
+- Include pre-existing namespace token and upgrade script changes
 
 ### Ci
 
@@ -352,6 +353,7 @@
 - Make page block style options freely combinable
 - Reset padding-left on uk-grid-large children in mobile admin view
 - Make footer block modal responsive on mobile and add missing translations
+- Resolve CI test failures in entrypoint and onboarding tests
 
 ### Refactor
 
