@@ -27,7 +27,7 @@ final class OpenAiChatResponder extends HttpChatResponder
         'RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS' => 'max_completion_tokens',
     ];
 
-    private const DEFAULT_MAX_COMPLETION_TOKENS = 320;
+    private const DEFAULT_MAX_COMPLETION_TOKENS = 4096;
 
     private string $model;
 
@@ -70,6 +70,11 @@ final class OpenAiChatResponder extends HttpChatResponder
         }
 
         return $payload;
+    }
+
+    protected function requiresContext(): bool
+    {
+        return false;
     }
 
     private function loadModelFromEnv(): string
@@ -134,6 +139,10 @@ final class OpenAiChatResponder extends HttpChatResponder
             if (is_string($value) && is_numeric($value)) {
                 $normalised[$key] = (float) $value;
             }
+        }
+
+        if (!isset($normalised['max_completion_tokens'])) {
+            $normalised['max_completion_tokens'] = self::DEFAULT_MAX_COMPLETION_TOKENS;
         }
 
         return $normalised;
