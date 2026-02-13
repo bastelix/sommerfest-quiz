@@ -367,6 +367,7 @@
 - Create project_settings table before altering it
 - Add missing layout to FAQ block default meta sectionStyle
 - IPad card layout — follow Ablauf pattern, drop @s intermediate for 3+ columns
+- Revert modified migration and add new one for table creation
 
 ### Nav
 
