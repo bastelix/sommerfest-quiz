@@ -362,6 +362,7 @@
 - Allow deletion of inactive namespaces
 - Menu card editor – inline editing, auto-save, and preview
 - Pass PostgreSQL sequence names to lastInsertId() for menu operations
+- Show 3 cards side-by-side on iPad for page modules
 
 ### Refactor
 
