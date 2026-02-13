@@ -80,9 +80,25 @@ class AdminController
             if ($eventSvc->getByUid($uid) === null) {
                 return $response->withStatus(404);
             }
+            if ($eventNamespace !== null && !$eventSvc->belongsToNamespace($uid, $eventNamespace)) {
+                return $response->withStatus(404);
+            }
             $cfgSvc->setActiveEventUid($uid);
         } else {
             $uid = (string) $cfgSvc->getActiveEventUid();
+        }
+
+        if ($eventNamespace !== null && $uid !== '') {
+            $eventBelongsToNamespace = false;
+            foreach ($events as $ev) {
+                if (($ev['uid'] ?? '') === $uid) {
+                    $eventBelongsToNamespace = true;
+                    break;
+                }
+            }
+            if (!$eventBelongsToNamespace) {
+                $uid = isset($events[0]['uid']) ? (string) $events[0]['uid'] : '';
+            }
         }
 
         if ($uid === '') {
@@ -150,7 +166,7 @@ class AdminController
         }
 
         if (in_array($section, ['teams', 'summary'], true)) {
-            $teams = (new TeamService($pdo, $configSvc))->getAll();
+            $teams = (new TeamService($pdo, $configSvc))->getAllForEvent($uid);
         }
 
         if (in_array($section, ['management', 'logins'], true)) {
