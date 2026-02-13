@@ -2482,37 +2482,37 @@ return function (\Slim\App $app, TranslationService $translator) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
         return $controller->list($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
     $app->get('/admin/domain-chat/index', function (Request $request, Response $response) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
         return $controller->download($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
     $app->post('/admin/domain-chat/documents', function (Request $request, Response $response) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
         return $controller->upload($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
     $app->delete('/admin/domain-chat/documents/{id}', function (Request $request, Response $response, array $args) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
         return $controller->delete($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
     $app->post('/admin/domain-chat/wiki-selection', function (Request $request, Response $response) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
         return $controller->updateWikiSelection($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
     $app->post('/admin/domain-chat/rebuild', function (Request $request, Response $response) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
         return $controller->rebuild($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
     $app->get('/admin/domain-contact-template/{domain}', function (Request $request, Response $response, array $args) {
         /** @var DomainContactTemplateController $controller */
