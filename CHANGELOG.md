@@ -373,6 +373,7 @@
 - Remove redundant null coalescing on uid which is always a non-nullable string
 - Restore footer block editor tab in navigation page
 - Remove redundant comparisons flagged by PHPStan
+- Swap surface text variables to dark variants in aurora dark mode
 
 ### Nav
 
