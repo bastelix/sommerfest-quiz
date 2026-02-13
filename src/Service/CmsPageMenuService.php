@@ -605,7 +605,7 @@ final class CmsPageMenuService
             throw new RuntimeException('Creating menu item failed.', 0, $exception);
         }
 
-        $itemId = (int) $this->pdo->lastInsertId();
+        $itemId = (int) $this->pdo->lastInsertId('marketing_menu_items_id_seq');
         $item = $this->getMenuItemById($itemId);
         if ($item === null) {
             throw new RuntimeException('Menu item could not be loaded after creation.');
@@ -669,7 +669,7 @@ final class CmsPageMenuService
             $isStartpage ? 1 : 0,
         ]);
 
-        $itemId = (int) $this->pdo->lastInsertId();
+        $itemId = (int) $this->pdo->lastInsertId('marketing_menu_items_id_seq');
         $item = $this->getMenuItemById($itemId);
         if ($item === null) {
             throw new RuntimeException('Menu item could not be loaded after creation.');
@@ -1703,7 +1703,7 @@ final class CmsPageMenuService
                 1,
                 0,
             ]);
-            $insertedId = (int) $this->pdo->lastInsertId();
+            $insertedId = (int) $this->pdo->lastInsertId('marketing_menu_items_id_seq');
             $position++;
 
             if (isset($item['children']) && is_array($item['children']) && $item['children'] !== []) {

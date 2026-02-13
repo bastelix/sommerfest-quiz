@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
-use App\Controller\Admin\ProjectPagesController;
+use App\Service\Marketing\MarketingMenuAiException;
+use App\Service\Marketing\MarketingMenuAiErrorMapper;
 use App\Service\Marketing\MarketingMenuAiGenerator;
 use App\Service\CmsPageMenuService;
 use App\Service\PageService;
 use App\Service\RagChat\ChatResponderInterface;
 use PDO;
 use PHPUnit\Framework\TestCase;
-use Slim\Psr7\Factory\ServerRequestFactory;
-use Slim\Psr7\Response;
 use Tests\Stubs\StaticChatResponder;
 
-final class MarketingMenuAiRouteTest extends TestCase
+final class CmsPageMenuAiRouteTest extends TestCase
 {
     public function testRouteOverwritesMenuItems(): void
     {
@@ -25,63 +24,29 @@ final class MarketingMenuAiRouteTest extends TestCase
 
         $pageService = new PageService($pdo);
         $page = $this->seedPage($pdo, $pageService, 'landing');
-        $this->insertMenuItem($pdo, $page->getId(), 'Alt', '#alt', 0);
+        $menuId = $this->seedMenu($pdo, $page->getNamespace());
+        $this->seedMenuAssignment($pdo, $menuId, $page->getId(), $page->getNamespace());
+        $this->insertMenuItem($pdo, $menuId, $page->getNamespace(), 'Alt', '#alt', 0);
 
         $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
             'items' => [
                 ['label' => 'Neu', 'href' => '#neu', 'layout' => 'link'],
             ],
         ])), '{{slug}}');
-        $menuService = new CmsPageMenuService($pdo, $pageService, $generator);
-        $controller = new ProjectPagesController(
-            $pdo,
-            $pageService,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            $menuService
-        );
+        $menuService = new CmsPageMenuService($pdo, $pageService, null, $generator);
 
-        $factory = new ServerRequestFactory();
-        $request = $factory->createServerRequest('POST', '/admin/pages/' . $page->getId() . '/menu/ai')
-            ->withHeader('Content-Type', 'application/json')
-            ->withParsedBody(null)
-            ->withAttribute('domainNamespace', $page->getNamespace());
-        $body = $request->getBody();
-        $body->write(json_encode(['locale' => 'de', 'overwrite' => true]));
-        $body->rewind();
-        $request = $request->withBody($body);
-        $response = new Response();
+        $items = $menuService->generateMenuFromPage($page, 'de', true);
 
-        $result = $controller->generateMenu($request, $response, ['pageId' => $page->getId()]);
+        $this->assertCount(1, $items);
+        $this->assertSame('Neu', $items[0]->getLabel());
 
-        $this->assertSame(200, $result->getStatusCode());
-        $payload = json_decode((string) $result->getBody(), true);
-        $this->assertIsArray($payload['items'] ?? null);
-        $this->assertCount(1, $payload['items']);
-        $this->assertSame('Neu', $payload['items'][0]['label']);
-
-        // ensure existing entry was removed when overwriting
-        $requestAppend = $factory->createServerRequest('POST', '/admin/pages/' . $page->getId() . '/menu/ai')
-            ->withHeader('Content-Type', 'application/json')
-            ->withAttribute('domainNamespace', $page->getNamespace());
-        $appendBody = $requestAppend->getBody();
-        $appendBody->write(json_encode(['overwrite' => false]));
-        $appendBody->rewind();
-        $requestAppend = $requestAppend->withBody($appendBody);
-        $responseAppend = new Response();
-        $resultAppend = $controller->generateMenu($requestAppend, $responseAppend, ['pageId' => $page->getId()]);
-
-        $payloadAppend = json_decode((string) $resultAppend->getBody(), true);
-        $labels = array_map(static fn (array $item): string => $item['label'] ?? '', $payloadAppend['items'] ?? []);
+        // append mode should add items
+        $appended = $menuService->generateMenuFromPage($page, null, false);
+        $labels = array_map(static fn ($item): string => $item->getLabel(), $appended);
         $this->assertContains('Neu', $labels);
     }
 
-    public function testRouteRejectsUnknownAnchors(): void
+    public function testUnknownAnchorsFallBackToPageSlug(): void
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -89,39 +54,20 @@ final class MarketingMenuAiRouteTest extends TestCase
 
         $pageService = new PageService($pdo);
         $page = $this->seedPage($pdo, $pageService, 'landing');
+        $menuId = $this->seedMenu($pdo, $page->getNamespace());
+        $this->seedMenuAssignment($pdo, $menuId, $page->getId(), $page->getNamespace());
 
         $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
             'items' => [
                 ['label' => 'Unbekannt', 'href' => '#unbekannt', 'layout' => 'link'],
             ],
         ])), '{{slug}}');
-        $menuService = new CmsPageMenuService($pdo, $pageService, $generator);
-        $controller = new ProjectPagesController(
-            $pdo,
-            $pageService,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            $menuService
-        );
+        $menuService = new CmsPageMenuService($pdo, $pageService, null, $generator);
 
-        $factory = new ServerRequestFactory();
-        $request = $factory->createServerRequest('POST', '/admin/pages/' . $page->getId() . '/menu/ai')
-            ->withHeader('Content-Type', 'application/json')
-            ->withParsedBody(null)
-            ->withAttribute('domainNamespace', $page->getNamespace());
-        $response = new Response();
+        $items = $menuService->generateMenuFromPage($page, null, true);
 
-        $result = $controller->generateMenu($request, $response, ['pageId' => $page->getId()]);
-
-        $this->assertSame(422, $result->getStatusCode());
-        $payload = json_decode((string) $result->getBody(), true);
-        $this->assertSame('ai_invalid_links', $payload['error_code']);
-        $this->assertSame([], $payload['items']);
+        $this->assertCount(1, $items);
+        $this->assertSame('/landing', $items[0]->getHref());
     }
 
     public function testRouteAutoCorrectsAnchorSlugs(): void
@@ -132,42 +78,20 @@ final class MarketingMenuAiRouteTest extends TestCase
 
         $pageService = new PageService($pdo);
         $page = $this->seedPage($pdo, $pageService, 'landing');
+        $menuId = $this->seedMenu($pdo, $page->getNamespace());
+        $this->seedMenuAssignment($pdo, $menuId, $page->getId(), $page->getNamespace());
 
         $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
             'items' => [
                 ['label' => 'Neu', 'href' => 'neu', 'layout' => 'link'],
             ],
         ])), '{{slug}}');
-        $menuService = new CmsPageMenuService($pdo, $pageService, $generator);
-        $controller = new ProjectPagesController(
-            $pdo,
-            $pageService,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            $menuService
-        );
+        $menuService = new CmsPageMenuService($pdo, $pageService, null, $generator);
 
-        $factory = new ServerRequestFactory();
-        $request = $factory->createServerRequest('POST', '/admin/pages/' . $page->getId() . '/menu/ai')
-            ->withHeader('Content-Type', 'application/json')
-            ->withParsedBody(null)
-            ->withAttribute('domainNamespace', $page->getNamespace());
-        $body = $request->getBody();
-        $body->write(json_encode(['locale' => 'de', 'overwrite' => true]));
-        $body->rewind();
-        $request = $request->withBody($body);
-        $response = new Response();
+        $items = $menuService->generateMenuFromPage($page, 'de', true);
 
-        $result = $controller->generateMenu($request, $response, ['pageId' => $page->getId()]);
-
-        $this->assertSame(200, $result->getStatusCode());
-        $payload = json_decode((string) $result->getBody(), true);
-        $this->assertSame('#neu', $payload['items'][0]['href']);
+        $this->assertCount(1, $items);
+        $this->assertSame('#neu', $items[0]->getHref());
     }
 
     public function testTimeoutReturnsEmptyItemsAndGatewayTimeout(): void
@@ -178,7 +102,9 @@ final class MarketingMenuAiRouteTest extends TestCase
 
         $pageService = new PageService($pdo);
         $page = $this->seedPage($pdo, $pageService, 'landing');
-        $this->insertMenuItem($pdo, $page->getId(), 'Alt', '#alt', 0);
+        $menuId = $this->seedMenu($pdo, $page->getNamespace());
+        $this->seedMenuAssignment($pdo, $menuId, $page->getId(), $page->getNamespace());
+        $this->insertMenuItem($pdo, $menuId, $page->getNamespace(), 'Alt', '#alt', 0);
 
         $timeoutResponder = new class () implements ChatResponderInterface {
             public function respond(array $messages, array $context): string
@@ -188,36 +114,21 @@ final class MarketingMenuAiRouteTest extends TestCase
         };
 
         $generator = new MarketingMenuAiGenerator(null, $timeoutResponder, '{{slug}}');
-        $menuService = new CmsPageMenuService($pdo, $pageService, $generator);
-        $controller = new ProjectPagesController(
-            $pdo,
-            $pageService,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            $menuService
-        );
+        $menuService = new CmsPageMenuService($pdo, $pageService, null, $generator);
 
-        $factory = new ServerRequestFactory();
-        $request = $factory->createServerRequest('POST', '/admin/pages/' . $page->getId() . '/menu/ai')
-            ->withHeader('Content-Type', 'application/json')
-            ->withParsedBody(null)
-            ->withAttribute('domainNamespace', $page->getNamespace());
+        try {
+            $menuService->generateMenuFromPage($page, null, true);
+            $this->fail('Expected RuntimeException for timeout');
+        } catch (\RuntimeException $exception) {
+            $mapper = new MarketingMenuAiErrorMapper();
+            $mapped = $mapper->map($exception);
+            $this->assertSame(504, $mapped['status']);
+            $this->assertSame('ai_timeout', $mapped['error_code']);
+        }
 
-        $response = new Response();
-        $result = $controller->generateMenu($request, $response, ['pageId' => $page->getId()]);
-
-        $this->assertSame(504, $result->getStatusCode());
-        $payload = json_decode((string) $result->getBody(), true);
-        $this->assertSame([], $payload['items']);
-        $this->assertSame('ai_timeout', $payload['error_code']);
-
-        $stmt = $pdo->prepare('SELECT COUNT(*) FROM marketing_page_menu_items WHERE page_id = ?');
-        $stmt->execute([$page->getId()]);
+        // existing item should not have been deleted (transaction rolled back)
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM marketing_menu_items WHERE menu_id = ?');
+        $stmt->execute([$menuId]);
         $this->assertSame(1, (int) $stmt->fetchColumn());
     }
 
@@ -226,11 +137,13 @@ final class MarketingMenuAiRouteTest extends TestCase
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->createSchema($pdo);
-        $pdo->exec('CREATE UNIQUE INDEX marketing_menu_label_unique ON marketing_page_menu_items(page_id, label)');
+        $pdo->exec('CREATE UNIQUE INDEX marketing_menu_label_unique ON marketing_menu_items(menu_id, label)');
 
         $pageService = new PageService($pdo);
         $page = $this->seedPage($pdo, $pageService, 'landing');
-        $this->insertMenuItem($pdo, $page->getId(), 'Alt', '#alt', 0);
+        $menuId = $this->seedMenu($pdo, $page->getNamespace());
+        $this->seedMenuAssignment($pdo, $menuId, $page->getId(), $page->getNamespace());
+        $this->insertMenuItem($pdo, $menuId, $page->getNamespace(), 'Alt', '#alt', 0);
 
         $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
             'items' => [
@@ -238,38 +151,16 @@ final class MarketingMenuAiRouteTest extends TestCase
             ],
         ])), '{{slug}}');
 
-        $menuService = new CmsPageMenuService($pdo, $pageService, $generator);
-        $controller = new ProjectPagesController(
-            $pdo,
-            $pageService,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            $menuService
-        );
+        $menuService = new CmsPageMenuService($pdo, $pageService, null, $generator);
 
-        $factory = new ServerRequestFactory();
-        $request = $factory->createServerRequest('POST', '/admin/pages/' . $page->getId() . '/menu/ai')
-            ->withHeader('Content-Type', 'application/json')
-            ->withParsedBody(null)
-            ->withAttribute('domainNamespace', $page->getNamespace());
-        $body = $request->getBody();
-        $body->write(json_encode(['overwrite' => false]));
-        $body->rewind();
-        $request = $request->withBody($body);
-        $response = new Response();
-
-        $result = $controller->generateMenu($request, $response, ['pageId' => $page->getId()]);
-
-        $this->assertSame(500, $result->getStatusCode());
-        $payload = json_decode((string) $result->getBody(), true);
-        $this->assertStringContainsString('UNIQUE constraint failed', $payload['error'] ?? '');
-        $this->assertSame('persistence_failed', $payload['error_code'] ?? '');
-        $this->assertSame([], $payload['items'] ?? []);
+        try {
+            $menuService->generateMenuFromPage($page, null, false);
+            $this->fail('Expected MarketingMenuAiException for persistence failure');
+        } catch (MarketingMenuAiException $exception) {
+            $this->assertSame('persistence_failed', $exception->getErrorCode());
+            $this->assertSame(500, $exception->getStatus());
+            $this->assertStringContainsString('UNIQUE constraint failed', $exception->getMessage());
+        }
     }
 
     private function createSchema(PDO $pdo): void
@@ -293,22 +184,46 @@ final class MarketingMenuAiRouteTest extends TestCase
         );
 
         $pdo->exec(
-            'CREATE TABLE marketing_page_menu_items ('
+            'CREATE TABLE marketing_menus ('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-            . 'page_id INTEGER NOT NULL,'
             . "namespace TEXT NOT NULL DEFAULT 'default',"
+            . 'label TEXT NOT NULL,'
+            . "locale TEXT NOT NULL DEFAULT 'de',"
+            . 'is_active INTEGER NOT NULL DEFAULT 1,'
+            . 'updated_at TEXT'
+            . ')'
+        );
+
+        $pdo->exec(
+            'CREATE TABLE marketing_menu_assignments ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . 'menu_id INTEGER NOT NULL,'
+            . 'page_id INTEGER,'
+            . "namespace TEXT NOT NULL DEFAULT 'default',"
+            . 'slot TEXT NOT NULL,'
+            . "locale TEXT NOT NULL DEFAULT 'de',"
+            . 'is_active INTEGER NOT NULL DEFAULT 1,'
+            . 'updated_at TEXT'
+            . ')'
+        );
+
+        $pdo->exec(
+            'CREATE TABLE marketing_menu_items ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . 'menu_id INTEGER NOT NULL,'
             . 'parent_id INTEGER,'
+            . "namespace TEXT NOT NULL DEFAULT 'default',"
             . 'label TEXT NOT NULL,'
             . 'href TEXT NOT NULL,'
             . 'icon TEXT,'
-            . "layout TEXT NOT NULL DEFAULT 'link',"
-            . 'detail_title TEXT,'
-            . 'detail_text TEXT,'
-            . 'detail_subline TEXT,'
             . 'position INTEGER NOT NULL DEFAULT 0,'
             . 'is_external INTEGER NOT NULL DEFAULT 0,'
             . "locale TEXT NOT NULL DEFAULT 'de',"
             . 'is_active INTEGER NOT NULL DEFAULT 1,'
+            . "layout TEXT NOT NULL DEFAULT 'link',"
+            . 'detail_title TEXT,'
+            . 'detail_text TEXT,'
+            . 'detail_subline TEXT,'
             . 'is_startpage INTEGER NOT NULL DEFAULT 0,'
             . 'updated_at TEXT'
             . ')'
@@ -327,13 +242,32 @@ final class MarketingMenuAiRouteTest extends TestCase
         return $pageService->findById((int) $pdo->lastInsertId());
     }
 
-    private function insertMenuItem(PDO $pdo, int $pageId, string $label, string $href, int $position): void
+    private function seedMenu(PDO $pdo, string $namespace): int
     {
         $stmt = $pdo->prepare(
-            'INSERT INTO marketing_page_menu_items (page_id, namespace, parent_id, label, href, icon, layout, detail_title, '
-            . 'detail_text, detail_subline, position, is_external, locale, is_active, is_startpage) '
-            . "VALUES (?, 'default', NULL, ?, ?, NULL, 'link', NULL, NULL, NULL, ?, 0, 'de', 1, 0)"
+            "INSERT INTO marketing_menus (namespace, label, locale, is_active) VALUES (?, 'Navigation', 'de', 1)"
         );
-        $stmt->execute([$pageId, $label, $href, $position]);
+        $stmt->execute([$namespace]);
+
+        return (int) $pdo->lastInsertId();
+    }
+
+    private function seedMenuAssignment(PDO $pdo, int $menuId, int $pageId, string $namespace): void
+    {
+        $stmt = $pdo->prepare(
+            "INSERT INTO marketing_menu_assignments (menu_id, page_id, namespace, slot, locale, is_active) "
+            . "VALUES (?, ?, ?, 'main', 'de', 1)"
+        );
+        $stmt->execute([$menuId, $pageId, $namespace]);
+    }
+
+    private function insertMenuItem(PDO $pdo, int $menuId, string $namespace, string $label, string $href, int $position): void
+    {
+        $stmt = $pdo->prepare(
+            'INSERT INTO marketing_menu_items (menu_id, namespace, parent_id, label, href, icon, layout, detail_title, '
+            . 'detail_text, detail_subline, position, is_external, locale, is_active, is_startpage) '
+            . "VALUES (?, ?, NULL, ?, ?, NULL, 'link', NULL, NULL, NULL, ?, 0, 'de', 1, 0)"
+        );
+        $stmt->execute([$menuId, $namespace, $label, $href, $position]);
     }
 }

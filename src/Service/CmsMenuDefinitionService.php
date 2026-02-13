@@ -100,7 +100,7 @@ final class CmsMenuDefinitionService
             throw new RuntimeException('Creating menu failed.', 0, $exception);
         }
 
-        $menuId = (int) $this->pdo->lastInsertId();
+        $menuId = (int) $this->pdo->lastInsertId('marketing_menus_id_seq');
         $menu = $this->getMenuById($normalizedNamespace, $menuId);
         if ($menu === null) {
             throw new RuntimeException('Menu could not be loaded after creation.');
@@ -369,7 +369,7 @@ final class CmsMenuDefinitionService
             throw new RuntimeException('Creating menu assignment failed.', 0, $exception);
         }
 
-        $assignmentId = (int) $this->pdo->lastInsertId();
+        $assignmentId = (int) $this->pdo->lastInsertId('marketing_menu_assignments_id_seq');
         $assignment = $this->getAssignmentById($normalizedNamespace, $assignmentId);
         if ($assignment === null) {
             throw new RuntimeException('Menu assignment could not be loaded after creation.');
