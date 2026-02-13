@@ -184,3 +184,52 @@
   --card-radius: 10px;
   --font-heading-weight: 700;
 }
+
+:root[data-theme="dark"] {
+  --contrast-text-on-surface: #f2f5fa;
+  --contrast-text-on-surface-muted: #f2f5fa;
+  --contrast-text-on-page: #f2f5fa;
+  --marketing-ink: #f2f5fa;
+}
+
+[data-namespace="default"][data-theme="dark"] {
+  --contrast-text-on-surface: #f2f5fa;
+  --contrast-text-on-surface-muted: #f2f5fa;
+  --contrast-text-on-page: #f2f5fa;
+  --marketing-ink: #f2f5fa;
+}
+
+[data-namespace="aurora"][data-theme="dark"] {
+  --contrast-text-on-surface: #f2f5fa;
+  --contrast-text-on-surface-muted: #f2f5fa;
+  --contrast-text-on-page: #f2f5fa;
+  --marketing-ink: #f8fafc;
+}
+
+[data-namespace="calhelp"][data-theme="dark"] {
+  --contrast-text-on-surface: #f2f5fa;
+  --contrast-text-on-surface-muted: #f2f5fa;
+  --contrast-text-on-page: #f2f5fa;
+  --marketing-ink: #e8f0ec;
+}
+
+[data-namespace="calserver"][data-theme="dark"] {
+  --contrast-text-on-surface: #f2f5fa;
+  --contrast-text-on-surface-muted: #f2f5fa;
+  --contrast-text-on-page: #f2f5fa;
+  --marketing-ink: #f2f5fa;
+}
+
+[data-namespace="future-is-green"][data-theme="dark"] {
+  --contrast-text-on-surface: #f2f5fa;
+  --contrast-text-on-surface-muted: #f2f5fa;
+  --contrast-text-on-page: #f2f5fa;
+  --marketing-ink: #e6fff3;
+}
+
+[data-namespace="uikit-default"][data-theme="dark"] {
+  --contrast-text-on-surface: #f2f5fa;
+  --contrast-text-on-surface-muted: #f2f5fa;
+  --contrast-text-on-page: #f2f5fa;
+  --marketing-ink: #f3f4f6;
+}
