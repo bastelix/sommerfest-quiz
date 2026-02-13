@@ -368,6 +368,7 @@
 - Add missing layout to FAQ block default meta sectionStyle
 - IPad card layout — follow Ablauf pattern, drop @s intermediate for 3+ columns
 - Revert modified migration and add new one for table creation
+- Resolve PHPStan errors for null coalesce and redundant comparison
 
 ### Nav
 
