@@ -439,6 +439,7 @@
 - Simplify admin UI by removing duplicate selectors and restructuring tabs
 - Remove hidden pageContentSelect and extract admin base layout
 - Dissolve Zuordnungen tab from navigation admin
+- Split navigation tabs into separate admin menu pages
 
 ### Style
 
