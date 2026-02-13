@@ -379,6 +379,7 @@
 - Sync sqlite-schema.sql with missing migration changes
 - Swap page background and text inline styles for dark mode
 - Forward namespace parameter to domain-chat API endpoints
+- Clear stale inline styles before re-applying on theme toggle
 
 ### Nav
 
