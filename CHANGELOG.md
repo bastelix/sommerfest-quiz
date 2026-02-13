@@ -364,6 +364,7 @@
 - Pass PostgreSQL sequence names to lastInsertId() for menu operations
 - Show 3 cards side-by-side on iPad for page modules
 - Create project_settings table before altering it
+- Add missing layout to FAQ block default meta sectionStyle
 
 ### Nav
 
