@@ -75,24 +75,8 @@
         {% set activePageNamespace = pageNamespace|default('default') %}
         {% include 'admin/partials/namespace_select.twig' %}
 
-        <ul class="uk-subnav uk-subnav-pill uk-margin" uk-switcher="connect: #navigation-tab-content; animation: uk-animation-fade">
-          <li><a href="#">{{ t('tab_navigation_menus_short') }}</a></li>
-          <li><a href="#">{{ t('tab_navigation_footer_blocks') }}</a></li>
-          <li><a href="#">{{ t('tab_navigation_settings') }}</a></li>
-        </ul>
-
-        <ul id="navigation-tab-content" class="uk-switcher uk-margin">
-          <li>
-            {% include 'admin/navigation/_partials/header_standard_card.twig' %}
-            {% include 'admin/navigation/_partials/menus_tab.twig' %}
-          </li>
-          <li>
-            {% include 'admin/navigation/_partials/footer_blocks_tab.twig' %}
-          </li>
-          <li>
-            {% include 'admin/navigation/_partials/settings_tab.twig' %}
-          </li>
-        </ul>
+        {% include 'admin/navigation/_partials/header_standard_card.twig' %}
+        {% include 'admin/navigation/_partials/menus_tab.twig' %}
       </div>
     </main>
   </div>
@@ -102,12 +86,4 @@
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
   <script src="{{ basePath }}/js/marketing-menu-common.js"></script>
   <script src="{{ basePath }}/js/marketing-menu-cards.js"></script>
-  <script>
-    window.templateData = {
-      menuDefinitions: {{ footer_menu_definitions|json_encode|raw }},
-      footerLayout: {{ (footer_layout|default('equal'))|json_encode|raw }},
-      csrfToken: {{ csrf_token|json_encode|raw }}
-    };
-  </script>
-  <script type="module" src="{{ basePath }}/js/marketing-footer-blocks.js"></script>
 {% endblock %}
