@@ -443,6 +443,7 @@
 - Dissolve Zuordnungen tab from navigation admin
 - Split navigation tabs into separate admin menu pages
 - Rename header settings sidebar link and reorder navigation
+- Migrate all remaining admin templates to admin/base.twig
 
 ### Style
 
