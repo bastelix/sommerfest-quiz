@@ -1215,3 +1215,15 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
     padding: 20px;
   }
 }
+
+/* =========================================================
+   iPad portrait 3-column fix
+   UIKit @m = 960px misses iPad portrait (768px).
+   Override uk-child-width-1-3@m to kick in at 768px on
+   marketing pages so cards show 3-up on iPad portrait.
+   ========================================================= */
+@media (min-width: 768px) {
+  :is(body, .marketing-scope).marketing-page .uk-child-width-1-3\@m > * {
+    width: 33.333%;
+  }
+}
