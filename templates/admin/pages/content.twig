@@ -1,13 +1,9 @@
-{% extends 'layout.twig' %}
 {% set includeMarketingThemeVars = true %}
-
-{% block config_color_styles %}{% endblock %}
+{% extends 'admin/base.twig' %}
 
 {% block title %}{{ t('heading_pages') }}{% endblock %}
 
-{% block head %}
-  <meta name="csrf-token" content="{{ csrf_token }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+{% block admin_head %}
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" id="admin-dark-css" data-theme-style="dark" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css" id="admin-highcontrast-css" data-theme-style="high-contrast">
   {% set activeNamespace = pageNamespace|default('default') %}
@@ -30,106 +26,9 @@
   <link rel="stylesheet" href="{{ basePath }}/css/table.css" id="preview-table-css" data-preview-asset="page-preview" media="all">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css" id="preview-topbar-css" data-preview-asset="page-preview" media="all">
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
-  <script>
-    window.profileVars = {
-      NAME: {{ tenant.imprint_name|default('')|json_encode|raw }},
-      STREET: {{ tenant.imprint_street|default('')|json_encode|raw }},
-      ZIP: {{ tenant.imprint_zip|default('')|json_encode|raw }},
-      CITY: {{ tenant.imprint_city|default('')|json_encode|raw }},
-      EMAIL: {{ tenant.imprint_email|default('')|json_encode|raw }}
-    };
-  </script>
-  <script>
-    window.csrfToken = '{{ csrf_token|e('js') }}';
-  </script>
-  <script>
-    window.transPageAction = '{{ t('action_page_transfer')|e('js') }}';
-    window.transPageTransferTitle = '{{ t('heading_page_transfer')|e('js') }}';
-    window.transPageTransferActionLabel = '{{ t('label_page_transfer_action')|e('js') }}';
-    window.transPageTransferNamespaceLabel = '{{ t('label_page_transfer_namespace')|e('js') }}';
-    window.transPageTransferCopy = '{{ t('option_page_transfer_copy')|e('js') }}';
-    window.transPageTransferMove = '{{ t('option_page_transfer_move')|e('js') }}';
-    window.transPageTransferSubmit = '{{ t('button_page_transfer_submit')|e('js') }}';
-    window.transPageTransferSelectionError = '{{ t('error_page_transfer_selection')|e('js') }}';
-    window.transPageTransferSameNamespace = '{{ t('error_page_transfer_namespace_same')|e('js') }}';
-    window.transPageTransferNoTargets = '{{ t('text_page_transfer_no_targets')|e('js') }}';
-    window.transPageCopied = '{{ t('notify_page_copied')|e('js') }}';
-    window.transPageMoved = '{{ t('notify_page_moved')|e('js') }}';
-    window.transPageTransferError = '{{ t('notify_page_transfer_error')|e('js') }}';
-    window.transAiPageMissingFields = '{{ t('error_ai_page_missing_fields')|e('js') }}';
-    window.transAiPageCreateError = '{{ t('error_ai_page_create')|e('js') }}';
-    window.transAiPageUnavailable = '{{ t('error_ai_page_unavailable')|e('js') }}';
-    window.transAiPagePromptMissing = '{{ t('error_ai_page_prompt_missing')|e('js') }}';
-    window.transAiPagePromptInvalid = '{{ t('error_ai_page_prompt_invalid')|e('js') }}';
-    window.transAiPageEmptyResponse = '{{ t('error_ai_page_empty_response')|e('js') }}';
-    window.transAiPageInvalidHtml = '{{ t('error_ai_page_invalid_html')|e('js') }}';
-    window.transAiPageTimeout = '{{ t('error_ai_page_timeout')|e('js') }}';
-    window.transAiPageCreated = '{{ t('notify_ai_page_created')|e('js') }}';
-  </script>
-  <script>
-    window.pageEditorMode = 'blocks';
-  </script>
-  <script>
-    window.pageAppearance = {{ appearance|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
-  </script>
-  <script>
-    window.pageDesignConfig = {{ design.config|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
-  </script>
-  <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
 {% endblock %}
 
-{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
-
-{% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <button
-        id="sidebarToggle"
-        type="button"
-        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
-        aria-controls="adminSidebar"
-        aria-expanded="true"
-        aria-pressed="false"
-        aria-label="{{ t('menu') }}"
-      >
-        <span uk-navbar-toggle-icon></span>
-      </button>
-      <button
-        id="adminOffcanvasToggle"
-        type="button"
-        class="uk-navbar-toggle uk-hidden@m uk-margin-small-right git-btn"
-        uk-navbar-toggle-icon
-        uk-toggle="target: #qr-offcanvas"
-        aria-controls="qr-offcanvas"
-        aria-expanded="false"
-        aria-haspopup="true"
-        aria-label="{{ t('menu') }}"
-      ></button>
-      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
-        QuizRace Admin
-      </a>
-    {% endblock %}
-    {% block center %}
-      {% include 'admin/components/namespace_breadcrumb.twig' %}
-    {% endblock %}
-    {% block offcanvas %}
-      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-        <div class="uk-offcanvas-bar">
-          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-          <h3 class="uk-margin-small">QuizRace</h3>
-          {% include 'admin/_nav.twig' %}
-        </div>
-      </div>
-    {% endblock %}
-  {% endembed %}
-
-  <div class="uk-grid-collapse" uk-grid>
-    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+{% block content %}
       <div class="uk-container uk-container-large">
         <h1 class="uk-heading-bullet">{{ t('heading_pages') }}</h1>
         <p class="uk-text-meta uk-margin-small-top">
@@ -416,7 +315,7 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="newPageSlug">Slug</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="newPageSlug" name="slug" type="text" required maxlength="100" placeholder="z. B. neue-landingpage">
+                  <input class="uk-input" id="newPageSlug" name="slug" type="text" required maxlength="100" placeholder="z. B. neue-landingpage">
                 </div>
               </div>
               <div class="uk-margin">
@@ -683,10 +582,54 @@
           </div>
         </div>
       </div>
-    </main>
-  </div>
 {% endblock %}
 
 {% block scripts %}
+  <script>
+    window.profileVars = {
+      NAME: {{ tenant.imprint_name|default('')|json_encode|raw }},
+      STREET: {{ tenant.imprint_street|default('')|json_encode|raw }},
+      ZIP: {{ tenant.imprint_zip|default('')|json_encode|raw }},
+      CITY: {{ tenant.imprint_city|default('')|json_encode|raw }},
+      EMAIL: {{ tenant.imprint_email|default('')|json_encode|raw }}
+    };
+  </script>
+  <script>
+    window.csrfToken = '{{ csrf_token|e('js') }}';
+  </script>
+  <script>
+    window.transPageAction = '{{ t('action_page_transfer')|e('js') }}';
+    window.transPageTransferTitle = '{{ t('heading_page_transfer')|e('js') }}';
+    window.transPageTransferActionLabel = '{{ t('label_page_transfer_action')|e('js') }}';
+    window.transPageTransferNamespaceLabel = '{{ t('label_page_transfer_namespace')|e('js') }}';
+    window.transPageTransferCopy = '{{ t('option_page_transfer_copy')|e('js') }}';
+    window.transPageTransferMove = '{{ t('option_page_transfer_move')|e('js') }}';
+    window.transPageTransferSubmit = '{{ t('button_page_transfer_submit')|e('js') }}';
+    window.transPageTransferSelectionError = '{{ t('error_page_transfer_selection')|e('js') }}';
+    window.transPageTransferSameNamespace = '{{ t('error_page_transfer_namespace_same')|e('js') }}';
+    window.transPageTransferNoTargets = '{{ t('text_page_transfer_no_targets')|e('js') }}';
+    window.transPageCopied = '{{ t('notify_page_copied')|e('js') }}';
+    window.transPageMoved = '{{ t('notify_page_moved')|e('js') }}';
+    window.transPageTransferError = '{{ t('notify_page_transfer_error')|e('js') }}';
+    window.transAiPageMissingFields = '{{ t('error_ai_page_missing_fields')|e('js') }}';
+    window.transAiPageCreateError = '{{ t('error_ai_page_create')|e('js') }}';
+    window.transAiPageUnavailable = '{{ t('error_ai_page_unavailable')|e('js') }}';
+    window.transAiPagePromptMissing = '{{ t('error_ai_page_prompt_missing')|e('js') }}';
+    window.transAiPagePromptInvalid = '{{ t('error_ai_page_prompt_invalid')|e('js') }}';
+    window.transAiPageEmptyResponse = '{{ t('error_ai_page_empty_response')|e('js') }}';
+    window.transAiPageInvalidHtml = '{{ t('error_ai_page_invalid_html')|e('js') }}';
+    window.transAiPageTimeout = '{{ t('error_ai_page_timeout')|e('js') }}';
+    window.transAiPageCreated = '{{ t('notify_ai_page_created')|e('js') }}';
+  </script>
+  <script>
+    window.pageEditorMode = 'blocks';
+  </script>
+  <script>
+    window.pageAppearance = {{ appearance|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
+  </script>
+  <script>
+    window.pageDesignConfig = {{ design.config|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
+  </script>
+  <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
 {% endblock %}

@@ -1,68 +1,6 @@
-{% extends 'layout.twig' %}
+{% extends 'admin/base.twig' %}
 
-{% block config_color_styles %}
-  {{ parent() }}
-{% endblock %}
-
-{% block head %}
-  <meta name="csrf-token" content="{{ csrfToken }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-{% endblock %}
-
-{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
-
-{% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <button
-        id="sidebarToggle"
-        type="button"
-        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
-        aria-controls="adminSidebar"
-        aria-expanded="true"
-        aria-pressed="false"
-        aria-label="{{ t('menu') }}"
-      >
-        <span uk-navbar-toggle-icon></span>
-      </button>
-      <button
-        id="adminOffcanvasToggle"
-        type="button"
-        class="uk-navbar-toggle uk-hidden@m uk-margin-small-right git-btn"
-        uk-navbar-toggle-icon
-        uk-toggle="target: #qr-offcanvas"
-        aria-controls="qr-offcanvas"
-        aria-expanded="false"
-        aria-haspopup="true"
-        aria-label="{{ t('menu') }}"
-      ></button>
-      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
-        QuizRace Admin
-      </a>
-    {% endblock %}
-    {% block center %}
-      {% include 'admin/components/namespace_breadcrumb.twig' %}
-    {% endblock %}
-    {% block offcanvas %}
-      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-        <div class="uk-offcanvas-bar">
-          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-          <h3 class="uk-margin-small">QuizRace</h3>
-          {% include 'admin/_nav.twig' %}
-        </div>
-      </div>
-    {% endblock %}
-  {% endembed %}
-
-  <div class="uk-grid-collapse" uk-grid>
-    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+{% block content %}
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_prompt_templates') }}</h2>
       </div>
@@ -97,35 +35,35 @@
           </div>
         </div>
       </div>
-    </main>
-  </div>
 
-  <div id="promptTemplateModal" uk-modal>
-    <div class="uk-modal-dialog uk-modal-body">
-      <h2 class="uk-modal-title">{{ t('heading_prompt_template_edit') }}</h2>
-      <p id="promptTemplateInfo" class="uk-text-meta uk-margin-remove"></p>
-      <form id="promptTemplateForm" class="uk-form-stacked">
-        <input type="hidden" id="promptTemplateId">
-        <div class="uk-margin">
-          <label class="uk-form-label" for="promptTemplateName">{{ t('label_prompt_template_name') }}</label>
-          <div class="uk-form-controls">
-            <input class="uk-input" type="text" id="promptTemplateName" required>
-          </div>
+      <div id="promptTemplateModal" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body">
+          <h2 class="uk-modal-title">{{ t('heading_prompt_template_edit') }}</h2>
+          <p id="promptTemplateInfo" class="uk-text-meta uk-margin-remove"></p>
+          <form id="promptTemplateForm" class="uk-form-stacked">
+            <input type="hidden" id="promptTemplateId">
+            <div class="uk-margin">
+              <label class="uk-form-label" for="promptTemplateName">{{ t('label_prompt_template_name') }}</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" type="text" id="promptTemplateName" required>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="promptTemplatePrompt">{{ t('label_prompt_template_prompt') }}</label>
+              <div class="uk-form-controls">
+                <textarea class="uk-textarea" id="promptTemplatePrompt" rows="14" required></textarea>
+              </div>
+            </div>
+            <div class="uk-flex uk-flex-right uk-margin-top">
+              <button type="submit" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
+              <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">{{ t('action_cancel') }}</button>
+            </div>
+          </form>
         </div>
-        <div class="uk-margin">
-          <label class="uk-form-label" for="promptTemplatePrompt">{{ t('label_prompt_template_prompt') }}</label>
-          <div class="uk-form-controls">
-            <textarea class="uk-textarea" id="promptTemplatePrompt" rows="14" required></textarea>
-          </div>
-        </div>
-        <div class="uk-flex uk-flex-right uk-margin-top">
-          <button type="submit" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
-          <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">{{ t('action_cancel') }}</button>
-        </div>
-      </form>
-    </div>
-  </div>
+      </div>
+{% endblock %}
 
+{% block scripts %}
   <script>
     window.transPromptTemplateEdit = '{{ t('action_prompt_template_edit')|e('js') }}';
     window.transPromptTemplateSaved = '{{ t('notify_prompt_template_saved')|e('js') }}';
