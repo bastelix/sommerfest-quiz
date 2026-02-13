@@ -2027,15 +2027,41 @@ let pageSelectionState = null;
 let currentStartpagePageId = null;
 let startpageMap = {};
 let selectedStartpageDomain = '';
+let _selectedSlug = '';
+
+const getPageSelect = () => document.getElementById('pageContentSelect');
+const getFormsContainer = () => document.getElementById('pageFormsContainer');
+
+const getSelectedSlug = () => {
+  const select = getPageSelect();
+  return select ? select.value : _selectedSlug;
+};
+
+const setSelectedSlug = slug => {
+  _selectedSlug = slug || '';
+  const select = getPageSelect();
+  if (select) {
+    select.value = _selectedSlug;
+  }
+};
 
 const getStartpageToggle = () => document.querySelector('[data-startpage-toggle]');
 const getDomainSelect = () => document.querySelector('[data-startpage-domain]');
 const isStartpageDisabled = () => getStartpageToggle()?.dataset.startpageDisabled === '1';
 
 const resolveSelectedPageId = () => {
-  const select = document.getElementById('pageContentSelect');
-  const option = select?.selectedOptions?.[0];
-  const raw = option?.dataset.pageId || '';
+  const select = getPageSelect();
+  if (select) {
+    const option = select.selectedOptions?.[0];
+    const raw = option?.dataset.pageId || '';
+    return raw ? Number(raw) : null;
+  }
+  const slug = getSelectedSlug();
+  if (!slug) {
+    return null;
+  }
+  const form = document.querySelector(`.page-form[data-slug="${slug}"]`);
+  const raw = form?.dataset.pageId || '';
   return raw ? Number(raw) : null;
 };
 
@@ -2068,13 +2094,17 @@ const resolveStartpageIdForDomain = domain => {
 };
 
 const refreshStartpageOptionState = startpageId => {
-  const select = document.getElementById('pageContentSelect');
-  if (!select) {
+  const select = getPageSelect();
+  if (select) {
+    Array.from(select.options).forEach(option => {
+      const optionId = option.dataset.pageId ? Number(option.dataset.pageId) : null;
+      option.dataset.startpage = optionId && startpageId === optionId ? '1' : '0';
+    });
     return;
   }
-  Array.from(select.options).forEach(option => {
-    const optionId = option.dataset.pageId ? Number(option.dataset.pageId) : null;
-    option.dataset.startpage = optionId && startpageId === optionId ? '1' : '0';
+  document.querySelectorAll('.page-form').forEach(form => {
+    const formId = form.dataset.pageId ? Number(form.dataset.pageId) : null;
+    form.dataset.startpage = formId && startpageId === formId ? '1' : '0';
   });
 };
 
@@ -2228,11 +2258,12 @@ const formatPageLabel = page => {
 };
 
 const getExcludedLandingSlugs = () => {
-  const select = document.getElementById('pageContentSelect');
-  if (!select) {
+  const select = getPageSelect();
+  const source = select || getFormsContainer();
+  if (!source) {
     return [];
   }
-  return (select.dataset.excludedLanding || '')
+  return (source.dataset.excludedLanding || '')
     .split(',')
     .map(value => value.trim())
     .filter(Boolean);
@@ -2548,26 +2579,28 @@ const addPageToInterface = page => {
     return;
   }
 
-  const select = document.getElementById('pageContentSelect');
-  const container = document.getElementById('pageFormsContainer');
+  const select = getPageSelect();
+  const container = getFormsContainer();
   const slug = (page.slug || '').trim();
-  if (!select || !container || !slug) {
+  if (!container || !slug) {
     return;
   }
 
   removePagesEmptyMessage(container);
 
-  const existingOption = Array.from(select.options).find(option => option.value === slug);
-  if (!existingOption) {
-    const option = document.createElement('option');
-    option.value = slug;
-    option.textContent = formatPageLabel(page);
-    if (page?.id) {
-      option.dataset.pageId = String(page.id);
+  if (select) {
+    const existingOption = Array.from(select.options).find(option => option.value === slug);
+    if (!existingOption) {
+      const option = document.createElement('option');
+      option.value = slug;
+      option.textContent = formatPageLabel(page);
+      if (page?.id) {
+        option.dataset.pageId = String(page.id);
+      }
+      select.append(option);
+    } else if (page?.id && !existingOption.dataset.pageId) {
+      existingOption.dataset.pageId = String(page.id);
     }
-    select.append(option);
-  } else if (page?.id && !existingOption.dataset.pageId) {
-    existingOption.dataset.pageId = String(page.id);
   }
 
   let form = container.querySelector(`.page-form[data-slug="${slug}"]`);
@@ -2585,7 +2618,7 @@ const addPageToInterface = page => {
 
   if (pageSelectionState) {
     pageSelectionState.refresh();
-    select.value = slug;
+    setSelectedSlug(slug);
     pageSelectionState.toggleForms(slug);
   }
 
@@ -2600,7 +2633,7 @@ const updatePageOptionLabel = page => {
     return;
   }
 
-  const select = document.getElementById('pageContentSelect');
+  const select = getPageSelect();
   if (!select) {
     return;
   }
@@ -2672,21 +2705,23 @@ const updatePageContentInInterface = (slug, html) => {
 };
 
 const removePageFromInterface = slug => {
-  const select = document.getElementById('pageContentSelect');
-  const container = document.getElementById('pageFormsContainer');
+  const select = getPageSelect();
+  const container = getFormsContainer();
   const normalized = (slug || '').trim();
-  if (!select || !container || !normalized) {
+  if (!container || !normalized) {
     return;
   }
 
-  const targetOption = Array.from(select.options).find(option => option.value === normalized);
-  const removedPageId = targetOption?.dataset.pageId ? Number(targetOption.dataset.pageId) : null;
-  const optionIndex = Array.from(select.options).findIndex(option => option.value === normalized);
-  if (optionIndex >= 0) {
-    select.remove(optionIndex);
+  const form = container.querySelector(`.page-form[data-slug="${normalized}"]`);
+  const removedPageId = form?.dataset.pageId ? Number(form.dataset.pageId) : null;
+
+  if (select) {
+    const optionIndex = Array.from(select.options).findIndex(option => option.value === normalized);
+    if (optionIndex >= 0) {
+      select.remove(optionIndex);
+    }
   }
 
-  const form = container.querySelector(`.page-form[data-slug="${normalized}"]`);
   if (form) {
     teardownPageEditor(form);
     form.remove();
@@ -2703,26 +2738,26 @@ const removePageFromInterface = slug => {
   pageSelectionState?.refresh();
 
   const remainingForms = Array.from(container.querySelectorAll('.page-form'));
-  const remainingOptions = select.options.length;
 
-  if (!remainingForms.length || remainingOptions === 0) {
-    select.value = '';
+  if (!remainingForms.length) {
+    setSelectedSlug('');
     showPagesEmptyMessage();
   } else {
-    let nextValue = select.value;
+    let nextValue = getSelectedSlug();
     if (!remainingForms.some(formEl => formEl.dataset.slug === nextValue)) {
-      nextValue = remainingForms[0]?.dataset.slug || select.options[0]?.value || '';
+      nextValue = remainingForms[0]?.dataset.slug || '';
     }
     if (nextValue) {
-      select.value = nextValue;
+      setSelectedSlug(nextValue);
     }
 
     const toggleForms = pageSelectionState?.toggleForms;
     if (typeof toggleForms === 'function') {
-      toggleForms(select.value);
+      toggleForms(getSelectedSlug());
     } else {
+      const current = getSelectedSlug();
       remainingForms.forEach(formEl => {
-        formEl.classList.toggle('uk-hidden', formEl.dataset.slug !== select.value);
+        formEl.classList.toggle('uk-hidden', formEl.dataset.slug !== current);
       });
     }
   }
@@ -2748,13 +2783,13 @@ export function initPageEditors() {
 }
 
 export function initPageSelection() {
-  const select = document.getElementById('pageContentSelect');
-  if (!select) {
+  const select = getPageSelect();
+  const container = getFormsContainer();
+  if (!select && !container) {
     pageSelectionState = null;
     return null;
   }
 
-  const container = document.getElementById('pageFormsContainer');
   let forms = [];
 
   const updateEmptyState = () => {
@@ -2762,8 +2797,7 @@ export function initPageSelection() {
       return;
     }
     const hasForms = forms.length > 0;
-    const hasOptions = select.options.length > 0;
-    if (!hasForms || !hasOptions) {
+    if (!hasForms) {
       showPagesEmptyMessage();
     } else {
       removePagesEmptyMessage(container);
@@ -2785,6 +2819,7 @@ export function initPageSelection() {
     if (!forms.some(form => form.dataset.slug === activeSlug)) {
       activeSlug = forms[0]?.dataset.slug || '';
     }
+    setSelectedSlug(activeSlug);
     forms.forEach(form => {
       const isActive = form.dataset.slug === activeSlug;
       form.classList.toggle('uk-hidden', !isActive);
@@ -2799,20 +2834,23 @@ export function initPageSelection() {
 
   refresh();
 
-  let selected = select.dataset.selected || select.value;
-  if (!selected && select.options.length > 0) {
-    selected = select.options[0].value;
+  const dataSource = select || container;
+  let selected = dataSource?.dataset.selected || (select ? select.value : _selectedSlug);
+  if (!selected && forms.length > 0) {
+    selected = forms[0]?.dataset.slug || '';
   }
   if (selected) {
-    select.value = selected;
+    setSelectedSlug(selected);
   }
   toggleForms(selected);
   syncStartpageToggle();
 
-  select.addEventListener('change', () => {
-    toggleForms(select.value);
-    syncStartpageToggle();
-  });
+  if (select) {
+    select.addEventListener('change', () => {
+      toggleForms(select.value);
+      syncStartpageToggle();
+    });
+  }
 
   const state = { select, refresh, toggleForms };
   pageSelectionState = state;
@@ -3317,11 +3355,10 @@ const initAiPageCreation = () => {
   };
 
   const ensurePageSelected = slug => {
-    const select = document.getElementById('pageContentSelect');
-    if (!select || !slug) {
+    if (!slug) {
       return;
     }
-    select.value = slug;
+    setSelectedSlug(slug);
     const state = pageSelectionState || initPageSelection();
     if (state && typeof state.toggleForms === 'function') {
       state.toggleForms(slug);
@@ -3333,12 +3370,16 @@ const initAiPageCreation = () => {
     if (!normalized) {
       return null;
     }
-    const select = document.getElementById('pageContentSelect');
+    const formEl = document.querySelector(`.page-form[data-slug="${normalized}"]`);
+    if (formEl?.dataset.pageId) {
+      const pageId = Number.parseInt(formEl.dataset.pageId, 10);
+      return Number.isFinite(pageId) ? pageId : null;
+    }
+    const select = getPageSelect();
     const option = select
       ? Array.from(select.options).find(item => item.value === normalized)
       : null;
-    const formEl = document.querySelector(`.page-form[data-slug="${normalized}"]`);
-    const candidate = formEl?.dataset.pageId || option?.dataset.pageId || '';
+    const candidate = option?.dataset.pageId || '';
     const pageId = Number.parseInt(candidate, 10);
     return Number.isFinite(pageId) ? pageId : null;
   };
@@ -3412,13 +3453,10 @@ const initAiPageCreation = () => {
     }
 
     try {
-      const select = document.getElementById('pageContentSelect');
-      const existingOption = select
-        ? Array.from(select.options).find(option => option.value === slugValue)
-        : null;
+      const existingForm = document.querySelector(`.page-form[data-slug="${slugValue}"]`);
       let createdPage = null;
 
-      if (!existingOption) {
+      if (!existingForm) {
         const createResponse = await apiFetch(withNamespace('/admin/pages'), {
           method: 'POST',
           headers: {
@@ -4013,9 +4051,9 @@ function renderPageTreeSections(container, namespaces, emptyMessage, activeNames
     })());
   });
 
-  const select = document.getElementById('pageContentSelect');
-  if (select) {
-    updatePageTreeActive(container, select.value);
+  const currentSlug = getSelectedSlug();
+  if (currentSlug) {
+    updatePageTreeActive(container, currentSlug);
   }
 }
 
@@ -4153,8 +4191,7 @@ const initPageTransferModal = () => {
       ? `/admin/pages/${encodeURIComponent(slugValue)}/move`
       : `/admin/pages/${encodeURIComponent(slugValue)}/copy`;
 
-    const select = document.getElementById('pageContentSelect');
-    const previousSelection = select?.value || '';
+    const previousSelection = getSelectedSlug();
 
     try {
       const response = await apiFetch(withNamespace(endpoint), {
@@ -4176,9 +4213,9 @@ const initPageTransferModal = () => {
         removePageFromInterface(slugValue);
       }
 
-      const selectedAfter = select?.value || previousSelection;
-      if (select && selectedAfter) {
-        select.value = selectedAfter;
+      const selectedAfter = getSelectedSlug() || previousSelection;
+      if (selectedAfter) {
+        setSelectedSlug(selectedAfter);
       }
 
       await initPageTree();
@@ -4233,10 +4270,7 @@ function bindPageTreeInteractions(container) {
     if (!slug) {
       return;
     }
-    const select = document.getElementById('pageContentSelect');
-    if (select) {
-      select.value = slug;
-    }
+    setSelectedSlug(slug);
     const state = pageSelectionState || initPageSelection();
     if (state && typeof state.toggleForms === 'function') {
       state.toggleForms(slug);
@@ -4244,7 +4278,7 @@ function bindPageTreeInteractions(container) {
     updatePageTreeActive(container, slug);
   });
 
-  const select = document.getElementById('pageContentSelect');
+  const select = getPageSelect();
   if (select) {
     select.addEventListener('change', () => {
       updatePageTreeActive(container, select.value);

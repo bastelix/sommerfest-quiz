@@ -124,10 +124,7 @@ async function mountPageEditor(page, { content = '<p>Start</p>' } = {}) {
       <select id="pageNamespaceSelect" data-page-namespace="demo">
         <option value="demo" selected>demo</option>
       </select>
-      <select id="pageContentSelect" data-selected="landing">
-        <option value="landing">landing</option>
-      </select>
-      <div id="pageFormsContainer">
+      <div id="pageFormsContainer" data-selected="landing" data-excluded-landing="impressum,datenschutz,faq,lizenz">
         <form class="uk-form-stacked page-form" data-slug="landing" data-landing="true" data-page-namespace="">
           <input type="hidden" name="content" value="${escapedContent}">
           <div class="page-editor" data-content="${escapedContent}"></div>

@@ -157,28 +157,6 @@
         {% include 'admin/components/page_tree.twig' %}
 
         {% set excludedLandingSlugs = ['impressum', 'datenschutz', 'faq', 'lizenz'] %}
-        {# Hidden select kept for JS compatibility – page selection happens via the Seitenbaum #}
-        <select
-          id="pageContentSelect"
-          class="uk-select"
-          data-selected="{{ selectedSlug }}"
-          data-excluded-landing="{{ excludedLandingSlugs|join(',') }}"
-          {% if not hasPages %}disabled{% endif %}
-          hidden
-        >
-          {% if not hasPages %}
-            <option value="" selected>Keine Marketing-Seiten vorhanden</option>
-          {% endif %}
-            {% for page in pagesList %}
-              {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
-              <option
-                value="{{ page.slug }}"
-                data-page-id="{{ page.id }}"
-                data-startpage="{{ page.id == startpage_page_id ? '1' : '0' }}"
-                {% if page.slug == selectedSlug %}selected{% endif %}
-              >{{ pageLabel }}</option>
-            {% endfor %}
-        </select>
         {% set pageTypeDefaultsList = pageTypeDefaults|default([]) %}
         {% set hasPageTypes = pageTypeDefaultsList is not empty %}
         <ul class="uk-accordion uk-margin-small" uk-accordion="multiple: true">
@@ -374,7 +352,7 @@
             </div>
           </li>
         </ul>
-        <div id="pageFormsContainer">
+        <div id="pageFormsContainer" data-selected="{{ selectedSlug }}" data-excluded-landing="{{ excludedLandingSlugs|join(',') }}">
           {% if pagesList is empty %}
             <div class="uk-alert uk-alert-warning pages-empty-alert">{{ t('text_no_marketing_pages') }}</div>
           {% endif %}
