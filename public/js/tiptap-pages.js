@@ -3525,7 +3525,7 @@ const initAiPageCreation = () => {
       page.title = titleValue;
       page.content = html;
 
-      if (existingOption) {
+      if (existingForm) {
         updatePageOptionLabel(page);
         updatePageContentInInterface(slugValue, html);
         ensurePageSelected(slugValue);
@@ -3569,7 +3569,12 @@ const initAiPageCreation = () => {
       setFeedback('');
       notify(createdMessage, 'success');
     } catch (error) {
-      const message = error instanceof Error ? error.message : createErrorMessage;
+      let message = createErrorMessage;
+      if (error instanceof TypeError && /fetch/i.test(error.message)) {
+        message = aiUnavailableMessage;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
       setFeedback(message);
     } finally {
       if (submitBtn) {
