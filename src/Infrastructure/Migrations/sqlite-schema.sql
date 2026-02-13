@@ -102,6 +102,10 @@ CREATE TABLE IF NOT EXISTS config (
     dashboard_media_embed TEXT,
     dashboard_visibility_start TEXT,
     dashboard_visibility_end TEXT,
+    dashboard_sponsor_modules TEXT,
+    design_tokens TEXT,
+    effects_profile TEXT,
+    slider_profile TEXT,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
 
@@ -455,6 +459,15 @@ CREATE TABLE IF NOT EXISTS project_settings (
     privacy_url TEXT,
     privacy_url_de TEXT,
     privacy_url_en TEXT,
+    footer_layout TEXT NOT NULL DEFAULT 'equal',
+    show_language_toggle INTEGER NOT NULL DEFAULT 1,
+    show_theme_toggle INTEGER NOT NULL DEFAULT 1,
+    show_contrast_toggle INTEGER NOT NULL DEFAULT 1,
+    marketing_wiki_themes TEXT DEFAULT '{}',
+    header_logo_mode TEXT NOT NULL DEFAULT 'text',
+    header_logo_path TEXT,
+    header_logo_alt TEXT,
+    header_logo_label TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
@@ -743,6 +756,7 @@ CREATE TABLE IF NOT EXISTS marketing_page_wiki_articles (
     content_html TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'draft',
     sort_index INTEGER NOT NULL DEFAULT 0,
+    is_start_document INTEGER NOT NULL DEFAULT 0,
     published_at TEXT,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(page_id, locale, slug)
@@ -750,6 +764,10 @@ CREATE TABLE IF NOT EXISTS marketing_page_wiki_articles (
 
 CREATE INDEX IF NOT EXISTS marketing_page_wiki_articles_page_locale_status_idx
     ON marketing_page_wiki_articles(page_id, locale, status, sort_index, published_at);
+
+CREATE UNIQUE INDEX IF NOT EXISTS marketing_page_wiki_articles_start_doc_idx
+    ON marketing_page_wiki_articles(page_id, locale)
+    WHERE is_start_document;
 
 CREATE TABLE IF NOT EXISTS marketing_page_wiki_versions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -781,6 +799,72 @@ CREATE INDEX IF NOT EXISTS landing_news_page_published_idx
     ON landing_news(page_id, is_published, published_at DESC, id DESC);
 CREATE INDEX IF NOT EXISTS landing_news_published_idx
     ON landing_news(is_published, published_at DESC, id DESC);
+
+-- Marketing footer blocks
+CREATE TABLE IF NOT EXISTS marketing_footer_blocks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    namespace TEXT NOT NULL DEFAULT 'default',
+    slot TEXT NOT NULL,
+    type TEXT NOT NULL,
+    content TEXT NOT NULL DEFAULT '{}',
+    position INTEGER NOT NULL DEFAULT 0,
+    locale TEXT NOT NULL DEFAULT 'de',
+    is_active INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS marketing_footer_blocks_slot_idx
+    ON marketing_footer_blocks(namespace, slot, locale, position, id);
+
+CREATE INDEX IF NOT EXISTS marketing_footer_blocks_type_idx
+    ON marketing_footer_blocks(type);
+
+-- Marketing domains
+CREATE TABLE IF NOT EXISTS marketing_domains (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    host TEXT NOT NULL,
+    normalized_host TEXT NOT NULL UNIQUE,
+    label TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Team name AI cache
+CREATE TABLE IF NOT EXISTS team_name_ai_cache (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id TEXT NOT NULL,
+    cache_key TEXT NOT NULL,
+    name TEXT NOT NULL,
+    filters TEXT NOT NULL DEFAULT '{}',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES events(uid) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS ux_team_name_ai_cache_event_key_name
+    ON team_name_ai_cache(event_id, cache_key, name);
+
+CREATE INDEX IF NOT EXISTS ix_team_name_ai_cache_event
+    ON team_name_ai_cache(event_id);
+
+-- Mail providers
+CREATE TABLE IF NOT EXISTS mail_providers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    provider_name TEXT NOT NULL,
+    api_key TEXT,
+    list_id TEXT,
+    smtp_host TEXT,
+    smtp_user TEXT,
+    smtp_pass TEXT,
+    smtp_port INTEGER,
+    smtp_encryption TEXT,
+    active INTEGER NOT NULL DEFAULT 0,
+    settings TEXT NOT NULL DEFAULT '{}',
+    namespace TEXT NOT NULL DEFAULT 'default',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(namespace, provider_name)
+);
 
 -- Page SEO config
 CREATE TABLE IF NOT EXISTS page_seo_config (
