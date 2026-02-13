@@ -1,16 +1,11 @@
-{% extends 'layout.twig' %}
+{% extends 'admin/base.twig' %}
 {% set includeMarketingThemeVars = true %}
 
 {% set adminLayout = 'wide' %}
-{% block config_color_styles %}{% endblock %}
 
 {% block title %}{{ t('admin_title') }}{% endblock %}
 
-{% block head %}
-  <meta name="csrf-token" content="{{ csrf_token }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% block admin_head %}
   <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <script>
@@ -22,16 +17,11 @@
       EMAIL: {{ tenant.imprint_email|default('')|json_encode|raw }}
     };
   </script>
-  <script>
-    window.csrfToken = '{{ csrf_token|e('js') }}';
-  </script>
   <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
   <script type="module" src="{{ basePath }}/js/seo-form.js"></script>
-  {% endblock %}
+{% endblock %}
 
-{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
-
-{% block body %}
+{% block admin_topbar %}
   {% embed 'topbar.twig' %}
     {% block left %}
       <button
@@ -67,13 +57,9 @@
     {% block offcanvas %}{% endblock %}
     {% block right %}{% endblock %}
   {% endembed %}
-  <div class="uk-grid-collapse" uk-grid>
-    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+{% endblock %}
+
+{% block content %}
       <div class="uk-container uk-container-large">
         {% if not stripe_configured %}
           <div class="admin-section">
@@ -2425,9 +2411,6 @@
             </li>
           </ul>
         </div>
-      </main>
-    </div>
-  </div>
   <div id="helpSidebar" uk-offcanvas="flip: true; overlay: true">
     <div class="uk-offcanvas-bar uk-width-medium">
       <h3 class="uk-margin-remove-top">Hilfe</h3>

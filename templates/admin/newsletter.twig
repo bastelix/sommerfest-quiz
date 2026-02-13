@@ -1,17 +1,8 @@
-{% extends 'layout.twig' %}
-
-{% block config_color_styles %}{% endblock %}
+{% extends 'admin/base.twig' %}
 
 {% block title %}{{ t('tab_newsletter') }}{% endblock %}
 
-{% block head %}
-  <meta name="csrf-token" content="{{ csrf_token }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  <script>
-    window.csrfToken = '{{ csrf_token|e('js') }}';
-  </script>
+{% block admin_head %}
   <script>
     window.marketingNewsletterConfigs = {{ marketingNewsletterConfigs|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.marketingNewsletterSlugs = {{ marketingNewsletterSlugs|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
@@ -29,58 +20,7 @@
   </script>
 {% endblock %}
 
-{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
-
-{% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <button
-        id="sidebarToggle"
-        type="button"
-        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
-        aria-controls="adminSidebar"
-        aria-expanded="true"
-        aria-pressed="false"
-        aria-label="{{ t('menu') }}"
-      >
-        <span uk-navbar-toggle-icon></span>
-      </button>
-      <button
-        id="adminOffcanvasToggle"
-        type="button"
-        class="uk-navbar-toggle uk-hidden@m uk-margin-small-right git-btn"
-        uk-navbar-toggle-icon
-        uk-toggle="target: #qr-offcanvas"
-        aria-controls="qr-offcanvas"
-        aria-expanded="false"
-        aria-haspopup="true"
-        aria-label="{{ t('menu') }}"
-      ></button>
-      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
-        QuizRace Admin
-      </a>
-    {% endblock %}
-    {% block center %}
-      {% include 'admin/components/namespace_breadcrumb.twig' %}
-    {% endblock %}
-    {% block offcanvas %}
-      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-        <div class="uk-offcanvas-bar">
-          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-          <h3 class="uk-margin-small">QuizRace</h3>
-          {% include 'admin/_nav.twig' %}
-        </div>
-      </div>
-    {% endblock %}
-  {% endembed %}
-
-  <div class="uk-grid-collapse" uk-grid>
-    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+{% block content %}
       <div class="uk-container uk-container-large">
         <h1 class="uk-heading-bullet">{{ t('tab_newsletter') }}</h1>
       </div>
@@ -133,8 +73,6 @@
           </div>
         </div>
       </div>
-    </main>
-  </div>
 {% endblock %}
 
 {% block scripts %}

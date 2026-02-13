@@ -1,15 +1,9 @@
-{% extends 'layout.twig' %}
+{% extends 'admin/base.twig' %}
 {% set includeMarketingThemeVars = true %}
-
-{% block config_color_styles %}{% endblock %}
 
 {% block title %}Wiki{% endblock %}
 
-{% block head %}
-  <meta name="csrf-token" content="{{ csrf_token }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% block admin_head %}
   <script>
     window.profileVars = {
       NAME: {{ tenant.imprint_name|default('')|json_encode|raw }},
@@ -19,63 +13,9 @@
       EMAIL: {{ tenant.imprint_email|default('')|json_encode|raw }}
     };
   </script>
-  <script>
-    window.csrfToken = '{{ csrf_token|e('js') }}';
-  </script>
 {% endblock %}
 
-{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
-
-{% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <button
-        id="sidebarToggle"
-        type="button"
-        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
-        aria-controls="adminSidebar"
-        aria-expanded="true"
-        aria-pressed="false"
-        aria-label="{{ t('menu') }}"
-      >
-        <span uk-navbar-toggle-icon></span>
-      </button>
-      <button
-        id="adminOffcanvasToggle"
-        type="button"
-        class="uk-navbar-toggle uk-hidden@m uk-margin-small-right git-btn"
-        uk-navbar-toggle-icon
-        uk-toggle="target: #qr-offcanvas"
-        aria-controls="qr-offcanvas"
-        aria-expanded="false"
-        aria-haspopup="true"
-        aria-label="{{ t('menu') }}"
-      ></button>
-      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
-        QuizRace Admin
-      </a>
-    {% endblock %}
-    {% block center %}
-      {% include 'admin/components/namespace_breadcrumb.twig' %}
-    {% endblock %}
-    {% block offcanvas %}
-      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-        <div class="uk-offcanvas-bar">
-          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-          <h3 class="uk-margin-small">QuizRace</h3>
-          {% include 'admin/_nav.twig' %}
-        </div>
-      </div>
-    {% endblock %}
-  {% endembed %}
-
-  <div class="uk-grid-collapse" uk-grid>
-    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+{% block content %}
       <div class="uk-container uk-container-large">
         <h1 class="uk-heading-bullet">Wiki</h1>
       </div>
@@ -183,13 +123,13 @@
                   </ul>
                   <ul class="uk-switcher uk-margin-small-top">
                     <li>
-                      <input class="uk-input" type="text" data-wiki-menu-label-locale="de" maxlength="80" placeholder="z. B. Dokumentation">
+                      <input class="uk-input" type="text" data-wiki-menu-label-locale="de" maxlength="80" placeholder="z. B. Dokumentation">
                     </li>
                     <li>
                       <input class="uk-input" type="text" data-wiki-menu-label-locale="en" maxlength="80" placeholder="e.g. Documentation">
                     </li>
                   </ul>
-                  <p class="uk-text-meta uk-margin-small-top">Optional – Standard ist „Dokumentation“.</p>
+                  <p class="uk-text-meta uk-margin-small-top">Optional – Standard ist „Dokumentation".</p>
                 </div>
                 <div class="uk-margin">
                   <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
@@ -354,7 +294,7 @@
                 <div class="uk-margin">
                   <label class="uk-form-label" for="wikiArticleSlug">Slug</label>
                   <div class="uk-form-controls">
-                    <input class="uk-input" id="wikiArticleSlug" type="text" data-wiki-article-slug required maxlength="120" placeholder="z. B. quickstart">
+                    <input class="uk-input" id="wikiArticleSlug" type="text" data-wiki-article-slug required maxlength="120" placeholder="z. B. quickstart">
                   </div>
                 </div>
                 <div class="uk-margin">
@@ -368,7 +308,7 @@
                   <div class="uk-form-controls">
                     <label class="uk-flex uk-flex-middle" style="gap: 8px;">
                       <input class="uk-checkbox" id="wikiArticleStart" type="checkbox" data-wiki-article-start>
-                      <span>Als erstes Dokument anzeigen (z. B. Inhaltsverzeichnis)</span>
+                      <span>Als erstes Dokument anzeigen (z. B. Inhaltsverzeichnis)</span>
                     </label>
                     <p class="uk-text-meta uk-margin-small-top">Pro Locale kann nur ein Startdokument aktiv sein.</p>
                   </div>
@@ -392,8 +332,6 @@
           </div>
         {% endif %}
       </div>
-    </main>
-  </div>
 {% endblock %}
 
 {% block scripts %}
