@@ -56,13 +56,14 @@ const normalizePagePayload = (payload, sourceLabel) => {
     ? payload.sectionStyleDefaults
     : {};
   const content = typeof payload.content === 'string' ? payload.content : '';
+  const featureData = payload.featureData && typeof payload.featureData === 'object' ? payload.featureData : {};
 
   if (blocks.length === 0 && content.trim() === '') {
     console.error(`[CMS] Invalid ${sourceLabel} payload – missing blocks and fallback content`);
     return null;
   }
 
-  return { blocks, design, namespace, slug, content, pageType, sectionStyleDefaults };
+  return { blocks, design, namespace, slug, content, pageType, sectionStyleDefaults, featureData };
 };
 
 const parseEmbeddedPayload = () => {
