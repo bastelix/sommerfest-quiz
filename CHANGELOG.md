@@ -386,6 +386,7 @@
 - Dark mode toggle now applies all styles without page refresh
 - Handle network errors in AI page creation with user-friendly message
 - Preserve featureData in normalizePagePayload so latest_news block renders news
+- Load landingNews for pages with latest_news block regardless of feature flag
 
 ### Nav
 
