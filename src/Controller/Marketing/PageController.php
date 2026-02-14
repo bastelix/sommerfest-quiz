@@ -191,6 +191,42 @@ class PageController
 
         $pageBlocks = $this->extractPageBlocks($html);
 
+        // Ensure landingNews is loaded when a latest_news block is present,
+        // even if the landingNews feature flag is not enabled for this template.
+        if (is_array($pageBlocks) && ($marketingPayload['featureData']['landingNews'] ?? []) === []) {
+            $hasLatestNewsBlock = false;
+            foreach ($pageBlocks as $block) {
+                if (isset($block['type']) && $block['type'] === 'latest_news') {
+                    $hasLatestNewsBlock = true;
+                    break;
+                }
+            }
+
+            if ($hasLatestNewsBlock) {
+                $newsOwnerSlug = $page->getSlug();
+                $blockNews = $this->landingNews->getPublishedForPage($page->getId(), 6);
+
+                if ($blockNews === []) {
+                    $baseSlug = MarketingSlugResolver::resolveBaseSlug($newsOwnerSlug);
+                    if ($baseSlug !== $newsOwnerSlug) {
+                        $basePage = $this->pages->findByKey($contentNamespace, $baseSlug);
+                        if ($basePage !== null) {
+                            $fallbackNews = $this->landingNews->getPublishedForPage($basePage->getId(), 6);
+                            if ($fallbackNews !== []) {
+                                $blockNews = $fallbackNews;
+                                $newsOwnerSlug = $baseSlug;
+                            }
+                        }
+                    }
+                }
+
+                if ($blockNews !== []) {
+                    $marketingPayload['featureData']['landingNews'] = $blockNews;
+                    $marketingPayload['featureData']['landingNewsBasePath'] = $this->buildNewsBasePath($request, $newsOwnerSlug);
+                }
+            }
+        }
+
         $theme = is_string($renderContext['design']['theme'] ?? null)
             ? (string) $renderContext['design']['theme']
             : 'light';
@@ -564,14 +600,14 @@ class PageController
 
         if (($pageFeatures['landingNews'] ?? false) === true) {
             $landingNewsOwnerSlug = $page->getSlug();
-            $landingNews = $this->landingNews->getPublishedForPage($page->getId(), 3);
+            $landingNews = $this->landingNews->getPublishedForPage($page->getId(), 6);
 
             if ($landingNews === []) {
                 $baseSlug = MarketingSlugResolver::resolveBaseSlug($landingNewsOwnerSlug);
                 if ($baseSlug !== $landingNewsOwnerSlug) {
                     $basePage = $this->pages->findByKey($contentNamespace, $baseSlug);
                     if ($basePage !== null) {
-                        $fallbackNews = $this->landingNews->getPublishedForPage($basePage->getId(), 3);
+                        $fallbackNews = $this->landingNews->getPublishedForPage($basePage->getId(), 6);
                         if ($fallbackNews !== []) {
                             $landingNews = $fallbackNews;
                             $landingNewsOwnerSlug = $baseSlug;
