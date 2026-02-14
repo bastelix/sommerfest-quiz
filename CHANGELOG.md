@@ -269,6 +269,7 @@
 - Add self-service mail settings page (/settings/mail)
 - Extract anchors from all pages for menu editor autocomplete
 - Add latest-news page editor module
+- Add latest_news block type to page editor section templates
 
 ### Fix
 
