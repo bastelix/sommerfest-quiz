@@ -808,16 +808,26 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $response->withHeader('Location', $target)->withStatus($status);
     };
-    $app->get('/landing/news', function (Request $request, Response $response) use ($redirectToCmsPage) {
-        return $redirectToCmsPage($request, $response, 'landing');
-    });
+    $app->get('/landing/news', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->index($request, $response, ['landingSlug' => 'landing']);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/landing/news/{newsSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
         array $args
-    ) use ($redirectToCmsPage) {
-        return $redirectToCmsPage($request, $response, (string) $args['newsSlug']);
-    });
+    ) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->show($request, $response, array_merge($args, ['landingSlug' => 'landing']));
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/calserver-legacy', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
@@ -832,16 +842,26 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
-    ) use ($redirectToCmsPage) {
-        return $redirectToCmsPage($request, $response, (string) $args['landingSlug']);
-    });
+    ) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->index($request, $response, $args);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
         array $args
-    ) use ($redirectToCmsPage) {
-        return $redirectToCmsPage($request, $response, (string) $args['newsSlug']);
-    });
+    ) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->show($request, $response, $args);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/pages/{slug:[a-z0-9-]+}/wiki', function (
         Request $request,
         Response $response,
