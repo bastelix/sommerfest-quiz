@@ -385,6 +385,7 @@
 - Add ALTER TABLE statements for existing SQLite databases
 - Dark mode toggle now applies all styles without page refresh
 - Handle network errors in AI page creation with user-friendly message
+- Preserve featureData in normalizePagePayload so latest_news block renders news
 
 ### Nav
 
