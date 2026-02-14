@@ -192,7 +192,8 @@ const hydratePage = async () => {
         basePath,
         page: {
           type: payload.pageType || payload.type,
-          sectionStyleDefaults: payload.sectionStyleDefaults || {}
+          sectionStyleDefaults: payload.sectionStyleDefaults || {},
+          featureData: payload.featureData || {}
         }
       });
     }

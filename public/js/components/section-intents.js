@@ -14,7 +14,8 @@ export const DEFAULT_SECTION_INTENT_BY_TYPE = {
   cta: 'highlight',
   process_steps: 'content',
   rich_text: 'content',
-  faq: 'plain'
+  faq: 'plain',
+  latest_news: 'feature'
 };
 
 export function normalizeSectionIntent(intent) {
@@ -70,7 +71,8 @@ export const DEFAULT_CONTAINER_BY_TYPE = {
   cta:                { width: 'wide',   frame: 'none', spacing: 'generous' },
   process_steps:      { width: 'normal', frame: 'none', spacing: 'normal' },
   rich_text:          { width: 'normal', frame: 'none', spacing: 'normal' },
-  faq:                { width: 'normal', frame: 'none', spacing: 'normal' }
+  faq:                { width: 'normal', frame: 'none', spacing: 'normal' },
+  latest_news:        { width: 'wide',   frame: 'none', spacing: 'generous' }
 };
 
 export function deriveSectionIntent(container, background) {

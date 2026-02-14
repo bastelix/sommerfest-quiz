@@ -190,6 +190,15 @@ const schema = {
       "required": ["type", "variant", "data"]
     },
     {
+      "title": "Latest news block",
+      "properties": {
+        "type": { "const": "latest_news" },
+        "variant": { "enum": ["cards"] },
+        "data": { "$ref": "#/definitions/LatestNewsData" }
+      },
+      "required": ["type", "variant", "data"]
+    },
+    {
       // Deprecated: see docs/calserver-block-consolidation.md
       "title": "System module (deprecated)",
       "description": "Deprecated in favour of info_media switcher variant.",
@@ -490,6 +499,16 @@ const schema = {
           "minItems": 1
         },
         "followUp": { "$ref": "#/definitions/FaqFollowUp" }
+      }
+    },
+    "LatestNewsData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading"],
+      "properties": {
+        "heading": { "type": "string", "minLength": 1 },
+        "limit": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "showAllLink": { "type": "boolean" }
       }
     },
     "ContentSliderData": {

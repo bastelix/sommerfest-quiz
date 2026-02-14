@@ -2446,6 +2446,81 @@ function renderLegacyCaseShowcase(block, options = {}) {
   return renderAudienceSpotlight({ ...block, type: 'audience_spotlight' }, block.variant, options);
 }
 
+function renderLatestNews(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const heading = block.data?.heading || 'Neuigkeiten';
+  const limit = block.data?.limit || 3;
+  const showAllLink = block.data?.showAllLink !== false;
+  const isPreview = context === 'preview';
+
+  const headerHtml = `<h2 class="uk-heading-medium uk-margin-remove"${buildEditableAttributes(block, 'data.heading', context)}>${escapeHtml(heading)}</h2>`;
+
+  const pageContext = resolveActivePageContext();
+  const landingNews = pageContext?.featureData?.landingNews || [];
+  const newsBasePath = pageContext?.featureData?.landingNewsBasePath || null;
+  const basePath = resolveBasePath();
+  const allNewsUrl = newsBasePath ? `${basePath}${newsBasePath}` : null;
+
+  let cardsHtml = '';
+  if (isPreview) {
+    const placeholders = [];
+    for (let i = 0; i < limit; i++) {
+      placeholders.push(
+        `<div><article class="marketing-news-card uk-card uk-card-default uk-card-body">` +
+        `<h3 class="uk-card-title" style="opacity:0.4">Nachricht ${i + 1}</h3>` +
+        `<p class="marketing-news-card__date uk-text-meta" style="opacity:0.3">01.01.2025</p>` +
+        `<div class="marketing-news-card__excerpt" style="opacity:0.3"><p>Vorschautext der Nachricht…</p></div>` +
+        `</article></div>`
+      );
+    }
+    cardsHtml = placeholders.join('');
+  } else {
+    const displayItems = landingNews.slice(0, limit);
+    if (displayItems.length === 0) {
+      return '';
+    }
+    cardsHtml = displayItems.map(item => {
+      const title = escapeHtml(item.title || '');
+      const excerpt = item.excerpt || '';
+      const publishedAt = item.publishedAt
+        ? new Date(item.publishedAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        : '';
+      const detailHref = newsBasePath && item.slug
+        ? `${basePath}${newsBasePath}/${escapeAttribute(item.slug)}`
+        : null;
+
+      const titleHtml = detailHref
+        ? `<a class="marketing-news-card__title" href="${detailHref}"><h3 class="uk-card-title">${title}</h3></a>`
+        : `<h3 class="uk-card-title">${title}</h3>`;
+      const dateHtml = publishedAt
+        ? `<p class="marketing-news-card__date uk-text-meta">${escapeHtml(publishedAt)}</p>`
+        : '';
+      const excerptHtml = excerpt
+        ? `<div class="marketing-news-card__excerpt">${excerpt}</div>`
+        : '';
+      const readMoreHtml = detailHref
+        ? `<p class="uk-margin-top"><a class="uk-button uk-button-text" href="${detailHref}">Weiterlesen</a></p>`
+        : '';
+
+      return `<div><article class="marketing-news-card uk-card uk-card-default uk-card-body">${titleHtml}${dateHtml}${excerptHtml}${readMoreHtml}</article></div>`;
+    }).join('');
+  }
+
+  const allLinkHtml = showAllLink && allNewsUrl
+    ? `<a class="uk-button uk-button-text" href="${escapeAttribute(allNewsUrl)}">Alle News</a>`
+    : '';
+
+  const headerRow = `<div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">${headerHtml}${allLinkHtml}</div>`;
+  const grid = `<div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m" uk-grid>${cardsHtml}</div>`;
+
+  return renderSection({
+    block,
+    variant: 'cards',
+    content: `${headerRow}${grid}`,
+    sectionClass: 'marketing-news'
+  });
+}
+
 export const RENDERER_MATRIX = {
   hero: {
     centered_cta: renderHeroCenteredCta,
@@ -2518,6 +2593,9 @@ export const RENDERER_MATRIX = {
   contact_form: {
     default: (block, options) => renderContactForm(block, 'default', options),
     compact: (block, options) => renderContactForm(block, 'compact', options)
+  },
+  latest_news: {
+    cards: renderLatestNews
   },
   system_module: {
     switcher: renderLegacySystemModule

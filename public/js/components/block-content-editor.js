@@ -37,7 +37,8 @@ const BLOCK_TYPE_LABELS = {
   system_module: 'Module (alt)',
   case_showcase: 'Referenzen (alt)',
   cta: 'Call to Action',
-  proof: 'Nachweise'
+  proof: 'Nachweise',
+  latest_news: 'Neuigkeiten'
 };
 
 const VARIANT_LABELS = {
@@ -106,6 +107,9 @@ const VARIANT_LABELS = {
   },
   faq: {
     accordion: 'Akkordeon'
+  },
+  latest_news: {
+    cards: 'Karten'
   },
   system_module: {
     switcher: 'Module'
@@ -946,6 +950,9 @@ const LAYOUT_PREVIEWS = {
   faq: {
     accordion: createAccordionPreview
   },
+  latest_news: {
+    cards: () => createColumnsPreview(3)
+  },
   default: createFallbackPreview
 };
 
@@ -1415,6 +1422,16 @@ function buildDefaultBlock(type, variant) {
           ariaLabel: ''
         }
       }
+    }),
+    latest_news: () => ({
+      id: createId(),
+      type: 'latest_news',
+      variant,
+      data: {
+        heading: 'Neuigkeiten',
+        limit: 3,
+        showAllLink: true
+      }
     })
   };
 
@@ -1754,6 +1771,20 @@ const SECTION_TEMPLATES = [
       block.data.body = 'Beschreiben Sie kurz, was als Nächstes passiert.';
       block.data.primary = { label: 'Jetzt anfragen', href: '#', ariaLabel: '' };
       block.data.secondary = { label: 'Mehr erfahren', href: '#', ariaLabel: '' };
+      return block;
+    }
+  },
+  {
+    id: 'latest-news',
+    label: 'Neuigkeiten',
+    description: 'Zeigt die neuesten Meldungen der Landingpage.',
+    type: 'latest_news',
+    variant: 'cards',
+    build: variant => {
+      const block = getDefaultBlock('latest_news', variant);
+      block.data.heading = 'Neuigkeiten';
+      block.data.limit = 3;
+      block.data.showAllLink = true;
       return block;
     }
   }
@@ -3096,9 +3127,60 @@ export class BlockContentEditor {
         return this.buildContactForm(block);
       case 'package_summary':
         return this.buildPackageSummaryForm(block);
+      case 'latest_news':
+        return this.buildLatestNewsForm(block);
       default:
         return this.buildGenericJsonForm(block);
     }
+  }
+
+  buildLatestNewsForm(block) {
+    const wrapper = document.createElement('div');
+
+    const headingSection = createFieldSection('Überschrift', 'Titel des Nachrichtenbereichs.');
+    headingSection.append(
+      this.addLabeledInput('Überschrift', block.data.heading, value => this.updateBlockData(block.id, ['data', 'heading'], value), {
+        placeholder: 'z.\u00a0B. Neuigkeiten'
+      })
+    );
+
+    const configSection = createFieldSection('Anzeigeoptionen', 'Wie viele Einträge angezeigt werden.');
+    configSection.append(
+      this.addLabeledInput('Anzahl Einträge', block.data.limit, value => {
+        const parsed = parseInt(value, 10);
+        if (!isNaN(parsed) && parsed >= 1 && parsed <= 6) {
+          this.updateBlockData(block.id, ['data', 'limit'], parsed);
+        }
+      }, {
+        type: 'number',
+        min: 1,
+        max: 6,
+        placeholder: '3'
+      })
+    );
+
+    const allLinkLabel = document.createElement('label');
+    allLinkLabel.className = 'uk-flex uk-flex-middle uk-margin-small-top';
+    const allLinkCheckbox = document.createElement('input');
+    allLinkCheckbox.type = 'checkbox';
+    allLinkCheckbox.className = 'uk-checkbox uk-margin-small-right';
+    allLinkCheckbox.checked = block.data.showAllLink !== false;
+    allLinkCheckbox.addEventListener('change', () => {
+      this.updateBlockData(block.id, ['data', 'showAllLink'], allLinkCheckbox.checked);
+    });
+    const allLinkText = document.createElement('span');
+    allLinkText.textContent = 'Link „Alle News" anzeigen';
+    allLinkLabel.append(allLinkCheckbox, allLinkText);
+    configSection.append(allLinkLabel);
+
+    const infoSection = createFieldSection('Hinweis');
+    const infoText = document.createElement('p');
+    infoText.className = 'uk-text-meta';
+    infoText.textContent = 'Die angezeigten Nachrichten werden automatisch aus den veröffentlichten News-Einträgen der Landingpage geladen.';
+    infoSection.append(infoText);
+
+    wrapper.append(headingSection, configSection, infoSection);
+    return wrapper;
   }
 
   buildContactForm(block) {
@@ -4527,6 +4609,8 @@ export class BlockContentEditor {
         return block.data.title || block.data.items?.[0]?.question || '';
       case 'contact_form':
         return block.data.title || block.data.intro || '';
+      case 'latest_news':
+        return block.data.heading || '';
       default:
         return '';
     }
