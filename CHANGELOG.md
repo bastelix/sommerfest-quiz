@@ -389,6 +389,7 @@
 - Preserve featureData in normalizePagePayload so latest_news block renders news
 - Load landingNews for pages with latest_news block regardless of feature flag
 - Replace news redirect routes with proper MarketingLandingNewsController handlers
+- Add hero intent to button/link contrast overrides in sections.css
 
 ### Nav
 
