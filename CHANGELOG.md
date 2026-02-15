@@ -390,6 +390,7 @@
 - Load landingNews for pages with latest_news block regardless of feature flag
 - Replace news redirect routes with proper MarketingLandingNewsController handlers
 - Add hero intent to button/link contrast overrides in sections.css
+- Prevent light default surface from overriding dark hero/highlight bg
 
 ### Nav
 
