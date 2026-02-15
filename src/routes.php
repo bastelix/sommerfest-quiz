@@ -972,6 +972,12 @@ return function (\Slim\App $app, TranslationService $translator) {
     })
         ->add(new RateLimitMiddleware(10, 3600))
         ->add(new CsrfMiddleware());
+    $app->post('/api/newsletter-subscribe', function (Request $request, Response $response): Response {
+        $controller = new \App\Controller\Marketing\BlockNewsletterController();
+        return $controller($request, $response);
+    })
+        ->add(new RateLimitMiddleware(5, 3600))
+        ->add(new CsrfMiddleware());
     $app->post('/newsletter/unsubscribe', function (Request $request, Response $response): Response {
         $controller = new NewsletterController();
 

@@ -170,6 +170,12 @@ function resolveBlockContactEndpoint() {
   return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 }
 
+function resolveNewsletterEndpoint() {
+  const basePath = resolveBasePath();
+  const endpoint = `${basePath}/api/newsletter-subscribe`;
+  return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+}
+
 function resolveCsrfToken() {
   if (typeof window === 'undefined') {
     return '';
@@ -1792,6 +1798,64 @@ function renderCtaSplit(block, options = {}) {
   return renderSection({ block, variant: 'split', content: layout });
 }
 
+function renderCtaNewsletter(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const isPreview = context === 'preview';
+
+  const headerContent = renderSectionHeader(block, {
+    subtitleClass: 'uk-text-lead uk-margin-small-top uk-margin-remove-bottom',
+    subtitleField: 'body',
+    context
+  });
+
+  const formId = `newsletter-form-${block.id ? escapeAttribute(block.id) : 'section'}`;
+  const endpoint = escapeAttribute(resolveNewsletterEndpoint());
+  const csrfToken = resolveCsrfToken();
+  const csrfField = csrfToken ? `<input type="hidden" name="csrf_token" value="${escapeAttribute(csrfToken)}">` : '';
+  const placeholder = escapeAttribute(block.data?.newsletterPlaceholder || 'Ihre E-Mail-Adresse');
+  const submitLabel = escapeHtml(block.data?.primary?.label || 'Abonnieren');
+  const successMessage = escapeAttribute(
+    block.data?.newsletterSuccessMessage || 'Vielen Dank! Bitte bestätigen Sie Ihre Anmeldung per E-Mail.'
+  );
+  const privacyHint = block.data?.newsletterPrivacyHint || '';
+  const source = block.data?.newsletterSource || '';
+  const disabledAttr = isPreview ? ' disabled' : '';
+  const submitType = isPreview ? 'button' : 'submit';
+
+  const privacyLine = privacyHint
+    ? `<p class="uk-text-small uk-margin-small-top uk-text-muted">${escapeHtml(privacyHint)}</p>`
+    : '';
+
+  const sourceField = source
+    ? `<input type="hidden" name="source" value="${escapeAttribute(source)}">`
+    : '';
+
+  const form = `
+    <form
+      id="${formId}"
+      class="newsletter-inline-form contact-form"
+      method="post"
+      action="${endpoint}"
+      data-contact-endpoint="${endpoint}"
+      data-success-message="${successMessage}"
+      ${isPreview ? 'data-preview-submit="true" novalidate' : ''}
+    >
+      <div class="uk-flex uk-flex-column uk-flex-row@m uk-flex-middle" style="gap: 12px;">
+        <input class="uk-input uk-form-large" name="email" type="email" placeholder="${placeholder}" required${disabledAttr} aria-label="${placeholder}">
+        ${csrfField}
+        ${sourceField}
+        <input type="text" name="company" autocomplete="off" tabindex="-1" class="uk-hidden" aria-hidden="true">
+        <button class="uk-button uk-button-primary uk-button-large" type="${submitType}"${disabledAttr}>${submitLabel}</button>
+      </div>
+      ${privacyLine}
+      <div class="contact-form__status" data-contact-status aria-live="polite" hidden></div>
+    </form>`;
+
+  const inner = `<div class="uk-text-center uk-width-1-1 uk-width-2-3@m uk-margin-auto">${headerContent}${form}</div>`;
+
+  return renderSection({ block, variant: 'newsletter', content: inner });
+}
+
 function renderStatStripHeader(block, context, alignment = 'center') {
   const alignmentClass = alignment === 'left' ? 'uk-text-left' : 'uk-text-center';
   return renderSectionHeader(block, {
@@ -2571,7 +2635,8 @@ export const RENDERER_MATRIX = {
   },
   cta: {
     full_width: renderCta,
-    split: renderCtaSplit
+    split: renderCtaSplit,
+    newsletter: renderCtaNewsletter
   },
   stat_strip: {
     inline: renderStatStripInline,

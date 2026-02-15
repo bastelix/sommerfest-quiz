@@ -139,7 +139,7 @@ const schema = {
       "title": "CTA block",
       "properties": {
         "type": { "const": "cta" },
-        "variant": { "enum": ["full_width", "split"] },
+        "variant": { "enum": ["full_width", "split", "newsletter"] },
         "data": { "$ref": "#/definitions/CtaBlockData" }
       },
       "required": ["type", "variant", "data"]
@@ -389,7 +389,11 @@ const schema = {
         "title": { "type": "string" },
         "body": { "type": "string" },
         "primary": { "$ref": "#/definitions/CallToAction" },
-        "secondary": { "$ref": "#/definitions/CallToAction" }
+        "secondary": { "$ref": "#/definitions/CallToAction" },
+        "newsletterPlaceholder": { "type": "string" },
+        "newsletterPrivacyHint": { "type": "string" },
+        "newsletterSuccessMessage": { "type": "string" },
+        "newsletterSource": { "type": "string" }
       }
     },
     "CallToActionGroup": {

@@ -1497,6 +1497,29 @@ body.page-render .qr-page-renderer table {
   }
 }
 
+/* CTA newsletter: inline form */
+.section[data-block-type="cta"][data-block-variant="newsletter"] .newsletter-inline-form {
+  max-width: 520px;
+  margin-inline: auto;
+}
+
+.section[data-block-type="cta"][data-block-variant="newsletter"] .newsletter-inline-form .uk-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.section[data-block-type="cta"][data-block-variant="newsletter"] .newsletter-inline-form .uk-button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 959px) {
+  .section[data-block-type="cta"][data-block-variant="newsletter"] .newsletter-inline-form .uk-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Info media: mobile-first                                           */
 /* ------------------------------------------------------------------ */
