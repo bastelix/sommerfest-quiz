@@ -1534,10 +1534,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->index($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/newsletter-campaigns', function (Request $request, Response $response) {
-        /** @var NewsletterCampaignController $controller */
-        $controller = $request->getAttribute('newsletterCampaignController');
-        return $controller->index($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+        $query = $request->getUri()->getQuery();
+        $target = $request->getAttribute('basePath') . '/admin/newsletter' . ($query ? '?' . $query : '');
+        return $response->withHeader('Location', $target)->withStatus(302);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->post('/admin/newsletter-campaigns', function (Request $request, Response $response) {
         /** @var NewsletterCampaignController $controller */
         $controller = $request->getAttribute('newsletterCampaignController');

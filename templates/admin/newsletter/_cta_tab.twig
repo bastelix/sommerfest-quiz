@@ -1,0 +1,47 @@
+{# CTA configuration for newsletter confirmation page #}
+<div class="uk-card uk-card-default uk-card-body uk-margin">
+  <div class="uk-alert uk-alert-primary" uk-alert>
+    <p>{{ t('text_newsletter_cta_explanation') }}</p>
+  </div>
+
+  <div
+    id="marketingNewsletterConfigSection"
+    data-marketing-namespace="{{ activePageNamespace|e('html_attr') }}"
+  >
+    <div class="uk-margin">
+      <label class="uk-form-label" for="marketingNewsletterSlug">{{ t('label_newsletter_landing_page') }}</label>
+      <div class="uk-form-controls">
+        <input class="uk-input" type="text" id="marketingNewsletterSlug" list="marketingNewsletterSlugOptions" placeholder="landing">
+        <datalist id="marketingNewsletterSlugOptions">
+          {% for slug in marketingNewsletterSlugs %}
+            <option value="{{ slug }}"></option>
+          {% endfor %}
+        </datalist>
+      </div>
+      <p class="uk-text-meta uk-margin-small-top">{{ t('text_newsletter_landing_page_hint') }}</p>
+    </div>
+    <div class="uk-overflow-auto uk-margin">
+      <table class="uk-table uk-table-small uk-table-divider uk-table-middle" id="marketingNewsletterConfigTable" data-empty="{{ t('text_marketing_newsletter_empty') }}">
+        <thead>
+          <tr>
+            <th class="uk-table-shrink">#</th>
+            <th>{{ t('label_marketing_newsletter_label') }}</th>
+            <th>{{ t('label_marketing_newsletter_url') }}</th>
+            <th class="uk-table-shrink">{{ t('label_marketing_newsletter_style') }}</th>
+            <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
+      <div class="uk-flex uk-flex-left" style="gap: 8px;">
+        <button type="button" id="marketingNewsletterAddRow" class="uk-button uk-button-default">{{ t('button_marketing_newsletter_add_entry') }}</button>
+      </div>
+      <div class="uk-flex uk-flex-right" style="gap: 8px;">
+        <button type="button" id="marketingNewsletterReset" class="uk-button uk-button-default">{{ t('action_reset') }}</button>
+        <button type="button" id="marketingNewsletterSave" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
+      </div>
+    </div>
+  </div>
+</div>

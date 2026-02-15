@@ -1191,6 +1191,17 @@ return [
     'button_create_campaign' => 'Kampagne erstellen',
     'button_save_campaign' => 'Kampagne speichern',
     'button_send_campaign' => 'Jetzt senden',
+    'confirm_send_campaign' => 'Kampagne jetzt senden? Dieser Vorgang kann nicht rückgängig gemacht werden.',
+    'tab_newsletter_campaigns_short' => 'Kampagnen',
+    'tab_newsletter_cta_short' => 'Bestätigungsseite',
+    'label_newsletter_landing_page' => 'Landingpage',
+    'text_newsletter_landing_page_hint' => 'Wähle die Landingpage, für die du die Aktions-Buttons konfigurieren möchtest.',
+    'text_newsletter_cta_explanation' => 'Hier legst du fest, welche Buttons oder Links Nutzern nach der Newsletter-Bestätigung angezeigt werden, um sie zurück zur Landingpage zu führen.',
+    'label_advanced_campaign_settings' => 'Erweiterte Einstellungen',
+    'text_campaign_template_hint' => 'Die ID der E-Mail-Vorlage beim Provider. Wird automatisch aus den Mail-Anbieter-Einstellungen übernommen, wenn nicht anders angegeben.',
+    'text_campaign_audience_hint' => 'Die ID der Empfängerliste beim Provider. Wird automatisch aus den Mail-Anbieter-Einstellungen übernommen, wenn nicht anders angegeben.',
+    'label_status_draft' => 'Entwurf',
+    'label_status_failed' => 'Fehlgeschlagen',
 
     // Footer Block Editor
     'label_footer_block_editor' => 'Footer-Block-Editor',

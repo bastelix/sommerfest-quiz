@@ -98,7 +98,7 @@ class NewsletterCampaignController
 
         $query = $namespace !== '' ? '?namespace=' . rawurlencode($namespace) : '';
 
-        return $response->withHeader('Location', $request->getAttribute('basePath') . '/admin/newsletter-campaigns' . $query)
+        return $response->withHeader('Location', $request->getAttribute('basePath') . '/admin/newsletter' . $query)
             ->withStatus(302);
     }
 
@@ -120,7 +120,7 @@ class NewsletterCampaignController
         $sender = new NewsletterCampaignSender($this->campaigns, $this->landingNews, $this->providers);
         $basePath = (string) ($request->getAttribute('basePath') ?? '');
         $query = $namespace !== '' ? '?namespace=' . rawurlencode($namespace) : '';
-        $baseLocation = (string) $request->getAttribute('basePath') . '/admin/newsletter-campaigns' . $query;
+        $baseLocation = (string) $request->getAttribute('basePath') . '/admin/newsletter' . $query;
 
         try {
             $sender->send($campaign, $basePath);

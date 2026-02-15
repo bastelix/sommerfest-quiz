@@ -1,4 +1,5 @@
 {% extends 'admin/base.twig' %}
+{% set adminLayout = 'standard' %}
 
 {% block title %}{{ t('tab_newsletter') }}{% endblock %}
 
@@ -21,60 +22,44 @@
 {% endblock %}
 
 {% block content %}
-      <div class="uk-container uk-container-large">
-        <h1 class="uk-heading-bullet">{{ t('tab_newsletter') }}</h1>
-      </div>
-      <div class="uk-container uk-container-large">
-        {% set activePageNamespace = pageNamespace|default('default') %}
-        {% set pageNamespaceOptions = available_namespaces|default([]) %}
-        {% include 'admin/partials/namespace_select.twig' %}
+  {% set activePageNamespace = pageNamespace|default('default') %}
 
-        <h2 class="uk-heading-bullet">{{ t('tab_newsletter') }}</h2>
-        <p class="uk-text-meta">{{ t('text_marketing_newsletter_namespace_hint')|format(activePageNamespace) }}</p>
-        <div
-          id="marketingNewsletterConfigSection"
-          class="uk-card uk-card-default uk-card-body uk-margin"
-          data-marketing-namespace="{{ activePageNamespace|e('html_attr') }}"
-        >
-          <div class="uk-margin">
-            <label class="uk-form-label" for="marketingNewsletterSlug">{{ t('label_marketing_newsletter_slug') }}</label>
-            <div class="uk-form-controls">
-              <input class="uk-input" type="text" id="marketingNewsletterSlug" list="marketingNewsletterSlugOptions" placeholder="landing">
-              <datalist id="marketingNewsletterSlugOptions">
-                {% for slug in marketingNewsletterSlugs %}
-                  <option value="{{ slug }}"></option>
-                {% endfor %}
-              </datalist>
-            </div>
-            <p class="uk-text-meta uk-margin-small-top">{{ t('text_marketing_newsletter_slug_hint') }}</p>
-          </div>
-          <div class="uk-overflow-auto uk-margin">
-            <table class="uk-table uk-table-small uk-table-divider uk-table-middle" id="marketingNewsletterConfigTable" data-empty="{{ t('text_marketing_newsletter_empty') }}">
-              <thead>
-                <tr>
-                  <th class="uk-table-shrink">#</th>
-                  <th>{{ t('label_marketing_newsletter_label') }}</th>
-                  <th>{{ t('label_marketing_newsletter_url') }}</th>
-                  <th class="uk-table-shrink">{{ t('label_marketing_newsletter_style') }}</th>
-                  <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
-            <div class="uk-flex uk-flex-left" style="gap: 8px;">
-              <button type="button" id="marketingNewsletterAddRow" class="uk-button uk-button-default">{{ t('button_marketing_newsletter_add_entry') }}</button>
-            </div>
-            <div class="uk-flex uk-flex-right" style="gap: 8px;">
-              <button type="button" id="marketingNewsletterReset" class="uk-button uk-button-default">{{ t('action_reset') }}</button>
-              <button type="button" id="marketingNewsletterSave" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
-            </div>
-          </div>
-        </div>
+  <div class="uk-container uk-container-large">
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-padding-small uk-padding-remove-horizontal">
+      <h1 class="uk-heading-bullet uk-margin-remove">{{ t('tab_newsletter') }}</h1>
+      <div class="uk-flex uk-flex-middle uk-margin-small-left">
+        {% include 'admin/partials/namespace_badge.twig' with { pageNamespace: activePageNamespace } %}
       </div>
+    </div>
+  </div>
+
+  <div class="uk-section uk-section-small">
+    <div class="uk-container">
+      {% set pageNamespaceOptions = available_namespaces|default([]) %}
+      {% include 'admin/partials/namespace_select.twig' %}
+
+      <ul uk-tab>
+        <li class="{{ activeTab|default('campaigns') == 'campaigns' ? 'uk-active' : '' }}">
+          <a href="#">{{ t('tab_newsletter_campaigns_short') }}</a>
+        </li>
+        <li class="{{ activeTab|default('campaigns') == 'cta' ? 'uk-active' : '' }}">
+          <a href="#">{{ t('tab_newsletter_cta_short') }}</a>
+        </li>
+      </ul>
+
+      <ul class="uk-switcher uk-margin">
+        <li>
+          {% include 'admin/newsletter/_campaigns_tab.twig' %}
+        </li>
+        <li>
+          {% include 'admin/newsletter/_cta_tab.twig' %}
+        </li>
+      </ul>
+    </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}
+  <script src="{{ basePath }}/js/storage.js"></script>
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
 {% endblock %}

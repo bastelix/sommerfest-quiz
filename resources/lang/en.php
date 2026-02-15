@@ -1186,6 +1186,17 @@ return [
     'button_create_campaign' => 'Create campaign',
     'button_save_campaign' => 'Save campaign',
     'button_send_campaign' => 'Send now',
+    'confirm_send_campaign' => 'Send campaign now? This action cannot be undone.',
+    'tab_newsletter_campaigns_short' => 'Campaigns',
+    'tab_newsletter_cta_short' => 'Confirmation page',
+    'label_newsletter_landing_page' => 'Landing page',
+    'text_newsletter_landing_page_hint' => 'Select the landing page for which you want to configure action buttons.',
+    'text_newsletter_cta_explanation' => 'Configure the buttons or links shown to users after newsletter confirmation to guide them back to the landing page.',
+    'label_advanced_campaign_settings' => 'Advanced settings',
+    'text_campaign_template_hint' => 'The email template ID at the provider. Will be automatically populated from your mail provider settings if not specified.',
+    'text_campaign_audience_hint' => 'The audience list ID at the provider. Will be automatically populated from your mail provider settings if not specified.',
+    'label_status_draft' => 'Draft',
+    'label_status_failed' => 'Failed',
 
     // Footer Block Editor
     'label_footer_block_editor' => 'Footer Block Editor',
