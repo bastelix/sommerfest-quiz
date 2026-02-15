@@ -1452,7 +1452,7 @@
         </div>
         <ul id="resultsPagination" class="uk-pagination uk-flex-center"></ul>
         {% set showReset = role == 'admin' %}
-        {% set showDownloads = role in ['admin','analyst'] %}
+        {% set showDownloads = role in ['admin','analyst','customer'] %}
         {% if showReset or showDownloads %}
         <div class="uk-margin uk-flex {% if showReset and showDownloads %}uk-flex-between{% elseif showDownloads %}uk-flex-right{% endif %}">
           {% if showReset %}

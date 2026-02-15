@@ -968,6 +968,12 @@ return function (\Slim\App $app, TranslationService $translator) {
     })
         ->add(new RateLimitMiddleware(10, 3600))
         ->add(new CsrfMiddleware());
+    $app->post('/api/newsletter-subscribe', function (Request $request, Response $response): Response {
+        $controller = new \App\Controller\Marketing\BlockNewsletterController();
+        return $controller($request, $response);
+    })
+        ->add(new RateLimitMiddleware(5, 3600))
+        ->add(new CsrfMiddleware());
     $app->post('/newsletter/unsubscribe', function (Request $request, Response $response): Response {
         $controller = new NewsletterController();
 
@@ -1345,14 +1351,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = $request->getAttribute('teamNameController');
 
         return $controller->preview($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER, Roles::CUSTOMER));
 
     $app->get('/api/team-names/history', function (Request $request, Response $response) {
         /** @var TeamNameController $controller */
         $controller = $request->getAttribute('teamNameController');
 
         return $controller->history($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER, Roles::CUSTOMER));
 
     $app->post('/api/team-names', function (Request $request, Response $response) {
         /** @var TeamNameController $controller */
@@ -1392,7 +1398,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->post('/config.json', function (Request $request, Response $response) {
         return $request->getAttribute('configController')->post($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER, Roles::CUSTOMER));
 
     $app->get('/settings.json', function (Request $request, Response $response) {
         return $request->getAttribute('settingsController')->get($request, $response);
@@ -1682,38 +1688,38 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/kataloge/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);
         return $request->getAttribute('catalogController')->post($req, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
 
     $app->delete('/kataloge/{file}/{index}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file'])
             ->withAttribute('index', $args['index']);
         return $request->getAttribute('catalogController')->deleteQuestion($req, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
 
     $app->put('/kataloge/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);
         return $request->getAttribute('catalogController')->create($req, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
 
     $app->delete('/kataloge/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);
         return $request->getAttribute('catalogController')->delete($req, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
     $app->get('/events.json', function (Request $request, Response $response) {
         return $request->getAttribute('eventController')->get($request, $response);
     })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->post('/events.json', function (Request $request, Response $response) {
         return $request->getAttribute('eventController')->post($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER, Roles::CUSTOMER));
     $app->get('/admin/event/{id}', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('eventConfigController')->show($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER, Roles::CUSTOMER));
     $app->map(['PATCH', 'POST'], '/admin/event/{id}', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('eventConfigController')->update($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER, Roles::CUSTOMER));
     $app->post('/admin/event/{id}/dashboard-token', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('eventConfigController')->rotateToken($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER))->add(new CsrfMiddleware());
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER, Roles::CUSTOMER))->add(new CsrfMiddleware());
 
     $app->post('/invite', function (Request $request, Response $response) {
         $pdo = $request->getAttribute('pdo');
@@ -1856,10 +1862,10 @@ return function (\Slim\App $app, TranslationService $translator) {
     });
     $app->post('/teams.json', function (Request $request, Response $response) {
         return $request->getAttribute('teamController')->post($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER, Roles::CUSTOMER));
     $app->delete('/teams.json', function (Request $request, Response $response) {
         return $request->getAttribute('teamController')->delete($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER, Roles::CUSTOMER));
     $app->get('/users.json', function (Request $request, Response $response) {
         return $request->getAttribute('userController')->get($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));

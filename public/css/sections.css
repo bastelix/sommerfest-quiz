@@ -437,11 +437,12 @@
 
 /*
  * When a primary button sits on a section whose background is the primary
- * colour (highlight intent or explicit dark token), the filled button is
+ * colour (highlight/hero intent or explicit dark token), the filled button is
  * invisible.  Invert: white background with primary-coloured text.
  */
 
 .section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-primary,
+.section[data-section-intent="hero"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-primary,
 .section:is(
   [data-section-background-color-token="primary"],
   [data-section-background-color-token="secondary"],
@@ -453,6 +454,7 @@
 }
 
 .section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-primary:hover,
+.section[data-section-intent="hero"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-primary:hover,
 .section:is(
   [data-section-background-color-token="primary"],
   [data-section-background-color-token="secondary"],
@@ -467,6 +469,7 @@
  */
 
 .section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default,
+.section[data-section-intent="hero"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default,
 .section:is(
   [data-section-background-color-token="primary"],
   [data-section-background-color-token="secondary"],
@@ -478,6 +481,7 @@
 }
 
 .section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default:hover,
+.section[data-section-intent="hero"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default:hover,
 .section:is(
   [data-section-background-color-token="primary"],
   [data-section-background-color-token="secondary"],
@@ -485,6 +489,21 @@
 ) > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default:hover {
   background: rgba(255, 255, 255, 0.22);
   border-color: rgba(255, 255, 255, 0.7);
+}
+
+/*
+ * Links (non-button) in hero / dark sections: inherit the section text
+ * colour so they remain readable against the dark background.
+ */
+
+.section[data-section-intent="hero"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) a:not(.uk-button),
+.section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) a:not(.uk-button),
+.section:is(
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) a:not(.uk-button) {
+  color: inherit;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1475,6 +1494,29 @@ body.page-render .qr-page-renderer table {
   .section[data-block-type="cta"][data-block-variant="split"] .uk-width-1-3\@m {
     width: 33.333%;
     text-align: right;
+  }
+}
+
+/* CTA newsletter: inline form */
+.section[data-block-type="cta"][data-block-variant="newsletter"] .newsletter-inline-form {
+  max-width: 520px;
+  margin-inline: auto;
+}
+
+.section[data-block-type="cta"][data-block-variant="newsletter"] .newsletter-inline-form .uk-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.section[data-block-type="cta"][data-block-variant="newsletter"] .newsletter-inline-form .uk-button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 959px) {
+  .section[data-block-type="cta"][data-block-variant="newsletter"] .newsletter-inline-form .uk-button {
+    width: 100%;
+    justify-content: center;
   }
 }
 

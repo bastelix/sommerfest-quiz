@@ -270,6 +270,8 @@
 - Extract anchors from all pages for menu editor autocomplete
 - Add latest-news page editor module
 - Add latest_news block type to page editor section templates
+- Add customer role for self-service namespace management
+- Add newsletter variant to CTA block
 
 ### Fix
 
@@ -388,6 +390,9 @@
 - Preserve featureData in normalizePagePayload so latest_news block renders news
 - Load landingNews for pages with latest_news block regardless of feature flag
 - Replace news redirect routes with proper MarketingLandingNewsController handlers
+- Add hero intent to button/link contrast overrides in sections.css
+- Prevent light default surface from overriding dark hero/highlight bg
+- Remove unused PageService property in PageModuleController
 
 ### Nav
 

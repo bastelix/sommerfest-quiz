@@ -105,8 +105,8 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
     $app->get('/admin/logs', AdminLogsController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/system/metrics', SystemMetricsController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/media', AdminController::class)
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $mediaAuth = new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR);
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
+    $mediaAuth = new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER);
     $mc = $resolveMediaController;
     $app->get('/admin/media/files', function (Request $req, Response $res) use ($mc): Response {
         $c = $mc($req);
@@ -141,7 +141,10 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         if (is_string($namespaceQuery) && trim($namespaceQuery) !== '') {
             $namespace = $namespaceValidator->normalizeCandidate($namespaceQuery) ?? PageService::DEFAULT_NAMESPACE;
         }
-        $pdo = \App\Support\RequestDatabase::resolve($request);
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $configService = $request->getAttribute('configService');
         if (!$configService instanceof ConfigService) {
             $configService = new ConfigService($pdo);
@@ -334,23 +337,23 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
     $app->get('/admin/projects', function (Request $request, Response $response) {
         $controller = new ProjectController();
         return $controller->index($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
     $app->post('/admin/projects/settings', function (Request $request, Response $response) {
         $controller = new ProjectController();
         return $controller->updateSettings($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware());
     $app->get('/admin/pages', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->content($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
     $app->get('/admin/pages/content', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->content($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
     $app->post('/admin/pages/page-types', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->savePageTypes($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
     $app->get('/admin/pages/cookies', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->cookies($request, $response);
@@ -389,7 +392,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
     $app->get('/admin/pages/wiki', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->wiki($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
     $app->get('/admin/pages/design', function (Request $request, Response $response) {
         $controller = new PagesDesignController();
         return $controller->show($request, $response);
@@ -426,7 +429,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
     $app->get('/admin/domains', DomainPageController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/backups', AdminBackupController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/rag-chat', AdminController::class)
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
     $app->get('/admin/profile', AdminController::class)
         ->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))
         ->add(new CsrfMiddleware());
@@ -605,36 +608,36 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         return $controller($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/catalogs', AdminController::class)
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
     $app->get('/admin/catalogs/data', function (Request $request, Response $response) {
         $controller = $request->getAttribute('adminCatalogController');
         return $controller->catalogs($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
     $app->get('/admin/catalogs/sample', function (Request $request, Response $response) {
         $controller = $request->getAttribute('adminCatalogController');
         return $controller->sample($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
 
     $app->get('/admin/pages/tree', function (Request $request, Response $response) {
         $controller = new AdminPageController();
         return $controller->tree($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
 
     $app->get('/admin/projects/tree', function (Request $request, Response $response) {
         $controller = new ProjectController();
         return $controller->tree($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER));
 
     $app->get('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageController();
         return $controller->edit($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
 
     $app->get('/admin/pages/{pageId:[0-9]+}/wiki', function (Request $request, Response $response, array $args) {
         $controller = new CmsPageWikiController();
 
         return $controller->index($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
 
     $app->get('/admin/menus', function (Request $request, Response $response) {
         $controller = new MarketingMenuDefinitionController();
@@ -732,43 +735,43 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new MarketingMenuController();
 
         return $controller->index($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/menu', function (Request $request, Response $response, array $args) {
         $controller = new MarketingMenuController();
 
         return $controller->save($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->delete('/admin/pages/{pageId:[0-9]+}/menu', function (Request $request, Response $response, array $args) {
         $controller = new MarketingMenuController();
 
         return $controller->delete($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/menu/sort', function (Request $request, Response $response, array $args) {
         $controller = new MarketingMenuController();
 
         return $controller->sort($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/admin/pages/{pageId:[0-9]+}/menu/export', function (Request $request, Response $response, array $args) {
         $controller = new MarketingMenuController();
 
         return $controller->export($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/menu/import', function (Request $request, Response $response, array $args) {
         $controller = new MarketingMenuController();
 
         return $controller->import($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/menu/ai', function (Request $request, Response $response, array $args) {
         $controller = new ProjectPagesController();
 
         return $controller->generateMenu($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/menu/translate', function (
         Request $request,
@@ -778,7 +781,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new ProjectPagesController();
 
         return $controller->translateMenu($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     // Footer Block routes
     $app->get('/admin/footer-blocks', function (Request $request, Response $response) {
@@ -821,7 +824,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new ProjectPagesController();
 
         return $controller->updateStartpage($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/wiki/theme', function (
         Request $request,
@@ -831,7 +834,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new CmsPageWikiController();
 
         return $controller->updateTheme($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/wiki/settings', function (
         Request $request,
@@ -841,7 +844,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new CmsPageWikiController();
 
         return $controller->updateSettings($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles', function (
         Request $request,
@@ -851,7 +854,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new CmsPageWikiController();
 
         return $controller->saveArticle($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/status', function (
         Request $request,
@@ -861,7 +864,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new CmsPageWikiController();
 
         return $controller->updateStatus($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/start', function (
         Request $request,
@@ -871,7 +874,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new CmsPageWikiController();
 
         return $controller->updateStartDocument($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/duplicate', function (
         Request $request,
@@ -881,7 +884,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new CmsPageWikiController();
 
         return $controller->duplicate($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}', function (
         Request $request,
@@ -891,7 +894,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new CmsPageWikiController();
 
         return $controller->showArticle($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
 
     $app->get('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/download', function (
         Request $request,
@@ -901,7 +904,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new CmsPageWikiController();
 
         return $controller->download($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
 
     $app->delete('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}', function (
         Request $request,
@@ -911,7 +914,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new CmsPageWikiController();
 
         return $controller->delete($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/sort', function (
         Request $request,
@@ -921,49 +924,49 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new CmsPageWikiController();
 
         return $controller->sort($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/import-create', function (Request $request, Response $response) {
         $controller = new AdminPageController();
         return $controller->createFromImport($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/ai-generate', function (Request $request, Response $response) {
         $controller = new PageAiController();
 
         return $controller->generate($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/admin/pages/ai-generate/status', function (Request $request, Response $response) {
         $controller = new PageAiController();
 
         return $controller->status($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageController();
         return $controller->update($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}/copy', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageController();
         return $controller->copy($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}/move', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageController();
         return $controller->move($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/admin/pages/{slug}/export', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageController();
         return $controller->export($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}/import', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageController();
         return $controller->import($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}/namespace', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageController();
@@ -973,62 +976,62 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
     $app->post('/admin/pages/{slug}/rename', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageController();
         return $controller->rename($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->delete('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageController();
         return $controller->delete($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages', function (Request $request, Response $response) {
         $controller = new AdminPageController();
         return $controller->create($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/admin/landing-news', function (Request $request, Response $response) {
         $controller = new AdminLandingNewsController();
         return $controller->index($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
     $app->get('/admin/landing-news/create', function (Request $request, Response $response) {
         $controller = new AdminLandingNewsController();
         return $controller->create($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
     $app->post('/admin/landing-news', function (Request $request, Response $response) {
         $controller = new AdminLandingNewsController();
         return $controller->store($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
     $app->get('/admin/landing-news/{id:\d+}', function (Request $request, Response $response, array $args) {
         $controller = new AdminLandingNewsController();
         return $controller->edit($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
     $app->post('/admin/landing-news/{id:\d+}', function (Request $request, Response $response, array $args) {
         $controller = new AdminLandingNewsController();
         return $controller->update($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
     $app->post('/admin/landing-news/{id:\d+}/delete', function (Request $request, Response $response, array $args) {
         $controller = new AdminLandingNewsController();
         return $controller->delete($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/admin/page-modules', function (Request $request, Response $response) {
         $controller = new AdminPageModuleController();
         return $controller->index($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
 
     $app->post('/admin/page-modules', function (Request $request, Response $response) {
         $controller = new AdminPageModuleController();
         return $controller->create($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->put('/admin/page-modules/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageModuleController();
         return $controller->update($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->delete('/admin/page-modules/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
         $controller = new AdminPageModuleController();
         return $controller->delete($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/admin/landingpage/seo', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'main') {
@@ -1051,7 +1054,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
 
     $app->get('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->page($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST, Roles::CUSTOMER));
 
     $app->get('/results.json', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->get($request, $response);
@@ -1067,7 +1070,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
 
     $app->get('/results/download', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->download($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST, Roles::CUSTOMER));
 
     $app->get('/results.pdf', function (Request $request, Response $response) {
         $team = $request->getQueryParams()['team'] ?? null;
@@ -1076,7 +1079,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         }
 
         return $request->getAttribute('resultController')->pdf($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST, Roles::CUSTOMER));
 
     $app->post('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->post($request, $response);

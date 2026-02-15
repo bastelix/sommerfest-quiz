@@ -30,7 +30,7 @@
       {
         header: t('menu_event_content'),
         items: [
-          { href: basePath ~ '/admin/catalogs', icon: 'database', text: t('tab_catalogs'), roles: ['admin', 'catalog-editor'], activePrefixes: [basePath ~ '/admin/catalogs'] },
+          { href: basePath ~ '/admin/catalogs', icon: 'database', text: t('tab_catalogs'), roles: ['admin', 'catalog-editor', 'customer'], activePrefixes: [basePath ~ '/admin/catalogs'] },
           { href: basePath ~ '/admin/questions', icon: 'question', text: t('tab_questions'), activePrefixes: [basePath ~ '/admin/questions'] },
         ]
       },
@@ -139,8 +139,8 @@
       },
       { href: basePath ~ '/admin/pages/wiki', icon: 'file-text', text: t('tab_wiki'), activePrefixes: [basePath ~ '/admin/pages/wiki'] },
       { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), activePrefixes: [basePath ~ '/admin/landing-news'] },
-      { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), activePrefixes: [basePath ~ '/admin/newsletter'] },
-      { href: basePath ~ '/admin/newsletter-campaigns', icon: 'bell', text: t('tab_newsletter_campaigns'), activePrefixes: [basePath ~ '/admin/newsletter-campaigns'] },
+      { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), activePrefixes: [basePath ~ '/admin/newsletter'], roles: ['admin'] },
+      { href: basePath ~ '/admin/newsletter-campaigns', icon: 'bell', text: t('tab_newsletter_campaigns'), activePrefixes: [basePath ~ '/admin/newsletter-campaigns'], roles: ['admin'] },
     ]
   },
   {
@@ -151,7 +151,7 @@
         icon: 'image',
         text: t('tab_media'),
         activePrefixes: [basePath ~ '/admin/media'],
-        roles: ['admin', 'catalog-editor'],
+        roles: ['admin', 'catalog-editor', 'customer'],
         noEvent: true
       },
     ]
@@ -163,19 +163,22 @@
         href: basePath ~ '/admin/settings/header',
         icon: 'cog',
         text: t('tab_navigation_settings'),
-        activePrefixes: [basePath ~ '/admin/settings/header']
+        activePrefixes: [basePath ~ '/admin/settings/header'],
+        roles: ['admin']
       },
       {
         href: basePath ~ '/admin/navigation/menus',
         icon: 'list',
         text: t('tab_sidebar_menus'),
-        activePrefixes: [basePath ~ '/admin/navigation/menus']
+        activePrefixes: [basePath ~ '/admin/navigation/menus'],
+        roles: ['admin']
       },
       {
         href: basePath ~ '/admin/navigation/footer',
         icon: 'thumbnails',
         text: t('tab_sidebar_footer'),
-        activePrefixes: [basePath ~ '/admin/navigation/footer']
+        activePrefixes: [basePath ~ '/admin/navigation/footer'],
+        roles: ['admin']
       },
     ]
   },
@@ -195,7 +198,7 @@
   {
     header: t('menu_web_design'),
     items: [
-      { href: basePath ~ '/admin/pages/design', icon: 'paint-bucket', text: t('tab_design'), activePrefixes: [basePath ~ '/admin/pages/design'] },
+      { href: basePath ~ '/admin/pages/design', icon: 'paint-bucket', text: t('tab_design'), activePrefixes: [basePath ~ '/admin/pages/design'], roles: ['admin', 'designer', 'redakteur'] },
     ]
   },
 ] %}
