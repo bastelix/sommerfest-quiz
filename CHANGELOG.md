@@ -396,6 +396,10 @@
 - Load marketing.css in page editor for correct inline preview
 - Preserve container (width/frame/spacing) in section style sanitization
 
+### Merge
+
+- Resolve conflict with main, update admin routes with customer role
+
 ### Nav
 
 - Nur SEO, Cookies und RAG Chat als zu technisch einschraenken
@@ -459,6 +463,7 @@
 - Split navigation tabs into separate admin menu pages
 - Rename header settings sidebar link and reorder navigation
 - Migrate all remaining admin templates to admin/base.twig
+- Codebase audit - security hardening, deduplication, and file splitting
 
 ### Style
 
