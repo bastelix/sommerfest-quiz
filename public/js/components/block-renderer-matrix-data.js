@@ -489,7 +489,12 @@ function resolveSectionIntentPreset(block) {
     styleVariables.push(`--section-bg-color:${surface}`);
   }
 
-  if (!isExplicit && sectionDefaultSurface) {
+  // Hero and highlight intents always need their own dark surface colour,
+  // not the page-level default surface (which is light in light-mode).
+  // Applying the default surface would pair a light background with the
+  // intent's white text token, breaking contrast (~1:1 ratio).
+  const isDarkIntent = intent === 'hero' || intent === 'highlight';
+  if (!isExplicit && sectionDefaultSurface && !isDarkIntent) {
     styleVariables.push('--section-surface:var(--section-default-surface)');
     styleVariables.push('--section-bg-color:var(--section-default-surface)');
   }
