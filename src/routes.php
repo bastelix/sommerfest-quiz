@@ -1265,6 +1265,17 @@ return function (\Slim\App $app, TranslationService $translator) {
         $eventUid = trim((string) ($params['event_uid'] ?? ''));
         $playerUid = trim((string) ($params['player_uid'] ?? ''));
 
+        // Namespace enforcement
+        if ($eventUid !== '') {
+            $namespace = $request->getAttribute('eventNamespace');
+            if (is_string($namespace) && $namespace !== '') {
+                $eventService = $request->getAttribute('eventService');
+                if ($eventService instanceof EventService && !$eventService->belongsToNamespace($eventUid, $namespace)) {
+                    return $response->withStatus(403);
+                }
+            }
+        }
+
         if ($eventUid === '' || $playerUid === '') {
             $response->getBody()->write((string) json_encode(['solved' => []]));
 
