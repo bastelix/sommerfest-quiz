@@ -65,6 +65,7 @@
 - Add comprehensive architecture review against AGENTS.md
 - Add prioritized architecture task list (27 tasks in 7 phases)
 - Add harmonization plan for menu editor and footer block editor UX
+- Add comprehensive role and permission documentation
 
 ### Feat
 
