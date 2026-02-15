@@ -394,6 +394,7 @@
 - Prevent light default surface from overriding dark hero/highlight bg
 - Remove unused PageService property in PageModuleController
 - Load marketing.css in page editor for correct inline preview
+- Preserve container (width/frame/spacing) in section style sanitization
 
 ### Nav
 
