@@ -396,6 +396,7 @@
 - Remove unused PageService property in PageModuleController
 - Load marketing.css in page editor for correct inline preview
 - Preserve container (width/frame/spacing) in section style sanitization
+- Generate client-side player UID fallback when registration fails
 
 ### Merge
 
