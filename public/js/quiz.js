@@ -386,10 +386,11 @@ async function promptTeamNameChange(existingName){
       setStored('quizUser', name);
       setStored(STORAGE_KEYS.PLAYER_NAME, name);
       let uid = getStored(STORAGE_KEYS.PLAYER_UID);
-      const playerBody = { event_uid: currentEventUid, player_name: name };
-      if(uid){
-        playerBody.player_uid = uid;
+      if(!uid){
+        uid = crypto.randomUUID();
+        setStored(STORAGE_KEYS.PLAYER_UID, uid);
       }
+      const playerBody = { event_uid: currentEventUid, player_name: name, player_uid: uid };
       try{
         const playerResp = await fetch('/api/players', {
           method: 'POST',
@@ -609,10 +610,11 @@ async function promptTeamName(){
       setStored('quizUser', name);
       setStored(STORAGE_KEYS.PLAYER_NAME, name);
       let uid = getStored(STORAGE_KEYS.PLAYER_UID);
-      const playerBody = { event_uid: currentEventUid, player_name: name };
-      if(uid){
-        playerBody.player_uid = uid;
+      if(!uid){
+        uid = crypto.randomUUID();
+        setStored(STORAGE_KEYS.PLAYER_UID, uid);
       }
+      const playerBody = { event_uid: currentEventUid, player_name: name, player_uid: uid };
       try{
         const playerResp = await fetch('/api/players', {
           method: 'POST',
