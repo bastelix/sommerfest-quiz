@@ -113,3 +113,27 @@
 .qr-action-menu .uk-dropdown .qr-action {
   margin: 0;
 }
+
+/* ── Page tree action menu ── */
+.page-tree-actions {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.page-tree-action-toggle {
+  width: 36px;
+  height: 36px;
+}
+
+.page-tree-actions .uk-dropdown {
+  min-width: 160px;
+  padding: 8px 0;
+}
+
+.page-tree-actions .uk-dropdown .uk-nav > li > a {
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}

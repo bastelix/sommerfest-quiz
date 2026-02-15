@@ -478,6 +478,20 @@ body[data-theme="dark"].admin-page {
   color: var(--text-heading);
 }
 
+[data-theme="dark"] .page-tree-action-toggle {
+  background-color: var(--surface-muted);
+}
+
+[data-theme="dark"] .page-tree-action-toggle:hover,
+[data-theme="dark"] .page-tree-action-toggle:focus {
+  background-color: var(--surface-subtle);
+}
+
+[data-theme="dark"] .page-tree-actions .uk-dropdown {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-muted);
+}
+
 [data-theme="dark"] .admin-page .uk-button-primary {
   background-color: var(--accent-primary);
   border-color: var(--accent-primary);

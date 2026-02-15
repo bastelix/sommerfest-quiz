@@ -3461,6 +3461,15 @@ body.admin-page {
     padding: 2px 8px;
   }
 
+  .page-tree-action-toggle {
+    width: 44px;
+    height: 44px;
+  }
+
+  .page-tree-actions {
+    margin-left: 8px;
+  }
+
   /* ── 29. Accordion inside content page ── */
   .admin-page .uk-accordion-title {
     font-size: 0.875rem;

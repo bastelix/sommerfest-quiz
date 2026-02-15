@@ -468,6 +468,166 @@ window.notify = (msg, status = 'primary', timeout = 2000) => {
   }
 };
 
+/* ── Page-tree action modals (singleton) ── */
+let pageRenamePending = null;
+let pageDeletePending = null;
+
+const ensurePageRenameModal = () => {
+  if (document.getElementById('pageRenameModal')) return;
+  const el = document.createElement('div');
+  el.id = 'pageRenameModal';
+  el.setAttribute('uk-modal', '');
+  el.innerHTML = [
+    '<div class="uk-modal-dialog uk-modal-body">',
+    '  <h3 class="uk-modal-title">Seite umbenennen</h3>',
+    '  <label class="uk-form-label" for="pageRenameInput">Neuer Slug</label>',
+    '  <input id="pageRenameInput" class="uk-input" type="text">',
+    '  <div id="pageRenameError" class="uk-text-danger uk-margin-small-top" hidden></div>',
+    '  <p id="pageRenameHint" class="uk-text-meta uk-margin-small-top"></p>',
+    '  <div class="uk-margin-top uk-text-right">',
+    '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
+    '    <button id="pageRenameSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">Umbenennen</button>',
+    '  </div>',
+    '</div>'
+  ].join('\n');
+  document.body.appendChild(el);
+
+  el.addEventListener('hidden', () => { pageRenamePending = null; });
+
+  document.getElementById('pageRenameSave').addEventListener('click', async () => {
+    if (!pageRenamePending) return;
+    const input = document.getElementById('pageRenameInput');
+    const errorEl = document.getElementById('pageRenameError');
+    const newSlug = (input.value || '').trim();
+
+    if (!newSlug || newSlug === pageRenamePending.slug) {
+      errorEl.textContent = 'Bitte einen neuen Slug eingeben.';
+      errorEl.hidden = false;
+      return;
+    }
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(newSlug)) {
+      errorEl.textContent = 'Der Slug darf nur Kleinbuchstaben, Ziffern und Bindestriche enthalten.';
+      errorEl.hidden = false;
+      return;
+    }
+
+    try {
+      await executePageRename(pageRenamePending.slug, pageRenamePending.namespace, newSlug);
+      UIkit.modal('#pageRenameModal').hide();
+      window.notify('Seite erfolgreich umbenannt', 'success');
+      window.location.reload();
+    } catch (error) {
+      errorEl.textContent = error.message || 'Fehler beim Umbenennen der Seite';
+      errorEl.hidden = false;
+    }
+  });
+
+  document.getElementById('pageRenameInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('pageRenameSave').click();
+    }
+  });
+};
+
+const ensurePageDeleteModal = () => {
+  if (document.getElementById('pageDeleteConfirmModal')) return;
+  const el = document.createElement('div');
+  el.id = 'pageDeleteConfirmModal';
+  el.setAttribute('uk-modal', '');
+  el.innerHTML = [
+    '<div class="uk-modal-dialog uk-modal-body">',
+    '  <h3 class="uk-modal-title">Seite löschen</h3>',
+    '  <p id="pageDeleteConfirmText"></p>',
+    '  <div id="pageDeleteSubtreeWarning" class="uk-alert-danger" uk-alert hidden>',
+    '    <p>Achtung: Alle untergeordneten Seiten werden ebenfalls gelöscht!</p>',
+    '  </div>',
+    '  <div class="uk-margin-top uk-text-right">',
+    '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
+    '    <button id="pageDeleteConfirm" class="uk-button uk-button-danger uk-margin-small-left" type="button">Endgültig löschen</button>',
+    '  </div>',
+    '</div>'
+  ].join('\n');
+  document.body.appendChild(el);
+
+  el.addEventListener('hidden', () => { pageDeletePending = null; });
+
+  document.getElementById('pageDeleteConfirm').addEventListener('click', async () => {
+    if (!pageDeletePending) return;
+    try {
+      await executePageDelete(pageDeletePending.slug, pageDeletePending.namespace);
+      UIkit.modal('#pageDeleteConfirmModal').hide();
+      window.notify('Seite erfolgreich gelöscht', 'success');
+      window.location.reload();
+    } catch (error) {
+      UIkit.modal('#pageDeleteConfirmModal').hide();
+      window.notify(error.message || 'Seite konnte nicht gelöscht werden.', 'danger');
+    }
+  });
+};
+
+const openPageRenameModal = (slug, namespace, title) => {
+  ensurePageRenameModal();
+  pageRenamePending = { slug, namespace, title };
+  const input = document.getElementById('pageRenameInput');
+  const errorEl = document.getElementById('pageRenameError');
+  const hint = document.getElementById('pageRenameHint');
+  input.value = slug;
+  errorEl.hidden = true;
+  errorEl.textContent = '';
+  hint.textContent = 'Aktuelle Seite: \u201e' + title + '\u201c';
+  UIkit.modal('#pageRenameModal').show();
+  setTimeout(() => { input.select(); }, 100);
+};
+
+const openPageDeleteModal = (slug, namespace, title, hasChildren) => {
+  ensurePageDeleteModal();
+  pageDeletePending = { slug, namespace, title, hasChildren };
+  document.getElementById('pageDeleteConfirmText').textContent =
+    '\u201e' + title + '\u201c (/' + slug + ') wirklich löschen?';
+  document.getElementById('pageDeleteSubtreeWarning').hidden = !hasChildren;
+  UIkit.modal('#pageDeleteConfirmModal').show();
+};
+
+const executePageRename = async (oldSlug, namespace, newSlug) => {
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  if (!csrfToken) {
+    throw new Error('CSRF-Token fehlt. Bitte Seite neu laden.');
+  }
+  const response = await fetch(
+    withBase('/admin/pages/' + encodeURIComponent(oldSlug) + '/rename?namespace=' + encodeURIComponent(namespace)),
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      body: JSON.stringify({ newSlug })
+    }
+  );
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Fehler: ' + response.status);
+  }
+  return response.json();
+};
+
+const executePageDelete = async (slug, namespace) => {
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  if (!csrfToken) {
+    throw new Error('CSRF-Token fehlt. Bitte Seite neu laden.');
+  }
+  const response = await fetch(
+    withBase('/admin/pages/' + encodeURIComponent(slug) + '?namespace=' + encodeURIComponent(namespace)),
+    {
+      method: 'DELETE',
+      headers: { 'X-CSRF-Token': csrfToken }
+    }
+  );
+  if (response.status === 204) return;
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Fehler: ' + response.status);
+  }
+};
+
 const buildProjectPageTreeList = (nodes, level = 0) => {
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-collapse';
@@ -493,33 +653,6 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
       title.textContent = label;
     }
     info.appendChild(title);
-
-    if (node.slug && node.editUrl) {
-      const renameBtn = document.createElement('button');
-      renameBtn.className = 'uk-button uk-button-text uk-button-small uk-margin-small-left';
-      renameBtn.type = 'button';
-      renameBtn.style.padding = '0 5px';
-      renameBtn.style.minHeight = '20px';
-      renameBtn.setAttribute('uk-tooltip', 'title: Umbenennen');
-      renameBtn.setAttribute('data-page-slug', node.slug);
-      renameBtn.setAttribute('data-page-namespace', node.namespace);
-      renameBtn.setAttribute('data-page-title', node.title || node.slug);
-
-      const icon = document.createElement('span');
-      icon.setAttribute('uk-icon', 'icon: pencil; ratio: 0.8');
-      renameBtn.appendChild(icon);
-
-      renameBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        handlePageRename(node.slug, node.namespace, node.title || node.slug);
-      });
-      info.appendChild(renameBtn);
-
-      // Initialize UIkit icon
-      if (window.UIkit && UIkit.icon) {
-        UIkit.icon(icon);
-      }
-    }
 
     if (node.slug) {
       const slug = document.createElement('span');
@@ -548,6 +681,62 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
       row.appendChild(meta);
     }
 
+    if (node.slug && node.editUrl) {
+      const hasChildren = Array.isArray(node.children) && node.children.length > 0;
+      const actions = document.createElement('div');
+      actions.className = 'uk-inline page-tree-actions';
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'uk-icon-button page-tree-action-toggle';
+      toggle.setAttribute('uk-icon', 'icon: more-vertical; ratio: 0.9');
+      toggle.setAttribute('aria-label', 'Aktionen');
+
+      const dropdown = document.createElement('div');
+      dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right; container: body');
+
+      const nav = document.createElement('ul');
+      nav.className = 'uk-nav uk-dropdown-nav';
+
+      const renameLi = document.createElement('li');
+      const renameLink = document.createElement('a');
+      renameLink.href = '#';
+      renameLink.innerHTML = '<span uk-icon="icon: pencil; ratio: 0.8" class="uk-margin-small-right"></span>Umbenennen';
+      renameLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        UIkit.dropdown(dropdown).hide(false);
+        openPageRenameModal(node.slug, node.namespace, node.title || node.slug);
+      });
+      renameLi.appendChild(renameLink);
+      nav.appendChild(renameLi);
+
+      const divider = document.createElement('li');
+      divider.className = 'uk-nav-divider';
+      nav.appendChild(divider);
+
+      const deleteLi = document.createElement('li');
+      const deleteLink = document.createElement('a');
+      deleteLink.href = '#';
+      deleteLink.className = 'uk-text-danger';
+      deleteLink.innerHTML = '<span uk-icon="icon: trash; ratio: 0.8" class="uk-margin-small-right"></span>Löschen';
+      deleteLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        UIkit.dropdown(dropdown).hide(false);
+        openPageDeleteModal(node.slug, node.namespace, node.title || node.slug, hasChildren);
+      });
+      deleteLi.appendChild(deleteLink);
+      nav.appendChild(deleteLi);
+
+      dropdown.appendChild(nav);
+      actions.appendChild(toggle);
+      actions.appendChild(dropdown);
+      row.appendChild(actions);
+
+      if (window.UIkit && UIkit.icon) {
+        UIkit.icon(toggle);
+      }
+    }
+
     item.appendChild(row);
     if (Array.isArray(node.children) && node.children.length) {
       item.appendChild(buildProjectPageTreeList(node.children, level + 1));
@@ -556,51 +745,6 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
   });
 
   return list;
-};
-
-const handlePageRename = async (oldSlug, namespace, currentTitle) => {
-  const newSlug = prompt('Neuer Slug für die Seite:', oldSlug);
-  if (!newSlug || newSlug === oldSlug) {
-    return;
-  }
-
-  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-  if (!csrfToken) {
-    alert('CSRF-Token fehlt. Bitte Seite neu laden.');
-    return;
-  }
-
-  try {
-    const response = await fetch(withBase(`/admin/pages/${encodeURIComponent(oldSlug)}/rename?namespace=${encodeURIComponent(namespace)}`), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfToken
-      },
-      body: JSON.stringify({ newSlug })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Fehler: ${response.status}`);
-    }
-
-    const result = await response.json();
-    if (window.UIkit && UIkit.notification) {
-      UIkit.notification('Seite erfolgreich umbenannt', { status: 'success' });
-    }
-
-    // Reload page to refresh the tree
-    window.location.reload();
-  } catch (error) {
-    console.error('Rename error:', error);
-    const message = error.message || 'Fehler beim Umbenennen der Seite';
-    if (window.UIkit && UIkit.notification) {
-      UIkit.notification(message, { status: 'danger' });
-    } else {
-      alert(message);
-    }
-  }
 };
 
 const createProjectEmptyState = message => {
