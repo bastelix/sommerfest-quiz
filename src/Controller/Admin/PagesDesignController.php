@@ -288,8 +288,7 @@ class PagesDesignController
 
     private function ensureCsrfToken(): string
     {
-        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-        $_SESSION['csrf_token'] = $csrf;
+        $csrf = \App\Support\CsrfTokenHelper::ensure();
 
         return $csrf;
     }
@@ -326,10 +325,7 @@ class PagesDesignController
         $role = $_SESSION['user']['role'] ?? null;
         $accessService = new NamespaceAccessService();
         $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $repository = new NamespaceRepository($pdo);
         try {
             $availableNamespaces = $repository->listActive();
@@ -401,10 +397,7 @@ class PagesDesignController
 
     private function getDesignService(Request $request): DesignTokenService
     {
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
 
         return new DesignTokenService($pdo, $this->configService);
     }

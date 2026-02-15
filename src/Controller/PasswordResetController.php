@@ -145,8 +145,7 @@ class PasswordResetController
             || !$this->policy->validate($pass)
         ) {
             $view = Twig::fromRequest($request);
-            $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-            $_SESSION['csrf_token'] = $csrf;
+            $csrf = \App\Support\CsrfTokenHelper::ensure();
 
             $params = [
                 'token'      => $token,

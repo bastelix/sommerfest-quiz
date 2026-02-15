@@ -29,10 +29,7 @@ class HomeController
      */
     public function __invoke(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo, $cfgSvc);
         $pageService = new PageService($pdo);

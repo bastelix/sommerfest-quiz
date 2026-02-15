@@ -49,10 +49,7 @@ final class CmsPageRouteResolver
         }
         $contentSlug = MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
 
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
 
         $pages = new PageService($pdo);
         $page = $pages->findByKey($namespace, $contentSlug);

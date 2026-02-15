@@ -95,10 +95,7 @@ class SessionMiddleware implements Middleware
 
         if (isset($_SESSION['user']['id'])) {
             try {
-                $pdo = $request->getAttribute('pdo');
-                if (!$pdo instanceof PDO) {
-                    $pdo = Database::connectFromEnv();
-                }
+                $pdo = \App\Support\RequestDatabase::resolve($request);
                 $service = new SessionService($pdo);
                 $service->persistSession((int) $_SESSION['user']['id'], session_id());
             } catch (\Throwable $e) {
@@ -267,10 +264,7 @@ class SessionMiddleware implements Middleware
     }
 
     private function resolvePdo(Request $request): PDO {
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
 
         return $pdo;
     }

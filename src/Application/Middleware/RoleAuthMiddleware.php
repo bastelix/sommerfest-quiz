@@ -130,10 +130,7 @@ class RoleAuthMiddleware implements MiddlewareInterface
             return [];
         }
 
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
 
         $userService = new UserService($pdo);
         $record = $userService->getById((int) $userId);

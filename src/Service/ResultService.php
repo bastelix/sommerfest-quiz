@@ -971,4 +971,26 @@ class ResultService
         }
         $this->pdo->commit();
     }
+
+    /**
+     * Return the list of catalog identifiers a player has completed.
+     *
+     * @return list<string>
+     */
+    public function getSolvedCatalogs(string $eventUid, string $playerUid): array
+    {
+        if ($eventUid === '' || $playerUid === '') {
+            return [];
+        }
+
+        $stmt = $this->pdo->prepare(
+            'SELECT DISTINCT LOWER(catalog) FROM results WHERE event_uid = ? AND player_uid = ?'
+        );
+        $stmt->execute([$eventUid, $playerUid]);
+
+        /** @var list<string> $catalogs */
+        $catalogs = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        return $catalogs;
+    }
 }

@@ -356,8 +356,7 @@ class LandingpageController
 
     private function ensureCsrfToken(): string
     {
-        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-        $_SESSION['csrf_token'] = $csrf;
+        $csrf = \App\Support\CsrfTokenHelper::ensure();
 
         return $csrf;
     }

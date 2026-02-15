@@ -34,10 +34,7 @@ class ProfileController
         }
 
         $domainType = $request->getAttribute('domainType');
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $service = new TenantService($pdo);
         if ($domainType === 'main') {
             $service->getMainTenant();

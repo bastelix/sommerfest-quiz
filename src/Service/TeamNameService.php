@@ -50,30 +50,9 @@ class TeamNameService
 
     private PDO $pdo;
 
-    /**
-     * Normalized adjective lists grouped by tonality.
-     *
-     * @var array<string, array<int, string>>
-     */
-    private array $adjectiveCategories = [];
-
-    /**
-     * Normalized noun lists grouped by domain.
-     *
-     * @var array<string, array<int, string>>
-     */
-    private array $nounCategories = [];
-
-    private int $lexiconVersion = 1;
+    private TeamNameLexicon $lexicon;
 
     private int $reservationTtlSeconds;
-
-    /**
-     * Cache of computed name combinations per filter set.
-     *
-     * @var array<string, array{adjectives: array<int, string>, nouns: array<int, string>, names: array<int, string>, total: int}>
-     */
-    private array $nameCache = [];
 
     private ?TeamNameAiClient $aiClient;
 
@@ -144,20 +123,22 @@ class TeamNameService
         $locale = trim((string) ($defaultLocale ?? ''));
         $this->defaultLocale = $locale === '' ? self::DEFAULT_LOCALE : $locale;
         $this->teamNameWarmupDispatcher = $teamNameWarmupDispatcher;
-        $this->loadLexicon($lexiconPath);
+        $this->lexicon = new TeamNameLexicon($lexiconPath);
+    }
+
+    public function getLexicon(): TeamNameLexicon
+    {
+        return $this->lexicon;
     }
 
     public function getLexiconVersion(): int
     {
-        return $this->lexiconVersion;
+        return $this->lexicon->getLexiconVersion();
     }
 
     public function getTotalCombinations(): int
     {
-        $adjectives = $this->fallbackWords($this->adjectiveCategories);
-        $nouns = $this->fallbackWords($this->nounCategories);
-
-        return count($adjectives) * count($nouns);
+        return $this->lexicon->getTotalCombinations();
     }
 
     /**
@@ -357,7 +338,7 @@ class TeamNameService
             );
         }
 
-        $selection = $this->getNameSelection($domains, $tones);
+        $selection = $this->lexicon->getNameSelection($domains, $tones);
         $names = $selection['names'];
         $totalCombinations = $selection['total'];
 
@@ -427,7 +408,7 @@ class TeamNameService
                 $token = bin2hex(random_bytes(16));
 
                 try {
-                    $stmt->execute([$eventId, $name, $this->lexiconVersion, $token]);
+                    $stmt->execute([$eventId, $name, $this->lexicon->getLexiconVersion(), $token]);
                     $reservations[] = $this->formatReservationResponse($eventId, $name, $token, false, $totalCombinations);
                 } catch (PDOException $exception) {
                     if ($this->isUniqueViolation($exception)) {
@@ -480,8 +461,8 @@ class TeamNameService
             return [];
         }
 
-        $normalizedDomains = $this->normalizeFilterValues($domains);
-        $normalizedTones = $this->normalizeFilterValues($tones);
+        $normalizedDomains = $this->lexicon->normalizeFilterValues($domains);
+        $normalizedTones = $this->lexicon->normalizeFilterValues($tones);
         $resolvedLocale = $this->resolveLocale($locale);
         $cacheKey = $this->buildAiCacheKey($eventId, $normalizedDomains, $normalizedTones, $resolvedLocale);
         $promptDomains = $this->preparePromptValues($domains);
@@ -592,8 +573,8 @@ class TeamNameService
             return [];
         }
 
-        $normalizedDomains = $this->normalizeFilterValues($domains);
-        $normalizedTones = $this->normalizeFilterValues($tones);
+        $normalizedDomains = $this->lexicon->normalizeFilterValues($domains);
+        $normalizedTones = $this->lexicon->normalizeFilterValues($tones);
         $resolvedLocale = $this->resolveLocale($locale);
         $cacheKey = $this->buildAiCacheKey($eventId, $normalizedDomains, $normalizedTones, $resolvedLocale);
         $promptDomains = $this->preparePromptValues($domains);
@@ -628,8 +609,8 @@ class TeamNameService
             return;
         }
 
-        $normalizedDomains = $this->normalizeFilterValues($domains);
-        $normalizedTones = $this->normalizeFilterValues($tones);
+        $normalizedDomains = $this->lexicon->normalizeFilterValues($domains);
+        $normalizedTones = $this->lexicon->normalizeFilterValues($tones);
         $resolvedLocale = $this->resolveLocale($locale);
         $cacheKey = $this->buildAiCacheKey($eventId, $normalizedDomains, $normalizedTones, $resolvedLocale);
         $promptDomains = $this->preparePromptValues($domains);
@@ -1085,7 +1066,7 @@ class TeamNameService
 
         $this->releaseExpiredReservations($eventId);
 
-        $selection = $this->getNameSelection($domains, $tones);
+        $selection = $this->lexicon->getNameSelection($domains, $tones);
         $total = max(0, (int) $selection['total']);
         $reserved = max(0, $this->countActiveAssignments($eventId));
         $available = max(0, $total - $reserved);
@@ -1404,7 +1385,7 @@ class TeamNameService
                 'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token, fallback) '
                 . 'VALUES (?,?,?,?,TRUE)'
             );
-            $stmt->execute([$eventId, $name, $this->lexiconVersion, $token]);
+            $stmt->execute([$eventId, $name, $this->lexicon->getLexiconVersion(), $token]);
         } catch (PDOException $exception) {
             if ($this->isUniqueViolation($exception)) {
                 return $this->reserveFallback($eventId, $totalCombinations);
@@ -1442,7 +1423,7 @@ class TeamNameService
             'name' => $name,
             'token' => $token,
             'expires_at' => $expiresAt->format(DATE_ATOM),
-            'lexicon_version' => $this->lexiconVersion,
+            'lexicon_version' => $this->lexicon->getLexiconVersion(),
             'total' => $totalCombinations,
             'remaining' => max(0, $totalCombinations - $active),
             'fallback' => $fallback,
@@ -1493,307 +1474,11 @@ class TeamNameService
         return $date->format(DATE_ATOM);
     }
 
-    /**
-     * @param array<int, string> $domains
-     * @param array<int, string> $tones
-     *
-     * @return array{
-     *     adjectives: array<int, string>,
-     *     nouns: array<int, string>,
-     *     names: array<int, string>,
-     *     total: int
-     * }
-     */
-    private function getNameSelection(array $domains, array $tones): array
-    {
-        $normalizedDomains = $this->normalizeFilterValues($domains);
-        $normalizedTones = $this->normalizeFilterValues($tones);
-        $cacheKey = $this->buildCacheKey($normalizedDomains, $normalizedTones);
-        if (isset($this->nameCache[$cacheKey])) {
-            return $this->nameCache[$cacheKey];
-        }
-
-        $adjectives = $this->selectWords($this->adjectiveCategories, $normalizedTones);
-        $nouns = $this->selectWords($this->nounCategories, $normalizedDomains);
-
-        $names = [];
-        $total = 0;
-
-        if ($adjectives !== [] && $nouns !== []) {
-            foreach ($adjectives as $adj) {
-                foreach ($nouns as $noun) {
-                    $names[] = $this->composeCompoundName($adj, $noun);
-                }
-            }
-            $total = count($adjectives) * count($nouns);
-        }
-
-        $selection = [
-            'adjectives' => $adjectives,
-            'nouns' => $nouns,
-            'names' => $names,
-            'total' => $total,
-        ];
-
-        $this->nameCache[$cacheKey] = $selection;
-
-        return $selection;
-    }
-
-    private function composeCompoundName(string $adjective, string $noun): string
-    {
-        $left = $this->collapseWhitespace($adjective);
-        $right = $this->collapseWhitespace($noun);
-
-        if ($left === '') {
-            return $right;
-        }
-
-        if ($right === '') {
-            return $left;
-        }
-
-        return $left . $right;
-    }
-
-    private function collapseWhitespace(string $value): string
-    {
-        $trimmed = trim($value);
-        if ($trimmed === '') {
-            return '';
-        }
-
-        $collapsed = preg_replace('/\s+/u', '', $trimmed);
-        if ($collapsed === null) {
-            return $trimmed;
-        }
-
-        return $collapsed;
-    }
-
-    /**
-     * @param array<int, mixed> $filters
-     *
-     * @return array<int, string>
-     */
-    private function normalizeFilterValues(array $filters): array
-    {
-        $normalized = [];
-        foreach ($filters as $filter) {
-            if (is_array($filter) || is_object($filter)) {
-                continue;
-            }
-            $value = $this->normalize((string) $filter);
-            if ($value === '') {
-                continue;
-            }
-            $normalized[] = $value;
-        }
-
-        $normalized = array_values(array_unique($normalized));
-        sort($normalized, SORT_NATURAL | SORT_FLAG_CASE);
-
-        return $normalized;
-    }
-
-    /**
-     * @param array<string, array<int, string>> $categories
-     * @param array<int, string> $filters
-     *
-     * @return array<int, string>
-     */
-    private function selectWords(array $categories, array $filters): array
-    {
-        $selectedFilters = $filters === [] ? ['default'] : $filters;
-
-        $words = [];
-        foreach ($selectedFilters as $filter) {
-            if (!isset($categories[$filter])) {
-                continue;
-            }
-            $words = array_merge($words, $categories[$filter]);
-        }
-
-        $words = array_values(array_unique($words));
-        sort($words, SORT_NATURAL | SORT_FLAG_CASE);
-
-        if ($words === []) {
-            $words = $this->fallbackWords($categories);
-        }
-
-        return $words;
-    }
-
-    /**
-     * @param array<string, array<int, string>|mixed> $categories
-     *
-     * @return array<int, string>
-     */
-    private function fallbackWords(array $categories): array
-    {
-        $nonEmpty = [];
-        foreach ($categories as $key => $words) {
-            if (!is_array($words) || $words === []) {
-                continue;
-            }
-            $nonEmpty[$key] = $words;
-        }
-
-        if (isset($nonEmpty['default'])) {
-            return $nonEmpty['default'];
-        }
-
-        return $this->collectAllWords($nonEmpty);
-    }
-
-    /**
-     * @param array<string, array<int, string>|mixed> $categories
-     *
-     * @return array<int, string>
-     */
-    private function collectAllWords(array $categories): array
-    {
-        $merged = [];
-        foreach ($categories as $words) {
-            if (!is_array($words) || $words === []) {
-                continue;
-            }
-            $merged = array_merge($merged, $words);
-        }
-
-        $merged = array_values(array_unique($merged));
-        sort($merged, SORT_NATURAL | SORT_FLAG_CASE);
-
-        return $merged;
-    }
-
-    /**
-     * @param array<mixed> $domains
-     * @param array<mixed> $tones
-     */
-    private function buildCacheKey(array $domains, array $tones): string
-    {
-        return sha1(implode('|', $domains) . '#' . implode('|', $tones));
-    }
-
-    /**
-     * @param mixed $section
-     *
-     * @return array<string, array<int, string>>
-     */
-    private function normalizeLexiconSection($section): array
-    {
-        if (!is_array($section)) {
-            return [];
-        }
-
-        if ($section === []) {
-            return [];
-        }
-
-        if (!$this->isAssociativeArray($section)) {
-            $words = $this->normalizeWordList($section);
-            return $words === [] ? [] : ['default' => $words];
-        }
-
-        $normalized = [];
-        foreach ($section as $key => $words) {
-            if (!is_string($key)) {
-                continue;
-            }
-            $categoryKey = $this->normalizeKey($key);
-            if ($categoryKey === '') {
-                continue;
-            }
-            $normalized[$categoryKey] = $this->normalizeWordList($words);
-        }
-
-        if ($normalized === []) {
-            return [];
-        }
-
-        if (!isset($normalized['default']) || $normalized['default'] === []) {
-            $merged = $this->collectAllWords($normalized);
-            if ($merged !== []) {
-                $normalized['default'] = $merged;
-            }
-        }
-
-        ksort($normalized);
-
-        return $normalized;
-    }
-
-    /**
-     * @param mixed $words
-     *
-     * @return array<int, string>
-     */
-    private function normalizeWordList($words): array
-    {
-        if (!is_array($words)) {
-            return [];
-        }
-
-        $normalized = [];
-        foreach ($words as $word) {
-            if (is_array($word) || is_object($word)) {
-                continue;
-            }
-            $value = trim((string) $word);
-            if ($value === '') {
-                continue;
-            }
-            $normalized[] = $value;
-        }
-
-        $normalized = array_values(array_unique($normalized));
-        sort($normalized, SORT_NATURAL | SORT_FLAG_CASE);
-
-        return $normalized;
-    }
-
-    private function isAssociativeArray(array $input): bool
-    {
-        return array_keys($input) !== range(0, count($input) - 1);
-    }
-
-    private function normalizeKey(string $key): string
-    {
-        return $this->normalize($key);
-    }
-
-    private function loadLexicon(string $path): void
-    {
-        if (!is_file($path)) {
-            throw new RuntimeException(sprintf('Team name lexicon not found at %s', $path));
-        }
-        $json = file_get_contents($path);
-        if ($json === false) {
-            throw new RuntimeException('Unable to read team name lexicon');
-        }
-        $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        if (!is_array($data)) {
-            throw new RuntimeException('Invalid team name lexicon');
-        }
-
-        $adjectives = $this->normalizeLexiconSection($data['adjectives'] ?? []);
-        $nouns = $this->normalizeLexiconSection($data['nouns'] ?? []);
-
-        if ($adjectives === [] || $nouns === []) {
-            throw new RuntimeException('Team name lexicon requires adjectives and nouns');
-        }
-
-        $this->adjectiveCategories = $adjectives;
-        $this->nounCategories = $nouns;
-        $this->nameCache = [];
-        $this->lexiconVersion = is_int($data['version'] ?? null) ? (int) $data['version'] : 1;
-    }
-
     private function now(): DateTimeImmutable
     {
         return new DateTimeImmutable('now', new DateTimeZone('UTC'));
     }
+
 
     protected function randomStartIndex(int $total): int
     {

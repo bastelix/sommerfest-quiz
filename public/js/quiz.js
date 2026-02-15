@@ -24,6 +24,30 @@ let quizStartedAt = null;
 let activeSuggestionReservation = null;
 let activeSuggestionFallback = false;
 
+async function fetchSolvedCatalogsFromServer(){
+  const uid = getStored(STORAGE_KEYS.PLAYER_UID);
+  if(!uid || !currentEventUid) return [];
+  try{
+    const resp = await fetch(withBase(`/api/quiz-progress?event_uid=${encodeURIComponent(currentEventUid)}&player_uid=${encodeURIComponent(uid)}`));
+    if(!resp.ok) return [];
+    const data = await resp.json();
+    return Array.isArray(data.solved) ? data.solved.map(s => String(s).toLowerCase()) : [];
+  }catch(e){
+    return [];
+  }
+}
+
+async function getSolvedCatalogs(){
+  const local = JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]')
+    .map(s => String(s).toLowerCase());
+  const cfg = window.quizConfig || {};
+  if(!cfg.competitionMode) return local;
+  const server = await fetchSolvedCatalogsFromServer();
+  const merged = [...new Set([...local, ...server])];
+  setStored(STORAGE_KEYS.QUIZ_SOLVED, JSON.stringify(merged));
+  return merged;
+}
+
 function rememberActiveSuggestionReservation(reservation){
   if(reservation){
     activeSuggestionReservation = reservation;
@@ -362,29 +386,30 @@ async function promptTeamNameChange(existingName){
       setStored('quizUser', name);
       setStored(STORAGE_KEYS.PLAYER_NAME, name);
       let uid = getStored(STORAGE_KEYS.PLAYER_UID);
-      if(!uid){
-        let cryptoSource = null;
-        if(typeof self !== 'undefined' && self && self.crypto){
-          cryptoSource = self.crypto;
-        }else if(typeof globalThis !== 'undefined' && globalThis && globalThis.crypto){
-          cryptoSource = globalThis.crypto;
-        }
-        if(cryptoSource && typeof cryptoSource.randomUUID === 'function'){
-          uid = cryptoSource.randomUUID();
-        }else{
-          uid = Math.random().toString(36).slice(2);
-        }
-        setStored(STORAGE_KEYS.PLAYER_UID, uid);
+      const playerBody = { event_uid: currentEventUid, player_name: name };
+      if(uid){
+        playerBody.player_uid = uid;
       }
-      fetch('/api/players', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event_uid: currentEventUid,
-          player_name: name,
-          player_uid: uid
-        })
-      }).catch(() => {});
+      try{
+        const playerResp = await fetch('/api/players', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(playerBody)
+        });
+        if(playerResp.ok){
+          try{
+            const playerResult = await playerResp.json();
+            if(playerResult && playerResult.player_uid){
+              uid = playerResult.player_uid;
+              setStored(STORAGE_KEYS.PLAYER_UID, uid);
+            }
+          }catch(pe){
+            // keep existing UID if response parsing fails
+          }
+        }
+      }catch(fetchErr){
+        // non-critical: player save failed but quiz can continue
+      }
       try{
         await postSession('player', { name });
         saved = true;
@@ -584,29 +609,30 @@ async function promptTeamName(){
       setStored('quizUser', name);
       setStored(STORAGE_KEYS.PLAYER_NAME, name);
       let uid = getStored(STORAGE_KEYS.PLAYER_UID);
-      if(!uid){
-        let cryptoSource = null;
-        if(typeof self !== 'undefined' && self && self.crypto){
-          cryptoSource = self.crypto;
-        }else if(typeof globalThis !== 'undefined' && globalThis && globalThis.crypto){
-          cryptoSource = globalThis.crypto;
-        }
-        if(cryptoSource && typeof cryptoSource.randomUUID === 'function'){
-          uid = cryptoSource.randomUUID();
-        }else{
-          uid = Math.random().toString(36).slice(2);
-        }
-        setStored(STORAGE_KEYS.PLAYER_UID, uid);
+      const playerBody = { event_uid: currentEventUid, player_name: name };
+      if(uid){
+        playerBody.player_uid = uid;
       }
-      fetch('/api/players', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event_uid: currentEventUid,
-          player_name: name,
-          player_uid: uid
-        })
-      }).catch(() => {});
+      try{
+        const playerResp = await fetch('/api/players', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(playerBody)
+        });
+        if(playerResp.ok){
+          try{
+            const playerResult = await playerResp.json();
+            if(playerResult && playerResult.player_uid){
+              uid = playerResult.player_uid;
+              setStored(STORAGE_KEYS.PLAYER_UID, uid);
+            }
+          }catch(pe){
+            // keep existing UID if response parsing fails
+          }
+        }
+      }catch(fetchErr){
+        // non-critical: player save failed but quiz can continue
+      }
       try {
         await postSession('player', { name });
         saved = true;
@@ -1001,6 +1027,22 @@ async function runQuiz(questions, skipIntro){
     }
   }
 
+  if(cfg.competitionMode){
+    const currentCatalog = (getStored(STORAGE_KEYS.CATALOG) || '').toLowerCase();
+    if(currentCatalog){
+      const solvedList = await getSolvedCatalogs();
+      if(solvedList.indexOf(currentCatalog) !== -1){
+        const container = document.getElementById('quiz-container') || document.body;
+        const notice = document.createElement('div');
+        notice.className = 'uk-alert uk-alert-warning uk-text-center';
+        notice.innerHTML = '<p>Diese Station wurde bereits abgeschlossen.</p>';
+        container.innerHTML = '';
+        container.appendChild(notice);
+        return;
+      }
+    }
+  }
+
   // Farben werden über CSS-Variablen gesetzt
 
   const headerEl = document.getElementById('quiz-header');
@@ -1260,10 +1302,8 @@ async function runQuiz(questions, skipIntro){
       try{
         const dataEl = document.getElementById('catalogs-data');
         const catalogs = dataEl ? JSON.parse(dataEl.textContent) : [];
-        const solvedSet = new Set(
-          JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]')
-            .map(s => String(s).toLowerCase())
-        );
+        const solvedArr = await getSolvedCatalogs();
+        const solvedSet = new Set(solvedArr);
         const names = catalogs.filter(c => {
           const id = (c.slug || c.uid || c.sort_order).toString().toLowerCase();
           return !solvedSet.has(id);

@@ -89,17 +89,17 @@ async function saveName(e) {
   }
 
   let uid = getStored(STORAGE_KEYS.PLAYER_UID);
-  if (!uid) {
-    uid = self.crypto?.randomUUID ? self.crypto.randomUUID() : Math.random().toString(36).slice(2);
-    setStored(STORAGE_KEYS.PLAYER_UID, uid);
-  }
 
   let playerSaved = false;
   try {
+    const body = { event_uid: currentEventUid, player_name: name };
+    if (uid) {
+      body.player_uid = uid;
+    }
     const response = await fetch('/api/players', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event_uid: currentEventUid, player_name: name, player_uid: uid })
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
@@ -125,6 +125,16 @@ async function saveName(e) {
         notify('Fehler beim Speichern', 'danger');
       }
       return;
+    }
+
+    try {
+      const result = await response.json();
+      if (result && result.player_uid) {
+        uid = result.player_uid;
+        setStored(STORAGE_KEYS.PLAYER_UID, uid);
+      }
+    } catch (parseError) {
+      // keep existing UID if response parsing fails
     }
 
     playerSaved = true;

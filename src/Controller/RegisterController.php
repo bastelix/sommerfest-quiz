@@ -24,10 +24,7 @@ class RegisterController
      * Display the registration form.
      */
     public function show(Request $request, Response $response): Response {
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $settings = new SettingsService($pdo);
         $allowed = $settings->get('registration_enabled', '0') === '1';
         $view = Twig::fromRequest($request);
@@ -38,10 +35,7 @@ class RegisterController
      * Handle registration form submission.
      */
     public function register(Request $request, Response $response): Response {
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $settings = new SettingsService($pdo);
         if ($settings->get('registration_enabled', '0') !== '1') {
             return $response->withStatus(403);

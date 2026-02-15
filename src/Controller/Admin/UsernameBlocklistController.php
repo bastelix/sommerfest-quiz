@@ -88,8 +88,7 @@ final class UsernameBlocklistController
     public function index(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-        $_SESSION['csrf_token'] = $csrf;
+        $csrf = \App\Support\CsrfTokenHelper::ensure();
 
         $entries = array_map(
             fn (array $entry): array => $this->transformEntry($entry),
@@ -334,10 +333,7 @@ final class UsernameBlocklistController
         $role = $_SESSION['user']['role'] ?? null;
         $accessService = new NamespaceAccessService();
         $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $repository = new NamespaceRepository($pdo);
         try {
             $availableNamespaces = $repository->listActive();
