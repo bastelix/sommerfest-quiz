@@ -19,10 +19,7 @@ class EventListController
 {
     public function __invoke(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $eventSvc = new EventService($pdo);
         $cfgSvc = new ConfigService($pdo);
         $role = $_SESSION['user']['role'] ?? null;

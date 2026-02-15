@@ -25,10 +25,7 @@ class LoginController
      * Display the login form.
      */
     public function show(Request $request, Response $response): Response {
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $settings = new \App\Service\SettingsService($pdo);
         $allowed = $settings->get('registration_enabled', '0') === '1';
         $view = Twig::fromRequest($request);
@@ -38,8 +35,7 @@ class LoginController
         if ($version === false || $version === '') {
             $version = (new VersionService())->getCurrentVersion();
         }
-        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-        $_SESSION['csrf_token'] = $csrf;
+        $csrf = \App\Support\CsrfTokenHelper::ensure();
 
         return $view->render($response, 'login.twig', [
             'registration_allowed' => $allowed,
@@ -61,10 +57,7 @@ class LoginController
             }
         }
 
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $userService = new UserService($pdo);
 
         $identifier = (string) ($data['username'] ?? '');

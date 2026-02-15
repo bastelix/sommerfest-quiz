@@ -51,10 +51,7 @@ final class LegacyCalserverLandingController
         $locale = (string) $request->getAttribute('lang');
         $namespace = $this->resolveNamespace($request);
 
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
 
         $view = Twig::fromRequest($request);
         $renderContext = $this->namespaceRenderContext->build($namespace);

@@ -35,8 +35,7 @@ class MailSettingsController
     public function index(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-        $_SESSION['csrf_token'] = $csrf;
+        $csrf = \App\Support\CsrfTokenHelper::ensure();
 
         $role = (string) ($_SESSION['user']['role'] ?? '');
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
@@ -240,10 +239,7 @@ class MailSettingsController
         $role = $_SESSION['user']['role'] ?? null;
         $accessService = new NamespaceAccessService();
         $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $repository = new NamespaceRepository($pdo);
         try {
             $availableNamespaces = $repository->list();

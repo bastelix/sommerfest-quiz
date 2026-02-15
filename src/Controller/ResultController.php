@@ -277,13 +277,9 @@ class ResultController
         }
         $view = Twig::fromRequest($request);
         $results = $this->service->getAll($eventUid);
-        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-        $_SESSION['csrf_token'] = $csrf;
+        $csrf = \App\Support\CsrfTokenHelper::ensure();
 
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $configSvc = new ConfigService($pdo);
         $catalogSvc = new CatalogService($pdo, $configSvc);
         $json = $catalogSvc->read('catalogs.json');

@@ -131,10 +131,7 @@ class PageController
         $locale = (string) $request->getAttribute('lang');
         $contentSlug = $this->resolveLocalizedSlug($templateSlug, $locale);
 
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
 
         $this->pages = new PageService($pdo);
         $this->seo = new PageSeoConfigService($pdo, null, null, null, null, $this->pages);
@@ -168,8 +165,7 @@ class PageController
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $html = str_replace('{{ basePath }}', $basePath, $html);
 
-        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-        $_SESSION['csrf_token'] = $csrf;
+        $csrf = \App\Support\CsrfTokenHelper::ensure();
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
 
         $renderContext = $this->namespaceRenderContext->build($designNamespace);

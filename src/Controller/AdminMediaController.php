@@ -38,8 +38,7 @@ class AdminMediaController
      */
     public function index(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
-        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-        $_SESSION['csrf_token'] = $csrf;
+        $csrf = \App\Support\CsrfTokenHelper::ensure();
 
         $role = (string) ($_SESSION['user']['role'] ?? '');
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();

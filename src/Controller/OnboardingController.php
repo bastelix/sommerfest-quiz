@@ -36,10 +36,7 @@ class OnboardingController
             && $servicePass !== ''
             && !isset($_SESSION['user'])
         ) {
-            $pdo = $request->getAttribute('pdo');
-            if (!$pdo instanceof PDO) {
-                $pdo = Database::connectFromEnv();
-            }
+            $pdo = \App\Support\RequestDatabase::resolve($request);
             $service = new UserService($pdo);
             $record = $service->getByUsername($serviceUser);
             if ($record !== null && (bool)$record['active']) {
@@ -57,8 +54,7 @@ class OnboardingController
 
         $reloadToken = getenv('NGINX_RELOAD_TOKEN') ?: '';
 
-        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-        $_SESSION['csrf_token'] = $csrf;
+        $csrf = \App\Support\CsrfTokenHelper::ensure();
 
         try {
             $stripeConfig = StripeService::isConfigured();

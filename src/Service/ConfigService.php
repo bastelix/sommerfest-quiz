@@ -23,6 +23,7 @@ class ConfigService
     private NamespaceDesignFileRepository $designFiles;
     private ?TeamNameService $teamNameService = null;
     private ?TeamNameWarmupDispatcher $teamNameWarmupDispatcher = null;
+    private DashboardTokenService $dashboardTokenService;
 
     /**
      * List of configuration keys that should be treated as booleans.
@@ -142,6 +143,7 @@ class ConfigService
         $this->pdo = $pdo;
         $this->tokenCipher = $tokenCipher ?? new TokenCipher();
         $this->designFiles = $designFiles ?? new NamespaceDesignFileRepository();
+        $this->dashboardTokenService = new DashboardTokenService($this->pdo, $this->tokenCipher);
         $this->pdo->exec(
             'CREATE TABLE IF NOT EXISTS active_event(' .
             'event_uid TEXT PRIMARY KEY' .
@@ -353,32 +355,7 @@ class ConfigService
      * Create a new random dashboard token consisting of URL-safe characters.
      */
     public function generateDashboardToken(): string {
-        return rtrim(strtr(base64_encode(random_bytes(18)), '+/', '-_'), '=');
-    }
-
-    /**
-     * Decrypt a stored dashboard token while supporting legacy plaintext values.
-     */
-    private function resolveDashboardToken(?string $value): ?string {
-        if (!is_string($value)) {
-            return null;
-        }
-
-        $trimmed = trim($value);
-        if ($trimmed === '') {
-            return null;
-        }
-
-        $plain = $this->tokenCipher->decrypt($trimmed);
-        if (is_string($plain) && $plain !== '') {
-            return $plain;
-        }
-
-        if (preg_match('/^[A-Za-z0-9_-]{16,}$/', $trimmed) === 1) {
-            return $trimmed;
-        }
-
-        return null;
+        return $this->dashboardTokenService->generate();
     }
 
     /**
@@ -389,17 +366,7 @@ class ConfigService
             return;
         }
         $this->ensureConfigForEvent($uid);
-        $column = $variant === 'sponsor' ? 'dashboard_sponsor_token' : 'dashboard_share_token';
-        $sql = "UPDATE config SET {$column} = :token WHERE event_uid = :uid";
-        $stmt = $this->pdo->prepare($sql);
-        $normalized = $token !== null ? trim($token) : '';
-        if ($normalized === '') {
-            $stmt->bindValue(':token', null, PDO::PARAM_NULL);
-        } else {
-            $stmt->bindValue(':token', $this->tokenCipher->encrypt($normalized));
-        }
-        $stmt->bindValue(':uid', $uid);
-        $stmt->execute();
+        $this->dashboardTokenService->set($uid, $variant, $token);
     }
 
     /**
@@ -408,46 +375,14 @@ class ConfigService
      * @return array{public:?string,sponsor:?string}
      */
     public function getDashboardTokens(string $uid): array {
-        if ($uid === '') {
-            return ['public' => null, 'sponsor' => null];
-        }
-        $stmt = $this->pdo->prepare(
-            'SELECT dashboard_share_token, dashboard_sponsor_token FROM config WHERE event_uid = ? LIMIT 1'
-        );
-        $stmt->execute([$uid]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-        $public = $row['dashboard_share_token'] ?? null;
-        $sponsor = $row['dashboard_sponsor_token'] ?? null;
-        return [
-            'public' => $this->resolveDashboardToken(is_string($public) ? $public : null),
-            'sponsor' => $this->resolveDashboardToken(is_string($sponsor) ? $sponsor : null),
-        ];
+        return $this->dashboardTokenService->getTokens($uid);
     }
 
     /**
      * Validate a share token for the specified event and return the matched variant.
      */
     public function verifyDashboardToken(string $uid, string $token, ?string $variant = null): ?string {
-        $token = trim($token);
-        if ($uid === '' || $token === '') {
-            return null;
-        }
-        $tokens = $this->getDashboardTokens($uid);
-        if (
-            ($variant === null || $variant === 'public')
-            && $tokens['public'] !== null
-            && hash_equals($tokens['public'], $token)
-        ) {
-            return 'public';
-        }
-        if (
-            ($variant === null || $variant === 'sponsor')
-            && $tokens['sponsor'] !== null
-            && hash_equals($tokens['sponsor'], $token)
-        ) {
-            return 'sponsor';
-        }
-        return null;
+        return $this->dashboardTokenService->verify($uid, $token, $variant);
     }
 
     /**
@@ -1333,7 +1268,15 @@ class ConfigService
                     FILTER_NULL_ON_FAILURE
                 );
             } elseif ($key === 'dashboardShareToken' || $key === 'dashboardSponsorToken') {
-                $normalized[$key] = $this->resolveDashboardToken(is_string($v) ? $v : null);
+                $tokenValue = is_string($v) ? trim($v) : '';
+                if ($tokenValue === '') {
+                    $normalized[$key] = null;
+                } else {
+                    $plain = $this->tokenCipher->decrypt($tokenValue);
+                    $normalized[$key] = (is_string($plain) && $plain !== '')
+                        ? $plain
+                        : ((preg_match('/^[A-Za-z0-9_-]{16,}$/', $tokenValue) === 1) ? $tokenValue : null);
+                }
             } elseif ($key === 'dashboardRefreshInterval') {
                 $normalized[$key] = $v !== null ? (int) $v : null;
             } elseif ($key === 'randomNameBuffer') {

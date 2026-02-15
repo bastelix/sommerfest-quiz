@@ -30,7 +30,11 @@ class PlayerProfileTest extends TestCase
             'consent_granted_at' => $consentMoment->format(DateTimeImmutable::ATOM),
         ]);
         $res = $app->handle($request);
-        $this->assertSame(204, $res->getStatusCode());
+        $this->assertSame(200, $res->getStatusCode());
+        $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
+        $resBody = json_decode((string) $res->getBody(), true);
+        $this->assertIsArray($resBody);
+        $this->assertSame('uid1', $resBody['player_uid']);
 
         $name = $pdo->query(
             "SELECT player_name FROM players WHERE event_uid='ev1' AND player_uid='uid1'"
@@ -85,7 +89,10 @@ class PlayerProfileTest extends TestCase
         ]);
 
         $response = $app->handle($request);
-        $this->assertSame(204, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
+        $resBody = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($resBody);
+        $this->assertSame('uid-missing', $resBody['player_uid']);
 
         $stored = $pdo->query(
             "SELECT player_name FROM players WHERE event_uid='ev-missing' AND player_uid='uid-missing'"
@@ -198,7 +205,10 @@ class PlayerProfileTest extends TestCase
         ]);
 
         $response = $app->handle($request);
-        $this->assertSame(204, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
+        $resBody = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($resBody);
+        $this->assertSame('uid5', $resBody['player_uid']);
 
         $storedName = $pdo->query(
             "SELECT player_name FROM players WHERE event_uid='ev5' AND player_uid='uid5'"
@@ -214,6 +224,35 @@ class PlayerProfileTest extends TestCase
             "SELECT name FROM question_results WHERE event_uid='ev5'"
         )?->fetchColumn();
         $this->assertSame('New Name', $questionName);
+    }
+
+    public function testApiPlayersGeneratesUidWhenMissing(): void {
+        $pdo = $this->getDatabase();
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name) VALUES('ev-gen','ev-gen','Test')"
+        );
+
+        $app = $this->getAppInstance();
+
+        $request = $this->createRequest('POST', '/api/players');
+        $request = $request->withParsedBody([
+            'event_uid' => 'ev-gen',
+            'player_name' => 'ServerGen',
+        ]);
+
+        $response = $app->handle($request);
+        $this->assertSame(201, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertArrayHasKey('player_uid', $body);
+        $this->assertNotEmpty($body['player_uid']);
+        $this->assertSame(32, strlen($body['player_uid']));
+
+        $stored = $pdo->query(
+            "SELECT player_name FROM players WHERE event_uid='ev-gen' AND player_uid='" . $body['player_uid'] . "'"
+        )?->fetchColumn();
+        $this->assertSame('ServerGen', $stored);
     }
 
     public function testProfilePageIncludesEventUidWhenConfigEmpty(): void {

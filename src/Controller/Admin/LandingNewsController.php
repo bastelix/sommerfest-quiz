@@ -349,10 +349,7 @@ class LandingNewsController
         $role = $_SESSION['user']['role'] ?? null;
         $accessService = new NamespaceAccessService();
         $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
+        $pdo = \App\Support\RequestDatabase::resolve($request);
         $repository = new NamespaceRepository($pdo);
         try {
             $availableNamespaces = $repository->listActive();
