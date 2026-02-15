@@ -1775,6 +1775,24 @@ const SECTION_TEMPLATES = [
     }
   },
   {
+    id: 'cta-newsletter',
+    label: 'Newsletter CTA',
+    description: 'Anmeldeformular für Newsletter-Abonnenten.',
+    type: 'cta',
+    variant: 'newsletter',
+    build: variant => {
+      const block = getDefaultBlock('cta', variant);
+      block.data.title = 'Bleiben Sie auf dem Laufenden';
+      block.data.body = 'Erhalten Sie regelmäßig Neuigkeiten direkt in Ihr Postfach.';
+      block.data.primary = { label: 'Abonnieren', href: '#newsletter-subscribe', ariaLabel: '' };
+      block.data.newsletterPlaceholder = 'Ihre E-Mail-Adresse';
+      block.data.newsletterPrivacyHint = '';
+      block.data.newsletterSuccessMessage = 'Vielen Dank! Bitte bestätigen Sie Ihre Anmeldung per E-Mail.';
+      block.data.newsletterSource = '';
+      return block;
+    }
+  },
+  {
     id: 'latest-news',
     label: 'Neuigkeiten',
     description: 'Zeigt die neuesten Meldungen der Landingpage.',
@@ -3922,6 +3940,43 @@ export class BlockContentEditor {
         helpText: 'Optional: Kontext oder weiterführende Details.'
       })
     );
+
+    if (block.variant === 'newsletter') {
+      const formSection = createFieldSection('Newsletter-Formular', 'Einstellungen für das Anmeldeformular.');
+      formSection.append(
+        this.addLabeledInput('Button-Text', (block.data.primary || {}).label, value => this.updateBlockData(block.id, ['data', 'primary', 'label'], value), {
+          placeholder: 'z.\u00a0B. Abonnieren'
+        })
+      );
+      formSection.append(
+        this.addLabeledInput('E-Mail Placeholder', block.data.newsletterPlaceholder, value => this.updateBlockData(block.id, ['data', 'newsletterPlaceholder'], value), {
+          placeholder: 'Ihre E-Mail-Adresse'
+        })
+      );
+      formSection.append(
+        this.addLabeledInput('Datenschutzhinweis', block.data.newsletterPrivacyHint, value => this.updateBlockData(block.id, ['data', 'newsletterPrivacyHint'], value), {
+          multiline: true,
+          rows: 2,
+          placeholder: 'Optional: Hinweis zum Datenschutz',
+          helpText: 'Wird unter dem Formular angezeigt.'
+        })
+      );
+      formSection.append(
+        this.addLabeledInput('Erfolgsmeldung', block.data.newsletterSuccessMessage, value => this.updateBlockData(block.id, ['data', 'newsletterSuccessMessage'], value), {
+          placeholder: 'Vielen Dank! Bitte bestätigen Sie Ihre Anmeldung per E-Mail.',
+          helpText: 'Wird nach erfolgreicher Anmeldung angezeigt.'
+        })
+      );
+      formSection.append(
+        this.addLabeledInput('Quelle / Source-Tag', block.data.newsletterSource, value => this.updateBlockData(block.id, ['data', 'newsletterSource'], value), {
+          placeholder: 'z.\u00a0B. homepage-footer',
+          helpText: 'Wird beim Newsletter-Anbieter als Attribut gespeichert.'
+        })
+      );
+
+      wrapper.append(copySection, formSection);
+      return wrapper;
+    }
 
     const addCtaInputs = (cta, labelPrefix, path, options = {}) => {
       const section = createFieldSection(labelPrefix, options.description, options.sectionOptions);

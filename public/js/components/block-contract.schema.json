@@ -226,7 +226,8 @@
         "variant": {
           "enum": [
             "full_width",
-            "split"
+            "split",
+            "newsletter"
           ]
         },
         "data": {
@@ -817,6 +818,18 @@
         },
         "secondary": {
           "$ref": "#/definitions/CallToAction"
+        },
+        "newsletterPlaceholder": {
+          "type": "string"
+        },
+        "newsletterPrivacyHint": {
+          "type": "string"
+        },
+        "newsletterSuccessMessage": {
+          "type": "string"
+        },
+        "newsletterSource": {
+          "type": "string"
         }
       }
     },
