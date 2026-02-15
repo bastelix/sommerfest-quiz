@@ -168,7 +168,7 @@ const SECTION_LAYOUT_OPTIONS = [
 ];
 
 const DEFAULT_SECTION_LAYOUT = 'normal';
-const SECTION_LAYOUTS = SECTION_LAYOUT_OPTIONS.map(option => option.value);
+const SECTION_LAYOUTS = [...SECTION_LAYOUT_OPTIONS.map(option => option.value), 'full-card'];
 const SECTION_LAYOUT_PAYLOADS = Object.fromEntries(
   SECTION_LAYOUT_OPTIONS.map(option => [option.value, option.payload])
 );
@@ -1549,6 +1549,11 @@ function sanitizeBlock(block) {
     : '';
   if (rawLayout && normalizeLayout(rawLayout)) {
     resolvedSectionStyle.layout = rawLayout;
+  }
+
+  const storedContainer = sanitizedMeta?.sectionStyle?.container;
+  if (isPlainObject(storedContainer)) {
+    resolvedSectionStyle.container = storedContainer;
   }
 
   const mergedMeta = {
