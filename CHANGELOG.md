@@ -273,6 +273,7 @@
 - Add latest_news block type to page editor section templates
 - Add customer role for self-service namespace management
 - Add newsletter variant to CTA block
+- Add rename and delete actions via dropdown menu in page tree
 
 ### Fix
 
