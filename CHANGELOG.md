@@ -391,6 +391,7 @@
 - Replace news redirect routes with proper MarketingLandingNewsController handlers
 - Add hero intent to button/link contrast overrides in sections.css
 - Prevent light default surface from overriding dark hero/highlight bg
+- Remove unused PageService property in PageModuleController
 
 ### Nav
 
