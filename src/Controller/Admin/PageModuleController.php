@@ -6,7 +6,6 @@ namespace App\Controller\Admin;
 
 use App\Domain\PageModule;
 use App\Service\PageModuleService;
-use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use InvalidArgumentException;
@@ -18,12 +17,10 @@ use RuntimeException;
 final class PageModuleController
 {
     private PageModuleService $modules;
-    private PageService $pages;
 
-    public function __construct(?PageModuleService $modules = null, ?PageService $pages = null)
+    public function __construct(?PageModuleService $modules = null)
     {
         $this->modules = $modules ?? new PageModuleService();
-        $this->pages = $pages ?? new PageService();
     }
 
     /**
