@@ -1,5 +1,80 @@
 # Administration
 
+## Rollen und Berechtigungen
+
+Das System verwendet rollenbasierte Zugriffskontrolle (RBAC) in Kombination mit Namespace-Isolation. Jeder Benutzer hat genau eine Rolle und kann einem oder mehreren Namespaces zugewiesen sein. Die Rollendefinitionen liegen in `src/Domain/Roles.php`.
+
+### Rollenübersicht
+
+| Rolle | Slug | Dashboard | Einsatzzweck |
+|-------|------|-----------|-------------|
+| Administrator | `admin` | Ja | Voller Systemzugriff, Benutzerverwaltung, Namespace-Lifecycle |
+| Kunde | `customer` | Ja | Eigenständige Namespace-Verwaltung ohne Admin-Rechte |
+| Katalog-Editor | `catalog-editor` | Ja | Katalog- und Medienverwaltung |
+| Event-Manager | `event-manager` | Ja | Events erstellen, konfigurieren und durchführen |
+| Analyst | `analyst` | Ja | Ergebnisse auswerten und exportieren |
+| Team-Manager | `team-manager` | Ja | Teams und Teilnehmer verwalten |
+| Designer | `designer` | Nein* | Design-Tokens und visuelle Gestaltung |
+| Redakteur | `redakteur` | Nein* | Seitendesign bearbeiten (Leseansicht) |
+| Service-Account | `service-account` | Nein | Automatisierung und API-Zugriff |
+
+\* Designer und Redakteur werden nach dem Login zu `/admin/pages/design` weitergeleitet.
+
+### Berechtigungsmatrix
+
+| Funktionsbereich | admin | customer | catalog-editor | event-manager | analyst | team-manager | designer | redakteur |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Dashboard / Startseite** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | – |
+| **Events** (Liste, Einstellungen, Live-Dashboard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | – |
+| **Fragen** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | – |
+| **Teams / Personen** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | – |
+| **Ergebnisse / Statistik** (Anzeige) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | – |
+| **Ergebnisse herunterladen** (PDF, CSV) | ✓ | ✓ | – | – | ✓ | – | – | – |
+| **Ergebnisse löschen** | ✓ | – | – | – | – | – | – | – |
+| **Events erstellen / bearbeiten** | ✓ | ✓ | – | ✓ | – | – | – | – |
+| **Teams erstellen / löschen** | ✓ | ✓ | – | – | – | ✓ | – | – |
+| **Kataloge** (CRUD) | ✓ | ✓ | ✓ | – | – | – | – | – |
+| **Medien** (Upload, Umbenennen, Löschen) | ✓ | ✓ | ✓ | – | – | – | – | – |
+| **Seiten / Wiki / Landing News** | ✓ | ✓ | – | – | – | – | – | – |
+| **Seitenmodule** | ✓ | ✓ | – | – | – | – | – | – |
+| **Navigation / Menüs / Footer** | ✓ | – | – | – | – | – | – | – |
+| **SEO / Cookies** | ✓ | – | – | – | – | – | – | – |
+| **Design-Tokens** | ✓ | – | – | – | – | – | ✓ | ✓* |
+| **RAG-Chat (KI-Chatbot)** | ✓ | ✓ | ✓ | – | – | – | – | – |
+| **Newsletter / Kampagnen** | ✓ | – | – | – | – | – | – | – |
+| **Profil / Abo** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | – |
+| **Mail-Einstellungen** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | – |
+| **Namespace-Verwaltung** (CRUD) | ✓ | – | – | – | – | – | – | – |
+| **Benutzerverwaltung** | ✓ | – | – | – | – | – | – | – |
+| **Domains / Tenants** | ✓ | – | – | – | – | – | – | – |
+| **Backups / Import / Export** | ✓ | – | – | – | – | – | – | – |
+| **Logs / System-Metriken** | ✓ | – | – | – | – | – | – | – |
+
+\* Redakteur hat Lesezugriff auf die Design-Ansicht, aber keinen Schreibzugriff.
+
+### Namespace-Scoping
+
+Alle Nicht-Admin-Rollen unterliegen dem Namespace-Scoping:
+
+- Benutzer sehen nur Daten (Events, Kataloge, Seiten, Ergebnisse) aus ihren **zugewiesenen Namespaces**.
+- Der aktive Namespace wird über die Sidebar-Auswahl oder den Query-Parameter `?namespace=` gewechselt.
+- Ein Zugriff auf einen nicht zugewiesenen Namespace liefert HTTP 403.
+- Administratoren haben automatisch Zugriff auf **alle** Namespaces.
+
+Die Namespace-Zuweisungen werden in der Tabelle `user_namespaces` verwaltet und über `NamespaceAccessService` in der Middleware (`RoleAuthMiddleware`) durchgesetzt.
+
+### Customer-Rolle im Detail
+
+Die Rolle `customer` ist für externe Kunden gedacht, die ihren Namespace eigenständig pflegen. Sie kombiniert die wesentlichen Fähigkeiten von `catalog-editor`, `event-manager`, `analyst` und `team-manager` in einer einzigen Rolle:
+
+- **Inhalte verwalten**: Kataloge, Medien, Seiten, Wiki-Artikel, Landing News
+- **Events durchführen**: Events erstellen, konfigurieren, Live-Dashboard nutzen
+- **Teams pflegen**: Teams anlegen und verwalten
+- **Auswerten**: Ergebnisse und Statistiken einsehen, als PDF/CSV herunterladen
+- **Einschränkungen**: Kein Zugriff auf Benutzerverwaltung, Namespace-Lifecycle, System-Einstellungen, Navigation/Footer-Struktur, Newsletter-Kampagnen, Design-Tokens oder Backups
+
+Ein Administrator legt den Customer-Account an, weist den gewünschten Namespace zu und der Kunde arbeitet ab diesem Zeitpunkt selbstständig innerhalb seines Bereichs.
+
 Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/admin`) nach einem erfolgreichen Login. Alle Management-Rollen (z. B. `event-manager`, `team-manager`) werden nach dem Login automatisch zum Admin-Dashboard weitergeleitet. Die Navigation ist in folgende Kategorien gegliedert:
 
 * **Startseite** – `/admin/dashboard`
@@ -8,14 +83,14 @@ Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/ad
   * **Event-Dashboards** – `/admin/event/dashboard`
   * **Event-Konfiguration** – `/admin/event/settings`
   * **Übersicht** – `/admin/summary`
-  * **Kataloge** – `/admin/catalogs` (Administrator:innen & Katalog-Editor:innen)
+  * **Kataloge** – `/admin/catalogs` (Administrator:innen, Kund:innen & Katalog-Editor:innen)
   * **Fragen bearbeiten** – `/admin/questions`
   * **Teams/Personen** – `/admin/teams`
   * **Ergebnisse** – `/admin/results`
   * **Statistik** – `/admin/statistics`
 * **Inhalte**
-  * **Medien** – `/admin/media` (Administrator:innen & Katalog-Editor:innen)
-* **KI-Chatbot** – `/admin/rag-chat` (Administrator:innen & Katalog-Editor:innen) – verwaltet die Verbindung zum KI-Backend und liefert Zugriff auf die projektbezogene KI-Dokumentation.
+  * **Medien** – `/admin/media` (Administrator:innen, Kund:innen & Katalog-Editor:innen)
+* **KI-Chatbot** – `/admin/rag-chat` (Administrator:innen, Kund:innen & Katalog-Editor:innen) – verwaltet die Verbindung zum KI-Backend und liefert Zugriff auf die projektbezogene KI-Dokumentation.
   * **Seiten** – `/admin/pages` (nur Administrator:innen)
 * **Konto**
   * **Profil** – `/admin/profile`
@@ -240,6 +315,6 @@ Globale Dateien lassen sich direkt über `/uploads/<dateiname>` abrufen, beispie
 
 Über `/admin/media` steht eine Medienbibliothek bereit, die globale und eventbezogene Uploads kapselt. Die Oberfläche listet alle Dateien mit Größe und Änderungsdatum auf, erlaubt eine Volltextsuche sowie das seitenweise Durchblättern (20 Einträge pro Seite). Uploads werden serverseitig auf 5 MB und die Formate PNG/JPG/WEBP/SVG begrenzt; fehlerhafte Anfragen liefern strukturierte Antworten mit einem `error`-Feld und den gültigen `limits`. Die gleichen Informationen stehen nach erfolgreichen Aktionen zur Verfügung, etwa nach dem Hochladen (`message: uploaded`) oder beim Umbenennen (`message: renamed`).
 
-Alle XHR-Endpunkte (`/admin/media/files`, `/admin/media/upload`, `/admin/media/rename`, `/admin/media/delete`) sind per CSRF-Token und `RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR)` abgesichert. Die JSON-Antworten enthalten neben der Dateiliste zusätzliche Metadaten (`mime`, `size`, `modified`) sowie die Upload-Limits, damit Clients die Vorgaben unmittelbar in der Oberfläche anzeigen können. Pfad-Traversal wird serverseitig verhindert, indem Dateinamen strikt normalisiert und nur bekannte Verzeichnisse zugelassen werden.
+Alle XHR-Endpunkte (`/admin/media/files`, `/admin/media/upload`, `/admin/media/rename`, `/admin/media/delete`) sind per CSRF-Token und `RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER)` abgesichert. Die JSON-Antworten enthalten neben der Dateiliste zusätzliche Metadaten (`mime`, `size`, `modified`) sowie die Upload-Limits, damit Clients die Vorgaben unmittelbar in der Oberfläche anzeigen können. Pfad-Traversal wird serverseitig verhindert, indem Dateinamen strikt normalisiert und nur bekannte Verzeichnisse zugelassen werden.
 
 Im Vorschaubereich blendet der Medienmanager bei ausgewählter Datei ein schreibgeschütztes URL-Feld ein. Der Wert entspricht der aufgelösten Download-Adresse (inklusive Basis-Pfad) und lässt sich über die Schaltfläche **URL kopieren** in die Zwischenablage übernehmen. Bei Browsern ohne Clipboard-API bleibt das Feld fokussierbar, die Anwendung informiert über einen Hinweis-Toast über das manuelle Kopieren.
