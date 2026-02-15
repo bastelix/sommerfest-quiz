@@ -115,6 +115,7 @@ class LoginController
                 Roles::EVENT_MANAGER,
                 Roles::ANALYST,
                 Roles::TEAM_MANAGER,
+                Roles::CUSTOMER,
             ];
             $designRoles = [
                 Roles::DESIGNER,
