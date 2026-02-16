@@ -31,41 +31,60 @@
 {% if appearanceVars.surfaceMuted is defined and appearanceVars.surfaceMuted %}
   {% set cssVars = cssVars|merge(['--surface-muted: ' ~ appearanceVars.surfaceMuted]) %}
 {% endif %}
-{% set textOnSurfaceValue = appearanceVars.textOnSurface
-  |default(appearanceVars.text_on_surface
-  |default(appearanceColors.textOnSurface
-  |default(appearanceColors.text_on_surface
-  |default(''))))
+{% set designConfig = design.config|default({}) %}
+{% set designColors = designConfig.colors|default({}) %}
+
+{% set marketingSchemeKey = appearanceVars.marketingScheme
+  |default(appearanceVars.marketing_scheme
+  |default(designColors.marketingScheme
+  |default(designColors.marketing_scheme
+  |default('')))) %}
+{% set marketingScheme = marketingSchemeKey and marketingSchemes[marketingSchemeKey] is defined
+  ? marketingSchemes[marketingSchemeKey]
+  : null
 %}
-{% if textOnSurfaceValue %}
-  {% set cssVars = cssVars|merge([
-    '--text-on-surface: ' ~ textOnSurfaceValue,
-    '--marketing-text-on-surface: ' ~ textOnSurfaceValue
-  ]) %}
-{% endif %}
-{% set textOnBackgroundValue = appearanceVars.textOnBackground
-  |default(appearanceVars.text_on_background
-  |default(appearanceColors.textOnBackground
-  |default(appearanceColors.text_on_background
-  |default(''))))
-%}
-{% if textOnBackgroundValue %}
-  {% set cssVars = cssVars|merge([
-    '--text-on-background: ' ~ textOnBackgroundValue,
-    '--marketing-text-on-background: ' ~ textOnBackgroundValue
-  ]) %}
-{% endif %}
-{% set textOnPrimaryValue = appearanceVars.textOnPrimary
-  |default(appearanceVars.text_on_primary
-  |default(appearanceColors.textOnPrimary
-  |default(appearanceColors.text_on_primary
-  |default(''))))
-%}
-{% if textOnPrimaryValue %}
-  {% set cssVars = cssVars|merge([
-    '--text-on-primary: ' ~ textOnPrimaryValue,
-    '--marketing-on-accent: ' ~ textOnPrimaryValue
-  ]) %}
+
+{# When a marketing scheme is active it provides authoritative values for
+   text-on-surface, text-on-background, text-on-primary and on-accent
+   (see block below at line ~146).  Skip the appearance-variable fallbacks
+   so the inline <style> block does not contain redundant declarations. #}
+{% if not marketingScheme %}
+  {% set textOnSurfaceValue = appearanceVars.textOnSurface
+    |default(appearanceVars.text_on_surface
+    |default(appearanceColors.textOnSurface
+    |default(appearanceColors.text_on_surface
+    |default(''))))
+  %}
+  {% if textOnSurfaceValue %}
+    {% set cssVars = cssVars|merge([
+      '--text-on-surface: ' ~ textOnSurfaceValue,
+      '--marketing-text-on-surface: ' ~ textOnSurfaceValue
+    ]) %}
+  {% endif %}
+  {% set textOnBackgroundValue = appearanceVars.textOnBackground
+    |default(appearanceVars.text_on_background
+    |default(appearanceColors.textOnBackground
+    |default(appearanceColors.text_on_background
+    |default(''))))
+  %}
+  {% if textOnBackgroundValue %}
+    {% set cssVars = cssVars|merge([
+      '--text-on-background: ' ~ textOnBackgroundValue,
+      '--marketing-text-on-background: ' ~ textOnBackgroundValue
+    ]) %}
+  {% endif %}
+  {% set textOnPrimaryValue = appearanceVars.textOnPrimary
+    |default(appearanceVars.text_on_primary
+    |default(appearanceColors.textOnPrimary
+    |default(appearanceColors.text_on_primary
+    |default(''))))
+  %}
+  {% if textOnPrimaryValue %}
+    {% set cssVars = cssVars|merge([
+      '--text-on-primary: ' ~ textOnPrimaryValue,
+      '--marketing-on-accent: ' ~ textOnPrimaryValue
+    ]) %}
+  {% endif %}
 {% endif %}
 {% if appearanceVars.topbarLight is defined and appearanceVars.topbarLight %}
   {% set cssVars = cssVars|merge([
@@ -79,19 +98,6 @@
     '--qr-landing-topbar-bg-dark: ' ~ appearanceVars.topbarDark
   ]) %}
 {% endif %}
-
-{% set designConfig = design.config|default({}) %}
-{% set designColors = designConfig.colors|default({}) %}
-
-{% set marketingSchemeKey = appearanceVars.marketingScheme
-  |default(appearanceVars.marketing_scheme
-  |default(designColors.marketingScheme
-  |default(designColors.marketing_scheme
-  |default('')))) %}
-{% set marketingScheme = marketingSchemeKey and marketingSchemes[marketingSchemeKey] is defined
-  ? marketingSchemes[marketingSchemeKey]
-  : null
-%}
 
 {% set marketingPrimary = appearanceColors.primary is defined and appearanceColors.primary
   ? appearanceColors.primary

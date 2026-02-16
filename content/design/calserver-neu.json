@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "name": "calServer (neu)",
+    "description": "Aurora-basiertes Design für den calServer-Namespace. Klare, professionelle Ästhetik mit kräftigen Blautönen und dezenten Slate-Akzenten.",
+    "version": "1.0.0",
+    "author": "QuizRace Design System"
+  },
+  "config": {
+    "designTokens": {
+      "brand": {
+        "primary": "#1f6feb",
+        "accent": "#58a6ff",
+        "secondary": "#475569"
+      },
+      "layout": {
+        "profile": "standard"
+      },
+      "typography": {
+        "preset": "modern"
+      },
+      "components": {
+        "cardStyle": "rounded",
+        "buttonStyle": "filled"
+      }
+    },
+    "colors": {
+      "marketingScheme": "aurora",
+      "textOnPrimary": "#ffffff",
+      "textOnSurface": "#0f172a",
+      "textOnBackground": "#0f172a",
+      "textMutedOnSurface": "#475569",
+      "textMutedOnBackground": "#475569",
+      "textOnSurfaceDark": "#f8fafc",
+      "textOnBackgroundDark": "#f8fafc",
+      "textMutedOnSurfaceDark": "#cbd5e1",
+      "textMutedOnBackgroundDark": "#cbd5e1",
+      "surface": "#f8fafc",
+      "surfaceMuted": "#e2e8f0",
+      "surfaceDark": "#0f172a",
+      "surfaceMutedDark": "#1e293b",
+      "background": "#eef2ff",
+      "backgroundDark": "#020617"
+    }
+  },
+  "designTokens": {
+    "brand": {
+      "primary": "#1f6feb",
+      "accent": "#58a6ff",
+      "secondary": "#475569"
+    },
+    "layout": {
+      "profile": "standard"
+    },
+    "typography": {
+      "preset": "modern"
+    },
+    "components": {
+      "cardStyle": "rounded",
+      "buttonStyle": "filled"
+    }
+  },
+  "effects": {
+    "effectsProfile": "quizrace.marketing",
+    "sliderProfile": "marketing"
+  }
+}
