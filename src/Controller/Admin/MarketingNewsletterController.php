@@ -25,7 +25,7 @@ class MarketingNewsletterController
     private NamespaceRepository $namespaceRepository;
     private NewsletterCampaignService $campaignService;
     private LandingNewsService $landingNews;
-    private MailProviderRepository $providers;
+    private ?MailProviderRepository $providers;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -42,7 +42,16 @@ class MarketingNewsletterController
         $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
         $this->campaignService = $campaignService ?? new NewsletterCampaignService($pdo);
         $this->landingNews = $landingNews ?? new LandingNewsService($pdo);
-        $this->providers = $providers ?? new MailProviderRepository($pdo);
+
+        if ($providers !== null) {
+            $this->providers = $providers;
+        } else {
+            try {
+                $this->providers = new MailProviderRepository($pdo);
+            } catch (\RuntimeException $e) {
+                $this->providers = null;
+            }
+        }
     }
 
     public function index(Request $request, Response $response): Response
@@ -87,6 +96,11 @@ class MarketingNewsletterController
     private function loadProviderDefaults(string $namespace): array
     {
         $defaults = ['template_id' => null, 'audience_id' => null];
+
+        if ($this->providers === null) {
+            return $defaults;
+        }
+
         try {
             $provider = $this->providers->findActive($namespace);
             if ($provider !== null) {
