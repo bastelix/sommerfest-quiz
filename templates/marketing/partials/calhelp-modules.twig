@@ -28,11 +28,8 @@
           {% set linkUrl = linkData.url|default('#') %}
           {% set iconName = module.icon|default('grid') %}
           {% set linkRel = linkData.rel|default('') %}
-          {% set isAccent = loop.index is odd %}
-          {% set variantClass = isAccent
-            ? 'calhelp-module-card--accent calhelp-card--accent'
-            : 'calhelp-module-card--muted calhelp-card--muted' %}
-          <article class="uk-card uk-card-primary uk-card-body calhelp-card calhelp-module-card {{ variantClass }}" aria-labelledby="{{ moduleId }}-title">
+          {% set variantClass = loop.index is odd ? 'calhelp-module-card--accent' : 'calhelp-module-card--muted' %}
+          <article class="calhelp-module-card {{ variantClass }}" aria-labelledby="{{ moduleId }}-title">
             <div class="calhelp-module-card__header">
               <span class="calhelp-module-card__icon" aria-hidden="true" data-uk-icon="icon: {{ iconName }}"></span>
               <div class="calhelp-module-card__meta">
