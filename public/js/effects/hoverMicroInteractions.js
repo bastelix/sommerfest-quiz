@@ -28,10 +28,15 @@ export function initHoverMicroInteractions(root, profile, options = {}) {
     return null;
   }
 
-  const elements = Array.from(root.querySelectorAll('[data-effect]')).filter(el => {
+  let elements = Array.from(root.querySelectorAll('[data-effect]')).filter(el => {
     const raw = el.dataset?.effect || '';
     return raw.split(/\s+/).some(token => token.trim().toLowerCase() === EFFECT_TYPES.HOVER);
   });
+
+  // Auto-detect cards when no explicit data-effect hover markers exist.
+  if (!elements.length) {
+    elements = Array.from(root.querySelectorAll('.uk-card'));
+  }
 
   if (!elements.length) {
     return null;
