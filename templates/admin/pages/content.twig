@@ -104,57 +104,6 @@
         {% set hasPageTypes = pageTypeDefaultsList is not empty %}
         <ul class="uk-accordion uk-margin-small" uk-accordion="multiple: true">
           <li>
-            <a class="uk-accordion-title" href="#">Startseite dieses Projekts</a>
-            <div class="uk-accordion-content">
-              <div
-                data-page-namespace-manager
-                data-startpage-page-id="{{ startpage_page_id|default('') }}"
-                data-startpage-map='{{ startpage_map|default({})|json_encode|e('html_attr') }}'
-                data-selected-domain="{{ startpage_selected_domain|default('')|e('html_attr') }}"
-              >
-                {% if not hasDomainNamespace %}
-                  <div class="uk-alert uk-alert-warning uk-margin-small-top" role="alert">
-                    Dieser Bereich ist deaktiviert, weil kein Domain-Namespace erkannt wurde.
-                  </div>
-                {% endif %}
-                <div class="uk-margin-small-top">
-                  <label class="uk-form-label" for="startpageDomainSelect">Domain</label>
-                  <div class="uk-form-controls">
-                    <select id="startpageDomainSelect" class="uk-select" data-startpage-domain {% if not hasDomainNamespace %}disabled{% endif %}>
-                      {% for domain in startpage_domain_options|default([]) %}
-                        {% set value = domain.value|default('') %}
-                        {% set label = domain.label|default(value) %}
-                        {% set inactive = domain.is_active is defined and not domain.is_active %}
-                        {% set unassigned = domain.is_unassigned is defined and domain.is_unassigned %}
-                        <option value="{{ value|e('html_attr') }}" {% if value == startpage_selected_domain %}selected{% endif %}>
-                          {{ label }}
-                          {% if inactive %} – inaktiv{% endif %}
-                          {% if unassigned %} – nicht zugewiesen{% endif %}
-                        </option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                  <p class="uk-text-meta uk-margin-small-top">
-                    Wähle die Domain, für die diese Startseite gelten soll. Der Namespace-Fallback gilt für alle Domains ohne eigene Startseite.
-                  </p>
-                </div>
-                <div class="uk-form-controls uk-margin-small-top">
-                  <label class="uk-flex uk-flex-middle uk-flex-wrap">
-                    <input
-                      id="startpageToggle"
-                      class="uk-checkbox"
-                      type="checkbox"
-                      data-startpage-toggle
-                      data-startpage-disabled="{{ hasDomainNamespace ? '0' : '1' }}"
-                      {% if not hasDomainNamespace %}disabled{% endif %}
-                    >
-                    <span class="uk-margin-small-left uk-text-meta">Bestimmt, welche Marketing-Seite beim Aufruf des Projekts zuerst geladen wird.</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li>
             <a class="uk-accordion-title" href="#">Page Types</a>
             <div class="uk-accordion-content">
               <p class="uk-text-meta">
