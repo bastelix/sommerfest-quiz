@@ -122,8 +122,8 @@
   {% set shouldRenderHtmlBlock = htmlBlock is not null and htmlBlock != '' %}
 
   {% set surfaceIndex = index|default(0) %}
-  {% set surfaceClass = surfaceIndex is even ? 'calhelp-card--accent' : 'calhelp-card--muted' %}
-  <article class="uk-card uk-card-primary uk-card-body calhelp-card calhelp-news-card calhelp-news-card--{{ entryType }} {{ surfaceClass }}"
+  {% set surfaceClass = surfaceIndex is even ? 'calhelp-news-card--accent' : 'calhelp-news-card--muted' %}
+  <article class="calhelp-news-card calhelp-news-card--{{ entryType }} {{ surfaceClass }}"
            aria-labelledby="{{ titleId }}"
            role="listitem"
            data-news-type="{{ entryType }}">
