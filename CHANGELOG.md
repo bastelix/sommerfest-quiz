@@ -406,6 +406,8 @@
 - Tablet-responsive Layouts für Card-/Options-Blöcke verbessern
 - 3 Spalten direkt ab @s (640px) statt 2-Spalten-Zwischenschritt
 - Redesign use-cases block with proper BEM structure, contrast and theme support
+- Connect sliderProfile to frontend and skip reveal for above-fold sections
+- Case-insensitive comparison for hover effect target detection
 
 ### Merge
 
