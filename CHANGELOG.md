@@ -274,6 +274,7 @@
 - Add customer role for self-service namespace management
 - Add newsletter variant to CTA block
 - Add rename and delete actions via dropdown menu in page tree
+- Add rename/delete actions to page editor tree via dropdown menu
 
 ### Fix
 
