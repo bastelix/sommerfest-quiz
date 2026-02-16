@@ -1982,10 +1982,10 @@ function buildResponsiveGridClasses(columns, options = {}) {
       parts.push(`${prefix}-1-2@m`);
     }
   } else if (columns === 3) {
-    parts.push(`${prefix}-1-3@m`);
+    parts.push(`${prefix}-1-3@s`);
   } else if (columns >= 4) {
-    parts.push(`${prefix}-1-3@m`);
-    parts.push(`${prefix}-1-${columns}@l`);
+    parts.push(`${prefix}-1-3@s`);
+    parts.push(`${prefix}-1-${columns}@m`);
   }
 
   return parts.join(' ');
@@ -2016,7 +2016,8 @@ function getStatStripColumnsBreakpoint(block) {
 
 function buildStatStripGridClass(block, baseClass) {
   const columns = getStatStripColumns(block);
-  const breakpoint = getStatStripColumnsBreakpoint(block);
+  const explicitBreakpoint = getStatStripColumnsBreakpoint(block);
+  const breakpoint = columns >= 3 ? 's' : explicitBreakpoint;
   return `${baseClass} uk-child-width-1-1 uk-child-width-1-${columns}@${breakpoint}`;
 }
 
@@ -2321,7 +2322,7 @@ function renderAudienceSpotlightTabs(block, cases, context) {
         : '';
       const highlight = `<div class="usecase-highlight">${keyFactsCard}${media}</div>`;
 
-      return `<li><div class="uk-grid-large uk-child-width-1-2@m uk-flex-top" data-uk-grid>${story}${highlight}</div></li>`;
+      return `<li><div class="uk-grid-large uk-child-width-1-2@s uk-flex-top" data-uk-grid>${story}${highlight}</div></li>`;
     })
     .join('');
 
@@ -2345,7 +2346,7 @@ function renderAudienceSpotlight(block, variant = block.variant || 'tabs', optio
     context
   });
   const gridVariants = {
-    tabs: 'uk-child-width-1-1 uk-child-width-1-2@m',
+    tabs: 'uk-child-width-1-1 uk-child-width-1-2@s',
     tiles: buildResponsiveGridClasses(
       resolveGridColumns(block, cases.length, { maxColumns: 3 })
     ),
@@ -2582,7 +2583,7 @@ function renderLatestNews(block, options = {}) {
     : '';
 
   const headerRow = `<div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">${headerHtml}${allLinkHtml}</div>`;
-  const grid = `<div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m" uk-grid>${cardsHtml}</div>`;
+  const grid = `<div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@s" uk-grid>${cardsHtml}</div>`;
 
   return renderSection({
     block,
