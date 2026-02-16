@@ -8,28 +8,31 @@
            data-calhelp-theme="muted"
            aria-labelledby="usecases-title">
     <div class="uk-container">
-      <div class="calhelp-section__header">
-        <h2 id="usecases-title" class="uk-heading-medium">{{ heading }}</h2>
+      <div class="calhelp-usecases__header">
+        <p class="calhelp-usecases__eyebrow">{{ localeKey == 'en' ? 'Use Cases' : 'Anwendungsfälle' }}</p>
+        <h2 id="usecases-title" class="calhelp-usecases__headline">{{ heading }}</h2>
         {% if intro %}
-          <p class="uk-text-lead">{{ intro }}</p>
+          <p class="calhelp-usecases__lead">{{ intro }}</p>
         {% endif %}
       </div>
-      <div class="uk-grid-large uk-child-width-1-3@m uk-grid-match" data-uk-grid>
+      <div class="calhelp-usecases__grid" role="list">
         {% for case in usecasePayload.usecases %}
           {% set title = case.title[localeKey]|default(case.title['de']|default('')) %}
           {% set tagline = case.tagline[localeKey]|default(case.tagline['de']|default('')) %}
           {% set story = case.story[localeKey]|default(case.story['de']|default('')) %}
           {% set result = case.result[localeKey]|default(case.result['de']|default('')) %}
-          {% set surfaceClass = loop.index is odd ? 'calhelp-card--accent' : 'calhelp-card--muted' %}
-          <article class="uk-card uk-card-primary uk-card-body calhelp-card calhelp-usecase-card {{ surfaceClass }}" aria-labelledby="usecase-{{ case.id|default(loop.index) }}-title">
-            <h3 id="usecase-{{ case.id|default(loop.index) }}-title" class="uk-card-title">
-              {{ title }}{% if tagline %} – {{ tagline }}{% endif %}
-            </h3>
+          {% set toneClass = loop.index is odd ? 'calhelp-usecase-card--accent' : 'calhelp-usecase-card--muted' %}
+          <article class="calhelp-usecase-card {{ toneClass }}"
+                   role="listitem"
+                   aria-labelledby="usecase-{{ case.id|default(loop.index) }}-title">
+            <p class="calhelp-usecase-card__eyebrow">{{ title }}</p>
+            <h3 id="usecase-{{ case.id|default(loop.index) }}-title"
+                class="calhelp-usecase-card__headline">{{ tagline }}</h3>
             {% if story %}
-              <p>{{ story }}</p>
+              <p class="calhelp-usecase-card__body">{{ story }}</p>
             {% endif %}
             {% if result %}
-              <p class="uk-text-emphasis">{{ result }}</p>
+              <p class="calhelp-usecase-card__result">{{ result }}</p>
             {% endif %}
           </article>
         {% endfor %}
