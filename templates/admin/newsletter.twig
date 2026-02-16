@@ -1,4 +1,5 @@
 {% extends 'admin/base.twig' %}
+{% import 'components/standard_table.twig' as tables %}
 
 {% block title %}{{ t('tab_newsletter') }}{% endblock %}
 
@@ -18,63 +19,278 @@
     window.transMarketingNewsletterRemove = '{{ t('button_marketing_newsletter_remove_entry')|e('js') }}';
     window.transMarketingNewsletterEmpty = '{{ t('text_marketing_newsletter_empty')|e('js') }}';
   </script>
+  <style>
+    .uk-label-warning {
+      background-color: #faa05a;
+      color: #fff;
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
-      <div class="uk-container uk-container-large">
-        <h1 class="uk-heading-bullet">{{ t('tab_newsletter') }}</h1>
-      </div>
-      <div class="uk-container uk-container-large">
-        {% set activePageNamespace = pageNamespace|default('default') %}
-        {% set pageNamespaceOptions = available_namespaces|default([]) %}
-        {% include 'admin/partials/namespace_select.twig' %}
+  {% set activePageNamespace = pageNamespace|default('default') %}
+  {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
+  {% set editCampaign = activeCampaign is defined and activeCampaign ? activeCampaign : null %}
+  {% set currentTab = activeTab|default('campaigns') %}
+  {% set defaults = providerDefaults|default({template_id: null, audience_id: null}) %}
 
-        <h2 class="uk-heading-bullet">{{ t('tab_newsletter') }}</h2>
-        <p class="uk-text-meta">{{ t('text_marketing_newsletter_namespace_hint')|format(activePageNamespace) }}</p>
-        <div
-          id="marketingNewsletterConfigSection"
-          class="uk-card uk-card-default uk-card-body uk-margin"
-          data-marketing-namespace="{{ activePageNamespace|e('html_attr') }}"
-        >
-          <div class="uk-margin">
-            <label class="uk-form-label" for="marketingNewsletterSlug">{{ t('label_marketing_newsletter_slug') }}</label>
-            <div class="uk-form-controls">
-              <input class="uk-input" type="text" id="marketingNewsletterSlug" list="marketingNewsletterSlugOptions" placeholder="landing">
-              <datalist id="marketingNewsletterSlugOptions">
-                {% for slug in marketingNewsletterSlugs %}
-                  <option value="{{ slug }}"></option>
-                {% endfor %}
-              </datalist>
-            </div>
-            <p class="uk-text-meta uk-margin-small-top">{{ t('text_marketing_newsletter_slug_hint') }}</p>
-          </div>
-          <div class="uk-overflow-auto uk-margin">
-            <table class="uk-table uk-table-small uk-table-divider uk-table-middle" id="marketingNewsletterConfigTable" data-empty="{{ t('text_marketing_newsletter_empty') }}">
-              <thead>
-                <tr>
-                  <th class="uk-table-shrink">#</th>
-                  <th>{{ t('label_marketing_newsletter_label') }}</th>
-                  <th>{{ t('label_marketing_newsletter_url') }}</th>
-                  <th class="uk-table-shrink">{{ t('label_marketing_newsletter_style') }}</th>
-                  <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
-            <div class="uk-flex uk-flex-left" style="gap: 8px;">
-              <button type="button" id="marketingNewsletterAddRow" class="uk-button uk-button-default">{{ t('button_marketing_newsletter_add_entry') }}</button>
-            </div>
-            <div class="uk-flex uk-flex-right" style="gap: 8px;">
-              <button type="button" id="marketingNewsletterReset" class="uk-button uk-button-default">{{ t('action_reset') }}</button>
-              <button type="button" id="marketingNewsletterSave" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
-            </div>
-          </div>
-        </div>
+  <div class="uk-container uk-container-large">
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-padding-small uk-padding-remove-horizontal">
+      <h1 class="uk-heading-bullet uk-margin-remove">{{ t('tab_newsletter') }}</h1>
+      <div class="uk-flex uk-flex-middle uk-margin-small-left">
+        {% include 'admin/partials/namespace_badge.twig' with { pageNamespace: activePageNamespace } %}
       </div>
+    </div>
+  </div>
+
+  <div class="uk-section uk-section-small">
+    <div class="uk-container uk-container-large">
+
+      {% set pageNamespaceOptions = available_namespaces|default([]) %}
+      {% include 'admin/partials/namespace_select.twig' %}
+
+      {% if error_message is defined and error_message %}
+        <div class="uk-alert-danger" uk-alert>
+          <a class="uk-alert-close" uk-close></a>
+          <p>{{ error_message }}</p>
+        </div>
+      {% endif %}
+
+      {# ── Tab navigation ── #}
+      <ul class="uk-tab" uk-tab>
+        <li{% if currentTab == 'campaigns' %} class="uk-active"{% endif %}>
+          <a href="#tab-campaigns">{{ t('tab_newsletter_campaigns') }}</a>
+        </li>
+        <li{% if currentTab == 'confirmation' %} class="uk-active"{% endif %}>
+          <a href="#tab-confirmation">{{ t('tab_newsletter_confirmation_page') }}</a>
+        </li>
+      </ul>
+
+      <ul class="uk-switcher uk-margin">
+
+        {# ══════════════════════════════════════════════
+           Tab 1: Campaigns
+           ══════════════════════════════════════════════ #}
+        <li>
+          <div class="uk-card uk-card-default uk-card-body uk-margin">
+            <h2 class="uk-card-title">{{ t('heading_newsletter_campaign_list') }}</h2>
+            <p class="uk-text-meta">{{ t('text_newsletter_campaign_intro') }}</p>
+            {% set headings = [
+              { label: t('label_campaign_name') },
+              { label: t('label_campaign_news'), class: 'uk-table-expand' },
+              { label: t('label_campaign_status') },
+              { label: t('label_campaign_sent_at') },
+              { label: t('actions'), class: 'uk-table-shrink uk-text-right' },
+            ] %}
+            {% set campaignRows %}
+              {% for campaign in campaigns %}
+                {% set editBase = basePath ~ '/admin/newsletter' ~ pageNamespaceQuery %}
+                {% set editLink = editBase ~ (pageNamespaceQuery ? '&' : '?') ~ 'tab=campaigns&edit=' ~ campaign.id %}
+                <tr>
+                  <td data-title="{{ t('label_campaign_name') }}">{{ campaign.name }}</td>
+                  <td data-title="{{ t('label_campaign_news') }}">
+                    {% if campaign.newsIds %}
+                      <ul class="uk-list uk-list-collapse">
+                        {% for newsId in campaign.newsIds %}
+                          {% set newsEntry = (newsEntries|filter(n => n.id == newsId)|first) %}
+                          <li>{{ newsEntry ? newsEntry.title : '#' ~ newsId }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% else %}
+                      <span class="uk-text-muted">{{ t('text_campaign_no_news') }}</span>
+                    {% endif %}
+                  </td>
+                  <td data-title="{{ t('label_campaign_status') }}">
+                    {% if campaign.status == 'sent' %}
+                      <span class="uk-label uk-label-success">{{ t('label_status_sent') }}</span>
+                    {% elseif campaign.status == 'ready' %}
+                      <span class="uk-label uk-label-warning">{{ t('label_status_ready') }}</span>
+                    {% else %}
+                      <span class="uk-label">{{ t('label_status_draft') }}</span>
+                    {% endif %}
+                  </td>
+                  <td data-title="{{ t('label_campaign_sent_at') }}">
+                    {% if campaign.sentAt %}
+                      {{ campaign.sentAt|date('d.m.Y H:i') }}
+                    {% else %}
+                      <span class="uk-text-muted">{{ t('text_campaign_not_sent') }}</span>
+                    {% endif %}
+                  </td>
+                  <td class="uk-table-shrink uk-text-right" data-title="{{ t('actions') }}">
+                    <div class="uk-inline">
+                      <button
+                        class="uk-button uk-button-default uk-button-small"
+                        type="button"
+                        uk-icon="icon: more; ratio: 0.9"
+                        aria-label="{{ t('actions') }}"
+                      >
+                        <span class="uk-hidden">{{ t('actions') }}</span>
+                      </button>
+                      <div uk-dropdown="mode: click; pos: bottom-right; offset: 0; container: .admin-page">
+                        <ul class="uk-nav uk-dropdown-nav">
+                          <li>
+                            <a class="uk-button uk-button-link uk-width-1-1 uk-text-left" href="{{ editLink }}">{{ t('button_edit') }}</a>
+                          </li>
+                          <li>
+                            <form method="post" action="{{ basePath }}/admin/newsletter-campaigns/{{ campaign.id }}/send{{ pageNamespaceQuery }}">
+                              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                              <button class="uk-button uk-button-link uk-width-1-1 uk-text-left" type="submit">{{ t('button_send_campaign') }}</button>
+                            </form>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="5" class="uk-text-center uk-text-muted">{{ t('text_campaigns_empty') }}</td>
+                </tr>
+              {% endfor %}
+            {% endset %}
+            {{ tables.render(headings, 'newsletterCampaignTableBody', campaignRows) }}
+          </div>
+
+          {# ── Create / Edit campaign form ── #}
+          <div class="uk-card uk-card-default uk-card-body uk-margin">
+            <h2 class="uk-card-title">{{ editCampaign ? t('heading_edit_campaign') : t('heading_create_campaign') }}</h2>
+            <form method="post" action="{{ basePath }}/admin/newsletter-campaigns{{ pageNamespaceQuery }}" class="uk-form-stacked">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              {% if editCampaign %}
+                <input type="hidden" name="id" value="{{ editCampaign.id }}">
+              {% endif %}
+              <div class="uk-margin">
+                <label class="uk-form-label" for="campaignName">{{ t('label_campaign_name') }}</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="campaignName" name="name" type="text" value="{{ editCampaign ? editCampaign.name : '' }}" required>
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="campaignNews">{{ t('label_campaign_news') }}</label>
+                <div class="uk-form-controls">
+                  <select class="uk-select" id="campaignNews" name="news_ids[]" multiple size="6">
+                    {% for entry in newsEntries %}
+                      {% set selected = editCampaign and entry.id in editCampaign.newsIds %}
+                      <option value="{{ entry.id }}" {% if selected %}selected{% endif %}>
+                        {{ entry.title }} ({{ entry.pageSlug }})
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <p class="uk-text-meta uk-margin-small-top">{{ t('text_campaign_news_hint') }}</p>
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="campaignStatus">{{ t('label_campaign_status') }}</label>
+                <div class="uk-form-controls">
+                  <select class="uk-select" id="campaignStatus" name="status">
+                    {% set currentStatus = editCampaign ? editCampaign.status : 'draft' %}
+                    <option value="draft" {% if currentStatus == 'draft' %}selected{% endif %}>{{ t('label_status_draft') }}</option>
+                    <option value="ready" {% if currentStatus == 'ready' %}selected{% endif %}>{{ t('label_status_ready') }}</option>
+                    <option value="sent" {% if currentStatus == 'sent' %}selected{% endif %}>{{ t('label_status_sent') }}</option>
+                  </select>
+                </div>
+              </div>
+
+              {# ── Advanced Settings (collapsible) ── #}
+              <div class="uk-margin">
+                <ul uk-accordion>
+                  <li>
+                    <a class="uk-accordion-title" href="#">{{ t('heading_advanced_settings') }}</a>
+                    <div class="uk-accordion-content">
+                      <div class="uk-margin">
+                        <label class="uk-form-label" for="campaignTemplate">{{ t('label_campaign_template') }}</label>
+                        <div class="uk-form-controls">
+                          {% set templateValue = editCampaign ? editCampaign.templateId : defaults.template_id %}
+                          <input class="uk-input" id="campaignTemplate" name="template_id" type="text" value="{{ templateValue|default('') }}" placeholder="{{ defaults.template_id|default('') }}">
+                          {% if defaults.template_id %}
+                            <p class="uk-text-meta uk-margin-small-top">{{ t('text_campaign_provider_default') }}: {{ defaults.template_id }}</p>
+                          {% endif %}
+                        </div>
+                      </div>
+                      <div class="uk-margin">
+                        <label class="uk-form-label" for="campaignAudience">{{ t('label_campaign_audience') }}</label>
+                        <div class="uk-form-controls">
+                          {% set audienceValue = editCampaign ? editCampaign.audienceId : defaults.audience_id %}
+                          <input class="uk-input" id="campaignAudience" name="audience_id" type="text" value="{{ audienceValue|default('') }}" placeholder="{{ defaults.audience_id|default('') }}">
+                          {% if defaults.audience_id %}
+                            <p class="uk-text-meta uk-margin-small-top">{{ t('text_campaign_provider_default') }}: {{ defaults.audience_id }}</p>
+                          {% endif %}
+                        </div>
+                      </div>
+                      <div class="uk-margin">
+                        <label class="uk-form-label" for="campaignSchedule">{{ t('label_campaign_scheduled_for') }}</label>
+                        <div class="uk-form-controls">
+                          <input class="uk-input" id="campaignSchedule" name="scheduled_for" type="datetime-local" value="{{ editCampaign and editCampaign.scheduledFor ? editCampaign.scheduledFor|date('Y-m-d\\TH:i') : '' }}">
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="uk-margin">
+                <button class="uk-button uk-button-primary" type="submit">
+                  {{ editCampaign ? t('button_save_campaign') : t('button_create_campaign') }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </li>
+
+        {# ══════════════════════════════════════════════
+           Tab 2: Confirmation Page (CTA config)
+           ══════════════════════════════════════════════ #}
+        <li>
+          <p class="uk-text-meta">{{ t('text_marketing_newsletter_namespace_hint')|format(activePageNamespace) }}</p>
+          <div
+            id="marketingNewsletterConfigSection"
+            class="uk-card uk-card-default uk-card-body uk-margin"
+            data-marketing-namespace="{{ activePageNamespace|e('html_attr') }}"
+          >
+            <div class="uk-margin">
+              <label class="uk-form-label" for="marketingNewsletterSlug">{{ t('label_marketing_newsletter_slug') }}</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" type="text" id="marketingNewsletterSlug" list="marketingNewsletterSlugOptions" placeholder="landing">
+                <datalist id="marketingNewsletterSlugOptions">
+                  {% for slug in marketingNewsletterSlugs %}
+                    <option value="{{ slug }}"></option>
+                  {% endfor %}
+                </datalist>
+              </div>
+              <p class="uk-text-meta uk-margin-small-top">{{ t('text_marketing_newsletter_slug_hint') }}</p>
+            </div>
+            <div class="uk-overflow-auto uk-margin">
+              <table class="uk-table uk-table-small uk-table-divider uk-table-middle" id="marketingNewsletterConfigTable" data-empty="{{ t('text_marketing_newsletter_empty') }}">
+                <thead>
+                  <tr>
+                    <th class="uk-table-shrink">#</th>
+                    <th>{{ t('label_marketing_newsletter_label') }}</th>
+                    <th>{{ t('label_marketing_newsletter_url') }}</th>
+                    <th class="uk-table-shrink">{{ t('label_marketing_newsletter_style') }}</th>
+                    <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
+              <div class="uk-flex uk-flex-left" style="gap: 8px;">
+                <button type="button" id="marketingNewsletterAddRow" class="uk-button uk-button-default">{{ t('button_marketing_newsletter_add_entry') }}</button>
+              </div>
+              <div class="uk-flex uk-flex-right" style="gap: 8px;">
+                <button type="button" id="marketingNewsletterReset" class="uk-button uk-button-default">{{ t('action_reset') }}</button>
+                <button type="button" id="marketingNewsletterSave" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
+              </div>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}
+  <script src="{{ basePath }}/js/storage.js"></script>
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
 {% endblock %}
