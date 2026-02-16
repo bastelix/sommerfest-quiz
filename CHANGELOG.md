@@ -403,6 +403,8 @@
 - Update sqlite-schema.sql with customer role CHECK constraint
 - Apply namespace design tokens to editor inline preview
 - Add data-effect attributes to sections so behavior effects are applied
+- Tablet-responsive Layouts für Card-/Options-Blöcke verbessern
+- 3 Spalten direkt ab @s (640px) statt 2-Spalten-Zwischenschritt
 
 ### Merge
 
