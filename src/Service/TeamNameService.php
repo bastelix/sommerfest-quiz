@@ -65,6 +65,13 @@ class TeamNameService
     private ?TeamNameWarmupDispatcher $teamNameWarmupDispatcher;
 
     /**
+     * Resolved namespace per event identifier.
+     *
+     * @var array<string, string>
+     */
+    private array $eventNamespaceCache = [];
+
+    /**
      * Tracks events whose AI caches were hydrated from persistent storage.
      *
      * @var array<string, bool>
@@ -388,6 +395,7 @@ class TeamNameService
 
         $reservations = [];
         $useTransaction = $limit > 1;
+        $namespace = $this->resolveEventNamespace($eventId);
 
         if ($useTransaction) {
             $this->pdo->beginTransaction();
@@ -397,7 +405,7 @@ class TeamNameService
 
         try {
             $stmt = $this->pdo->prepare(
-                'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token) VALUES (?,?,?,?)'
+                'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token, namespace) VALUES (?,?,?,?,?)'
             );
 
             foreach ($candidates as $name) {
@@ -408,7 +416,7 @@ class TeamNameService
                 $token = bin2hex(random_bytes(16));
 
                 try {
-                    $stmt->execute([$eventId, $name, $this->lexicon->getLexiconVersion(), $token]);
+                    $stmt->execute([$eventId, $name, $this->lexicon->getLexiconVersion(), $token, $namespace]);
                     $reservations[] = $this->formatReservationResponse($eventId, $name, $token, false, $totalCombinations);
                 } catch (PDOException $exception) {
                     if ($this->isUniqueViolation($exception)) {
@@ -858,7 +866,8 @@ class TeamNameService
                 $eventId,
                 $cacheKey,
                 $persistedNames,
-                $this->aiCacheMetadata[$cacheKey]
+                $this->aiCacheMetadata[$cacheKey],
+                $this->resolveEventNamespace($eventId)
             );
 
             if ($logging) {
@@ -1380,12 +1389,13 @@ class TeamNameService
     {
         $token = bin2hex(random_bytes(16));
         $name = 'Gast-' . strtoupper(substr($token, 0, 5));
+        $namespace = $this->resolveEventNamespace($eventId);
         try {
             $stmt = $this->pdo->prepare(
-                'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token, fallback) '
-                . 'VALUES (?,?,?,?,TRUE)'
+                'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token, fallback, namespace) '
+                . 'VALUES (?,?,?,?,TRUE,?)'
             );
-            $stmt->execute([$eventId, $name, $this->lexicon->getLexiconVersion(), $token]);
+            $stmt->execute([$eventId, $name, $this->lexicon->getLexiconVersion(), $token, $namespace]);
         } catch (PDOException $exception) {
             if ($this->isUniqueViolation($exception)) {
                 return $this->reserveFallback($eventId, $totalCombinations);
@@ -1550,5 +1560,26 @@ class TeamNameService
         }
 
         unset($this->aiCacheLoadedEvents[$eventId]);
+    }
+
+    private function resolveEventNamespace(string $eventId): string
+    {
+        if ($eventId === '') {
+            return 'default';
+        }
+
+        if (isset($this->eventNamespaceCache[$eventId])) {
+            return $this->eventNamespaceCache[$eventId];
+        }
+
+        $stmt = $this->pdo->prepare('SELECT namespace FROM events WHERE uid = ?');
+        $stmt->execute([$eventId]);
+        $namespace = $stmt->fetchColumn();
+        $stmt->closeCursor();
+
+        $resolved = is_string($namespace) && $namespace !== '' ? $namespace : 'default';
+        $this->eventNamespaceCache[$eventId] = $resolved;
+
+        return $resolved;
     }
 }

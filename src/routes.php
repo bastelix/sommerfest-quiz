@@ -539,7 +539,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $eventService
             ))
             ->withAttribute('teamController', new TeamController($teamService, $configService, $resultService, $eventService))
-            ->withAttribute('teamNameController', new TeamNameController($teamNameService, $configService))
+            ->withAttribute('teamNameController', new TeamNameController($teamNameService, $configService, $eventService))
             ->withAttribute('eventController', new EventController($eventService))
             ->withAttribute(
                 'eventConfigController',
