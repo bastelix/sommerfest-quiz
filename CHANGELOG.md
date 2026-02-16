@@ -412,6 +412,7 @@
 - Add missing CSS for module-card and news-card variants
 - Rename team-name namespace migration to run after prerequisites
 - Stat-Strip 4–6 Spalten Regression beheben
+- Load marketing.css in page editor for namespace preview
 
 ### Merge
 
