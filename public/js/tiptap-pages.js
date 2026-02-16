@@ -3837,6 +3837,146 @@ function resolveNamespaceSections(namespaces, activeNamespace) {
   return filtered.length ? filtered : namespaces;
 }
 
+/* ── Page-tree rename & delete modals (singleton) ── */
+let treeRenamePending = null;
+let treeDeletePending = null;
+
+const ensureTreeRenameModal = () => {
+  if (document.getElementById('treeRenameModal')) return;
+  const el = document.createElement('div');
+  el.id = 'treeRenameModal';
+  el.setAttribute('uk-modal', '');
+  el.innerHTML = [
+    '<div class="uk-modal-dialog uk-modal-body">',
+    '  <h3 class="uk-modal-title">Seite umbenennen</h3>',
+    '  <label class="uk-form-label" for="treeRenameInput">Neuer Slug</label>',
+    '  <input id="treeRenameInput" class="uk-input" type="text">',
+    '  <div id="treeRenameError" class="uk-text-danger uk-margin-small-top" hidden></div>',
+    '  <p id="treeRenameHint" class="uk-text-meta uk-margin-small-top"></p>',
+    '  <div class="uk-margin-top uk-text-right">',
+    '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
+    '    <button id="treeRenameSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">Umbenennen</button>',
+    '  </div>',
+    '</div>'
+  ].join('\n');
+  document.body.appendChild(el);
+
+  el.addEventListener('hidden', () => { treeRenamePending = null; });
+
+  document.getElementById('treeRenameSave').addEventListener('click', async () => {
+    if (!treeRenamePending) return;
+    const input = document.getElementById('treeRenameInput');
+    const errorEl = document.getElementById('treeRenameError');
+    const newSlug = (input.value || '').trim();
+
+    if (!newSlug || newSlug === treeRenamePending.slug) {
+      errorEl.textContent = 'Bitte einen neuen Slug eingeben.';
+      errorEl.hidden = false;
+      return;
+    }
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(newSlug)) {
+      errorEl.textContent = 'Der Slug darf nur Kleinbuchstaben, Ziffern und Bindestriche enthalten.';
+      errorEl.hidden = false;
+      return;
+    }
+
+    try {
+      const response = await apiFetch(
+        withNamespace('/admin/pages/' + encodeURIComponent(treeRenamePending.slug) + '/rename'),
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ newSlug })
+        }
+      );
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || 'Fehler: ' + response.status);
+      }
+      if (window.UIkit) UIkit.modal('#treeRenameModal').hide();
+      notify('Seite erfolgreich umbenannt', 'success');
+      await initPageTree();
+    } catch (error) {
+      errorEl.textContent = error.message || 'Fehler beim Umbenennen der Seite';
+      errorEl.hidden = false;
+    }
+  });
+
+  document.getElementById('treeRenameInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('treeRenameSave').click();
+    }
+  });
+};
+
+const ensureTreeDeleteModal = () => {
+  if (document.getElementById('treeDeleteConfirmModal')) return;
+  const el = document.createElement('div');
+  el.id = 'treeDeleteConfirmModal';
+  el.setAttribute('uk-modal', '');
+  el.innerHTML = [
+    '<div class="uk-modal-dialog uk-modal-body">',
+    '  <h3 class="uk-modal-title">Seite löschen</h3>',
+    '  <p id="treeDeleteConfirmText"></p>',
+    '  <div id="treeDeleteSubtreeWarning" class="uk-alert-danger" uk-alert hidden>',
+    '    <p>Achtung: Alle untergeordneten Seiten werden ebenfalls gelöscht!</p>',
+    '  </div>',
+    '  <div class="uk-margin-top uk-text-right">',
+    '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
+    '    <button id="treeDeleteConfirm" class="uk-button uk-button-danger uk-margin-small-left" type="button">Endgültig löschen</button>',
+    '  </div>',
+    '</div>'
+  ].join('\n');
+  document.body.appendChild(el);
+
+  el.addEventListener('hidden', () => { treeDeletePending = null; });
+
+  document.getElementById('treeDeleteConfirm').addEventListener('click', async () => {
+    if (!treeDeletePending) return;
+    try {
+      const response = await apiFetch(
+        withNamespace('/admin/pages/' + encodeURIComponent(treeDeletePending.slug)),
+        { method: 'DELETE' }
+      );
+      if (response.status !== 204 && !response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || 'Fehler: ' + response.status);
+      }
+      if (window.UIkit) UIkit.modal('#treeDeleteConfirmModal').hide();
+      removePageFromInterface(treeDeletePending.slug);
+      notify('Seite erfolgreich gelöscht', 'success');
+      document.dispatchEvent(new CustomEvent('marketing-page:deleted'));
+    } catch (error) {
+      if (window.UIkit) UIkit.modal('#treeDeleteConfirmModal').hide();
+      notify(error.message || 'Seite konnte nicht gelöscht werden.', 'danger');
+    }
+  });
+};
+
+const openTreeRenameModal = (slug, title) => {
+  ensureTreeRenameModal();
+  treeRenamePending = { slug, title };
+  const input = document.getElementById('treeRenameInput');
+  const errorEl = document.getElementById('treeRenameError');
+  const hint = document.getElementById('treeRenameHint');
+  input.value = slug;
+  errorEl.hidden = true;
+  errorEl.textContent = '';
+  hint.textContent = 'Aktuelle Seite: \u201e' + title + '\u201c';
+  UIkit.modal('#treeRenameModal').show();
+  setTimeout(() => { input.select(); }, 100);
+};
+
+const openTreeDeleteModal = (slug, title, hasChildren) => {
+  ensureTreeDeleteModal();
+  treeDeletePending = { slug, title, hasChildren };
+  document.getElementById('treeDeleteConfirmText').textContent =
+    '\u201e' + title + '\u201c (/' + slug + ') wirklich löschen?';
+  document.getElementById('treeDeleteSubtreeWarning').hidden = !hasChildren;
+  UIkit.modal('#treeDeleteConfirmModal').show();
+};
+
 function buildPageTreeList(nodes, level = 0) {
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-collapse';
@@ -3907,14 +4047,78 @@ function buildPageTreeList(nodes, level = 0) {
     }
 
     if (selectableSlug) {
-      const actionBtn = document.createElement('button');
-      actionBtn.type = 'button';
-      actionBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-small-left page-tree-action';
-      actionBtn.dataset.pageActionTrigger = '1';
-      actionBtn.dataset.pageSlug = selectableSlug;
-      actionBtn.dataset.pageTitle = node.title || node.slug || selectableSlug;
-      actionBtn.textContent = getTranslation('transPageAction', 'Aktion');
-      meta.appendChild(actionBtn);
+      const hasChildren = Array.isArray(node.children) && node.children.length > 0;
+      const nodeTitle = node.title || node.slug || selectableSlug;
+      const actions = document.createElement('div');
+      actions.className = 'uk-inline page-tree-actions uk-margin-small-left';
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'uk-icon-button page-tree-action-toggle';
+      toggle.setAttribute('uk-icon', 'icon: more-vertical; ratio: 0.9');
+      toggle.setAttribute('aria-label', 'Aktionen');
+
+      const dropdown = document.createElement('div');
+      dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right; container: body');
+
+      const nav = document.createElement('ul');
+      nav.className = 'uk-nav uk-dropdown-nav';
+
+      // Rename
+      const renameLi = document.createElement('li');
+      const renameLink = document.createElement('a');
+      renameLink.href = '#';
+      renameLink.innerHTML = '<span uk-icon="icon: pencil; ratio: 0.8" class="uk-margin-small-right"></span>Umbenennen';
+      renameLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        UIkit.dropdown(dropdown).hide(false);
+        openTreeRenameModal(selectableSlug, nodeTitle);
+      });
+      renameLi.appendChild(renameLink);
+      nav.appendChild(renameLi);
+
+      // Copy/Move
+      const transferLi = document.createElement('li');
+      const transferLink = document.createElement('a');
+      transferLink.href = '#';
+      transferLink.innerHTML = '<span uk-icon="icon: move; ratio: 0.8" class="uk-margin-small-right"></span>' +
+        getTranslation('transPageAction', 'Kopieren/Verschieben');
+      transferLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        UIkit.dropdown(dropdown).hide(false);
+        const state = pageTransferState || initPageTransferModal();
+        state?.open({ slug: selectableSlug, title: nodeTitle });
+      });
+      transferLi.appendChild(transferLink);
+      nav.appendChild(transferLi);
+
+      // Divider
+      const divider = document.createElement('li');
+      divider.className = 'uk-nav-divider';
+      nav.appendChild(divider);
+
+      // Delete
+      const deleteLi = document.createElement('li');
+      const deleteLink = document.createElement('a');
+      deleteLink.href = '#';
+      deleteLink.className = 'uk-text-danger';
+      deleteLink.innerHTML = '<span uk-icon="icon: trash; ratio: 0.8" class="uk-margin-small-right"></span>Löschen';
+      deleteLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        UIkit.dropdown(dropdown).hide(false);
+        openTreeDeleteModal(selectableSlug, nodeTitle, hasChildren);
+      });
+      deleteLi.appendChild(deleteLink);
+      nav.appendChild(deleteLi);
+
+      dropdown.appendChild(nav);
+      actions.appendChild(toggle);
+      actions.appendChild(dropdown);
+      meta.appendChild(actions);
+
+      if (window.UIkit && UIkit.icon) {
+        UIkit.icon(toggle);
+      }
     }
 
     row.appendChild(info);
