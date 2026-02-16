@@ -76,7 +76,7 @@ final class TeamNameAiCacheRepository
      * @param list<string> $names
      * @param array{domains?: array<int, string>, tones?: array<int, string>, locale?: string} $filters
      */
-    public function persistNames(string $eventId, string $cacheKey, array $names, array $filters = []): void
+    public function persistNames(string $eventId, string $cacheKey, array $names, array $filters = [], ?string $namespace = null): void
     {
         $unique = [];
         foreach ($names as $name) {
@@ -92,10 +92,11 @@ final class TeamNameAiCacheRepository
         }
 
         $payload = $this->encodeFilters($filters);
+        $resolvedNamespace = $namespace !== null && $namespace !== '' ? $namespace : 'default';
 
-        $sql = 'INSERT INTO team_name_ai_cache (event_id, cache_key, name, filters) VALUES (?,?,?,?) '
+        $sql = 'INSERT INTO team_name_ai_cache (event_id, cache_key, name, filters, namespace) VALUES (?,?,?,?,?) '
             . 'ON CONFLICT (event_id, cache_key, name) DO UPDATE '
-            . 'SET filters = EXCLUDED.filters, updated_at = CURRENT_TIMESTAMP';
+            . 'SET filters = EXCLUDED.filters, namespace = EXCLUDED.namespace, updated_at = CURRENT_TIMESTAMP';
 
         $useTransaction = count($unique) > 1;
 
@@ -107,7 +108,7 @@ final class TeamNameAiCacheRepository
 
         try {
             foreach (array_values($unique) as $name) {
-                $stmt->execute([$eventId, $cacheKey, $name, $payload]);
+                $stmt->execute([$eventId, $cacheKey, $name, $payload, $resolvedNamespace]);
             }
 
             if ($useTransaction) {

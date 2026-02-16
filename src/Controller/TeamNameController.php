@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\ConfigService;
 use App\Service\ConfigValidator;
+use App\Service\EventService;
 use App\Service\TeamNameService;
 use InvalidArgumentException;
 use PDOException;
@@ -36,18 +37,20 @@ class TeamNameController
 
     private TeamNameService $service;
     private ConfigService $config;
+    private ?EventService $events;
 
-    public function __construct(TeamNameService $service, ConfigService $config)
+    public function __construct(TeamNameService $service, ConfigService $config, ?EventService $events = null)
     {
         $this->service = $service;
         $this->config = $config;
+        $this->events = $events;
     }
 
     public function reserve(Request $request, Response $response): Response
     {
         $data = $this->parseBody($request);
         $eventId = $this->resolveEventId($data);
-        if ($eventId === '') {
+        if ($eventId === '' || !$this->validateEventNamespace($eventId, $request)) {
             return $response->withStatus(400);
         }
 
@@ -85,7 +88,7 @@ class TeamNameController
     {
         $query = $request->getQueryParams();
         $eventId = $this->resolveEventId($query);
-        if ($eventId === '') {
+        if ($eventId === '' || !$this->validateEventNamespace($eventId, $request)) {
             return $response->withStatus(400);
         }
 
@@ -135,6 +138,10 @@ class TeamNameController
         $query = $request->getQueryParams();
         $eventId = $this->resolveEventId($query);
 
+        if ($eventId !== '' && !$this->validateEventNamespace($eventId, $request)) {
+            return $response->withStatus(400);
+        }
+
         $config = $eventId !== ''
             ? $this->config->getConfigForEvent($eventId)
             : [];
@@ -180,7 +187,7 @@ class TeamNameController
     {
         $data = $this->parseBody($request);
         $eventId = $this->resolveEventId($data);
-        if ($eventId === '') {
+        if ($eventId === '' || !$this->validateEventNamespace($eventId, $request)) {
             return $response->withStatus(400);
         }
 
@@ -231,7 +238,7 @@ class TeamNameController
     {
         $query = $request->getQueryParams();
         $eventId = $this->resolveEventId($query);
-        if ($eventId === '') {
+        if ($eventId === '' || !$this->validateEventNamespace($eventId, $request)) {
             return $response->withStatus(400);
         }
 
@@ -264,7 +271,7 @@ class TeamNameController
         }
         $data = $this->parseBody($request);
         $eventId = $this->resolveEventId($data);
-        if ($eventId === '') {
+        if ($eventId === '' || !$this->validateEventNamespace($eventId, $request)) {
             return $response->withStatus(400);
         }
 
@@ -290,7 +297,7 @@ class TeamNameController
         }
         $data = $this->parseBody($request);
         $eventId = $this->resolveEventId($data);
-        if ($eventId === '') {
+        if ($eventId === '' || !$this->validateEventNamespace($eventId, $request)) {
             return $response->withStatus(400);
         }
 
@@ -307,7 +314,7 @@ class TeamNameController
         $data = $this->parseBody($request);
         $eventId = $this->resolveEventId($data);
         $name = trim((string) ($data['name'] ?? ''));
-        if ($eventId === '' || $name === '') {
+        if ($eventId === '' || $name === '' || !$this->validateEventNamespace($eventId, $request)) {
             return $response->withStatus(400);
         }
 
@@ -327,6 +334,20 @@ class TeamNameController
         }
         $config = $this->config->getConfig();
         return (string) ($config['event_uid'] ?? '');
+    }
+
+    private function validateEventNamespace(string $eventId, Request $request): bool
+    {
+        if ($eventId === '' || $this->events === null) {
+            return true;
+        }
+
+        $namespace = $request->getAttribute('eventNamespace');
+        if (!is_string($namespace) || $namespace === '') {
+            return true;
+        }
+
+        return $this->events->belongsToNamespace($eventId, $namespace);
     }
 
     /**
