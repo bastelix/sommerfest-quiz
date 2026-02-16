@@ -1622,9 +1622,16 @@ body.page-render .qr-page-renderer table {
 /*  Audience spotlight: mobile-first                                   */
 /* ------------------------------------------------------------------ */
 
-/* Tabs and tiles: single column on mobile */
+/* Tabs and tiles: single column on mobile, 2 columns from @s */
+.section[data-block-type="audience_spotlight"] .uk-child-width-1-2\@s > *,
 .section[data-block-type="audience_spotlight"] .uk-child-width-1-2\@m > * {
   width: 100%;
+}
+
+@media (min-width: 640px) {
+  .section[data-block-type="audience_spotlight"] .uk-child-width-1-2\@s > * {
+    width: 50%;
+  }
 }
 
 @media (min-width: 960px) {
@@ -1647,16 +1654,23 @@ body.page-render .qr-page-renderer table {
   display: none;
 }
 
-@media (min-width: 960px) {
+@media (min-width: 640px) {
   .section[data-block-type="audience_spotlight"] .uk-subnav {
     flex-wrap: wrap;
     overflow-x: visible;
   }
 }
 
-/* Usecase story + highlight: stack on mobile */
+/* Usecase story + highlight: stack on mobile, side-by-side from @s */
+.section[data-block-type="audience_spotlight"] .uk-child-width-1-2\@s[data-uk-grid] > *,
 .section[data-block-type="audience_spotlight"] .uk-child-width-1-2\@m[data-uk-grid] > * {
   width: 100%;
+}
+
+@media (min-width: 640px) {
+  .section[data-block-type="audience_spotlight"] .uk-child-width-1-2\@s[data-uk-grid] > * {
+    width: 50%;
+  }
 }
 
 @media (min-width: 960px) {
@@ -1669,13 +1683,20 @@ body.page-render .qr-page-renderer table {
 /*  Package summary: mobile-first                                      */
 /* ------------------------------------------------------------------ */
 
-/* Package cards: single column on mobile */
+/* Package cards: single column on mobile, responsive from @s */
+.section[data-block-type="package_summary"] .uk-child-width-1-2\@s > *,
 .section[data-block-type="package_summary"] .uk-child-width-1-2\@m > * {
   width: 100%;
 }
 
 .section[data-block-type="package_summary"] .uk-child-width-1-3\@m > * {
   width: 100%;
+}
+
+@media (min-width: 640px) {
+  .section[data-block-type="package_summary"] .uk-child-width-1-2\@s > * {
+    width: 50%;
+  }
 }
 
 @media (min-width: 960px) {
@@ -1750,8 +1771,15 @@ body.page-render .qr-page-renderer table {
 /*  System module (legacy): mobile-first                               */
 /* ------------------------------------------------------------------ */
 
+.section[data-block-type="system_module"] .uk-child-width-1-2\@s > *,
 .section[data-block-type="system_module"] .uk-child-width-1-2\@m > * {
   width: 100%;
+}
+
+@media (min-width: 640px) {
+  .section[data-block-type="system_module"] .uk-child-width-1-2\@s > * {
+    width: 50%;
+  }
 }
 
 @media (min-width: 960px) {
@@ -1803,6 +1831,23 @@ body.page-render .qr-page-renderer table {
   }
   .section .uk-grid-small[data-uk-grid] {
     column-gap: 16px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Tablet @s intermediate: 2-column step for card grids               */
+/*                                                                      */
+/*  Grids that jump from 1-column to 3-column at @m (960px) now get    */
+/*  a 2-column intermediate at @s (640px).  The higher specificity      */
+/*  via [data-block-type] ensures block-specific @m defaults (which     */
+/*  set width:100%) don't override this intermediate step.              */
+/* ------------------------------------------------------------------ */
+@media (min-width: 640px) and (max-width: 959px) {
+  .section[data-block-type] .uk-child-width-1-2\@s > * {
+    width: 50%;
+  }
+  .section[data-block-type] .uk-width-1-2\@s {
+    width: 50%;
   }
 }
 
