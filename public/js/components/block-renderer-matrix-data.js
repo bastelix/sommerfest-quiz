@@ -2017,8 +2017,18 @@ function getStatStripColumnsBreakpoint(block) {
 function buildStatStripGridClass(block, baseClass) {
   const columns = getStatStripColumns(block);
   const explicitBreakpoint = getStatStripColumnsBreakpoint(block);
-  const breakpoint = columns >= 3 ? 's' : explicitBreakpoint;
-  return `${baseClass} uk-child-width-1-1 uk-child-width-1-${columns}@${breakpoint}`;
+
+  if (columns <= 2) {
+    return `${baseClass} uk-child-width-1-1 uk-child-width-1-${columns}@${explicitBreakpoint}`;
+  }
+  if (columns === 3) {
+    return `${baseClass} uk-child-width-1-1 uk-child-width-1-3@s`;
+  }
+  if (columns === 4) {
+    return `${baseClass} uk-child-width-1-1 uk-child-width-1-3@s uk-child-width-1-4@m`;
+  }
+  // 5–6: 3 columns on tablet, full count on large desktop (≥ 1200 px)
+  return `${baseClass} uk-child-width-1-1 uk-child-width-1-3@s uk-child-width-1-${columns}@l`;
 }
 
 function renderStatStripInline(block, options = {}) {
