@@ -570,11 +570,13 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   ]
     .filter(Boolean)
     .join(' ');
+  const effectTokens = intent === 'hero' ? 'heroIntro' : 'reveal';
   const dataAttributes = [
     `data-block-id="${escapeAttribute(block.id)}"`,
     `data-block-type="${escapeAttribute(block.type)}"`,
     `data-block-variant="${escapeAttribute(variant)}"`,
     `data-section-intent="${escapeAttribute(intent)}"`,
+    `data-effect="${escapeAttribute(effectTokens)}"`,
     layoutFlag
       ? `data-section-layout="${escapeAttribute(layoutFlag)}"`
       : null,
