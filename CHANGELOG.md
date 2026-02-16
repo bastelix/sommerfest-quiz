@@ -405,6 +405,7 @@
 - Add data-effect attributes to sections so behavior effects are applied
 - Tablet-responsive Layouts für Card-/Options-Blöcke verbessern
 - 3 Spalten direkt ab @s (640px) statt 2-Spalten-Zwischenschritt
+- Redesign use-cases block with proper BEM structure, contrast and theme support
 
 ### Merge
 
