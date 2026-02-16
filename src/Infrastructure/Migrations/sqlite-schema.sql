@@ -362,7 +362,7 @@ CREATE TABLE IF NOT EXISTS users (
     password TEXT NOT NULL,
     email TEXT UNIQUE,
     active BOOLEAN NOT NULL DEFAULT TRUE,
-    role TEXT NOT NULL DEFAULT 'catalog-editor',
+    role TEXT NOT NULL DEFAULT 'catalog-editor' CHECK(role IN ('admin','designer','redakteur','catalog-editor','event-manager','analyst','team-manager','service-account','customer')),
     position INTEGER NOT NULL DEFAULT 0
 );
 
