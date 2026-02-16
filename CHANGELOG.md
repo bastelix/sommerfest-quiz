@@ -66,6 +66,7 @@
 - Add prioritized architecture task list (27 tasks in 7 phases)
 - Add harmonization plan for menu editor and footer block editor UX
 - Add comprehensive role and permission documentation
+- Document PR #5300 as superseded by #5303/#5312
 
 ### Feat
 
@@ -409,6 +410,7 @@
 - Connect sliderProfile to frontend and skip reveal for above-fold sections
 - Case-insensitive comparison for hover effect target detection
 - Add missing CSS for module-card and news-card variants
+- Rename team-name namespace migration to run after prerequisites
 
 ### Merge
 
