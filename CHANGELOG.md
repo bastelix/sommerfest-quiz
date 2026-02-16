@@ -401,6 +401,7 @@
 - Generate client-side player UID fallback when registration fails
 - Update sqlite-schema.sql with customer role CHECK constraint
 - Apply namespace design tokens to editor inline preview
+- Add data-effect attributes to sections so behavior effects are applied
 
 ### Merge
 
