@@ -2428,6 +2428,239 @@ body.marketing-page.calhelp-theme .calhelp-proof-card__body {
     text-wrap: pretty;
 }
 
+/* ── Use-cases section ─────────────────────────────────────────── */
+
+/* Section header */
+body.marketing-page.calhelp-theme .calhelp-usecases__header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto clamp(32px, 4vw, 48px);
+}
+
+body.marketing-page.calhelp-theme .calhelp-usecases__eyebrow {
+    margin: 0 0 8px;
+    font-size: clamp(0.8rem, 0.3vw + 0.72rem, 0.95rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: color-mix(in oklab, var(--calserver-primary) 58%, var(--qr-text) 42%);
+}
+
+body.marketing-page.calhelp-theme .calhelp-usecases__headline {
+    margin: 0 0 12px;
+    font-size: clamp(1.6rem, 1vw + 1.3rem, 2.2rem);
+    font-weight: 700;
+    line-height: 1.22;
+    color: var(--qr-text);
+    text-wrap: balance;
+}
+
+body.marketing-page.calhelp-theme .calhelp-usecases__lead {
+    margin: 0;
+    font-size: clamp(1rem, 0.3vw + 0.92rem, 1.15rem);
+    line-height: 1.55;
+    color: var(--qr-muted);
+    text-wrap: pretty;
+}
+
+/* Grid */
+body.marketing-page.calhelp-theme .calhelp-usecases__grid {
+    display: grid;
+    gap: clamp(18px, 2.4vw, 28px);
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 960px) {
+    body.marketing-page.calhelp-theme .calhelp-usecases__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Base card */
+body.marketing-page.calhelp-theme .calhelp-usecase-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 28px 28px 32px;
+    border-radius: 18px;
+    border: 1px solid transparent;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+/* Accent variant (odd cards: 1st, 3rd) */
+body.marketing-page.calhelp-theme .calhelp-usecase-card--accent {
+    background:
+        linear-gradient(
+            145deg,
+            color-mix(in oklab, var(--calserver-primary) 10%, var(--marketing-white) 90%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 5%, var(--marketing-white) 95%) 100%
+        );
+    border-color: color-mix(in oklab, var(--calserver-primary) 22%, transparent);
+    box-shadow:
+        0 18px 42px -28px color-mix(in oklab, var(--calserver-primary) 18%, transparent),
+        0 8px 20px -14px color-mix(in oklab, var(--marketing-ink) 8%, transparent);
+}
+
+/* Muted variant (even cards: 2nd) */
+body.marketing-page.calhelp-theme .calhelp-usecase-card--muted {
+    background: var(--marketing-white);
+    border-color: color-mix(in oklab, var(--marketing-ink) 10%, transparent);
+    box-shadow:
+        0 14px 36px -24px color-mix(in oklab, var(--marketing-ink) 12%, transparent),
+        0 6px 16px -10px color-mix(in oklab, var(--marketing-ink) 6%, transparent);
+}
+
+/* Card typography */
+body.marketing-page.calhelp-theme .calhelp-usecase-card__eyebrow {
+    margin: 0;
+    font-size: clamp(0.8rem, 0.3vw + 0.72rem, 0.95rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: color-mix(in oklab, var(--calserver-primary) 58%, var(--qr-text) 42%);
+    text-wrap: balance;
+}
+
+body.marketing-page.calhelp-theme .calhelp-usecase-card__headline {
+    margin: 0;
+    font-size: clamp(1.35rem, 0.6vw + 1.2rem, 1.8rem);
+    font-weight: 700;
+    line-height: 1.28;
+    color: var(--qr-text);
+    text-wrap: balance;
+}
+
+body.marketing-page.calhelp-theme .calhelp-usecase-card__body {
+    margin: 0;
+    font-size: clamp(0.95rem, 0.28vw + 0.88rem, 1.05rem);
+    line-height: 1.6;
+    color: var(--qr-text);
+    text-wrap: pretty;
+}
+
+body.marketing-page.calhelp-theme .calhelp-usecase-card__result {
+    margin: 8px 0 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--calserver-primary) 8%, transparent);
+    font-size: clamp(0.88rem, 0.25vw + 0.82rem, 0.98rem);
+    font-weight: 500;
+    line-height: 1.45;
+    color: color-mix(in oklab, var(--calserver-primary) 72%, var(--qr-text) 28%);
+    text-wrap: pretty;
+}
+
+/* ── Use-cases: dark mode ──────────────────────────────────────── */
+body.marketing-page.calhelp-theme.dark-mode:not(.high-contrast) .calhelp-usecase-card--accent,
+body.marketing-page.calhelp-theme[data-theme="dark"]:not(.high-contrast) .calhelp-usecase-card--accent {
+    background:
+        linear-gradient(
+            145deg,
+            color-mix(in oklab, var(--calserver-primary) 22%, var(--marketing-surface-dark) 78%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 14%, var(--marketing-surface-dark) 86%) 100%
+        );
+    border-color: color-mix(in oklab, var(--calserver-primary) 32%, transparent);
+    box-shadow:
+        0 22px 48px -30px color-mix(in oklab, var(--calserver-primary) 28%, transparent),
+        0 10px 24px -16px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
+}
+
+body.marketing-page.calhelp-theme.dark-mode:not(.high-contrast) .calhelp-usecase-card--muted,
+body.marketing-page.calhelp-theme[data-theme="dark"]:not(.high-contrast) .calhelp-usecase-card--muted {
+    background: var(--marketing-surface-dark);
+    border-color: color-mix(in oklab, var(--marketing-white) 12%, transparent);
+    box-shadow:
+        0 18px 40px -26px color-mix(in oklab, var(--marketing-ink) 55%, transparent);
+}
+
+body.marketing-page.calhelp-theme.dark-mode:not(.high-contrast) .calhelp-usecase-card__eyebrow,
+body.marketing-page.calhelp-theme[data-theme="dark"]:not(.high-contrast) .calhelp-usecase-card__eyebrow {
+    color: color-mix(in oklab, var(--calserver-primary) 42%, var(--marketing-white) 58%);
+}
+
+body.marketing-page.calhelp-theme.dark-mode:not(.high-contrast) .calhelp-usecase-card__headline,
+body.marketing-page.calhelp-theme[data-theme="dark"]:not(.high-contrast) .calhelp-usecase-card__headline {
+    color: var(--cs-text-on-dark);
+}
+
+body.marketing-page.calhelp-theme.dark-mode:not(.high-contrast) .calhelp-usecase-card__body,
+body.marketing-page.calhelp-theme[data-theme="dark"]:not(.high-contrast) .calhelp-usecase-card__body {
+    color: color-mix(in oklab, var(--cs-text-on-dark) 92%, transparent);
+}
+
+body.marketing-page.calhelp-theme.dark-mode:not(.high-contrast) .calhelp-usecase-card__result,
+body.marketing-page.calhelp-theme[data-theme="dark"]:not(.high-contrast) .calhelp-usecase-card__result {
+    background: color-mix(in oklab, var(--calserver-primary) 16%, transparent);
+    color: color-mix(in oklab, var(--calserver-primary) 35%, var(--marketing-white) 65%);
+}
+
+body.marketing-page.calhelp-theme.dark-mode:not(.high-contrast) .calhelp-usecases__eyebrow,
+body.marketing-page.calhelp-theme[data-theme="dark"]:not(.high-contrast) .calhelp-usecases__eyebrow {
+    color: color-mix(in oklab, var(--calserver-primary) 42%, var(--marketing-white) 58%);
+}
+
+body.marketing-page.calhelp-theme.dark-mode:not(.high-contrast) .calhelp-usecases__headline,
+body.marketing-page.calhelp-theme[data-theme="dark"]:not(.high-contrast) .calhelp-usecases__headline {
+    color: var(--cs-text-on-dark);
+}
+
+body.marketing-page.calhelp-theme.dark-mode:not(.high-contrast) .calhelp-usecases__lead,
+body.marketing-page.calhelp-theme[data-theme="dark"]:not(.high-contrast) .calhelp-usecases__lead {
+    color: color-mix(in oklab, var(--cs-text-on-dark) 82%, transparent);
+}
+
+/* ── Use-cases: high contrast ──────────────────────────────────── */
+body.marketing-page.calhelp-theme.high-contrast .calhelp-usecase-card,
+body.marketing-page.calhelp-theme[data-theme="high-contrast"] .calhelp-usecase-card,
+body.high-contrast .calhelp-usecase-card {
+    background: var(--marketing-white);
+    color: var(--marketing-black);
+    border: 2px solid currentColor;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+body.marketing-page.calhelp-theme.high-contrast .calhelp-usecase-card__eyebrow,
+body.marketing-page.calhelp-theme[data-theme="high-contrast"] .calhelp-usecase-card__eyebrow,
+body.high-contrast .calhelp-usecase-card__eyebrow {
+    color: currentColor;
+}
+
+body.marketing-page.calhelp-theme.high-contrast .calhelp-usecase-card__headline,
+body.marketing-page.calhelp-theme[data-theme="high-contrast"] .calhelp-usecase-card__headline,
+body.high-contrast .calhelp-usecase-card__headline {
+    color: currentColor;
+}
+
+body.marketing-page.calhelp-theme.high-contrast .calhelp-usecase-card__body,
+body.marketing-page.calhelp-theme[data-theme="high-contrast"] .calhelp-usecase-card__body,
+body.high-contrast .calhelp-usecase-card__body {
+    color: currentColor;
+}
+
+body.marketing-page.calhelp-theme.high-contrast .calhelp-usecase-card__result,
+body.marketing-page.calhelp-theme[data-theme="high-contrast"] .calhelp-usecase-card__result,
+body.high-contrast .calhelp-usecase-card__result {
+    background: transparent;
+    border: 2px solid currentColor;
+    color: currentColor;
+    font-weight: 700;
+}
+
+body.marketing-page.calhelp-theme.high-contrast .calhelp-usecases__header,
+body.marketing-page.calhelp-theme[data-theme="high-contrast"] .calhelp-usecases__header,
+body.high-contrast .calhelp-usecases__header {
+    color: currentColor;
+}
+
+body.marketing-page.calhelp-theme.high-contrast .calhelp-usecases__eyebrow,
+body.marketing-page.calhelp-theme[data-theme="high-contrast"] .calhelp-usecases__eyebrow,
+body.high-contrast .calhelp-usecases__eyebrow {
+    color: currentColor;
+}
+
 body.marketing-page.calhelp-theme :is(.calhelp-card, .calhelp-kpi) {
     display: flex;
     flex-direction: column;
