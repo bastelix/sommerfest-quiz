@@ -408,6 +408,7 @@
 - Redesign use-cases block with proper BEM structure, contrast and theme support
 - Connect sliderProfile to frontend and skip reveal for above-fold sections
 - Case-insensitive comparison for hover effect target detection
+- Add missing CSS for module-card and news-card variants
 
 ### Merge
 
