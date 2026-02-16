@@ -398,6 +398,7 @@
 - Load marketing.css in page editor for correct inline preview
 - Preserve container (width/frame/spacing) in section style sanitization
 - Generate client-side player UID fallback when registration fails
+- Update sqlite-schema.sql with customer role CHECK constraint
 
 ### Merge
 
