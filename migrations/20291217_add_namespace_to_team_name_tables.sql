@@ -1,10 +1,14 @@
 -- Add namespace column to team name tables for consistent namespace scoping.
 --
+-- Depends on:
+--   20241028_create_team_names.sql          (team_names table)
+--   20260916_create_team_name_ai_cache.sql  (team_name_ai_cache table)
+--   20291211_add_namespace_to_events.sql    (events.namespace column)
+--
 -- Affected tables: team_names, team_name_ai_cache.
 --
 -- Rollback: ALTER TABLE team_names DROP COLUMN namespace;
 --           ALTER TABLE team_name_ai_cache DROP COLUMN namespace;
--- Risk: Low – adds nullable column first, then backfills from events.namespace.
 
 -- team_names
 ALTER TABLE team_names ADD COLUMN IF NOT EXISTS namespace TEXT;
