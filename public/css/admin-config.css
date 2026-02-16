@@ -54,6 +54,12 @@
   touch-action: none;
 }
 
+/* ── Newsletter campaign status labels ── */
+.uk-label-warning {
+  background-color: var(--qr-status-warning, #faa05a);
+  color: #fff;
+}
+
 /* ── Admin Config – Mobile Compact ── */
 @media (max-width: 639px) {
 

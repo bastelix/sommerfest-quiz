@@ -4,6 +4,7 @@
 {% block title %}{{ t('tab_newsletter') }}{% endblock %}
 
 {% block admin_head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/admin-config.css">
   <script>
     window.marketingNewsletterConfigs = {{ marketingNewsletterConfigs|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.marketingNewsletterSlugs = {{ marketingNewsletterSlugs|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
@@ -19,12 +20,6 @@
     window.transMarketingNewsletterRemove = '{{ t('button_marketing_newsletter_remove_entry')|e('js') }}';
     window.transMarketingNewsletterEmpty = '{{ t('text_marketing_newsletter_empty')|e('js') }}';
   </script>
-  <style>
-    .uk-label-warning {
-      background-color: #faa05a;
-      color: #fff;
-    }
-  </style>
 {% endblock %}
 
 {% block content %}
