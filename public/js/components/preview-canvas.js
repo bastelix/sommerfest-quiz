@@ -74,7 +74,7 @@ export class PreviewCanvas {
     this.surface = document.createElement('div');
     this.surface.className = 'page-preview-surface';
 
-    this.root.classList.add('page-preview-canvas', 'marketing-scope', 'cms-page-render');
+    this.root.classList.add('page-preview-canvas', 'marketing-scope', 'cms-page-render', 'marketing-page');
     this.root.append(this.surface);
 
     this.handleClick = this.handleClick.bind(this);
