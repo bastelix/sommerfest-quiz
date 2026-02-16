@@ -2133,11 +2133,16 @@ const syncStartpageToggle = () => {
 
 const loadStartpageState = () => {
   const manager = document.querySelector('[data-page-namespace-manager]');
+  const treeContainer = document.querySelector('[data-page-tree]');
   const select = getDomainSelect();
-  const rawStartpageId = manager?.dataset.startpagePageId || '';
+  const rawStartpageId = manager?.dataset.startpagePageId
+    || treeContainer?.dataset.startpageId
+    || '';
   const rawMap = manager?.dataset.startpageMap || '';
   startpageMap = normalizeStartpageMap(rawMap);
-  selectedStartpageDomain = manager?.dataset.selectedDomain || '';
+  selectedStartpageDomain = manager?.dataset.selectedDomain
+    || treeContainer?.dataset.startpageDomain
+    || '';
 
   if (!selectedStartpageDomain && select) {
     selectedStartpageDomain = select.value || '';
@@ -3978,6 +3983,102 @@ const openTreeDeleteModal = (slug, title, hasChildren) => {
   UIkit.modal('#treeDeleteConfirmModal').show();
 };
 
+const getTreeStartpageId = () => {
+  const container = document.querySelector('[data-page-tree]');
+  const raw = container?.dataset.startpageId || '';
+  const numeric = Number(raw);
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
+};
+
+const setTreeStartpageId = (pageId) => {
+  const container = document.querySelector('[data-page-tree]');
+  if (container) {
+    container.dataset.startpageId = pageId != null ? String(pageId) : '';
+  }
+};
+
+const getTreeStartpageDomain = () => {
+  const container = document.querySelector('[data-page-tree]');
+  return container?.dataset.startpageDomain || '';
+};
+
+const isTreeStartpageEnabled = () => {
+  const container = document.querySelector('[data-page-tree]');
+  return container?.dataset.hasDomainNamespace === '1';
+};
+
+const updateTreeStartpageIndicators = () => {
+  const container = document.querySelector('[data-page-tree]');
+  if (!container) {
+    return;
+  }
+  const activeId = getTreeStartpageId();
+  container.querySelectorAll('[data-page-tree-item]').forEach(item => {
+    const existingIcon = item.querySelector('[data-startpage-indicator]');
+    const nodeId = item.dataset.pageTreeNodeId ? Number(item.dataset.pageTreeNodeId) : null;
+    const isStartpage = nodeId !== null && nodeId === activeId;
+    if (isStartpage && !existingIcon) {
+      const infoEl = item.querySelector('[data-page-tree-info]');
+      if (infoEl) {
+        const icon = document.createElement('span');
+        icon.dataset.startpageIndicator = 'true';
+        icon.className = 'uk-text-primary uk-margin-small-left';
+        icon.setAttribute('uk-icon', 'icon: home; ratio: 0.8');
+        icon.setAttribute('title', 'Startseite');
+        infoEl.insertBefore(icon, infoEl.firstChild?.nextSibling || null);
+        if (window.UIkit && UIkit.icon) {
+          UIkit.icon(icon);
+        }
+      }
+    } else if (!isStartpage && existingIcon) {
+      existingIcon.remove();
+    }
+  });
+};
+
+const toggleTreeStartpage = async (pageId) => {
+  if (!isTreeStartpageEnabled()) {
+    notify('Kein Domain-Namespace konfiguriert.', 'warning');
+    return;
+  }
+  const currentId = getTreeStartpageId();
+  const isCurrentlyStartpage = currentId === pageId;
+  const domain = getTreeStartpageDomain();
+
+  try {
+    const response = await apiFetch(withNamespace(`/admin/pages/${encodeURIComponent(pageId)}/startpage`), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-CSRF-Token': window.csrfToken || ''
+      },
+      body: JSON.stringify({ is_startpage: !isCurrentlyStartpage, domain })
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload?.error || 'Startseite konnte nicht gespeichert werden.');
+    }
+
+    const updatedId = payload?.startpagePageId ? Number(payload.startpagePageId) : null;
+    const newId = Number.isFinite(updatedId) ? updatedId : null;
+    setTreeStartpageId(newId);
+    currentStartpagePageId = newId;
+    startpageMap[domain] = newId;
+    refreshStartpageOptionState(newId);
+    syncStartpageToggle();
+    updateTreeStartpageIndicators();
+
+    const message = !isCurrentlyStartpage
+      ? 'Startseite gesetzt.'
+      : 'Startseite entfernt.';
+    notify(message, 'success');
+  } catch (error) {
+    notify(error instanceof Error ? error.message : 'Startseite konnte nicht gespeichert werden.', 'danger');
+  }
+};
+
 function buildPageTreeList(nodes, level = 0) {
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-collapse';
@@ -3988,11 +4089,17 @@ function buildPageTreeList(nodes, level = 0) {
     return list;
   }
 
+  const treeStartpageId = getTreeStartpageId();
+
   nodes.forEach(node => {
     const selectableSlug = node.slug || node.id;
+    const nodeId = Number.isFinite(Number(node.id)) ? Number(node.id) : null;
     const item = document.createElement('li');
     if (selectableSlug) {
       item.dataset.pageTreeItem = selectableSlug;
+    }
+    if (nodeId !== null) {
+      item.dataset.pageTreeNodeId = String(nodeId);
     }
     const row = document.createElement('div');
     row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
@@ -4003,6 +4110,18 @@ function buildPageTreeList(nodes, level = 0) {
     title.className = 'uk-text-bold';
     title.textContent = node.title || node.slug || 'Ohne Titel';
     info.appendChild(title);
+
+    if (nodeId !== null && nodeId === treeStartpageId) {
+      const homeIcon = document.createElement('span');
+      homeIcon.dataset.startpageIndicator = 'true';
+      homeIcon.className = 'uk-text-primary uk-margin-small-left';
+      homeIcon.setAttribute('uk-icon', 'icon: home; ratio: 0.8');
+      homeIcon.setAttribute('title', 'Startseite');
+      info.appendChild(homeIcon);
+      if (window.UIkit && UIkit.icon) {
+        UIkit.icon(homeIcon);
+      }
+    }
 
     if (node.slug) {
       const slug = document.createElement('span');
@@ -4064,6 +4183,24 @@ function buildPageTreeList(nodes, level = 0) {
 
       const nav = document.createElement('ul');
       nav.className = 'uk-nav uk-dropdown-nav';
+
+      // Startpage toggle
+      if (nodeId !== null && isTreeStartpageEnabled()) {
+        const isStartpage = nodeId === treeStartpageId;
+        const startpageLi = document.createElement('li');
+        const startpageLink = document.createElement('a');
+        startpageLink.href = '#';
+        startpageLink.innerHTML = isStartpage
+          ? '<span uk-icon="icon: close; ratio: 0.8" class="uk-margin-small-right"></span>Startseite entfernen'
+          : '<span uk-icon="icon: home; ratio: 0.8" class="uk-margin-small-right"></span>Als Startseite setzen';
+        startpageLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          UIkit.dropdown(dropdown).hide(false);
+          toggleTreeStartpage(nodeId);
+        });
+        startpageLi.appendChild(startpageLink);
+        nav.appendChild(startpageLi);
+      }
 
       // Rename
       const renameLi = document.createElement('li');

@@ -26,6 +26,9 @@
     data-namespace="{{ pageNamespace|default('default')|e('html_attr') }}"
     data-empty="Keine Seiten vorhanden."
     data-error="Seitenbaum konnte nicht geladen werden."
+    data-startpage-id="{{ startpage_page_id|default('')|e('html_attr') }}"
+    data-startpage-domain="{{ startpage_selected_domain|default('')|e('html_attr') }}"
+    data-has-domain-namespace="{{ hasDomainNamespace|default(false) ? '1' : '0' }}"
   >
     <div class="uk-text-meta" data-page-tree-loading>Seitenbaum wird geladen…</div>
   </div>
