@@ -406,9 +406,11 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         return $controller->index($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/newsletter-campaigns', function (Request $request, Response $response) {
-        /** @var NewsletterCampaignController $controller */
-        $controller = $request->getAttribute('newsletterCampaignController');
-        return $controller->index($request, $response);
+        $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
+        $query = $request->getUri()->getQuery();
+        $separator = $query !== '' ? '&' : '?';
+        $target = $base . '/admin/newsletter' . ($query !== '' ? '?' . $query : '') . $separator . 'tab=campaigns';
+        return $response->withHeader('Location', $target)->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->post('/admin/newsletter-campaigns', function (Request $request, Response $response) {
         /** @var NewsletterCampaignController $controller */
