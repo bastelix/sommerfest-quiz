@@ -6723,7 +6723,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cat = catalogs.find(c => c.id === identifier || c.uid === identifier || (c.slug || c.sort_order) === identifier);
     if (!cat) return;
     catalogFile = cat.file;
-    apiFetch('/kataloge/' + catalogFile, { headers: { 'Accept': 'application/json' } })
+    apiFetch(appendNamespaceParam('/kataloge/' + catalogFile), { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
         initial = data;
@@ -6776,7 +6776,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   async function loadLegacyCatalogs() {
-    const res = await apiFetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } });
+    const res = await apiFetch(appendNamespaceParam('/kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } });
     if (!res.ok) {
       throw new Error(`Legacy catalogs request failed with status ${res.status}`);
     }
@@ -6787,7 +6787,7 @@ document.addEventListener('DOMContentLoaded', function () {
   async function loadCatalogs() {
     catalogManager?.setColumnLoading('name', true);
     try {
-      const res = await apiFetch('/admin/catalogs/data', { headers: { 'Accept': 'application/json' } });
+      const res = await apiFetch(appendNamespaceParam('/admin/catalogs/data'), { headers: { 'Accept': 'application/json' } });
       if (res.status === 404) {
         await loadLegacyCatalogs();
         return;
