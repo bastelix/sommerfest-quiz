@@ -43,6 +43,15 @@ function applyState(element, state) {
   }
 }
 
+function isInViewport(element) {
+  if (typeof element.getBoundingClientRect !== 'function') {
+    return false;
+  }
+  const rect = element.getBoundingClientRect();
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+  return rect.top < viewportHeight && rect.bottom > 0;
+}
+
 function revealElement(entry, presetName) {
   const element = entry.target;
   const preset = PRESETS[presetName] || PRESETS.default;
@@ -89,8 +98,12 @@ export function initReveal(root, profile, options = {}) {
   }, { threshold: 0.1 });
 
   elements.forEach(el => {
-    applyState(el, preset.idle);
-    observer.observe(el);
+    if (isInViewport(el)) {
+      applyState(el, preset.active);
+    } else {
+      applyState(el, preset.idle);
+      observer.observe(el);
+    }
   });
 
   return () => observer.disconnect();
