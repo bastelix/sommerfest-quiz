@@ -82,6 +82,12 @@ const syncComponentTokens = source => {
   root.dataset.typographyPreset = tokens.typographyPreset;
   root.dataset.cardStyle = tokens.cardStyle;
   root.dataset.buttonStyle = tokens.buttonStyle;
+
+  if (source && source !== root) {
+    source.dataset.typographyPreset = tokens.typographyPreset;
+    source.dataset.cardStyle = tokens.cardStyle;
+    source.dataset.buttonStyle = tokens.buttonStyle;
+  }
 };
 
 const mergeAppearance = (namespace, appearance = {}) => {
