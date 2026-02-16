@@ -30,7 +30,7 @@ export function initHoverMicroInteractions(root, profile, options = {}) {
 
   let elements = Array.from(root.querySelectorAll('[data-effect]')).filter(el => {
     const raw = el.dataset?.effect || '';
-    return raw.split(/\s+/).some(token => token.trim().toLowerCase() === EFFECT_TYPES.HOVER);
+    return raw.split(/\s+/).some(token => token.trim().toLowerCase() === EFFECT_TYPES.HOVER.toLowerCase());
   });
 
   // Auto-detect cards when no explicit data-effect hover markers exist.

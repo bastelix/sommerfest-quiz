@@ -37,6 +37,13 @@ export const EFFECTS_BY_NAMESPACE = {
   calserver: 'calserver.professional'
 };
 
+// Maps admin slider-profile values to slider.js BEHAVIOR_PRESETS keys.
+const SLIDER_PROFILE_TO_PRESET = {
+  'static': 'manual',
+  'calm': 'steady',
+  'marketing': 'momentum'
+};
+
 function normalizeNamespace(namespace) {
   if (!namespace) return 'default';
   return String(namespace).trim().toLowerCase();
@@ -54,9 +61,29 @@ export function resolveProfileName(namespace) {
 export function resolveEffectsProfile(namespace) {
   const profileName = resolveProfileName(namespace);
   if (profileName && EFFECTS_PROFILES[profileName]) {
-    return { profileName, profile: EFFECTS_PROFILES[profileName] };
+    const baseProfile = EFFECTS_PROFILES[profileName];
+    const sliderOverride = resolveSliderOverride(namespace);
+    if (sliderOverride) {
+      return {
+        profileName,
+        profile: {
+          ...baseProfile,
+          [EFFECT_TYPES.SLIDER]: { ...baseProfile[EFFECT_TYPES.SLIDER], preset: sliderOverride }
+        }
+      };
+    }
+    return { profileName, profile: baseProfile };
   }
   return null;
+}
+
+function resolveSliderOverride(namespace) {
+  const design = resolveNamespaceDesign(normalizeNamespace(namespace));
+  const sliderProfile = design?.effects?.sliderProfile;
+  if (!sliderProfile || typeof sliderProfile !== 'string') {
+    return null;
+  }
+  return SLIDER_PROFILE_TO_PRESET[sliderProfile.trim().toLowerCase()] || null;
 }
 
 function resolveDesignProfile(namespace) {
