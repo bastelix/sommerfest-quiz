@@ -1980,12 +1980,10 @@ function buildResponsiveGridClasses(columns, options = {}) {
       parts.push(`${prefix}-1-2@m`);
     }
   } else if (columns === 3) {
-    parts.push(`${prefix}-1-2@s`);
-    parts.push(`${prefix}-1-3@m`);
+    parts.push(`${prefix}-1-3@s`);
   } else if (columns >= 4) {
-    parts.push(`${prefix}-1-2@s`);
-    parts.push(`${prefix}-1-3@m`);
-    parts.push(`${prefix}-1-${columns}@l`);
+    parts.push(`${prefix}-1-3@s`);
+    parts.push(`${prefix}-1-${columns}@m`);
   }
 
   return parts.join(' ');
@@ -2016,9 +2014,9 @@ function getStatStripColumnsBreakpoint(block) {
 
 function buildStatStripGridClass(block, baseClass) {
   const columns = getStatStripColumns(block);
-  const breakpoint = getStatStripColumnsBreakpoint(block);
-  const intermediate = columns >= 3 ? ' uk-child-width-1-2@s' : '';
-  return `${baseClass} uk-child-width-1-1${intermediate} uk-child-width-1-${columns}@${breakpoint}`;
+  const explicitBreakpoint = getStatStripColumnsBreakpoint(block);
+  const breakpoint = columns >= 3 ? 's' : explicitBreakpoint;
+  return `${baseClass} uk-child-width-1-1 uk-child-width-1-${columns}@${breakpoint}`;
 }
 
 function renderStatStripInline(block, options = {}) {
@@ -2583,7 +2581,7 @@ function renderLatestNews(block, options = {}) {
     : '';
 
   const headerRow = `<div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">${headerHtml}${allLinkHtml}</div>`;
-  const grid = `<div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-3@m" uk-grid>${cardsHtml}</div>`;
+  const grid = `<div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@s" uk-grid>${cardsHtml}</div>`;
 
   return renderSection({
     block,
