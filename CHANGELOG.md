@@ -423,6 +423,7 @@
 - Remove unused $pageModules property from PageController
 - Apply aurora design scheme correctly for calserver-neu namespace
 - *(teams)* Scope all team API calls to the active event
+- *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
 
 ### Merge
 
