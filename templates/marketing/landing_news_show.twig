@@ -22,6 +22,33 @@
 {% block body %}
   {% include 'marketing/partials/design-data.twig' %}
   <div class="marketing-layout">
+    {% include 'pages/partials/marketing_topbar.twig' with {
+      cmsMenuItems: cmsMainNavigation|default([]),
+      cmsMainNavigation: cmsMainNavigation|default([]),
+      headerLogo: headerLogo|default({}),
+      headerTheme: design.theme|default('light'),
+      headerConfig: headerConfig|default({}),
+      basePath: basePath,
+      cmsSlug: cmsSlug|default(newsOwnerSlug|default(page.slug)),
+      pageTitle: page.title|default('QuizRace')
+    } only %}
+
+    {% if breadcrumbs is defined and breadcrumbs %}
+      <nav aria-label="Breadcrumb" class="uk-container uk-margin-small-top">
+        <ul class="uk-breadcrumb">
+          {% for crumb in breadcrumbs %}
+            <li{% if loop.last %} class="uk-active" aria-current="page"{% endif %}>
+              {% if not loop.last and crumb.url %}
+                <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+              {% else %}
+                <span>{{ crumb.label }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+    {% endif %}
+
     {% set sectionId = isCalserverTheme ? 'calserver-news' : 'landing-news' %}
     {% set sectionClasses = 'marketing-section uk-section uk-section-default marketing-news' %}
     {% if isCalserverTheme %}
@@ -29,10 +56,6 @@
     {% endif %}
     <section id="{{ sectionId }}" class="{{ sectionClasses }}">
       <div class="uk-container uk-container-small">
-        <nav class="uk-margin-bottom">
-          <a class="uk-button uk-button-text" href="{{ newsIndexUrl }}">&larr; Zur Übersicht</a>
-          <a class="uk-button uk-button-text uk-margin-left" href="{{ landingPageUrl|default(basePath ~ '/' ~ page.slug) }}">Landingpage</a>
-        </nav>
         <article class="marketing-news-entry uk-article{% if isCalserverTheme %} calserver-news-entry{% endif %}">
           <h1 class="uk-article-title">{{ entry.title }}</h1>
           {% if entry.publishedAt %}
@@ -46,4 +69,18 @@
       </div>
     </section>
   </div>
+{% endblock %}
+
+{% block footer %}
+  {% include 'marketing/partials/footer-standard.twig' with {
+    brandName: 'QuizRace',
+    brandDescription: 'Interaktive QR-Code-Rallyes für Events &ndash; schnell startklar und datensicher.',
+    contactName: 'René Buske',
+    contactEmailUser: 'office',
+    contactEmailDomain: 'calhelp.de',
+    contactPhone: '+4933203609080',
+    contactPhoneLabel: '+49\u00a033203\u00a0609080',
+    footerColumns: cmsFooterColumns|default([]),
+    legalNavigation: cmsLegalNavigation|default([])
+  } only %}
 {% endblock %}

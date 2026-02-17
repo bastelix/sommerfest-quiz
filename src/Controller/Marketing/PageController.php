@@ -6,9 +6,7 @@ namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
-use App\Service\CmsFooterBlockService;
-use App\Service\CmsMenuDefinitionService;
-use App\Service\CmsMenuResolverService;
+use App\Service\CmsLayoutDataService;
 use App\Service\CmsMenuService;
 use App\Service\CmsPageMenuService;
 use App\Service\CmsPageWikiArticleService;
@@ -74,6 +72,7 @@ class PageController
     private ProjectSettingsService $projectSettings;
     private ConfigService $configService;
     private EffectsPolicyService $effectsPolicy;
+    private CmsLayoutDataService $layoutData;
     private CmsPageMenuService $cmsMenu;
     private TurnstileConfig $turnstileConfig;
     private ProvenExpertRatingService $provenExpert;
@@ -114,6 +113,7 @@ class PageController
         $this->configService = $configService ?? new ConfigService($pdo);
         $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
         $this->cmsMenu = $cmsMenu ?? new CmsPageMenuService($pdo, $this->pages);
+        $this->layoutData = new CmsLayoutDataService($pdo, $this->projectSettings);
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response
@@ -252,30 +252,18 @@ class PageController
         $cookieSettings = $this->projectSettings->getCookieConsentSettings($pageNamespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
-        $headerConfig = $this->buildHeaderConfig($cookieSettings);
-        $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
+
+        $layoutChromeData = $this->layoutData->loadLayoutData($pageNamespace, $page->getId(), $locale, $basePath);
+        $headerConfig = $layoutChromeData['headerConfig'];
+        $headerLogo = $layoutChromeData['headerLogo'];
+        $cmsMainNavigation = $layoutChromeData['cmsMainNavigation'];
+        $cmsFooterNavigation = $layoutChromeData['cmsFooterNavigation'];
+        $cmsLegalNavigation = $layoutChromeData['cmsLegalNavigation'];
+        $cmsFooterColumns = $layoutChromeData['cmsFooterColumns'];
+        $cmsFooterBlocks = $layoutChromeData['cmsFooterBlocks'];
 
         $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
         $menu = $cmsMenuService->getMenuForNamespace($pageNamespace, $locale);
-
-        $menuResolver = new CmsMenuResolverService($pdo);
-        $headerNavigation = $menuResolver->resolveMenu($pageNamespace, 'header', $page->getId(), $locale);
-        $cmsMainNavigation = $headerNavigation['items'];
-
-        $footerNavigation = $menuResolver->resolveMenu($pageNamespace, 'footer', $page->getId(), $locale);
-        $cmsFooterNavigation = $footerNavigation['items'];
-
-        $legalNavigation = $menuResolver->resolveMenu($pageNamespace, 'legal', $page->getId(), $locale);
-        $cmsLegalNavigation = $legalNavigation['items'];
-
-        $cmsFooterColumns = $this->resolveFooterColumns(
-            $menuResolver,
-            $pageNamespace,
-            $page->getId(),
-            $locale
-        );
-
-        $cmsFooterBlocks = $this->resolveFooterBlocks($pageNamespace, $locale);
 
         $navigation = $this->loadNavigationSections(
             $pageNamespace,
@@ -722,81 +710,6 @@ class PageController
     }
 
     /**
-     * @return array<int, array{slot: string, items: array<int, array<string, mixed>>}>
-     */
-    private function resolveFooterColumns(
-        CmsMenuResolverService $menuResolver,
-        string $namespace,
-        int $pageId,
-        string $locale
-    ): array {
-        $columns = [];
-
-        foreach (CmsMenuResolverService::FOOTER_SLOTS as $slot) {
-            $resolved = $menuResolver->resolveMenu($namespace, $slot, $pageId, $locale);
-            if ($resolved['items'] === []) {
-                continue;
-            }
-
-            $columns[] = [
-                'slot' => $slot,
-                'items' => $resolved['items'],
-            ];
-        }
-
-        return $columns;
-    }
-
-    /**
-     * Load footer blocks for a namespace and locale
-     *
-     * @return array<string, array<int, array<string, mixed>>>
-     */
-    private function resolveFooterBlocks(string $namespace, string $locale): array
-    {
-        $blockService = new CmsFooterBlockService();
-        $menuDefinitionService = new CmsMenuDefinitionService();
-        $result = [];
-
-        foreach (['footer_1', 'footer_2', 'footer_3'] as $slot) {
-            $blocks = $blockService->getBlocksForSlot($namespace, $slot, $locale, true);
-            $serialized = [];
-
-            foreach ($blocks as $block) {
-                $content = $block->getContent();
-
-                // Load menu items if block type is menu
-                if ($block->getType() === 'menu' && isset($content['menuId'])) {
-                    $menuId = (int) $content['menuId'];
-                    $menuItems = $menuDefinitionService->getMenuItemsForMenu($namespace, $menuId, $locale, true);
-                    $content['menuItems'] = array_map(
-                        static fn ($item): array => [
-                            'label' => $item->getLabel(),
-                            'href' => $item->getHref(),
-                            'icon' => $item->getIcon(),
-                            'isExternal' => $item->isExternal(),
-                        ],
-                        $menuItems
-                    );
-                }
-
-                $serialized[] = [
-                    'id' => $block->getId(),
-                    'type' => $block->getType(),
-                    'content' => $content,
-                    'isActive' => $block->isActive(),
-                ];
-            }
-
-            if ($serialized !== []) {
-                $result[$slot] = $serialized;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * @param array<int, array<string, mixed>> $menuItems
      * @return array<int, array<string, mixed>>
      */
@@ -1004,78 +917,6 @@ class PageController
         }
 
         return (string) ($settings['cookie_banner_text_de'] ?? '');
-    }
-
-    /**
-     * @param array<string, mixed> $settings
-     * @return array<string, bool>
-     */
-    private function buildHeaderConfig(array $settings): array
-    {
-        return [
-            'show_language' => (bool) ($settings['show_language_toggle'] ?? true),
-            'show_theme_toggle' => (bool) ($settings['show_theme_toggle'] ?? true),
-            'show_contrast_toggle' => (bool) ($settings['show_contrast_toggle'] ?? true),
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $settings
-     * @return array{mode:string,src:?string,alt:string,label:string,path:string}
-     */
-    private function buildHeaderLogoSettings(array $settings, string $basePath): array
-    {
-        $mode = is_string($settings['header_logo_mode'] ?? null)
-            ? strtolower(trim((string) $settings['header_logo_mode']))
-            : 'text';
-        $path = is_string($settings['header_logo_path'] ?? null)
-            ? trim((string) $settings['header_logo_path'])
-            : '';
-        $alt = is_string($settings['header_logo_alt'] ?? null)
-            ? trim((string) $settings['header_logo_alt'])
-            : '';
-        $label = is_string($settings['header_logo_label'] ?? null)
-            ? trim((string) $settings['header_logo_label'])
-            : '';
-        if ($label === '') {
-            $label = $alt !== '' ? $alt : 'QuizRace';
-        }
-        if ($alt === '') {
-            $alt = $label;
-        }
-        $src = $this->resolveHeaderLogoPath($path, $basePath);
-
-        if ($mode !== 'image' || $src === null) {
-            $mode = 'text';
-        }
-
-        return [
-            'mode' => $mode,
-            'src' => $src,
-            'alt' => $alt,
-            'label' => $label,
-            'path' => $path,
-        ];
-    }
-
-    private function resolveHeaderLogoPath(?string $path, string $basePath): ?string
-    {
-        if (!is_string($path)) {
-            return null;
-        }
-
-        $normalized = trim($path);
-        if ($normalized === '') {
-            return null;
-        }
-
-        if (str_starts_with($normalized, 'http://') || str_starts_with($normalized, 'https://')) {
-            return $normalized;
-        }
-
-        $normalizedBase = rtrim($basePath, '/');
-
-        return ($normalizedBase !== '' ? $normalizedBase : '') . '/' . ltrim($normalized, '/');
     }
 
     /**
