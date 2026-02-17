@@ -51,6 +51,11 @@
               <a href="#" data-design-tab="behavior">Verhalten</a>
             </li>
           {% endif %}
+          {% if not readOnly %}
+            <li class="{{ activeTab == 'css' ? 'uk-active' : '' }}">
+              <a href="#" data-design-tab="css">Eigenes CSS</a>
+            </li>
+          {% endif %}
         </ul>
         {% if not canAccessBehavior %}
           <div class="uk-alert uk-alert-primary uk-margin-small">Verhalten wird auf Namespace-Ebene gesteuert.</div>
@@ -736,7 +741,59 @@
                   </form>
                 {% endif %}
               </div>
+            {% if not readOnly %}
+            <div class="design-panel" data-design-panel="css" {% if activeTab != 'css' %}hidden{% endif %}>
+              <div class="uk-card uk-card-default uk-card-body">
+                <h2>Eigenes CSS – Namespace: {{ pageNamespace }}</h2>
+                <p class="uk-text-meta uk-margin-remove">
+                  Eigene CSS-Regeln, die zusätzlich zu den Design-Tokens geladen werden.
+                  Änderungen werden automatisch mit <code>[data-namespace="{{ pageNamespace }}"]</code> umschlossen.
+                </p>
+
+                <details class="uk-margin-top">
+                  <summary class="uk-text-meta" style="cursor:pointer">
+                    Verfügbare CSS-Variablen anzeigen
+                  </summary>
+                  <div class="uk-margin-small-top">
+                    <pre class="design-css-reference"><code>{{ cssVariablesReference|default('')|e }}</code></pre>
+                  </div>
+                </details>
+
+                <form class="uk-form-stacked uk-margin-top" method="post">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <input type="hidden" name="namespace" value="{{ pageNamespace|e('html_attr') }}">
+                  <input type="hidden" name="action" value="save_css">
+
+                  <div class="uk-form-controls">
+                    <textarea
+                      id="customCssEditor"
+                      class="uk-textarea design-css-editor"
+                      name="custom_css"
+                      rows="20"
+                      placeholder="/* z.B. */
+.uk-button-primary {
+  border-radius: 999px;
+}
+
+.uk-card {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}"
+                      data-custom-css-editor
+                    >{{ customCss|default('') }}</textarea>
+                  </div>
+
+                  <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
+                    <button
+                      class="uk-button uk-button-default"
+                      type="button"
+                      data-css-reset
+                    >Zurücksetzen</button>
+                    <button class="uk-button uk-button-primary" type="submit">CSS speichern</button>
+                  </div>
+                </form>
+              </div>
             </div>
+            {% endif %}
           </div>
         </div>
       </div>

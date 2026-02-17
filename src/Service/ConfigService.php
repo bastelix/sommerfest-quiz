@@ -130,6 +130,7 @@ class ConfigService
         'sliderProfile' => 'slider_profile',
         'pageTypes' => 'page_types',
         'resultsViewMode' => 'results_view_mode',
+        'customCss' => 'custom_css',
     ];
 
     /**
@@ -552,6 +553,7 @@ class ConfigService
             'dashboardVisibilityEnd',
             'effectsProfile',
             'sliderProfile',
+            'customCss',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
         $allowed = array_flip($keys);
@@ -1229,6 +1231,7 @@ class ConfigService
             'pageTypes',
             'effectsProfile',
             'sliderProfile',
+            'customCss',
         ];
         $map = [];
         foreach ($keys as $k) {

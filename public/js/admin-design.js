@@ -1040,7 +1040,7 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     const links = Array.from(tabNav.querySelectorAll('[data-design-tab]'));
 
     const setActiveTab = tab => {
-      const normalized = tab === 'behavior' ? 'behavior' : 'appearance';
+      const normalized = ['behavior', 'css'].includes(tab) ? tab : 'appearance';
       links.forEach(link => {
         const isActive = link.dataset.designTab === normalized;
         const parent = link.parentElement;
@@ -1139,6 +1139,38 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     applySelection(initialScheme);
   };
 
+  const initCustomCssEditor = () => {
+    const textarea = document.querySelector('[data-custom-css-editor]');
+    const resetButton = document.querySelector('[data-css-reset]');
+    if (!textarea || !preview) return;
+
+    let previewStyleEl = null;
+
+    const injectPreviewCss = css => {
+      if (!previewStyleEl) {
+        previewStyleEl = document.createElement('style');
+        previewStyleEl.setAttribute('data-custom-css-preview', '');
+        preview.appendChild(previewStyleEl);
+      }
+      previewStyleEl.textContent = css;
+    };
+
+    textarea.addEventListener('input', () => {
+      injectPreviewCss(textarea.value);
+    });
+
+    if (textarea.value.trim()) {
+      injectPreviewCss(textarea.value);
+    }
+
+    if (resetButton) {
+      resetButton.addEventListener('click', () => {
+        textarea.value = '';
+        injectPreviewCss('');
+      });
+    }
+  };
+
   applyTokensToPreview();
   applyEffectsToPreview();
   initThemeToggle();
@@ -1149,4 +1181,5 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
   initMarketingSchemeSelect();
   initContrastControls();
   initTabs();
+  initCustomCssEditor();
 })();
