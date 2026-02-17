@@ -39,6 +39,6 @@ final class CmsBuilderRuntimeGuard
         return str_contains($rawContent, '{{ basePath }}')
             || str_contains($rawContent, '{{ csrf_token }}')
             || str_contains($rawContent, '{{ turnstile_widget }}')
-            || str_contains($rawContent, '__CALHELP_NEWS_SECTION__');
+            || str_contains($rawContent, '__NEWS_SECTION__');
     }
 }

@@ -1,0 +1,252 @@
+{% set newsEntry = entry|default(null) %}
+{% if newsEntry %}
+  {% set slug = newsEntry.slug|default('') %}
+  {% set titleId = slug ? 'news-' ~ slug ~ '-title' : 'news-entry-' ~ (index|default(0)) ~ '-title' %}
+  {% set hasBasePath = landingNewsBasePath is defined and landingNewsBasePath %}
+  {% set detailPath = hasBasePath and slug ? landingNewsBasePath ~ '/' ~ slug : null %}
+  {% set linkHref = detailPath ? basePath ~ detailPath : null %}
+  {% set published = newsEntry.publishedAt|default(null) %}
+
+  {% set contentRaw = newsEntry.content|default('') %}
+  {% set contentTrimmed = contentRaw|trim %}
+  {% set structuredCandidate = contentTrimmed starts with '{' ? contentTrimmed|json_decode(true) : null %}
+  {% set structured = structuredCandidate is iterable ? structuredCandidate : null %}
+
+  {% set excerptRaw = newsEntry.excerpt|default(null) %}
+  {% set excerptTrimmed = excerptRaw ? excerptRaw|trim : null %}
+  {% set excerptStructuredCandidate = excerptTrimmed and excerptTrimmed starts with '{' ? excerptTrimmed|json_decode(true) : null %}
+  {% set excerptStructured = excerptStructuredCandidate is iterable ? excerptStructuredCandidate : null %}
+
+  {% set explicitType = null %}
+  {% if structured and structured.type is defined and structured.type %}
+    {% set explicitType = structured.type %}
+  {% elseif excerptStructured and excerptStructured.type is defined and excerptStructured.type %}
+    {% set explicitType = excerptStructured.type %}
+  {% endif %}
+
+  {% set slugLower = slug ? slug|lower : '' %}
+  {% set titleLower = newsEntry.title ? newsEntry.title|lower : '' %}
+  {% set entryType = explicitType|default('insight') %}
+  {% if entryType not in ['changelog', 'praxis', 'usecase', 'insight', 'roadmap'] %}
+    {% set entryType = 'insight' %}
+  {% endif %}
+  {% if explicitType is null %}
+    {% if 'praxis' in slugLower or 'rezept' in slugLower or 'praxis' in titleLower %}
+      {% set entryType = 'praxis' %}
+    {% elseif 'use' in slugLower or 'case' in slugLower or 'spotlight' in slugLower %}
+      {% set entryType = 'usecase' %}
+    {% elseif 'roadmap' in slugLower %}
+      {% set entryType = 'roadmap' %}
+    {% elseif 'change' in slugLower or 'update' in slugLower or 'release' in slugLower %}
+      {% set entryType = 'changelog' %}
+    {% endif %}
+  {% endif %}
+
+  {% set iconMap = {
+    'changelog': 'refresh',
+    'praxis': 'bolt',
+    'usecase': 'users',
+    'roadmap': 'calendar',
+    'insight': 'file-text'
+  } %}
+  {% set icon = iconMap[entryType]|default(iconMap['insight']) %}
+
+  {% set excerptHtml = null %}
+  {% if excerptStructured and excerptStructured.summary is defined and excerptStructured.summary %}
+    {% set excerptHtml = excerptStructured.summary %}
+  {% elseif excerptStructured and excerptStructured.intro is defined and excerptStructured.intro %}
+    {% set excerptHtml = excerptStructured.intro %}
+  {% elseif excerptRaw %}
+    {% set excerptHtml = excerptRaw %}
+  {% endif %}
+
+  {% if excerptHtml is null %}
+    {% if structured and structured.summary is defined and structured.summary %}
+      {% set excerptHtml = structured.summary %}
+    {% elseif structured and structured.intro is defined and structured.intro %}
+      {% set excerptHtml = structured.intro %}
+    {% else %}
+      {% set rawExcerptSource = contentRaw|striptags|trim %}
+      {% if rawExcerptSource %}
+        {% set truncated = rawExcerptSource|slice(0, 220) %}
+        {% set excerptText = truncated ~ (rawExcerptSource|length > 220 ? '…' : '') %}
+        {% set excerptHtml = '<p>' ~ excerptText ~ '</p>' %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+
+  {% set bulletItems = [] %}
+  {% set stepItems = [] %}
+  {% set kpiItems = [] %}
+  {% set detailBlocks = [] %}
+  {% set htmlBlock = null %}
+
+  {% if structured %}
+    {% if structured.bullets is defined and structured.bullets is iterable %}
+      {% set bulletItems = structured.bullets %}
+    {% elseif structured.items is defined and structured.items is iterable %}
+      {% set bulletItems = structured.items %}
+    {% endif %}
+    {% if structured.steps is defined and structured.steps is iterable %}
+      {% set stepItems = structured.steps %}
+    {% endif %}
+    {% if structured.kpis is defined and structured.kpis is iterable %}
+      {% set kpiItems = structured.kpis %}
+    {% elseif structured.badges is defined and structured.badges is iterable %}
+      {% set kpiItems = structured.badges %}
+    {% endif %}
+    {% if structured.details is defined %}
+      {% if structured.details is iterable %}
+        {% set detailBlocks = structured.details %}
+      {% elseif structured.details %}
+        {% set detailBlocks = [structured.details] %}
+      {% endif %}
+    {% endif %}
+    {% if structured.body is defined and structured.body %}
+      {% set htmlBlock = structured.body %}
+    {% elseif structured.html is defined and structured.html %}
+      {% set htmlBlock = structured.html %}
+    {% elseif structured.content is defined and structured.content %}
+      {% set htmlBlock = structured.content %}
+    {% endif %}
+    {% if htmlBlock is iterable %}
+      {% set htmlBlock = htmlBlock|join('') %}
+    {% endif %}
+  {% endif %}
+
+  {% set shouldRenderExcerpt = excerptHtml is not null %}
+  {% set shouldRenderBullets = bulletItems is iterable and bulletItems|length > 0 %}
+  {% set shouldRenderSteps = stepItems is iterable and stepItems|length > 0 %}
+  {% set shouldRenderKpis = kpiItems is iterable and kpiItems|length > 0 %}
+  {% set shouldRenderDetails = detailBlocks is iterable and detailBlocks|length > 0 %}
+  {% set shouldRenderHtmlBlock = htmlBlock is not null and htmlBlock != '' %}
+
+  {% set surfaceIndex = index|default(0) %}
+  {% set surfaceClass = surfaceIndex is even ? 'news-card--accent' : 'news-card--muted' %}
+  <article class="news-card news-card--{{ entryType }} {{ surfaceClass }}"
+           aria-labelledby="{{ titleId }}"
+           role="listitem"
+           data-news-type="{{ entryType }}">
+    <header class="news-card__header">
+      <span class="news-card__icon" aria-hidden="true" data-uk-icon="icon: {{ icon }}"></span>
+      <div>
+        {% if linkHref %}
+          <a class="uk-link-reset" href="{{ linkHref }}">
+            <h3 id="{{ titleId }}" class="uk-card-title">{{ newsEntry.title }}</h3>
+          </a>
+        {% else %}
+          <h3 id="{{ titleId }}" class="uk-card-title">{{ newsEntry.title }}</h3>
+        {% endif %}
+        {% if published %}
+          <p class="uk-text-meta">{{ published|date('d.m.Y') }}</p>
+        {% endif %}
+      </div>
+    </header>
+
+    {% if shouldRenderExcerpt %}
+      <div class="news-card__intro">{{ excerptHtml|raw }}</div>
+    {% endif %}
+
+    {% if shouldRenderBullets %}
+      <ul class="news-list">
+        {% for item in bulletItems %}
+          <li>
+            {% if item is iterable %}
+              {% if item.title is defined and item.title %}<strong>{{ item.title|raw }}</strong>{% endif %}
+              {% if item.text is defined and item.text %}
+                <span>{{ item.text|raw }}</span>
+              {% elseif item.content is defined and item.content %}
+                <span>{{ item.content|raw }}</span>
+              {% endif %}
+            {% else %}
+              {{ item|raw }}
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if shouldRenderSteps %}
+      {% set stepIconCycle = ['file-text', 'cog', 'check', 'bolt'] %}
+      <ol class="news-steps" aria-label="Praxisrezept Schritte">
+        {% for step in stepItems %}
+          {% set stepIcon = step is iterable and step.icon is defined and step.icon ? step.icon : stepIconCycle[loop.index0 % (stepIconCycle|length)] %}
+          {% set stepLabel = 'Schritt ' ~ loop.index %}
+          {% if step is iterable %}
+            {% if step.label is defined and step.label %}
+              {% set stepLabel = step.label %}
+            {% elseif step.title is defined and step.title %}
+              {% set stepLabel = step.title %}
+            {% endif %}
+          {% endif %}
+          {% set stepText = step is iterable
+            ? (step.text is defined and step.text ? step.text
+              : (step.description is defined and step.description ? step.description
+                : (step.content is defined and step.content ? step.content : '')))
+            : step %}
+          <li class="news-step">
+            <span class="news-step__icon" aria-hidden="true" data-uk-icon="icon: {{ stepIcon }}"></span>
+            <div class="news-step__body">
+              <span class="news-step__label">{{ stepLabel|raw }}</span>
+              {% if stepText %}
+                <p class="news-step__text">{{ stepText|raw }}</p>
+              {% endif %}
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+    {% endif %}
+
+    {% if shouldRenderDetails or shouldRenderHtmlBlock %}
+      <div class="news-card__body">
+        {% if shouldRenderDetails %}
+          {% for block in detailBlocks %}
+            {% if block is iterable %}
+              {% if block.heading is defined and block.heading %}
+                <h4 class="news-card__subheading">{{ block.heading|raw }}</h4>
+              {% elseif block.title is defined and block.title %}
+                <h4 class="news-card__subheading">{{ block.title|raw }}</h4>
+              {% endif %}
+              {% if block.text is defined and block.text %}
+                <p>{{ block.text|raw }}</p>
+              {% elseif block.content is defined and block.content %}
+                {{ block.content|raw }}
+              {% endif %}
+            {% else %}
+              {{ block|raw }}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {% if shouldRenderHtmlBlock %}
+          {{ htmlBlock|raw }}
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if shouldRenderKpis %}
+      <ul class="news-kpis" role="list" aria-label="Use-Case Kennzahlen">
+        {% for kpi in kpiItems %}
+          {% set kpiIcon = kpi is iterable and kpi.icon is defined and kpi.icon ? kpi.icon : 'trophy' %}
+          {% set kpiValue = kpi is iterable and kpi.value is defined ? kpi.value : (kpi is iterable and kpi.metric is defined ? kpi.metric : null) %}
+          {% set kpiLabel = kpi is iterable and kpi.label is defined ? kpi.label : (kpi is iterable and kpi.description is defined ? kpi.description : null) %}
+          {% if kpiValue is null and kpiLabel is null %}
+            {% set kpiLabel = kpi %}
+          {% endif %}
+          <li class="news-kpi">
+            <span class="news-kpi__icon" aria-hidden="true" data-uk-icon="icon: {{ kpiIcon }}"></span>
+            {% if kpiValue %}
+              <span class="news-kpi__value">{{ kpiValue|raw }}</span>
+            {% endif %}
+            {% if kpiLabel %}
+              <span class="news-kpi__label">{{ kpiLabel|raw }}</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if linkHref %}
+      <p class="news-card__cta"><a class="uk-button uk-button-text" href="{{ linkHref }}">Weiterlesen</a></p>
+    {% endif %}
+  </article>
+{% endif %}

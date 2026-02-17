@@ -1,0 +1,780 @@
+/**
+ * Marketing card components – namespace-agnostic.
+ *
+ * These cards (usecase, module, news) use only generic CSS custom properties
+ * that cascade through namespace-tokens.css.  No calhelp or calserver binding.
+ *
+ * Variable cascade:
+ *   [data-namespace] → --brand-primary → --marketing-primary
+ *   [data-namespace] → --contrast-text-on-primary
+ */
+
+/* ── Use-cases section ─────────────────────────────────────────── */
+
+/* Section header */
+.marketing-page .page-usecases__header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto clamp(32px, 4vw, 48px);
+}
+
+.marketing-page .page-usecases__eyebrow {
+    margin: 0 0 8px;
+    font-size: clamp(0.8rem, 0.3vw + 0.72rem, 0.95rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: color-mix(in oklab, var(--marketing-primary) 58%, var(--qr-text) 42%);
+}
+
+.marketing-page .page-usecases__headline {
+    margin: 0 0 12px;
+    font-size: clamp(1.6rem, 1vw + 1.3rem, 2.2rem);
+    font-weight: 700;
+    line-height: 1.22;
+    color: var(--qr-text);
+    text-wrap: balance;
+}
+
+.marketing-page .page-usecases__lead {
+    margin: 0;
+    font-size: clamp(1rem, 0.3vw + 0.92rem, 1.15rem);
+    line-height: 1.55;
+    color: var(--qr-muted);
+    text-wrap: pretty;
+}
+
+/* Grid */
+.marketing-page .page-usecases__grid {
+    display: grid;
+    gap: clamp(18px, 2.4vw, 28px);
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 960px) {
+    .marketing-page .page-usecases__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Base card */
+.marketing-page .usecase-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 28px 28px 32px;
+    border-radius: 18px;
+    border: 1px solid transparent;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+/* Accent variant (odd cards: 1st, 3rd) */
+.marketing-page .usecase-card--accent {
+    background:
+        linear-gradient(
+            145deg,
+            color-mix(in oklab, var(--marketing-primary) 10%, var(--marketing-white) 90%) 0%,
+            color-mix(in oklab, var(--marketing-primary) 5%, var(--marketing-white) 95%) 100%
+        );
+    border-color: color-mix(in oklab, var(--marketing-primary) 22%, transparent);
+    box-shadow:
+        0 18px 42px -28px color-mix(in oklab, var(--marketing-primary) 18%, transparent),
+        0 8px 20px -14px color-mix(in oklab, var(--marketing-ink) 8%, transparent);
+}
+
+/* Muted variant (even cards: 2nd) */
+.marketing-page .usecase-card--muted {
+    background: var(--marketing-white);
+    border-color: color-mix(in oklab, var(--marketing-ink) 10%, transparent);
+    box-shadow:
+        0 14px 36px -24px color-mix(in oklab, var(--marketing-ink) 12%, transparent),
+        0 6px 16px -10px color-mix(in oklab, var(--marketing-ink) 6%, transparent);
+}
+
+/* Card typography */
+.marketing-page .usecase-card__eyebrow {
+    margin: 0;
+    font-size: clamp(0.8rem, 0.3vw + 0.72rem, 0.95rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: color-mix(in oklab, var(--marketing-primary) 58%, var(--qr-text) 42%);
+    text-wrap: balance;
+}
+
+.marketing-page .usecase-card__headline {
+    margin: 0;
+    font-size: clamp(1.35rem, 0.6vw + 1.2rem, 1.8rem);
+    font-weight: 700;
+    line-height: 1.28;
+    color: var(--qr-text);
+    text-wrap: balance;
+}
+
+.marketing-page .usecase-card__body {
+    margin: 0;
+    font-size: clamp(0.95rem, 0.28vw + 0.88rem, 1.05rem);
+    line-height: 1.6;
+    color: var(--qr-text);
+    text-wrap: pretty;
+}
+
+.marketing-page .usecase-card__result {
+    margin: 8px 0 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--marketing-primary) 8%, transparent);
+    font-size: clamp(0.88rem, 0.25vw + 0.82rem, 0.98rem);
+    font-weight: 500;
+    line-height: 1.45;
+    color: color-mix(in oklab, var(--marketing-primary) 72%, var(--qr-text) 28%);
+    text-wrap: pretty;
+}
+
+/* ── Use-cases: dark mode ──────────────────────────────────────── */
+.marketing-page.dark-mode:not(.high-contrast) .usecase-card--accent,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .usecase-card--accent {
+    background:
+        linear-gradient(
+            145deg,
+            color-mix(in oklab, var(--marketing-primary) 22%, var(--marketing-surface-dark) 78%) 0%,
+            color-mix(in oklab, var(--marketing-primary) 14%, var(--marketing-surface-dark) 86%) 100%
+        );
+    border-color: color-mix(in oklab, var(--marketing-primary) 32%, transparent);
+    box-shadow:
+        0 22px 48px -30px color-mix(in oklab, var(--marketing-primary) 28%, transparent),
+        0 10px 24px -16px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .usecase-card--muted,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .usecase-card--muted {
+    background: var(--marketing-surface-dark);
+    border-color: color-mix(in oklab, var(--marketing-white) 12%, transparent);
+    box-shadow:
+        0 18px 40px -26px color-mix(in oklab, var(--marketing-ink) 55%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .usecase-card__eyebrow,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .usecase-card__eyebrow {
+    color: color-mix(in oklab, var(--marketing-primary) 42%, var(--marketing-white) 58%);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .usecase-card__headline,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .usecase-card__headline {
+    color: var(--contrast-text-on-primary);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .usecase-card__body,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .usecase-card__body {
+    color: color-mix(in oklab, var(--contrast-text-on-primary) 92%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .usecase-card__result,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .usecase-card__result {
+    background: color-mix(in oklab, var(--marketing-primary) 16%, transparent);
+    color: color-mix(in oklab, var(--marketing-primary) 35%, var(--marketing-white) 65%);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .page-usecases__eyebrow,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .page-usecases__eyebrow {
+    color: color-mix(in oklab, var(--marketing-primary) 42%, var(--marketing-white) 58%);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .page-usecases__headline,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .page-usecases__headline {
+    color: var(--contrast-text-on-primary);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .page-usecases__lead,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .page-usecases__lead {
+    color: color-mix(in oklab, var(--contrast-text-on-primary) 82%, transparent);
+}
+
+/* ── Use-cases: high contrast ──────────────────────────────────── */
+.marketing-page.high-contrast .usecase-card,
+.marketing-page[data-theme="high-contrast"] .usecase-card,
+.high-contrast .usecase-card {
+    background: var(--marketing-white);
+    color: var(--marketing-black);
+    border: 2px solid currentColor;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.marketing-page.high-contrast .usecase-card__eyebrow,
+.marketing-page[data-theme="high-contrast"] .usecase-card__eyebrow,
+.high-contrast .usecase-card__eyebrow {
+    color: currentColor;
+}
+
+.marketing-page.high-contrast .usecase-card__headline,
+.marketing-page[data-theme="high-contrast"] .usecase-card__headline,
+.high-contrast .usecase-card__headline {
+    color: currentColor;
+}
+
+.marketing-page.high-contrast .usecase-card__body,
+.marketing-page[data-theme="high-contrast"] .usecase-card__body,
+.high-contrast .usecase-card__body {
+    color: currentColor;
+}
+
+.marketing-page.high-contrast .usecase-card__result,
+.marketing-page[data-theme="high-contrast"] .usecase-card__result,
+.high-contrast .usecase-card__result {
+    background: transparent;
+    border: 2px solid currentColor;
+    color: currentColor;
+    font-weight: 700;
+}
+
+.marketing-page.high-contrast .page-usecases__header,
+.marketing-page[data-theme="high-contrast"] .page-usecases__header,
+.high-contrast .page-usecases__header {
+    color: currentColor;
+}
+
+.marketing-page.high-contrast .page-usecases__eyebrow,
+.marketing-page[data-theme="high-contrast"] .page-usecases__eyebrow,
+.high-contrast .page-usecases__eyebrow {
+    color: currentColor;
+}
+
+/* ── Module-card section ───────────────────────────────────────── */
+
+/* Base card */
+.marketing-page .module-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 28px 28px 32px;
+    border-radius: 18px;
+    border: 1px solid transparent;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.marketing-page .module-card--accent {
+    background:
+        linear-gradient(
+            145deg,
+            color-mix(in oklab, var(--marketing-primary) 10%, var(--marketing-white) 90%) 0%,
+            color-mix(in oklab, var(--marketing-primary) 5%, var(--marketing-white) 95%) 100%
+        );
+    border-color: color-mix(in oklab, var(--marketing-primary) 22%, transparent);
+    box-shadow:
+        0 18px 42px -28px color-mix(in oklab, var(--marketing-primary) 18%, transparent),
+        0 8px 20px -14px color-mix(in oklab, var(--marketing-ink) 8%, transparent);
+}
+
+.marketing-page .module-card--muted {
+    background: var(--marketing-white);
+    border-color: color-mix(in oklab, var(--marketing-ink) 10%, transparent);
+    box-shadow:
+        0 14px 36px -24px color-mix(in oklab, var(--marketing-ink) 12%, transparent),
+        0 6px 16px -10px color-mix(in oklab, var(--marketing-ink) 6%, transparent);
+}
+
+/* Card sub-elements */
+.marketing-page .module-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.marketing-page .module-card__icon {
+    flex-shrink: 0;
+    color: color-mix(in oklab, var(--marketing-primary) 64%, var(--qr-text) 36%);
+}
+
+.marketing-page .module-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.marketing-page .module-card__eyebrow {
+    margin: 0;
+    font-size: clamp(0.8rem, 0.3vw + 0.72rem, 0.95rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: color-mix(in oklab, var(--marketing-primary) 58%, var(--qr-text) 42%);
+}
+
+.marketing-page .module-card .uk-card-title {
+    margin: 0;
+    font-size: clamp(1.2rem, 0.5vw + 1.05rem, 1.55rem);
+    font-weight: 700;
+    line-height: 1.28;
+    color: var(--qr-text);
+    text-wrap: balance;
+}
+
+.marketing-page .module-card__pitch {
+    margin: 0;
+    font-size: clamp(0.95rem, 0.28vw + 0.88rem, 1.05rem);
+    line-height: 1.6;
+    color: var(--qr-text);
+    text-wrap: pretty;
+}
+
+.marketing-page .module-card__list {
+    margin: 0;
+    padding-left: 1.25em;
+    font-size: clamp(0.88rem, 0.22vw + 0.82rem, 0.98rem);
+    line-height: 1.55;
+    color: color-mix(in oklab, var(--qr-text) 88%, var(--qr-muted) 12%);
+}
+
+.marketing-page .module-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+.marketing-page .module-card__kpi {
+    font-size: clamp(0.82rem, 0.22vw + 0.76rem, 0.92rem);
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--marketing-primary) 8%, transparent);
+    color: color-mix(in oklab, var(--marketing-primary) 72%, var(--qr-text) 28%);
+}
+
+.marketing-page .module-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: clamp(0.88rem, 0.22vw + 0.82rem, 0.98rem);
+    font-weight: 600;
+    color: var(--marketing-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.marketing-page .module-card__link:hover {
+    color: color-mix(in oklab, var(--marketing-primary) 72%, var(--marketing-ink) 28%);
+    text-decoration: underline;
+}
+
+/* Module-card dark mode */
+.marketing-page.dark-mode:not(.high-contrast) .module-card--accent,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .module-card--accent {
+    background:
+        linear-gradient(
+            145deg,
+            color-mix(in oklab, var(--marketing-primary) 22%, var(--marketing-surface-dark) 78%) 0%,
+            color-mix(in oklab, var(--marketing-primary) 14%, var(--marketing-surface-dark) 86%) 100%
+        );
+    border-color: color-mix(in oklab, var(--marketing-primary) 32%, transparent);
+    box-shadow: 0 22px 48px -30px color-mix(in oklab, var(--marketing-primary) 28%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .module-card--muted,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .module-card--muted {
+    background: var(--marketing-surface-dark);
+    border-color: color-mix(in oklab, var(--marketing-white) 12%, transparent);
+    box-shadow: 0 18px 40px -26px color-mix(in oklab, var(--marketing-ink) 55%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .module-card__icon,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .module-card__icon {
+    color: color-mix(in oklab, var(--marketing-primary) 42%, var(--marketing-white) 58%);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .module-card__eyebrow,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .module-card__eyebrow {
+    color: color-mix(in oklab, var(--marketing-primary) 42%, var(--marketing-white) 58%);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .module-card .uk-card-title,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .module-card .uk-card-title {
+    color: var(--contrast-text-on-primary);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .module-card__pitch,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .module-card__pitch {
+    color: color-mix(in oklab, var(--contrast-text-on-primary) 92%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .module-card__list,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .module-card__list {
+    color: color-mix(in oklab, var(--contrast-text-on-primary) 86%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .module-card__kpi,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .module-card__kpi {
+    background: color-mix(in oklab, var(--marketing-primary) 16%, transparent);
+    color: color-mix(in oklab, var(--marketing-primary) 35%, var(--marketing-white) 65%);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .module-card__link,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .module-card__link {
+    color: color-mix(in oklab, var(--marketing-primary) 42%, var(--marketing-white) 58%);
+}
+
+/* Module-card high contrast */
+.marketing-page.high-contrast .module-card,
+.marketing-page[data-theme="high-contrast"] .module-card,
+.high-contrast .module-card {
+    background: var(--marketing-white);
+    color: var(--marketing-black);
+    border: 2px solid currentColor;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.marketing-page.high-contrast .module-card__icon,
+.marketing-page[data-theme="high-contrast"] .module-card__icon,
+.high-contrast .module-card__icon {
+    color: currentColor;
+}
+
+.marketing-page.high-contrast .module-card__eyebrow,
+.marketing-page[data-theme="high-contrast"] .module-card__eyebrow,
+.high-contrast .module-card__eyebrow {
+    color: currentColor;
+}
+
+.marketing-page.high-contrast .module-card__kpi,
+.marketing-page[data-theme="high-contrast"] .module-card__kpi,
+.high-contrast .module-card__kpi {
+    background: transparent;
+    border: 2px solid currentColor;
+    color: currentColor;
+    font-weight: 700;
+}
+
+.marketing-page.high-contrast .module-card__link,
+.marketing-page[data-theme="high-contrast"] .module-card__link,
+.high-contrast .module-card__link {
+    color: currentColor;
+    text-decoration: underline;
+}
+
+/* ── News-card section ─────────────────────────────────────────── */
+
+/* Base card */
+.marketing-page .news-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 28px 28px 32px;
+    border-radius: 18px;
+    border: 1px solid transparent;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.marketing-page .news-card--accent {
+    background:
+        linear-gradient(
+            145deg,
+            color-mix(in oklab, var(--marketing-primary) 10%, var(--marketing-white) 90%) 0%,
+            color-mix(in oklab, var(--marketing-primary) 5%, var(--marketing-white) 95%) 100%
+        );
+    border-color: color-mix(in oklab, var(--marketing-primary) 22%, transparent);
+    box-shadow:
+        0 18px 42px -28px color-mix(in oklab, var(--marketing-primary) 18%, transparent),
+        0 8px 20px -14px color-mix(in oklab, var(--marketing-ink) 8%, transparent);
+}
+
+.marketing-page .news-card--muted {
+    background: var(--marketing-white);
+    border-color: color-mix(in oklab, var(--marketing-ink) 10%, transparent);
+    box-shadow:
+        0 14px 36px -24px color-mix(in oklab, var(--marketing-ink) 12%, transparent),
+        0 6px 16px -10px color-mix(in oklab, var(--marketing-ink) 6%, transparent);
+}
+
+/* Card sub-elements */
+.marketing-page .news-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.marketing-page .news-card__icon {
+    flex-shrink: 0;
+    color: color-mix(in oklab, var(--marketing-primary) 64%, var(--qr-text) 36%);
+}
+
+.marketing-page .news-card .uk-card-title {
+    margin: 0;
+    font-size: clamp(1.2rem, 0.5vw + 1.05rem, 1.55rem);
+    font-weight: 700;
+    line-height: 1.28;
+    color: var(--qr-text);
+    text-wrap: balance;
+}
+
+.marketing-page .news-card .uk-text-meta {
+    margin: 4px 0 0;
+    font-size: clamp(0.8rem, 0.22vw + 0.74rem, 0.88rem);
+    color: var(--qr-muted);
+}
+
+.marketing-page .news-card__intro {
+    font-size: clamp(0.95rem, 0.28vw + 0.88rem, 1.05rem);
+    line-height: 1.6;
+    color: var(--qr-text);
+    text-wrap: pretty;
+}
+
+.marketing-page .news-card__intro p {
+    margin: 0;
+}
+
+.marketing-page .news-list {
+    margin: 0;
+    padding-left: 1.25em;
+    font-size: clamp(0.88rem, 0.22vw + 0.82rem, 0.98rem);
+    line-height: 1.55;
+    color: color-mix(in oklab, var(--qr-text) 88%, var(--qr-muted) 12%);
+}
+
+.marketing-page .news-steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.marketing-page .news-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.marketing-page .news-step__icon {
+    flex-shrink: 0;
+    color: color-mix(in oklab, var(--marketing-primary) 58%, var(--qr-text) 42%);
+}
+
+.marketing-page .news-step__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.marketing-page .news-step__label {
+    font-weight: 600;
+    font-size: clamp(0.88rem, 0.22vw + 0.82rem, 0.98rem);
+    color: var(--qr-text);
+}
+
+.marketing-page .news-step__text {
+    margin: 0;
+    font-size: clamp(0.88rem, 0.22vw + 0.82rem, 0.98rem);
+    line-height: 1.55;
+    color: color-mix(in oklab, var(--qr-text) 82%, var(--qr-muted) 18%);
+}
+
+.marketing-page .news-card__body {
+    font-size: clamp(0.95rem, 0.28vw + 0.88rem, 1.05rem);
+    line-height: 1.6;
+    color: var(--qr-text);
+}
+
+.marketing-page .news-card__body p {
+    margin: 0 0 8px;
+}
+
+.marketing-page .news-card__subheading {
+    margin: 8px 0 4px;
+    font-size: clamp(1rem, 0.3vw + 0.92rem, 1.12rem);
+    font-weight: 600;
+    color: var(--qr-text);
+}
+
+.marketing-page .news-kpis {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.marketing-page .news-kpi {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--marketing-primary) 8%, transparent);
+    font-size: clamp(0.82rem, 0.22vw + 0.76rem, 0.92rem);
+    font-weight: 500;
+}
+
+.marketing-page .news-kpi__icon {
+    color: color-mix(in oklab, var(--marketing-primary) 64%, var(--qr-text) 36%);
+}
+
+.marketing-page .news-kpi__value {
+    font-weight: 700;
+    color: color-mix(in oklab, var(--marketing-primary) 72%, var(--qr-text) 28%);
+}
+
+.marketing-page .news-kpi__label {
+    color: var(--qr-text);
+}
+
+.marketing-page .news-card__cta {
+    margin: 4px 0 0;
+}
+
+.marketing-page .news-card__cta .uk-button-text {
+    font-weight: 600;
+    color: var(--marketing-primary);
+}
+
+/* News-card dark mode */
+.marketing-page.dark-mode:not(.high-contrast) .news-card--accent,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-card--accent {
+    background:
+        linear-gradient(
+            145deg,
+            color-mix(in oklab, var(--marketing-primary) 22%, var(--marketing-surface-dark) 78%) 0%,
+            color-mix(in oklab, var(--marketing-primary) 14%, var(--marketing-surface-dark) 86%) 100%
+        );
+    border-color: color-mix(in oklab, var(--marketing-primary) 32%, transparent);
+    box-shadow: 0 22px 48px -30px color-mix(in oklab, var(--marketing-primary) 28%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-card--muted,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-card--muted {
+    background: var(--marketing-surface-dark);
+    border-color: color-mix(in oklab, var(--marketing-white) 12%, transparent);
+    box-shadow: 0 18px 40px -26px color-mix(in oklab, var(--marketing-ink) 55%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-card__icon,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-card__icon {
+    color: color-mix(in oklab, var(--marketing-primary) 42%, var(--marketing-white) 58%);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-card .uk-card-title,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-card .uk-card-title {
+    color: var(--contrast-text-on-primary);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-card__intro,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-card__intro {
+    color: color-mix(in oklab, var(--contrast-text-on-primary) 92%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-list,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-list {
+    color: color-mix(in oklab, var(--contrast-text-on-primary) 86%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-step__icon,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-step__icon {
+    color: color-mix(in oklab, var(--marketing-primary) 42%, var(--marketing-white) 58%);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-step__label,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-step__label {
+    color: var(--contrast-text-on-primary);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-step__text,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-step__text {
+    color: color-mix(in oklab, var(--contrast-text-on-primary) 82%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-card__body,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-card__body {
+    color: color-mix(in oklab, var(--contrast-text-on-primary) 92%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-card__subheading,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-card__subheading {
+    color: var(--contrast-text-on-primary);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-kpi,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-kpi {
+    background: color-mix(in oklab, var(--marketing-primary) 16%, transparent);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-kpi__icon,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-kpi__icon {
+    color: color-mix(in oklab, var(--marketing-primary) 42%, var(--marketing-white) 58%);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-kpi__value,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-kpi__value {
+    color: color-mix(in oklab, var(--marketing-primary) 35%, var(--marketing-white) 65%);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-kpi__label,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-kpi__label {
+    color: var(--contrast-text-on-primary);
+}
+
+.marketing-page.dark-mode:not(.high-contrast) .news-card__cta .uk-button-text,
+.marketing-page[data-theme="dark"]:not(.high-contrast) .news-card__cta .uk-button-text {
+    color: color-mix(in oklab, var(--marketing-primary) 42%, var(--marketing-white) 58%);
+}
+
+/* News-card high contrast */
+.marketing-page.high-contrast .news-card,
+.marketing-page[data-theme="high-contrast"] .news-card,
+.high-contrast .news-card {
+    background: var(--marketing-white);
+    color: var(--marketing-black);
+    border: 2px solid currentColor;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.marketing-page.high-contrast .news-card__icon,
+.marketing-page[data-theme="high-contrast"] .news-card__icon,
+.high-contrast .news-card__icon {
+    color: currentColor;
+}
+
+.marketing-page.high-contrast .news-kpi,
+.marketing-page[data-theme="high-contrast"] .news-kpi,
+.high-contrast .news-kpi {
+    background: transparent;
+    border: 2px solid currentColor;
+}
+
+.marketing-page.high-contrast .news-kpi__icon,
+.marketing-page[data-theme="high-contrast"] .news-kpi__icon,
+.high-contrast .news-kpi__icon {
+    color: currentColor;
+}
+
+.marketing-page.high-contrast .news-kpi__value,
+.marketing-page[data-theme="high-contrast"] .news-kpi__value,
+.high-contrast .news-kpi__value {
+    color: currentColor;
+    font-weight: 700;
+}
+
+.marketing-page.high-contrast .news-step__icon,
+.marketing-page[data-theme="high-contrast"] .news-step__icon,
+.high-contrast .news-step__icon {
+    color: currentColor;
+}
+
+.marketing-page.high-contrast .news-card__cta .uk-button-text,
+.marketing-page[data-theme="high-contrast"] .news-card__cta .uk-button-text,
+.high-contrast .news-card__cta .uk-button-text {
+    color: currentColor;
+    text-decoration: underline;
+}

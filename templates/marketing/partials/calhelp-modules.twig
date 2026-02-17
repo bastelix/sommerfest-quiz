@@ -1,4 +1,4 @@
-{% set modulePayload = calhelpModules is defined ? calhelpModules : null %}
+{% set modulePayload = pageModules is defined ? pageModules : (calhelpModules is defined ? calhelpModules : null) %}
 {% if modulePayload and modulePayload.modules is iterable and modulePayload.modules|length > 0 %}
   {% set localeKey = locale() == 'en' ? 'en' : 'de' %}
   {% set sectionHeading = modulePayload.headline[localeKey]|default(modulePayload.headline['de']|default('Module')) %}

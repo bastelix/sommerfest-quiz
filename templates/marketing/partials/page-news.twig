@@ -6,7 +6,7 @@
       <p class="uk-text-lead">Kurz, nützlich, selten: Updates zu Migration, Reports &amp; Best Practices.</p>
     </div>
     {% if entries %}
-      <div class="calhelp-news-grid" role="list">
+      <div class="news-grid" role="list">
         {% for entry in entries %}
           {% include 'marketing/partials/page-news-card.twig' with {
             entry: entry,
@@ -23,19 +23,19 @@
     {% else %}
       <p class="uk-text-lead uk-text-center uk-margin-large-bottom">Derzeit sind keine Beiträge veröffentlicht. Abonnieren Sie den Newsletter für Updates.</p>
     {% endif %}
-    <aside class="calhelp-newsletter uk-card uk-card-primary uk-card-body calhelp-card calhelp-card--muted" aria-label="Newsletter-Box">
+    <aside class="page-newsletter uk-card uk-card-body" aria-label="Newsletter-Box">
       <h3 class="uk-card-title">Newsletter</h3>
-      <p>„Kurz, nützlich, selten: Updates zu Migration, Reports &amp; Best Practices.“ (Double-Opt-In, freiwillig.)</p>
+      <p>„Kurz, nützlich, selten: Updates zu Migration, Reports &amp; Best Practices." (Double-Opt-In, freiwillig.)</p>
       <a class="uk-button uk-button-default" href="#demo">Zum Demo-Flow</a>
     </aside>
-    <section class="calhelp-editorial-calendar" aria-labelledby="calendar-title">
+    <section class="page-editorial-calendar" aria-labelledby="calendar-title">
       <h3 id="calendar-title">Redaktionskalender – 6 Wochen Ausblick</h3>
       <ol class="uk-list uk-list-decimal">
-        <li>Woche 1: „Die 5 größten Stolperstellen bei MET/TRACK-Migrationen“ (Praxisbeitrag)</li>
+        <li>Woche 1: „Die 5 größten Stolperstellen bei MET/TRACK-Migrationen" (Praxisbeitrag)</li>
         <li>Woche 2: Changelog kompakt (Reports &amp; Konformitätslogik)</li>
         <li>Woche 3: Use-Case-Spotlight (anonymisiert)</li>
-        <li>Woche 4: „Guardband in 5 Minuten – verständlich erklärt“</li>
-        <li>Woche 5: Praxisrezept „Validierung mit Golden Samples“</li>
+        <li>Woche 4: „Guardband in 5 Minuten – verständlich erklärt"</li>
+        <li>Woche 5: Praxisrezept „Validierung mit Golden Samples"</li>
         <li>Woche 6: Roadmap-Ausblick + Mini-Q&amp;A (aus Newsletter-Fragen)</li>
       </ol>
     </section>
