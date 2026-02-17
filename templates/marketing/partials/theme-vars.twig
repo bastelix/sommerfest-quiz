@@ -15,6 +15,21 @@
   {% endif %}
 {% endfor %}
 
+{# Resolve marketing scheme early so that text variable emissions below can
+   be skipped when a scheme will override them (avoids duplicate declarations). #}
+{% set designConfig = design.config|default({}) %}
+{% set designColors = designConfig.colors|default({}) %}
+
+{% set marketingSchemeKey = appearanceVars.marketingScheme
+  |default(appearanceVars.marketing_scheme
+  |default(designColors.marketingScheme
+  |default(designColors.marketing_scheme
+  |default('')))) %}
+{% set marketingScheme = marketingSchemeKey and marketingSchemes[marketingSchemeKey] is defined
+  ? marketingSchemes[marketingSchemeKey]
+  : null
+%}
+
 {% if appearanceColors.primary is defined and appearanceColors.primary %}
   {% set cssVars = cssVars|merge(['--brand-primary: ' ~ appearanceColors.primary]) %}
 {% endif %}
@@ -31,23 +46,10 @@
 {% if appearanceVars.surfaceMuted is defined and appearanceVars.surfaceMuted %}
   {% set cssVars = cssVars|merge(['--surface-muted: ' ~ appearanceVars.surfaceMuted]) %}
 {% endif %}
-{% set designConfig = design.config|default({}) %}
-{% set designColors = designConfig.colors|default({}) %}
 
-{% set marketingSchemeKey = appearanceVars.marketingScheme
-  |default(appearanceVars.marketing_scheme
-  |default(designColors.marketingScheme
-  |default(designColors.marketing_scheme
-  |default('')))) %}
-{% set marketingScheme = marketingSchemeKey and marketingSchemes[marketingSchemeKey] is defined
-  ? marketingSchemes[marketingSchemeKey]
-  : null
-%}
-
-{# When a marketing scheme is active it provides authoritative values for
-   text-on-surface, text-on-background, text-on-primary and on-accent
-   (see block below at line ~146).  Skip the appearance-variable fallbacks
-   so the inline <style> block does not contain redundant declarations. #}
+{# Only emit text contrast variables from appearance data when no marketing
+   scheme is active – the scheme block below provides its own values and
+   emitting both would create duplicate declarations. #}
 {% if not marketingScheme %}
   {% set textOnSurfaceValue = appearanceVars.textOnSurface
     |default(appearanceVars.text_on_surface
@@ -86,6 +88,7 @@
     ]) %}
   {% endif %}
 {% endif %}
+
 {% if appearanceVars.topbarLight is defined and appearanceVars.topbarLight %}
   {% set cssVars = cssVars|merge([
     '--marketing-topbar-light: ' ~ appearanceVars.topbarLight,
@@ -136,6 +139,7 @@
     ? marketingScheme.surfaceMuted
     : marketingSurface
   %}
+  {% set marketingMuted = marketingSurfaceMuted %}
   {% set marketingBackground = marketingScheme.background %}
 {% endif %}
 

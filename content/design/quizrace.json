@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "name": "QuizRace",
+    "description": "QuizRace-Markendesign basierend auf dem Aurora-Schema mit kräftigen Blautönen und Slate-Akzenten.",
+    "version": "1.0.0",
+    "author": "QuizRace Design System"
+  },
+  "config": {
+    "designTokens": {
+      "brand": {
+        "primary": "#1f6feb",
+        "accent": "#58a6ff",
+        "secondary": "#475569"
+      },
+      "layout": {
+        "profile": "standard"
+      },
+      "typography": {
+        "preset": "modern"
+      },
+      "components": {
+        "cardStyle": "rounded",
+        "buttonStyle": "filled"
+      }
+    },
+    "colors": {
+      "marketingScheme": "aurora",
+      "textOnPrimary": "#ffffff",
+      "textOnSurface": "#0f172a",
+      "textOnBackground": "#0f172a",
+      "textMutedOnSurface": "#475569",
+      "textMutedOnBackground": "#475569",
+      "textOnSurfaceDark": "#ffffff",
+      "textOnBackgroundDark": "#ffffff",
+      "textMutedOnSurfaceDark": "#94a3b8",
+      "textMutedOnBackgroundDark": "#94a3b8",
+      "surface": "#f8fafc",
+      "surfaceMuted": "#e2e8f0",
+      "surfaceDark": "#0f172a",
+      "surfaceMutedDark": "#1e293b",
+      "background": "#eef2ff",
+      "backgroundDark": "#020617"
+    }
+  },
+  "designTokens": {
+    "brand": {
+      "primary": "#1f6feb",
+      "accent": "#58a6ff",
+      "secondary": "#475569"
+    },
+    "layout": {
+      "profile": "standard"
+    },
+    "typography": {
+      "preset": "modern"
+    },
+    "components": {
+      "cardStyle": "rounded",
+      "buttonStyle": "filled"
+    }
+  },
+  "effects": {
+    "effectsProfile": "quizrace.marketing",
+    "sliderProfile": "marketing"
+  },
+  "contrastPairs": {
+    "primary":   { "background": "#1f6feb", "text": "#ffffff", "ratio": "4.6:1", "grade": "AA" },
+    "secondary": { "background": "#475569", "text": "#ffffff", "ratio": "7.6:1", "grade": "AAA" },
+    "accent":    { "background": "#58a6ff", "text": "#000000", "ratio": "8.3:1", "grade": "AAA" }
+  },
+  "palette": {
+    "light": {
+      "primary": "#1f6feb",
+      "primaryDark": "#1a5fd0",
+      "background": "#eef2ff",
+      "surface": "#f8fafc",
+      "surfaceAlt": "#ffffff",
+      "surfaceMuted": "rgba(31, 111, 235, 0.08)",
+      "text": "#0f172a",
+      "muted": "#475569",
+      "accent": "#58a6ff",
+      "border": "rgba(31, 111, 235, 0.18)"
+    },
+    "dark": {
+      "primary": "#58a6ff",
+      "primaryDark": "#1f6feb",
+      "background": "#020617",
+      "surface": "rgba(15, 23, 42, 0.96)",
+      "surfaceAlt": "#1e293b",
+      "surfaceMuted": "rgba(31, 111, 235, 0.12)",
+      "text": "#ffffff",
+      "muted": "#94a3b8",
+      "accent": "#93c5fd",
+      "border": "rgba(31, 111, 235, 0.3)"
+    }
+  }
+}

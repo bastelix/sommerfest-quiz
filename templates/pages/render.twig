@@ -14,7 +14,7 @@
 {% set cmsMenuItems = menuItems|default([]) %}
 {% set includeCmsBaseStyles = false %}
 {% set includeLegacyMarketingStyles = false %}
-{% set includeUikitStyles = false %}
+{% set includeUikitStyles = true %}
 {% set includeMainStyles = false %}
 {% set includeVariablesStyles = true %}
 {% set includeTableStyles = false %}
@@ -40,13 +40,13 @@
 
 {% block head %}
   {#
-    Marketing pages avoid global UI bundles by default (see includeMainStyles/includeUikitStyles).
-    Keep marketing.css loaded after the base head so either:
-    - it is the only stylesheet (globals disabled), or
-    - it can override main/UIkit defaults if they are re-enabled, with explicit overrides as needed.
-    This order prevents cascade regressions on marketing layouts.
+    Marketing pages avoid global UI bundles by default (see includeMainStyles).
+    dark.css and highcontrast.css are loaded explicitly here because
+    includeCmsBaseStyles=false prevents them from loading via cms_base.
   #}
   {{ parent() }}
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/sections.css">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing-utilities.css">
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">

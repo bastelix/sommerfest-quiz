@@ -2,27 +2,27 @@
  * Auto-generated. Do not edit manually.
  */
 
-html[data-namespace="future-is-green"] {
-  --brand-primary: #138f52;
-  --brand-accent: #9cd78f;
-  --brand-secondary: #123524;
+html[data-namespace="midnight"] {
+  --brand-primary: #6366f1;
+  --brand-accent: #14b8a6;
+  --brand-secondary: #0d9488;
   --contrast-text-on-primary: #000000;
   --contrast-text-on-secondary: #ffffff;
   --contrast-text-on-accent: #000000;
   --contrast-text-on-surface: #000000;
   --contrast-text-on-surface-muted: #000000;
   --contrast-text-on-page: #000000;
-  --marketing-primary: #138f52;
-  --marketing-accent: #9cd78f;
-  --marketing-secondary: #123524;
-  --marketing-link: #138f52;
+  --marketing-primary: #6366f1;
+  --marketing-accent: #14b8a6;
+  --marketing-secondary: #0d9488;
+  --marketing-link: #6366f1;
   --marketing-surface: var(--surface-card, #ffffff);
   --marketing-white: #ffffff;
   --marketing-black: #000000;
   --marketing-black-rgb: 0 0 0;
   --marketing-ink: #0f172a;
   --layout-profile: standard;
-  --typography-preset: modern;
+  --typography-preset: tech;
   --components-card-style: rounded;
   --components-button-style: filled;
   --brand-surface: #0f172a;
