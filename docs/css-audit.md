@@ -32,7 +32,7 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 | 157–165 | `namespace-tokens.css` (global oder `/<namespace>/namespace-tokens.css`) | `includeNamespaceTokensStyles` (default: `true`) | ✅ DESIGN |
 | 172 | `table.css` | `includeTableStyles` (default: `true`) | ✅ DESIGN |
 | 175 | `topbar.css` | `includeTopbarStyles` (default: `true`), nicht bei `marketing-page` | ✅ DESIGN |
-| 178 | Poppins Webfont (preload) | nur bei `marketing-page` | ⚠️ EXTERN |
+| 178 | Poppins Webfont `.woff2` (font-file preload, kein Stylesheet) | nur bei `marketing-page` | ⚠️ EXTERN |
 | 188 | `theme-vars.twig` (inline `<style>`) | `shouldIncludeMarketingThemeVars` | ✅ DESIGN |
 
 ### 1.2 Quiz-Frontend-Templates
@@ -82,18 +82,18 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 | | 20 | `onboarding.css` | ⚠️ LEGACY |
 | | 21 | `topbar.marketing.css` | ✅ DESIGN |
 | | 22 | `calhelp.css` | ⚠️ LEGACY — Brand-spezifisch |
-| `templates/marketing/calserver-maintenance.twig` | 12–14 | Google Fonts + `marketing.css` (preload) | ✅/⚠️ |
-| | 15 | `calserver.css` | ⚠️ LEGACY |
-| | 16 | `calserver-maintenance.css` | ⚠️ LEGACY — 49 hardcodierte Hex-Werte |
-| | 17 | `highcontrast.css` | ✅ DESIGN |
-| | 18 | `onboarding.css` | ⚠️ LEGACY |
-| | 19 | `topbar.marketing.css` | ✅ DESIGN |
+| `templates/marketing/calserver-maintenance.twig` | 12–15 | Google Fonts (12–13) + `marketing.css` (preload 14, link 15) | ✅/⚠️ |
+| | 16 | `calserver.css` | ⚠️ LEGACY |
+| | 17 | `calserver-maintenance.css` | ⚠️ LEGACY — 49 hardcodierte Hex-Werte |
+| | 18 | `highcontrast.css` | ✅ DESIGN |
+| | 19 | `onboarding.css` | ⚠️ LEGACY |
+| | 20 | `topbar.marketing.css` | ✅ DESIGN |
 | `templates/marketing/landing_news_show.twig` | 9–16 | Google Fonts (3 Gewichte) + `marketing.css` + `calserver.css` (conditional) + `highcontrast.css` + `onboarding.css` + `topbar.marketing.css` | ⚠️ Mixed |
 | `templates/marketing/calserver-accessibility.twig` | 6–8 | `marketing.css`, `dark.css`, `highcontrast.css` | ✅ DESIGN |
 | `templates/marketing/event_upcoming.twig` | 8–9 | `marketing.css` (preload + link) | ✅ DESIGN |
-| | 21 | Inline `<style>` | ⚠️ Prüfung nötig |
+| | 21–34 | Inline `<style>`: setzt `--qr-landing-primary`, `--qr-bg`, `--qr-fg`, `--qr-hero-grad-start`, `--qr-hero-grad-end` dynamisch aus Event-Config | ✅ DESIGN (Dynamisch) |
 | `templates/marketing/event_finished.twig` | 8–9 | `marketing.css` (preload + link) | ✅ DESIGN |
-| | 21 | Inline `<style>` | ⚠️ Prüfung nötig |
+| | 21–34 | Inline `<style>`: identisch zu `event_upcoming.twig` — dynamische `--qr-*` Tokens aus Event-Config | ✅ DESIGN (Dynamisch) |
 
 ### 1.4 Marketing-Wiki-Templates
 
@@ -114,7 +114,8 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 | | 24 | `dark.css` (conditional) | ✅ DESIGN |
 | | 27 | `highcontrast.css` (conditional) | ✅ DESIGN |
 | | 29 | `footer-blocks.css` | ✅ DESIGN (Hybrid) |
-| `templates/pages/render.twig` | — | Setzt `includeMainStyles=false`, `includeVariablesStyles=true`, `includeNamespaceTokensStyles=true`, `includeTableStyles=false`, `includeTopbarStyles=false` | ✅ DESIGN |
+| `templates/pages/render.twig` | 48–55 | `dark.css`, `highcontrast.css`, `sections.css`, `marketing-utilities.css`, `marketing.css` (preload + link), `marketing-cards.css`, `topbar.marketing.css` | ✅ DESIGN |
+| | — | Setzt `includeCmsBaseStyles=false`, `includeMainStyles=false`, `includeVariablesStyles=true`, `includeNamespaceTokensStyles=true`, `includeTableStyles=false`, `includeTopbarStyles=false`, `includeMarketingTopbarStyles=false`. Body-Class enthält `marketing-page` → namespace-tokens.css wird in `head_end` geladen. | ✅ DESIGN |
 
 ### 1.6 Admin-Templates
 
@@ -133,7 +134,17 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 | `templates/admin/navigation/_partials/footer_blocks_tab.twig` | 198+ | Inline `<style>` — ähnliche hardcodierte Werte | ⚠️ LEGACY |
 | `templates/admin/navigation/menus_index.twig` | — | `menu-cards.css` | ⚠️ LEGACY — 26 hardcodierte Hex-Werte |
 
-### 1.7 Statische HTML-Dateien
+### 1.7 Weitere Templates
+
+| Datei | Zeile | Eingebundenes CSS | Kat. |
+|-------|-------|------------------|------|
+| `templates/marketing/domain_maintenance.twig` | 10–42 | Inline `<style>`: `background: #fff`, `box-shadow: rgba(0,0,0,0.05)`, `color: #555`, `color: #888` | ⚠️ LEGACY — Hardcodierte Werte |
+| `templates/vuequiz/index.html` | 11 | `uikit.min.css` (CDN: `cdn.jsdelivr.net`, v3.23.9) | ⚠️ LEGACY |
+| | 10 | Tailwind CSS (CDN: `cdn.tailwindcss.com`) | ⚠️ LEGACY — externes Framework |
+| | 14–40+ | Inline `<style>`: `background: linear-gradient(135deg, #667eea, #764ba2)`, `background: white`, `background: #e2e8f0`, weitere hardcodierte Farben | ⚠️ LEGACY — komplett am Token-System vorbei |
+| `templates/emails/layout.twig` | — | Inline `<style>` mit hardcodierten Werten | ✅ AKZEPTABEL — E-Mail-Templates benötigen Inline-Styles für Kompatibilität |
+
+### 1.8 Statische HTML-Dateien
 
 | Datei | Zeile | Eingebundenes CSS | Kat. |
 |-------|-------|------------------|------|
@@ -145,7 +156,7 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 | | 9 | `dark.css` | ✅ DESIGN |
 | `nginx-errors/50x.html` | 7–29 | Inline `<style>` — Standalone Error Page | ⚠️ AKZEPTABEL (Error Page braucht keine externe CSS) |
 
-### 1.8 PHP-generierte CSS
+### 1.9 PHP-generierte CSS
 
 | Datei | Zeile | Funktion | Kat. |
 |-------|-------|---------|------|
@@ -154,20 +165,22 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 | | 551–597 | `renderTokenCssBlock()` → `--brand-primary`, `--brand-accent`, `--marketing-*`, `--contrast-*`, `--layout-*`, `--typography-*`, `--components-*` | ✅ DESIGN |
 | | 643–661 | `mirrorCssToNamespacePaths()` → `/public/css/<namespace>/namespace-tokens.css` | ✅ DESIGN |
 
-### 1.9 JavaScript-gesteuerte CSS-Ladung
+### 1.10 JavaScript-gesteuerte CSS-Ladung
 
 | Datei | Beschreibung | Kat. |
 |-------|-------------|------|
 | `public/js/marketing-design.js` | Lädt als `<script type="module">`, steuert dynamische Marketing-Theme-Injection und CSS-Variable-Anwendung | ✅ DESIGN |
 | `public/js/wiki-admin.js` | Verwaltet `data-wiki-theme-stylesheets` Attribut, serialisiert/deserialisiert Stylesheet-Daten | ⚠️ DYNAMISCH |
 
-### 1.10 Externe Abhängigkeiten
+### 1.11 Externe Abhängigkeiten
 
 | Quelle | Geladen in | URL |
 |--------|-----------|-----|
 | Google Fonts (Poppins) | `marketing/default.twig`, `marketing/landing.twig`, `marketing/calserver.twig`, `marketing/calserver-maintenance.twig` | `https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap` |
 | Google Fonts (Poppins, reduziert) | `marketing/calhelp.twig` | `https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap` |
 | Google Fonts (Poppins, minimal) | `marketing/landing_news_show.twig` | `https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap` |
+| UIkit (CDN) | `vuequiz/index.html` | `https://cdn.jsdelivr.net/npm/uikit@3.23.9/dist/css/uikit.min.css` |
+| Tailwind CSS (CDN) | `vuequiz/index.html` | `https://cdn.tailwindcss.com` |
 | Wiki-Theme-Stylesheets | `marketing/wiki/index.twig`, `marketing/wiki/show.twig` | Dynamisch aus DB — beliebige URLs oder lokale Pfade |
 
 ---
@@ -185,7 +198,7 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 │ ├─ namespace-tokens.css ✅   (includeNamespaceTokensStyles, nicht bei mktg) │
 │ ├─ table.css ✅              (includeTableStyles)                           │
 │ ├─ topbar.css ✅             (includeTopbarStyles, nicht bei mktg)          │
-│ ├─ [Poppins font preload]    (nur bei marketing-page)                       │
+│ ├─ [Poppins .woff2 preload]  (nur bei marketing-page, kein Stylesheet)      │
 │ └─ theme-vars.twig ✅        (shouldIncludeMarketingThemeVars)              │
 │     ├── namespace-tokens.css ✅ (bei mktg: nach head_end)                   │
 │                                                                              │
@@ -230,6 +243,13 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 │ │ └─ calserver-maintenance.css ⚠️ (komplett eigenständig)      │          │
 │ │ └─ future-is-green.css ⚠️ (eigenes --fig-* System)           │          │
 │ │ └─ fluke-metcal.css ⚠️ (eigenes --metcal-* System)           │          │
+│ └────────────────────────────────────────────────────────────────┘          │
+│                                                                              │
+│ ┌── F) Standalone ─────────────────────────────────────────────┐          │
+│ │ vuequiz/index.html — Kein Twig, kein layout.twig             │          │
+│ │ └─ UIkit (CDN) ⚠️, Tailwind (CDN) ⚠️, Inline <style> ⚠️   │          │
+│ │ domain_maintenance.twig — layout.twig, aber nur Inline-CSS   │          │
+│ │ └─ Inline <style> ⚠️ (hardcodierte Werte)                   │          │
 │ └────────────────────────────────────────────────────────────────┘          │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -301,24 +321,24 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 ```
 1. uikit.min.css              ⚠️ LEGACY
 2. variables.css               ✅
-3. namespace-tokens.css        ✅ (nicht-marketing, also normal in head)
-   ── head Block (cms_base.twig) ──
-4. topbar.marketing.css        ✅ (conditional)
-5. footer-blocks.css           ✅ Hybrid (var() mit Fallbacks)
+   (Poppins font preload)      ⚠️ EXTERN (.woff2 file)
+   ── head Block (cms_base.twig → parent()) ──
+3. footer-blocks.css           ✅ Hybrid (var() mit Fallbacks)
    ── head Block (render.twig) ──
-6. dark.css                    ✅
-7. highcontrast.css            ✅
-8. sections.css                ✅ Token-basiert
-9. marketing-utilities.css     ⚠️ LEGACY — dupliziert variables.css Tokens
-10. marketing.css (preload)    (Performance-Hint)
-11. marketing.css              ✅
-12. marketing-cards.css        ✅ Token-basiert
-13. topbar.marketing.css       ✅
+4. dark.css                    ✅
+5. highcontrast.css            ✅
+6. sections.css                ✅ Token-basiert
+7. marketing-utilities.css     ⚠️ LEGACY — dupliziert variables.css Tokens
+8. marketing.css (preload)     (Performance-Hint)
+9. marketing.css               ✅
+10. marketing-cards.css        ✅ Token-basiert
+11. topbar.marketing.css       ✅
    ── head_end Block ──
-14. theme-vars.twig (inline)   ✅
+12. namespace-tokens.css       ✅ (nach head bei marketing-page)
+13. theme-vars.twig (inline)   ✅
 ```
 
-**Hinweis:** `render.twig` setzt `includeMainStyles=false` — das CMS-Frontend lädt bewusst NICHT `main.css`, um Konflikte mit dem Marketing-Design zu vermeiden. `marketing-utilities.css` (Pos. 9) dupliziert Token-Definitionen aus `variables.css` als Fallback.
+**Hinweis:** `render.twig` setzt `includeMainStyles=false`, `includeCmsBaseStyles=false`, `includeMarketingTopbarStyles=false` — das CMS-Frontend lädt bewusst NICHT `main.css`, `topbar.css` oder `table.css`, um Konflikte mit dem Marketing-Design zu vermeiden. Da `body_class` `marketing-page` enthält, wird `namespace-tokens.css` im `head_end`-Block geladen (Pos. 12) — NACH den Marketing-Stylesheets, damit die Namespace-Tokens korrekt überschreiben. `marketing-utilities.css` (Pos. 7) dupliziert Token-Definitionen aus `variables.css` als Fallback.
 
 ### 3.5 Admin-Base (`admin/base.twig`)
 
@@ -464,6 +484,8 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 | `admin/navigation/_partials/footer_blocks_tab.twig` | 198+ | Ähnliche Admin-Editor-Farben |
 | `marketing/wiki/index.twig` | 50–65 | Dynamisch aus DB — Farben nicht über Token-System |
 | `marketing/wiki/show.twig` | 54–65 | Identisch |
+| `marketing/domain_maintenance.twig` | 10–42 | `#fff`, `rgba(0,0,0,0.05)`, `#555`, `#888` |
+| `vuequiz/index.html` | 14–40+ | `#667eea`, `#764ba2`, `white`, `#e2e8f0` — komplettes eigenes Farbschema |
 
 ---
 
@@ -558,6 +580,8 @@ Drei CSS-Dateien definieren eigene, vom Namespace-System unabhängige Token-Hier
 | Onboarding-Flow Styling | `onboarding.css` | **Teilweise** — nutzt `--color-*` Legacy-Tokens statt `--brand-*`/`--surface-*` |
 | Admin-Editor Styling (Footer-Blocks, Menu-Cards) | Inline `<style>` + `menu-cards.css` | **Ja** — Token existieren, werden aber nicht genutzt |
 | Wiki-Theme Farben | Inline `<style>` in Wiki-Templates | **Nein** — dynamisch aus DB, nicht über Design-Presets |
+| VueQuiz-App Styling | CDN UIkit + Tailwind + Inline `<style>` in `vuequiz/index.html` | **Nein** — komplett eigenständig, kein Twig, kein Token-System |
+| Domain-Maintenance Styling | Inline `<style>` in `domain_maintenance.twig` | **Ja** — Token existieren (`--surface-card`, `--text-muted`), werden aber nicht genutzt |
 
 ### 6.2 Visuell funktionierende Bereiche NUR durch Legacy-CSS
 
@@ -591,7 +615,7 @@ Drei CSS-Dateien definieren eigene, vom Namespace-System unabhängige Token-Hier
 
 #### 1. `calserver.css` → Namespace-Theme "calserver"
 
-- **Was:** Alle `--calserver-primary`, `--cs-*` Variablen und Layout-Overrides in das Design-Preset JSON (`content/design/calserver.json`) und die generierten namespace-tokens übernehmen.
+- **Was:** Alle `--calserver-primary`, `--cs-*` Variablen und Layout-Overrides in das Design-Preset JSON (`content/design/calserver-neu.json`) und die generierten namespace-tokens übernehmen.
 - **Migration:** Seitenspezifisches Layout-CSS (Hero-Backgrounds, Logo-Styles, Section-Layouts) in die gemeinsamen `marketing.css`/`sections.css` Komponenten migrieren — diese sind bereits via Token parametrierbar.
 - **Aktion:** `calserver.css` entfernen, `<link>` aus `calserver.twig` (Zeile 17) entfernen.
 - **Token-Mapping:** `--calserver-primary` → `--brand-primary`, `--cs-logo-text` → `var(--marketing-text-on-surface)`, `--cs-hero-overlay-*` → Marketing-Hero-Tokens.
@@ -611,7 +635,7 @@ Drei CSS-Dateien definieren eigene, vom Namespace-System unabhängige Token-Hier
 
 - **Was:** 49 hardcodierte Hex-Werte (`#0f172a`, `#111827`, `#f8fafc`, `#cbd5f5` etc.).
 - **Migration:** Maintenance-Layout als generische Komponente in `sections.css`/`marketing.css` aufnehmen. Alle Farben aus Namespace-Tokens beziehen. Hero-Gradient, Card-Styles und CTA-Button über `var(--brand-primary)`, `var(--surface-card)`, `var(--text-body)` steuern.
-- **Aktion:** `calserver-maintenance.css` entfernen, `<link>` aus `calserver-maintenance.twig` (Zeile 16) entfernen.
+- **Aktion:** `calserver-maintenance.css` entfernen, `<link>` aus `calserver-maintenance.twig` (Zeile 17) entfernen.
 
 #### 5. `future-is-green.css` → Namespace-Theme "future-is-green"
 
@@ -629,6 +653,7 @@ Drei CSS-Dateien definieren eigene, vom Namespace-System unabhängige Token-Hier
 #### 6. `fluke-metcal.css` → Namespace-Theme + shared Styles
 
 - **Was:** `--metcal-*` System (3 Token-Defs + 22 standalone hardcodierte Backgrounds/Colors) + Layout-Komponenten (Hero, Cards, Timeline, FAQ, Packages, Sticky-CTA).
+- **Voraussetzung:** Es existiert noch kein Design-Preset JSON für Fluke-Metcal (`content/design/fluke-metcal.json` fehlt). Dieses muss zunächst erstellt werden.
 - **Migration:**
   - `--metcal-text-strong` → `--text-heading`
   - `--metcal-text` → `--text-body`
@@ -648,6 +673,8 @@ Drei CSS-Dateien definieren eigene, vom Namespace-System unabhängige Token-Hier
 | 9 | `templates/admin/navigation/_partials/footer_blocks_tab.twig` inline `<style>` | Analog zu footer-blocks.twig |
 | 10 | `public/css/menu-cards.css` | 26 hardcodierte Hex-Werte ersetzen: `#fff` → `var(--surface-card)`, `#dee2e6` → `var(--border-muted)`, `#1e87f0` → `var(--brand-primary)`, `#ced4da` → `var(--text-muted)` etc. |
 | 11 | `public/css/onboarding.css` | Von `--color-text`/`--color-primary`/`--color-bg` auf `--text-body`/`--brand-primary`/`--surface-page` migrieren |
+| 12 | `templates/marketing/domain_maintenance.twig` inline `<style>` | `#fff` → `var(--surface-card)`, `#555` → `var(--text-muted)`, `#888` → `var(--text-muted)`, `rgba(0,0,0,0.05)` → Token-basierter Schatten |
+| 13 | `templates/vuequiz/index.html` | Komplett eigenständige App mit CDN UIkit + Tailwind. Langfristig in Twig-Template mit Token-System migrieren oder als bewusste Standalone-App dokumentieren |
 
 ### Phase 3 — Dark-Mode-Konsistenz
 
@@ -655,8 +682,8 @@ Drei CSS-Dateien definieren eigene, vom Namespace-System unabhängige Token-Hier
 
 | Nr. | Datei | Aktion |
 |-----|-------|--------|
-| 12 | `public/css/dark.css` | Hardcodierte `#f5f5f5` (Zeilen 26, 29, 33, 40) durch `var(--text-body)` aus variables.css ersetzen |
-| 13 | `public/css/highcontrast.css` | 118 hardcodierte Werte sind funktional korrekt (WCAG AA/AAA-Compliance erfordert definierte Kontraste). Prüfen ob Token-Referenzen mit `forced-colors` Media Query möglich sind, aber Accessibility hat Vorrang |
+| 14 | `public/css/dark.css` | Hardcodierte `#f5f5f5` (Zeilen 26, 29, 33, 40) durch `var(--text-body)` aus variables.css ersetzen |
+| 15 | `public/css/highcontrast.css` | 118 hardcodierte Werte sind funktional korrekt (WCAG AA/AAA-Compliance erfordert definierte Kontraste). Prüfen ob Token-Referenzen mit `forced-colors` Media Query möglich sind, aber Accessibility hat Vorrang |
 
 ### Phase 4 — Strategische Entscheidungen
 
@@ -664,11 +691,11 @@ Drei CSS-Dateien definieren eigene, vom Namespace-System unabhängige Token-Hier
 
 | Nr. | Thema | Empfehlung |
 |-----|-------|-----------|
-| 14 | `marketing-utilities.css` | Dupliziert Token-Definitionen aus `variables.css`. Konsolidieren: Entweder `marketing-utilities.css` entfernen und sicherstellen dass `variables.css` auf CMS-Pages geladen wird, oder die Datei als expliziten "Fallback-Layer" dokumentieren |
-| 15 | `uikit.min.css` | Langfristiger Plan: Schrittweises Entfernen oder Token-Wrapping der verwendeten UIkit-Komponenten. Kurzfristig: `main.css` und `variables.css` überschreiben UIkit-Farben bereits korrekt — UIkit bleibt für Grid/Layout/Komponenten-Funktionalität notwendig |
-| 16 | Google Fonts (Poppins) | Integration ins Token-System: `--marketing-font-stack-modern` in `marketing.css` existiert bereits als `"Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif`. Font-Loading könnte zentral über Token-System gesteuert werden |
-| 17 | Statische HTML (`Impressum.html`, `Lizenz.html`) | In Twig-Templates konvertieren (nutzen `layout.twig`) oder CSS-Referenzen auf Token-basierte Includes aktualisieren |
-| 18 | Wiki-Theme-Stylesheets | Dynamische Stylesheet-Arrays aus DB sind ein potenzielles Einfallstor für beliebiges CSS. Langfristig auf Token-basierte Theme-Konfiguration umstellen |
+| 16 | `marketing-utilities.css` | Dupliziert Token-Definitionen aus `variables.css`. Konsolidieren: Entweder `marketing-utilities.css` entfernen und sicherstellen dass `variables.css` auf CMS-Pages geladen wird, oder die Datei als expliziten "Fallback-Layer" dokumentieren |
+| 17 | `uikit.min.css` | Langfristiger Plan: Schrittweises Entfernen oder Token-Wrapping der verwendeten UIkit-Komponenten. Kurzfristig: `main.css` und `variables.css` überschreiben UIkit-Farben bereits korrekt — UIkit bleibt für Grid/Layout/Komponenten-Funktionalität notwendig |
+| 18 | Google Fonts (Poppins) | Integration ins Token-System: `--marketing-font-stack-modern` in `marketing.css` existiert bereits als `"Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif`. Font-Loading könnte zentral über Token-System gesteuert werden |
+| 19 | Statische HTML (`Impressum.html`, `Lizenz.html`) | In Twig-Templates konvertieren (nutzen `layout.twig`) oder CSS-Referenzen auf Token-basierte Includes aktualisieren |
+| 20 | Wiki-Theme-Stylesheets | Dynamische Stylesheet-Arrays aus DB sind ein potenzielles Einfallstor für beliebiges CSS. Langfristig auf Token-basierte Theme-Konfiguration umstellen |
 
 ---
 
@@ -681,8 +708,8 @@ Drei CSS-Dateien definieren eigene, vom Namespace-System unabhängige Token-Hier
 | CSS-Dateien gesamt | 38 (inkl. 14 auto-generierte Namespace-Tokens) |
 | ✅ Namespace-Design-konform | 13 Dateien |
 | ⚠️ Legacy/Fremd | 11 Dateien |
-| Inline `<style>` Blöcke | 11 Stellen (5 mit hardcodierten Werten) |
-| Externe Abhängigkeiten | 1 (Google Fonts / Poppins) |
+| Inline `<style>` Blöcke | 13 Stellen (7 mit hardcodierten Werten) |
+| Externe Abhängigkeiten | 3 (Google Fonts / Poppins, UIkit CDN, Tailwind CDN) |
 | Hardcodierte Standalone-Farbwerte | ~300+ über alle Dateien |
 | Brand-CSS mit parallelen Token-Systemen | 3 (`--fig-*`, `--metcal-*`, `--calserver-*`) |
 | Zu entfernende Brand-CSS-Dateien | 6 (`calserver.css`, `calhelp.css`, `calhelp-about.css`, `calserver-maintenance.css`, `future-is-green.css`, `fluke-metcal.css`) |
