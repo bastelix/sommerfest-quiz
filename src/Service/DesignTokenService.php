@@ -172,6 +172,12 @@ class DesignTokenService
     {
         $normalizedNamespace = $this->normalizeNamespace($namespace);
         $validated = $this->validateTokens($tokens);
+
+        $existingMeta = $this->fetchImportMeta($normalizedNamespace);
+        if ($existingMeta !== null) {
+            $validated['_meta'] = $existingMeta;
+        }
+
         $payload = ['event_uid' => $normalizedNamespace, 'designTokens' => $validated];
         $this->configService->ensureConfigForEvent($normalizedNamespace);
         $this->configService->saveConfig($payload);
@@ -228,6 +234,10 @@ class DesignTokenService
 
         $validated = $this->validateTokens($tokens);
         $merged = $this->mergeWithDefaults($validated);
+        $merged['_meta'] = [
+            'sourcePreset' => $preset,
+            'importedAt' => date('c'),
+        ];
 
         $this->configService->ensureConfigForEvent($normalizedNamespace);
         $this->configService->saveConfig([
@@ -283,6 +293,29 @@ class DesignTokenService
         }
 
         return $presets;
+    }
+
+    /**
+     * Remove the namespace-specific CSS directory and rebuild the global stylesheet.
+     */
+    public function cleanupNamespaceCss(string $namespace): void
+    {
+        $normalized = $this->normalizeNamespace($namespace);
+        $baseDirectory = dirname($this->cssPath);
+        $namespaceDirectory = $baseDirectory . '/' . $normalized;
+
+        if (is_dir($namespaceDirectory)) {
+            $tokenFile = $namespaceDirectory . '/namespace-tokens.css';
+            if (is_file($tokenFile)) {
+                unlink($tokenFile);
+            }
+            // Only remove the directory if it is empty after deleting the token file.
+            if (is_dir($namespaceDirectory) && count((array) scandir($namespaceDirectory)) <= 2) {
+                rmdir($namespaceDirectory);
+            }
+        }
+
+        $this->rebuildStylesheet();
     }
 
     public function rebuildStylesheet(): void
@@ -371,6 +404,39 @@ class DesignTokenService
         }
 
         return false;
+    }
+
+    /**
+     * Return the import metadata for a namespace, or null if none exists.
+     *
+     * @return array{sourcePreset: string, importedAt: string}|null
+     */
+    public function getImportMeta(string $namespace): ?array
+    {
+        return $this->fetchImportMeta($this->normalizeNamespace($namespace));
+    }
+
+    /**
+     * @return array{sourcePreset: string, importedAt: string}|null
+     */
+    private function fetchImportMeta(string $namespace): ?array
+    {
+        $config = $this->configService->getConfigForEvent($namespace);
+        $stored = $config['designTokens'] ?? [];
+
+        if (!is_array($stored)) {
+            return null;
+        }
+
+        $meta = $stored['_meta'] ?? null;
+        if (!is_array($meta) || !isset($meta['sourcePreset'], $meta['importedAt'])) {
+            return null;
+        }
+
+        return [
+            'sourcePreset' => (string) $meta['sourcePreset'],
+            'importedAt' => (string) $meta['importedAt'],
+        ];
     }
 
     /**
@@ -528,7 +594,6 @@ class DesignTokenService
 
         $defaultTokens = $this->mergeWithDefaults($namespaces[PageService::DEFAULT_NAMESPACE] ?? []);
         $blocks[] = $this->renderTokenCssBlock(':root', $defaultTokens);
-        $blocks[] = $this->renderTokenCssBlock('[data-namespace="' . PageService::DEFAULT_NAMESPACE . '"]', $defaultTokens);
 
         foreach ($namespaces as $namespace => $tokens) {
             if ($namespace === PageService::DEFAULT_NAMESPACE) {

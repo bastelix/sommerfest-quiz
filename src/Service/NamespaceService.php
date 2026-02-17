@@ -184,6 +184,7 @@ final class NamespaceService
         }
 
         $this->repository->cleanupDerivedData($normalized);
+        $this->designTokenService->cleanupNamespaceCss($normalized);
         $this->repository->delete($normalized);
     }
 

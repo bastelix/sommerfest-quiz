@@ -42,23 +42,6 @@
       "backgroundDark": "#020617"
     }
   },
-  "designTokens": {
-    "brand": {
-      "primary": "#1f6feb",
-      "accent": "#58a6ff",
-      "secondary": "#475569"
-    },
-    "layout": {
-      "profile": "standard"
-    },
-    "typography": {
-      "preset": "modern"
-    },
-    "components": {
-      "cardStyle": "rounded",
-      "buttonStyle": "filled"
-    }
-  },
   "effects": {
     "effectsProfile": "quizrace.marketing",
     "sliderProfile": "marketing"

@@ -47,15 +47,22 @@
   {% set cssVars = cssVars|merge(['--surface-muted: ' ~ appearanceVars.surfaceMuted]) %}
 {% endif %}
 
-{# Only emit text contrast variables from appearance data when no marketing
-   scheme is active – the scheme block below provides its own values and
-   emitting both would create duplicate declarations. #}
+{% set marketingSchemeKey = appearanceVars.marketingScheme
+  |default(designColors.marketingScheme
+  |default('')) %}
+{% set marketingScheme = marketingSchemeKey and marketingSchemes[marketingSchemeKey] is defined
+  ? marketingSchemes[marketingSchemeKey]
+  : null
+%}
+
+{# When a marketing scheme is active it provides authoritative values for
+   text-on-surface, text-on-background, text-on-primary and on-accent
+   (see block below at line ~146).  Skip the appearance-variable fallbacks
+   so the inline <style> block does not contain redundant declarations. #}
 {% if not marketingScheme %}
   {% set textOnSurfaceValue = appearanceVars.textOnSurface
-    |default(appearanceVars.text_on_surface
     |default(appearanceColors.textOnSurface
-    |default(appearanceColors.text_on_surface
-    |default(''))))
+    |default(''))
   %}
   {% if textOnSurfaceValue %}
     {% set cssVars = cssVars|merge([
@@ -64,10 +71,8 @@
     ]) %}
   {% endif %}
   {% set textOnBackgroundValue = appearanceVars.textOnBackground
-    |default(appearanceVars.text_on_background
     |default(appearanceColors.textOnBackground
-    |default(appearanceColors.text_on_background
-    |default(''))))
+    |default(''))
   %}
   {% if textOnBackgroundValue %}
     {% set cssVars = cssVars|merge([
@@ -76,10 +81,8 @@
     ]) %}
   {% endif %}
   {% set textOnPrimaryValue = appearanceVars.textOnPrimary
-    |default(appearanceVars.text_on_primary
     |default(appearanceColors.textOnPrimary
-    |default(appearanceColors.text_on_primary
-    |default(''))))
+    |default(''))
   %}
   {% if textOnPrimaryValue %}
     {% set cssVars = cssVars|merge([
