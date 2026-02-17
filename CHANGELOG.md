@@ -68,10 +68,10 @@
 - Add harmonization plan for menu editor and footer block editor UX
 - Add comprehensive role and permission documentation
 - Document PR #5300 as superseded by #5303/#5312
+- Add comprehensive project documentation for marketing website
 - Add namespace design explanation
 - Add namespace design review and improvement recommendations
 - Add branch naming conventions to CLAUDE.md
-- Add comprehensive project documentation for marketing website
 - Add CSS audit analyzing stylesheet conflicts and legacy inclusions
 - Fix inaccuracies in CSS audit
 
@@ -284,6 +284,7 @@
 - Add rename and delete actions via dropdown menu in page tree
 - Add rename/delete actions to page editor tree via dropdown menu
 - Namespace-driven team name generation and event scoping
+- *(config)* Add admin toggle for player contact email form
 - *(design)* Track source preset and import timestamp
 - *(design)* Add custom CSS overrides tab per namespace
 - *(cms)* Add block-contract-v1 prompt template for marketing page import
@@ -429,14 +430,14 @@
 - Remove duplicate 'pageModules' array key in PageController
 - Remove unused $pageModules property from PageController
 - Apply aurora design scheme correctly for calserver-neu namespace
+- *(docs)* Correct privacy claims to reflect player email collection
+- *(docs)* Clarify email collection is player-optional, not admin-configurable
 - *(design)* Clean up orphan CSS files when namespace is deleted
 - *(teams)* Scope all team API calls to the active event
 - *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
 - *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
 - *(design)* Emit marketing scheme tokens with falsy CSS values like '0'
 - *(news)* Add header, breadcrumb navigation, and footer to news pages
-- *(docs)* Correct privacy claims to reflect player email collection
-- *(docs)* Clarify email collection is player-optional, not admin-configurable
 - *(news)* Align CSS and footer with CMS landing page template
 - *(design)* Fix CSS tab visibility and add preview tab
 - *(docs)* Escape Liquid template syntax in Jekyll documentation
