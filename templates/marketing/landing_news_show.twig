@@ -6,15 +6,18 @@
 {% block title %}{{ metaTitle|default(entry.title ~ ' – Neuigkeiten') }}{% endblock %}
 
 {% block head %}
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/sections.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing-utilities.css">
+  <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing-cards.css">
   {% if isCalserverTheme %}
     <link rel="stylesheet" href="{{ basePath }}/css/calserver.css">
   {% endif %}
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
-  <script type="module" src="{{ basePath }}/js/marketing-design.js"></script>
+  <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
 {% block body_class %}marketing-page {% if isCalserverTheme %}calserver-layout calserver-news-page{% else %}dark-mode{% endif %}{% endblock %}
@@ -69,18 +72,4 @@
       </div>
     </section>
   </div>
-{% endblock %}
-
-{% block footer %}
-  {% include 'marketing/partials/footer-standard.twig' with {
-    brandName: 'QuizRace',
-    brandDescription: 'Interaktive QR-Code-Rallyes für Events &ndash; schnell startklar und datensicher.',
-    contactName: 'René Buske',
-    contactEmailUser: 'office',
-    contactEmailDomain: 'calhelp.de',
-    contactPhone: '+4933203609080',
-    contactPhoneLabel: '+49\u00a033203\u00a0609080',
-    footerColumns: cmsFooterColumns|default([]),
-    legalNavigation: cmsLegalNavigation|default([])
-  } only %}
 {% endblock %}
