@@ -12,14 +12,9 @@
   <style>
     :root {
       --dashboard-accent: {{ config.buttonColor|default('#1e87f0') }};
-      --dashboard-background-light: #eef2f7;
-      --dashboard-card-light: #ffffff;
-      --dashboard-background-dark: #050910;
-      --dashboard-card-dark: #172132;
-      --dashboard-border-dark: rgba(148, 163, 184, 0.24);
     }
     body.dashboard-page {
-      background: var(--dashboard-background-light);
+      background: var(--surface-page, #eef2f7);
     }
     body.dashboard-page .wrapper,
     body.dashboard-page .content,
@@ -58,10 +53,10 @@
     }
     .dashboard-modules .uk-card {
       border-top: 3px solid var(--dashboard-accent);
-      background: var(--dashboard-card-light);
-      border-left-color: rgba(15, 23, 42, 0.1);
-      border-right-color: rgba(15, 23, 42, 0.1);
-      border-bottom-color: rgba(15, 23, 42, 0.1);
+      background: var(--surface-card, #ffffff);
+      border-left-color: var(--border-muted, rgba(15, 23, 42, 0.1));
+      border-right-color: var(--border-muted, rgba(15, 23, 42, 0.1));
+      border-bottom-color: var(--border-muted, rgba(15, 23, 42, 0.1));
       box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
     }
     .dashboard-info {
@@ -143,18 +138,18 @@
     }
     {% endif %}
     :where(html[data-theme="dark"] body, body[data-theme="dark"], body.dark-mode) .dashboard-page {
-      background: var(--dashboard-background-dark);
+      background: var(--surface-page, #050910);
     }
     :where(html[data-theme="dark"] body, body[data-theme="dark"], body.dark-mode) .dashboard-modules .uk-card {
-      background: var(--dashboard-card-dark);
-      border-left-color: var(--dashboard-border-dark);
-      border-right-color: var(--dashboard-border-dark);
-      border-bottom-color: var(--dashboard-border-dark);
+      background: var(--surface-card, #172132);
+      border-left-color: var(--border-muted, rgba(148, 163, 184, 0.24));
+      border-right-color: var(--border-muted, rgba(148, 163, 184, 0.24));
+      border-bottom-color: var(--border-muted, rgba(148, 163, 184, 0.24));
       box-shadow: 0 20px 48px rgba(2, 6, 23, 0.6);
     }
     :where(html[data-theme="dark"] body.dashboard-page, body[data-theme="dark"].dashboard-page, body.dark-mode.dashboard-page) .site-footer {
       color: rgba(255, 255, 255, 0.72);
-      border-top-color: var(--dashboard-border-dark);
+      border-top-color: var(--border-muted, rgba(148, 163, 184, 0.24));
     }
     :where(html[data-theme="dark"] body, body[data-theme="dark"], body.dark-mode) .dashboard-status,
     :where(html[data-theme="dark"] body, body[data-theme="dark"], body.dark-mode) .dashboard-leader__label,

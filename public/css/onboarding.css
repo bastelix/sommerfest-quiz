@@ -7,30 +7,30 @@
   font-family: 'Poppins',sans-serif;
 }
 .btn-black {
-  background: var(--color-text) !important;
-  color: var(--color-bg) !important;
-  border: 2px solid var(--color-text);
+  background: var(--text-heading, #0b1728) !important;
+  color: var(--surface-card, #ffffff) !important;
+  border: 2px solid var(--text-heading, #0b1728);
   transition: all 0.18s;
 }
 .btn-black:hover {
-  background: var(--color-bg) !important;
-  color: var(--color-text) !important;
+  background: var(--surface-card, #ffffff) !important;
+  color: var(--text-heading, #0b1728) !important;
 }
 .btn-transparent {
   background: transparent !important;
-  color: var(--color-primary) !important;
-  border: 2px solid var(--color-primary);
+  color: var(--brand-primary, #1e87f0) !important;
+  border: 2px solid var(--brand-primary, #1e87f0);
   transition: all 0.18s;
 }
 .btn-transparent:hover {
-  background: var(--color-primary) !important;
-  color: var(--color-bg) !important;
+  background: var(--brand-primary, #1e87f0) !important;
+  color: var(--surface-card, #ffffff) !important;
 }
 .uk-card-quizrace {
   border-radius: 14px;
   box-shadow: 0 6px 22px 0 rgba(18,32,73,.06);
   padding: 32px 24px;
-  background: var(--color-bg);
+  background: var(--surface-card, #ffffff);
 }
 .uk-label-large {
   font-size: 1.1rem;
@@ -39,29 +39,29 @@
   letter-spacing: 0.03em;
 }
 .uk-card-price {
-  border: 2px solid var(--color-primary);
-  background: var(--color-bg);
+  border: 2px solid var(--brand-primary, #1e87f0);
+  background: var(--surface-card, #ffffff);
 }
 .uk-card-popular {
-  border: 2px solid var(--color-text);
-  background: var(--color-primary);
-  color: var(--color-bg);
+  border: 2px solid var(--text-heading, #0b1728);
+  background: var(--brand-primary, #1e87f0);
+  color: var(--surface-card, #ffffff);
   transform: scale(1.05);
   z-index: 1;
   position: relative;
 }
 .uk-card-popular .uk-label {
-  background: var(--color-text);
-  color: var(--color-bg);
+  background: var(--text-heading, #0b1728);
+  color: var(--surface-card, #ffffff);
 }
 .uk-card-price .uk-text-meta, .uk-text-meta {
-  color: #7b7b7b;
+  color: var(--text-muted, #4b5563);
   font-size: 0.95rem;
 }
 .uk-card-popular .btn-black {
-  background: var(--color-bg) !important;
-  color: var(--color-primary) !important;
-  border: 2px solid var(--color-bg);
+  background: var(--surface-card, #ffffff) !important;
+  color: var(--brand-primary, #1e87f0) !important;
+  border: 2px solid var(--surface-card, #ffffff);
 }
 .pricing-grid .uk-card-quizrace {
   display: flex;
@@ -82,7 +82,7 @@ details > summary::-webkit-details-marker {
 }
 
 #task-log-details {
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--brand-primary, #1e87f0);
   border-radius: 4px;
   padding: 0.5rem 1rem;
 }
@@ -94,11 +94,11 @@ details > summary::-webkit-details-marker {
 
 @media (prefers-color-scheme: light) {
   .site-footer {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: var(--brand-primary, #1e87f0);
+    color: var(--surface-card, #ffffff);
   }
 
   .site-footer a {
-    color: #fff;
+    color: var(--surface-card, #ffffff);
   }
 }
