@@ -73,28 +73,28 @@ SET content = $CALHELP$
     <div class="calhelp-section__header">
       <h2 id="results-title"
           class="uk-heading-medium"
-          data-calhelp-i18n
+          data-page-i18n
           data-i18n-de="Vorher vs. Nachher – Wirkung auf einen Blick"
           data-i18n-en="Before vs. after – impact at a glance">Vorher vs. Nachher – Wirkung auf einen Blick</h2>
-      <p data-calhelp-i18n
+      <p data-page-i18n
          data-i18n-de="Suchzeit −35 %, Freigabe-Runden halbiert, Audit-Ordner in 1 Tag."
          data-i18n-en="Search time −35%, approval loops halved, audit pack ready in 1 day.">Suchzeit −35 %, Freigabe-Runden halbiert, Audit-Ordner in 1 Tag.</p>
     </div>
-    <div class="calhelp-comparison" data-calhelp-comparison>
+    <div class="calhelp-comparison" data-page-comparison>
       <article class="uk-card uk-card-primary uk-card-body calhelp-comparison__card"
                aria-labelledby="results-card-data-title"
-               data-calhelp-comparison-card="data"
-               data-calhelp-comparison-default="after">
+               data-page-comparison-card="data"
+               data-page-comparison-default="after">
         <header class="calhelp-comparison__header">
           <p id="results-card-data-title"
              class="calhelp-comparison__eyebrow"
-             data-calhelp-i18n
+             data-page-i18n
              data-i18n-de="Datenpflege"
              data-i18n-en="Data upkeep">Datenpflege</p>
           <div class="calhelp-comparison__toggle-group"
                role="group"
-               data-calhelp-i18n
-               data-calhelp-i18n-attr="aria-label"
+               data-page-i18n
+               data-page-i18n-attr="aria-label"
                data-i18n-de="Zustand für Datenpflege wechseln"
                data-i18n-en="Switch data upkeep state"
                aria-label="Zustand für Datenpflege wechseln">
@@ -103,7 +103,7 @@ SET content = $CALHELP$
                     data-comparison-toggle="before"
                     aria-pressed="false"
                     aria-controls="results-card-data-before"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Vorher"
                     data-i18n-en="Before">Vorher</button>
             <button type="button"
@@ -111,7 +111,7 @@ SET content = $CALHELP$
                     data-comparison-toggle="after"
                     aria-pressed="true"
                     aria-controls="results-card-data-after"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Nachher"
                     data-i18n-en="After">Nachher</button>
           </div>
@@ -122,23 +122,23 @@ SET content = $CALHELP$
                data-comparison-state="before"
                aria-hidden="true"
                hidden>
-            <p data-calhelp-i18n
+            <p data-page-i18n
                data-i18n-de="Stammdaten in Excel, lokale Ordner, Abstimmung per E-Mail – jeder korrigiert für sich."
                data-i18n-en="Master data in Excel, local folders, coordination via email – everyone fixes things alone.">Stammdaten in Excel, lokale Ordner, Abstimmung per E-Mail – jeder korrigiert für sich.</p>
             <dl class="calhelp-comparison__metrics">
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Parallel gepflegte Quellen"
                     data-i18n-en="Sources maintained in parallel">Parallel gepflegte Quellen</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="3 Systeme"
                     data-i18n-en="3 systems">3 Systeme</dd>
               </div>
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Aktualisierung"
                     data-i18n-en="Update cycle">Aktualisierung</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="&gt; 48&nbsp;h Rückstand"
                     data-i18n-en="&gt; 48&nbsp;h lag">&gt; 48&nbsp;h Rückstand</dd>
               </div>
@@ -147,23 +147,23 @@ SET content = $CALHELP$
           <div id="results-card-data-after"
                class="calhelp-comparison__state is-active"
                data-comparison-state="after">
-            <p data-calhelp-i18n
+            <p data-page-i18n
                data-i18n-de="Ein gemeinsamer Datenstand mit Plausibilitätsregeln – Änderungen sind nachvollziehbar."
                data-i18n-en="One shared data baseline with simple rules – every change stays traceable.">Ein gemeinsamer Datenstand mit Plausibilitätsregeln – Änderungen sind nachvollziehbar.</p>
             <dl class="calhelp-comparison__metrics">
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Suchzeit"
                     data-i18n-en="Search time">Suchzeit</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="−35&nbsp;%"
                     data-i18n-en="−35%">−35&nbsp;%</dd>
               </div>
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Datenquelle"
                     data-i18n-en="Data source">Datenquelle</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="1 konsolidiertes System"
                     data-i18n-en="1 consolidated system">1 konsolidiertes System</dd>
               </div>
@@ -173,18 +173,18 @@ SET content = $CALHELP$
       </article>
       <article class="uk-card uk-card-primary uk-card-body calhelp-comparison__card"
                aria-labelledby="results-card-approval-title"
-               data-calhelp-comparison-card="approval"
-               data-calhelp-comparison-default="after">
+               data-page-comparison-card="approval"
+               data-page-comparison-default="after">
         <header class="calhelp-comparison__header">
           <p id="results-card-approval-title"
              class="calhelp-comparison__eyebrow"
-             data-calhelp-i18n
+             data-page-i18n
              data-i18n-de="Report-Freigabe"
              data-i18n-en="Report approval">Report-Freigabe</p>
           <div class="calhelp-comparison__toggle-group"
                role="group"
-               data-calhelp-i18n
-               data-calhelp-i18n-attr="aria-label"
+               data-page-i18n
+               data-page-i18n-attr="aria-label"
                data-i18n-de="Zustand für Report-Freigabe wechseln"
                data-i18n-en="Switch report approval state"
                aria-label="Zustand für Report-Freigabe wechseln">
@@ -193,7 +193,7 @@ SET content = $CALHELP$
                     data-comparison-toggle="before"
                     aria-pressed="false"
                     aria-controls="results-card-approval-before"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Vorher"
                     data-i18n-en="Before">Vorher</button>
             <button type="button"
@@ -201,7 +201,7 @@ SET content = $CALHELP$
                     data-comparison-toggle="after"
                     aria-pressed="true"
                     aria-controls="results-card-approval-after"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Nachher"
                     data-i18n-en="After">Nachher</button>
           </div>
@@ -212,23 +212,23 @@ SET content = $CALHELP$
                data-comparison-state="before"
                aria-hidden="true"
                hidden>
-            <p data-calhelp-i18n
+            <p data-page-i18n
                data-i18n-de="Freigaben wandern per E-Mail, Versionen bleiben unklar, Rückfragen ziehen sich."
                data-i18n-en="Approvals travel via email, versions stay unclear and follow-ups drag on.">Freigaben wandern per E-Mail, Versionen bleiben unklar, Rückfragen ziehen sich.</p>
             <dl class="calhelp-comparison__metrics">
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Feedbackschleifen"
                     data-i18n-en="Review loops">Feedbackschleifen</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="Ø 3 Runden"
                     data-i18n-en="avg. 3 rounds">Ø 3 Runden</dd>
               </div>
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Nachvollziehbarkeit"
                     data-i18n-en="Traceability">Nachvollziehbarkeit</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="Audit-Trail nur manuell"
                     data-i18n-en="Audit trail manual only">Audit-Trail nur manuell</dd>
               </div>
@@ -237,23 +237,23 @@ SET content = $CALHELP$
           <div id="results-card-approval-after"
                class="calhelp-comparison__state is-active"
                data-comparison-state="after">
-            <p data-calhelp-i18n
+            <p data-page-i18n
                data-i18n-de="Geführte Freigaben mit Rollen, Kommentaren und Signaturen im Audit-Trail."
                data-i18n-en="Guided approvals with roles, comments and signatures captured in the audit trail.">Geführte Freigaben mit Rollen, Kommentaren und Signaturen im Audit-Trail.</p>
             <dl class="calhelp-comparison__metrics">
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Feedbackschleifen"
                     data-i18n-en="Review loops">Feedbackschleifen</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="−50&nbsp;%"
                     data-i18n-en="−50%">−50&nbsp;%</dd>
               </div>
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Signatur-Log"
                     data-i18n-en="Signature log">Signatur-Log</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="100&nbsp;% automatisch"
                     data-i18n-en="100% automated">100&nbsp;% automatisch</dd>
               </div>
@@ -263,18 +263,18 @@ SET content = $CALHELP$
       </article>
       <article class="uk-card uk-card-primary uk-card-body calhelp-comparison__card"
                aria-labelledby="results-card-audit-title"
-               data-calhelp-comparison-card="audit"
-               data-calhelp-comparison-default="after">
+               data-page-comparison-card="audit"
+               data-page-comparison-default="after">
         <header class="calhelp-comparison__header">
           <p id="results-card-audit-title"
              class="calhelp-comparison__eyebrow"
-             data-calhelp-i18n
+             data-page-i18n
              data-i18n-de="Audit-Vorbereitung"
              data-i18n-en="Audit preparation">Audit-Vorbereitung</p>
           <div class="calhelp-comparison__toggle-group"
                role="group"
-               data-calhelp-i18n
-               data-calhelp-i18n-attr="aria-label"
+               data-page-i18n
+               data-page-i18n-attr="aria-label"
                data-i18n-de="Zustand für Audit-Vorbereitung wechseln"
                data-i18n-en="Switch audit preparation state"
                aria-label="Zustand für Audit-Vorbereitung wechseln">
@@ -283,7 +283,7 @@ SET content = $CALHELP$
                     data-comparison-toggle="before"
                     aria-pressed="false"
                     aria-controls="results-card-audit-before"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Vorher"
                     data-i18n-en="Before">Vorher</button>
             <button type="button"
@@ -291,7 +291,7 @@ SET content = $CALHELP$
                     data-comparison-toggle="after"
                     aria-pressed="true"
                     aria-controls="results-card-audit-after"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Nachher"
                     data-i18n-en="After">Nachher</button>
           </div>
@@ -302,23 +302,23 @@ SET content = $CALHELP$
                data-comparison-state="before"
                aria-hidden="true"
                hidden>
-            <p data-calhelp-i18n
+            <p data-page-i18n
                data-i18n-de="Checklisten, PDFs und Kommentare liegen verstreut – der Audit-Ordner entsteht in letzter Minute."
                data-i18n-en="Checklists, PDFs and comments are scattered – the audit pack is built at the last minute.">Checklisten, PDFs und Kommentare liegen verstreut – der Audit-Ordner entsteht in letzter Minute.</p>
             <dl class="calhelp-comparison__metrics">
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Vorbereitung"
                     data-i18n-en="Preparation">Vorbereitung</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="Mehrere Tage"
                     data-i18n-en="Several days">Mehrere Tage</dd>
               </div>
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Nachfragen"
                     data-i18n-en="Follow-up questions">Nachfragen</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="Häufig"
                     data-i18n-en="Frequent">Häufig</dd>
               </div>
@@ -327,23 +327,23 @@ SET content = $CALHELP$
           <div id="results-card-audit-after"
                class="calhelp-comparison__state is-active"
                data-comparison-state="after">
-            <p data-calhelp-i18n
+            <p data-page-i18n
                data-i18n-de="Audit-Ordner entsteht aus dem System – Nachweise, Kommentare und Historie sind in Sekunden parat."
                data-i18n-en="The audit pack comes straight from the system – evidence, comments and history are ready in seconds.">Audit-Ordner entsteht aus dem System – Nachweise, Kommentare und Historie sind in Sekunden parat.</p>
             <dl class="calhelp-comparison__metrics">
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Vorbereitung"
                     data-i18n-en="Preparation">Vorbereitung</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="1 Tag"
                     data-i18n-en="1 day">1 Tag</dd>
               </div>
               <div class="calhelp-comparison__metric">
-                <dt data-calhelp-i18n
+                <dt data-page-i18n
                     data-i18n-de="Nachfragen"
                     data-i18n-en="Follow-up questions">Nachfragen</dt>
-                <dd data-calhelp-i18n
+                <dd data-page-i18n
                     data-i18n-de="Selten"
                     data-i18n-en="Rare">Selten</dd>
               </div>
@@ -449,10 +449,10 @@ SET content = $CALHELP$
       </article>
     </div>
     <div class="uk-margin-large-top">
-      <div data-calhelp-assurance></div>
+      <div data-page-assurance></div>
     </div>
     <div class="uk-margin-large-top">
-      <div data-calhelp-proof-gallery></div>
+      <div data-page-proof-gallery></div>
     </div>
     <div class="calhelp-kpi uk-card uk-card-primary uk-card-body">
       <p class="uk-margin-remove">Alle technischen Details, KPIs und Checklisten finden Sie im <a href="https://calhelp.notion.site/Trust-Center" target="_blank" rel="noopener">Trust-Center</a>. Für Fragen stehen wir jederzeit bereit.</p>
@@ -460,7 +460,7 @@ SET content = $CALHELP$
   </div>
 </section>
 
-<div data-calhelp-cases></div>
+<div data-page-cases></div>
 
 <section id="conversation" class="uk-section calhelp-section" aria-labelledby="conversation-title">
   <div class="uk-container">
