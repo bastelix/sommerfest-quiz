@@ -70,6 +70,7 @@
 - Document PR #5300 as superseded by #5303/#5312
 - Add branch naming conventions to CLAUDE.md
 - Add namespace design explanation
+- Add comprehensive project documentation for marketing website
 
 ### Feat
 
