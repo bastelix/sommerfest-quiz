@@ -69,6 +69,7 @@
 - Add comprehensive role and permission documentation
 - Document PR #5300 as superseded by #5303/#5312
 - Add branch naming conventions to CLAUDE.md
+- Add namespace design explanation
 
 ### Feat
 
