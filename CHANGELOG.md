@@ -281,6 +281,7 @@
 - Add rename and delete actions via dropdown menu in page tree
 - Add rename/delete actions to page editor tree via dropdown menu
 - Namespace-driven team name generation and event scoping
+- *(design)* Add custom CSS overrides tab per namespace
 
 ### Fix
 
