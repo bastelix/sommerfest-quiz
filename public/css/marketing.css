@@ -1220,3 +1220,43 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
     padding: 20px;
   }
 }
+
+/* ── About page (calhelp-about) ─────────────────────────────────── */
+
+.calhelp-about-page {
+  font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.calhelp-about__logo {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.calhelp-about__nav > li.uk-active > a {
+  font-weight: 600;
+  border-bottom: 2px solid currentColor;
+}
+
+.calhelp-about__hero {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+.calhelp-about__quote {
+  border-left: 4px solid var(--brand-primary, #1e87f0);
+  padding-left: 12px;
+}
+
+.calhelp-about__portrait {
+  width: 160px;
+  height: 160px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brand-primary, #1e87f0) 10%, var(--surface-card, #fff)), color-mix(in srgb, var(--brand-primary, #1e87f0) 3%, var(--surface-card, #fff)));
+  color: var(--brand-primary, #1e87f0);
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+
+.calhelp-about__cta .uk-button {
+  min-width: 180px;
+}
