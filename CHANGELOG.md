@@ -438,6 +438,7 @@
 - *(docs)* Correct privacy claims to reflect player email collection
 - *(docs)* Clarify email collection is player-optional, not admin-configurable
 - *(news)* Align CSS and footer with CMS landing page template
+- *(design)* Fix CSS tab visibility and add preview tab
 
 ### Merge
 
