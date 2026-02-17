@@ -1040,7 +1040,7 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     const links = Array.from(tabNav.querySelectorAll('[data-design-tab]'));
 
     const setActiveTab = tab => {
-      const normalized = ['behavior', 'css'].includes(tab) ? tab : 'appearance';
+      const normalized = ['behavior', 'css', 'preview'].includes(tab) ? tab : 'appearance';
       links.forEach(link => {
         const isActive = link.dataset.designTab === normalized;
         const parent = link.parentElement;
