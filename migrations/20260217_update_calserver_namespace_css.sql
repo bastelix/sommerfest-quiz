@@ -1,0 +1,119 @@
+-- Add namespace-scoped custom CSS for the calServer one-pager design.
+-- Uses [data-namespace="calserver"] so the auto-scoper does not wrap again.
+UPDATE config
+SET custom_css = $CSS$/* ── calServer One-Pager namespace styles ── */
+
+/* Hero gradient background */
+[data-namespace="calserver"] .section[data-section-intent="hero"] {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1f6feb 100%) !important;
+  color: #fff;
+}
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-heading-medium,
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-text-lead,
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-text-meta {
+  color: #fff;
+}
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-text-meta {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Stat strip cards accent border */
+[data-namespace="calserver"] .stat-strip__card {
+  border-radius: 14px;
+  border: 1px solid rgba(31, 111, 235, 0.12);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+[data-namespace="calserver"] .stat-strip__card:hover {
+  box-shadow: 0 8px 24px rgba(31, 111, 235, 0.1);
+  transform: translateY(-2px);
+}
+[data-namespace="calserver"] .stat-strip__value {
+  color: var(--accent-primary, #1f6feb);
+}
+
+/* General card radius and hover */
+[data-namespace="calserver"] .uk-card {
+  border-radius: 14px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+[data-namespace="calserver"] .uk-card-hover:hover,
+[data-namespace="calserver"] .uk-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Section header eyebrow styling */
+[data-namespace="calserver"] .section .uk-text-meta {
+  color: var(--accent-primary, #1f6feb);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+}
+
+/* Testimonial quote cards left border accent */
+[data-namespace="calserver"] .section[data-block-type="testimonial"] .uk-card {
+  border-left: 3px solid var(--accent-primary, #1f6feb);
+}
+
+/* Featured pricing card highlight */
+[data-namespace="calserver"] .section[data-block-id="pricing"] .uk-label-success {
+  background-color: var(--accent-primary, #1f6feb);
+}
+[data-namespace="calserver"] .section[data-block-id="pricing"] .uk-card:has(.uk-label) {
+  border: 2px solid var(--accent-primary, #1f6feb);
+  box-shadow: 0 4px 20px rgba(31, 111, 235, 0.12);
+}
+
+/* CTA section gradient */
+[data-namespace="calserver"] .section[data-block-id="cta-final"] {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1f6feb 100%) !important;
+  color: #fff;
+}
+[data-namespace="calserver"] .section[data-block-id="cta-final"] .uk-heading-medium,
+[data-namespace="calserver"] .section[data-block-id="cta-final"] .uk-text-lead {
+  color: #fff;
+}
+[data-namespace="calserver"] .section[data-block-id="cta-final"] .uk-button-default {
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+[data-namespace="calserver"] .section[data-block-id="cta-final"] .uk-button-default:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ProvenExpert badge */
+[data-namespace="calserver"] .cs-proven-badge {
+  font-size: 0.95rem;
+  color: var(--text-muted, #64748b);
+}
+[data-namespace="calserver"] .cs-proven-badge .uk-text-warning {
+  color: #f59e0b;
+  letter-spacing: 2px;
+}
+
+/* Founder section avatar */
+[data-namespace="calserver"] .cs-founder-block {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  align-items: center;
+  max-width: 720px;
+}
+
+/* Marquee trust badges */
+[data-namespace="calserver"] .stat-strip__marquee .qr-badge,
+[data-namespace="calserver"] .stat-strip__marquee .pill {
+  background: rgba(31, 111, 235, 0.08);
+  color: var(--accent-primary, #1f6feb);
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* Smooth anchor scrolling */
+[data-namespace="calserver"] {
+  scroll-behavior: smooth;
+}
+$CSS$
+WHERE event_uid = 'calserver';
