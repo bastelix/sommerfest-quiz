@@ -419,6 +419,7 @@
 - Add marketing-page class to preview canvas for full namespace tokens
 - Remove duplicate 'pageModules' array key in PageController
 - Remove unused $pageModules property from PageController
+- Apply aurora design scheme correctly for calserver-neu namespace
 
 ### Merge
 
