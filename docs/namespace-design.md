@@ -271,3 +271,82 @@ HTTP-Request
 │   (namespace-tokens.css)    │  Farben, Layout, Typografie, Komponenten
 └─────────────────────────────┘
 ```
+
+---
+
+## Bewertung & Verbesserungsvorschläge
+
+### Kontext
+
+Das System dient dazu, **schnell Webseiten mit festen Grundthemes zu erstellen**, die später **nach und nach minimal individualisiert** werden. Die folgende Bewertung prüft, ob die Architektur dafür passt und wo sich pragmatische Verbesserungen lohnen.
+
+### Was gut funktioniert
+
+| Aspekt | Warum es passt | Empfehlung |
+|--------|----------------|------------|
+| **Kleine Token-Palette (9 Tokens, 4 Gruppen)** | Verhindert, dass Nutzer Themes versehentlich kaputt machen. Die Enum-Werte (`narrow`/`standard`/`wide`, `modern`/`classic`/`tech` etc.) sind bewusste Leitplanken. | Beibehalten, nicht erweitern. |
+| **Zweistufige Vererbung (Default -> Namespace)** | Einfach, vorhersagbar, ausreichend. Ein Namespace ueberschreibt nur, was abweichen soll, der Rest erbt automatisch. | Keine Namespace-zu-Namespace-Vererbung noetig. |
+| **Automatische WCAG-Kontrast-Tokens** | Nicht-Designer koennen Brandfarben aendern, ohne unlesbaren Text zu erzeugen. Wird bei jeder CSS-Generierung automatisch berechnet (`ColorContrastService`). | Starkes Feature, beibehalten. |
+| **Preset-Import als Einmalkopie** | Namespace wird nach Import autonom. Passt zu "Theme als Startpunkt, dann individualisieren." | Korrekt, keine live-verknuepften Presets. |
+| **CSS mit `[data-namespace]`-Selektoren** | Globale Datei als Fallback + namespace-spezifische Datei. Sauber geloest. | Beibehalten. |
+
+### Sinnvolle Verbesserungen (priorisiert)
+
+#### 1. Quell-Preset im Namespace speichern
+
+- **Problem**: Nach einem Preset-Import ist nicht mehr nachvollziehbar, welches Preset verwendet wurde.
+- **Loesung**: `sourcePreset`-Key in `config.design_tokens` speichern bei `importDesign()`.
+- **Warum**: Admins sehen "basiert auf Aurora"; ermoeglicht spaeter ein "Re-Import"-Feature.
+- **Aufwand**: Klein -- 1 Key in JSON, 1 Zeile in `importDesign()`, 1 Zeile im Template.
+- **Datei**: `src/Service/DesignTokenService.php:232`
+
+#### 2. Verwaiste CSS-Dateien beim Loeschen aufraeumen
+
+- **Problem**: `NamespaceService::delete()` entfernt DB-Eintraege, aber `public/css/<namespace>/` bleibt liegen.
+- **Loesung**: `cleanupNamespaceCss()`-Methode in `DesignTokenService`, aufgerufen aus `delete()`. Danach `rebuildStylesheet()`.
+- **Aufwand**: Klein.
+- **Dateien**: `src/Service/NamespaceService.php:169`, `src/Service/DesignTokenService.php`
+
+#### 3. Redundante Tokens in Preset-JSON bereinigen
+
+- **Problem**: Jede Preset-Datei enthaelt Tokens doppelt (`config.designTokens` UND `designTokens` top-level). Bei Abweichung gewinnt `config.designTokens` still.
+- **Loesung**: Top-level `designTokens` aus allen 8 Preset-Dateien entfernen. `NamespaceDesignFileRepository::loadTokens()` liest primaer aus `config.designTokens`.
+- **Aufwand**: Klein.
+- **Dateien**: `content/design/*.json`, `src/Service/NamespaceDesignFileRepository.php:71`
+
+#### 4. CSS-Duplikation `:root` / `[data-namespace="default"]` entfernen
+
+- **Problem**: `buildCss()` gibt die Default-Tokens identisch zweimal aus -- einmal auf `:root`, einmal auf `[data-namespace="default"]`.
+- **Loesung**: `[data-namespace="default"]`-Block entfernen, `:root` reicht durch CSS-Cascade.
+- **Aufwand**: Minimal -- 1 Zeile in `buildCss()`.
+- **Datei**: `src/Service/DesignTokenService.php:531`
+
+#### 5. CamelCase/snake_case-Inkonsistenz bei Farb-Keys normalisieren
+
+- **Problem**: `NamespaceAppearanceService` prueft fuer jeden Wert zwei Schreibweisen (`topbar_light` / `topbarLight`, `text_on_surface` / `textOnSurface`). Daten koennen unter beiden Keys gespeichert sein.
+- **Loesung**: Migration auf camelCase-only in der `config.colors`-Spalte. `pickColor()`-Fallbacks eine Version lang beibehalten, dann entfernen.
+- **Aufwand**: Mittel (inkl. Migration).
+- **Dateien**: `src/Service/NamespaceAppearanceService.php:61-70`, `src/Service/ConfigService.php:88-102`
+
+### Nett, aber nicht kritisch
+
+#### 6. Marketing-Scheme -> Token-Kopplung transparent machen
+
+Beim Scheme-Wechsel werden `layout`, `typography`, `cardStyle`, `buttonStyle` still mit Scheme-Defaults ueberschrieben. Eine Flash-Message im Admin ("Preset 'sunset' hat Typografie auf 'classic' zurueckgesetzt") wuerde das sichtbar machen.
+
+- **Datei**: `src/Controller/Admin/PagesDesignController.php:220-247`
+
+#### 7. Validierungs-Feedback statt stiller Drops
+
+`validateTokens()` verwirft unbekannte Gruppen/Keys ohne Rueckmeldung. Ein Warnings-Array mit Ausgabe im Admin-Flash wuerde die Fehlersuche vereinfachen.
+
+- **Datei**: `src/Service/DesignTokenService.php:427`
+
+### Nicht bauen (Over-Engineering fuer diesen Use-Case)
+
+| Idee | Warum nicht |
+|------|-------------|
+| **Namespace-zu-Namespace-Vererbung** | Erzeugt zirkulaere Abhaengigkeiten, kaskadierte Breakage, schwer nachvollziehbar. Preset-Import deckt den Bedarf ab. |
+| **Dynamisches Token-Registry** | Wuerde die bewusste 9-Token-Begrenzung aushebeln. Neue Tokens gehoeren als Code-Aenderung rein, mit Validierung. |
+| **Live-verknuepfte Presets** | Unkontrolliertes Update ueber alle Namespaces. Ein "Re-Import"-Button (nach Punkt 1) ist die kontrollierte Alternative. |
+| **Config-Tabelle in Einzelspalten** | JSON-Spalte ist fuer seltene Admin-Writes voellig ausreichend. Kein Concurrent-Edit-Szenario. |
