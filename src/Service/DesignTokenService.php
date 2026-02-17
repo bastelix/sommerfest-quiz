@@ -537,6 +537,12 @@ class DesignTokenService
 
             $mergedTokens = $this->mergeTokens($defaultTokens, $this->mergeWithDefaults($tokens));
             $blocks[] = $this->renderTokenCssBlock('[data-namespace="' . $namespace . '"]', $mergedTokens);
+
+            $customCss = $this->getCustomCssForNamespace($namespace);
+            if ($customCss !== '') {
+                $blocks[] = "/* Custom CSS: {$namespace} */\n"
+                    . $this->autoScopeCustomCss($namespace, $customCss);
+            }
         }
 
         $blocks[] = $this->renderBaseTokenBlock(':root');
@@ -665,10 +671,17 @@ class DesignTokenService
         $tokens = $this->getTokensForNamespace($namespace);
         $selector = 'html[data-namespace="' . $namespace . '"]';
 
-        return implode("\n\n", [
+        $blocks = [
             "/**\n * Auto-generated. Do not edit manually.\n */",
             $this->renderTokenCssBlock($selector, $tokens, $this->getBaseTokenLines()),
-        ]) . "\n";
+        ];
+
+        $customCss = $this->getCustomCssForNamespace($namespace);
+        if ($customCss !== '') {
+            $blocks[] = "/* Custom CSS overrides */\n" . $customCss;
+        }
+
+        return implode("\n\n", $blocks) . "\n";
     }
 
     /**
@@ -707,5 +720,41 @@ class DesignTokenService
         sort($sorted);
 
         return $sorted;
+    }
+
+    public function getCustomCssForNamespace(string $namespace): string
+    {
+        $normalized = $this->normalizeNamespace($namespace);
+        $config = $this->configService->getConfigForEvent($normalized);
+        $customCss = $config['customCss'] ?? $config['custom_css'] ?? '';
+        if (!is_string($customCss) || trim($customCss) === '') {
+            return '';
+        }
+
+        return trim($customCss);
+    }
+
+    public function persistCustomCss(string $namespace, string $css): void
+    {
+        $normalizedNamespace = $this->normalizeNamespace($namespace);
+        $sanitizer = new CssSanitizer();
+        $sanitized = $sanitizer->sanitize($css);
+
+        $this->configService->ensureConfigForEvent($normalizedNamespace);
+        $this->configService->saveConfig([
+            'event_uid' => $normalizedNamespace,
+            'customCss' => $sanitized,
+        ]);
+        $this->rebuildStylesheet();
+    }
+
+    private function autoScopeCustomCss(string $namespace, string $css): string
+    {
+        $selector = '[data-namespace="' . $namespace . '"]';
+        if (str_contains($css, $selector)) {
+            return $css;
+        }
+
+        return $selector . " {\n" . $css . "\n}";
     }
 }
