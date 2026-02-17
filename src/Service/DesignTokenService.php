@@ -172,6 +172,12 @@ class DesignTokenService
     {
         $normalizedNamespace = $this->normalizeNamespace($namespace);
         $validated = $this->validateTokens($tokens);
+
+        $existingMeta = $this->fetchImportMeta($normalizedNamespace);
+        if ($existingMeta !== null) {
+            $validated['_meta'] = $existingMeta;
+        }
+
         $payload = ['event_uid' => $normalizedNamespace, 'designTokens' => $validated];
         $this->configService->ensureConfigForEvent($normalizedNamespace);
         $this->configService->saveConfig($payload);
@@ -228,6 +234,10 @@ class DesignTokenService
 
         $validated = $this->validateTokens($tokens);
         $merged = $this->mergeWithDefaults($validated);
+        $merged['_meta'] = [
+            'sourcePreset' => $preset,
+            'importedAt' => date('c'),
+        ];
 
         $this->configService->ensureConfigForEvent($normalizedNamespace);
         $this->configService->saveConfig([
@@ -371,6 +381,39 @@ class DesignTokenService
         }
 
         return false;
+    }
+
+    /**
+     * Return the import metadata for a namespace, or null if none exists.
+     *
+     * @return array{sourcePreset: string, importedAt: string}|null
+     */
+    public function getImportMeta(string $namespace): ?array
+    {
+        return $this->fetchImportMeta($this->normalizeNamespace($namespace));
+    }
+
+    /**
+     * @return array{sourcePreset: string, importedAt: string}|null
+     */
+    private function fetchImportMeta(string $namespace): ?array
+    {
+        $config = $this->configService->getConfigForEvent($namespace);
+        $stored = $config['designTokens'] ?? [];
+
+        if (!is_array($stored)) {
+            return null;
+        }
+
+        $meta = $stored['_meta'] ?? null;
+        if (!is_array($meta) || !isset($meta['sourcePreset'], $meta['importedAt'])) {
+            return null;
+        }
+
+        return [
+            'sourcePreset' => (string) $meta['sourcePreset'],
+            'importedAt' => (string) $meta['importedAt'],
+        ];
     }
 
     /**
