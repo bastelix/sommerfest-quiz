@@ -6,15 +6,18 @@
 {% block title %}{{ metaTitle|default('Neuigkeiten') }}{% endblock %}
 
 {% block head %}
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/sections.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing-utilities.css">
+  <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing-cards.css">
   {% if isCalserverTheme %}
     <link rel="stylesheet" href="{{ basePath }}/css/calserver.css">
   {% endif %}
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
-  <script type="module" src="{{ basePath }}/js/marketing-design.js"></script>
+  <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
 {% block body_class %}marketing-page {% if isCalserverTheme %}calserver-layout calserver-news-page{% else %}dark-mode{% endif %}{% endblock %}
@@ -22,6 +25,33 @@
 {% block body %}
   {% include 'marketing/partials/design-data.twig' %}
   <div class="marketing-layout">
+    {% include 'pages/partials/marketing_topbar.twig' with {
+      cmsMenuItems: cmsMainNavigation|default([]),
+      cmsMainNavigation: cmsMainNavigation|default([]),
+      headerLogo: headerLogo|default({}),
+      headerTheme: design.theme|default('light'),
+      headerConfig: headerConfig|default({}),
+      basePath: basePath,
+      cmsSlug: cmsSlug|default(newsOwnerSlug|default(page.slug)),
+      pageTitle: page.title|default('QuizRace')
+    } only %}
+
+    {% if breadcrumbs is defined and breadcrumbs %}
+      <nav aria-label="Breadcrumb" class="uk-container uk-margin-small-top">
+        <ul class="uk-breadcrumb">
+          {% for crumb in breadcrumbs %}
+            <li{% if loop.last %} class="uk-active" aria-current="page"{% endif %}>
+              {% if not loop.last and crumb.url %}
+                <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+              {% else %}
+                <span>{{ crumb.label }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+    {% endif %}
+
     {% set sectionId = isCalserverTheme ? 'calserver-news' : 'landing-news' %}
     {% set sectionClasses = 'marketing-section uk-section uk-section-default marketing-news' %}
     {% if isCalserverTheme %}
@@ -29,7 +59,6 @@
     {% endif %}
     <section id="{{ sectionId }}" class="{{ sectionClasses }}">
       <div class="uk-container">
-        <a class="uk-button uk-button-text uk-margin-small-bottom" href="{{ landingPageUrl|default(basePath ~ '/' ~ page.slug) }}">&larr; Zur Landingpage</a>
         <h1 class="uk-heading-medium">Neuigkeiten zu {{ page.title }}</h1>
         <div class="uk-grid-medium uk-child-width-1-1 uk-child-width-1-2@m uk-child-width-1-3@l" uk-grid>
           {% for entry in entries %}

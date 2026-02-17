@@ -522,6 +522,7 @@ Aus jedem HTML-Abschnitt werden die semantischen Daten extrahiert und in das Blo
 
 ### Schritt 4: `.page.json` zusammensetzen
 
+{% raw %}
 ```json
 {
   "meta": {
@@ -536,6 +537,7 @@ Aus jedem HTML-Abschnitt werden die semantischen Daten extrahiert und in das Blo
   ]
 }
 ```
+{% endraw %}
 
 ### Schritt 5: Validierung
 

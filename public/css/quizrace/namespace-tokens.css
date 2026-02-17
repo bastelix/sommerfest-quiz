@@ -2,20 +2,20 @@
  * Auto-generated. Do not edit manually.
  */
 
-html[data-namespace="future-is-green"] {
-  --brand-primary: #138f52;
-  --brand-accent: #9cd78f;
-  --brand-secondary: #123524;
-  --contrast-text-on-primary: #000000;
+html[data-namespace="quizrace"] {
+  --brand-primary: #1f6feb;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #475569;
+  --contrast-text-on-primary: #ffffff;
   --contrast-text-on-secondary: #ffffff;
   --contrast-text-on-accent: #000000;
   --contrast-text-on-surface: #000000;
   --contrast-text-on-surface-muted: #000000;
   --contrast-text-on-page: #000000;
-  --marketing-primary: #138f52;
-  --marketing-accent: #9cd78f;
-  --marketing-secondary: #123524;
-  --marketing-link: #138f52;
+  --marketing-primary: #1f6feb;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #475569;
+  --marketing-link: #1f6feb;
   --marketing-surface: var(--surface-card, #ffffff);
   --marketing-white: #ffffff;
   --marketing-black: #000000;

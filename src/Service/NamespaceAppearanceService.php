@@ -60,8 +60,8 @@ class NamespaceAppearanceService
 
         $surface = $this->pickColor($colors, 'surface', 'background', 'backgroundColor');
         $muted = $this->pickColor($colors, 'muted', 'surfaceMuted');
-        $topbarLight = $this->pickColor($colors, 'topbar_light', 'topbarLight');
-        $topbarDark = $this->pickColor($colors, 'topbar_dark', 'topbarDark');
+        $topbarLight = $this->pickColor($colors, 'topbarLight', 'topbar_light');
+        $topbarDark = $this->pickColor($colors, 'topbarDark', 'topbar_dark');
         $textOnSurface = $this->pickColor($colors, 'textOnSurface', 'text_on_surface');
         $textOnBackground = $this->pickColor($colors, 'textOnBackground', 'text_on_background');
         $textOnPrimary = $this->pickColor($colors, 'textOnPrimary', 'text_on_primary');
@@ -73,9 +73,7 @@ class NamespaceAppearanceService
             'surface' => $surface,
             'muted' => $muted,
             'background' => $this->pickColor($colors, 'background', 'backgroundColor'),
-            'topbar_light' => $topbarLight,
             'topbarLight' => $topbarLight,
-            'topbar_dark' => $topbarDark,
             'topbarDark' => $topbarDark,
         ], static fn (?string $value): bool => $value !== null && $value !== '');
 

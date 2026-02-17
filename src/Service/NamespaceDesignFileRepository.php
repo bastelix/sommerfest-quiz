@@ -68,6 +68,16 @@ class NamespaceDesignFileRepository
     public function loadTokens(string $namespace): array
     {
         $data = $this->loadFile($namespace);
+
+        $config = $data['config'] ?? [];
+        if (is_array($config)) {
+            $configTokens = $config['designTokens'] ?? [];
+            if (is_array($configTokens) && $configTokens !== []) {
+                return $configTokens;
+            }
+        }
+
+        // Legacy fallback for preset files without config.designTokens.
         $tokens = $data['tokens'] ?? $data['designTokens'] ?? [];
 
         return is_array($tokens) ? $tokens : [];

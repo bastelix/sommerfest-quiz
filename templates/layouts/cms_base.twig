@@ -8,11 +8,11 @@
 {% set includeFrontendHydrator = includeFrontendHydrator|default(true) %}
 
 {% block head %}
-  {% set includeCmsBaseStyles = includeCmsBaseStyles|default(true) %}
-  {% set includeMainStyles = includeMainStyles|default(includeCmsBaseStyles) %}
-  {% set includeDarkStyles = includeDarkStyles|default(true) %}
-  {% set includeHighContrastStyles = includeHighContrastStyles|default(true) %}
-  {% set includeMarketingTopbarStyles = includeMarketingTopbarStyles|default(includeCmsBaseStyles) %}
+  {% set includeCmsBaseStyles = includeCmsBaseStyles is same as(false) ? false : includeCmsBaseStyles|default(true) %}
+  {% set includeMainStyles = includeMainStyles is same as(false) ? false : includeMainStyles|default(includeCmsBaseStyles) %}
+  {% set includeDarkStyles = includeDarkStyles is same as(false) ? false : includeDarkStyles|default(true) %}
+  {% set includeHighContrastStyles = includeHighContrastStyles is same as(false) ? false : includeHighContrastStyles|default(true) %}
+  {% set includeMarketingTopbarStyles = includeMarketingTopbarStyles is same as(false) ? false : includeMarketingTopbarStyles|default(includeCmsBaseStyles) %}
   {% if includeMainStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   {% endif %}

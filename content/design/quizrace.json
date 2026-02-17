@@ -1,8 +1,8 @@
 {
   "meta": {
-    "name": "Aurora",
-    "description": "Modernes blaues Theme, inspiriert von GitHub und Aurora. Klare, professionelle Ästhetik mit kräftigen Blautönen und dezenten Slate-Akzenten.",
-    "version": "2.0.0",
+    "name": "QuizRace",
+    "description": "QuizRace-Markendesign basierend auf dem Aurora-Schema mit kräftigen Blautönen und Slate-Akzenten.",
+    "version": "1.0.0",
     "author": "QuizRace Design System"
   },
   "config": {
@@ -42,9 +42,26 @@
       "backgroundDark": "#020617"
     }
   },
+  "designTokens": {
+    "brand": {
+      "primary": "#1f6feb",
+      "accent": "#58a6ff",
+      "secondary": "#475569"
+    },
+    "layout": {
+      "profile": "standard"
+    },
+    "typography": {
+      "preset": "modern"
+    },
+    "components": {
+      "cardStyle": "rounded",
+      "buttonStyle": "filled"
+    }
+  },
   "effects": {
-    "effectsProfile": "quizrace.calm",
-    "sliderProfile": "calm"
+    "effectsProfile": "quizrace.marketing",
+    "sliderProfile": "marketing"
   },
   "contrastPairs": {
     "primary":   { "background": "#1f6feb", "text": "#ffffff", "ratio": "4.6:1", "grade": "AA" },

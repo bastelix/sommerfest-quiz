@@ -383,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.hidden = false;
     modal.setAttribute('aria-hidden', 'false');
     modal.classList.add('is-visible');
-    document.body.classList.add('calhelp-proof-gallery--modal-open');
+    document.body.classList.add('page-proof-gallery--modal-open');
     activeModal = modal;
     window.requestAnimationFrame(() => focusFirstElement(modal));
   };
@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = activeModal;
     modal.classList.remove('is-visible');
     modal.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('calhelp-proof-gallery--modal-open');
+    document.body.classList.remove('page-proof-gallery--modal-open');
 
     const duration = getMaxTransitionDuration(modal);
     if (duration > 0) {
@@ -481,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  const steppers = document.querySelectorAll('[data-calhelp-stepper]');
+  const steppers = document.querySelectorAll('[data-page-stepper]');
   if (!steppers.length) return;
 
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -491,14 +491,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const currentLanguage = htmlLang.startsWith('en') ? 'en' : 'de';
 
   steppers.forEach((stepper) => {
-    const stages = Array.from(stepper.querySelectorAll('[data-calhelp-step]'));
+    const stages = Array.from(stepper.querySelectorAll('[data-page-step]'));
     if (!stages.length) return;
 
-    const track = stepper.querySelector('[data-calhelp-slider-track]');
-    const triggers = Array.from(stepper.querySelectorAll('[data-calhelp-step-trigger]'));
-    const toggles = Array.from(stepper.querySelectorAll('[data-calhelp-step-toggle]'));
-    const navItems = triggers.map((button) => button.closest('.calhelp-process__nav-item'));
-    const stepIds = stages.map((stage) => stage.dataset.calhelpStep).filter(Boolean);
+    const track = stepper.querySelector('[data-page-slider-track]');
+    const triggers = Array.from(stepper.querySelectorAll('[data-page-step-trigger]'));
+    const toggles = Array.from(stepper.querySelectorAll('[data-page-step-toggle]'));
+    const navItems = triggers.map((button) => button.closest('.page-process__nav-item'));
+    const stepIds = stages.map((stage) => stage.dataset.pageStep).filter(Boolean);
     if (!stepIds.length) return;
 
     const details = stepper.closest('details');
@@ -507,13 +507,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let observer = null;
 
     const updateToggleLabel = (button, expanded) => {
-      const label = button.querySelector('.calhelp-process__toggle-label');
+      const label = button.querySelector('.page-process__toggle-label');
       if (label) {
         const stateKey = expanded ? 'Expanded' : 'Collapsed';
         const preferredSuffix = currentLanguage === 'en' ? 'En' : 'De';
         const fallbackSuffix = preferredSuffix === 'En' ? 'De' : 'En';
-        const datasetKeyPreferred = `calhelpToggleLabel${preferredSuffix}${stateKey}`;
-        const datasetKeyFallback = `calhelpToggleLabel${fallbackSuffix}${stateKey}`;
+        const datasetKeyPreferred = `pageToggleLabel${preferredSuffix}${stateKey}`;
+        const datasetKeyFallback = `pageToggleLabel${fallbackSuffix}${stateKey}`;
         const translatedLabel = label.dataset[datasetKeyPreferred] || label.dataset[datasetKeyFallback];
         if (translatedLabel) {
           label.textContent = translatedLabel;
@@ -533,9 +533,9 @@ document.addEventListener('DOMContentLoaded', () => {
       panel.classList.toggle('is-open', shouldExpand);
       updateToggleLabel(button, shouldExpand);
 
-      const stage = button.closest('[data-calhelp-step]');
+      const stage = button.closest('[data-page-step]');
       if (stage) {
-        stage.classList.toggle('calhelp-process__stage--panel-open', shouldExpand);
+        stage.classList.toggle('page-process__stage--panel-open', shouldExpand);
       }
     };
 
@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       stages.forEach((stage, stageIndex) => {
         const isActive = stageIndex === index;
-        stage.classList.toggle('calhelp-process__stage--active', isActive);
+        stage.classList.toggle('page-process__stage--active', isActive);
         if (useSlider) {
           if (isActive) {
             stage.removeAttribute('aria-hidden');
@@ -575,9 +575,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (hasSliderTrack) {
         if (useSlider) {
-          track.style.setProperty('--calhelp-process-index', String(index));
+          track.style.setProperty('--page-process-index', String(index));
         } else {
-          track.style.removeProperty('--calhelp-process-index');
+          track.style.removeProperty('--page-process-index');
         }
       }
 
@@ -598,9 +598,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       toggles.forEach((toggle) => {
-        const stage = toggle.closest('[data-calhelp-step]');
+        const stage = toggle.closest('[data-page-step]');
         if (!stage) return;
-        const shouldOpen = stage.dataset.calhelpStep === id;
+        const shouldOpen = stage.dataset.pageStep === id;
         applyPanelState(toggle, shouldOpen);
       });
 
@@ -623,13 +623,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!visible.length) return;
 
         visible.sort((a, b) => {
-          const aIndex = stepIds.indexOf(a.target.dataset.calhelpStep || '');
-          const bIndex = stepIds.indexOf(b.target.dataset.calhelpStep || '');
+          const aIndex = stepIds.indexOf(a.target.dataset.pageStep || '');
+          const bIndex = stepIds.indexOf(b.target.dataset.pageStep || '');
           return aIndex - bIndex;
         });
 
         const candidate = visible[0];
-        const nextId = candidate.target.dataset.calhelpStep;
+        const nextId = candidate.target.dataset.pageStep;
         if (nextId) {
           setActive(nextId);
         }
@@ -691,10 +691,10 @@ document.addEventListener('DOMContentLoaded', () => {
     triggers.forEach((trigger) => {
       trigger.addEventListener('click', (event) => {
         event.preventDefault();
-        const id = trigger.getAttribute('data-calhelp-step-trigger');
+        const id = trigger.getAttribute('data-page-step-trigger');
         if (!id) return;
 
-        const stage = stages.find((item) => item.dataset.calhelpStep === id);
+        const stage = stages.find((item) => item.dataset.pageStep === id);
         const isReducedMotion = prefersReducedMotion();
         setActive(id, { force: true, focusStage: !isReducedMotion });
 
@@ -704,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (isReducedMotion) {
             stage.scrollIntoView({ behavior: 'auto', block: 'start', inline: 'nearest' });
           }
-          const toggle = stage.querySelector('[data-calhelp-step-toggle]');
+          const toggle = stage.querySelector('[data-page-step-toggle]');
           if (toggle instanceof HTMLElement) {
             applyPanelState(toggle, true);
           }
@@ -726,8 +726,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const lang = document.documentElement.lang?.toLowerCase().startsWith('en') ? 'en' : 'de';
   const datasetKey = lang === 'en' ? 'i18nEn' : 'i18nDe';
 
-  document.querySelectorAll('[data-calhelp-i18n]').forEach((node) => {
-    const attrTarget = node.getAttribute('data-calhelp-i18n-attr');
+  document.querySelectorAll('[data-page-i18n]').forEach((node) => {
+    const attrTarget = node.getAttribute('data-page-i18n-attr');
     const translation = datasetKey === 'i18nEn' ? node.dataset.i18nEn : node.dataset.i18nDe;
     if (!translation) return;
 
@@ -746,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  const containers = document.querySelectorAll('[data-calhelp-comparison]');
+  const containers = document.querySelectorAll('[data-page-comparison]');
   if (!containers.length) return;
 
   const activateState = (card, state, { focusButton = false } = {}) => {
@@ -797,17 +797,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextButton = toggles[nextIndex];
     const state = nextButton.dataset.comparisonToggle;
     if (state) {
-      activateState(nextButton.closest('[data-calhelp-comparison-card]'), state, { focusButton: true });
+      activateState(nextButton.closest('[data-page-comparison-card]'), state, { focusButton: true });
     }
   };
 
   containers.forEach((container) => {
-    const cards = Array.from(container.querySelectorAll('[data-calhelp-comparison-card]'));
+    const cards = Array.from(container.querySelectorAll('[data-page-comparison-card]'));
     cards.forEach((card) => {
       const toggles = Array.from(card.querySelectorAll('[data-comparison-toggle]'));
       if (!toggles.length) return;
 
-      const defaultState = card.getAttribute('data-calhelp-comparison-default');
+      const defaultState = card.getAttribute('data-page-comparison-default');
       activateState(card, defaultState);
 
       toggles.forEach((button) => {
@@ -827,19 +827,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  const megaRoot = document.querySelector('[data-calhelp-mega-root]');
+  const megaRoot = document.querySelector('[data-page-mega-root]');
   if (!megaRoot) return;
 
-  const triggers = Array.from(megaRoot.querySelectorAll('[data-calhelp-explain]'));
-  const panes = Array.from(megaRoot.querySelectorAll('[data-calhelp-pane]'));
+  const triggers = Array.from(megaRoot.querySelectorAll('[data-page-explain]'));
+  const panes = Array.from(megaRoot.querySelectorAll('[data-page-pane]'));
   if (!triggers.length || !panes.length) return;
 
-  const getId = (element) => element.getAttribute('data-calhelp-explain');
+  const getId = (element) => element.getAttribute('data-page-explain');
 
   const setActive = (id) => {
     if (!id) return;
 
-    const activePane = panes.find((pane) => pane.getAttribute('data-calhelp-pane') === id);
+    const activePane = panes.find((pane) => pane.getAttribute('data-page-pane') === id);
     if (!activePane) return;
 
     panes.forEach((pane) => {
@@ -854,7 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
       trigger.setAttribute('aria-expanded', isActive ? 'true' : 'false');
     });
 
-    megaRoot.setAttribute('data-calhelp-active', id);
+    megaRoot.setAttribute('data-page-active', id);
   };
 
   const handleTrigger = (event) => {
@@ -875,6 +875,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  const defaultId = megaRoot.getAttribute('data-calhelp-default') || (triggers[0] ? getId(triggers[0]) : '');
+  const defaultId = megaRoot.getAttribute('data-page-default') || (triggers[0] ? getId(triggers[0]) : '');
   setActive(defaultId);
 });

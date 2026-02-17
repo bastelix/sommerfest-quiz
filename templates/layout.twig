@@ -8,14 +8,14 @@
 {% set bodyClassRaw %}{% block body_class %}{% endblock %}{% endset %}
 {% set normalizedBodyClass = bodyClassRaw|trim %}
 {% set isAdminPage = 'admin-page' in normalizedBodyClass %}
-{% set includeMarketingThemeVars = includeMarketingThemeVars|default(false) %}
+{% set includeMarketingThemeVars = includeMarketingThemeVars is same as(false) ? false : includeMarketingThemeVars|default(false) %}
 {% set shouldIncludeMarketingThemeVars = (not isAdminPage) or ('marketing-page' in normalizedBodyClass) or includeMarketingThemeVars %}
-{% set includeUikitStyles = includeUikitStyles|default(true) %}
-{% set includeMainStyles = includeMainStyles|default(true) %}
-{% set includeVariablesStyles = includeVariablesStyles|default(true) %}
-{% set includeTableStyles = includeTableStyles|default(true) %}
-{% set includeTopbarStyles = includeTopbarStyles|default(true) %}
-{% set includeNamespaceTokensStyles = includeNamespaceTokensStyles|default(true) %}
+{% set includeUikitStyles = includeUikitStyles is same as(false) ? false : includeUikitStyles|default(true) %}
+{% set includeMainStyles = includeMainStyles is same as(false) ? false : includeMainStyles|default(true) %}
+{% set includeVariablesStyles = includeVariablesStyles is same as(false) ? false : includeVariablesStyles|default(true) %}
+{% set includeTableStyles = includeTableStyles is same as(false) ? false : includeTableStyles|default(true) %}
+{% set includeTopbarStyles = includeTopbarStyles is same as(false) ? false : includeTopbarStyles|default(true) %}
+{% set includeNamespaceTokensStyles = includeNamespaceTokensStyles is same as(false) ? false : includeNamespaceTokensStyles|default(true) %}
 {% set enableNamespaceTokenDiagnostics = displayErrorDetails|default(false) %}
 {% set activeNamespace = normalizedNamespace|default('default') %}
 {% set hasNamespaceStyles = activeNamespace is not empty and activeNamespace != 'default' %}
@@ -143,7 +143,7 @@
   {% if includeVariablesStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
   {% endif %}
-  {% set includeDarkStyles = includeDarkStyles|default(true) %}
+  {% set includeDarkStyles = includeDarkStyles is same as(false) ? false : includeDarkStyles|default(true) %}
   {% set shouldIncludeDarkStyles = includeMainStyles and includeVariablesStyles and includeDarkStyles %}
   {% if shouldIncludeDarkStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">

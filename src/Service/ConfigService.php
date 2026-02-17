@@ -88,18 +88,20 @@ class ConfigService
      */
     private const DESIGN_COLOR_KEYS = [
         'marketingScheme',
-        'marketing_scheme',
         'textOnSurface',
-        'text_on_surface',
         'textOnBackground',
-        'text_on_background',
         'textOnPrimary',
-        'text_on_primary',
         'onAccent',
-        'on_accent',
         'onPrimary',
-        'on_primary',
         'contrastOnPrimary',
+        // Legacy snake_case aliases kept for backward compatibility with
+        // existing database rows that may still use the old naming convention.
+        'marketing_scheme',
+        'text_on_surface',
+        'text_on_background',
+        'text_on_primary',
+        'on_accent',
+        'on_primary',
     ];
 
     /**
@@ -132,6 +134,7 @@ class ConfigService
         'pageTypes' => 'page_types',
         'resultsViewMode' => 'results_view_mode',
         'playerContactEnabled' => 'player_contact_enabled',
+        'customCss' => 'custom_css',
     ];
 
     /**
@@ -555,6 +558,7 @@ class ConfigService
             'effectsProfile',
             'sliderProfile',
             'playerContactEnabled',
+            'customCss',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
         $allowed = array_flip($keys);
@@ -1233,6 +1237,7 @@ class ConfigService
             'effectsProfile',
             'sliderProfile',
             'playerContactEnabled',
+            'customCss',
         ];
         $map = [];
         foreach ($keys as $k) {
