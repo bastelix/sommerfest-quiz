@@ -22,7 +22,7 @@
 
 ### 1.1 Zentrale CSS-Einbindung — `templates/layout.twig`
 
-Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann die Flags per `{% set %}` überschreiben.
+Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann die Flags per {% raw %}`{% set %}`{% endraw %} überschreiben.
 
 | Zeile | Stylesheet | Bedingung | Kat. |
 |-------|-----------|-----------|------|
@@ -456,7 +456,7 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 
 | Zeile | Token | Wert | Sollte sein |
 |-------|-------|------|-------------|
-| 14 | `--dashboard-accent` | `{{ config.buttonColor\|default('#1e87f0') }}` | `var(--brand-primary)` |
+| 14 | `--dashboard-accent` | {% raw %}`{{ config.buttonColor\|default('#1e87f0') }}`{% endraw %} | `var(--brand-primary)` |
 | 15 | `--dashboard-background-light` | `#eef2f7` | `var(--surface-page)` |
 | 16 | `--dashboard-card-light` | `#ffffff` | `var(--surface-card)` |
 | 17 | `--dashboard-background-dark` | `#050910` | `var(--surface-page)` (dark) |
@@ -539,7 +539,7 @@ Drei CSS-Dateien definieren eigene, vom Namespace-System unabhängige Token-Hier
 |----------|-------------|-------------|
 | `dashboard.twig` | `--dashboard-background-light: #eef2f7` | Umgeht `--surface-page` aus variables.css |
 | `footer-blocks.twig` | `background: #f8f9fa` | Ignoriert Token-System komplett |
-| `wiki/index.twig` | `--marketing-wiki-header-from: {{ colors.headerFrom }}` | Setzt Werte dynamisch aus DB, nicht über Design-Presets |
+| `wiki/index.twig` | {% raw %}`--marketing-wiki-header-from: {{ colors.headerFrom }}`{% endraw %} | Setzt Werte dynamisch aus DB, nicht über Design-Presets |
 
 ### 5.5 `marketing-utilities.css` dupliziert `variables.css`
 
