@@ -195,7 +195,7 @@ starten – fertig. Ergebnisse fließen automatisch in eine Live-Rangliste.
 | **Multi-Tenant-Architektur** | Mandantenisolierung über PostgreSQL-Schemas – jeder Kunde hat seinen eigenen Datenraum |
 | **Docker-Deployment** | Container-basiertes Setup mit automatischer SSL-Zertifikatserneuerung (Let's Encrypt) |
 | **Stripe-Abo-Integration** | Drei Preispläne mit 7-Tage-Testphase, automatische Abrechnung |
-| **DSGVO-Konformität** | Hosting in Deutschland, keine personenbezogenen Daten, nur Session-Cookie |
+| **DSGVO-Konformität** | Hosting in Deutschland, Datenminimierung, Double-Opt-in für optionale E-Mail-Erfassung, nur Session-Cookie |
 | **KI-Integration** | RAG-basierte Teamnamen-Generierung, optionaler KI-Chat für Marketing-Seiten |
 | **Health-Monitoring** | `/healthz`-Endpoint für Betriebsüberwachung |
 | **Automatische Bildkompression** | Uploads werden serverseitig verkleinert und optimiert |
@@ -582,14 +582,24 @@ Die folgenden Punkte sind als Vertrauenssignale für die Marketing-Website verwe
 
 | Signal | Details |
 |---|---|
-| **Keine personenbezogenen Daten** | Nur pseudonymisierte Spielerdaten (frei gewählte Benutzernamen) |
+| **Datenminimierung** | Spielteilnahme erfordert nur einen frei gewählten Benutzernamen (Pseudonym). E-Mail-Adressen werden ausschließlich mit expliziter Einwilligung per Double-Opt-in erhoben (z. B. für Ergebnisbenachrichtigungen). |
 | **Serverstandort Deutschland** | Hosting auf deutschen Servern |
-| **DSGVO-konform** | Datenschutzerklärung vorhanden, keine Weitergabe an Dritte |
+| **DSGVO-konform** | Datenschutzerklärung vorhanden, keine Weitergabe an Dritte, Einwilligungsflüsse mit Double-Opt-in |
 | **Nur technisch notwendige Cookies** | Ein Session-Cookie (`PHPSESSID`) – kein Tracking |
 | **Kein Tracking** | Keine Analytics, keine Werbecookies, keine Drittanbieter-Tracker |
 | **Datenexport jederzeit** | Ergebnisse als CSV exportierbar |
 | **Löschung nach Event** | Daten werden nach Abschluss gelöscht oder anonymisiert |
 | **Foto-Einwilligung** | DSGVO-konforme Einwilligungsverwaltung für Beweisfotos |
+| **Kontaktdaten-Einwilligung** | Optionale E-Mail-Erfassung nur mit Consent-Checkbox und Double-Opt-in-Bestätigungs-E-Mail |
+
+**Hinweis zur Datenverarbeitung:** Die App erhebt im Grundbetrieb nur pseudonyme Spielerdaten
+(frei gewählter Benutzername, Punktzahl, Zeitstempel). Auf den Ranking- und Ergebnisseiten
+wird zusätzlich ein E-Mail-Formular angezeigt, über das Spieler **freiwillig** ihre
+E-Mail-Adresse hinterlegen können (als „optional" gekennzeichnet). Die Eingabe erfordert eine
+aktive Consent-Checkbox sowie eine Bestätigung per Double-Opt-in-E-Mail. Im Rahmen dieses
+Opt-in-Prozesses werden auch IP-Adressen protokolliert. Das Formular ist derzeit standardmäßig
+sichtbar und nicht über einen Admin-Toggle abschaltbar. Diese Datenerhebung muss in der
+Datenschutzerklärung der Marketing-Website korrekt abgebildet werden.
 
 ---
 
