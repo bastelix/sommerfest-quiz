@@ -443,6 +443,8 @@
 - *(design)* Fix CSS tab visibility and add preview tab
 - *(docs)* Escape Liquid template syntax in Jekyll documentation
 - *(design)* Resolve contrast panel issues for transparent secondary bg and missing card-dark token
+- Make secondary button visible in design preview primary/secondary sections
+- *(sections)* Remove column-gap that broke 3-column grid on desktop
 
 ### Merge
 
@@ -557,6 +559,7 @@
 - Refresh calserver card styling
 - Compact admin layout for mobile screens
 - Improve optional contact fields UI with proper card design
+- *(sections)* Connect marketing design tokens to section rendering
 
 ### Test
 
