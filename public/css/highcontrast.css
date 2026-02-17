@@ -1,4 +1,15 @@
-/* High contrast mode styles */
+/**
+ * High-Contrast Mode – WCAG AA/AAA Compliance
+ *
+ * INTENTIONAL: All colour values in this file are hardcoded by design.
+ * They guarantee minimum contrast ratios required by WCAG 2.1 Level AA
+ * (4.5:1 for normal text) and Level AAA (7:1) regardless of the active
+ * theme or namespace tokens.  Do NOT replace these with CSS custom
+ * properties—doing so would couple accessibility overrides to the
+ * design-token cascade and risk breaking contrast guarantees.
+ *
+ * @see https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum
+ */
 :where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) {
   background-color: #ffffff !important;
   color: #000000 !important;
