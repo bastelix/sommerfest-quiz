@@ -239,7 +239,7 @@
     blackRgb: 'black-rgb'
   } %}
   {% for schemeKey, cssKey in marketingExtraVars %}
-    {% if marketingScheme[schemeKey] is defined and marketingScheme[schemeKey] %}
+    {% if marketingScheme[schemeKey] is defined and marketingScheme[schemeKey] is not same as(null) and marketingScheme[schemeKey] is not same as('') %}
       {% set cssVars = cssVars|merge(['--marketing-' ~ cssKey ~ ': ' ~ marketingScheme[schemeKey]]) %}
     {% endif %}
   {% endfor %}
