@@ -425,6 +425,8 @@
 - Apply aurora design scheme correctly for calserver-neu namespace
 - *(teams)* Scope all team API calls to the active event
 - *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
+- *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
+- *(design)* Emit marketing scheme tokens with falsy CSS values like '0'
 
 ### Merge
 
