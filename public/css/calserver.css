@@ -2609,3 +2609,21 @@ body.marketing-page.calserver-layout .usecase-card--visual .usecase-visual__imag
         align-items: stretch;
     }
 }
+
+/* ---------------------------------------------------------------------------
+   Tablet responsive override
+   ---------------------------------------------------------------------------
+   UIKit's @m breakpoint (960 px) is too late for tablet displays — 3 columns
+   fit comfortably at 640 px on devices like iPad Pro.  Override the common
+   grid utilities so pre-rendered CMS content (which uses @m classes) switches
+   to multi-column earlier.  Scoped to .calserver-layout to avoid side-effects.
+   --------------------------------------------------------------------------- */
+@media (min-width: 640px) {
+    .calserver-layout .uk-child-width-1-2\@m > * {
+        width: 50%;
+    }
+
+    .calserver-layout .uk-child-width-1-3\@m > * {
+        width: calc(100% * 1 / 3.001);
+    }
+}
