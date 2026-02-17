@@ -78,6 +78,7 @@ class PagesDesignController
         unset($_SESSION['page_design_flash']);
 
         $availablePresets = $designService->listAvailablePresets();
+        $customCss = $designService->getCustomCssForNamespace($namespace);
 
         return $view->render($response, 'admin/pages/design.twig', [
             'role' => $role,
@@ -105,6 +106,8 @@ class PagesDesignController
             'canAccessBehavior' => $canAccessBehavior,
             'designUsedDefaults' => $designPayload['usedDefaults'],
             'availablePresets' => $availablePresets,
+            'customCss' => $customCss,
+            'cssVariablesReference' => $this->loadCssVariablesReference(),
         ]);
     }
 
@@ -172,6 +175,10 @@ class PagesDesignController
             $effects = $this->extractEffects($parsedBody);
             $effectsService->persist($namespace, $effects);
             $message = 'Verhalten-Einstellungen gespeichert.';
+        } elseif ($action === 'save_css') {
+            $customCss = (string) ($parsedBody['custom_css'] ?? '');
+            $designService->persistCustomCss($namespace, $customCss);
+            $message = 'Eigenes CSS gespeichert.';
         } else {
             $incoming = $this->extractTokens($parsedBody);
             [$hasAppearanceVariables, $appearanceVariables] = $this->extractAppearanceVariables($parsedBody);
@@ -281,8 +288,11 @@ class PagesDesignController
             'message' => $message,
         ];
 
+        $tabMap = ['save_effects' => 'behavior', 'save_css' => 'css'];
+        $redirectTab = $tabMap[$action] ?? null;
+
         return $response
-            ->withHeader('Location', $this->buildRedirectUrl($request, $namespace, $action === 'save_effects' ? 'behavior' : null))
+            ->withHeader('Location', $this->buildRedirectUrl($request, $namespace, $redirectTab))
             ->withStatus(303);
     }
 
@@ -311,6 +321,9 @@ class PagesDesignController
         $tab = strtolower(trim((string) ($request->getQueryParams()['tab'] ?? '')));
         if ($canAccessBehavior && $tab === 'behavior') {
             return 'behavior';
+        }
+        if ($this->isEditRole((string) ($_SESSION['user']['role'] ?? '')) && $tab === 'css') {
+            return 'css';
         }
 
         return 'appearance';
@@ -579,5 +592,15 @@ class PagesDesignController
         $trimmed = trim($value);
 
         return $trimmed === '' ? null : $trimmed;
+    }
+
+    private function loadCssVariablesReference(): string
+    {
+        $path = dirname(__DIR__, 3) . '/public/css/variables.css';
+        if (!is_file($path)) {
+            return '';
+        }
+
+        return (string) file_get_contents($path);
     }
 }

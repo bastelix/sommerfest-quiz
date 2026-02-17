@@ -48,3 +48,42 @@ refactor(auth): extract token validation into dedicated service
 
 docs: update API endpoint documentation
 ```
+
+## Branch naming
+
+When creating a new branch, use the **commit type** as the branch prefix — not `claude/`.
+
+### Format
+
+```
+<type>/<short-description>
+```
+
+### Mapping
+
+| Branch prefix | When to use                              |
+|---------------|------------------------------------------|
+| `feature/`    | New features (`feat` commits)            |
+| `fix/`        | Bug fixes                                |
+| `refactor/`   | Refactoring                              |
+| `docs/`       | Documentation changes                    |
+| `chore/`      | Maintenance, dependencies, CI            |
+| `test/`       | Adding or updating tests                 |
+| `hotfix/`     | Urgent production fixes                  |
+
+### Rules
+
+- Use lowercase, kebab-case descriptions (e.g. `fix/duplicate-player-registration`).
+- Keep the description short but meaningful (3–6 words max).
+- If the branch relates to a GitHub issue, include the issue number (e.g. `fix/123-duplicate-registration`).
+
+### Examples
+
+```
+feature/realtime-leaderboard
+fix/duplicate-player-registration
+fix/123-tablet-layout-regression
+refactor/extract-token-validation
+docs/update-api-endpoints
+chore/bump-dependencies
+```

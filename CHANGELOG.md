@@ -68,6 +68,10 @@
 - Add harmonization plan for menu editor and footer block editor UX
 - Add comprehensive role and permission documentation
 - Document PR #5300 as superseded by #5303/#5312
+- Add branch naming conventions to CLAUDE.md
+- Add namespace design explanation
+- Add comprehensive project documentation for marketing website
+- Add namespace design review and improvement recommendations
 
 ### Feat
 
@@ -278,6 +282,7 @@
 - Add rename and delete actions via dropdown menu in page tree
 - Add rename/delete actions to page editor tree via dropdown menu
 - Namespace-driven team name generation and event scoping
+- *(design)* Add custom CSS overrides tab per namespace
 
 ### Fix
 
@@ -420,6 +425,13 @@
 - Remove duplicate 'pageModules' array key in PageController
 - Remove unused $pageModules property from PageController
 - Apply aurora design scheme correctly for calserver-neu namespace
+- *(teams)* Scope all team API calls to the active event
+- *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
+- *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
+- *(design)* Emit marketing scheme tokens with falsy CSS values like '0'
+- *(news)* Add header, breadcrumb navigation, and footer to news pages
+- *(docs)* Correct privacy claims to reflect player email collection
+- *(docs)* Clarify email collection is player-optional, not admin-configurable
 
 ### Merge
 
@@ -490,6 +502,7 @@
 - Migrate all remaining admin templates to admin/base.twig
 - Codebase audit - security hardening, deduplication, and file splitting
 - Remove legacy calhelp bindings from CMS page generation
+- Rename data-calhelp-* attributes to data-page-* (Prio 6)
 
 ### Style
 

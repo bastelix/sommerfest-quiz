@@ -2,29 +2,29 @@
  * Auto-generated. Do not edit manually.
  */
 
-html[data-namespace="future-is-green"] {
-  --brand-primary: #138f52;
-  --brand-accent: #9cd78f;
-  --brand-secondary: #123524;
-  --contrast-text-on-primary: #000000;
+html[data-namespace="monochrome"] {
+  --brand-primary: #111111;
+  --brand-accent: #1f1f1f;
+  --brand-secondary: #333333;
+  --contrast-text-on-primary: #ffffff;
   --contrast-text-on-secondary: #ffffff;
-  --contrast-text-on-accent: #000000;
+  --contrast-text-on-accent: #ffffff;
   --contrast-text-on-surface: #000000;
   --contrast-text-on-surface-muted: #000000;
   --contrast-text-on-page: #000000;
-  --marketing-primary: #138f52;
-  --marketing-accent: #9cd78f;
-  --marketing-secondary: #123524;
-  --marketing-link: #138f52;
+  --marketing-primary: #111111;
+  --marketing-accent: #1f1f1f;
+  --marketing-secondary: #333333;
+  --marketing-link: #111111;
   --marketing-surface: var(--surface-card, #ffffff);
   --marketing-white: #ffffff;
   --marketing-black: #000000;
   --marketing-black-rgb: 0 0 0;
   --marketing-ink: #0f172a;
   --layout-profile: standard;
-  --typography-preset: modern;
-  --components-card-style: rounded;
-  --components-button-style: filled;
+  --typography-preset: classic;
+  --components-card-style: square;
+  --components-button-style: outline;
   --brand-surface: #0f172a;
   --brand-on-surface: #ffffff;
   --section-gap: 2.25rem;

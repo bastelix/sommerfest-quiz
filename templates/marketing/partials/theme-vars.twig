@@ -15,6 +15,21 @@
   {% endif %}
 {% endfor %}
 
+{# Resolve marketing scheme early so that text variable emissions below can
+   be skipped when a scheme will override them (avoids duplicate declarations). #}
+{% set designConfig = design.config|default({}) %}
+{% set designColors = designConfig.colors|default({}) %}
+
+{% set marketingSchemeKey = appearanceVars.marketingScheme
+  |default(appearanceVars.marketing_scheme
+  |default(designColors.marketingScheme
+  |default(designColors.marketing_scheme
+  |default('')))) %}
+{% set marketingScheme = marketingSchemeKey and marketingSchemes[marketingSchemeKey] is defined
+  ? marketingSchemes[marketingSchemeKey]
+  : null
+%}
+
 {% if appearanceColors.primary is defined and appearanceColors.primary %}
   {% set cssVars = cssVars|merge(['--brand-primary: ' ~ appearanceColors.primary]) %}
 {% endif %}
@@ -31,8 +46,6 @@
 {% if appearanceVars.surfaceMuted is defined and appearanceVars.surfaceMuted %}
   {% set cssVars = cssVars|merge(['--surface-muted: ' ~ appearanceVars.surfaceMuted]) %}
 {% endif %}
-{% set designConfig = design.config|default({}) %}
-{% set designColors = designConfig.colors|default({}) %}
 
 {% set marketingSchemeKey = appearanceVars.marketingScheme
   |default(designColors.marketingScheme
@@ -78,6 +91,7 @@
     ]) %}
   {% endif %}
 {% endif %}
+
 {% if appearanceVars.topbarLight is defined and appearanceVars.topbarLight %}
   {% set cssVars = cssVars|merge([
     '--marketing-topbar-light: ' ~ appearanceVars.topbarLight,
@@ -128,6 +142,7 @@
     ? marketingScheme.surfaceMuted
     : marketingSurface
   %}
+  {% set marketingMuted = marketingSurfaceMuted %}
   {% set marketingBackground = marketingScheme.background %}
 {% endif %}
 
@@ -227,7 +242,7 @@
     blackRgb: 'black-rgb'
   } %}
   {% for schemeKey, cssKey in marketingExtraVars %}
-    {% if marketingScheme[schemeKey] is defined and marketingScheme[schemeKey] %}
+    {% if marketingScheme[schemeKey] is defined and marketingScheme[schemeKey] is not same as(null) and marketingScheme[schemeKey] is not same as('') %}
       {% set cssVars = cssVars|merge(['--marketing-' ~ cssKey ~ ': ' ~ marketingScheme[schemeKey]]) %}
     {% endif %}
   {% endfor %}

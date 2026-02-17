@@ -283,12 +283,12 @@ VALUES (
         <h2 id="process-title" class="uk-heading-medium">Von Altdaten zu stabilen Abläufen in 5 Schritten</h2>
         <p class="uk-text-lead">Jede Phase ist klar dokumentiert – inklusive Abnahmen, KPIs und Verantwortlichkeiten.</p>
       </div>
-      <div class="calhelp-process" data-calhelp-stepper>
+      <div class="calhelp-process" data-page-stepper>
         <ol class="calhelp-process__nav" aria-label="Migrationsprozess in fünf Schritten">
           <li class="calhelp-process__nav-item is-active">
             <button type="button"
                     class="calhelp-process__nav-button"
-                    data-calhelp-step-trigger="readiness"
+                    data-page-step-trigger="readiness"
                     aria-controls="process-step-readiness"
                     aria-current="step">
               <span class="calhelp-process__nav-index" aria-hidden="true">1</span>
@@ -299,7 +299,7 @@ VALUES (
           <li class="calhelp-process__nav-item">
             <button type="button"
                     class="calhelp-process__nav-button"
-                    data-calhelp-step-trigger="mapping"
+                    data-page-step-trigger="mapping"
                     aria-controls="process-step-mapping">
               <span class="calhelp-process__nav-index" aria-hidden="true">2</span>
               <span class="calhelp-process__nav-label">Mapping &amp; Regeln</span>
@@ -309,7 +309,7 @@ VALUES (
           <li class="calhelp-process__nav-item">
             <button type="button"
                     class="calhelp-process__nav-button"
-                    data-calhelp-step-trigger="pilot"
+                    data-page-step-trigger="pilot"
                     aria-controls="process-step-pilot">
               <span class="calhelp-process__nav-index" aria-hidden="true">3</span>
               <span class="calhelp-process__nav-label">Pilot &amp; Validierung</span>
@@ -319,7 +319,7 @@ VALUES (
           <li class="calhelp-process__nav-item">
             <button type="button"
                     class="calhelp-process__nav-button"
-                    data-calhelp-step-trigger="cutover"
+                    data-page-step-trigger="cutover"
                     aria-controls="process-step-cutover">
               <span class="calhelp-process__nav-index" aria-hidden="true">4</span>
               <span class="calhelp-process__nav-label">Delta-Sync &amp; Cutover</span>
@@ -329,7 +329,7 @@ VALUES (
           <li class="calhelp-process__nav-item">
             <button type="button"
                     class="calhelp-process__nav-button"
-                    data-calhelp-step-trigger="golive"
+                    data-page-step-trigger="golive"
                     aria-controls="process-step-golive">
               <span class="calhelp-process__nav-index" aria-hidden="true">5</span>
               <span class="calhelp-process__nav-label">Go-Live &amp; Monitoring</span>
@@ -339,29 +339,29 @@ VALUES (
         <div class="calhelp-process__stages">
           <article id="process-step-readiness"
                    class="uk-card uk-card-primary uk-card-body calhelp-process__stage calhelp-process__stage--active calhelp-process__stage--panel-open"
-                   data-calhelp-step="readiness">
+                   data-page-step="readiness">
             <header class="calhelp-process__stage-header">
               <h3>Readiness-Check</h3>
               <p>Systeminventar, Datenumfang, Besonderheiten (z. B. Anhänge, benutzerdefinierte Felder).</p>
             </header>
             <button type="button"
                     class="calhelp-process__toggle"
-                    data-calhelp-step-toggle
+                    data-page-step-toggle
                     aria-expanded="true"
                     aria-controls="process-panel-readiness">
               <span class="calhelp-process__toggle-label"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Leistungen &amp; Abnahme ausblenden"
                     data-i18n-en="Hide deliverables &amp; acceptance"
-                    data-calhelp-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
-                    data-calhelp-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
-                    data-calhelp-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
-                    data-calhelp-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
+                    data-page-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
+                    data-page-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
+                    data-page-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
+                    data-page-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
               <span class="calhelp-process__toggle-icon" aria-hidden="true"></span>
             </button>
             <div id="process-panel-readiness"
                  class="calhelp-process__panel is-open"
-                 data-calhelp-step-panel>
+                 data-page-step-panel>
               <h4>Was liefern wir</h4>
               <ul class="uk-list uk-list-bullet">
                 <li>Vollständiges Systeminventar mit Datenumfang und Quellen.</li>
@@ -373,29 +373,29 @@ VALUES (
           </article>
           <article id="process-step-mapping"
                    class="uk-card uk-card-primary uk-card-body calhelp-process__stage"
-                   data-calhelp-step="mapping">
+                   data-page-step="mapping">
             <header class="calhelp-process__stage-header">
               <h3>Mapping &amp; Regeln</h3>
               <p>Felder, SI-Präfixe, Status/Workflows, Rollen. Transparent dokumentiert.</p>
             </header>
             <button type="button"
                     class="calhelp-process__toggle"
-                    data-calhelp-step-toggle
+                    data-page-step-toggle
                     aria-expanded="true"
                     aria-controls="process-panel-mapping">
               <span class="calhelp-process__toggle-label"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Leistungen &amp; Abnahme ausblenden"
                     data-i18n-en="Hide deliverables &amp; acceptance"
-                    data-calhelp-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
-                    data-calhelp-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
-                    data-calhelp-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
-                    data-calhelp-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
+                    data-page-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
+                    data-page-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
+                    data-page-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
+                    data-page-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
               <span class="calhelp-process__toggle-icon" aria-hidden="true"></span>
             </button>
             <div id="process-panel-mapping"
                  class="calhelp-process__panel"
-                 data-calhelp-step-panel>
+                 data-page-step-panel>
               <h4>Was liefern wir</h4>
               <ul class="uk-list uk-list-bullet">
                 <li>Mapping-Dokumentation für Felder, Einheiten und Statuslogiken.</li>
@@ -407,29 +407,29 @@ VALUES (
           </article>
           <article id="process-step-pilot"
                    class="uk-card uk-card-primary uk-card-body calhelp-process__stage"
-                   data-calhelp-step="pilot">
+                   data-page-step="pilot">
             <header class="calhelp-process__stage-header">
               <h3>Pilot &amp; Validierung</h3>
               <p>Teilmenge (Golden Samples), Checksummen, Abweichungsbericht. Freigabe als Gate.</p>
             </header>
             <button type="button"
                     class="calhelp-process__toggle"
-                    data-calhelp-step-toggle
+                    data-page-step-toggle
                     aria-expanded="true"
                     aria-controls="process-panel-pilot">
               <span class="calhelp-process__toggle-label"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Leistungen &amp; Abnahme ausblenden"
                     data-i18n-en="Hide deliverables &amp; acceptance"
-                    data-calhelp-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
-                    data-calhelp-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
-                    data-calhelp-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
-                    data-calhelp-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
+                    data-page-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
+                    data-page-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
+                    data-page-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
+                    data-page-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
               <span class="calhelp-process__toggle-icon" aria-hidden="true"></span>
             </button>
             <div id="process-panel-pilot"
                  class="calhelp-process__panel"
-                 data-calhelp-step-panel>
+                 data-page-step-panel>
               <h4>Was liefern wir</h4>
               <ul class="uk-list uk-list-bullet">
                 <li>Golden-Sample-Datensätze im Zielsystem.</li>
@@ -441,29 +441,29 @@ VALUES (
           </article>
           <article id="process-step-cutover"
                    class="uk-card uk-card-primary uk-card-body calhelp-process__stage"
-                   data-calhelp-step="cutover">
+                   data-page-step="cutover">
             <header class="calhelp-process__stage-header">
               <h3>Delta-Sync &amp; Cutover</h3>
               <p>Downtime-arm, sauber geplantes Übergabefenster, klarer Abnahmelauf.</p>
             </header>
             <button type="button"
                     class="calhelp-process__toggle"
-                    data-calhelp-step-toggle
+                    data-page-step-toggle
                     aria-expanded="true"
                     aria-controls="process-panel-cutover">
               <span class="calhelp-process__toggle-label"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Leistungen &amp; Abnahme ausblenden"
                     data-i18n-en="Hide deliverables &amp; acceptance"
-                    data-calhelp-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
-                    data-calhelp-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
-                    data-calhelp-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
-                    data-calhelp-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
+                    data-page-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
+                    data-page-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
+                    data-page-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
+                    data-page-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
               <span class="calhelp-process__toggle-icon" aria-hidden="true"></span>
             </button>
             <div id="process-panel-cutover"
                  class="calhelp-process__panel"
-                 data-calhelp-step-panel>
+                 data-page-step-panel>
               <h4>Was liefern wir</h4>
               <ul class="uk-list uk-list-bullet">
                 <li>Cutover-Playbook mit Zeitplan und Verantwortlichkeiten.</li>
@@ -475,29 +475,29 @@ VALUES (
           </article>
           <article id="process-step-golive"
                    class="uk-card uk-card-primary uk-card-body calhelp-process__stage"
-                   data-calhelp-step="golive">
+                   data-page-step="golive">
             <header class="calhelp-process__stage-header">
               <h3>Go-Live &amp; Monitoring</h3>
               <p>KPIs, Protokolle, Hypercare-Phase. Stabil in den Betrieb überführt.</p>
             </header>
             <button type="button"
                     class="calhelp-process__toggle"
-                    data-calhelp-step-toggle
+                    data-page-step-toggle
                     aria-expanded="true"
                     aria-controls="process-panel-golive">
               <span class="calhelp-process__toggle-label"
-                    data-calhelp-i18n
+                    data-page-i18n
                     data-i18n-de="Leistungen &amp; Abnahme ausblenden"
                     data-i18n-en="Hide deliverables &amp; acceptance"
-                    data-calhelp-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
-                    data-calhelp-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
-                    data-calhelp-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
-                    data-calhelp-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
+                    data-page-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
+                    data-page-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
+                    data-page-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
+                    data-page-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
               <span class="calhelp-process__toggle-icon" aria-hidden="true"></span>
             </button>
             <div id="process-panel-golive"
                  class="calhelp-process__panel"
-                 data-calhelp-step-panel>
+                 data-page-step-panel>
               <h4>Was liefern wir</h4>
               <ul class="uk-list uk-list-bullet">
                 <li>KPI-Dashboard und Monitoring-Checks.</li>
@@ -520,28 +520,28 @@ VALUES (
       <div class="calhelp-section__header">
         <h2 id="comparison-title"
             class="uk-heading-medium"
-            data-calhelp-i18n
+            data-page-i18n
             data-i18n-de="Alltag vorher vs. nachher"
             data-i18n-en="Everyday work before vs. after">Alltag vorher vs. nachher</h2>
-        <p data-calhelp-i18n
+        <p data-page-i18n
            data-i18n-de="Wie calHelp Abläufe verändert – drei Beispiele aus dem Betrieb."
            data-i18n-en="How calHelp changes operations – three real-world examples.">Wie calHelp Abläufe verändert – drei Beispiele aus dem Betrieb.</p>
       </div>
-      <div class="calhelp-comparison" data-calhelp-comparison>
+      <div class="calhelp-comparison" data-page-comparison>
         <article class="uk-card uk-card-primary uk-card-body calhelp-comparison__card"
                  aria-labelledby="comparison-card-data-title"
-                 data-calhelp-comparison-card="data"
-                 data-calhelp-comparison-default="after">
+                 data-page-comparison-card="data"
+                 data-page-comparison-default="after">
           <header class="calhelp-comparison__header">
             <p id="comparison-card-data-title"
                class="calhelp-comparison__eyebrow"
-               data-calhelp-i18n
+               data-page-i18n
                data-i18n-de="Datenpflege"
                data-i18n-en="Data upkeep">Datenpflege</p>
             <div class="calhelp-comparison__toggle-group"
                  role="group"
-                 data-calhelp-i18n
-                 data-calhelp-i18n-attr="aria-label"
+                 data-page-i18n
+                 data-page-i18n-attr="aria-label"
                  data-i18n-de="Zustand für Datenpflege wechseln"
                  data-i18n-en="Switch data upkeep state"
                  aria-label="Zustand für Datenpflege wechseln">
@@ -550,7 +550,7 @@ VALUES (
                       data-comparison-toggle="before"
                       aria-pressed="false"
                       aria-controls="comparison-card-data-before"
-                      data-calhelp-i18n
+                      data-page-i18n
                       data-i18n-de="Vorher"
                       data-i18n-en="Before">Vorher</button>
               <button type="button"
@@ -558,7 +558,7 @@ VALUES (
                       data-comparison-toggle="after"
                       aria-pressed="true"
                       aria-controls="comparison-card-data-after"
-                      data-calhelp-i18n
+                      data-page-i18n
                       data-i18n-de="Nachher"
                       data-i18n-en="After">Nachher</button>
             </div>
@@ -569,23 +569,23 @@ VALUES (
                  data-comparison-state="before"
                  aria-hidden="true"
                  hidden>
-              <p data-calhelp-i18n
+              <p data-page-i18n
                  data-i18n-de="Stammdaten in Excel, lokale Ablagen, Absprachen per E-Mail. Jede Korrektur kostet Zeit und erzeugt neue Versionen."
                  data-i18n-en="Master data lives in Excel and local folders, coordination happens via email. Every correction costs time and spawns another version.">Stammdaten in Excel, lokale Ablagen, Absprachen per E-Mail. Jede Korrektur kostet Zeit und erzeugt neue Versionen.</p>
               <dl class="calhelp-comparison__metrics">
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Parallel gepflegte Quellen"
                       data-i18n-en="Sources maintained in parallel">Parallel gepflegte Quellen</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="3 Systeme"
                       data-i18n-en="3 systems">3 Systeme</dd>
                 </div>
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Aktualisierung"
                       data-i18n-en="Update cycle">Aktualisierung</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="&gt; 48&nbsp;h Rückstand"
                       data-i18n-en="&gt; 48&nbsp;h lag">&gt; 48&nbsp;h Rückstand</dd>
                 </div>
@@ -594,23 +594,23 @@ VALUES (
             <div id="comparison-card-data-after"
                  class="calhelp-comparison__state is-active"
                  data-comparison-state="after">
-              <p data-calhelp-i18n
+              <p data-page-i18n
                  data-i18n-de="Zentrale Stammdaten mit Validierungsregeln, Änderungen mit Pflichtfeldern dokumentiert. Teams pflegen direkt im System."
                  data-i18n-en="Central master data with validation rules, required fields document every change. Teams maintain records directly in the platform.">Zentrale Stammdaten mit Validierungsregeln, Änderungen mit Pflichtfeldern dokumentiert. Teams pflegen direkt im System.</p>
               <dl class="calhelp-comparison__metrics">
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Suchzeit"
                       data-i18n-en="Search time">Suchzeit</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="−35&nbsp;%"
                       data-i18n-en="−35%">−35&nbsp;%</dd>
                 </div>
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Datenquelle"
                       data-i18n-en="Data source">Datenquelle</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="1 konsolidiertes System"
                       data-i18n-en="1 consolidated system">1 konsolidiertes System</dd>
                 </div>
@@ -620,18 +620,18 @@ VALUES (
         </article>
         <article class="uk-card uk-card-primary uk-card-body calhelp-comparison__card"
                  aria-labelledby="comparison-card-approval-title"
-                 data-calhelp-comparison-card="approval"
-                 data-calhelp-comparison-default="after">
+                 data-page-comparison-card="approval"
+                 data-page-comparison-default="after">
           <header class="calhelp-comparison__header">
             <p id="comparison-card-approval-title"
                class="calhelp-comparison__eyebrow"
-               data-calhelp-i18n
+               data-page-i18n
                data-i18n-de="Report-Freigabe"
                data-i18n-en="Report approval">Report-Freigabe</p>
             <div class="calhelp-comparison__toggle-group"
                  role="group"
-                 data-calhelp-i18n
-                 data-calhelp-i18n-attr="aria-label"
+                 data-page-i18n
+                 data-page-i18n-attr="aria-label"
                  data-i18n-de="Zustand für Report-Freigabe wechseln"
                  data-i18n-en="Switch report approval state"
                  aria-label="Zustand für Report-Freigabe wechseln">
@@ -640,7 +640,7 @@ VALUES (
                       data-comparison-toggle="before"
                       aria-pressed="false"
                       aria-controls="comparison-card-approval-before"
-                      data-calhelp-i18n
+                      data-page-i18n
                       data-i18n-de="Vorher"
                       data-i18n-en="Before">Vorher</button>
               <button type="button"
@@ -648,7 +648,7 @@ VALUES (
                       data-comparison-toggle="after"
                       aria-pressed="true"
                       aria-controls="comparison-card-approval-after"
-                      data-calhelp-i18n
+                      data-page-i18n
                       data-i18n-de="Nachher"
                       data-i18n-en="After">Nachher</button>
             </div>
@@ -659,23 +659,23 @@ VALUES (
                  data-comparison-state="before"
                  aria-hidden="true"
                  hidden>
-              <p data-calhelp-i18n
+              <p data-page-i18n
                  data-i18n-de="Freigaben per E-Mail oder Excel, unklare Versionen, jedes Audit verlangt Nachfragen. Feedbackschleifen dauern Tage."
                  data-i18n-en="Approvals travel via email or Excel, versions stay unclear and every audit triggers follow-up questions. Review loops take days.">Freigaben per E-Mail oder Excel, unklare Versionen, jedes Audit verlangt Nachfragen. Feedbackschleifen dauern Tage.</p>
               <dl class="calhelp-comparison__metrics">
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Feedbackschleifen"
                       data-i18n-en="Review loops">Feedbackschleifen</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="Ø 3 Runden"
                       data-i18n-en="avg. 3 rounds">Ø 3 Runden</dd>
                 </div>
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Nachvollziehbarkeit"
                       data-i18n-en="Traceability">Nachvollziehbarkeit</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="Audit-Trail nur manuell"
                       data-i18n-en="Audit trail manual only">Audit-Trail nur manuell</dd>
                 </div>
@@ -684,23 +684,23 @@ VALUES (
             <div id="comparison-card-approval-after"
                  class="calhelp-comparison__state is-active"
                  data-comparison-state="after">
-              <p data-calhelp-i18n
+              <p data-page-i18n
                  data-i18n-de="Geführte Freigaben mit Rollen, Versionskontrolle und Pflichtkommentaren. Signaturen landen automatisch im Audit-Trail."
                  data-i18n-en="Guided approvals with roles, version control and required comments. Sign-offs land automatically in the audit trail.">Geführte Freigaben mit Rollen, Versionskontrolle und Pflichtkommentaren. Signaturen landen automatisch im Audit-Trail.</p>
               <dl class="calhelp-comparison__metrics">
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Feedbackschleifen"
                       data-i18n-en="Review loops">Feedbackschleifen</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="−50&nbsp;%"
                       data-i18n-en="−50%">−50&nbsp;%</dd>
                 </div>
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Signatur-Log"
                       data-i18n-en="Signature log">Signatur-Log</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="100&nbsp;% automatisch"
                       data-i18n-en="100% automated">100&nbsp;% automatisch</dd>
                 </div>
@@ -710,18 +710,18 @@ VALUES (
         </article>
         <article class="uk-card uk-card-primary uk-card-body calhelp-comparison__card"
                  aria-labelledby="comparison-card-audit-title"
-                 data-calhelp-comparison-card="audit"
-                 data-calhelp-comparison-default="after">
+                 data-page-comparison-card="audit"
+                 data-page-comparison-default="after">
           <header class="calhelp-comparison__header">
             <p id="comparison-card-audit-title"
                class="calhelp-comparison__eyebrow"
-               data-calhelp-i18n
+               data-page-i18n
                data-i18n-de="Audit-Vorbereitung"
                data-i18n-en="Audit preparation">Audit-Vorbereitung</p>
             <div class="calhelp-comparison__toggle-group"
                  role="group"
-                 data-calhelp-i18n
-                 data-calhelp-i18n-attr="aria-label"
+                 data-page-i18n
+                 data-page-i18n-attr="aria-label"
                  data-i18n-de="Zustand für Audit-Vorbereitung wechseln"
                  data-i18n-en="Switch audit preparation state"
                  aria-label="Zustand für Audit-Vorbereitung wechseln">
@@ -730,7 +730,7 @@ VALUES (
                       data-comparison-toggle="before"
                       aria-pressed="false"
                       aria-controls="comparison-card-audit-before"
-                      data-calhelp-i18n
+                      data-page-i18n
                       data-i18n-de="Vorher"
                       data-i18n-en="Before">Vorher</button>
               <button type="button"
@@ -738,7 +738,7 @@ VALUES (
                       data-comparison-toggle="after"
                       aria-pressed="true"
                       aria-controls="comparison-card-audit-after"
-                      data-calhelp-i18n
+                      data-page-i18n
                       data-i18n-de="Nachher"
                       data-i18n-en="After">Nachher</button>
             </div>
@@ -749,23 +749,23 @@ VALUES (
                  data-comparison-state="before"
                  aria-hidden="true"
                  hidden>
-              <p data-calhelp-i18n
+              <p data-page-i18n
                  data-i18n-de="Nachweise liegen in Ordnern, Checklisten werden händisch gepflegt. Vor Audits werden Dokumente gesucht und Medien abgeglichen."
                  data-i18n-en="Evidence lives in folders, checklists stay manual. Before an audit the team hunts documents and reconciles media files.">Nachweise liegen in Ordnern, Checklisten werden händisch gepflegt. Vor Audits werden Dokumente gesucht und Medien abgeglichen.</p>
               <dl class="calhelp-comparison__metrics">
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Vorbereitungszeit"
                       data-i18n-en="Preparation time">Vorbereitungszeit</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="3 Tage"
                       data-i18n-en="3 days">3 Tage</dd>
                 </div>
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Ablage"
                       data-i18n-en="Storage">Ablage</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="5+ verstreute Ordner"
                       data-i18n-en="5+ scattered folders">5+ verstreute Ordner</dd>
                 </div>
@@ -774,23 +774,23 @@ VALUES (
             <div id="comparison-card-audit-after"
                  class="calhelp-comparison__state is-active"
                  data-comparison-state="after">
-              <p data-calhelp-i18n
+              <p data-page-i18n
                  data-i18n-de="Audit-Workspace mit Checkliste, Report-Diffs und Messmittelhistorie. Nachweise stehen sortiert bereit, inklusive Ansprechpartner:in."
                  data-i18n-en="Audit workspace with checklist, report diffs and instrument history. Evidence is pre-sorted including the responsible contact.">Audit-Workspace mit Checkliste, Report-Diffs und Messmittelhistorie. Nachweise stehen sortiert bereit, inklusive Ansprechpartner:in.</p>
               <dl class="calhelp-comparison__metrics">
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Aufwand"
                       data-i18n-en="Effort">Aufwand</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="−60&nbsp;%"
                       data-i18n-en="−60%">−60&nbsp;%</dd>
                 </div>
                 <div class="calhelp-comparison__metric">
-                  <dt data-calhelp-i18n
+                  <dt data-page-i18n
                       data-i18n-de="Bereitstellung"
                       data-i18n-en="Preparation">Bereitstellung</dt>
-                  <dd data-calhelp-i18n
+                  <dd data-page-i18n
                       data-i18n-de="Audit-Ordner in 1 Tag"
                       data-i18n-en="Audit binder in 1 day">Audit-Ordner in 1 Tag</dd>
                 </div>
@@ -1152,7 +1152,7 @@ VALUES (
           {% endfor %}
         </ul>
       </div>
-      <div data-calhelp-proof-gallery></div>
+      <div data-page-proof-gallery></div>
       <div class="calhelp-kpi uk-card uk-card-primary uk-card-body">
         <p class="uk-margin-remove">15+ Jahre Projekterfahrung · 1.600+ umgesetzte Kund:innen-Wünsche · 99,9 % Betriebszeit (aktuell)</p>
       </div>

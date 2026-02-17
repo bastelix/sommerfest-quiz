@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Domain\Page;
+use App\Service\CmsLayoutDataService;
 use App\Service\LandingNewsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceAppearanceService;
@@ -17,6 +18,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
+use function array_merge;
 use function preg_match;
 use function sprintf;
 use function strip_tags;
@@ -29,19 +31,22 @@ class LandingNewsController
     private NamespaceResolver $namespaceResolver;
     private NamespaceAppearanceService $namespaceAppearance;
     private NamespaceRenderContextService $namespaceRenderContext;
+    private CmsLayoutDataService $layoutData;
 
     public function __construct(
         ?LandingNewsService $news = null,
         ?PageService $pages = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?NamespaceAppearanceService $namespaceAppearance = null,
-        ?NamespaceRenderContextService $namespaceRenderContext = null
+        ?NamespaceRenderContextService $namespaceRenderContext = null,
+        ?CmsLayoutDataService $layoutData = null
     ) {
         $this->news = $news ?? new LandingNewsService();
         $this->pages = $pages ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
         $this->namespaceRenderContext = $namespaceRenderContext ?? new NamespaceRenderContextService();
+        $this->layoutData = $layoutData ?? new CmsLayoutDataService();
     }
 
     public function index(Request $request, Response $response, array $args = []): Response
@@ -90,13 +95,22 @@ class LandingNewsController
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
 
         $newsOwnerBaseSlug = MarketingSlugResolver::resolveBaseSlug($newsOwnerPage->getSlug());
+        $landingPageUrl = $basePath . '/' . $newsOwnerPage->getSlug();
 
-        return $view->render($response, 'marketing/landing_news_index.twig', [
+        $locale = (string) ($request->getAttribute('lang') ?? 'de');
+        $layoutData = $this->layoutData->loadLayoutData($pageNamespace, $page->getId(), $locale, $basePath);
+
+        $breadcrumbs = [
+            ['label' => $page->getTitle(), 'url' => $landingPageUrl],
+            ['label' => 'Neuigkeiten', 'url' => null],
+        ];
+
+        return $view->render($response, 'marketing/landing_news_index.twig', array_merge([
             'page' => $page,
             'entries' => $entries,
             'newsBasePath' => $newsBasePath,
             'newsIndexUrl' => $basePath . $newsBasePath,
-            'landingPageUrl' => $basePath . '/' . $newsOwnerPage->getSlug(),
+            'landingPageUrl' => $landingPageUrl,
             'newsOwnerSlug' => $newsOwnerPage->getSlug(),
             'newsOwnerBaseSlug' => $newsOwnerBaseSlug,
             'namespace' => $pageNamespace,
@@ -107,7 +121,9 @@ class LandingNewsController
             'renderContext' => $renderContext,
             'metaTitle' => sprintf('%s – Neuigkeiten', $page->getTitle()),
             'metaDescription' => sprintf('Aktuelles zu %s.', $page->getTitle()),
-        ]);
+            'cmsSlug' => $newsOwnerPage->getSlug(),
+            'breadcrumbs' => $breadcrumbs,
+        ], $layoutData));
     }
 
     public function show(Request $request, Response $response, array $args = []): Response
@@ -161,13 +177,24 @@ class LandingNewsController
         $description = $excerpt !== null ? trim(strip_tags($excerpt)) : null;
 
         $newsOwnerBaseSlug = MarketingSlugResolver::resolveBaseSlug($newsOwnerPage->getSlug());
+        $landingPageUrl = $basePath . '/' . $newsOwnerPage->getSlug();
+        $newsIndexUrl = $basePath . $newsBasePath;
 
-        return $view->render($response, 'marketing/landing_news_show.twig', [
+        $locale = (string) ($request->getAttribute('lang') ?? 'de');
+        $layoutData = $this->layoutData->loadLayoutData($pageNamespace, $page->getId(), $locale, $basePath);
+
+        $breadcrumbs = [
+            ['label' => $page->getTitle(), 'url' => $landingPageUrl],
+            ['label' => 'Neuigkeiten', 'url' => $newsIndexUrl],
+            ['label' => $entry->getTitle(), 'url' => null],
+        ];
+
+        return $view->render($response, 'marketing/landing_news_show.twig', array_merge([
             'page' => $page,
             'entry' => $entry,
             'newsBasePath' => $newsBasePath,
-            'newsIndexUrl' => $basePath . $newsBasePath,
-            'landingPageUrl' => $basePath . '/' . $newsOwnerPage->getSlug(),
+            'newsIndexUrl' => $newsIndexUrl,
+            'landingPageUrl' => $landingPageUrl,
             'newsOwnerSlug' => $newsOwnerPage->getSlug(),
             'newsOwnerBaseSlug' => $newsOwnerBaseSlug,
             'namespace' => $pageNamespace,
@@ -178,7 +205,9 @@ class LandingNewsController
             'renderContext' => $renderContext,
             'metaTitle' => sprintf('%s – %s', $page->getTitle(), $entry->getTitle()),
             'metaDescription' => $description,
-        ]);
+            'cmsSlug' => $newsOwnerPage->getSlug(),
+            'breadcrumbs' => $breadcrumbs,
+        ], $layoutData));
     }
 
     private function resolvePage(array $args, string $namespace): ?Page
