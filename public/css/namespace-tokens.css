@@ -152,6 +152,106 @@
   --components-button-style: filled;
 }
 
+[data-namespace="midnight"] {
+  --brand-primary: #6366f1;
+  --brand-accent: #14b8a6;
+  --brand-secondary: #0d9488;
+  --contrast-text-on-primary: #000000;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #000000;
+  --contrast-text-on-surface-muted: #000000;
+  --contrast-text-on-page: #000000;
+  --marketing-primary: #6366f1;
+  --marketing-accent: #14b8a6;
+  --marketing-secondary: #0d9488;
+  --marketing-link: #6366f1;
+  --marketing-surface: var(--surface-card, #ffffff);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #0f172a;
+  --layout-profile: standard;
+  --typography-preset: tech;
+  --components-card-style: rounded;
+  --components-button-style: filled;
+}
+
+[data-namespace="monochrome"] {
+  --brand-primary: #111111;
+  --brand-accent: #1f1f1f;
+  --brand-secondary: #333333;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #ffffff;
+  --contrast-text-on-surface: #000000;
+  --contrast-text-on-surface-muted: #000000;
+  --contrast-text-on-page: #000000;
+  --marketing-primary: #111111;
+  --marketing-accent: #1f1f1f;
+  --marketing-secondary: #333333;
+  --marketing-link: #111111;
+  --marketing-surface: var(--surface-card, #ffffff);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #0f172a;
+  --layout-profile: standard;
+  --typography-preset: classic;
+  --components-card-style: square;
+  --components-button-style: outline;
+}
+
+[data-namespace="quizrace"] {
+  --brand-primary: #1f6feb;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #475569;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #000000;
+  --contrast-text-on-surface-muted: #000000;
+  --contrast-text-on-page: #000000;
+  --marketing-primary: #1f6feb;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #475569;
+  --marketing-link: #1f6feb;
+  --marketing-surface: var(--surface-card, #ffffff);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #0f172a;
+  --layout-profile: standard;
+  --typography-preset: modern;
+  --components-card-style: rounded;
+  --components-button-style: filled;
+}
+
+[data-namespace="sunset"] {
+  --brand-primary: #f97316;
+  --brand-accent: #ec4899;
+  --brand-secondary: #be185d;
+  --contrast-text-on-primary: #000000;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #000000;
+  --contrast-text-on-surface-muted: #000000;
+  --contrast-text-on-page: #000000;
+  --marketing-primary: #f97316;
+  --marketing-accent: #ec4899;
+  --marketing-secondary: #be185d;
+  --marketing-link: #f97316;
+  --marketing-surface: var(--surface-card, #ffffff);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #0f172a;
+  --layout-profile: standard;
+  --typography-preset: classic;
+  --components-card-style: rounded;
+  --components-button-style: filled;
+}
+
 [data-namespace="uikit-default"] {
   --brand-primary: #1e87f0;
   --brand-accent: #222222;
@@ -183,53 +283,4 @@
   --section-gap: 2.25rem;
   --card-radius: 10px;
   --font-heading-weight: 700;
-}
-
-:root[data-theme="dark"] {
-  --contrast-text-on-surface: #f2f5fa;
-  --contrast-text-on-surface-muted: #f2f5fa;
-  --contrast-text-on-page: #f2f5fa;
-  --marketing-ink: #f2f5fa;
-}
-
-[data-namespace="default"][data-theme="dark"] {
-  --contrast-text-on-surface: #f2f5fa;
-  --contrast-text-on-surface-muted: #f2f5fa;
-  --contrast-text-on-page: #f2f5fa;
-  --marketing-ink: #f2f5fa;
-}
-
-[data-namespace="aurora"][data-theme="dark"] {
-  --contrast-text-on-surface: #f2f5fa;
-  --contrast-text-on-surface-muted: #f2f5fa;
-  --contrast-text-on-page: #f2f5fa;
-  --marketing-ink: #f8fafc;
-}
-
-[data-namespace="calhelp"][data-theme="dark"] {
-  --contrast-text-on-surface: #f2f5fa;
-  --contrast-text-on-surface-muted: #f2f5fa;
-  --contrast-text-on-page: #f2f5fa;
-  --marketing-ink: #e8f0ec;
-}
-
-[data-namespace="calserver"][data-theme="dark"] {
-  --contrast-text-on-surface: #f2f5fa;
-  --contrast-text-on-surface-muted: #f2f5fa;
-  --contrast-text-on-page: #f2f5fa;
-  --marketing-ink: #f2f5fa;
-}
-
-[data-namespace="future-is-green"][data-theme="dark"] {
-  --contrast-text-on-surface: #f2f5fa;
-  --contrast-text-on-surface-muted: #f2f5fa;
-  --contrast-text-on-page: #f2f5fa;
-  --marketing-ink: #e6fff3;
-}
-
-[data-namespace="uikit-default"][data-theme="dark"] {
-  --contrast-text-on-surface: #f2f5fa;
-  --contrast-text-on-surface-muted: #f2f5fa;
-  --contrast-text-on-page: #f2f5fa;
-  --marketing-ink: #f3f4f6;
 }
