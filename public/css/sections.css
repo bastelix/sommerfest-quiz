@@ -1182,16 +1182,9 @@ body.page-render .qr-page-renderer table {
   }
 }
 
-/* Feature grid: reduce gap on mobile */
+/* Feature grid: vertical spacing only — UIKit handles column gutters */
 .section[data-block-type="feature_list"] [data-uk-grid] {
-  gap: 0;
   row-gap: clamp(16px, 3vw, 30px);
-}
-
-@media (min-width: 960px) {
-  .section[data-block-type="feature_list"] .uk-grid-large[data-uk-grid] {
-    column-gap: 30px;
-  }
 }
 
 /* Feature slider: full-width cards on mobile */
@@ -1817,18 +1810,18 @@ body.page-render .qr-page-renderer table {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Shared: UIkit grid gap overrides on mobile                         */
+/*  Shared: UIkit grid row-gap overrides                               */
 /* ------------------------------------------------------------------ */
 
-/* Reduce large grid gaps on mobile */
+/*
+ * UIKit grids use margin-left/padding-left for column gutters — NOT CSS
+ * column-gap.  Adding column-gap on top of UIKit's padding causes flex
+ * items with percentage widths (e.g. 33.333%) to overflow and wrap
+ * prematurely.  Only row-gap is set here; horizontal spacing comes from
+ * UIKit's own gutter system.
+ */
 .section .uk-grid-large[data-uk-grid] {
   row-gap: clamp(16px, 4vw, 30px);
-}
-
-@media (max-width: 639px) {
-  .section .uk-grid-large[data-uk-grid] {
-    column-gap: 0;
-  }
 }
 
 .section .uk-grid-medium[data-uk-grid] {
@@ -1837,29 +1830,6 @@ body.page-render .qr-page-renderer table {
 
 .section .uk-grid-small[data-uk-grid] {
   row-gap: clamp(12px, 2.5vw, 20px);
-}
-
-/* Balanced column gaps at @s */
-@media (min-width: 640px) and (max-width: 959px) {
-  .section .uk-grid-large[data-uk-grid] {
-    column-gap: 20px;
-  }
-  .section .uk-grid-medium[data-uk-grid] {
-    column-gap: 16px;
-  }
-  .section .uk-grid-small[data-uk-grid] {
-    column-gap: 12px;
-  }
-}
-
-/* Consistent column gaps at @m */
-@media (min-width: 960px) {
-  .section .uk-grid-medium[data-uk-grid] {
-    column-gap: 24px;
-  }
-  .section .uk-grid-small[data-uk-grid] {
-    column-gap: 16px;
-  }
 }
 
 /* ------------------------------------------------------------------ */
