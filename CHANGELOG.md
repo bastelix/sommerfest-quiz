@@ -486,6 +486,7 @@
 - Rename header settings sidebar link and reorder navigation
 - Migrate all remaining admin templates to admin/base.twig
 - Codebase audit - security hardening, deduplication, and file splitting
+- Remove legacy calhelp bindings from CMS page generation
 
 ### Style
 
