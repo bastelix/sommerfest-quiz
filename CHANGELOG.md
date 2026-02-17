@@ -417,6 +417,7 @@
 - CalServer.com Tablet-responsive Grid-Overrides
 - Show namespace-scoped catalogs instead of single event in admin views
 - Add marketing-page class to preview canvas for full namespace tokens
+- Remove duplicate 'pageModules' array key in PageController
 
 ### Merge
 
