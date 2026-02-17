@@ -430,6 +430,8 @@
 - *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
 - *(design)* Emit marketing scheme tokens with falsy CSS values like '0'
 - *(news)* Add header, breadcrumb navigation, and footer to news pages
+- *(docs)* Correct privacy claims to reflect player email collection
+- *(docs)* Clarify email collection is player-optional, not admin-configurable
 
 ### Merge
 
