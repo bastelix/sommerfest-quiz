@@ -1260,3 +1260,546 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
 .calhelp-about__cta .uk-button {
   min-width: 180px;
 }
+
+/* ── Maintenance page (calserver-maintenance) ───────────────────── */
+
+body.marketing-page.calserver-maintenance-theme {
+  font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(180deg, #0f172a 0%, #111827 45%, #0b1220 100%);
+  color: var(--marketing-text-on-surface, #f8fafc);
+}
+
+.calserver-maintenance-theme .marketing-layout {
+  min-height: 100vh;
+  background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.2), transparent 55%),
+              radial-gradient(circle at 20% 20%, rgba(96, 165, 250, 0.18), transparent 50%),
+              linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.6) 55%, rgba(15, 23, 42, 0.9) 100%);
+}
+
+.calserver-maintenance-theme .qr-topbar,
+.calserver-maintenance-theme .uk-navbar,
+.calserver-maintenance-theme .uk-navbar-container {
+  background: transparent;
+}
+
+.calserver-maintenance-theme .qr-topbar {
+  height: auto;
+  min-height: calc(48px + 16px);
+  padding: 8px 0;
+}
+
+@media (max-width: 959px) {
+  .calserver-maintenance-theme .qr-topbar {
+    height: auto;
+    min-height: 72px;
+    padding-top: 0;
+    padding-bottom: 16px;
+  }
+}
+
+.calserver-maintenance-theme .uk-navbar-nav > li > a {
+  color: var(--marketing-text-muted-on-surface, #cbd5f5);
+  font-weight: 500;
+}
+
+.calserver-maintenance-theme .uk-navbar-nav > li > a:focus,
+.calserver-maintenance-theme .uk-navbar-nav > li > a:hover {
+  color: var(--marketing-text-on-surface, #f8fafc);
+}
+
+.calserver-maintenance-hero {
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+}
+
+.calserver-maintenance-hero__grid {
+  align-items: stretch;
+}
+
+.calserver-maintenance-hero__copy {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 1.5rem;
+  padding: 2.75rem;
+  box-shadow: 0 40px 80px rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(12px);
+}
+
+.calserver-maintenance-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1.1rem;
+  background: linear-gradient(135deg, #fb7185, #facc15);
+  color: #0b1220;
+  margin-bottom: 1.25rem;
+  font-size: 1.75rem;
+}
+
+.calserver-maintenance-hero__title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+.calserver-maintenance-hero__subtitle {
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: var(--marketing-text-muted-on-surface, #dbeafe);
+  margin-bottom: 1.75rem;
+}
+
+.calserver-maintenance-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.calserver-maintenance-hero__actions .uk-button.git-btn {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.calserver-maintenance-hero__actions .uk-button-primary {
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  border: none;
+  color: #0b1220;
+  font-weight: 600;
+}
+
+.calserver-maintenance-hero__actions .uk-button-primary:hover,
+.calserver-maintenance-hero__actions .uk-button-primary:focus {
+  background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+  color: var(--marketing-text-on-surface, #f8fafc);
+}
+
+.calserver-maintenance-hero__actions .uk-button-default {
+  border-color: rgba(148, 163, 184, 0.4);
+  color: var(--marketing-text-on-surface, #e2e8f0);
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.calserver-maintenance-hero__actions .uk-button-default:hover,
+.calserver-maintenance-hero__actions .uk-button-default:focus {
+  border-color: rgba(148, 163, 184, 0.7);
+  color: var(--marketing-text-on-surface, #f8fafc);
+}
+
+.calserver-maintenance-status-card {
+  background: rgba(15, 23, 42, 0.72);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.35);
+}
+
+.calserver-maintenance-status {
+  margin: 0;
+}
+
+.calserver-maintenance-status__item {
+  margin-bottom: 1.25rem;
+}
+
+.calserver-maintenance-status__item:last-child {
+  margin-bottom: 0;
+}
+
+.calserver-maintenance-status__item dt {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: var(--marketing-text-muted-on-surface, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+
+.calserver-maintenance-status__item dd {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--marketing-text-on-surface, #f8fafc);
+}
+
+.calserver-maintenance-status__hint {
+  margin-top: 1.5rem;
+  color: var(--marketing-text-muted-on-surface, #cbd5f5);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.calserver-maintenance-section {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  color: var(--marketing-text-on-surface, #e2e8f0);
+}
+
+.calserver-maintenance-section__header {
+  max-width: 720px;
+  margin: 0 auto 3rem auto;
+  text-align: left;
+}
+
+.calserver-maintenance-section__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  background: rgba(96, 165, 250, 0.2);
+  color: var(--marketing-text-muted-on-surface, #bfdbfe);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+.calserver-maintenance-section__title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.calserver-maintenance-section__intro {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--marketing-text-muted-on-surface, #cbd5f5);
+  margin-bottom: 0;
+}
+
+.calserver-maintenance-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-left: 2px solid rgba(96, 165, 250, 0.35);
+}
+
+.calserver-maintenance-timeline__item {
+  position: relative;
+  padding-left: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.calserver-maintenance-timeline__item:last-child {
+  margin-bottom: 0;
+}
+
+.calserver-maintenance-timeline__item::before {
+  content: '';
+  position: absolute;
+  left: -0.95rem;
+  top: 0.3rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.45);
+}
+
+.calserver-maintenance-timeline__time {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--marketing-link, #93c5fd);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.calserver-maintenance-timeline__body h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.calserver-maintenance-timeline__body p {
+  margin: 0;
+  color: var(--marketing-text-muted-on-surface, #dbeafe);
+  line-height: 1.6;
+}
+
+.calserver-maintenance-note {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  margin-top: 2.5rem;
+}
+
+.calserver-maintenance-note__icon {
+  color: var(--marketing-accent, #60a5fa);
+  font-size: 1.5rem;
+}
+
+.calserver-maintenance-note__text {
+  margin: 0;
+  color: var(--marketing-text-muted-on-surface, #bfdbfe);
+  line-height: 1.6;
+}
+
+.calserver-maintenance-note__text a {
+  color: var(--marketing-link, #93c5fd);
+  text-decoration: underline;
+}
+
+.calserver-maintenance-support-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.35);
+  height: 100%;
+}
+
+.calserver-maintenance-support-card--secondary {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.calserver-maintenance-support-list {
+  margin: 2rem 0 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.calserver-maintenance-support-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.calserver-maintenance-support-icon {
+  color: var(--marketing-accent, #60a5fa);
+  font-size: 1.3rem;
+}
+
+.calserver-maintenance-support-item strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.calserver-maintenance-support-item p,
+.calserver-maintenance-support-item a {
+  color: var(--marketing-text-muted-on-surface, #dbeafe);
+  margin: 0;
+}
+
+.calserver-maintenance-support-item a:hover,
+.calserver-maintenance-support-item a:focus {
+  color: var(--marketing-link, #93c5fd);
+}
+
+.calserver-maintenance-checklist {
+  margin: 1.75rem 0 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.calserver-maintenance-checklist li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  line-height: 1.6;
+  color: var(--marketing-text-muted-on-surface, #cbd5f5);
+}
+
+.calserver-maintenance-check {
+  color: #34d399;
+  font-size: 1.2rem;
+}
+
+.calserver-maintenance-checklist li:last-child {
+  margin-bottom: 0;
+}
+
+.calserver-maintenance-support-card h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.calserver-maintenance-support-card .calserver-maintenance-note__text {
+  margin-top: 1.75rem;
+}
+
+.calserver-maintenance-updates {
+  background: rgba(15, 23, 42, 0.4);
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.calserver-maintenance-updates__table-wrapper {
+  position: relative;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.55);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.4);
+}
+
+.calserver-maintenance-updates__table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  color: var(--marketing-text-on-surface, #e2e8f0);
+}
+
+.calserver-maintenance-updates__table th,
+.calserver-maintenance-updates__table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  text-align: left;
+  vertical-align: top;
+}
+
+.calserver-maintenance-updates__table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--marketing-link, #93c5fd);
+  background: rgba(12, 20, 35, 0.9);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.calserver-maintenance-updates__table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.calserver-maintenance-updates__table tbody tr:nth-child(even) {
+  background: rgba(12, 20, 35, 0.65);
+}
+
+.calserver-maintenance-updates__table tbody tr:hover {
+  background: rgba(37, 99, 235, 0.18);
+}
+
+.calserver-maintenance-updates__date {
+  color: var(--marketing-link, #93c5fd);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.calserver-maintenance-updates__date-cell {
+  white-space: nowrap;
+  width: 140px;
+}
+
+.calserver-maintenance-updates__link,
+.calserver-maintenance-updates__title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--marketing-text-on-surface, #f8fafc);
+}
+
+.calserver-maintenance-updates__link {
+  text-decoration: none;
+}
+
+.calserver-maintenance-updates__link:hover,
+.calserver-maintenance-updates__link:focus {
+  color: var(--marketing-text-muted-on-surface, #bfdbfe);
+  text-decoration: underline;
+}
+
+.calserver-maintenance-updates__excerpt {
+  color: var(--marketing-text-muted-on-surface, #cbd5f5);
+  line-height: 1.6;
+}
+
+.calserver-maintenance-updates__excerpt-cell {
+  max-width: 560px;
+}
+
+.calserver-maintenance-updates .uk-button-text {
+  color: var(--marketing-accent, #60a5fa);
+}
+
+.calserver-maintenance-updates .uk-button-text:hover,
+.calserver-maintenance-updates .uk-button-text:focus {
+  color: var(--marketing-text-muted-on-surface, #bfdbfe);
+}
+
+.calserver-maintenance-theme .footer-columns {
+  background: transparent;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.calserver-maintenance-theme .footer-section strong,
+.calserver-maintenance-theme .footer-section p,
+.calserver-maintenance-theme .footer-section a,
+.calserver-maintenance-theme .footer-section li {
+  color: var(--marketing-text-on-surface, #e2e8f0);
+}
+
+.calserver-maintenance-theme .footer-section a:hover,
+.calserver-maintenance-theme .footer-section a:focus {
+  color: var(--marketing-link, #93c5fd);
+}
+
+@media (max-width: 960px) {
+  .calserver-maintenance-hero {
+    padding-top: 4rem;
+    padding-bottom: 3rem;
+  }
+
+  .calserver-maintenance-hero__copy {
+    padding: 2rem;
+  }
+
+  .calserver-maintenance-hero__title {
+    font-size: 2.2rem;
+  }
+
+  .calserver-maintenance-section__header {
+    margin-bottom: 2.5rem;
+  }
+
+  .calserver-maintenance-updates__table {
+    min-width: 520px;
+  }
+
+  .calserver-maintenance-updates__table th,
+  .calserver-maintenance-updates__table td {
+    padding: 1rem 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .calserver-maintenance-hero__actions {
+    flex-direction: column;
+  }
+
+  .calserver-maintenance-status-card {
+    margin-top: 2rem;
+  }
+
+  .calserver-maintenance-timeline {
+    border-left-width: 1px;
+  }
+
+  .calserver-maintenance-timeline__item {
+    padding-left: 2rem;
+  }
+}
