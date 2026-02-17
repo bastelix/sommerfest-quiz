@@ -359,6 +359,8 @@ return [
     'message_team_delete_all_error' => 'Teams konnten nicht gelöscht werden.',
     'message_team_delete_all_empty' => 'Keine Teams zum Löschen vorhanden.',
     'tip_photo_upload' => 'Zeigt oder versteckt den Foto-Upload.',
+    'label_player_contact' => 'Spieler-Kontaktformular aktivieren',
+    'tip_player_contact' => 'Zeigt ein optionales E-Mail-Feld auf der Ranking-Seite, über das Spieler freiwillig eine Kontaktadresse hinterlegen können.',
     'label_countdown_enabled' => 'Countdown aktivieren',
     'tip_countdown_enabled' => 'Zeigt einen Timer bei Fragen mit hinterlegter Zeitvorgabe.',
     'text_countdown_enabled_hint' => 'Zeigt einen Timer bei Fragen mit hinterlegter Zeitvorgabe.',

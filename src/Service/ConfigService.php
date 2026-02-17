@@ -52,6 +52,7 @@ class ConfigService
         'stickerPrintCatalog',
         'dashboardShareEnabled',
         'dashboardSponsorEnabled',
+        'playerContactEnabled',
     ];
 
     /**
@@ -130,6 +131,7 @@ class ConfigService
         'sliderProfile' => 'slider_profile',
         'pageTypes' => 'page_types',
         'resultsViewMode' => 'results_view_mode',
+        'playerContactEnabled' => 'player_contact_enabled',
     ];
 
     /**
@@ -552,6 +554,7 @@ class ConfigService
             'dashboardVisibilityEnd',
             'effectsProfile',
             'sliderProfile',
+            'playerContactEnabled',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
         $allowed = array_flip($keys);
@@ -1229,6 +1232,7 @@ class ConfigService
             'pageTypes',
             'effectsProfile',
             'sliderProfile',
+            'playerContactEnabled',
         ];
         $map = [];
         foreach ($keys as $k) {
