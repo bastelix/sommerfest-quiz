@@ -18,7 +18,6 @@ use App\Service\EffectsPolicyService;
 use App\Service\NamespaceAppearanceService;
 use App\Service\NamespaceRenderContextService;
 use App\Service\PageContentLoader;
-use App\Service\PageModuleService;
 use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\ProjectSettingsService;
@@ -70,7 +69,6 @@ class PageController
     private PageSeoConfigService $seo;
     private ?string $slug;
     private PageContentLoader $contentLoader;
-    private PageModuleService $pageModules;
     private NamespaceAppearanceService $namespaceAppearance;
     private NamespaceRenderContextService $namespaceRenderContext;
     private ProjectSettingsService $projectSettings;
@@ -93,7 +91,6 @@ class PageController
         ?CmsPageWikiSettingsService $wikiSettings = null,
         ?CmsPageWikiArticleService $wikiArticles = null,
         ?PageContentLoader $contentLoader = null,
-        ?PageModuleService $pageModules = null,
         ?NamespaceAppearanceService $namespaceAppearance = null,
         ?NamespaceRenderContextService $namespaceRenderContext = null,
         ?ProjectSettingsService $projectSettings = null,
@@ -111,7 +108,6 @@ class PageController
         $this->wikiSettings = $wikiSettings ?? new CmsPageWikiSettingsService($pdo);
         $this->wikiArticles = $wikiArticles ?? new CmsPageWikiArticleService($pdo);
         $this->contentLoader = $contentLoader ?? new PageContentLoader();
-        $this->pageModules = $pageModules ?? new PageModuleService();
         $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
         $this->namespaceRenderContext = $namespaceRenderContext ?? new NamespaceRenderContextService();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
@@ -135,7 +131,6 @@ class PageController
 
         $this->pages = new PageService($pdo);
         $this->seo = new PageSeoConfigService($pdo, null, null, null, null, $this->pages);
-        $this->pageModules = new PageModuleService($pdo, $this->pages);
         $this->cmsMenu = new CmsPageMenuService($pdo, $this->pages);
 
         $resolvedNamespace = (string) ($request->getAttribute('namespace') ?? '');
