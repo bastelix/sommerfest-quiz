@@ -415,6 +415,7 @@
 - Stat-Strip 4–6 Spalten Regression beheben
 - Load marketing.css in page editor for namespace preview
 - CalServer.com Tablet-responsive Grid-Overrides
+- Show namespace-scoped catalogs instead of single event in admin views
 
 ### Merge
 
