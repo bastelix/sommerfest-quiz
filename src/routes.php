@@ -75,7 +75,6 @@ use App\Service\CmsPageWikiArticleService;
 use App\Service\MarketingDomainProvider;
 use App\Service\UsernameBlocklistService;
 use App\Service\CmsPageRouteResolver;
-use App\Controller\Marketing\LegacyCalserverLandingController;
 use App\Service\NamespaceValidator;
 use App\Service\NamespaceResolver;
 use App\Infrastructure\Database;
@@ -824,16 +823,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingLandingNewsController();
         return $controller->show($request, $response, array_merge($args, ['landingSlug' => 'landing']));
     })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
-    $app->get('/calserver-legacy', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-
-        $controller = new LegacyCalserverLandingController();
-
-        return $controller($request, $response);
-    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/{landingSlug:[a-z0-9-]+}/news', function (
         Request $request,
         Response $response,
@@ -959,9 +948,6 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/future-is-green/contact', function (Request $request, Response $response) use ($redirectToCmsPage) {
         return $redirectToCmsPage($request, $response, 'contact', 303);
     });
-    $app->post('/calserver/contact', function (Request $request, Response $response) use ($redirectToCmsPage) {
-        return $redirectToCmsPage($request, $response, 'contact', 303);
-    });
     $app->post('/api/contact-form', function (Request $request, Response $response): Response {
         $controller = new \App\Controller\Marketing\BlockContactController();
         return $controller($request, $response);
@@ -994,9 +980,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         };
     };
 
-    $app->post('/calserver/chat', $createChatHandler('calserver'))
-        ->add(new RateLimitMiddleware(10, 60))
-        ->add(new CsrfMiddleware());
     $app->post('/calhelp/chat', $createChatHandler('calhelp'))
         ->add(new RateLimitMiddleware(10, 60))
         ->add(new CsrfMiddleware());

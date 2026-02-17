@@ -1,5 +1,12 @@
 -- Add namespace-scoped custom CSS for the calServer one-pager design.
 -- Uses [data-namespace="calserver"] so the auto-scoper does not wrap again.
+
+-- Ensure a config row exists for the calserver namespace
+-- (FK to events was dropped in 20290625_allow_namespace_config.sql)
+INSERT INTO config (event_uid)
+SELECT 'calserver'
+WHERE NOT EXISTS (SELECT 1 FROM config WHERE event_uid = 'calserver');
+
 UPDATE config
 SET custom_css = $CSS$/* ── calServer One-Pager namespace styles ── */
 
