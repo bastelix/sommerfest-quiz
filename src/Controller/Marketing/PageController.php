@@ -356,7 +356,6 @@ class PageController
             'hreflang' => $config?->getHreflang(),
             'csrf_token' => $csrf,
             'cmsSlug' => $templateSlug,
-            'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
             'namespace' => $pageNamespace,
