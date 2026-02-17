@@ -72,6 +72,8 @@
 - Add namespace design review and improvement recommendations
 - Add branch naming conventions to CLAUDE.md
 - Add comprehensive project documentation for marketing website
+- Add CSS audit analyzing stylesheet conflicts and legacy inclusions
+- Fix inaccuracies in CSS audit
 
 ### Feat
 
