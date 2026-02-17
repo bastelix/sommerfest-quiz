@@ -614,11 +614,11 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
     $app->get('/admin/catalogs/data', function (Request $request, Response $response) {
         $controller = $request->getAttribute('adminCatalogController');
         return $controller->catalogs($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
     $app->get('/admin/catalogs/sample', function (Request $request, Response $response) {
         $controller = $request->getAttribute('adminCatalogController');
         return $controller->sample($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
 
     $app->get('/admin/pages/tree', function (Request $request, Response $response) {
         $controller = new AdminPageController();

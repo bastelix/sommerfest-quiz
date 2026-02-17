@@ -19,6 +19,7 @@ class CatalogService
     private ?TenantService $tenants;
     private string $subdomain;
     private string $eventUid;
+    private string $namespace;
     /** @var bool|null detected presence of the comment column */
     private ?bool $hasComment = null;
     /** @var bool|null detected presence of the design_path column */
@@ -59,13 +60,19 @@ class CatalogService
         ConfigService $config,
         ?TenantService $tenants = null,
         string $subdomain = '',
-        string $eventUid = ''
+        string $eventUid = '',
+        string $namespace = ''
     ) {
         $this->pdo = $pdo;
         $this->config = $config;
         $this->tenants = $tenants;
         $this->subdomain = $subdomain;
         $this->eventUid = $eventUid;
+        $this->namespace = $namespace;
+    }
+
+    private function useNamespaceScope(): bool {
+        return $this->namespace !== '' && $this->eventUid === '';
     }
 
 
@@ -122,12 +129,17 @@ class CatalogService
         if ($this->hasDesignColumn()) {
             $fields .= ',design_path';
         }
-        $uid = $this->event();
         $sql = "SELECT $fields FROM catalogs";
         $params = [];
-        if ($uid !== '') {
-            $sql .= ' WHERE event_uid=?';
-            $params[] = $uid;
+        if ($this->useNamespaceScope()) {
+            $sql .= ' WHERE namespace=?';
+            $params[] = $this->namespace;
+        } else {
+            $uid = $this->event();
+            if ($uid !== '') {
+                $sql .= ' WHERE event_uid=?';
+                $params[] = $uid;
+            }
         }
         $sql .= ' ORDER BY sort_order ' . ($order === 'desc' ? 'DESC' : 'ASC') . ' LIMIT ? OFFSET ?';
         $params[] = $limit;
@@ -135,7 +147,7 @@ class CatalogService
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if ($uid !== '' && $data === []) {
+        if (!$this->useNamespaceScope() && isset($uid) && $uid !== '' && $data === []) {
             $sql = "SELECT $fields FROM catalogs WHERE event_uid IS NULL ORDER BY sort_order "
                 . ($order === 'desc' ? 'DESC' : 'ASC') . ' LIMIT ? OFFSET ?';
             $stmt = $this->pdo->prepare($sql);
@@ -162,17 +174,22 @@ class CatalogService
      * Count catalogs for the active event.
      */
     public function countCatalogs(): int {
-        $uid = $this->event();
         $sql = 'SELECT COUNT(*) FROM catalogs';
         $params = [];
-        if ($uid !== '') {
-            $sql .= ' WHERE event_uid=?';
-            $params[] = $uid;
+        if ($this->useNamespaceScope()) {
+            $sql .= ' WHERE namespace=?';
+            $params[] = $this->namespace;
+        } else {
+            $uid = $this->event();
+            if ($uid !== '') {
+                $sql .= ' WHERE event_uid=?';
+                $params[] = $uid;
+            }
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $count = (int) $stmt->fetchColumn();
-        if ($uid !== '' && $count === 0) {
+        if (!$this->useNamespaceScope() && isset($uid) && $uid !== '' && $count === 0) {
             $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM catalogs WHERE event_uid IS NULL');
             $stmt->execute();
             $count = (int) $stmt->fetchColumn();
@@ -184,17 +201,22 @@ class CatalogService
      * Return the catalog slug for the given file name.
      */
     public function slugByFile(string $file): ?string {
-        $uid = $this->event();
         $sql = 'SELECT slug FROM catalogs WHERE file=?';
         $params = [basename($file)];
-        if ($uid !== '') {
-            $sql .= ' AND event_uid=?';
-            $params[] = $uid;
+        if ($this->useNamespaceScope()) {
+            $sql .= ' AND namespace=?';
+            $params[] = $this->namespace;
+        } else {
+            $uid = $this->event();
+            if ($uid !== '') {
+                $sql .= ' AND event_uid=?';
+                $params[] = $uid;
+            }
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $slug = $stmt->fetchColumn();
-        if ($uid !== '' && $slug === false) {
+        if (!$this->useNamespaceScope() && isset($uid) && $uid !== '' && $slug === false) {
             $stmt = $this->pdo->prepare('SELECT slug FROM catalogs WHERE file=? AND event_uid IS NULL');
             $stmt->execute([basename($file)]);
             $slug = $stmt->fetchColumn();
@@ -206,17 +228,22 @@ class CatalogService
      * Find the catalog UID by its slug.
      */
     public function uidBySlug(string $slug): ?string {
-        $event = $this->event();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
-        if ($event !== '') {
-            $sql .= ' AND event_uid=?';
-            $params[] = $event;
+        if ($this->useNamespaceScope()) {
+            $sql .= ' AND namespace=?';
+            $params[] = $this->namespace;
+        } else {
+            $event = $this->event();
+            if ($event !== '') {
+                $sql .= ' AND event_uid=?';
+                $params[] = $event;
+            }
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $uid = $stmt->fetchColumn();
-        if ($event !== '' && $uid === false) {
+        if (!$this->useNamespaceScope() && isset($event) && $event !== '' && $uid === false) {
             $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=? AND event_uid IS NULL');
             $stmt->execute([$slug]);
             $uid = $stmt->fetchColumn();
@@ -299,18 +326,23 @@ class CatalogService
             if ($this->hasDesignColumn()) {
                 $fields .= ',design_path';
             }
-            $uid = $this->event();
             $sql = "SELECT $fields FROM catalogs";
             $params = [];
-            if ($uid !== '') {
-                $sql .= ' WHERE event_uid=?';
-                $params[] = $uid;
+            if ($this->useNamespaceScope()) {
+                $sql .= ' WHERE namespace=?';
+                $params[] = $this->namespace;
+            } else {
+                $uid = $this->event();
+                if ($uid !== '') {
+                    $sql .= ' WHERE event_uid=?';
+                    $params[] = $uid;
+                }
             }
             $sql .= ' ORDER BY sort_order';
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($params);
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            if ($uid !== '' && $data === []) {
+            if (!$this->useNamespaceScope() && isset($uid) && $uid !== '' && $data === []) {
                 $stmt = $this->pdo->prepare(
                     "SELECT $fields FROM catalogs WHERE event_uid IS NULL ORDER BY sort_order"
                 );
@@ -333,17 +365,22 @@ class CatalogService
             return json_encode($data, JSON_PRETTY_PRINT);
         }
 
-        $uid = $this->event();
         $sql = 'SELECT uid FROM catalogs WHERE file=?';
         $params = [basename($file)];
-        if ($uid !== '') {
-            $sql .= ' AND event_uid=?';
-            $params[] = $uid;
+        if ($this->useNamespaceScope()) {
+            $sql .= ' AND namespace=?';
+            $params[] = $this->namespace;
+        } else {
+            $uid = $this->event();
+            if ($uid !== '') {
+                $sql .= ' AND event_uid=?';
+                $params[] = $uid;
+            }
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($uid !== '' && $cat === false) {
+        if (!$this->useNamespaceScope() && isset($uid) && $uid !== '' && $cat === false) {
             $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE file=? AND event_uid IS NULL');
             $stmt->execute([basename($file)]);
             $cat = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -744,17 +781,22 @@ class CatalogService
         if (!$this->hasDesignColumn()) {
             return null;
         }
-        $uid = $this->event();
         $sql = 'SELECT design_path FROM catalogs WHERE slug=?';
         $params = [$slug];
-        if ($uid !== '') {
-            $sql .= ' AND event_uid=?';
-            $params[] = $uid;
+        if ($this->useNamespaceScope()) {
+            $sql .= ' AND namespace=?';
+            $params[] = $this->namespace;
+        } else {
+            $uid = $this->event();
+            if ($uid !== '') {
+                $sql .= ' AND event_uid=?';
+                $params[] = $uid;
+            }
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $path = $stmt->fetchColumn();
-        if ($uid !== '' && $path === false) {
+        if (!$this->useNamespaceScope() && isset($uid) && $uid !== '' && $path === false) {
             $stmt = $this->pdo->prepare(
                 'SELECT design_path FROM catalogs WHERE slug=? AND event_uid IS NULL'
             );
