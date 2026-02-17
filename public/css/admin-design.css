@@ -116,8 +116,8 @@
 
 .design-preview__section--primary .design-preview__button-secondary {
   color: var(--marketing-on-accent, #ffffff);
-  border-color: color-mix(in srgb, var(--marketing-on-accent, #ffffff) 50%, transparent);
-  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .design-preview__section--surface {
@@ -136,8 +136,8 @@
 
 .design-preview__section--secondary .design-preview__button-secondary {
   color: var(--marketing-on-accent, #ffffff);
-  border-color: color-mix(in srgb, var(--marketing-on-accent, #ffffff) 50%, transparent);
-  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .design-preview__viewport[data-theme="dark"] .design-preview__section--surface {
