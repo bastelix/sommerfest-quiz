@@ -35,10 +35,8 @@
 {% set designColors = designConfig.colors|default({}) %}
 
 {% set marketingSchemeKey = appearanceVars.marketingScheme
-  |default(appearanceVars.marketing_scheme
   |default(designColors.marketingScheme
-  |default(designColors.marketing_scheme
-  |default('')))) %}
+  |default('')) %}
 {% set marketingScheme = marketingSchemeKey and marketingSchemes[marketingSchemeKey] is defined
   ? marketingSchemes[marketingSchemeKey]
   : null
@@ -50,10 +48,8 @@
    so the inline <style> block does not contain redundant declarations. #}
 {% if not marketingScheme %}
   {% set textOnSurfaceValue = appearanceVars.textOnSurface
-    |default(appearanceVars.text_on_surface
     |default(appearanceColors.textOnSurface
-    |default(appearanceColors.text_on_surface
-    |default(''))))
+    |default(''))
   %}
   {% if textOnSurfaceValue %}
     {% set cssVars = cssVars|merge([
@@ -62,10 +58,8 @@
     ]) %}
   {% endif %}
   {% set textOnBackgroundValue = appearanceVars.textOnBackground
-    |default(appearanceVars.text_on_background
     |default(appearanceColors.textOnBackground
-    |default(appearanceColors.text_on_background
-    |default(''))))
+    |default(''))
   %}
   {% if textOnBackgroundValue %}
     {% set cssVars = cssVars|merge([
@@ -74,10 +68,8 @@
     ]) %}
   {% endif %}
   {% set textOnPrimaryValue = appearanceVars.textOnPrimary
-    |default(appearanceVars.text_on_primary
     |default(appearanceColors.textOnPrimary
-    |default(appearanceColors.text_on_primary
-    |default(''))))
+    |default(''))
   %}
   {% if textOnPrimaryValue %}
     {% set cssVars = cssVars|merge([

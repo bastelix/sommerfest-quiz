@@ -77,8 +77,8 @@ class NamespaceAppearanceServiceTest extends TestCase
 
         $this->assertSame('#123456', $appearance['colors']['surface']);
         $this->assertSame('#abcdef', $appearance['colors']['muted']);
-        $this->assertSame('#111111', $appearance['colors']['topbar_light']);
-        $this->assertSame('#222222', $appearance['colors']['topbar_dark']);
+        $this->assertSame('#111111', $appearance['colors']['topbarLight']);
+        $this->assertSame('#222222', $appearance['colors']['topbarDark']);
         $this->assertSame('#123456', $appearance['variables']['surface']);
         $this->assertSame('#abcdef', $appearance['variables']['surfaceMuted']);
         $this->assertSame('#111111', $appearance['variables']['topbarLight']);
