@@ -286,6 +286,7 @@
 - Namespace-driven team name generation and event scoping
 - *(design)* Track source preset and import timestamp
 - *(design)* Add custom CSS overrides tab per namespace
+- *(cms)* Add block-contract-v1 prompt template for marketing page import
 
 ### Fix
 
