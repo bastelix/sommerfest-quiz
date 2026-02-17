@@ -1803,3 +1803,710 @@ body.marketing-page.calserver-maintenance-theme {
     padding-left: 2rem;
   }
 }
+
+/* ── Fluke MET/CAL page ─────────────────────────────────────────── */
+
+.metcal-hero {
+    position: relative;
+    padding-top: 96px;
+    padding-bottom: 96px;
+}
+
+.metcal-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 72%, rgba(255, 255, 255, 0.08) 28%);
+    color: var(--marketing-text-on-surface, #0b162d);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.metcal-hero__title {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-size: clamp(2.4rem, 3.4vw, 3.1rem);
+    font-weight: 600;
+    color: var(--marketing-text-on-surface, #0b162d);
+}
+
+.metcal-hero__claim {
+    margin: 12px 0 18px;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-hero__subtitle {
+    max-width: 640px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-hero__illustration {
+    margin-bottom: 24px;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(18, 28, 52, 0.92) 0%, rgba(28, 54, 96, 0.78) 35%, rgba(64, 118, 189, 0.72) 100%);
+    border: 1px solid color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 46%, rgba(255, 255, 255, 0.18) 54%);
+    box-shadow: 0 35px 90px -60px rgba(11, 17, 31, 0.85);
+    position: relative;
+    overflow: hidden;
+}
+
+.metcal-hero__illustration::after {
+    content: '';
+    position: absolute;
+    inset: 16px;
+    border-radius: 22px;
+    border: 1px dashed rgba(255, 255, 255, 0.32);
+    background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.25) 0, transparent 45%),
+        radial-gradient(circle at 75% 65%, rgba(255, 255, 255, 0.18) 0, transparent 40%);
+}
+
+.metcal-hero__bullets {
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-hero__bullets li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.metcal-hero__icon {
+    width: 20px;
+    height: 20px;
+    color: var(--marketing-text-on-surface, #0b162d);
+}
+
+.metcal-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.metcal-hero__actions .uk-button {
+    border-radius: 999px;
+    padding: 10px 26px;
+}
+
+.metcal-hero__actions .uk-button-primary {
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 85%, rgba(255, 255, 255, 0.08) 15%);
+    border-color: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 88%, rgba(255, 255, 255, 0.22) 12%);
+}
+
+.metcal-hero__actions .uk-button-primary:hover,
+.metcal-hero__actions .uk-button-primary:focus {
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 94%, rgba(255, 255, 255, 0.14) 6%);
+    color: var(--marketing-on-accent, #fff);
+}
+
+.metcal-hero__actions .uk-button-default {
+    background: transparent;
+    color: var(--marketing-text-on-surface, #0b162d);
+    border-color: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 42%, rgba(11, 23, 44, 0.36) 58%);
+}
+
+body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
+    border-color: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 42%, rgba(255, 255, 255, 0.36) 58%);
+}
+
+.metcal-hero__actions .uk-button-default:hover,
+.metcal-hero__actions .uk-button-default:focus {
+    background: var(--surface-card, #fff);
+    color: var(--marketing-text-on-surface, #0d1730);
+}
+
+.metcal-hero__proof {
+    margin-top: 24px;
+    font-size: 0.95rem;
+    color: var(--marketing-text-muted-on-surface, #243253);
+}
+
+.metcal-hero__highlight {
+    padding: 28px;
+    border-radius: 24px;
+    background: color-mix(in oklab, rgba(9, 15, 28, 0.84) 68%, var(--marketing-primary, var(--brand-primary)) 32%);
+    border: 1px solid color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 52%, rgba(255, 255, 255, 0.18));
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.metcal-hero__highlight-title {
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.metcal-hero__highlight-list {
+    padding-left: 20px;
+    margin: 0;
+    list-style: disc;
+    color: color-mix(in oklab, #ffffff 84%, var(--marketing-primary, var(--brand-primary)) 16%);
+}
+
+.metcal-section {
+    padding-top: 96px;
+    padding-bottom: 96px;
+}
+
+.metcal-section--light {
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 6%, rgba(13, 23, 44, 0.06) 94%);
+}
+
+.metcal-metteam {
+    position: relative;
+}
+
+.metcal-metteam .calserver-metcal__inner {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.metcal-metteam__header {
+    max-width: 880px;
+}
+
+.metcal-metteam__grid {
+    margin-top: 48px;
+}
+
+.metcal-metteam .metcal-metteam__note {
+    margin-top: clamp(40px, 6vw, 72px);
+    max-width: 760px;
+    position: relative;
+    z-index: 2;
+}
+
+.metcal-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 52%, rgba(255, 255, 255, 0.1) 48%);
+    color: var(--marketing-text-on-surface, #0b162d);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.metcal-section__title {
+    margin-top: 24px;
+    font-size: clamp(2rem, 2.6vw, 2.4rem);
+    font-weight: 600;
+    color: var(--marketing-text-on-surface, #0b162d);
+}
+
+.metcal-section__lead {
+    margin-top: 12px;
+    margin-bottom: 32px;
+    max-width: 720px;
+    font-size: 1.05rem;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-report-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.metcal-report-card {
+    padding: 28px;
+    border-radius: 20px;
+    background: var(--surface-card, #ffffff);
+    border: 1px solid rgba(12, 22, 40, 0.08);
+    box-shadow: 0 28px 70px -48px rgba(12, 22, 40, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.metcal-report-card h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--marketing-text-on-surface, #0b162d);
+}
+
+.metcal-report-card p {
+    margin: 0;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-report-card ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--marketing-text-muted-on-surface, #243253);
+}
+
+.metcal-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.metcal-card {
+    padding: 28px;
+    border-radius: 20px;
+    background: var(--surface-card, #ffffff);
+    border: 1px solid rgba(15, 25, 46, 0.08);
+    box-shadow: 0 30px 70px -40px rgba(12, 22, 40, 0.28);
+}
+
+.metcal-card--accent {
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 12%, var(--surface-card, rgba(255, 255, 255, 0.92)) 88%);
+    border-color: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 36%, rgba(12, 22, 40, 0.08) 64%);
+}
+
+.metcal-card__title {
+    margin-bottom: 8px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--marketing-text-on-surface, #0b162d);
+}
+
+.metcal-card__text {
+    margin: 0 0 16px;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-card__list {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--marketing-text-muted-on-surface, #243253);
+}
+
+.metcal-timeline {
+    counter-reset: metcal-step;
+    display: grid;
+    gap: 20px;
+    padding: 0;
+    margin: 0 0 40px;
+    list-style: none;
+}
+
+.metcal-timeline__item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    padding: 20px 24px;
+    border-radius: 16px;
+    background: var(--surface-card, rgba(255, 255, 255, 0.96));
+    border: 1px solid rgba(15, 25, 46, 0.08);
+    box-shadow: 0 24px 64px -40px rgba(12, 22, 40, 0.2);
+}
+
+.metcal-timeline__badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 72%, rgba(255, 255, 255, 0.12) 28%);
+    color: var(--marketing-on-accent, #fff);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.metcal-timeline__body h3 {
+    margin: 0 0 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--marketing-text-on-surface, #0b162d);
+}
+
+.metcal-timeline__body p {
+    margin: 0;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-migration-transfer {
+    margin-top: 32px;
+    padding: 28px;
+    border-radius: 20px;
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 8%, rgba(15, 25, 46, 0.04) 92%);
+    border: 1px solid rgba(15, 25, 46, 0.08);
+}
+
+.metcal-migration-offer {
+    margin-top: 24px;
+    padding: 24px;
+    border-radius: 18px;
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 10%, var(--surface-card, rgba(255, 255, 255, 0.94)) 90%);
+    border: 1px solid rgba(15, 25, 46, 0.1);
+    box-shadow: 0 20px 48px -36px rgba(12, 22, 40, 0.28);
+}
+
+.metcal-migration-offer__title {
+    margin: 0 0 12px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--marketing-text-on-surface, #0b162d);
+}
+
+.metcal-migration-offer__list {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-migration-offer__item {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.metcal-migration-offer__item:last-child {
+    margin-bottom: 0;
+}
+
+.metcal-subheading {
+    margin-top: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--marketing-text-on-surface, #0b162d);
+}
+
+.metcal-transfer-list {
+    margin: 16px 0 0;
+    padding-left: 20px;
+    color: var(--marketing-text-muted-on-surface, #243253);
+}
+
+.metcal-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.metcal-feature {
+    padding: 24px;
+    border-radius: 18px;
+    background: var(--surface-card, rgba(255, 255, 255, 0.96));
+    border: 1px solid rgba(15, 25, 46, 0.08);
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-feature h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.metcal-feature-list,
+.metcal-feature-list li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.metcal-feature-list li {
+    margin-bottom: 12px;
+    color: var(--marketing-text-muted-on-surface, #243253);
+}
+
+.metcal-security-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.metcal-security {
+    padding: 24px;
+    border-radius: 18px;
+    background: var(--surface-card, #ffffff);
+    border: 1px solid rgba(15, 25, 46, 0.08);
+    box-shadow: 0 18px 48px -30px rgba(12, 22, 40, 0.2);
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-packages {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.metcal-package {
+    padding: 28px;
+    border-radius: 20px;
+    background: var(--surface-card, #ffffff);
+    border: 1px solid rgba(15, 25, 46, 0.08);
+    box-shadow: 0 24px 64px -40px rgba(12, 22, 40, 0.24);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.metcal-package--highlight {
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 12%, var(--surface-card, rgba(255, 255, 255, 0.92)) 88%);
+    border-color: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 38%, rgba(12, 22, 40, 0.08) 62%);
+}
+
+.metcal-package__subtitle {
+    margin: 0;
+    font-weight: 500;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-package__list {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--marketing-text-muted-on-surface, #243253);
+}
+
+.metcal-package__outcome {
+    margin: 0;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+.metcal-faq [data-uk-accordion] {
+    width: 100%;
+}
+
+.metcal-faq__item {
+    border-radius: 16px;
+    background: var(--surface-card, #ffffff);
+    border: 1px solid rgba(15, 25, 46, 0.1);
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.metcal-section--light .metcal-faq__item {
+    background: var(--surface-card, rgba(255, 255, 255, 0.98));
+}
+
+.metcal-faq__toggle {
+    display: block;
+    padding: 18px 24px;
+    font-weight: 600;
+    color: var(--marketing-text-on-surface, #0b162d);
+    text-decoration: none;
+}
+
+.metcal-faq__toggle:focus,
+.metcal-faq__toggle:hover {
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 10%, rgba(12, 22, 40, 0.06) 90%);
+}
+
+.metcal-faq__content {
+    padding: 0 24px 24px;
+    color: var(--marketing-text-on-surface, #16213d);
+}
+
+body[data-theme='dark'] .metcal-section--light {
+    background: color-mix(in oklab, #060b16 78%, var(--marketing-primary, var(--brand-primary)) 22%);
+}
+
+body[data-theme='dark'] .metcal-card,
+body[data-theme='dark'] .metcal-migration-transfer,
+body[data-theme='dark'] .metcal-timeline__item,
+body[data-theme='dark'] .metcal-feature,
+body[data-theme='dark'] .metcal-security,
+body[data-theme='dark'] .metcal-package,
+body[data-theme='dark'] .metcal-faq__item {
+    border-color: rgba(82, 118, 189, 0.35);
+    box-shadow: 0 28px 72px -48px rgba(3, 8, 18, 0.85);
+}
+
+body[data-theme='dark'] .metcal-card--accent,
+body[data-theme='dark'] .metcal-package--highlight {
+    border-color: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 58%, rgba(255, 255, 255, 0.16));
+}
+
+body[data-theme='dark'] .metcal-migration-offer {
+    border-color: rgba(88, 128, 199, 0.42);
+    box-shadow: 0 24px 64px -46px rgba(3, 8, 18, 0.82);
+}
+
+body[data-theme='dark'] .metcal-faq__toggle:hover,
+body[data-theme='dark'] .metcal-faq__toggle:focus {
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 34%, #0a1426 66%);
+}
+
+.metcal-sticky-cta {
+    position: fixed;
+    inset: auto 24px 24px 24px;
+    z-index: 1030;
+    transform: translateY(120%);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.metcal-sticky-cta--dismissed {
+    display: none;
+}
+
+.metcal-sticky-cta--visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.metcal-sticky-cta__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    padding: 20px 24px;
+    padding-right: 72px;
+    border-radius: 18px;
+    background: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 92%, rgba(10, 16, 26, 0.92) 8%);
+    box-shadow: 0 26px 68px -40px rgba(10, 16, 28, 0.65);
+    color: var(--marketing-on-accent, #ffffff);
+}
+
+.metcal-sticky-cta__dismiss {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.metcal-sticky-cta__dismiss:hover,
+.metcal-sticky-cta__dismiss:focus {
+    background: rgba(255, 255, 255, 0.2);
+    color: #0d1730;
+    border-color: rgba(255, 255, 255, 0.65);
+}
+
+.metcal-sticky-cta__dismiss:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.metcal-sticky-cta__copy {
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.metcal-sticky-cta__copy strong {
+    font-size: 1.1rem;
+}
+
+.metcal-sticky-cta__actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.metcal-sticky-cta__actions .uk-button {
+    border-radius: 999px;
+    padding: 10px 24px;
+}
+
+.metcal-sticky-cta__actions .uk-button-default {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.92);
+    border-color: color-mix(in oklab, var(--marketing-primary, var(--brand-primary)) 46%, rgba(255, 255, 255, 0.38) 54%);
+}
+
+.metcal-sticky-cta__actions .uk-button-default:hover,
+.metcal-sticky-cta__actions .uk-button-default:focus {
+    background: var(--surface-card, #fff);
+    color: var(--marketing-text-on-surface, #0d1730);
+}
+
+.metcal-sticky-cta__actions .uk-button-primary {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.42);
+}
+
+.metcal-sticky-cta__actions .uk-button-primary:hover,
+.metcal-sticky-cta__actions .uk-button-primary:focus {
+    background: rgba(255, 255, 255, 0.22);
+    color: #0d1730;
+}
+
+@media (max-width: 1024px) {
+    .metcal-hero {
+        padding-top: 72px;
+        padding-bottom: 72px;
+    }
+
+    .metcal-section {
+        padding-top: 72px;
+        padding-bottom: 72px;
+    }
+}
+
+@media (max-width: 960px) {
+    .metcal-hero__highlight {
+        margin-top: 32px;
+    }
+}
+
+@media (max-width: 640px) {
+    .metcal-hero__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .metcal-card,
+    .metcal-feature,
+    .metcal-security,
+    .metcal-package {
+        padding: 22px;
+    }
+
+    .metcal-sticky-cta {
+        inset: auto 16px 16px 16px;
+    }
+
+    .metcal-sticky-cta__inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px 20px 20px 20px;
+        padding-right: 56px;
+    }
+
+    .metcal-sticky-cta__copy {
+        max-width: none;
+    }
+
+    .metcal-sticky-cta__actions {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .metcal-sticky-cta__actions .uk-button {
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+}
