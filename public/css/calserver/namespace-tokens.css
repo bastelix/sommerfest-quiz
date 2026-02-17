@@ -31,10 +31,3 @@ html[data-namespace="calserver"] {
   --card-radius: 10px;
   --font-heading-weight: 700;
 }
-
-html[data-namespace="calserver"][data-theme="dark"] {
-  --contrast-text-on-surface: #f2f5fa;
-  --contrast-text-on-surface-muted: #f2f5fa;
-  --contrast-text-on-page: #f2f5fa;
-  --marketing-ink: #f2f5fa;
-}

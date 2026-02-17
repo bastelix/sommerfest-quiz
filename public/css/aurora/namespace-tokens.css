@@ -31,10 +31,3 @@ html[data-namespace="aurora"] {
   --card-radius: 10px;
   --font-heading-weight: 700;
 }
-
-html[data-namespace="aurora"][data-theme="dark"] {
-  --contrast-text-on-surface: #f2f5fa;
-  --contrast-text-on-surface-muted: #f2f5fa;
-  --contrast-text-on-page: #f2f5fa;
-  --marketing-ink: #f8fafc;
-}
