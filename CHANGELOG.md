@@ -74,6 +74,7 @@
 - Add branch naming conventions to CLAUDE.md
 - Add CSS audit analyzing stylesheet conflicts and legacy inclusions
 - Fix inaccuracies in CSS audit
+- *(css)* Document intentional hardcoding in highcontrast.css
 
 ### Feat
 
@@ -441,6 +442,7 @@
 - *(news)* Align CSS and footer with CMS landing page template
 - *(design)* Fix CSS tab visibility and add preview tab
 - *(docs)* Escape Liquid template syntax in Jekyll documentation
+- *(design)* Resolve contrast panel issues for transparent secondary bg and missing card-dark token
 
 ### Merge
 
@@ -515,6 +517,14 @@
 - *(design)* Remove duplicate [data-namespace="default"] CSS block
 - *(design)* Normalize color keys to camelCase convention
 - Rename data-calhelp-* attributes to data-page-* (Prio 6)
+- *(css)* Migrate calhelp-about styles to token-based values in marketing.css
+- *(css)* Migrate calserver-maintenance styles to marketing.css with tokens
+- *(css)* Migrate fluke-metcal styles to marketing.css with token refs
+- *(css)* Migrate future-is-green styles to marketing.css with scheme aliases
+- *(css)* Replace hardcoded hex values with design tokens in admin CSS
+- *(css)* Replace ~64 hardcoded hex values in dark.css with design tokens
+- *(css)* Consolidate calserver.css and calhelp.css into marketing.css
+- *(css)* Remove redundant marketing-utilities.css
 
 ### Style
 
