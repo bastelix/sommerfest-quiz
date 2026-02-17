@@ -325,6 +325,9 @@ class PagesDesignController
         if ($this->isEditRole((string) ($_SESSION['user']['role'] ?? '')) && $tab === 'css') {
             return 'css';
         }
+        if ($tab === 'preview') {
+            return 'preview';
+        }
 
         return 'appearance';
     }

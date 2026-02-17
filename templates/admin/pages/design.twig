@@ -56,721 +56,599 @@
               <a href="#" data-design-tab="css">Eigenes CSS</a>
             </li>
           {% endif %}
+          <li class="{{ activeTab == 'preview' ? 'uk-active' : '' }}">
+            <a href="#" data-design-tab="preview">Vorschau</a>
+          </li>
         </ul>
         {% if not canAccessBehavior %}
           <div class="uk-alert uk-alert-primary uk-margin-small">Verhalten wird auf Namespace-Ebene gesteuert.</div>
         {% endif %}
 
-        <div class="uk-grid-match uk-grid-small" uk-grid>
-          <div class="uk-width-1-1 uk-width-2-5@l">
-            <div class="uk-card uk-card-default uk-card-body design-preview-card">
-              <div class="uk-flex uk-flex-between uk-flex-middle">
-                <div>
-                  <h3 class="uk-card-title uk-margin-remove">Live Preview</h3>
-                  <p class="uk-text-meta uk-margin-remove">Änderungen wirken sofort</p>
+        {# ── Tab 1: Erscheinungsbild ────────────────────────────────── #}
+        <div class="design-panel" data-design-panel="appearance" {% if activeTab != 'appearance' %}hidden{% endif %}>
+          {% if readOnly %}
+            <div class="uk-alert uk-alert-primary uk-margin-small">Redakteur:innen haben nur Lesezugriff auf die Design-Vorgaben.</div>
+            <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+              <h3 class="uk-card-title uk-margin-remove">Design-Übersicht</h3>
+              <p class="uk-text-meta">Design wird auf Namespace-Ebene gesteuert</p>
+              <dl class="design-summary">
+                <div class="design-summary__row">
+                  <dt>Layout-Profil</dt>
+                  <dd>{{ tokens.layout.profile }}</dd>
                 </div>
-                <div class="uk-button-group" data-theme-toggle>
-                  <button type="button" class="uk-button uk-button-default" data-theme-choice="light" aria-pressed="false">Light</button>
-                  <button type="button" class="uk-button uk-button-default" data-theme-choice="dark" aria-pressed="false">Dark</button>
+                <div class="design-summary__row">
+                  <dt>Typografie</dt>
+                  <dd>{{ tokens.typography.preset }}</dd>
                 </div>
-              </div>
-              <div class="uk-margin-small-top uk-flex uk-flex-middle uk-flex-between">
-                <div class="uk-button-group" data-device-toggle>
-                  <button type="button" class="uk-button uk-button-default" data-device-choice="desktop" aria-pressed="false">Desktop</button>
-                  <button type="button" class="uk-button uk-button-default" data-device-choice="tablet" aria-pressed="false">Tablet</button>
-                  <button type="button" class="uk-button uk-button-default" data-device-choice="mobile" aria-pressed="false">Mobile</button>
+                <div class="design-summary__row">
+                  <dt>Kartendesign</dt>
+                  <dd>{{ tokens.components.cardStyle }}</dd>
                 </div>
-                <div class="uk-text-meta">
-                  <span class="uk-margin-small-right">Layout: <strong data-preview-meta="layout">{{ tokens.layout.profile }}</strong></span>
-                  <span>Typo: <strong data-preview-meta="typography">{{ tokens.typography.preset }}</strong></span>
+                <div class="design-summary__row">
+                  <dt>Button-Stil</dt>
+                  <dd>{{ tokens.components.buttonStyle }}</dd>
                 </div>
-              </div>
-              <div
-                id="design-preview"
-                class="design-preview__viewport marketing-scope marketing-page"
-                data-theme="light"
-                data-device="desktop"
-                data-namespace="{{ activePageNamespace|e('html_attr') }}"
-                data-layout-profile="{{ tokens.layout.profile|e('html_attr') }}"
-                data-card-style="{{ tokens.components.cardStyle|e('html_attr') }}"
-                data-button-style="{{ tokens.components.buttonStyle|e('html_attr') }}"
-                data-typography-preset="{{ tokens.typography.preset|e('html_attr') }}"
-                data-effects-profile="{{ effects.effectsProfile|e('html_attr') }}"
-                data-slider-profile="{{ effects.sliderProfile|e('html_attr') }}"
-              >
-                <div class="design-preview__surface">
-                  <div class="design-preview__badge">{{ activePageNamespace }}</div>
-                  <div class="design-preview__section design-preview__section--primary">
-                    <div class="design-preview__section-label">Hero / Primary</div>
-                    <h2 class="design-preview__headline">Gestaltete Überschrift</h2>
-                    <p class="design-preview__copy">
-                      Einheitliche Design-Tokens sorgen für konsistente Farben, Abstände und Komponenten.
-                    </p>
-                    <div class="design-preview__cta-group">
-                      <button class="uk-button uk-button-primary design-preview__button">Primary Action</button>
-                      <button class="uk-button uk-button-default design-preview__button-secondary">Secondary</button>
-                    </div>
-                  </div>
-                  <div class="design-preview__section design-preview__section--surface">
-                    <div class="design-preview__section-label">Content / Surface</div>
-                    <div class="design-preview__eyebrow">Marketing Page</div>
-                    <div class="design-preview__cards">
-                      <div class="design-preview__card">
-                        <h4 class="uk-margin-small-bottom">Card Titel</h4>
-                        <p class="uk-margin-remove">Gestaltete Karte mit {{ tokens.components.cardStyle }}-Kanten.</p>
-                      </div>
-                      <div class="design-preview__card">
-                        <h4 class="uk-margin-small-bottom">Buttons</h4>
-                        <p class="uk-margin-remove">Button-Stil: {{ tokens.components.buttonStyle }}</p>
-                      </div>
-                    </div>
-                    <div class="design-preview__effects" data-preview-effects>
-                      <div class="design-preview__effects-item">
-                        <span class="design-preview__effects-pill">Verhalten</span>
-                        <span class="design-preview__effects-value" data-preview-meta="effectsProfile">
-                          {{ effectsProfiles[effects.effectsProfile].label|default(effects.effectsProfile) }}
-                        </span>
-                      </div>
-                      <div class="design-preview__effects-item">
-                        <span class="design-preview__effects-pill">Slider</span>
-                        <span class="design-preview__effects-value" data-preview-meta="sliderProfile">{{ effects.sliderProfile }}</span>
-                      </div>
-                      <div class="design-preview__effects-item">
-                        <span class="design-preview__effects-pill design-preview__effects-pill--muted">Scroll</span>
-                        <span class="design-preview__effects-value">Abschnitte erscheinen beim Scrollen</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="design-preview__section design-preview__section--secondary">
-                    <div class="design-preview__section-label">CTA / Secondary</div>
-                    <h3 class="design-preview__headline" style="font-size:24px">Jetzt starten</h3>
-                    <div class="design-preview__cta-group">
-                      <button class="uk-button uk-button-primary design-preview__button">Demo ansehen</button>
-                      <button class="uk-button uk-button-default design-preview__button-secondary">Kontakt</button>
-                    </div>
-                  </div>
-                  <footer class="design-preview__footer" aria-label="Footer Vorschau">
-                    <div class="design-preview__footer-brand">
-                      <strong class="design-preview__footer-name">QuizRace</strong>
-                      <span class="design-preview__footer-tagline">Business Footer mit klaren Rollen und Links.</span>
-                    </div>
-                    <div class="design-preview__footer-columns">
-                      <div class="design-preview__footer-column">
-                        <span class="design-preview__footer-title">Unternehmen</span>
-                        <ul class="design-preview__footer-list">
-                          <li><a class="design-preview__footer-link" href="#">Über uns</a></li>
-                          <li><a class="design-preview__footer-link" href="#">Leistungen</a></li>
-                          <li><a class="design-preview__footer-link" href="#">Karriere</a></li>
-                        </ul>
-                      </div>
-                      <div class="design-preview__footer-column">
-                        <span class="design-preview__footer-title">Ressourcen</span>
-                        <ul class="design-preview__footer-list">
-                          <li><a class="design-preview__footer-link" href="#">Support</a></li>
-                          <li><a class="design-preview__footer-link" href="#">FAQ</a></li>
-                          <li><a class="design-preview__footer-link" href="#">Kontakt</a></li>
-                        </ul>
-                      </div>
-                      <div class="design-preview__footer-column">
-                        <span class="design-preview__footer-title">Rechtliches</span>
-                        <ul class="design-preview__footer-list">
-                          <li><a class="design-preview__footer-link" href="#">Impressum</a></li>
-                          <li><a class="design-preview__footer-link" href="#">Datenschutz</a></li>
-                          <li><a class="design-preview__footer-link" href="#">AGB</a></li>
-                        </ul>
-                      </div>
-                    </div>
-                    <div class="design-preview__footer-meta">
-                      © 2025 QuizRace GmbH · Zertifiziert · ISO 27001
-                    </div>
-                  </footer>
+                <div class="design-summary__row">
+                  <dt>Farben</dt>
+                  <dd>
+                    <span class="design-summary__swatch" style="background: {{ tokens.brand.primary }}"></span>
+                    <code>{{ tokens.brand.primary }}</code>
+                    <span class="design-summary__swatch design-summary__swatch--accent" style="background: {{ tokens.brand.accent }}"></span>
+                    <code>{{ tokens.brand.accent }}</code>
+                    <span class="design-summary__swatch design-summary__swatch--secondary" style="background: {{ tokens.brand.secondary }}"></span>
+                    <code>{{ tokens.brand.secondary }}</code>
+                  </dd>
                 </div>
-              </div>
+              </dl>
             </div>
-            {% if readOnly %}
-              <div class="uk-card uk-card-default uk-card-body uk-margin-small">
-                <h3 class="uk-card-title uk-margin-remove">Design-Übersicht</h3>
-                <p class="uk-text-meta">Design wird auf Namespace-Ebene gesteuert</p>
-                <dl class="design-summary">
-                  <div class="design-summary__row">
-                    <dt>Layout-Profil</dt>
-                    <dd>{{ tokens.layout.profile }}</dd>
+          {% else %}
+            <form class="uk-form-stacked" method="post" enctype="multipart/form-data">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
+
+              {% set marketingSchemeOptions = {
+                aurora: {
+                  label: 'Aurora',
+                  description: 'Frisches Blau mit klarem Akzent.'
+                },
+                'future-is-green': {
+                  label: 'Future is Green',
+                  description: 'Nachhaltiges Waldgrün mit hellen Akzenten.'
+                },
+                sunset: {
+                  label: 'Sunset',
+                  description: 'Warme Orange-/Pink-Töne für starke CTAs.'
+                },
+                midnight: {
+                  label: 'Midnight',
+                  description: 'Dunkler Look mit kühlem Akzent.'
+                },
+                monochrome: {
+                  label: 'Monochrom',
+                  description: 'Schwarz/Weiß mit maximalem Kontrast.'
+                },
+                'uikit-default': {
+                  label: 'UIkit Default',
+                  description: 'Neutrale UIkit-Standardfarben als Basis.'
+                }
+              } %}
+              <ul class="uk-accordion" uk-accordion>
+                <li class="uk-open">
+                  <a class="uk-accordion-title" href="#">Design-Preset</a>
+                  <div class="uk-accordion-content">
+                    <p class="uk-text-meta uk-margin-remove-top">
+                      Das Preset steuert Farben, Typografie, Card- und Button-Stil sowie Layout.
+                      Einzelne Werte lassen sich optional im Bereich Anpassungen abweichend setzen.
+                    </p>
+                    <label class="uk-form-label" for="marketingScheme">Preset</label>
+                    <div class="uk-form-controls">
+                      <select
+                        id="marketingScheme"
+                        class="uk-select"
+                        name="appearance[variables][marketingScheme]"
+                        data-marketing-scheme-select
+                        data-current-marketing-scheme="{{ marketingScheme|default('')|e('html_attr') }}"
+                      >
+                        <option value="" {% if marketingScheme is empty %}selected{% endif %}>Automatisch (Brand-Tokens)</option>
+                        {% for schemeKey, scheme in marketingSchemeOptions %}
+                          <option
+                            value="{{ schemeKey|e('html_attr') }}"
+                            {% if schemeKey == marketingScheme %}selected{% endif %}
+                          >
+                            {{ scheme.label }} – {{ scheme.description }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <details class="uk-margin-top" data-design-overrides>
+                      <summary class="uk-text-meta" style="cursor:pointer">Anpassungen (optional)</summary>
+                      <div class="uk-margin-small-top">
+                        <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-small-bottom">Brand-Farben</h4>
+                        <div class="uk-grid-small" uk-grid>
+                          <div class="uk-width-1-3@s">
+                            <label class="uk-form-label" for="brandPrimary">Primary Color</label>
+                            <div class="uk-flex uk-flex-middle design-color-input">
+                              <input id="brandPrimary" class="uk-input" type="color" name="brand[primary]" value="{{ tokens.brand.primary|e('html_attr') }}" data-token-input data-group="brand" data-key="primary">
+                              <code class="uk-margin-small-left" data-token-preview="brand.primary">{{ tokens.brand.primary }}</code>
+                            </div>
+                          </div>
+                          <div class="uk-width-1-3@s">
+                            <label class="uk-form-label" for="brandAccent">Accent Color</label>
+                            <div class="uk-flex uk-flex-middle design-color-input">
+                              <input id="brandAccent" class="uk-input" type="color" name="brand[accent]" value="{{ tokens.brand.accent|e('html_attr') }}" data-token-input data-group="brand" data-key="accent">
+                              <code class="uk-margin-small-left" data-token-preview="brand.accent">{{ tokens.brand.accent }}</code>
+                            </div>
+                          </div>
+                          <div class="uk-width-1-3@s">
+                            <label class="uk-form-label" for="brandSecondary">Secondary Color</label>
+                            <div class="uk-flex uk-flex-middle design-color-input">
+                              <input id="brandSecondary" class="uk-input" type="color" name="brand[secondary]" value="{{ tokens.brand.secondary|e('html_attr') }}" data-token-input data-group="brand" data-key="secondary">
+                              <code class="uk-margin-small-left" data-token-preview="brand.secondary">{{ tokens.brand.secondary }}</code>
+                            </div>
+                          </div>
+                        </div>
+
+                        <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-top uk-margin-small-bottom">Layout &amp; Typografie</h4>
+                        <div class="uk-grid-small" uk-grid>
+                          <div class="uk-width-1-2@s">
+                            <label class="uk-form-label" for="layoutProfile">Layout-Profil</label>
+                            <div class="uk-form-controls">
+                              <select id="layoutProfile" class="uk-select" name="layout[profile]" data-token-input data-group="layout" data-key="profile" data-scheme-default-key="defaultLayout">
+                                {% for option in layoutProfiles %}
+                                  <option value="{{ option }}" {% if option == tokens.layout.profile %}selected{% endif %}>{{ option|title }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                          <div class="uk-width-1-2@s">
+                            <label class="uk-form-label" for="typographyPreset">Typografie</label>
+                            <div class="uk-form-controls">
+                              <select id="typographyPreset" class="uk-select" name="typography[preset]" data-token-input data-group="typography" data-key="preset" data-scheme-default-key="defaultTypography">
+                                {% for preset in typographyPresets %}
+                                  <option value="{{ preset }}" {% if preset == tokens.typography.preset %}selected{% endif %}>{{ preset|title }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-top uk-margin-small-bottom">Komponenten</h4>
+                        <div class="uk-grid-small" uk-grid>
+                          <div class="uk-width-1-2@s">
+                            <label class="uk-form-label" for="cardStyle">Card Shape</label>
+                            <div class="uk-form-controls">
+                              <select id="cardStyle" class="uk-select" name="components[cardStyle]" data-token-input data-group="components" data-key="cardStyle" data-scheme-default-key="defaultCardStyle">
+                                {% for style in cardStyles %}
+                                  <option value="{{ style }}" {% if style == tokens.components.cardStyle %}selected{% endif %}>{{ style|title }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                          <div class="uk-width-1-2@s">
+                            <label class="uk-form-label" for="buttonStyle">Button Style</label>
+                            <div class="uk-form-controls">
+                              <select id="buttonStyle" class="uk-select" name="components[buttonStyle]" data-token-input data-group="components" data-key="buttonStyle" data-scheme-default-key="defaultButtonStyle">
+                                {% for style in buttonStyles %}
+                                  <option value="{{ style }}" {% if style == tokens.components.buttonStyle %}selected{% endif %}>{{ style|title }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button class="uk-button uk-button-default uk-margin-top" type="submit" name="action" value="reset_all_overrides">Alle Anpassungen zurücksetzen</button>
+                      </div>
+                    </details>
                   </div>
-                  <div class="design-summary__row">
-                    <dt>Typografie</dt>
-                    <dd>{{ tokens.typography.preset }}</dd>
+                </li>
+                <li>
+                  <a class="uk-accordion-title" href="#">Lesbarkeit &amp; Kontrast</a>
+                  <div class="uk-accordion-content">
+                    <p class="uk-text-meta uk-margin-remove-top">
+                      Prüfe, ob Textfarben auf Surface, Background und Primary mindestens WCAG AA (4,5:1) erreichen.
+                      AAA (7:1) ist ideal für besonders gut lesbare Inhalte.
+                    </p>
+                    <div class="design-contrast" data-contrast-panel>
+                      <div class="design-contrast__row" data-contrast-row="text-on-surface">
+                        <div>
+                          <div class="design-contrast__label">Text auf Surface</div>
+                          <div class="design-contrast__meta">Prüft Haupttext auf Surface-Flächen.</div>
+                        </div>
+                        <div class="design-contrast__metrics">
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Light</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
+                            </div>
+                          </div>
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Dark</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
+                      </div>
+                      <div class="design-contrast__row" data-contrast-row="text-on-card">
+                        <div>
+                          <div class="design-contrast__label">Text auf Card</div>
+                          <div class="design-contrast__meta">Vergleicht Card-Text mit Card-Background.</div>
+                        </div>
+                        <div class="design-contrast__metrics">
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Light</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
+                            </div>
+                          </div>
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Dark</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
+                      </div>
+                      <div class="design-contrast__row" data-contrast-row="text-on-background">
+                        <div>
+                          <div class="design-contrast__label">Text auf Background</div>
+                          <div class="design-contrast__meta">Prüft Fließtext auf Seitenhintergrund.</div>
+                        </div>
+                        <div class="design-contrast__metrics">
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Light</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
+                            </div>
+                          </div>
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Dark</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
+                      </div>
+                      <div class="design-contrast__row" data-contrast-row="text-on-primary">
+                        <div>
+                          <div class="design-contrast__label">Text auf Primary</div>
+                          <div class="design-contrast__meta">Prüft Kontrast für Buttons/CTAs.</div>
+                        </div>
+                        <div class="design-contrast__metrics">
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Light</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
+                            </div>
+                          </div>
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Dark</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
+                      </div>
+                      <div class="design-contrast__row" data-contrast-row="text-on-secondary">
+                        <div>
+                          <div class="design-contrast__label">Text auf Secondary</div>
+                          <div class="design-contrast__meta">Prüft Kontrast für Secondary-Buttons.</div>
+                        </div>
+                        <div class="design-contrast__metrics">
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Light</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
+                            </div>
+                          </div>
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Dark</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
+                      </div>
+                      <div class="design-contrast__row" data-contrast-row="text-on-accent">
+                        <div>
+                          <div class="design-contrast__label">Text auf Accent</div>
+                          <div class="design-contrast__meta">Prüft Kontrast für Accent-Hintergründe.</div>
+                        </div>
+                        <div class="design-contrast__metrics">
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Light</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
+                            </div>
+                          </div>
+                          <div class="design-contrast__metric">
+                            <div class="design-contrast__metric-label">Dark</div>
+                            <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
+                            <div class="design-contrast__badges">
+                              <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
+                              <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
+                      </div>
+                    </div>
+                    {% set textOnSurfaceValue = appearanceColors.textOnSurface|default('') %}
+                    {% set textOnBackgroundValue = appearanceColors.textOnBackground|default('') %}
+                    {% set textOnPrimaryValue = appearanceColors.textOnPrimary|default('') %}
+                    <input
+                      type="hidden"
+                      name="appearance[variables][textOnSurface]"
+                      value="{{ textOnSurfaceValue|e('html_attr') }}"
+                      data-contrast-input="text-on-surface"
+                      {% if textOnSurfaceValue is empty %}disabled{% endif %}
+                    >
+                    <input
+                      type="hidden"
+                      name="appearance[variables][textOnBackground]"
+                      value="{{ textOnBackgroundValue|e('html_attr') }}"
+                      data-contrast-input="text-on-background"
+                      {% if textOnBackgroundValue is empty %}disabled{% endif %}
+                    >
+                    <input
+                      type="hidden"
+                      name="appearance[variables][textOnPrimary]"
+                      value="{{ textOnPrimaryValue|e('html_attr') }}"
+                      data-contrast-input="text-on-primary"
+                      {% if textOnPrimaryValue is empty %}disabled{% endif %}
+                    >
+                    {% set textOnSecondaryValue = appearanceColors.textOnSecondary|default('') %}
+                    <input
+                      type="hidden"
+                      name="appearance[variables][textOnSecondary]"
+                      value="{{ textOnSecondaryValue|e('html_attr') }}"
+                      data-contrast-input="text-on-secondary"
+                      {% if textOnSecondaryValue is empty %}disabled{% endif %}
+                    >
+                    {% set textOnAccentValue = appearanceColors.textOnAccent|default('') %}
+                    <input
+                      type="hidden"
+                      name="appearance[variables][textOnAccent]"
+                      value="{{ textOnAccentValue|e('html_attr') }}"
+                      data-contrast-input="text-on-accent"
+                      {% if textOnAccentValue is empty %}disabled{% endif %}
+                    >
                   </div>
-                  <div class="design-summary__row">
-                    <dt>Kartendesign</dt>
-                    <dd>{{ tokens.components.cardStyle }}</dd>
-                  </div>
-                  <div class="design-summary__row">
-                    <dt>Button-Stil</dt>
-                    <dd>{{ tokens.components.buttonStyle }}</dd>
-                  </div>
-                  <div class="design-summary__row">
-                    <dt>Farben</dt>
-                    <dd>
-                      <span class="design-summary__swatch" style="background: {{ tokens.brand.primary }}"></span>
-                      <code>{{ tokens.brand.primary }}</code>
-                      <span class="design-summary__swatch design-summary__swatch--accent" style="background: {{ tokens.brand.accent }}"></span>
-                      <code>{{ tokens.brand.accent }}</code>
-                      <span class="design-summary__swatch design-summary__swatch--secondary" style="background: {{ tokens.brand.secondary }}"></span>
-                      <code>{{ tokens.brand.secondary }}</code>
-                    </dd>
-                  </div>
-                </dl>
+                </li>
+              </ul>
+
+              <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
+                <button class="uk-button uk-button-default" type="submit" name="action" value="reset_all">Auf Standard zurücksetzen</button>
+                <button class="uk-button uk-button-primary" type="submit">Speichern</button>
               </div>
-            {% endif %}
-          </div>
-          <div class="uk-width-1-1 uk-width-expand@l">
-            <div class="design-panel" data-design-panel="appearance" {% if activeTab != 'appearance' %}hidden{% endif %}>
-              {% if readOnly %}
-                <div class="uk-alert uk-alert-primary uk-margin-small">Redakteur:innen haben nur Lesezugriff auf die Design-Vorgaben.</div>
-              {% else %}
-                <form class="uk-form-stacked" method="post" enctype="multipart/form-data">
+            </form>
+
+            {% if availablePresets|default([])|length > 0 %}
+              <div class="uk-card uk-card-default uk-card-body uk-margin-top">
+                <h3 class="uk-card-title uk-margin-remove">Design importieren</h3>
+                <p class="uk-text-meta uk-margin-small-bottom">
+                  Übernimm ein vordefiniertes Design-Preset für diesen Namespace.
+                  Tokens, Farben und Verhaltenseinstellungen werden vollständig überschrieben.
+                </p>
+                <form method="post">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                   <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
+                  <input type="hidden" name="action" value="import_design">
 
-                  {% set marketingSchemeOptions = {
-                    aurora: {
-                      label: 'Aurora',
-                      description: 'Frisches Blau mit klarem Akzent.'
-                    },
-                    'future-is-green': {
-                      label: 'Future is Green',
-                      description: 'Nachhaltiges Waldgrün mit hellen Akzenten.'
-                    },
-                    sunset: {
-                      label: 'Sunset',
-                      description: 'Warme Orange-/Pink-Töne für starke CTAs.'
-                    },
-                    midnight: {
-                      label: 'Midnight',
-                      description: 'Dunkler Look mit kühlem Akzent.'
-                    },
-                    monochrome: {
-                      label: 'Monochrom',
-                      description: 'Schwarz/Weiß mit maximalem Kontrast.'
-                    },
-                    'uikit-default': {
-                      label: 'UIkit Default',
-                      description: 'Neutrale UIkit-Standardfarben als Basis.'
-                    }
-                  } %}
-                  <ul class="uk-accordion" uk-accordion>
-                    <li class="uk-open">
-                      <a class="uk-accordion-title" href="#">Design-Preset</a>
-                      <div class="uk-accordion-content">
-                        <p class="uk-text-meta uk-margin-remove-top">
-                          Das Preset steuert Farben, Typografie, Card- und Button-Stil sowie Layout.
-                          Einzelne Werte lassen sich optional im Bereich Anpassungen abweichend setzen.
-                        </p>
-                        <label class="uk-form-label" for="marketingScheme">Preset</label>
-                        <div class="uk-form-controls">
-                          <select
-                            id="marketingScheme"
-                            class="uk-select"
-                            name="appearance[variables][marketingScheme]"
-                            data-marketing-scheme-select
-                            data-current-marketing-scheme="{{ marketingScheme|default('')|e('html_attr') }}"
-                          >
-                            <option value="" {% if marketingScheme is empty %}selected{% endif %}>Automatisch (Brand-Tokens)</option>
-                            {% for schemeKey, scheme in marketingSchemeOptions %}
-                              <option
-                                value="{{ schemeKey|e('html_attr') }}"
-                                {% if schemeKey == marketingScheme %}selected{% endif %}
-                              >
-                                {{ scheme.label }} – {{ scheme.description }}
-                              </option>
-                            {% endfor %}
-                          </select>
-                        </div>
-
-                        <details class="uk-margin-top" data-design-overrides>
-                          <summary class="uk-text-meta" style="cursor:pointer">Anpassungen (optional)</summary>
-                          <div class="uk-margin-small-top">
-                            <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-small-bottom">Brand-Farben</h4>
-                            <div class="uk-grid-small" uk-grid>
-                              <div class="uk-width-1-3@s">
-                                <label class="uk-form-label" for="brandPrimary">Primary Color</label>
-                                <div class="uk-flex uk-flex-middle design-color-input">
-                                  <input id="brandPrimary" class="uk-input" type="color" name="brand[primary]" value="{{ tokens.brand.primary|e('html_attr') }}" data-token-input data-group="brand" data-key="primary">
-                                  <code class="uk-margin-small-left" data-token-preview="brand.primary">{{ tokens.brand.primary }}</code>
-                                </div>
-                              </div>
-                              <div class="uk-width-1-3@s">
-                                <label class="uk-form-label" for="brandAccent">Accent Color</label>
-                                <div class="uk-flex uk-flex-middle design-color-input">
-                                  <input id="brandAccent" class="uk-input" type="color" name="brand[accent]" value="{{ tokens.brand.accent|e('html_attr') }}" data-token-input data-group="brand" data-key="accent">
-                                  <code class="uk-margin-small-left" data-token-preview="brand.accent">{{ tokens.brand.accent }}</code>
-                                </div>
-                              </div>
-                              <div class="uk-width-1-3@s">
-                                <label class="uk-form-label" for="brandSecondary">Secondary Color</label>
-                                <div class="uk-flex uk-flex-middle design-color-input">
-                                  <input id="brandSecondary" class="uk-input" type="color" name="brand[secondary]" value="{{ tokens.brand.secondary|e('html_attr') }}" data-token-input data-group="brand" data-key="secondary">
-                                  <code class="uk-margin-small-left" data-token-preview="brand.secondary">{{ tokens.brand.secondary }}</code>
-                                </div>
-                              </div>
-                            </div>
-
-                            <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-top uk-margin-small-bottom">Layout &amp; Typografie</h4>
-                            <div class="uk-grid-small" uk-grid>
-                              <div class="uk-width-1-2@s">
-                                <label class="uk-form-label" for="layoutProfile">Layout-Profil</label>
-                                <div class="uk-form-controls">
-                                  <select id="layoutProfile" class="uk-select" name="layout[profile]" data-token-input data-group="layout" data-key="profile" data-scheme-default-key="defaultLayout">
-                                    {% for option in layoutProfiles %}
-                                      <option value="{{ option }}" {% if option == tokens.layout.profile %}selected{% endif %}>{{ option|title }}</option>
-                                    {% endfor %}
-                                  </select>
-                                </div>
-                              </div>
-                              <div class="uk-width-1-2@s">
-                                <label class="uk-form-label" for="typographyPreset">Typografie</label>
-                                <div class="uk-form-controls">
-                                  <select id="typographyPreset" class="uk-select" name="typography[preset]" data-token-input data-group="typography" data-key="preset" data-scheme-default-key="defaultTypography">
-                                    {% for preset in typographyPresets %}
-                                      <option value="{{ preset }}" {% if preset == tokens.typography.preset %}selected{% endif %}>{{ preset|title }}</option>
-                                    {% endfor %}
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-
-                            <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-top uk-margin-small-bottom">Komponenten</h4>
-                            <div class="uk-grid-small" uk-grid>
-                              <div class="uk-width-1-2@s">
-                                <label class="uk-form-label" for="cardStyle">Card Shape</label>
-                                <div class="uk-form-controls">
-                                  <select id="cardStyle" class="uk-select" name="components[cardStyle]" data-token-input data-group="components" data-key="cardStyle" data-scheme-default-key="defaultCardStyle">
-                                    {% for style in cardStyles %}
-                                      <option value="{{ style }}" {% if style == tokens.components.cardStyle %}selected{% endif %}>{{ style|title }}</option>
-                                    {% endfor %}
-                                  </select>
-                                </div>
-                              </div>
-                              <div class="uk-width-1-2@s">
-                                <label class="uk-form-label" for="buttonStyle">Button Style</label>
-                                <div class="uk-form-controls">
-                                  <select id="buttonStyle" class="uk-select" name="components[buttonStyle]" data-token-input data-group="components" data-key="buttonStyle" data-scheme-default-key="defaultButtonStyle">
-                                    {% for style in buttonStyles %}
-                                      <option value="{{ style }}" {% if style == tokens.components.buttonStyle %}selected{% endif %}>{{ style|title }}</option>
-                                    {% endfor %}
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-
-                            <button class="uk-button uk-button-default uk-margin-top" type="submit" name="action" value="reset_all_overrides">Alle Anpassungen zurücksetzen</button>
-                          </div>
-                        </details>
-                      </div>
-                    </li>
-                    <li>
-                      <a class="uk-accordion-title" href="#">Lesbarkeit &amp; Kontrast</a>
-                      <div class="uk-accordion-content">
-                        <p class="uk-text-meta uk-margin-remove-top">
-                          Prüfe, ob Textfarben auf Surface, Background und Primary mindestens WCAG AA (4,5:1) erreichen.
-                          AAA (7:1) ist ideal für besonders gut lesbare Inhalte.
-                        </p>
-                        <div class="design-contrast" data-contrast-panel>
-                          <div class="design-contrast__row" data-contrast-row="text-on-surface">
-                            <div>
-                              <div class="design-contrast__label">Text auf Surface</div>
-                              <div class="design-contrast__meta">Prüft Haupttext auf Surface-Flächen.</div>
-                            </div>
-                            <div class="design-contrast__metrics">
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Light</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
-                                </div>
-                              </div>
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Dark</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
-                                </div>
-                              </div>
-                            </div>
-                            <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
-                          </div>
-                          <div class="design-contrast__row" data-contrast-row="text-on-card">
-                            <div>
-                              <div class="design-contrast__label">Text auf Card</div>
-                              <div class="design-contrast__meta">Vergleicht Card-Text mit Card-Background.</div>
-                            </div>
-                            <div class="design-contrast__metrics">
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Light</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
-                                </div>
-                              </div>
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Dark</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
-                                </div>
-                              </div>
-                            </div>
-                            <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
-                          </div>
-                          <div class="design-contrast__row" data-contrast-row="text-on-background">
-                            <div>
-                              <div class="design-contrast__label">Text auf Background</div>
-                              <div class="design-contrast__meta">Prüft Fließtext auf Seitenhintergrund.</div>
-                            </div>
-                            <div class="design-contrast__metrics">
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Light</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
-                                </div>
-                              </div>
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Dark</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
-                                </div>
-                              </div>
-                            </div>
-                            <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
-                          </div>
-                          <div class="design-contrast__row" data-contrast-row="text-on-primary">
-                            <div>
-                              <div class="design-contrast__label">Text auf Primary</div>
-                              <div class="design-contrast__meta">Prüft Kontrast für Buttons/CTAs.</div>
-                            </div>
-                            <div class="design-contrast__metrics">
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Light</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
-                                </div>
-                              </div>
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Dark</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
-                                </div>
-                              </div>
-                            </div>
-                            <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
-                          </div>
-                          <div class="design-contrast__row" data-contrast-row="text-on-secondary">
-                            <div>
-                              <div class="design-contrast__label">Text auf Secondary</div>
-                              <div class="design-contrast__meta">Prüft Kontrast für Secondary-Buttons.</div>
-                            </div>
-                            <div class="design-contrast__metrics">
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Light</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
-                                </div>
-                              </div>
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Dark</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
-                                </div>
-                              </div>
-                            </div>
-                            <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
-                          </div>
-                          <div class="design-contrast__row" data-contrast-row="text-on-accent">
-                            <div>
-                              <div class="design-contrast__label">Text auf Accent</div>
-                              <div class="design-contrast__meta">Prüft Kontrast für Accent-Hintergründe.</div>
-                            </div>
-                            <div class="design-contrast__metrics">
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Light</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="light">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="light">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="light">AAA</span>
-                                </div>
-                              </div>
-                              <div class="design-contrast__metric">
-                                <div class="design-contrast__metric-label">Dark</div>
-                                <div class="design-contrast__ratio" data-contrast-ratio="dark">–</div>
-                                <div class="design-contrast__badges">
-                                  <span class="design-contrast__badge" data-contrast-aa="dark">AA</span>
-                                  <span class="design-contrast__badge" data-contrast-aaa="dark">AAA</span>
-                                </div>
-                              </div>
-                            </div>
-                            <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
-                          </div>
-                        </div>
-                        {% set textOnSurfaceValue = appearanceColors.textOnSurface|default('') %}
-                        {% set textOnBackgroundValue = appearanceColors.textOnBackground|default('') %}
-                        {% set textOnPrimaryValue = appearanceColors.textOnPrimary|default('') %}
-                        <input
-                          type="hidden"
-                          name="appearance[variables][textOnSurface]"
-                          value="{{ textOnSurfaceValue|e('html_attr') }}"
-                          data-contrast-input="text-on-surface"
-                          {% if textOnSurfaceValue is empty %}disabled{% endif %}
-                        >
-                        <input
-                          type="hidden"
-                          name="appearance[variables][textOnBackground]"
-                          value="{{ textOnBackgroundValue|e('html_attr') }}"
-                          data-contrast-input="text-on-background"
-                          {% if textOnBackgroundValue is empty %}disabled{% endif %}
-                        >
-                        <input
-                          type="hidden"
-                          name="appearance[variables][textOnPrimary]"
-                          value="{{ textOnPrimaryValue|e('html_attr') }}"
-                          data-contrast-input="text-on-primary"
-                          {% if textOnPrimaryValue is empty %}disabled{% endif %}
-                        >
-                        {% set textOnSecondaryValue = appearanceColors.textOnSecondary|default('') %}
-                        <input
-                          type="hidden"
-                          name="appearance[variables][textOnSecondary]"
-                          value="{{ textOnSecondaryValue|e('html_attr') }}"
-                          data-contrast-input="text-on-secondary"
-                          {% if textOnSecondaryValue is empty %}disabled{% endif %}
-                        >
-                        {% set textOnAccentValue = appearanceColors.textOnAccent|default('') %}
-                        <input
-                          type="hidden"
-                          name="appearance[variables][textOnAccent]"
-                          value="{{ textOnAccentValue|e('html_attr') }}"
-                          data-contrast-input="text-on-accent"
-                          {% if textOnAccentValue is empty %}disabled{% endif %}
-                        >
-                      </div>
-                    </li>
-                  </ul>
-
-                  <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
-                    <button class="uk-button uk-button-default" type="submit" name="action" value="reset_all">Auf Standard zurücksetzen</button>
-                    <button class="uk-button uk-button-primary" type="submit">Speichern</button>
+                  <div class="uk-grid-small uk-flex-middle" uk-grid>
+                    <div class="uk-width-expand">
+                      <select class="uk-select" name="import_preset" required>
+                        <option value="">Preset auswählen…</option>
+                        {% for preset in availablePresets %}
+                          <option value="{{ preset.name|e('html_attr') }}">
+                            {{ preset.label }}{% if preset.description %} – {{ preset.description[:80] }}{% if preset.description|length > 80 %}…{% endif %}{% endif %}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="uk-width-auto">
+                      <button class="uk-button uk-button-secondary" type="submit">Importieren</button>
+                    </div>
                   </div>
                 </form>
-
-                {% if availablePresets|default([])|length > 0 %}
-                  <div class="uk-card uk-card-default uk-card-body uk-margin-top">
-                    <h3 class="uk-card-title uk-margin-remove">Design importieren</h3>
-                    <p class="uk-text-meta uk-margin-small-bottom">
-                      Übernimm ein vordefiniertes Design-Preset für diesen Namespace.
-                      Tokens, Farben und Verhaltenseinstellungen werden vollständig überschrieben.
-                    </p>
-                    <form method="post">
-                      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                      <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
-                      <input type="hidden" name="action" value="import_design">
-
-                      <div class="uk-grid-small uk-flex-middle" uk-grid>
-                        <div class="uk-width-expand">
-                          <select class="uk-select" name="import_preset" required>
-                            <option value="">Preset auswählen…</option>
-                            {% for preset in availablePresets %}
-                              <option value="{{ preset.name|e('html_attr') }}">
-                                {{ preset.label }}{% if preset.description %} – {{ preset.description[:80] }}{% if preset.description|length > 80 %}…{% endif %}{% endif %}
-                              </option>
-                            {% endfor %}
-                          </select>
-                        </div>
-                        <div class="uk-width-auto">
-                          <button class="uk-button uk-button-secondary" type="submit">Importieren</button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                {% endif %}
-              {% endif %}
-            </div>
-
-            <div class="design-panel" data-design-panel="behavior" {% if activeTab != 'behavior' %}hidden{% endif %}>
-              <div class="uk-card uk-card-default uk-card-body">
-                <h2><span>Verhalten – Namespace: {{ pageNamespace }}</span></h2>
-                <p class="uk-text-meta uk-margin-remove">Wie sich Seiten in diesem Namespace bewegen und anfühlen.</p>
-                {% if not canAccessBehavior %}
-                  <div class="uk-alert uk-alert-primary uk-margin-small">Verhalten wird auf Namespace-Ebene gesteuert.</div>
-                {% elseif effectsReadOnly %}
-                  <div class="uk-alert uk-alert-primary uk-margin-small">Redakteur:innen haben nur Lesezugriff auf die Effekt-Vorgaben.</div>
-                {% endif %}
-
-                {% if canAccessBehavior %}
-                  <form class="uk-form-stacked" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                    <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
-                    <input type="hidden" name="action" value="save_effects">
-
-                    <div class="design-effects-section">
-                      <div class="design-effects-section__header">
-                        <h3 class="uk-heading-bullet uk-margin-remove">Bewegungsprofil</h3>
-                        <p class="uk-text-meta uk-margin-remove">Über Profile gesteuerte Effekte – kein Freitext.</p>
-                      </div>
-                      <div class="design-effects-options">
-                        {% for profileKey, profile in effectsProfiles %}
-                          <label class="design-effects-option">
-                            <input
-                              class="uk-radio"
-                              type="radio"
-                              name="effects_profile"
-                              value="{{ profileKey|e('html_attr') }}"
-                              data-effects-input="effectsProfile"
-                              {% if profileKey == effects.effectsProfile %}checked{% endif %}
-                              {% if effectsReadOnly %}disabled{% endif %}
-                            >
-                            <div>
-                              <div class="design-effects-option__label">{{ profile.label }}</div>
-                              <div class="design-effects-option__description">{{ profile.description }}</div>
-                            </div>
-                          </label>
-                        {% endfor %}
-                      </div>
-                    </div>
-
-                    <div class="design-effects-section">
-                      <div class="design-effects-section__header">
-                        <h3 class="uk-heading-bullet uk-margin-remove">Scroll-Effekte</h3>
-                        <p class="uk-text-meta uk-margin-remove">Abgeleitet vom Bewegungsprofil.</p>
-                      </div>
-                      <div class="design-effects-detail">
-                        <div class="design-effects-detail__row">
-                          <span class="design-effects-detail__icon" aria-hidden="true">✓</span>
-                          <div>
-                            <div class="design-effects-detail__title">Abschnitte erscheinen beim Scrollen</div>
-                            <div class="design-effects-detail__meta">Gilt global für alle Seiten</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {% set sliderSuggestionMap = {
-                      'calserver.professional': 'static',
-                      'quizrace.calm': 'calm',
-                      'quizrace.marketing': 'marketing'
-                    } %}
-                    {% set suggestedSliderProfile = sliderSuggestionMap[effects.effectsProfile]|default(effectsDefaults.sliderProfile) %}
-                    {% set activeSliderProfile = effects.sliderProfile|default(suggestedSliderProfile) %}
-                    {% set autoSliderValue = activeSliderProfile == 'static' ? suggestedSliderProfile : activeSliderProfile %}
-                    {% if hasSliderBlocks %}
-                      <div class="design-effects-section">
-                        <div class="design-effects-section__header">
-                          <h3 class="uk-heading-bullet uk-margin-remove">Slider-Verhalten</h3>
-                          <p class="uk-text-meta uk-margin-remove">Gilt für alle Slider-fähigen Blöcke.</p>
-                        </div>
-                        <div class="design-effects-options">
-                          <label class="design-effects-option">
-                            <input
-                              class="uk-radio"
-                              type="radio"
-                              name="slider_profile"
-                              value="static"
-                              data-effects-input="sliderProfile"
-                              {% if activeSliderProfile == 'static' %}checked{% endif %}
-                              {% if effectsReadOnly %}disabled{% endif %}
-                            >
-                            <div>
-                              <div class="design-effects-option__label">Statisch</div>
-                              <div class="design-effects-option__description">Keine automatische Rotation.</div>
-                            </div>
-                          </label>
-                          <label class="design-effects-option">
-                            <input
-                              class="uk-radio"
-                              type="radio"
-                              name="slider_profile"
-                              value="{{ autoSliderValue|e('html_attr') }}"
-                              data-effects-input="sliderProfile"
-                              data-slider-auto="true"
-                              {% if activeSliderProfile != 'static' %}checked{% endif %}
-                              {% if effectsReadOnly %}disabled{% endif %}
-                            >
-                            <div>
-                              <div class="design-effects-option__label">Automatisch wechseln</div>
-                              <div class="design-effects-option__description">ca. alle 5 Sekunden, pausiert bei Hover</div>
-                            </div>
-                          </label>
-                        </div>
-                      </div>
-                    {% endif %}
-
-                    <div class="design-effects-section">
-                      <div class="design-effects-section__header">
-                        <h3 class="uk-heading-bullet uk-margin-remove">Barrierefreiheit</h3>
-                        <p class="uk-text-meta uk-margin-remove">Immer aktiv, nicht editierbar.</p>
-                      </div>
-                      <div class="design-effects-detail">
-                        <div class="design-effects-detail__row">
-                          <span class="design-effects-detail__icon" aria-hidden="true">✓</span>
-                          <div>
-                            <div class="design-effects-detail__title">Systemeinstellung „Bewegung reduzieren" wird respektiert</div>
-                            <div class="design-effects-detail__meta">Effekte werden bei Bedarf automatisch deaktiviert</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
-                      <div class="uk-text-meta">Änderungen gelten für alle Seiten des Namespace.</div>
-                      <button class="uk-button uk-button-primary" type="submit">Verhalten speichern</button>
-                    </div>
-                  </form>
-                {% endif %}
               </div>
-            {% if not readOnly %}
-            <div class="design-panel" data-design-panel="css" {% if activeTab != 'css' %}hidden{% endif %}>
-              <div class="uk-card uk-card-default uk-card-body">
-                <h2>Eigenes CSS – Namespace: {{ pageNamespace }}</h2>
-                <p class="uk-text-meta uk-margin-remove">
-                  Eigene CSS-Regeln, die zusätzlich zu den Design-Tokens geladen werden.
-                  Änderungen werden automatisch mit <code>[data-namespace="{{ pageNamespace }}"]</code> umschlossen.
-                </p>
+            {% endif %}
+          {% endif %}
+        </div>
 
-                <details class="uk-margin-top">
-                  <summary class="uk-text-meta" style="cursor:pointer">
-                    Verfügbare CSS-Variablen anzeigen
-                  </summary>
-                  <div class="uk-margin-small-top">
-                    <pre class="design-css-reference"><code>{{ cssVariablesReference|default('')|e }}</code></pre>
+        {# ── Tab 2: Verhalten ────────────────────────────────────────── #}
+        <div class="design-panel" data-design-panel="behavior" {% if activeTab != 'behavior' %}hidden{% endif %}>
+          <div class="uk-card uk-card-default uk-card-body">
+            <h2><span>Verhalten – Namespace: {{ pageNamespace }}</span></h2>
+            <p class="uk-text-meta uk-margin-remove">Wie sich Seiten in diesem Namespace bewegen und anfühlen.</p>
+            {% if not canAccessBehavior %}
+              <div class="uk-alert uk-alert-primary uk-margin-small">Verhalten wird auf Namespace-Ebene gesteuert.</div>
+            {% elseif effectsReadOnly %}
+              <div class="uk-alert uk-alert-primary uk-margin-small">Redakteur:innen haben nur Lesezugriff auf die Effekt-Vorgaben.</div>
+            {% endif %}
+
+            {% if canAccessBehavior %}
+              <form class="uk-form-stacked" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
+                <input type="hidden" name="action" value="save_effects">
+
+                <div class="design-effects-section">
+                  <div class="design-effects-section__header">
+                    <h3 class="uk-heading-bullet uk-margin-remove">Bewegungsprofil</h3>
+                    <p class="uk-text-meta uk-margin-remove">Über Profile gesteuerte Effekte – kein Freitext.</p>
                   </div>
-                </details>
+                  <div class="design-effects-options">
+                    {% for profileKey, profile in effectsProfiles %}
+                      <label class="design-effects-option">
+                        <input
+                          class="uk-radio"
+                          type="radio"
+                          name="effects_profile"
+                          value="{{ profileKey|e('html_attr') }}"
+                          data-effects-input="effectsProfile"
+                          {% if profileKey == effects.effectsProfile %}checked{% endif %}
+                          {% if effectsReadOnly %}disabled{% endif %}
+                        >
+                        <div>
+                          <div class="design-effects-option__label">{{ profile.label }}</div>
+                          <div class="design-effects-option__description">{{ profile.description }}</div>
+                        </div>
+                      </label>
+                    {% endfor %}
+                  </div>
+                </div>
 
-                <form class="uk-form-stacked uk-margin-top" method="post">
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                  <input type="hidden" name="namespace" value="{{ pageNamespace|e('html_attr') }}">
-                  <input type="hidden" name="action" value="save_css">
+                <div class="design-effects-section">
+                  <div class="design-effects-section__header">
+                    <h3 class="uk-heading-bullet uk-margin-remove">Scroll-Effekte</h3>
+                    <p class="uk-text-meta uk-margin-remove">Abgeleitet vom Bewegungsprofil.</p>
+                  </div>
+                  <div class="design-effects-detail">
+                    <div class="design-effects-detail__row">
+                      <span class="design-effects-detail__icon" aria-hidden="true">✓</span>
+                      <div>
+                        <div class="design-effects-detail__title">Abschnitte erscheinen beim Scrollen</div>
+                        <div class="design-effects-detail__meta">Gilt global für alle Seiten</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-                  <div class="uk-form-controls">
-                    <textarea
-                      id="customCssEditor"
-                      class="uk-textarea design-css-editor"
-                      name="custom_css"
-                      rows="20"
-                      placeholder="/* z.B. */
+                {% set sliderSuggestionMap = {
+                  'calserver.professional': 'static',
+                  'quizrace.calm': 'calm',
+                  'quizrace.marketing': 'marketing'
+                } %}
+                {% set suggestedSliderProfile = sliderSuggestionMap[effects.effectsProfile]|default(effectsDefaults.sliderProfile) %}
+                {% set activeSliderProfile = effects.sliderProfile|default(suggestedSliderProfile) %}
+                {% set autoSliderValue = activeSliderProfile == 'static' ? suggestedSliderProfile : activeSliderProfile %}
+                {% if hasSliderBlocks %}
+                  <div class="design-effects-section">
+                    <div class="design-effects-section__header">
+                      <h3 class="uk-heading-bullet uk-margin-remove">Slider-Verhalten</h3>
+                      <p class="uk-text-meta uk-margin-remove">Gilt für alle Slider-fähigen Blöcke.</p>
+                    </div>
+                    <div class="design-effects-options">
+                      <label class="design-effects-option">
+                        <input
+                          class="uk-radio"
+                          type="radio"
+                          name="slider_profile"
+                          value="static"
+                          data-effects-input="sliderProfile"
+                          {% if activeSliderProfile == 'static' %}checked{% endif %}
+                          {% if effectsReadOnly %}disabled{% endif %}
+                        >
+                        <div>
+                          <div class="design-effects-option__label">Statisch</div>
+                          <div class="design-effects-option__description">Keine automatische Rotation.</div>
+                        </div>
+                      </label>
+                      <label class="design-effects-option">
+                        <input
+                          class="uk-radio"
+                          type="radio"
+                          name="slider_profile"
+                          value="{{ autoSliderValue|e('html_attr') }}"
+                          data-effects-input="sliderProfile"
+                          data-slider-auto="true"
+                          {% if activeSliderProfile != 'static' %}checked{% endif %}
+                          {% if effectsReadOnly %}disabled{% endif %}
+                        >
+                        <div>
+                          <div class="design-effects-option__label">Automatisch wechseln</div>
+                          <div class="design-effects-option__description">ca. alle 5 Sekunden, pausiert bei Hover</div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                {% endif %}
+
+                <div class="design-effects-section">
+                  <div class="design-effects-section__header">
+                    <h3 class="uk-heading-bullet uk-margin-remove">Barrierefreiheit</h3>
+                    <p class="uk-text-meta uk-margin-remove">Immer aktiv, nicht editierbar.</p>
+                  </div>
+                  <div class="design-effects-detail">
+                    <div class="design-effects-detail__row">
+                      <span class="design-effects-detail__icon" aria-hidden="true">✓</span>
+                      <div>
+                        <div class="design-effects-detail__title">Systemeinstellung „Bewegung reduzieren" wird respektiert</div>
+                        <div class="design-effects-detail__meta">Effekte werden bei Bedarf automatisch deaktiviert</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
+                  <div class="uk-text-meta">Änderungen gelten für alle Seiten des Namespace.</div>
+                  <button class="uk-button uk-button-primary" type="submit">Verhalten speichern</button>
+                </div>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+
+        {# ── Tab 3: Eigenes CSS ──────────────────────────────────────── #}
+        {% if not readOnly %}
+        <div class="design-panel" data-design-panel="css" {% if activeTab != 'css' %}hidden{% endif %}>
+          <div class="uk-card uk-card-default uk-card-body">
+            <h2>Eigenes CSS – Namespace: {{ pageNamespace }}</h2>
+            <p class="uk-text-meta uk-margin-remove">
+              Eigene CSS-Regeln, die zusätzlich zu den Design-Tokens geladen werden.
+              Änderungen werden automatisch mit <code>[data-namespace="{{ pageNamespace }}"]</code> umschlossen.
+            </p>
+
+            <details class="uk-margin-top">
+              <summary class="uk-text-meta" style="cursor:pointer">
+                Verfügbare CSS-Variablen anzeigen
+              </summary>
+              <div class="uk-margin-small-top">
+                <pre class="design-css-reference"><code>{{ cssVariablesReference|default('')|e }}</code></pre>
+              </div>
+            </details>
+
+            <form class="uk-form-stacked uk-margin-top" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <input type="hidden" name="namespace" value="{{ pageNamespace|e('html_attr') }}">
+              <input type="hidden" name="action" value="save_css">
+
+              <div class="uk-form-controls">
+                <textarea
+                  id="customCssEditor"
+                  class="uk-textarea design-css-editor"
+                  name="custom_css"
+                  rows="20"
+                  placeholder="/* z.B. */
 .uk-button-primary {
   border-radius: 999px;
 }
@@ -778,24 +656,151 @@
 .uk-card {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }"
-                      data-custom-css-editor
-                    >{{ customCss|default('') }}</textarea>
-                  </div>
-
-                  <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
-                    <button
-                      class="uk-button uk-button-default"
-                      type="button"
-                      data-css-reset
-                    >Zurücksetzen</button>
-                    <button class="uk-button uk-button-primary" type="submit">CSS speichern</button>
-                  </div>
-                </form>
+                  data-custom-css-editor
+                >{{ customCss|default('') }}</textarea>
               </div>
-            </div>
-            {% endif %}
+
+              <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
+                <button
+                  class="uk-button uk-button-default"
+                  type="button"
+                  data-css-reset
+                >Zurücksetzen</button>
+                <button class="uk-button uk-button-primary" type="submit">CSS speichern</button>
+              </div>
+            </form>
           </div>
         </div>
+        {% endif %}
+
+        {# ── Tab 4: Vorschau ─────────────────────────────────────────── #}
+        <div class="design-panel" data-design-panel="preview" {% if activeTab != 'preview' %}hidden{% endif %}>
+          <div class="uk-card uk-card-default uk-card-body design-preview-card">
+            <div class="uk-flex uk-flex-between uk-flex-middle">
+              <div>
+                <h3 class="uk-card-title uk-margin-remove">Live Preview</h3>
+                <p class="uk-text-meta uk-margin-remove">Änderungen wirken sofort</p>
+              </div>
+              <div class="uk-button-group" data-theme-toggle>
+                <button type="button" class="uk-button uk-button-default" data-theme-choice="light" aria-pressed="false">Light</button>
+                <button type="button" class="uk-button uk-button-default" data-theme-choice="dark" aria-pressed="false">Dark</button>
+              </div>
+            </div>
+            <div class="uk-margin-small-top uk-flex uk-flex-middle uk-flex-between">
+              <div class="uk-button-group" data-device-toggle>
+                <button type="button" class="uk-button uk-button-default" data-device-choice="desktop" aria-pressed="false">Desktop</button>
+                <button type="button" class="uk-button uk-button-default" data-device-choice="tablet" aria-pressed="false">Tablet</button>
+                <button type="button" class="uk-button uk-button-default" data-device-choice="mobile" aria-pressed="false">Mobile</button>
+              </div>
+              <div class="uk-text-meta">
+                <span class="uk-margin-small-right">Layout: <strong data-preview-meta="layout">{{ tokens.layout.profile }}</strong></span>
+                <span>Typo: <strong data-preview-meta="typography">{{ tokens.typography.preset }}</strong></span>
+              </div>
+            </div>
+            <div
+              id="design-preview"
+              class="design-preview__viewport marketing-scope marketing-page"
+              data-theme="light"
+              data-device="desktop"
+              data-namespace="{{ activePageNamespace|e('html_attr') }}"
+              data-layout-profile="{{ tokens.layout.profile|e('html_attr') }}"
+              data-card-style="{{ tokens.components.cardStyle|e('html_attr') }}"
+              data-button-style="{{ tokens.components.buttonStyle|e('html_attr') }}"
+              data-typography-preset="{{ tokens.typography.preset|e('html_attr') }}"
+              data-effects-profile="{{ effects.effectsProfile|e('html_attr') }}"
+              data-slider-profile="{{ effects.sliderProfile|e('html_attr') }}"
+            >
+              <div class="design-preview__surface">
+                <div class="design-preview__badge">{{ activePageNamespace }}</div>
+                <div class="design-preview__section design-preview__section--primary">
+                  <div class="design-preview__section-label">Hero / Primary</div>
+                  <h2 class="design-preview__headline">Gestaltete Überschrift</h2>
+                  <p class="design-preview__copy">
+                    Einheitliche Design-Tokens sorgen für konsistente Farben, Abstände und Komponenten.
+                  </p>
+                  <div class="design-preview__cta-group">
+                    <button class="uk-button uk-button-primary design-preview__button">Primary Action</button>
+                    <button class="uk-button uk-button-default design-preview__button-secondary">Secondary</button>
+                  </div>
+                </div>
+                <div class="design-preview__section design-preview__section--surface">
+                  <div class="design-preview__section-label">Content / Surface</div>
+                  <div class="design-preview__eyebrow">Marketing Page</div>
+                  <div class="design-preview__cards">
+                    <div class="design-preview__card">
+                      <h4 class="uk-margin-small-bottom">Card Titel</h4>
+                      <p class="uk-margin-remove">Gestaltete Karte mit {{ tokens.components.cardStyle }}-Kanten.</p>
+                    </div>
+                    <div class="design-preview__card">
+                      <h4 class="uk-margin-small-bottom">Buttons</h4>
+                      <p class="uk-margin-remove">Button-Stil: {{ tokens.components.buttonStyle }}</p>
+                    </div>
+                  </div>
+                  <div class="design-preview__effects" data-preview-effects>
+                    <div class="design-preview__effects-item">
+                      <span class="design-preview__effects-pill">Verhalten</span>
+                      <span class="design-preview__effects-value" data-preview-meta="effectsProfile">
+                        {{ effectsProfiles[effects.effectsProfile].label|default(effects.effectsProfile) }}
+                      </span>
+                    </div>
+                    <div class="design-preview__effects-item">
+                      <span class="design-preview__effects-pill">Slider</span>
+                      <span class="design-preview__effects-value" data-preview-meta="sliderProfile">{{ effects.sliderProfile }}</span>
+                    </div>
+                    <div class="design-preview__effects-item">
+                      <span class="design-preview__effects-pill design-preview__effects-pill--muted">Scroll</span>
+                      <span class="design-preview__effects-value">Abschnitte erscheinen beim Scrollen</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="design-preview__section design-preview__section--secondary">
+                  <div class="design-preview__section-label">CTA / Secondary</div>
+                  <h3 class="design-preview__headline" style="font-size:24px">Jetzt starten</h3>
+                  <div class="design-preview__cta-group">
+                    <button class="uk-button uk-button-primary design-preview__button">Demo ansehen</button>
+                    <button class="uk-button uk-button-default design-preview__button-secondary">Kontakt</button>
+                  </div>
+                </div>
+                <footer class="design-preview__footer" aria-label="Footer Vorschau">
+                  <div class="design-preview__footer-brand">
+                    <strong class="design-preview__footer-name">QuizRace</strong>
+                    <span class="design-preview__footer-tagline">Business Footer mit klaren Rollen und Links.</span>
+                  </div>
+                  <div class="design-preview__footer-columns">
+                    <div class="design-preview__footer-column">
+                      <span class="design-preview__footer-title">Unternehmen</span>
+                      <ul class="design-preview__footer-list">
+                        <li><a class="design-preview__footer-link" href="#">Über uns</a></li>
+                        <li><a class="design-preview__footer-link" href="#">Leistungen</a></li>
+                        <li><a class="design-preview__footer-link" href="#">Karriere</a></li>
+                      </ul>
+                    </div>
+                    <div class="design-preview__footer-column">
+                      <span class="design-preview__footer-title">Ressourcen</span>
+                      <ul class="design-preview__footer-list">
+                        <li><a class="design-preview__footer-link" href="#">Support</a></li>
+                        <li><a class="design-preview__footer-link" href="#">FAQ</a></li>
+                        <li><a class="design-preview__footer-link" href="#">Kontakt</a></li>
+                      </ul>
+                    </div>
+                    <div class="design-preview__footer-column">
+                      <span class="design-preview__footer-title">Rechtliches</span>
+                      <ul class="design-preview__footer-list">
+                        <li><a class="design-preview__footer-link" href="#">Impressum</a></li>
+                        <li><a class="design-preview__footer-link" href="#">Datenschutz</a></li>
+                        <li><a class="design-preview__footer-link" href="#">AGB</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="design-preview__footer-meta">
+                    © 2025 QuizRace GmbH · Zertifiziert · ISO 27001
+                  </div>
+                </footer>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
   </div>
 {% endblock %}
