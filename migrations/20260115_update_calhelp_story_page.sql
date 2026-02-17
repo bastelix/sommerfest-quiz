@@ -1,7 +1,7 @@
 -- Update calHelp page content to story-driven copy focusing on outcomes
 UPDATE pages
 SET content = $CALHELP$
-<script type="application/json" data-calhelp-modules>
+<script type="application/json" data-page-modules>
 {
   "headline": {
     "de": "Bausteine – vom Start bis zur gelebten Routine",
@@ -616,7 +616,7 @@ SET content = $CALHELP$
   </div>
 </section>
 
-<script type="application/json" data-calhelp-usecases>
+<script type="application/json" data-page-usecases>
 {
   "heading": {
     "de": "Drei Situationen, in denen Kund:innen zu uns kommen",
@@ -687,7 +687,7 @@ SET content = $CALHELP$
   ]
 }
 </script>
-<div data-calhelp-usecases></div>
+<div data-page-usecases></div>
 
 <section id="knowledge" class="uk-section calhelp-section" aria-labelledby="knowledge-title">
   <div class="uk-container">

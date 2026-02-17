@@ -386,10 +386,10 @@ class PageController
             'landingNewsIndexUrl' => $marketingPayload['featureData']['landingNewsBasePath'] !== null
                 ? $basePath . $marketingPayload['featureData']['landingNewsBasePath']
                 : null,
-            'calhelpModules' => $marketingPayload['featureData']['calhelpModules'],
-            'calhelpUsecases' => $marketingPayload['featureData']['calhelpUsecases'],
-            'calhelpNewsPlaceholder' => $marketingPayload['featureData']['calhelpNewsPlaceholder'],
-            'calhelpNewsPlaceholderActive' => $marketingPayload['featureData']['calhelpNewsPlaceholderActive'],
+            'pageModules' => $marketingPayload['featureData']['pageModules'],
+            'pageUsecases' => $marketingPayload['featureData']['pageUsecases'],
+            'newsPlaceholder' => $marketingPayload['featureData']['newsPlaceholder'],
+            'newsPlaceholderActive' => $marketingPayload['featureData']['newsPlaceholderActive'],
             'cmsWikiMenu' => $marketingPayload['featureData']['wikiMenu'],
             'cmsWikiArticles' => $marketingPayload['featureData']['wikiArticles'],
             'provenExpertRating' => $marketingPayload['featureData']['provenExpertRating'],
@@ -505,7 +505,7 @@ class PageController
             'contactTurnstile' => false,
             'chatEndpoint' => false,
             'landingNews' => false,
-            'calhelpContent' => false,
+            'pageContent' => false,
             'wikiMenu' => false,
             'provenExpert' => false,
             'maintenanceWindow' => false,
@@ -523,7 +523,7 @@ class PageController
         }
 
         if ($baseSlug === 'calhelp') {
-            $defaults['calhelpContent'] = true;
+            $defaults['pageContent'] = true;
             $defaults['wikiMenu'] = true;
         }
 
@@ -556,10 +556,10 @@ class PageController
             'chatEndpoint' => null,
             'landingNews' => [],
             'landingNewsBasePath' => null,
-            'calhelpModules' => null,
-            'calhelpUsecases' => null,
-            'calhelpNewsPlaceholder' => null,
-            'calhelpNewsPlaceholderActive' => false,
+            'pageModules' => null,
+            'pageUsecases' => null,
+            'newsPlaceholder' => null,
+            'newsPlaceholderActive' => false,
             'wikiMenu' => null,
             'wikiArticles' => null,
             'provenExpertRating' => null,
@@ -579,19 +579,19 @@ class PageController
             $html = str_replace('aria-controls="calserver-chat-modal"', 'aria-controls="marketing-chat-modal"', $html);
         }
 
-        $calhelpNewsPlaceholderActive = false;
-        if (($pageFeatures['calhelpContent'] ?? false) === true) {
-            $newsReplacement = $this->replaceCalhelpNewsSection($html, '__CALHELP_NEWS_SECTION__');
+        $newsPlaceholderActive = false;
+        if (($pageFeatures['pageContent'] ?? false) === true) {
+            $newsReplacement = $this->replaceNewsSection($html, '__NEWS_SECTION__');
             $html = $newsReplacement['html'];
-            $calhelpNewsPlaceholderActive = $newsReplacement['replaced'];
+            $newsPlaceholderActive = $newsReplacement['replaced'];
 
-            $moduleExtraction = $this->extractCalhelpModules($html);
+            $moduleExtraction = $this->extractPageModules($html);
             $html = $moduleExtraction['html'];
-            $data['calhelpModules'] = $moduleExtraction['data'];
+            $data['pageModules'] = $moduleExtraction['data'];
 
-            $usecaseExtraction = $this->extractCalhelpUsecases($html);
+            $usecaseExtraction = $this->extractPageUsecases($html);
             $html = $usecaseExtraction['html'];
-            $data['calhelpUsecases'] = $usecaseExtraction['data'];
+            $data['pageUsecases'] = $usecaseExtraction['data'];
         }
 
         if (($pageFeatures['landingNews'] ?? false) === true) {
@@ -648,8 +648,8 @@ class PageController
             }
         }
 
-        $data['calhelpNewsPlaceholder'] = $calhelpNewsPlaceholderActive ? '__CALHELP_NEWS_SECTION__' : null;
-        $data['calhelpNewsPlaceholderActive'] = $calhelpNewsPlaceholderActive;
+        $data['newsPlaceholder'] = $newsPlaceholderActive ? '__NEWS_SECTION__' : null;
+        $data['newsPlaceholderActive'] = $newsPlaceholderActive;
 
         if (($pageFeatures['wikiMenu'] ?? false) === true) {
             $wikiSlug = $page->getSlug();
@@ -1204,9 +1204,9 @@ class PageController
     /**
      * @return array{html: string, data: array|null}
      */
-    private function extractCalhelpModules(string $html): array
+    private function extractPageModules(string $html): array
     {
-        $pattern = '/<script[^>]*data-calhelp-modules[^>]*>(.*?)<\/script>/si';
+        $pattern = '/<script[^>]*data-page-modules[^>]*>(.*?)<\/script>/si';
         if (!preg_match($pattern, $html, $matches)) {
             return ['html' => $html, 'data' => null];
         }
@@ -1245,9 +1245,9 @@ class PageController
     /**
      * @return array{html: string, data: array|null}
      */
-    private function extractCalhelpUsecases(string $html): array
+    private function extractPageUsecases(string $html): array
     {
-        $pattern = '/<script[^>]*data-calhelp-usecases[^>]*>(.*?)<\/script>/si';
+        $pattern = '/<script[^>]*data-page-usecases[^>]*>(.*?)<\/script>/si';
         if (!preg_match($pattern, $html, $matches)) {
             return ['html' => $html, 'data' => null];
         }
@@ -1280,11 +1280,11 @@ class PageController
     }
 
     /**
-     * Replace the static calHelp news section with a placeholder for dynamic rendering.
+     * Replace the static news section with a placeholder for dynamic rendering.
      *
      * @return array{html: string, replaced: bool}
      */
-    private function replaceCalhelpNewsSection(string $html, string $placeholder): array
+    private function replaceNewsSection(string $html, string $placeholder): array
     {
         $pattern = '/<section id="news" class="uk-section calhelp-section" aria-labelledby="news-title">[\s\S]*?<\/section>/i';
 

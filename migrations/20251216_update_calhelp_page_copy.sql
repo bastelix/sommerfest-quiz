@@ -1,7 +1,7 @@
 -- Update calHelp page content to match refreshed marketing copy
 UPDATE pages
 SET content = $CALHELP$
-<script type="application/json" data-calhelp-modules>
+<script type="application/json" data-page-modules>
 {
   "headline": {
     "de": "Module – abgestimmt auf Ihren Kalibrierbetrieb",
@@ -831,7 +831,7 @@ SET content = $CALHELP$
   </div>
 </section>
 
-<script type="application/json" data-calhelp-usecases>
+<script type="application/json" data-page-usecases>
 {
   "heading": {
     "de": "Drei Situationen, in denen Kund:innen zu uns kommen",
@@ -902,7 +902,7 @@ SET content = $CALHELP$
   ]
 }
 </script>
-<div data-calhelp-usecases></div>
+<div data-page-usecases></div>
 
 <section id="proof" class="uk-section calhelp-section" aria-labelledby="proof-title">
   <div class="uk-container">

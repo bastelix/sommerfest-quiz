@@ -1,24 +1,70 @@
-{% set moduleItems = modules|default([]) %}
-{% if moduleItems %}
-  <div class="page-modules"
-       data-page-modules-position="{{ position|default('')|e('html_attr') }}">
-    {% for module in moduleItems %}
-      {% if module.type == 'latest-news' %}
-        {% include 'marketing/partials/page-module-latest-news.twig' with {
-          module: module
-        } %}
-      {% else %}
-        <div class="uk-container">
-          <div class="page-modules__grid marketing-grid">
-            <div class="page-module"
-                 data-page-module-id="{{ module.id|e('html_attr') }}"
-                 data-page-module-type="{{ module.type|e('html_attr') }}"
-                 data-page-module-position="{{ module.position|e('html_attr') }}"
-                 data-page-module-config="{{ module.config|json_encode|e('html_attr') }}">
+{% set modulePayload = pageModules is defined ? pageModules : null %}
+{% if modulePayload and modulePayload.modules is iterable and modulePayload.modules|length > 0 %}
+  {% set localeKey = locale() == 'en' ? 'en' : 'de' %}
+  {% set sectionHeading = modulePayload.headline[localeKey]|default(modulePayload.headline['de']|default('Module')) %}
+  {% set sectionSubheading = modulePayload.subheadline[localeKey]|default(modulePayload.subheadline['de']|default('')) %}
+  <section id="modules"
+           class="uk-section uk-section-muted calhelp-section page-modules-section"
+           data-calhelp-theme="muted"
+           aria-labelledby="modules-title">
+    <div class="uk-container">
+      <div class="calhelp-section__header">
+        <h2 id="modules-title" class="uk-heading-medium">{{ sectionHeading }}</h2>
+        {% if sectionSubheading %}
+          <p class="uk-text-lead">{{ sectionSubheading }}</p>
+        {% endif %}
+      </div>
+      <div class="uk-grid-collapse uk-child-width-1-1 uk-child-width-1-3@m uk-grid-match page-modules__grid" data-uk-grid>
+        {% for module in modulePayload.modules %}
+          {% set moduleId = module.id|default('module-' ~ loop.index) %}
+          {% set eyebrow = module.eyebrow[localeKey]|default(module.eyebrow['de']|default('')) %}
+          {% set title = module.title[localeKey]|default(module.title['de']|default('')) %}
+          {% set pitch = module.pitch[localeKey]|default(module.pitch['de']|default('')) %}
+          {% set deliverablesRaw = module.deliverables[localeKey]|default(module.deliverables['de']|default([])) %}
+          {% set deliverables = deliverablesRaw is iterable ? deliverablesRaw : [] %}
+          {% set kpiText = module.kpi[localeKey]|default(module.kpi['de']|default('')) %}
+          {% set linkData = module.link is iterable ? module.link : {} %}
+          {% set linkLabel = linkData.label[localeKey]|default(linkData.label['de']|default('')) %}
+          {% set linkUrl = linkData.url|default('#') %}
+          {% set iconName = module.icon|default('grid') %}
+          {% set linkRel = linkData.rel|default('') %}
+          {% set variantClass = loop.index is odd ? 'module-card--accent' : 'module-card--muted' %}
+          <article class="module-card {{ variantClass }}" aria-labelledby="{{ moduleId }}-title">
+            <div class="module-card__header">
+              <span class="module-card__icon" aria-hidden="true" data-uk-icon="icon: {{ iconName }}"></span>
+              <div class="module-card__meta">
+                {% if eyebrow %}
+                  <p class="module-card__eyebrow">{{ eyebrow }}</p>
+                {% endif %}
+                <h3 id="{{ moduleId }}-title" class="uk-card-title">{{ title }}</h3>
+              </div>
             </div>
-          </div>
-        </div>
-      {% endif %}
-    {% endfor %}
-  </div>
+            {% if pitch %}
+              <p class="module-card__pitch">{{ pitch }}</p>
+            {% endif %}
+            {% if deliverables|length > 0 %}
+              <ul class="uk-list uk-list-bullet module-card__list">
+                {% for deliverable in deliverables %}
+                  <li>{{ deliverable }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+            <div class="module-card__footer">
+              {% if kpiText %}
+                <span class="module-card__kpi">{{ kpiText }}</span>
+              {% endif %}
+              {% if linkLabel %}
+                <a class="module-card__link"
+                   href="{{ linkUrl }}"
+                   {% if linkData.target is defined %}target="{{ linkData.target }}"{% elseif linkUrl starts with 'http' %}target="_blank"{% endif %}
+                   {% if linkData.target is defined and linkUrl starts with 'http' and linkRel == '' %}rel="noopener"{% elseif linkRel %}rel="{{ linkRel }}"{% elseif linkUrl starts with 'http' %}rel="noopener"{% endif %}>
+                  <span class="uk-margin-small-right" data-uk-icon="icon: arrow-right" aria-hidden="true"></span>{{ linkLabel }}
+                </a>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
 {% endif %}

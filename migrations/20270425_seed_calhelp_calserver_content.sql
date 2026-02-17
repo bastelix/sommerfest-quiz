@@ -656,7 +656,7 @@ VALUES (
   </div>
 </section>
 
-<script type="application/json" data-calhelp-usecases>
+<script type="application/json" data-page-usecases>
 {
   "heading": {
     "de": "Drei Situationen, in denen Kund:innen zu uns kommen",
@@ -727,7 +727,7 @@ VALUES (
   ]
 }
 </script>
-<div data-calhelp-usecases></div>
+<div data-page-usecases></div>
 
 <section id="knowledge" class="uk-section calhelp-section" data-calhelp-theme="default" aria-labelledby="knowledge-title">
   <div class="uk-container">

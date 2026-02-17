@@ -1,38 +1,38 @@
-{% set usecasePayload = pageUsecases is defined ? pageUsecases : (calhelpUsecases is defined ? calhelpUsecases : null) %}
+{% set usecasePayload = pageUsecases is defined ? pageUsecases : null %}
 {% if usecasePayload and usecasePayload.usecases is iterable and usecasePayload.usecases|length > 0 %}
   {% set localeKey = locale() == 'en' ? 'en' : 'de' %}
   {% set heading = usecasePayload.heading[localeKey]|default(usecasePayload.heading['de']|default('Use cases')) %}
   {% set intro = usecasePayload.intro[localeKey]|default(usecasePayload.intro['de']|default('')) %}
   <section id="usecases"
-           class="uk-section uk-section-muted calhelp-section calhelp-usecases-section"
+           class="uk-section uk-section-muted calhelp-section page-usecases-section"
            data-calhelp-theme="muted"
            aria-labelledby="usecases-title">
     <div class="uk-container">
-      <div class="calhelp-usecases__header">
-        <p class="calhelp-usecases__eyebrow">{{ localeKey == 'en' ? 'Use Cases' : 'Anwendungsfälle' }}</p>
-        <h2 id="usecases-title" class="calhelp-usecases__headline">{{ heading }}</h2>
+      <div class="page-usecases__header">
+        <p class="page-usecases__eyebrow">{{ localeKey == 'en' ? 'Use Cases' : 'Anwendungsfälle' }}</p>
+        <h2 id="usecases-title" class="page-usecases__headline">{{ heading }}</h2>
         {% if intro %}
-          <p class="calhelp-usecases__lead">{{ intro }}</p>
+          <p class="page-usecases__lead">{{ intro }}</p>
         {% endif %}
       </div>
-      <div class="calhelp-usecases__grid" role="list">
+      <div class="page-usecases__grid" role="list">
         {% for case in usecasePayload.usecases %}
           {% set title = case.title[localeKey]|default(case.title['de']|default('')) %}
           {% set tagline = case.tagline[localeKey]|default(case.tagline['de']|default('')) %}
           {% set story = case.story[localeKey]|default(case.story['de']|default('')) %}
           {% set result = case.result[localeKey]|default(case.result['de']|default('')) %}
-          {% set toneClass = loop.index is odd ? 'calhelp-usecase-card--accent' : 'calhelp-usecase-card--muted' %}
-          <article class="calhelp-usecase-card {{ toneClass }}"
+          {% set toneClass = loop.index is odd ? 'usecase-card--accent' : 'usecase-card--muted' %}
+          <article class="usecase-card {{ toneClass }}"
                    role="listitem"
                    aria-labelledby="usecase-{{ case.id|default(loop.index) }}-title">
-            <p class="calhelp-usecase-card__eyebrow">{{ title }}</p>
+            <p class="usecase-card__eyebrow">{{ title }}</p>
             <h3 id="usecase-{{ case.id|default(loop.index) }}-title"
-                class="calhelp-usecase-card__headline">{{ tagline }}</h3>
+                class="usecase-card__headline">{{ tagline }}</h3>
             {% if story %}
-              <p class="calhelp-usecase-card__body">{{ story }}</p>
+              <p class="usecase-card__body">{{ story }}</p>
             {% endif %}
             {% if result %}
-              <p class="calhelp-usecase-card__result">{{ result }}</p>
+              <p class="usecase-card__result">{{ result }}</p>
             {% endif %}
           </article>
         {% endfor %}
