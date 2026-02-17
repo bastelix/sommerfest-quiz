@@ -594,7 +594,6 @@ class DesignTokenService
 
         $defaultTokens = $this->mergeWithDefaults($namespaces[PageService::DEFAULT_NAMESPACE] ?? []);
         $blocks[] = $this->renderTokenCssBlock(':root', $defaultTokens);
-        $blocks[] = $this->renderTokenCssBlock('[data-namespace="' . PageService::DEFAULT_NAMESPACE . '"]', $defaultTokens);
 
         foreach ($namespaces as $namespace => $tokens) {
             if ($namespace === PageService::DEFAULT_NAMESPACE) {
