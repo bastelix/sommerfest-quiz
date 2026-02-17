@@ -416,6 +416,7 @@
 - Load marketing.css in page editor for namespace preview
 - CalServer.com Tablet-responsive Grid-Overrides
 - Show namespace-scoped catalogs instead of single event in admin views
+- Add marketing-page class to preview canvas for full namespace tokens
 
 ### Merge
 
