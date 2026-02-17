@@ -427,6 +427,7 @@
 - *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
 - *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
 - *(design)* Emit marketing scheme tokens with falsy CSS values like '0'
+- *(news)* Add header, breadcrumb navigation, and footer to news pages
 
 ### Merge
 
