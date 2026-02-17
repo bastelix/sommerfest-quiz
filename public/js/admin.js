@@ -8479,7 +8479,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveTeamList(list = teamManager?.getData() || [], show = false, retries = 1) {
     const names = list.map(t => t.name);
-    apiFetch('/teams.json', {
+    apiFetch(teamsUrl(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(names)
@@ -8582,7 +8582,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     teamManager.setColumnLoading('name', true);
-    apiFetch('/teams.json', { method: 'DELETE' })
+    apiFetch(teamsUrl(), { method: 'DELETE' })
       .then(r => {
         if (!r.ok) {
           throw new Error(r.statusText || `HTTP ${r.status}`);
@@ -8615,13 +8615,23 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function openTeamPdf(teamName){
-    window.open(withBase('/results.pdf?team=' + encodeURIComponent(teamName)), '_blank');
+    let pdfUrl = '/results.pdf?team=' + encodeURIComponent(teamName);
+    if (currentEventUid) {
+      pdfUrl += '&event_uid=' + encodeURIComponent(currentEventUid);
+    }
+    window.open(withBase(pdfUrl), '_blank');
+  }
+
+  function teamsUrl() {
+    return currentEventUid
+      ? `/teams.json?event_uid=${encodeURIComponent(currentEventUid)}`
+      : '/teams.json';
   }
 
   function loadTeamList() {
     if (!teamManager) return;
     teamManager.setColumnLoading('name', true);
-    apiFetch('/teams.json', { headers: { 'Accept': 'application/json' } })
+    apiFetch(teamsUrl(), { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
         const list = data.map(n => ({ id: crypto.randomUUID(), name: n }));
