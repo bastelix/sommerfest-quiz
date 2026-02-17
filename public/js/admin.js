@@ -2596,6 +2596,7 @@ document.addEventListener('DOMContentLoaded', function () {
     competitionMode: document.getElementById('cfgCompetitionMode'),
     teamResults: document.getElementById('cfgTeamResults'),
     photoUpload: document.getElementById('cfgPhotoUpload'),
+    playerContactEnabled: document.getElementById('cfgPlayerContactEnabled'),
     countdownEnabled: document.getElementById('cfgCountdownEnabled'),
     countdown: document.getElementById('cfgCountdown'),
     puzzleEnabled: document.getElementById('cfgPuzzleEnabled'),
@@ -4579,6 +4580,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.photoUpload) {
       cfgFields.photoUpload.checked = data.photoUpload !== false;
     }
+    if (cfgFields.playerContactEnabled) {
+      cfgFields.playerContactEnabled.checked = !!data.playerContactEnabled;
+    }
     if (cfgFields.countdownEnabled) {
       const rawCountdownEnabled = data.countdownEnabled ?? data.countdown_enabled ?? false;
       cfgFields.countdownEnabled.checked = rawCountdownEnabled === true
@@ -6052,6 +6056,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.competitionMode) data.competitionMode = cfgFields.competitionMode.checked;
     if (cfgFields.teamResults) data.teamResults = cfgFields.teamResults.checked;
     if (cfgFields.photoUpload) data.photoUpload = cfgFields.photoUpload.checked;
+    if (cfgFields.playerContactEnabled) data.playerContactEnabled = cfgFields.playerContactEnabled.checked;
     if (cfgFields.countdownEnabled) {
       data.countdownEnabled = cfgFields.countdownEnabled.checked ? '1' : '0';
     }

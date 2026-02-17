@@ -29,7 +29,9 @@
     <ul uk-tab class="uk-margin-top">
       <li><a href="#">Zusammenfassung</a></li>
       <li><a href="#">Ranking</a></li>
+      {% if config.playerContactEnabled|default(false) %}
       <li><a href="#">Kontakt</a></li>
+      {% endif %}
     </ul>
     <ul class="uk-switcher uk-margin">
       <li>
@@ -86,6 +88,7 @@
         <div id="rankingTopLists" class="player-ranking-toplists uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m uk-margin-large-top" uk-grid></div>
         <p id="rankingUpdatedAt" class="uk-text-meta uk-margin-large-top uk-text-center"></p>
       </li>
+      {% if config.playerContactEnabled|default(false) %}
       <li>
         <h3 class="uk-heading-bullet">Name &amp; Kontakt</h3>
         <p class="uk-text-meta">Passe deinen Namen an oder hinterlasse eine E-Mail-Adresse für Rückfragen.</p>
@@ -107,6 +110,7 @@
           <button type="submit" class="uk-button uk-button-secondary uk-margin-small-top">Angaben speichern</button>
         </form>
       </li>
+      {% endif %}
     </ul>
   </div>
 {% endblock %}

@@ -357,6 +357,8 @@ return [
     'message_team_delete_all_error' => 'Unable to delete teams.',
     'message_team_delete_all_empty' => 'There are no teams to delete.',
     'tip_photo_upload' => 'Shows or hides buttons for uploading photos.',
+    'label_player_contact' => 'Enable player contact form',
+    'tip_player_contact' => 'Shows an optional email field on the ranking page where players can voluntarily leave a contact address.',
     'label_countdown_enabled' => 'Enable countdown',
     'tip_countdown_enabled' => 'Shows a timer for questions with a configured time limit.',
     'text_countdown_enabled_hint' => 'Shows a timer for questions with a configured time limit.',

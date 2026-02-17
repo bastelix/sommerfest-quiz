@@ -72,6 +72,7 @@
       <p class="uk-margin-remove">Noch keine Ergebnisse gefunden. Spiele ein Quiz oder aktualisiere später erneut.</p>
     </div>
     <div id="rankingTopLists" class="player-ranking-toplists uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m uk-margin-large-top" uk-grid></div>
+    {% if config.playerContactEnabled|default(false) %}
     <div class="uk-margin-large-top">
       <form id="rankingContactForm" class="uk-form-stacked uk-margin-medium-top" novalidate>
         <div class="uk-margin-small">
@@ -91,6 +92,7 @@
         <button type="submit" class="uk-button uk-button-secondary uk-margin-small-top">Angaben speichern</button>
       </form>
     </div>
+    {% endif %}
     <p id="rankingUpdatedAt" class="uk-text-meta uk-margin-large-top uk-text-center"></p>
   </div>
 {% endblock %}

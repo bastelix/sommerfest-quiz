@@ -621,6 +621,13 @@
               </div>
               <div>
                 <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgPlayerContactEnabled" name="playerContactEnabled" value="1" {% if config.playerContactEnabled %}checked{% endif %}> {{ t('label_player_contact') }}
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_player_contact') }}; pos: right" aria-label="{{ t('tip_player_contact') }}" tabindex="0"></span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgCountdownEnabled" name="countdownEnabled" value="1" {% if config.countdownEnabled %}checked{% endif %}> {{ t('label_countdown_enabled') }}
                     <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_countdown_enabled') }}; pos: right" aria-label="{{ t('tip_countdown_enabled') }}" tabindex="0"></span>
                   </label>

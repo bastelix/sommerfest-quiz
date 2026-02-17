@@ -593,12 +593,13 @@ Die folgenden Punkte sind als Vertrauenssignale für die Marketing-Website verwe
 | **Kontaktdaten-Einwilligung** | Optionale E-Mail-Erfassung nur mit Consent-Checkbox und Double-Opt-in-Bestätigungs-E-Mail |
 
 **Hinweis zur Datenverarbeitung:** Die App erhebt im Grundbetrieb nur pseudonyme Spielerdaten
-(frei gewählter Benutzername, Punktzahl, Zeitstempel). Auf den Ranking- und Ergebnisseiten
-wird zusätzlich ein E-Mail-Formular angezeigt, über das Spieler **freiwillig** ihre
-E-Mail-Adresse hinterlegen können (als „optional" gekennzeichnet). Die Eingabe erfordert eine
-aktive Consent-Checkbox sowie eine Bestätigung per Double-Opt-in-E-Mail. Im Rahmen dieses
-Opt-in-Prozesses werden auch IP-Adressen protokolliert. Das Formular ist derzeit standardmäßig
-sichtbar und nicht über einen Admin-Toggle abschaltbar. Diese Datenerhebung muss in der
+(frei gewählter Benutzername, Punktzahl, Zeitstempel). Veranstalter können über die
+Event-Konfiguration das **Spieler-Kontaktformular aktivieren** (`playerContactEnabled`).
+Ist diese Option aktiv, wird auf den Ranking- und Ergebnisseiten ein E-Mail-Formular angezeigt,
+über das Spieler **freiwillig** ihre E-Mail-Adresse hinterlegen können (als „optional"
+gekennzeichnet). Die Eingabe erfordert eine aktive Consent-Checkbox sowie eine Bestätigung per
+Double-Opt-in-E-Mail. Im Rahmen dieses Opt-in-Prozesses werden auch IP-Adressen protokolliert.
+Standardmäßig ist das Formular deaktiviert. Diese optionale Datenerhebung muss in der
 Datenschutzerklärung der Marketing-Website korrekt abgebildet werden.
 
 ---
