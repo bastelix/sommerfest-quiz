@@ -5,6 +5,7 @@
 ### Build
 
 - Tag image as sommerfest-quiz
+- Enforce conventional commits via commitlint and husky
 
 ### Chore
 
