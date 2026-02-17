@@ -295,6 +295,29 @@ class DesignTokenService
         return $presets;
     }
 
+    /**
+     * Remove the namespace-specific CSS directory and rebuild the global stylesheet.
+     */
+    public function cleanupNamespaceCss(string $namespace): void
+    {
+        $normalized = $this->normalizeNamespace($namespace);
+        $baseDirectory = dirname($this->cssPath);
+        $namespaceDirectory = $baseDirectory . '/' . $normalized;
+
+        if (is_dir($namespaceDirectory)) {
+            $tokenFile = $namespaceDirectory . '/namespace-tokens.css';
+            if (is_file($tokenFile)) {
+                unlink($tokenFile);
+            }
+            // Only remove the directory if it is empty after deleting the token file.
+            if (is_dir($namespaceDirectory) && count((array) scandir($namespaceDirectory)) <= 2) {
+                rmdir($namespaceDirectory);
+            }
+        }
+
+        $this->rebuildStylesheet();
+    }
+
     public function rebuildStylesheet(): void
     {
         $namespaces = $this->fetchAllNamespaceTokens();
