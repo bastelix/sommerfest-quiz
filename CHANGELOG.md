@@ -528,6 +528,7 @@
 - *(css)* Replace ~64 hardcoded hex values in dark.css with design tokens
 - *(css)* Consolidate calserver.css and calhelp.css into marketing.css
 - *(css)* Remove redundant marketing-utilities.css
+- *(calserver)* Remove fixed slug routes and add namespace design tokens
 
 ### Style
 
