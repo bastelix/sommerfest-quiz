@@ -85,6 +85,7 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     '--marketing-ink-dark',
     '--marketing-surface-glass',
     '--marketing-surface-glass-dark',
+    '--marketing-card-dark',
     '--marketing-surface-accent-soft',
     '--marketing-border-light',
     '--marketing-border',
@@ -399,7 +400,7 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
   const resolveCssValue = (style, names) => {
     for (const name of names) {
       const value = style.getPropertyValue(name).trim();
-      if (value) {
+      if (value && !isTransparentValue(value)) {
         return value;
       }
     }
@@ -808,6 +809,7 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     applySchemeToken('--marketing-ink-dark', scheme.marketingInkDark || scheme.inkDark);
     applySchemeToken('--marketing-surface-glass', scheme.surfaceGlass);
     applySchemeToken('--marketing-surface-glass-dark', scheme.surfaceGlassDark);
+    applySchemeToken('--marketing-card-dark', scheme.cardDark || scheme.surfaceGlassDark);
     applySchemeToken('--marketing-surface-accent-soft', scheme.surfaceAccentSoft);
     applySchemeToken('--marketing-border-light', scheme.borderLight);
     applySchemeToken('--marketing-border', scheme.border);
