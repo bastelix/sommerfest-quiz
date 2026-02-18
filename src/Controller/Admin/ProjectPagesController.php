@@ -37,9 +37,6 @@ use Slim\Views\Twig;
 
 class ProjectPagesController
 {
-    private const SECTION_LAYOUTS = ['normal', 'full', 'card'];
-    private const BACKGROUND_TOKENS = ['surface', 'muted', 'primary', 'secondary', 'accent'];
-
     private PageService $pageService;
     private PageSeoConfigService $seoService;
     private DomainService $domainService;
@@ -127,11 +124,6 @@ class ProjectPagesController
         $selectedDomain = $this->resolveSelectedStartpageDomain($domainOptions, $startpageMap);
         $startpagePageId = $startpageMap[$selectedDomain] ?? null;
         $design = $this->loadDesign($namespace);
-        $pageTypeConfig = $this->normalizePageTypeConfig($design['config']['pageTypes'] ?? []);
-        $pageTypeDefaults = $this->buildPageTypeDefaults($pages, $pageTypeConfig);
-        $pageTypeFlash = $_SESSION['page_types_flash'] ?? null;
-        unset($_SESSION['page_types_flash']);
-
         $projectTreePayload = $this->buildProjectTreePayload($namespace, $basePath);
 
         return $view->render($response, 'admin/pages/content.twig', [
@@ -157,10 +149,6 @@ class ProjectPagesController
             'appearance' => $design['appearance'],
             'design' => $design,
             'designUsedDefaults' => $design['usedDefaults'],
-            'pageTypeDefaults' => $pageTypeDefaults,
-            'pageTypeLayoutOptions' => self::SECTION_LAYOUTS,
-            'pageTypeBackgroundTokens' => self::BACKGROUND_TOKENS,
-            'pageTypeFlash' => $pageTypeFlash,
             'project_tree_payload' => $projectTreePayload,
         ]);
     }
@@ -1101,24 +1089,9 @@ class ProjectPagesController
                 continue;
             }
 
-            $layout = $this->normalizeSectionLayout($entry['layout'] ?? null);
-            $background = $this->normalizeSectionBackground($entry['backgroundToken'] ?? null);
-
-            $sectionStyleDefaults = [];
-            if ($layout !== null) {
-                $sectionStyleDefaults['layout'] = $layout;
-            }
-            if ($background !== null) {
-                $sectionStyleDefaults['background'] = $background;
-            }
-
             $baseConfig = $existingPageTypes[$type] ?? [];
             $entryConfig = $baseConfig;
-            if ($sectionStyleDefaults !== []) {
-                $entryConfig['sectionStyleDefaults'] = $sectionStyleDefaults;
-            } else {
-                unset($entryConfig['sectionStyleDefaults']);
-            }
+            unset($entryConfig['sectionStyleDefaults']);
 
             if ($entryConfig !== []) {
                 $normalized[$type] = $entryConfig;
@@ -1126,77 +1099,6 @@ class ProjectPagesController
         }
 
         return $normalized;
-    }
-
-    private function normalizeSectionLayout(mixed $value): ?string
-    {
-        $candidate = is_string($value) ? trim($value) : '';
-        if ($candidate === 'fullwidth') {
-            $candidate = 'full';
-        }
-
-        return in_array($candidate, self::SECTION_LAYOUTS, true) ? $candidate : null;
-    }
-
-    /**
-     * @return array<string, string>|null
-     */
-    private function normalizeSectionBackground(mixed $value): ?array
-    {
-        $candidate = is_string($value) ? trim($value) : '';
-        if ($candidate === '') {
-            return null;
-        }
-        if ($candidate === 'none') {
-            return ['mode' => 'none'];
-        }
-
-        if (!in_array($candidate, self::BACKGROUND_TOKENS, true)) {
-            return null;
-        }
-
-        return [
-            'mode' => 'color',
-            'colorToken' => $candidate,
-        ];
-    }
-
-    /**
-     * @param list<Page> $pages
-     * @param array<string, array<string, mixed>> $pageTypeConfig
-     *
-     * @return list<array{type: string, sectionStyleDefaults: array<string, mixed>}>
-     */
-    private function buildPageTypeDefaults(array $pages, array $pageTypeConfig): array
-    {
-        $types = [];
-        foreach ($pages as $page) {
-            $pageType = $page->getType();
-            if ($pageType !== null && $pageType !== '') {
-                $types[$pageType] = true;
-            }
-        }
-
-        foreach (array_keys($pageTypeConfig) as $type) {
-            if ($type !== '') {
-                $types[$type] = true;
-            }
-        }
-
-        $result = [];
-        $sortedTypes = array_keys($types);
-        sort($sortedTypes);
-
-        foreach ($sortedTypes as $type) {
-            $entry = $pageTypeConfig[$type] ?? [];
-            $sectionDefaults = $entry['sectionStyleDefaults'] ?? [];
-            $result[] = [
-                'type' => $type,
-                'sectionStyleDefaults' => is_array($sectionDefaults) ? $sectionDefaults : [],
-            ];
-        }
-
-        return $result;
     }
 
     private function resolveTenant(Request $request): ?array

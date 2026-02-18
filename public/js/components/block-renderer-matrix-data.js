@@ -33,7 +33,7 @@ const DEFAULT_APPEARANCE = {
 };
 
 let activeAppearance = DEFAULT_APPEARANCE;
-const DEFAULT_PAGE_CONTEXT = { sectionStyleDefaults: {} };
+const DEFAULT_PAGE_CONTEXT = {};
 let activePageContext = DEFAULT_PAGE_CONTEXT;
 
 function resolveComputedAppearance() {
@@ -98,11 +98,8 @@ export function setActiveAppearance(appearance) {
 
 export function setPageContext(context) {
   const normalized = context && typeof context === 'object' ? context : {};
-  const sectionStyleDefaults = normalized.sectionStyleDefaults && typeof normalized.sectionStyleDefaults === 'object'
-    ? normalized.sectionStyleDefaults
-    : {};
   const previous = activePageContext;
-  activePageContext = { ...DEFAULT_PAGE_CONTEXT, ...normalized, sectionStyleDefaults };
+  activePageContext = { ...DEFAULT_PAGE_CONTEXT, ...normalized };
   return previous;
 }
 
@@ -222,19 +219,15 @@ function clampBackgroundOverlay(value) {
 }
 
 function normalizeSectionStyle(block) {
-  const defaults = resolveActivePageContext().sectionStyleDefaults;
-  const baseStyle = defaults && typeof defaults === 'object' ? defaults : {};
   const blockStyle = block?.meta?.sectionStyle && typeof block.meta.sectionStyle === 'object'
     ? block.meta.sectionStyle
     : {};
 
-  const baseBackground = baseStyle.background && typeof baseStyle.background === 'object' ? baseStyle.background : {};
   const blockBackground = blockStyle.background && typeof blockStyle.background === 'object' ? blockStyle.background : {};
 
   return {
-    ...baseStyle,
     ...blockStyle,
-    background: { ...baseBackground, ...blockBackground }
+    background: { ...blockBackground }
   };
 }
 

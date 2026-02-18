@@ -727,25 +727,8 @@ const USE_BLOCK_EDITOR = PAGE_EDITOR_MODE === 'blocks';
 const basePath = (window.basePath || '').replace(/\/$/, '');
 const withBase = path => `${basePath}${path}`;
 
-const resolvePageTypeDefaults = (pageType) => {
-  if (!pageType) {
-    return {};
-  }
-  const config = window.pageDesignConfig && typeof window.pageDesignConfig === 'object'
-    ? window.pageDesignConfig.pageTypes
-    : window.pageTypeConfig;
-  if (!config || typeof config !== 'object') {
-    return {};
-  }
-  const entry = config[pageType];
-  const sectionStyleDefaults = entry?.sectionStyleDefaults;
-  return sectionStyleDefaults && typeof sectionStyleDefaults === 'object' ? sectionStyleDefaults : {};
-};
-
-const resolvePageContextForForm = (form) => {
-  const pageType = (form?.dataset?.pageType || '').trim();
-  const sectionStyleDefaults = resolvePageTypeDefaults(pageType);
-  return { sectionStyleDefaults };
+const resolvePageContextForForm = () => {
+  return {};
 };
 
 const buildPagePreviewUrl = slug => {
