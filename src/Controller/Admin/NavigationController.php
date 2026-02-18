@@ -398,7 +398,7 @@ final class NavigationController
 
     /**
      * @param array<int, Page> $pages
-     * @return array<int, array{value:string,label:string,group:string}>
+     * @return array<int, array{value:string,label:string,group:string,namespace:string,page:string,blockType:string,blockTitle:string}>
      */
     private function buildInternalLinks(array $pages): array
     {
@@ -418,14 +418,27 @@ final class NavigationController
                 'value' => $path,
                 'label' => $namespace . ': ' . $path,
                 'group' => 'Seitenpfade',
+                'namespace' => $namespace,
+                'page' => $path,
+                'blockType' => '',
+                'blockTitle' => '',
             ];
 
-            $anchorIds = $extractor->extractAnchorIds($page->getContent());
-            foreach ($anchorIds as $anchorId) {
+            $anchorEntries = $extractor->extractAnchorsWithMeta($page->getContent());
+            foreach ($anchorEntries as $entry) {
+                $anchorId = $entry['anchor'];
+                $blockType = $entry['blockType'];
+                $blockTitle = $entry['blockTitle'];
+                $typeLabel = $blockType !== '' ? PageAnchorExtractor::blockTypeLabel($blockType) : '';
+
                 $pageAnchorOptions[$namespace . ':' . $path . '#' . $anchorId] = [
                     'value' => $path . '#' . $anchorId,
                     'label' => $namespace . ': ' . $path . '#' . $anchorId,
                     'group' => 'Seiten + Anker',
+                    'namespace' => $namespace,
+                    'page' => $path,
+                    'blockType' => $typeLabel,
+                    'blockTitle' => $blockTitle,
                 ];
 
                 $standaloneKey = $namespace . ':#' . $anchorId;
@@ -434,6 +447,10 @@ final class NavigationController
                         'value' => '#' . $anchorId,
                         'label' => $namespace . ': #' . $anchorId,
                         'group' => 'Seiten-Anker',
+                        'namespace' => $namespace,
+                        'page' => '',
+                        'blockType' => $typeLabel,
+                        'blockTitle' => $blockTitle,
                     ];
                 }
             }

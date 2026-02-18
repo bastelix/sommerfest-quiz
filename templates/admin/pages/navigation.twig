@@ -6,6 +6,7 @@
 {% block title %}{{ t('tab_navigation') }}{% endblock %}
 
 {% block admin_head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/href-suggest.css">
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <script>
     window.profileVars = {
@@ -656,6 +657,7 @@
 
 {% block scripts %}
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
+  <script src="{{ basePath }}/js/marketing-menu-href-suggest.js"></script>
   {% if useNavigationTree %}
     <script type="module" src="{{ basePath }}/js/marketing-menu-tree.js"></script>
   {% else %}

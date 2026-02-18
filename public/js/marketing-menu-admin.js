@@ -86,35 +86,12 @@ if (manager) {
       orderSignature: ''
     };
 
-    const renderHrefOptions = options => {
-      if (!options.length) {
-        return null;
-      }
-      const list = document.createElement('datalist');
-      list.id = `menu-href-options-${Math.random().toString(36).slice(2, 9)}`;
-      options.forEach(option => {
-        const value = typeof option?.value === 'string' ? option.value.trim() : '';
-        if (!value) {
-          return;
-        }
-        const label = typeof option?.label === 'string' ? option.label.trim() : value;
-        const group = typeof option?.group === 'string' ? option.group.trim() : '';
-        const displayLabel = group && label && group !== label ? `${group}: ${label}` : label;
-        const entry = document.createElement('option');
-        entry.value = value;
-        if (displayLabel && displayLabel !== value) {
-          entry.label = displayLabel;
-        }
-        list.appendChild(entry);
-      });
-      return list;
-    };
-
-    const hrefOptionsList = renderHrefOptions(internalLinks);
-    const hrefOptionsListId = hrefOptionsList?.id || '';
-    if (hrefOptionsList) {
-      manager.appendChild(hrefOptionsList);
-    }
+    const hrefSuggestCtrl = window.hrefSuggest
+      ? window.hrefSuggest.create(internalLinks, () => {
+        const select = document.getElementById('pageNamespaceSelect');
+        return select?.value || manager.dataset.namespace || window.pageNamespace || '';
+      })
+      : null;
 
     const findMenuById = id => menusData.find(menu => Number(menu.id) === Number(id)) || null;
     const resolveNamespace = () => {
@@ -1103,8 +1080,8 @@ if (manager) {
     hrefInput.placeholder = '/landing, #anker oder https://';
     hrefInput.value = item?.href || '';
     hrefInput.dataset.menuHref = 'true';
-    if (hrefOptionsListId) {
-      hrefInput.setAttribute('list', hrefOptionsListId);
+    if (hrefSuggestCtrl) {
+      hrefSuggestCtrl.attach(hrefInput);
     }
     const hrefError = document.createElement('div');
     hrefError.className = 'uk-text-danger uk-text-small';

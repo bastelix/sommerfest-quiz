@@ -51,15 +51,17 @@ if (container) {
     };
 
     const variantOptions = parseVariantOptions();
-    const internalLinks = (() => {
-      try {
-        const parsed = JSON.parse(container.dataset.internalLinks || '[]');
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (error) {
-        console.warn('Failed to parse internal link options', error);
-        return [];
-      }
-    })();
+    const internalLinks = window.hrefSuggest
+      ? window.hrefSuggest.parseInternalLinks(container)
+      : (() => {
+        try {
+          const parsed = JSON.parse(container.dataset.internalLinks || '[]');
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          console.warn('Failed to parse internal link options', error);
+          return [];
+        }
+      })();
 
     const resolveSelectedVariant = () => {
       const requested = container.dataset.selectedNavigationVariant || variantSelect?.dataset.selected || '';
@@ -85,35 +87,9 @@ if (container) {
       variantOptions,
     };
 
-    const renderHrefOptions = options => {
-      if (!options.length) {
-        return null;
-      }
-      const list = document.createElement('datalist');
-      list.id = `menu-tree-href-options-${Math.random().toString(36).slice(2, 9)}`;
-      options.forEach(option => {
-        const value = typeof option?.value === 'string' ? option.value.trim() : '';
-        if (!value) {
-          return;
-        }
-        const label = typeof option?.label === 'string' ? option.label.trim() : value;
-        const group = typeof option?.group === 'string' ? option.group.trim() : '';
-        const displayLabel = group && label && group !== label ? `${group}: ${label}` : label;
-        const entry = document.createElement('option');
-        entry.value = value;
-        if (displayLabel && displayLabel !== value) {
-          entry.label = displayLabel;
-        }
-        list.appendChild(entry);
-      });
-      return list;
-    };
-
-    const hrefOptionsList = renderHrefOptions(internalLinks);
-    const hrefOptionsListId = hrefOptionsList?.id || '';
-    if (hrefOptionsList) {
-      container.appendChild(hrefOptionsList);
-    }
+    const hrefSuggestCtrl = window.hrefSuggest
+      ? window.hrefSuggest.create(internalLinks, () => state.namespace || '')
+      : null;
 
     const iconOptions = [
       '',
@@ -739,8 +715,8 @@ if (container) {
       hrefInput.placeholder = '/pfad, #anker oder Link';
       hrefInput.dataset.field = 'href';
       hrefInput.id = hrefFieldId;
-      if (hrefOptionsListId) {
-        hrefInput.setAttribute('list', hrefOptionsListId);
+      if (hrefSuggestCtrl) {
+        hrefSuggestCtrl.attach(hrefInput);
       }
 
       const errorHint = document.createElement('div');

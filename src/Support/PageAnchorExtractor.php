@@ -9,6 +9,24 @@ use DOMXPath;
 
 class PageAnchorExtractor
 {
+    private const BLOCK_TYPE_LABELS = [
+        'hero' => 'Hero',
+        'feature_list' => 'Funktionen',
+        'content_slider' => 'Slider',
+        'process_steps' => 'Ablauf',
+        'testimonial' => 'Stimmen',
+        'rich_text' => 'Text',
+        'info_media' => 'Info & Medien',
+        'stat_strip' => 'Kennzahlen',
+        'audience_spotlight' => 'Anwendungsfälle',
+        'package_summary' => 'Pakete',
+        'contact_form' => 'Kontaktformular',
+        'faq' => 'Häufige Fragen',
+        'cta' => 'Call to Action',
+        'proof' => 'Nachweise',
+        'latest_news' => 'Neuigkeiten',
+    ];
+
     /**
      * Extract anchor IDs from page content, covering CMS JSON meta anchors and HTML id attributes.
      *
@@ -16,25 +34,44 @@ class PageAnchorExtractor
      */
     public function extractAnchorIds(string $content): array
     {
+        return array_column($this->extractAnchorsWithMeta($content), 'anchor');
+    }
+
+    /**
+     * Extract anchors with metadata (block type and title) from page content.
+     *
+     * @return array<int, array{anchor: string, blockType: string, blockTitle: string}>
+     */
+    public function extractAnchorsWithMeta(string $content): array
+    {
         $anchors = [];
 
         $decoded = json_decode($content, true);
         if (is_array($decoded)) {
-            $anchors = array_merge($anchors, $this->extractAnchorsFromArray($decoded));
+            if (isset($decoded['blocks']) && is_array($decoded['blocks'])) {
+                $anchors = array_merge($anchors, $this->extractAnchorsFromBlocksWithMeta($decoded['blocks']));
+            } else {
+                foreach ($this->extractAnchorsFromArray($decoded) as $anchor) {
+                    $anchors[] = ['anchor' => $anchor, 'blockType' => '', 'blockTitle' => ''];
+                }
+            }
         }
 
         if (str_contains($content, '<')) {
-            $anchors = array_merge($anchors, $this->extractAnchorsFromHtml($content));
+            foreach ($this->extractAnchorsFromHtml($content) as $anchor) {
+                $anchors[] = ['anchor' => $anchor, 'blockType' => '', 'blockTitle' => ''];
+            }
         }
 
         $unique = [];
         $seen = [];
-        foreach ($anchors as $anchor) {
+        foreach ($anchors as $entry) {
+            $anchor = $entry['anchor'] ?? '';
             if ($anchor === '' || isset($seen[$anchor])) {
                 continue;
             }
             $seen[$anchor] = true;
-            $unique[] = $anchor;
+            $unique[] = $entry;
         }
 
         return $unique;
@@ -78,6 +115,17 @@ class PageAnchorExtractor
      */
     private function extractAnchorsFromBlocks(array $blocks): array
     {
+        return array_column($this->extractAnchorsFromBlocksWithMeta($blocks), 'anchor');
+    }
+
+    /**
+     * Extract anchors with metadata from a blocks array.
+     *
+     * @param array<int, mixed> $blocks
+     * @return array<int, array{anchor: string, blockType: string, blockTitle: string}>
+     */
+    private function extractAnchorsFromBlocksWithMeta(array $blocks): array
+    {
         $anchors = [];
         $usedAnchors = [];
 
@@ -86,22 +134,29 @@ class PageAnchorExtractor
                 continue;
             }
 
+            $type = $block['type'] ?? '';
+            $blockType = is_string($type) ? $type : '';
+            $blockTitle = $this->resolveBlockTitle($block);
+
             $explicitAnchor = $block['meta']['anchor'] ?? null;
             if (is_string($explicitAnchor)) {
                 $normalized = $this->normalizeAnchor($explicitAnchor);
                 if ($normalized !== null) {
-                    $anchors[] = $normalized;
+                    $anchors[] = [
+                        'anchor' => $normalized,
+                        'blockType' => $blockType,
+                        'blockTitle' => $blockTitle,
+                    ];
                     $usedAnchors[$normalized] = true;
                     continue;
                 }
             }
 
-            $type = $block['type'] ?? null;
-            if (!is_string($type) || $type === '') {
+            if ($blockType === '') {
                 continue;
             }
 
-            $base = strtolower(str_replace('_', '-', $type));
+            $base = strtolower(str_replace('_', '-', $blockType));
             $anchor = $base;
             $counter = 2;
             while (isset($usedAnchors[$anchor])) {
@@ -109,10 +164,39 @@ class PageAnchorExtractor
                 $counter++;
             }
             $usedAnchors[$anchor] = true;
-            $anchors[] = $anchor;
+            $anchors[] = [
+                'anchor' => $anchor,
+                'blockType' => $blockType,
+                'blockTitle' => $blockTitle,
+            ];
         }
 
         return $anchors;
+    }
+
+    private function resolveBlockTitle(array $block): string
+    {
+        $data = $block['data'] ?? [];
+        if (!is_array($data)) {
+            return '';
+        }
+
+        foreach (['title', 'headline', 'heading'] as $field) {
+            $value = $data[$field] ?? null;
+            if (is_string($value) && trim($value) !== '') {
+                return trim($value);
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Resolve a human-readable label for a block type.
+     */
+    public static function blockTypeLabel(string $type): string
+    {
+        return self::BLOCK_TYPE_LABELS[$type] ?? ucfirst(str_replace('_', ' ', $type));
     }
 
     /**
