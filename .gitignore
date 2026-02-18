@@ -28,3 +28,6 @@ data/events/
 data/onboarding/
 data/test-logo.webp
 *.bak
+
+# Generated per-namespace token stylesheets (rebuilt via DesignTokenService)
+public/css/*/namespace-tokens.css
