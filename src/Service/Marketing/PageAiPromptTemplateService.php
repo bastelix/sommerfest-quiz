@@ -9,6 +9,7 @@ use PDO;
 use PDOException;
 
 use function array_filter;
+use function array_merge;
 use function array_values;
 use function file_get_contents;
 use function is_array;
@@ -20,7 +21,7 @@ use function trim;
 final class PageAiPromptTemplateService
 {
     /**
-     * @var array<int, array{id:string,label:string,template:string}>|null
+     * @var array<int, array{id:string,label:string,template:string,output_format:string}>|null
      */
     private ?array $cache = null;
 
@@ -35,7 +36,7 @@ final class PageAiPromptTemplateService
     }
 
     /**
-     * @return array<int, array{id:string,label:string,template:string}>
+     * @return array<int, array{id:string,label:string,template:string,output_format:string}>
      */
     public function list(): array
     {
@@ -50,7 +51,23 @@ final class PageAiPromptTemplateService
     }
 
     /**
-     * @return array{id:string,label:string,template:string}|null
+     * @return array<int, array{id:string,label:string,template:string,output_format:string}>
+     */
+    public function listByOutputFormat(string $outputFormat): array
+    {
+        $format = trim($outputFormat);
+        if ($format === '') {
+            return $this->list();
+        }
+
+        return array_values(array_filter(
+            $this->list(),
+            static fn (array $entry): bool => ($entry['output_format'] ?? '') === $format
+        ));
+    }
+
+    /**
+     * @return array{id:string,label:string,template:string,output_format:string}|null
      */
     public function findById(string $templateId): ?array
     {
@@ -69,7 +86,7 @@ final class PageAiPromptTemplateService
     }
 
     /**
-     * @return array<int, array{id:string,label:string,template:string}>
+     * @return array<int, array{id:string,label:string,template:string,output_format:string}>
      */
     private function loadTemplates(): array
     {
@@ -78,27 +95,56 @@ final class PageAiPromptTemplateService
             return $this->loadTemplatesFromFile();
         }
 
-        if ($dbTemplates !== []) {
-            return $dbTemplates;
-        }
-
         $fileTemplates = $this->loadTemplatesFromFile();
-        if ($fileTemplates === []) {
-            return [];
+
+        if ($dbTemplates === []) {
+            if ($fileTemplates === []) {
+                return [];
+            }
+            $this->seedDatabaseTemplates($fileTemplates);
+
+            return $fileTemplates;
         }
 
-        $this->seedDatabaseTemplates($fileTemplates);
+        $missing = $this->findMissingTemplates($dbTemplates, $fileTemplates);
+        if ($missing !== []) {
+            $this->seedDatabaseTemplates($missing);
 
-        return $fileTemplates;
+            return array_values(array_merge($dbTemplates, $missing));
+        }
+
+        return $dbTemplates;
     }
 
     /**
-     * @return array<int, array{id:string,label:string,template:string}>|null
+     * @param array<int, array{id:string,label:string,template:string,output_format:string}> $dbTemplates
+     * @param array<int, array{id:string,label:string,template:string,output_format:string}> $fileTemplates
+     * @return array<int, array{id:string,label:string,template:string,output_format:string}>
+     */
+    private function findMissingTemplates(array $dbTemplates, array $fileTemplates): array
+    {
+        $existingIds = [];
+        foreach ($dbTemplates as $template) {
+            $existingIds[$template['id']] = true;
+        }
+
+        $missing = [];
+        foreach ($fileTemplates as $template) {
+            if (!isset($existingIds[$template['id']])) {
+                $missing[] = $template;
+            }
+        }
+
+        return $missing;
+    }
+
+    /**
+     * @return array<int, array{id:string,label:string,template:string,output_format:string}>|null
      */
     private function loadTemplatesFromDatabase(): ?array
     {
         try {
-            $stmt = $this->pdo->query('SELECT id, label, template FROM marketing_ai_prompts ORDER BY id');
+            $stmt = $this->pdo->query('SELECT id, label, template, output_format FROM marketing_ai_prompts ORDER BY id');
             $rows = $stmt !== false ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
         } catch (PDOException) {
             return null;
@@ -110,7 +156,7 @@ final class PageAiPromptTemplateService
     }
 
     /**
-     * @return array<int, array{id:string,label:string,template:string}>
+     * @return array<int, array{id:string,label:string,template:string,output_format:string}>
      */
     private function loadTemplatesFromFile(): array
     {
@@ -134,7 +180,7 @@ final class PageAiPromptTemplateService
     }
 
     /**
-     * @param array<int, array{id:string,label:string,template:string}> $templates
+     * @param array<int, array{id:string,label:string,template:string,output_format:string}> $templates
      */
     private function seedDatabaseTemplates(array $templates): void
     {
@@ -142,16 +188,21 @@ final class PageAiPromptTemplateService
             $this->pdo->beginTransaction();
             $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
             if ($driver === 'pgsql') {
-                $sql = 'INSERT INTO marketing_ai_prompts (id, label, template) VALUES (?, ?, ?) '
+                $sql = 'INSERT INTO marketing_ai_prompts (id, label, template, output_format) VALUES (?, ?, ?, ?) '
                     . 'ON CONFLICT (id) DO UPDATE SET label = EXCLUDED.label, template = EXCLUDED.template, '
-                    . 'updated_at = CURRENT_TIMESTAMP';
+                    . 'output_format = EXCLUDED.output_format, updated_at = CURRENT_TIMESTAMP';
             } else {
-                $sql = 'INSERT OR REPLACE INTO marketing_ai_prompts (id, label, template) VALUES (?, ?, ?)';
+                $sql = 'INSERT OR REPLACE INTO marketing_ai_prompts (id, label, template, output_format) VALUES (?, ?, ?, ?)';
             }
 
             $stmt = $this->pdo->prepare($sql);
             foreach ($templates as $template) {
-                $stmt->execute([$template['id'], $template['label'], $template['template']]);
+                $stmt->execute([
+                    $template['id'],
+                    $template['label'],
+                    $template['template'],
+                    $template['output_format'],
+                ]);
             }
 
             $this->pdo->commit();
@@ -164,7 +215,7 @@ final class PageAiPromptTemplateService
 
     /**
      * @param mixed $entry
-     * @return array{id:string,label:string,template:string}|null
+     * @return array{id:string,label:string,template:string,output_format:string}|null
      */
     private function normalizeEntry(mixed $entry): ?array
     {
@@ -188,10 +239,15 @@ final class PageAiPromptTemplateService
             return null;
         }
 
+        $outputFormat = isset($entry['output_format']) && is_string($entry['output_format'])
+            ? trim($entry['output_format'])
+            : 'html';
+
         return [
             'id' => $id,
             'label' => $label,
             'template' => $template,
+            'output_format' => $outputFormat,
         ];
     }
 }
