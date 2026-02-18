@@ -537,6 +537,7 @@
 - *(css)* Consolidate calserver.css and calhelp.css into marketing.css
 - *(css)* Remove redundant marketing-utilities.css
 - *(calserver)* Remove fixed slug routes and add namespace design tokens
+- *(pages)* Replace domain combo box with inline submenu in page tree
 
 ### Style
 
