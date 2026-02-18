@@ -294,6 +294,7 @@
 - *(calserver)* Add CMS menu migration for calserver namespace
 - *(pages)* Add domain selector to page tree for per-domain startpage assignment
 - *(calserver)* Replace marketing page with CMS block-based design
+- *(page-tree)* Add top menu assignment to page tree context menu
 
 ### Fix
 
@@ -486,6 +487,7 @@
 - *(calserver)* Add new migration for updated CSS (20300104 was already applied)
 - *(calserver)* Increase hero spacing, compact stats strip, enlarge logo
 - *(calserver)* Persist layout fixes via database migration
+- *(ai)* Surface dispatch failures and add polling backoff
 
 ### Merge
 
