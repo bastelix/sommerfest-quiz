@@ -476,6 +476,7 @@
 - *(calserver)* Add JS cache-busting, fix PHP testimonial validator, revert legacy twig
 - *(header)* Hide config menu when no options are enabled
 - *(calserver)* Rebuild namespace CSS after migrations and write full stylesheet
+- *(calserver)* Ensure config row exists before setting custom CSS and fix referenzen data
 
 ### Merge
 
