@@ -293,10 +293,10 @@ final class ProjectSettingsService
 
         if (is_string($value)) {
             $normalized = strtolower(trim($value));
-            if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
+            if (in_array($normalized, ['1', 'true', 'yes', 'on', 't'], true)) {
                 return true;
             }
-            if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
+            if (in_array($normalized, ['0', 'false', 'no', 'off', 'f'], true)) {
                 return false;
             }
         }
