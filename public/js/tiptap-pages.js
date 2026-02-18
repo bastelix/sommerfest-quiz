@@ -3207,6 +3207,7 @@ const initAiPageCreation = () => {
   const problemInput = form.querySelector('#aiPageProblem');
   const slugInput = form.querySelector('#aiPageSlug');
   const titleInput = form.querySelector('#aiPageTitle');
+  const promptTemplateSelect = form.querySelector('#aiPagePromptTemplate');
   const createMenuItemCheckbox = form.querySelector('#aiPageCreateMenuItem');
   const menuLabelInput = form.querySelector('#aiPageMenuLabel');
   const menuLabelWrapper = form.querySelector('[data-ai-page-menu-label]');
@@ -3381,6 +3382,7 @@ const initAiPageCreation = () => {
     const slugValue = (slugInput?.value || '').trim().toLowerCase();
     const titleValue = (titleInput?.value || '').trim();
     const problemValue = (problemInput?.value || '').trim();
+    const promptTemplateId = (promptTemplateSelect?.value || '').trim();
     const shouldCreateMenuItem = Boolean(createMenuItemCheckbox?.checked);
     const menuLabelValue = (menuLabelInput?.value || '').trim();
 
@@ -3427,7 +3429,8 @@ const initAiPageCreation = () => {
         body: JSON.stringify({
           slug: slugValue,
           title: titleValue,
-          problem: problemValue
+          problem: problemValue,
+          promptTemplateId: promptTemplateId || undefined
         })
       });
 
