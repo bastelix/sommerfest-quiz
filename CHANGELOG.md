@@ -473,6 +473,7 @@
 - *(calserver)* Correct visual styling for hero, trust bar, and navbar
 - *(testimonial)* Validate individual quote entries in testimonial block contract
 - *(calserver)* Sync block-contract.schema.json with block-contract.js
+- *(calserver)* Add JS cache-busting, fix PHP testimonial validator, revert legacy twig
 
 ### Merge
 
