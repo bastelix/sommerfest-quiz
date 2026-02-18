@@ -492,6 +492,7 @@
 - *(pages)* Allow editing page title in rename modal
 - *(ai)* Add shutdown handler, fix template sync, and align polling budget
 - Delegate block-based impressum content to PageController
+- Prevent 404 error when deleting pages with numeric slugs
 
 ### Merge
 
