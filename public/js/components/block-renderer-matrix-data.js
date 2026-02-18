@@ -1787,31 +1787,28 @@ function renderInfoMediaSwitcher(block, options = {}) {
     ? `<div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">${title}${subtitle}</div>`
     : '';
 
-  const nav = `<ul class="uk-tab calserver-modules-nav" data-uk-switcher="connect: #${escapeAttribute(switcherId)}; animation: uk-animation-fade">${items
+  const nav = `<ul class="uk-subnav uk-subnav-pill info-media-switcher__nav" data-uk-switcher="connect: #${escapeAttribute(switcherId)}; animation: uk-animation-fade">${items
     .map(item => {
-      const description = item.description
-        ? `<span class="calserver-modules-nav__desc">${escapeHtml(item.description)}</span>`
-        : '';
-      return `<li><a class="calserver-modules-nav__link" href="#${escapeAttribute(item.id)}"><span class="calserver-modules-nav__title">${escapeHtml(item.title)}</span>${description}</a></li>`;
+      return `<li><a class="info-media-switcher__nav-link" href="#${escapeAttribute(item.id)}"><span class="info-media-switcher__nav-title">${escapeHtml(item.title)}</span></a></li>`;
     })
     .join('')}</ul>`;
 
   const panels = items
     .map(item => {
       const visual = item.media?.image
-        ? `<div class="calserver-module-figure__visual" data-module="${escapeAttribute(item.id.replace('module-', ''))}"><img src="${escapeAttribute(item.media.image)}" alt="${item.media?.alt ? escapeAttribute(item.media.alt) : ''}" loading="lazy"></div>`
-        : `<div class="calserver-module-figure__visual" data-module="${escapeAttribute(item.id.replace('module-', ''))}"><div class="uk-placeholder uk-text-center uk-border-rounded"><span class="uk-text-muted">Kein Bild ausgewählt</span></div></div>`;
+        ? `<div class="info-media-switcher__visual" data-module="${escapeAttribute(item.id.replace('module-', ''))}"><img src="${escapeAttribute(item.media.image)}" alt="${item.media?.alt ? escapeAttribute(item.media.alt) : ''}" loading="lazy"></div>`
+        : `<div class="info-media-switcher__visual" data-module="${escapeAttribute(item.id.replace('module-', ''))}"><div class="uk-placeholder uk-text-center uk-border-rounded"><span class="uk-text-muted">Kein Bild ausgewählt</span></div></div>`;
 
       const bullets = renderFeatureBullets(item.bullets);
 
-      return `<li><figure id="${escapeAttribute(item.id)}" class="calserver-module-figure"><div class="calserver-module-figure__visual-wrapper">${visual}</div><figcaption><h3 class="uk-h3">${escapeHtml(item.title)}</h3>${item.description ? `<p class="muted">${escapeHtml(item.description)}</p>` : ''}${bullets}</figcaption></figure></li>`;
+      return `<li><figure id="${escapeAttribute(item.id)}" class="info-media-switcher__figure"><div class="info-media-switcher__visual-wrap">${visual}</div><figcaption><h3 class="uk-h3">${escapeHtml(item.title)}</h3>${item.description ? `<p class="muted">${escapeHtml(item.description)}</p>` : ''}${bullets}</figcaption></figure></li>`;
     })
     .join('');
 
   const grid = `
-    <div class="calserver-modules-grid" data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: > *; delay: 100; repeat: true">
+    <div class="info-media-switcher" data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: > *; delay: 100; repeat: true">
       <div>${nav}</div>
-      <div><ul id="${escapeAttribute(switcherId)}" class="uk-switcher calserver-modules-switcher">${panels}</ul></div>
+      <div><ul id="${escapeAttribute(switcherId)}" class="uk-switcher info-media-switcher__panels">${panels}</ul></div>
     </div>`;
 
   return renderSection({ block, variant: 'switcher', sectionClass: 'uk-section-muted', content: `${header}${grid}` });

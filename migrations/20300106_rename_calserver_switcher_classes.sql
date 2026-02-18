@@ -1,60 +1,12 @@
-/**
- * Auto-generated. Do not edit manually.
- */
+-- Migration 20300106: rename calserver-modules-* classes to generic info-media-switcher__*
+-- The block renderer now emits generic BEM class names instead of calserver-specific ones.
+-- Tab description text removed from nav (kept only in panel figcaption).
+-- uk-tab replaced with uk-subnav uk-subnav-pill for modern pill-style navigation.
 
-html[data-namespace="calserver"] {
-  --brand-primary: #1a73e8;
-  --brand-accent: #58a6ff;
-  --brand-secondary: #0b1a2e;
-  --contrast-text-on-primary: #ffffff;
-  --contrast-text-on-secondary: #ffffff;
-  --contrast-text-on-accent: #000000;
-  --contrast-text-on-surface: #000000;
-  --contrast-text-on-surface-muted: #000000;
-  --contrast-text-on-page: #000000;
-  --marketing-primary: #1a73e8;
-  --marketing-accent: #58a6ff;
-  --marketing-secondary: #0b1a2e;
-  --marketing-link: #1a73e8;
-  --marketing-surface: var(--surface-card, #ffffff);
-  --marketing-white: #ffffff;
-  --marketing-black: #000000;
-  --marketing-black-rgb: 0 0 0;
-  --marketing-ink: #0f172a;
-  --layout-profile: standard;
-  --typography-preset: modern;
-  --components-card-style: rounded;
-  --components-button-style: filled;
-  --brand-surface: #0b1a2e;
-  --brand-on-surface: #ffffff;
-  --section-gap: 2.25rem;
-  --card-radius: 10px;
-  --font-heading-weight: 700;
-}
+-- ── 1. Replace custom_css with updated class names ──
 
-html[data-namespace="calserver"][data-theme="dark"] {
-  --brand-primary: #1a73e8;
-  --brand-accent: #58a6ff;
-  --brand-secondary: #0b1a2e;
-  --contrast-text-on-primary: #ffffff;
-  --contrast-text-on-secondary: #ffffff;
-  --contrast-text-on-accent: #000000;
-  --contrast-text-on-surface: #ffffff;
-  --contrast-text-on-surface-muted: #ffffff;
-  --contrast-text-on-page: #ffffff;
-  --marketing-primary: #1a73e8;
-  --marketing-accent: #58a6ff;
-  --marketing-secondary: #0b1a2e;
-  --marketing-link: #1a73e8;
-  --marketing-surface: var(--surface-card, #1a2636);
-  --marketing-white: #ffffff;
-  --marketing-black: #000000;
-  --marketing-black-rgb: 0 0 0;
-  --marketing-ink: #f2f5fa;
-}
-
-/* Custom CSS overrides */
-/* ── calServer page namespace styles (2026-02) ── */
+UPDATE config
+SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ── */
 
 /* ── Typography ── */
 [data-namespace="calserver"] {
@@ -523,4 +475,5 @@ html[data-namespace="calserver"][data-theme="dark"] {
     min-width: 0;
     width: 100%;
   }
-}
+}$CSS$
+WHERE namespace = 'calserver';
