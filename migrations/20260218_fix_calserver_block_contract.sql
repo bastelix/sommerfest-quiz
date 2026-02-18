@@ -290,4 +290,4 @@ SET content = $CONTENT${
   ]
 }$CONTENT$,
     updated_at = CURRENT_TIMESTAMP
-WHERE namespace = 'calserver' AND slug = 'calserver';
+WHERE slug = 'calserver' AND namespace IN ('calserver', 'default');
