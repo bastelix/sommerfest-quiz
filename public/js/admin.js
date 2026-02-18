@@ -815,6 +815,9 @@ const openMenuAssignModal = (node, availableMenus, menuAssignmentMap) => {
   UIkit.modal('#menuAssignModal').show();
 };
 
+window.openMenuAssignModal = openMenuAssignModal;
+window.updateMenuBadge = updateMenuBadge;
+
 const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAssignmentMap = {}) => {
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-collapse';
