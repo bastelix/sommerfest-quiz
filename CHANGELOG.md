@@ -471,6 +471,7 @@
 - Resolve localhost requests to main domain namespace
 - *(calserver)* Align block contract with new page data
 - *(calserver)* Correct visual styling for hero, trust bar, and navbar
+- *(testimonial)* Validate individual quote entries in testimonial block contract
 
 ### Merge
 
