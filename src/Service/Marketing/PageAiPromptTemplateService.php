@@ -11,7 +11,6 @@ use PDOException;
 use function array_filter;
 use function array_merge;
 use function array_values;
-use function count;
 use function file_get_contents;
 use function is_array;
 use function is_readable;
@@ -108,7 +107,7 @@ final class PageAiPromptTemplateService
         }
 
         $fileTemplates = $this->loadTemplatesFromFile();
-        if ($fileTemplates === [] || count($fileTemplates) <= count($dbTemplates)) {
+        if ($fileTemplates === []) {
             return $dbTemplates;
         }
 

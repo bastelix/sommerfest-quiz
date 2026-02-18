@@ -3333,9 +3333,9 @@ const initAiPageCreation = () => {
   };
 
   const pollJobStatus = async jobId => {
-    const maxAttempts = 40;
-    const baseDelayMs = 1500;
-    const maxDelayMs = 8000;
+    const maxAttempts = 30;
+    const baseDelayMs = 2000;
+    const maxDelayMs = 4000;
 
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       const statusResponse = await apiFetch(

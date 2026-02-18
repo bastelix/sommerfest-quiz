@@ -12,16 +12,43 @@ use App\Service\PageService;
 use RuntimeException;
 use Throwable;
 
-try {
-    $argv = $argv ?? [];
-    if (count($argv) < 2) {
-        throw new RuntimeException('Missing job id for page AI generation.');
+$_pageAiJobId = trim((string) ($argv[1] ?? ''));
+$_pageAiCompleted = false;
+
+register_shutdown_function(static function () use (&$_pageAiJobId, &$_pageAiCompleted): void {
+    if ($_pageAiCompleted || $_pageAiJobId === '') {
+        return;
     }
 
-    $jobId = trim((string) ($argv[1] ?? ''));
-    if ($jobId === '') {
-        throw new RuntimeException('Job id must not be empty.');
+    $error = error_get_last();
+    if ($error === null) {
+        return;
     }
+
+    $message = sprintf(
+        'Fatal error during AI generation: %s in %s on line %d',
+        $error['message'],
+        $error['file'],
+        $error['line']
+    );
+
+    error_log('[page_ai_generate] ' . $message);
+
+    try {
+        $repository = new PageAiJobRepository();
+        $repository->markFailed($_pageAiJobId, 'ai_error', $message);
+    } catch (Throwable $inner) {
+        error_log('[page_ai_generate] Failed to mark job as failed after fatal: ' . $inner->getMessage());
+    }
+});
+
+try {
+    $argv = $argv ?? [];
+    if (count($argv) < 2 || $_pageAiJobId === '') {
+        throw new RuntimeException('Missing or empty job id for page AI generation.');
+    }
+
+    $jobId = $_pageAiJobId;
 
     $jobRepository = new PageAiJobRepository();
     $job = $jobRepository->getPendingJob($jobId);
@@ -45,16 +72,18 @@ try {
     $pageService->save($job['namespace'], $job['slug'], $content);
 
     $jobRepository->markDone($jobId, $content);
+    $_pageAiCompleted = true;
 } catch (Throwable $exception) {
-    $jobId = $jobId ?? '';
-    if (is_string($jobId) && $jobId !== '') {
+    $_pageAiCompleted = true;
+
+    if ($_pageAiJobId !== '') {
         try {
             $mapper = new PageAiErrorMapper();
             $mapped = $mapper->map($exception);
             $jobRepository = $jobRepository ?? new PageAiJobRepository();
-            $jobRepository->markFailed($jobId, $mapped['error_code'], $mapped['message']);
+            $jobRepository->markFailed($_pageAiJobId, $mapped['error_code'], $mapped['message']);
         } catch (Throwable $inner) {
-            error_log('Failed to update page AI job: ' . $inner->getMessage());
+            error_log('[page_ai_generate] Failed to update job: ' . $inner->getMessage());
         }
     }
 
