@@ -27,7 +27,7 @@ final class PageSeoAiErrorMapper
         if ($message === PageSeoAiGenerator::ERROR_PROMPT_MISSING) {
             return [
                 'error_code' => 'prompt_missing',
-                'message' => 'The AI prompt template for SEO generation is missing.',
+                'message' => 'Das KI-Prompt-Template für die SEO-Generierung fehlt. Bitte Konfiguration prüfen.',
                 'status' => 500,
             ];
         }
@@ -35,7 +35,7 @@ final class PageSeoAiErrorMapper
         if ($message === PageSeoAiGenerator::ERROR_RESPONDER_MISSING) {
             return [
                 'error_code' => 'ai_unavailable',
-                'message' => 'The SEO AI responder is not configured. Check RAG_CHAT_SERVICE_* variables.',
+                'message' => 'Der KI-Dienst ist nicht konfiguriert. Bitte RAG_CHAT_SERVICE-Umgebungsvariablen prüfen.',
                 'status' => 500,
             ];
         }
@@ -43,7 +43,7 @@ final class PageSeoAiErrorMapper
         if ($message === PageSeoAiGenerator::ERROR_EMPTY_RESPONSE) {
             return [
                 'error_code' => 'ai_empty',
-                'message' => 'The AI responder returned an empty SEO payload.',
+                'message' => 'Die KI hat eine leere Antwort zurückgegeben. Bitte erneut versuchen.',
                 'status' => 500,
             ];
         }
@@ -51,7 +51,7 @@ final class PageSeoAiErrorMapper
         if ($message === PageSeoAiGenerator::ERROR_INVALID_JSON) {
             return [
                 'error_code' => 'ai_invalid_json',
-                'message' => 'The AI responder did not return valid JSON for SEO metadata.',
+                'message' => 'Die KI-Antwort enthält kein gültiges JSON. Bitte erneut versuchen.',
                 'status' => 500,
             ];
         }
@@ -62,8 +62,8 @@ final class PageSeoAiErrorMapper
                 return [
                     'error_code' => 'ai_timeout',
                     'message' => $details !== ''
-                        ? sprintf('The AI responder did not respond in time. %s', $details)
-                        : 'The AI responder did not respond in time.',
+                        ? sprintf('Die KI hat nicht rechtzeitig geantwortet (Timeout). Details: %s', $details)
+                        : 'Die KI hat nicht rechtzeitig geantwortet (Timeout). Bitte erneut versuchen.',
                     'status' => 504,
                 ];
             }
@@ -72,8 +72,8 @@ final class PageSeoAiErrorMapper
                 return [
                     'error_code' => 'ai_rate_limited',
                     'message' => $details !== ''
-                        ? sprintf('The AI responder is temporarily rate limited. %s', $details)
-                        : 'The AI responder is temporarily rate limited.',
+                        ? sprintf('Der KI-Dienst ist vorübergehend überlastet (Rate-Limit). Details: %s', $details)
+                        : 'Der KI-Dienst ist vorübergehend überlastet. Bitte in einigen Sekunden erneut versuchen.',
                     'status' => 429,
                 ];
             }
@@ -81,15 +81,15 @@ final class PageSeoAiErrorMapper
             return [
                 'error_code' => 'ai_failed',
                 'message' => $details !== ''
-                    ? sprintf('The AI responder failed to generate SEO metadata. %s', $details)
-                    : 'The AI responder failed to generate SEO metadata.',
+                    ? sprintf('KI-Fehler bei der SEO-Generierung. Details: %s', $details)
+                    : 'KI-Fehler bei der SEO-Generierung. Bitte erneut versuchen.',
                 'status' => 500,
             ];
         }
 
         return [
             'error_code' => 'ai_error',
-            'message' => 'The AI responder failed to generate SEO metadata.',
+            'message' => 'Unbekannter KI-Fehler bei der SEO-Generierung. Bitte erneut versuchen oder Logs prüfen.',
             'status' => 500,
         ];
     }
