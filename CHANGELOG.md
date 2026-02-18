@@ -477,6 +477,7 @@
 - *(header)* Hide config menu when no options are enabled
 - *(calserver)* Rebuild namespace CSS after migrations and write full stylesheet
 - *(calserver)* Ensure config row exists before setting custom CSS and fix referenzen data
+- *(calserver)* Reduce hero padding, improve element sizing, add logo config
 
 ### Merge
 
