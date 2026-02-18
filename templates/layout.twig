@@ -43,7 +43,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  {% set defaultTitle = 'QuizRace – Das interaktive Team-Quiz für Events' %}
+  {% set defaultTitle = headerLogo.label|default('QuizRace') %}
   {% set effectiveTitle = metaTitle|default(defaultTitle) %}
   <title>{% block title %}{{ effectiveTitle }}{% endblock %}</title>
   {% set defaultDescription = 'QuizRace macht Ihr Event einzigartig: QR-Code-Stationen, Live-Ranking & Rätselspaß – datensicher, flexibel, ohne App-Download.' %}
