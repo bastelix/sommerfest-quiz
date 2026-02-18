@@ -52,9 +52,6 @@ const normalizePagePayload = (payload, sourceLabel) => {
   const pageType = typeof payload.pageType === 'string'
     ? payload.pageType
     : (typeof payload.type === 'string' ? payload.type : null);
-  const sectionStyleDefaults = payload.sectionStyleDefaults && typeof payload.sectionStyleDefaults === 'object'
-    ? payload.sectionStyleDefaults
-    : {};
   const content = typeof payload.content === 'string' ? payload.content : '';
   const featureData = payload.featureData && typeof payload.featureData === 'object' ? payload.featureData : {};
 
@@ -63,7 +60,7 @@ const normalizePagePayload = (payload, sourceLabel) => {
     return null;
   }
 
-  return { blocks, design, namespace, slug, content, pageType, sectionStyleDefaults, featureData };
+  return { blocks, design, namespace, slug, content, pageType, featureData };
 };
 
 const parseEmbeddedPayload = () => {
@@ -175,7 +172,6 @@ const hydratePage = async () => {
 
     const pageContext = {
       type: payload.pageType || payload.type,
-      sectionStyleDefaults: payload.sectionStyleDefaults || {}
     };
 
     if (typeof window !== 'undefined') {
@@ -193,7 +189,6 @@ const hydratePage = async () => {
         basePath,
         page: {
           type: payload.pageType || payload.type,
-          sectionStyleDefaults: payload.sectionStyleDefaults || {},
           featureData: payload.featureData || {}
         }
       });
