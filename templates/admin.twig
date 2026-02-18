@@ -792,47 +792,38 @@
         <h2 class="uk-heading-bullet">{{ t('heading_rag_chat') }}</h2>
         {% set ragChatNamespace = pageNamespace|default('default') %}
         {% set ragChatNamespaceOptions = available_namespaces|default([]) %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
-          <div class="uk-grid-small uk-flex-middle" uk-grid>
-            <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="ragChatNamespaceSelect">{{ t('label_project_namespace') }}</label>
-              <div class="uk-form-controls">
-                {% if ragChatNamespaceOptions is not empty %}
-                  <select
-                    id="ragChatNamespaceSelect"
-                    class="uk-select"
-                    data-namespace-select
-                    data-namespace="{{ ragChatNamespace|e('html_attr') }}"
-                  >
-                    {% for entry in ragChatNamespaceOptions %}
-                      {% set entryNamespace = entry.namespace|default('') %}
-                      {% set entryLabel = entry.label|default('') %}
-                      {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                      <option
-                        value="{{ entryNamespace|e('html_attr') }}"
-                        {% if entryNamespace == ragChatNamespace %}selected{% endif %}
-                      >
-                        {{ entryNamespace }}
-                        {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                        {% if entryIsInactive %} – inaktiv{% endif %}
-                      </option>
-                    {% endfor %}
-                  </select>
-                {% else %}
-                  <select
-                    id="ragChatNamespaceSelect"
-                    class="uk-select"
-                    disabled
-                  >
-                    <option>{{ t('action_select') }} …</option>
-                  </select>
-                  <div class="uk-text-meta uk-margin-small-top">Konfiguriere zuerst einen Namespace im Management.</div>
-                {% endif %}
-              </div>
-            </div>
-            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
-            </div>
+        {% if ragChatNamespaceOptions is empty %}
+          {% set ragChatNamespaceOptions = [{
+            namespace: ragChatNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-grid-small uk-flex-middle uk-margin-small" uk-grid>
+          <div class="uk-width-auto">
+            <label class="uk-form-label uk-margin-remove" for="ragChatNamespaceSelect">{{ t('label_project_namespace') }}</label>
+          </div>
+          <div class="uk-width-1-1 uk-width-medium@m">
+            <select
+              id="ragChatNamespaceSelect"
+              class="uk-select uk-form-small"
+              data-namespace-select
+              data-namespace="{{ ragChatNamespace|e('html_attr') }}"
+            >
+              {% for entry in ragChatNamespaceOptions %}
+                {% set entryNamespace = entry.namespace|default('') %}
+                {% set entryLabel = entry.label|default('') %}
+                {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                <option
+                  value="{{ entryNamespace|e('html_attr') }}"
+                  {% if entryNamespace == ragChatNamespace %}selected{% endif %}
+                >
+                  {{ entryNamespace }}
+                  {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                  {% if entryIsInactive %} – inaktiv{% endif %}
+                </option>
+              {% endfor %}
+            </select>
           </div>
         </div>
         <ul uk-tab>
@@ -1587,47 +1578,37 @@
         {% set activePageNamespace = pageNamespace|default('default') %}
         {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
         {% set pageNamespaceOptions = available_namespaces|default([]) %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
-          <div class="uk-grid-small uk-flex-middle" uk-grid>
-            <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
-              <div class="uk-form-controls">
-                {% if pageNamespaceOptions is not empty %}
-                  <select
-                    id="pageNamespaceSelect"
-                    class="uk-select"
-                    data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
-                  >
-                    {% for entry in pageNamespaceOptions %}
-                      {% set entryNamespace = entry.namespace|default('') %}
-                      {% set entryLabel = entry.label|default('') %}
-                      {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                      <option
-                        value="{{ entryNamespace|e('html_attr') }}"
-                        {% if entryNamespace == activePageNamespace %}selected{% endif %}
-                      >
-                        {{ entryNamespace }}
-                        {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                        {% if entryIsInactive %} – inaktiv{% endif %}
-                      </option>
-                    {% endfor %}
-                  </select>
-                {% else %}
-                  <select
-                    id="pageNamespaceSelect"
-                    class="uk-select"
-                    data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
-                    disabled
-                  >
-                    <option>{{ t('action_select') }} …</option>
-                  </select>
-                  <div class="uk-text-meta uk-margin-small-top">Konfiguriere zuerst einen Namespace im Management.</div>
-                {% endif %}
-              </div>
-            </div>
-            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
-            </div>
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-grid-small uk-flex-middle uk-margin-small" uk-grid>
+          <div class="uk-width-auto">
+            <label class="uk-form-label uk-margin-remove" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
+          </div>
+          <div class="uk-width-1-1 uk-width-medium@m">
+            <select
+              id="pageNamespaceSelect"
+              class="uk-select uk-form-small"
+              data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+            >
+              {% for entry in pageNamespaceOptions %}
+                {% set entryNamespace = entry.namespace|default('') %}
+                {% set entryLabel = entry.label|default('') %}
+                {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                <option
+                  value="{{ entryNamespace|e('html_attr') }}"
+                  {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                >
+                  {{ entryNamespace }}
+                  {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                  {% if entryIsInactive %} – inaktiv{% endif %}
+                </option>
+              {% endfor %}
+            </select>
           </div>
         </div>
         {% include 'admin/components/project_tree.twig' %}
