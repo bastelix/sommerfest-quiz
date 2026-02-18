@@ -65,7 +65,7 @@ PROMPT;
 
     private ?PageAiHtmlSanitizer $htmlSanitizer;
 
-    private ?PageAiBlockContractValidator $blockContractValidator;
+    private PageAiBlockContractValidator $blockContractValidator;
 
     public function __construct(
         ?RagChatService $ragChatService = null,
@@ -127,12 +127,10 @@ PROMPT;
     private function validateContent(string $content): string
     {
         // Try block-contract JSON validation first
-        if ($this->blockContractValidator !== null) {
-            try {
-                return $this->blockContractValidator->validate($content);
-            } catch (RuntimeException) {
-                // Fall through to HTML sanitization if JSON validation fails
-            }
+        try {
+            return $this->blockContractValidator->validate($content);
+        } catch (RuntimeException) {
+            // Fall through to HTML sanitization if JSON validation fails
         }
 
         // Fall back to HTML sanitization for legacy prompt templates
