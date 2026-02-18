@@ -405,6 +405,7 @@ final class NavigationController
         $extractor = new PageAnchorExtractor();
         $pagePathOptions = [];
         $pageAnchorOptions = [];
+        $standaloneAnchorOptions = [];
 
         foreach ($pages as $page) {
             $slug = $page->getSlug();
@@ -426,6 +427,15 @@ final class NavigationController
                     'label' => $namespace . ': ' . $path . '#' . $anchorId,
                     'group' => 'Seiten + Anker',
                 ];
+
+                $standaloneKey = $namespace . ':#' . $anchorId;
+                if (!isset($standaloneAnchorOptions[$standaloneKey])) {
+                    $standaloneAnchorOptions[$standaloneKey] = [
+                        'value' => '#' . $anchorId,
+                        'label' => $namespace . ': #' . $anchorId,
+                        'group' => 'Seiten-Anker',
+                    ];
+                }
             }
         }
 
@@ -434,8 +444,13 @@ final class NavigationController
             $pageAnchorOptions,
             static fn (array $left, array $right): int => strcmp($left['label'], $right['label'])
         );
+        uasort(
+            $standaloneAnchorOptions,
+            static fn (array $left, array $right): int => strcmp($left['label'], $right['label'])
+        );
 
         return array_merge(
+            array_values($standaloneAnchorOptions),
             array_values($pagePathOptions),
             array_values($pageAnchorOptions)
         );

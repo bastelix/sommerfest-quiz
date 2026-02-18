@@ -123,9 +123,42 @@ export function renderBlock(block, options = {}) {
   return renderBlockSafe(block, options);
 }
 
+function slugifyBlockType(type) {
+  return String(type || '').replace(/_/g, '-').toLowerCase();
+}
+
+function assignBlockAnchors(blocks) {
+  const usedAnchors = new Set();
+  return blocks.map(block => {
+    if (!block || typeof block !== 'object') {
+      return block;
+    }
+    if (block.meta?.anchor) {
+      usedAnchors.add(block.meta.anchor);
+      return block;
+    }
+    const base = slugifyBlockType(block.type);
+    if (!base) {
+      return block;
+    }
+    let anchor = base;
+    let counter = 2;
+    while (usedAnchors.has(anchor)) {
+      anchor = `${base}-${counter}`;
+      counter++;
+    }
+    usedAnchors.add(anchor);
+    return {
+      ...block,
+      meta: { ...(block.meta || {}), anchor }
+    };
+  });
+}
+
 export function renderPage(blocks = [], options = {}) {
   const { appearance } = options;
-  return withAppearance(appearance, () => withPageContext(options.page, () => (Array.isArray(blocks) ? blocks : [])
+  const anchoredBlocks = assignBlockAnchors(Array.isArray(blocks) ? blocks : []);
+  return withAppearance(appearance, () => withPageContext(options.page, () => anchoredBlocks
     .map(block => renderBlockSafe(block, options))
     .join('\n')));
 }
