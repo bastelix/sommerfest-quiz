@@ -478,6 +478,7 @@
 - *(calserver)* Rebuild namespace CSS after migrations and write full stylesheet
 - *(calserver)* Ensure config row exists before setting custom CSS and fix referenzen data
 - *(calserver)* Reduce hero padding, improve element sizing, add logo config
+- Remove unused nullable type from PageAiGenerator::$blockContractValidator
 
 ### Merge
 
