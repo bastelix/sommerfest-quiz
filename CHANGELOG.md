@@ -455,6 +455,7 @@
 - *(calserver)* Repair block-contract violations in update_calserver_page_blocks migration
 - *(design)* Generate dark-mode namespace tokens to prevent cascade overrides
 - *(calserver)* Update CTA hrefs to match renamed demo anchor
+- *(design)* Auto-fix contrast button now considers all themes
 
 ### Merge
 
