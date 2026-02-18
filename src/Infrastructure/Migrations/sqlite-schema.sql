@@ -573,6 +573,7 @@ CREATE TABLE IF NOT EXISTS marketing_ai_prompts (
     id TEXT PRIMARY KEY,
     label TEXT NOT NULL,
     template TEXT NOT NULL,
+    output_format TEXT NOT NULL DEFAULT 'html',
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

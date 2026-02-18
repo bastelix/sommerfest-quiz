@@ -147,7 +147,7 @@ class ProjectPagesController
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'content',
             'tenant' => $this->resolveTenant($request),
-            'prompt_templates' => $this->promptTemplateService->list(),
+            'prompt_templates' => $this->promptTemplateService->listByOutputFormat('block-contract'),
             'startpage_page_id' => $startpagePageId,
             'domainNamespace' => $domainNamespace,
             'hasDomainNamespace' => $hasDomainNamespace,
