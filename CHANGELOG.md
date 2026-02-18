@@ -454,6 +454,7 @@
 - *(pages)* Resolve startpage removal bug and stale tree menu labels
 - *(calserver)* Repair block-contract violations in update_calserver_page_blocks migration
 - *(design)* Generate dark-mode namespace tokens to prevent cascade overrides
+- *(calserver)* Update CTA hrefs to match renamed demo anchor
 
 ### Merge
 
