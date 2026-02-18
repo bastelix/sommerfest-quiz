@@ -234,7 +234,7 @@ class PageSeoConfigService
         $errors = $this->validator->validate($data);
 
         if ($rawFavicon !== '' && $normalizedFavicon === null) {
-            $errors['faviconPath'] = 'Ungültiger Pfad';
+            $errors['faviconPath'] = 'Favicon-Pfad: Ungültiger Pfad – nur relative Pfade oder HTTPS-URLs erlaubt.';
         }
 
         $slug = isset($data['slug']) ? (string) $data['slug'] : '';
@@ -248,7 +248,7 @@ class PageSeoConfigService
             );
             $stmt->execute([$slug, $domainKey, $pageId]);
             if ($stmt->fetchColumn() !== false) {
-                $errors['slug'] = 'Slug bereits für diese Domain vergeben';
+                $errors['slug'] = 'Slug: Dieser Slug ist bereits für diese Domain vergeben.';
             }
         }
 

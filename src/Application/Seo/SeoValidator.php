@@ -12,6 +12,16 @@ class SeoValidator
     public const TITLE_MAX_LENGTH = 60;
     public const DESCRIPTION_MAX_LENGTH = 160;
 
+    /** @var array<string,string> Human-readable German labels for SEO fields. */
+    private const FIELD_LABELS = [
+        'metaTitle' => 'Meta Title',
+        'metaDescription' => 'Meta Description',
+        'slug' => 'Slug',
+        'canonicalUrl' => 'Canonical URL',
+        'domain' => 'Domain',
+        'faviconPath' => 'Favicon-Pfad',
+    ];
+
     /**
      * Validate SEO form data.
      *
@@ -23,9 +33,9 @@ class SeoValidator
 
         $slug = (string)($data['slug'] ?? '');
         if ($slug === '') {
-            $errors['slug'] = 'Slug is required';
+            $errors['slug'] = self::FIELD_LABELS['slug'] . ': Pflichtfeld – bitte einen Slug eingeben.';
         } elseif (!preg_match('/^[a-z0-9\/_-]+$/', $slug)) {
-            $errors['slug'] = 'Slug must contain lowercase letters, numbers, dashes, underscores or slashes only';
+            $errors['slug'] = self::FIELD_LABELS['slug'] . ': Nur Kleinbuchstaben, Ziffern, Bindestriche, Unterstriche und Schrägstriche erlaubt.';
         }
 
         $title = $data['metaTitle'] ?? null;
@@ -34,7 +44,8 @@ class SeoValidator
             && $title !== ''
             && mb_strlen((string) $title) > self::TITLE_MAX_LENGTH
         ) {
-            $errors['metaTitle'] = 'Meta title exceeds ' . self::TITLE_MAX_LENGTH . ' characters';
+            $len = mb_strlen((string) $title);
+            $errors['metaTitle'] = self::FIELD_LABELS['metaTitle'] . ': Text zu lang – ' . $len . '/' . self::TITLE_MAX_LENGTH . ' Zeichen.';
         }
 
         $description = $data['metaDescription'] ?? null;
@@ -43,22 +54,24 @@ class SeoValidator
             && $description !== ''
             && mb_strlen((string) $description) > self::DESCRIPTION_MAX_LENGTH
         ) {
-            $errors['metaDescription'] = 'Meta description exceeds ' . self::DESCRIPTION_MAX_LENGTH . ' characters';
+            $len = mb_strlen((string) $description);
+            $errors['metaDescription'] = self::FIELD_LABELS['metaDescription'] . ': Text zu lang – ' . $len . '/' . self::DESCRIPTION_MAX_LENGTH . ' Zeichen.';
         }
 
         $canonical = $data['canonicalUrl'] ?? null;
         if ($canonical !== null && $canonical !== '' && filter_var($canonical, FILTER_VALIDATE_URL) === false) {
-            $errors['canonicalUrl'] = 'Invalid URL';
+            $errors['canonicalUrl'] = self::FIELD_LABELS['canonicalUrl'] . ': Ungültige URL.';
         }
 
         $domain = $data['domain'] ?? null;
         if ($domain !== null && $domain !== '' && !preg_match('/^[a-z0-9.-]+$/', (string) $domain)) {
-            $errors['domain'] = 'Invalid domain';
+            $errors['domain'] = self::FIELD_LABELS['domain'] . ': Ungültiger Domainname.';
         }
 
         $favicon = $data['faviconPath'] ?? null;
         if ($favicon !== null && $favicon !== '' && mb_strlen((string) $favicon) > 255) {
-            $errors['faviconPath'] = 'Favicon path too long';
+            $len = mb_strlen((string) $favicon);
+            $errors['faviconPath'] = self::FIELD_LABELS['faviconPath'] . ': Pfad zu lang – ' . $len . '/255 Zeichen.';
         }
 
         return $errors;
