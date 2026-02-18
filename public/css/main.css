@@ -953,7 +953,7 @@ body.admin-page {
 
 @media (min-width: 640px) {
   .admin-page .topbar .namespace-label {
-    display: list-item;
+    display: contents;
   }
   .admin-page .topbar .namespace-label + li::before {
     display: inline;
