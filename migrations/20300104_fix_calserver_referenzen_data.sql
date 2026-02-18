@@ -351,6 +351,154 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
   font-size: clamp(1rem, 1.6vw, 1.15rem);
   line-height: 1.55;
 }
+
+/* ── Module switcher (info_media:switcher) ── */
+
+/* Grid: tabs left, panel right */
+[data-namespace="calserver"] .calserver-modules-grid {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  margin-top: 32px;
+  align-items: start;
+}
+
+/* Tab nav: vertical cards, no UIkit uppercase */
+[data-namespace="calserver"] .calserver-modules-nav.uk-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: none;
+}
+[data-namespace="calserver"] .calserver-modules-nav.uk-tab::before {
+  display: none;
+}
+[data-namespace="calserver"] .calserver-modules-nav > li {
+  margin: 0;
+  padding: 0;
+}
+[data-namespace="calserver"] .calserver-modules-nav > li > a {
+  text-transform: none;
+}
+[data-namespace="calserver"] .calserver-modules-nav__link {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(26, 115, 232, 0.06);
+  border: 1px solid rgba(26, 115, 232, 0.12);
+  color: var(--marketing-ink, #0f172a);
+  text-decoration: none;
+  transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+[data-namespace="calserver"] .calserver-modules-nav__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+[data-namespace="calserver"] .calserver-modules-nav__desc {
+  color: rgba(15, 23, 42, 0.62);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+[data-namespace="calserver"] .calserver-modules-nav li.uk-active .calserver-modules-nav__link,
+[data-namespace="calserver"] .calserver-modules-nav__link:hover {
+  background: rgba(26, 115, 232, 0.12);
+  border-color: rgba(26, 115, 232, 0.35);
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Switcher panel list reset */
+[data-namespace="calserver"] .calserver-modules-switcher {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+[data-namespace="calserver"] .calserver-modules-switcher > li {
+  list-style: none;
+}
+
+/* Figure card */
+[data-namespace="calserver"] .calserver-module-figure {
+  position: relative;
+  margin: 0;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  background: var(--marketing-surface, #fff);
+  border: 1px solid rgba(26, 115, 232, 0.15);
+  box-shadow: 0 16px 36px -20px rgba(0, 0, 0, 0.10);
+  overflow: hidden;
+}
+[data-namespace="calserver"] .calserver-module-figure__visual-wrapper {
+  margin-bottom: 0;
+}
+[data-namespace="calserver"] .calserver-module-figure__visual {
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, rgba(26, 115, 232, 0.7), #0b1a2e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+[data-namespace="calserver"] .calserver-module-figure__visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 0;
+}
+[data-namespace="calserver"] .calserver-module-figure figcaption {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+[data-namespace="calserver"] .calserver-module-figure h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+[data-namespace="calserver"] .calserver-module-figure .muted {
+  color: rgba(15, 23, 42, 0.62);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+/* Responsive: stack on tablet and below */
+@media (max-width: 959px) {
+  [data-namespace="calserver"] .calserver-modules-grid {
+    grid-template-columns: 1fr;
+  }
+  [data-namespace="calserver"] .calserver-modules-nav.uk-tab {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    gap: 8px;
+  }
+  [data-namespace="calserver"] .calserver-modules-nav > li {
+    min-width: 220px;
+    flex: 0 0 auto;
+  }
+}
+@media (max-width: 639px) {
+  [data-namespace="calserver"] .calserver-modules-nav.uk-tab {
+    flex-direction: column;
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+  [data-namespace="calserver"] .calserver-modules-nav > li {
+    min-width: 0;
+    width: 100%;
+  }
+}
 $CSS$
 WHERE event_uid = 'calserver';
 
