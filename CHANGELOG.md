@@ -491,6 +491,7 @@
 - *(ai)* Surface dispatch failures and add polling backoff
 - *(pages)* Allow editing page title in rename modal
 - *(ai)* Add shutdown handler, fix template sync, and align polling budget
+- Delegate block-based impressum content to PageController
 
 ### Merge
 
