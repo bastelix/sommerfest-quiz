@@ -490,6 +490,7 @@
 - *(calserver)* Persist layout fixes via database migration
 - *(ai)* Surface dispatch failures and add polling backoff
 - *(pages)* Allow editing page title in rename modal
+- *(ai)* Add shutdown handler, fix template sync, and align polling budget
 
 ### Merge
 
@@ -576,6 +577,7 @@
 - *(pages)* Replace domain combo box with inline submenu in page tree
 - *(ai-page)* Rework AI page creation to block-contract-v1
 - *(calserver)* Rename switcher classes to generic BEM names
+- Remove sectionStyleDefaults from page types
 
 ### Style
 
