@@ -465,6 +465,7 @@
 - *(seo)* Improve AI import error messages with German details
 - *(seo)* Show specific field errors when saving SEO config
 - *(calserver)* Use snake_case column name design_tokens in migration
+- Use namespace-specific brand name for browser tab title
 
 ### Merge
 
