@@ -31,3 +31,24 @@ html[data-namespace="calhelp"] {
   --card-radius: 10px;
   --font-heading-weight: 700;
 }
+
+html[data-namespace="calhelp"][data-theme="dark"] {
+  --brand-primary: #2b5e4a;
+  --brand-accent: #c4a35a;
+  --brand-secondary: #1a3a50;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #2b5e4a;
+  --marketing-accent: #c4a35a;
+  --marketing-secondary: #1a3a50;
+  --marketing-link: #2b5e4a;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
+}
