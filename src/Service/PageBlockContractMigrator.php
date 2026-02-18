@@ -563,6 +563,64 @@ final class PageBlockContractMigrator
      */
     private function normalizeTestimonialData(array $data): array
     {
+        // Support quotes[] array format (used by slider variant)
+        if (isset($data['quotes']) && is_array($data['quotes']) && count($data['quotes']) > 0) {
+            $normalized = [];
+
+            $title = $this->normalizeString($data['title'] ?? null);
+            if ($title !== null) {
+                $normalized['title'] = $title;
+            }
+            $subtitle = $this->normalizeString($data['subtitle'] ?? null);
+            if ($subtitle !== null) {
+                $normalized['subtitle'] = $subtitle;
+            }
+
+            $normalizedQuotes = [];
+            foreach ($data['quotes'] as $q) {
+                if (!is_array($q)) {
+                    continue;
+                }
+                $entry = [];
+                $quoteText = $this->normalizeString($q['quote'] ?? null);
+                if ($quoteText !== null) {
+                    $entry['quote'] = $quoteText;
+                }
+                if (is_array($q['author'] ?? null)) {
+                    $authorName = $this->normalizeString($q['author']['name'] ?? null);
+                    if ($authorName !== null) {
+                        $author = ['name' => $authorName];
+                        $role = $this->normalizeString($q['author']['role'] ?? null);
+                        if ($role !== null) {
+                            $author['role'] = $role;
+                        }
+                        $avatarId = $this->normalizeString($q['author']['avatarId'] ?? null);
+                        if ($avatarId !== null) {
+                            $author['avatarId'] = $avatarId;
+                        }
+                        $entry['author'] = $author;
+                    }
+                }
+                $source = $this->normalizeString($q['source'] ?? null);
+                if ($source !== null) {
+                    $entry['source'] = $source;
+                }
+                $avatarInitials = $this->normalizeString($q['avatarInitials'] ?? null);
+                if ($avatarInitials !== null) {
+                    $entry['avatarInitials'] = $avatarInitials;
+                }
+                $inlineHtml = $this->normalizeString($q['inlineHtml'] ?? null);
+                if ($inlineHtml !== null) {
+                    $entry['inlineHtml'] = $inlineHtml;
+                }
+                $normalizedQuotes[] = $entry;
+            }
+
+            $normalized['quotes'] = $normalizedQuotes;
+            return $normalized;
+        }
+
+        // Single-quote format
         $quote = $this->requireString($data['quote'] ?? null, 'quote');
         $authorRaw = is_array($data['author'] ?? null) ? $data['author'] : [];
         $author = [
@@ -863,9 +921,12 @@ final class PageBlockContractMigrator
                 && is_array($data['steps'])
                 && count($data['steps']) >= 2
                 && $this->validateProcessSteps($data['steps']),
-            'testimonial' => isset($data['quote'], $data['author']['name'])
-                && $this->hasContent($data['quote'])
-                && $this->hasContent($data['author']['name']),
+            'testimonial' => (
+                (isset($data['quote'], $data['author']['name'])
+                    && $this->hasContent($data['quote'])
+                    && $this->hasContent($data['author']['name']))
+                || (isset($data['quotes']) && is_array($data['quotes']) && count($data['quotes']) > 0)
+            ),
             'rich_text' => isset($data['body']) && $this->hasContent($data['body']),
             // Newer block types are validated against the JSON schema via $blockVariants; no extra field checks required here.
             default => true,
