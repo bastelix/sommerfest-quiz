@@ -51,6 +51,21 @@ export function initSeoForm() {
     faviconPath: 'faviconPath'
   };
 
+  const fieldLabels = {
+    metaTitle: 'Meta Title',
+    metaDescription: 'Meta Description',
+    slug: 'Slug',
+    canonical: 'Canonical URL',
+    seoDomain: 'Domain',
+    robots: 'Robots',
+    ogTitle: 'OG Title',
+    ogDescription: 'OG Description',
+    ogImage: 'OG Image',
+    schema: 'Schema.org',
+    hreflang: 'hreflang',
+    faviconPath: 'Favicon-Pfad'
+  };
+
   const pageConfigs = {};
   const pageMeta = {};
 
@@ -730,11 +745,14 @@ export function initSeoForm() {
       return;
     }
     let valid = true;
+    const violations = [];
     inputs.forEach(input => {
       const max = parseInt(input.dataset.maxlength, 10);
       if (max && input.value.length > max) {
         input.classList.add('uk-form-danger');
         valid = false;
+        const label = fieldLabels[input.id] || input.id;
+        violations.push(`${label}: zu lang – ${input.value.length}/${max} Zeichen`);
       } else {
         input.classList.remove('uk-form-danger');
       }
@@ -743,11 +761,16 @@ export function initSeoForm() {
       if (!field.value.trim()) {
         field.classList.add('uk-form-danger');
         valid = false;
+        const label = fieldLabels[field.id] || field.id;
+        violations.push(`${label}: Pflichtfeld`);
       } else {
         field.classList.remove('uk-form-danger');
       }
     });
-    if (!valid) return;
+    if (!valid) {
+      notify(violations.join('\n'), 'danger');
+      return;
+    }
     const body = new URLSearchParams(new FormData(form));
     apiFetch(saveUrl, {
       method: 'POST',
@@ -758,7 +781,25 @@ export function initSeoForm() {
       body
     })
       .then(r => {
-        if (!r.ok) throw new Error('save-failed');
+        if (!r.ok) {
+          return r.json().catch(() => ({})).then(errData => {
+            if (errData && errData.errors && typeof errData.errors === 'object') {
+              const messages = [];
+              Object.entries(errData.errors).forEach(([key, msg]) => {
+                messages.push(msg);
+                const elementId = fieldMap[key] || key;
+                const field = form.querySelector(`#${elementId}`);
+                if (field) {
+                  field.classList.add('uk-form-danger');
+                }
+              });
+              notify(messages.join('\n'), 'danger');
+            } else {
+              notify('Fehler beim Speichern (HTTP ' + r.status + ')', 'danger');
+            }
+            throw new Error('save-handled');
+          });
+        }
         return r.json().catch(() => ({}));
       })
       .then(data => {
@@ -823,7 +864,10 @@ export function initSeoForm() {
         }
         notify('Einstellungen gespeichert', 'success');
       })
-      .catch(() => notify('Fehler beim Speichern', 'danger'));
+      .catch(err => {
+        if (err && err.message === 'save-handled') return;
+        notify('Fehler beim Speichern', 'danger');
+      });
   });
 }
 
