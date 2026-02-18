@@ -489,6 +489,7 @@
 - *(calserver)* Increase hero spacing, compact stats strip, enlarge logo
 - *(calserver)* Persist layout fixes via database migration
 - *(ai)* Surface dispatch failures and add polling backoff
+- *(pages)* Allow editing page title in rename modal
 
 ### Merge
 
