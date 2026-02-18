@@ -463,6 +463,7 @@
 - Handle PostgreSQL boolean string representations in normalizeBoolean
 - *(seo)* Extract text from block-based JSON for AI SEO import
 - *(seo)* Improve AI import error messages with German details
+- *(seo)* Show specific field errors when saving SEO config
 
 ### Merge
 
