@@ -12,6 +12,7 @@ use App\Service\CmsPageMenuService;
 use App\Service\CmsPageWikiArticleService;
 use App\Service\CmsPageWikiSettingsService;
 use App\Service\ConfigService;
+use App\Service\DesignTokenService;
 use App\Service\EffectsPolicyService;
 use App\Service\NamespaceAppearanceService;
 use App\Service\NamespaceRenderContextService;
@@ -165,6 +166,7 @@ class PageController
 
         $renderContext = $this->namespaceRenderContext->build($designNamespace);
         $designNamespace = $renderContext['namespace'];
+        $this->ensureNamespaceStylesheet($request, $designNamespace);
         $design = $this->loadDesign($designNamespace);
         $pageType = $page->getType();
         $pageFeatures = $this->resolvePageFeatures($page, $templateSlug, $design);
@@ -1024,6 +1026,31 @@ class PageController
         $timestamp = filemtime($path);
 
         return $timestamp === false ? (string) time() : (string) $timestamp;
+    }
+
+    /**
+     * Rebuild the per-namespace stylesheet when it is missing (e.g. after a
+     * fresh deployment that does not include generated CSS files).
+     */
+    private function ensureNamespaceStylesheet(Request $request, string $namespace): void
+    {
+        $normalized = strtolower(trim($namespace));
+        if ($normalized === '' || $normalized === PageService::DEFAULT_NAMESPACE) {
+            return;
+        }
+
+        $path = dirname(__DIR__, 3) . '/public/css/' . $normalized . '/namespace-tokens.css';
+        if (is_file($path)) {
+            return;
+        }
+
+        try {
+            $pdo = \App\Support\RequestDatabase::resolve($request);
+            $service = new DesignTokenService($pdo, $this->configService);
+            $service->rebuildStylesheet();
+        } catch (\Throwable $e) {
+            // Rebuild is best-effort; the template onerror fallback still works.
+        }
     }
 
     private function buildNewsBasePath(Request $request, string $pageSlug): string
