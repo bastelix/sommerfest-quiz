@@ -371,82 +371,15 @@
             <form id="aiPageForm" class="uk-form-stacked">
               <div class="uk-alert uk-alert-danger" data-ai-page-feedback hidden role="alert"></div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="aiPageTheme">{{ t('label_ai_page_theme') }}</label>
+                <label class="uk-form-label" for="aiPageSlug">{{ t('label_ai_page_slug') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="aiPageTheme" name="theme" type="text" required placeholder="{{ t('placeholder_ai_page_theme') }}">
+                  <input class="uk-input" id="aiPageSlug" name="slug" type="text" required maxlength="100" placeholder="{{ t('placeholder_ai_page_slug') }}">
                 </div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="aiPageColorScheme">{{ t('label_ai_page_color_scheme') }}</label>
+                <label class="uk-form-label" for="aiPageTitle">{{ t('label_ai_page_title') }}</label>
                 <div class="uk-form-controls">
-                  <input
-                    class="uk-input"
-                    id="aiPageColorScheme"
-                    name="color_scheme"
-                    type="text"
-                    required
-                    placeholder="{{ t('placeholder_ai_page_color_scheme') }}"
-                  >
-                </div>
-              </div>
-              <div class="uk-margin">
-                <div class="uk-form-label">{{ t('label_ai_page_color_tokens') }}</div>
-                <div class="uk-text-meta uk-margin-small-bottom">{{ t('text_ai_page_color_tokens_hint') }}</div>
-                <div class="uk-grid uk-grid-small uk-child-width-1-3@m" uk-grid>
-                  <div>
-                    <label class="uk-form-label" for="aiPagePrimaryColor">{{ t('label_ai_page_primary_color') }}</label>
-                    <div class="uk-form-controls uk-flex uk-flex-middle uk-grid-small" uk-grid>
-                      <div class="uk-width-auto">
-                        <input
-                          class="uk-input uk-form-width-small"
-                          id="aiPagePrimaryColor"
-                          name="primary_color"
-                          type="color"
-                          value="#1e87f0"
-                          data-default="#1e87f0"
-                        >
-                      </div>
-                      <div class="uk-width-expand">
-                        <div class="uk-text-meta" data-ai-color-value="aiPagePrimaryColor">#1e87f0</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="uk-form-label" for="aiPageBackgroundColor">{{ t('label_ai_page_background_color') }}</label>
-                    <div class="uk-form-controls uk-flex uk-flex-middle uk-grid-small" uk-grid>
-                      <div class="uk-width-auto">
-                        <input
-                          class="uk-input uk-form-width-small"
-                          id="aiPageBackgroundColor"
-                          name="background_color"
-                          type="color"
-                          value="#0f172a"
-                          data-default="#0f172a"
-                        >
-                      </div>
-                      <div class="uk-width-expand">
-                        <div class="uk-text-meta" data-ai-color-value="aiPageBackgroundColor">#0f172a</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="uk-form-label" for="aiPageAccentColor">{{ t('label_ai_page_accent_color') }}</label>
-                    <div class="uk-form-controls uk-flex uk-flex-middle uk-grid-small" uk-grid>
-                      <div class="uk-width-auto">
-                        <input
-                          class="uk-input uk-form-width-small"
-                          id="aiPageAccentColor"
-                          name="accent_color"
-                          type="color"
-                          value="#f59e0b"
-                          data-default="#f59e0b"
-                        >
-                      </div>
-                      <div class="uk-width-expand">
-                        <div class="uk-text-meta" data-ai-color-value="aiPageAccentColor">#f59e0b</div>
-                      </div>
-                    </div>
-                  </div>
+                  <input class="uk-input" id="aiPageTitle" name="title" type="text" required placeholder="{{ t('placeholder_ai_page_title') }}">
                 </div>
               </div>
               <div class="uk-margin">
@@ -460,33 +393,6 @@
                     required
                     placeholder="{{ t('placeholder_ai_page_problem') }}"
                   ></textarea>
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="aiPagePromptTemplate">{{ t('label_ai_page_prompt_template') }}</label>
-                <div class="uk-form-controls">
-                  <select class="uk-select" id="aiPagePromptTemplate" name="prompt_template_id">
-                    <option value="">{{ t('placeholder_ai_page_prompt_template') }}</option>
-                    {% for template in prompt_templates|default([]) %}
-                      {% set templateId = template.id|default('') %}
-                      {% set templateLabel = template.label|default('') %}
-                      {% if templateId is not empty and templateLabel is not empty %}
-                        <option value="{{ templateId|e('html_attr') }}">{{ templateLabel }}</option>
-                      {% endif %}
-                    {% endfor %}
-                  </select>
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="aiPageSlug">{{ t('label_ai_page_slug') }}</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" id="aiPageSlug" name="slug" type="text" required maxlength="100" placeholder="{{ t('placeholder_ai_page_slug') }}">
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="aiPageTitle">{{ t('label_ai_page_title') }}</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" id="aiPageTitle" name="title" type="text" required placeholder="{{ t('placeholder_ai_page_title') }}">
                 </div>
               </div>
               <div class="uk-margin">
