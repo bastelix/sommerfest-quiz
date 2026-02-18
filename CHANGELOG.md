@@ -480,6 +480,7 @@
 - *(calserver)* Reduce hero padding, improve element sizing, add logo config
 - Remove unused nullable type from PageAiGenerator::$blockContractValidator
 - *(ai-page)* Restore prompt template selection and add Impressum template
+- *(ai)* Limit template selector to block-contract prompts and backfill missing templates
 
 ### Merge
 
