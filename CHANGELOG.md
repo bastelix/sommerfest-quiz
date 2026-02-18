@@ -570,6 +570,7 @@
 - *(calserver)* Remove fixed slug routes and add namespace design tokens
 - *(pages)* Replace domain combo box with inline submenu in page tree
 - *(ai-page)* Rework AI page creation to block-contract-v1
+- *(calserver)* Rename switcher classes to generic BEM names
 
 ### Style
 
