@@ -1255,10 +1255,47 @@ class ProjectPagesController
             // Silently ignore namespace lookup errors
         }
 
+        $availableMenus = [];
+        $menuAssignmentMap = [];
+
+        try {
+            $menus = $this->menuDefinitions->listMenus($namespace);
+            foreach ($menus as $menu) {
+                $availableMenus[] = [
+                    'id' => $menu->getId(),
+                    'label' => $menu->getLabel(),
+                    'locale' => $menu->getLocale(),
+                ];
+            }
+
+            $menuLookup = [];
+            foreach ($menus as $menu) {
+                $menuLookup[$menu->getId()] = $menu->getLabel();
+            }
+
+            $assignments = $this->menuDefinitions->listAssignments($namespace, null, null, 'main');
+            foreach ($assignments as $assignment) {
+                $pageId = $assignment->getPageId();
+                if ($pageId !== null && !isset($menuAssignmentMap[$pageId])) {
+                    $menuAssignmentMap[$pageId] = [
+                        'assignmentId' => $assignment->getId(),
+                        'menuId' => $assignment->getMenuId(),
+                        'menuLabel' => $menuLookup[$assignment->getMenuId()] ?? '',
+                        'locale' => $assignment->getLocale(),
+                        'isActive' => $assignment->isActive(),
+                    ];
+                }
+            }
+        } catch (\RuntimeException $exception) {
+            // Silently ignore menu lookup errors
+        }
+
         return [[
             'namespace' => $namespace,
             'namespaceInfo' => $namespaceInfo,
             'pages' => $this->mapTreePages($treePages, $basePath, $namespace),
+            'availableMenus' => $availableMenus,
+            'menuAssignmentMap' => (object) $menuAssignmentMap,
         ]];
     }
 

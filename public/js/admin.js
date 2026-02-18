@@ -628,7 +628,194 @@ const executePageDelete = async (slug, namespace) => {
   }
 };
 
-const buildProjectPageTreeList = (nodes, level = 0) => {
+let menuAssignPending = null;
+
+const updateMenuBadge = (pageId, menuLabel) => {
+  const existing = document.querySelector('[data-menu-badge="' + pageId + '"]');
+  if (menuLabel) {
+    if (existing) {
+      existing.textContent = menuLabel;
+      existing.title = 'Top-Menü: ' + menuLabel;
+    } else {
+      const row = document.querySelector('[data-page-row="' + pageId + '"]');
+      if (row) {
+        let meta = row.querySelector('.uk-flex.uk-flex-middle.uk-flex-wrap');
+        if (!meta) {
+          meta = document.createElement('div');
+          meta.className = 'uk-flex uk-flex-middle uk-flex-wrap';
+          const actions = row.querySelector('.page-tree-actions');
+          if (actions) {
+            row.insertBefore(meta, actions);
+          } else {
+            row.appendChild(meta);
+          }
+        }
+        const badge = document.createElement('span');
+        badge.className = 'uk-label uk-label-success uk-margin-small-left';
+        badge.textContent = menuLabel;
+        badge.setAttribute('data-menu-badge', pageId);
+        badge.title = 'Top-Menü: ' + menuLabel;
+        meta.appendChild(badge);
+      }
+    }
+  } else {
+    if (existing) existing.remove();
+  }
+};
+
+const ensureMenuAssignModal = () => {
+  if (document.getElementById('menuAssignModal')) return;
+  const el = document.createElement('div');
+  el.id = 'menuAssignModal';
+  el.setAttribute('uk-modal', '');
+  el.innerHTML = [
+    '<div class="uk-modal-dialog uk-modal-body">',
+    '  <h3 class="uk-modal-title">Top-Menü zuweisen</h3>',
+    '  <p id="menuAssignHint" class="uk-text-meta"></p>',
+    '  <label class="uk-form-label" for="menuAssignSelect">Menü auswählen</label>',
+    '  <select id="menuAssignSelect" class="uk-select"></select>',
+    '  <div id="menuAssignError" class="uk-text-danger uk-margin-small-top" hidden></div>',
+    '  <div class="uk-margin-top uk-text-right">',
+    '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
+    '    <button id="menuAssignSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">Speichern</button>',
+    '  </div>',
+    '</div>'
+  ].join('\n');
+  document.body.appendChild(el);
+
+  el.addEventListener('hidden', () => { menuAssignPending = null; });
+
+  document.getElementById('menuAssignSave').addEventListener('click', async () => {
+    if (!menuAssignPending) return;
+    const { node, currentAssignment, menuAssignmentMap, availableMenus } = menuAssignPending;
+    const select = document.getElementById('menuAssignSelect');
+    const errorEl = document.getElementById('menuAssignError');
+    const selectedMenuId = select.value;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    if (!csrfToken) {
+      errorEl.textContent = 'CSRF-Token fehlt. Bitte Seite neu laden.';
+      errorEl.hidden = false;
+      return;
+    }
+
+    const namespaceParam = '?namespace=' + encodeURIComponent(node.namespace || 'default');
+
+    try {
+      if (selectedMenuId === '' && currentAssignment) {
+        const resp = await fetch(
+          withBase('/admin/menu-assignments/' + currentAssignment.assignmentId + namespaceParam),
+          { method: 'DELETE', headers: { 'X-CSRF-Token': csrfToken } }
+        );
+        if (!resp.ok && resp.status !== 204) {
+          const err = await resp.json().catch(() => ({}));
+          throw new Error(err.error || 'Fehler: ' + resp.status);
+        }
+        delete menuAssignmentMap[node.id];
+        updateMenuBadge(node.id, null);
+        window.notify('Menü-Zuweisung entfernt', 'success');
+
+      } else if (selectedMenuId !== '' && !currentAssignment) {
+        const resp = await fetch(
+          withBase('/admin/menu-assignments' + namespaceParam),
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+            body: JSON.stringify({
+              menuId: parseInt(selectedMenuId, 10),
+              pageId: node.id,
+              slot: 'main',
+              locale: node.language || 'de',
+              isActive: true
+            })
+          }
+        );
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          throw new Error(err.error || 'Fehler: ' + resp.status);
+        }
+        const data = await resp.json();
+        const menuLabel = (availableMenus.find(m => String(m.id) === selectedMenuId) || {}).label || '';
+        menuAssignmentMap[node.id] = {
+          assignmentId: data.assignment.id,
+          menuId: data.assignment.menuId,
+          menuLabel: menuLabel,
+          locale: data.assignment.locale,
+          isActive: data.assignment.isActive
+        };
+        updateMenuBadge(node.id, menuLabel);
+        window.notify('Menü-Zuweisung gespeichert', 'success');
+
+      } else if (selectedMenuId !== '' && currentAssignment) {
+        const resp = await fetch(
+          withBase('/admin/menu-assignments/' + currentAssignment.assignmentId + namespaceParam),
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+            body: JSON.stringify({
+              menuId: parseInt(selectedMenuId, 10),
+              pageId: node.id,
+              slot: 'main',
+              locale: node.language || 'de',
+              isActive: true
+            })
+          }
+        );
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          throw new Error(err.error || 'Fehler: ' + resp.status);
+        }
+        const data = await resp.json();
+        const menuLabel = (availableMenus.find(m => String(m.id) === selectedMenuId) || {}).label || '';
+        menuAssignmentMap[node.id] = {
+          assignmentId: data.assignment.id,
+          menuId: data.assignment.menuId,
+          menuLabel: menuLabel,
+          locale: data.assignment.locale,
+          isActive: data.assignment.isActive
+        };
+        updateMenuBadge(node.id, menuLabel);
+        window.notify('Menü-Zuweisung gespeichert', 'success');
+      }
+
+      UIkit.modal('#menuAssignModal').hide();
+    } catch (error) {
+      errorEl.textContent = error.message || 'Menü-Zuweisung konnte nicht gespeichert werden.';
+      errorEl.hidden = false;
+    }
+  });
+};
+
+const openMenuAssignModal = (node, availableMenus, menuAssignmentMap) => {
+  ensureMenuAssignModal();
+  const select = document.getElementById('menuAssignSelect');
+  const hint = document.getElementById('menuAssignHint');
+  const errorEl = document.getElementById('menuAssignError');
+  errorEl.hidden = true;
+  errorEl.textContent = '';
+
+  select.innerHTML = '<option value="">\u2014 Kein Menü \u2014</option>';
+  availableMenus.forEach(menu => {
+    const opt = document.createElement('option');
+    opt.value = menu.id;
+    opt.textContent = menu.label + (menu.locale ? ' (' + menu.locale + ')' : '');
+    select.appendChild(opt);
+  });
+
+  const currentAssignment = node.id ? menuAssignmentMap[node.id] : null;
+  if (currentAssignment) {
+    select.value = String(currentAssignment.menuId);
+  } else {
+    select.value = '';
+  }
+
+  hint.textContent = 'Seite: \u201e' + (node.title || node.slug) + '\u201c';
+  menuAssignPending = { node, currentAssignment, menuAssignmentMap, availableMenus };
+
+  UIkit.modal('#menuAssignModal').show();
+};
+
+const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAssignmentMap = {}) => {
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-collapse';
   if (level > 0) {
@@ -642,6 +829,9 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
     const item = document.createElement('li');
     const row = document.createElement('div');
     row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
+    if (node.id) {
+      row.setAttribute('data-page-row', node.id);
+    }
 
     const info = document.createElement('div');
     const label = node.title || node.slug || 'Ohne Titel';
@@ -677,6 +867,15 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
       language.textContent = node.language;
       meta.appendChild(language);
     }
+    const menuAssignment = node.id ? menuAssignmentMap[node.id] : null;
+    if (menuAssignment && menuAssignment.menuLabel) {
+      const menuBadge = document.createElement('span');
+      menuBadge.className = 'uk-label uk-label-success uk-margin-small-left';
+      menuBadge.textContent = menuAssignment.menuLabel;
+      menuBadge.setAttribute('data-menu-badge', node.id);
+      menuBadge.title = 'Top-Menü: ' + menuAssignment.menuLabel;
+      meta.appendChild(menuBadge);
+    }
     if (meta.childElementCount > 0) {
       row.appendChild(meta);
     }
@@ -710,6 +909,20 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
       renameLi.appendChild(renameLink);
       nav.appendChild(renameLi);
 
+      if (availableMenus.length > 0) {
+        const menuLi = document.createElement('li');
+        const menuLink = document.createElement('a');
+        menuLink.href = '#';
+        menuLink.innerHTML = '<span uk-icon="icon: menu; ratio: 0.8" class="uk-margin-small-right"></span>Menü zuweisen';
+        menuLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          UIkit.dropdown(dropdown).hide(false);
+          openMenuAssignModal(node, availableMenus, menuAssignmentMap);
+        });
+        menuLi.appendChild(menuLink);
+        nav.appendChild(menuLi);
+      }
+
       const divider = document.createElement('li');
       divider.className = 'uk-nav-divider';
       nav.appendChild(divider);
@@ -739,7 +952,7 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
 
     item.appendChild(row);
     if (Array.isArray(node.children) && node.children.length) {
-      item.appendChild(buildProjectPageTreeList(node.children, level + 1));
+      item.appendChild(buildProjectPageTreeList(node.children, level + 1, availableMenus, menuAssignmentMap));
     }
     list.appendChild(item);
   });
@@ -1239,10 +1452,14 @@ const renderProjectTree = (container, namespaces, emptyMessage) => {
     const pages = Array.isArray(section.pages) ? section.pages : [];
     const flatPages = typeof flattenNodes === 'function' ? flattenNodes(pages, namespace) : pages;
     const pageTree = typeof buildTree === 'function' ? buildTree(flatPages) : pages;
+    const sectionMenus = Array.isArray(section.availableMenus) ? section.availableMenus : [];
+    const sectionMenuMap = section.menuAssignmentMap && typeof section.menuAssignmentMap === 'object'
+      ? section.menuAssignmentMap
+      : {};
     appendProjectBlock(
       wrapper,
       'Pages',
-      pageTree.length ? buildProjectPageTreeList(pageTree) : createProjectEmptyState('Keine Seiten vorhanden.')
+      pageTree.length ? buildProjectPageTreeList(pageTree, 0, sectionMenus, sectionMenuMap) : createProjectEmptyState('Keine Seiten vorhanden.')
     );
 
     const wikiEntries = Array.isArray(section.wiki) ? section.wiki : [];
