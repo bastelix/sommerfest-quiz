@@ -215,7 +215,7 @@ class AdminController
 
         $loadMarketingData = $section === 'pages' && $role === Roles::ADMIN;
         $loadDomainChatData = $loadMarketingData || $section === 'rag-chat';
-        $loadNamespaces = $section === 'management' || $loadMarketingData;
+        $loadNamespaces = $section === 'management' || $loadMarketingData || $section === 'rag-chat';
         $loadMediaLandingSlugs = $section === 'media';
         if ($loadNamespaces) {
             $namespaceRepository = new NamespaceRepository($pdo);

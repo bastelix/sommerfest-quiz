@@ -790,6 +790,51 @@
       <li class="{{ activeRoute == 'rag-chat' ? 'uk-active' }}">
         <div class="admin-section">
         <h2 class="uk-heading-bullet">{{ t('heading_rag_chat') }}</h2>
+        {% set ragChatNamespace = pageNamespace|default('default') %}
+        {% set ragChatNamespaceOptions = available_namespaces|default([]) %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="ragChatNamespaceSelect">{{ t('label_project_namespace') }}</label>
+              <div class="uk-form-controls">
+                {% if ragChatNamespaceOptions is not empty %}
+                  <select
+                    id="ragChatNamespaceSelect"
+                    class="uk-select"
+                    data-namespace-select
+                    data-namespace="{{ ragChatNamespace|e('html_attr') }}"
+                  >
+                    {% for entry in ragChatNamespaceOptions %}
+                      {% set entryNamespace = entry.namespace|default('') %}
+                      {% set entryLabel = entry.label|default('') %}
+                      {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                      <option
+                        value="{{ entryNamespace|e('html_attr') }}"
+                        {% if entryNamespace == ragChatNamespace %}selected{% endif %}
+                      >
+                        {{ entryNamespace }}
+                        {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                        {% if entryIsInactive %} – inaktiv{% endif %}
+                      </option>
+                    {% endfor %}
+                  </select>
+                {% else %}
+                  <select
+                    id="ragChatNamespaceSelect"
+                    class="uk-select"
+                    disabled
+                  >
+                    <option>{{ t('action_select') }} …</option>
+                  </select>
+                  <div class="uk-text-meta uk-margin-small-top">Konfiguriere zuerst einen Namespace im Management.</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+            </div>
+          </div>
+        </div>
         <ul uk-tab>
           <li><a href="#">{{ t('tab_domain_chat') }}</a></li>
           <li><a href="#">{{ t('tab_rag_chat_config') }}</a></li>
