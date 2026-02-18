@@ -17,8 +17,8 @@
       EMAIL: {{ tenant.imprint_email|default('')|json_encode|raw }}
     };
   </script>
-  <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
-  <script type="module" src="{{ basePath }}/js/seo-form.js"></script>
+  <script type="module" src="{{ basePath }}/js/tiptap-pages.js?v={{ namespaceTokensQuery|default('now'|date('U')) }}"></script>
+  <script type="module" src="{{ basePath }}/js/seo-form.js?v={{ namespaceTokensQuery|default('now'|date('U')) }}"></script>
 {% endblock %}
 
 {% block admin_topbar %}

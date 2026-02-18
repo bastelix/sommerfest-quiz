@@ -82,6 +82,18 @@ export interface HeroVideo {
   link?: CallToAction;
 }
 
+export interface HeroStatTile {
+  value?: string;
+  label?: string;
+}
+
+export interface HeroProvenExpert {
+  rating?: string;
+  recommendation?: string;
+  reviewCount?: string;
+  reviewSource?: string;
+}
+
 export interface HeroBlockData {
   eyebrow?: string;
   eyebrowAsTag?: boolean;
@@ -91,6 +103,8 @@ export interface HeroBlockData {
   cta: CallToActionGroup;
   video?: HeroVideo;
   referenceLink?: CallToAction;
+  statTiles?: HeroStatTile[];
+  provenExpert?: HeroProvenExpert;
 }
 
 export interface FeatureItem {
@@ -109,6 +123,7 @@ export interface FeatureListBlockData {
   subtitle?: string;
   lead?: string;
   intro?: string;
+  columns?: number;
   items: FeatureItem[];
   cta?: CallToAction;
 }
@@ -158,10 +173,22 @@ export interface Author {
   avatarId?: string;
 }
 
-export interface TestimonialBlockData {
-  quote: string;
-  author: Author;
+export interface TestimonialQuote {
+  quote?: string;
+  author?: Author;
   source?: string;
+  avatarInitials?: string;
+  inlineHtml?: string;
+}
+
+export interface TestimonialBlockData {
+  title?: string;
+  subtitle?: string;
+  quote?: string;
+  author?: Author;
+  source?: string;
+  inlineHtml?: string;
+  quotes?: TestimonialQuote[];
 }
 
 export interface RichTextBlockData {
@@ -196,16 +223,22 @@ export interface StatMetric {
   benefit?: string;
 }
 
+export interface StatStripItem {
+  icon?: string;
+  label?: string;
+}
+
 export interface StatStripBlockData {
   title?: string;
   lede?: string;
   columns?: number;
-  metrics: StatMetric[];
+  metrics?: StatMetric[];
+  items?: StatStripItem[];
   marquee?: string[];
 }
 
 export interface AudienceCase {
-  id: string;
+  id?: string;
   badge?: string;
   title: string;
   lead?: string;
@@ -235,7 +268,7 @@ export interface PackageOption {
 }
 
 export interface PackagePlan {
-  id: string;
+  id?: string;
   title: string;
   badge?: string;
   description?: string;

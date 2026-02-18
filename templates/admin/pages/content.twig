@@ -69,7 +69,7 @@
     window.pageDesign = {{ design|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.pageDesignConfig = {{ design.config|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
   </script>
-  <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
+  <script type="module" src="{{ basePath }}/js/tiptap-pages.js?v={{ namespaceTokensQuery|default('now'|date('U')) }}"></script>
 {% endblock %}
 
 {% block content %}
