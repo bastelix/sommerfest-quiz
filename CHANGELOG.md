@@ -451,6 +451,7 @@
 - *(sections)* Remove column-gap that broke 3-column grid on desktop
 - *(calserver)* Align block data with block-contract schema
 - *(calserver)* Repair block-contract violations in database content
+- *(pages)* Resolve startpage removal bug and stale tree menu labels
 
 ### Merge
 
