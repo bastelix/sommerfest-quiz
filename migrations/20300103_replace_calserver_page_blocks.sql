@@ -199,56 +199,104 @@ SET content = $CONTENT${
             "title": "Thermo Fisher Scientific",
             "badge": "Kalibrierlabor",
             "lead": "Globaler Life-Science-Konzern · EMEA-weites Deployment",
-            "body": "<h5><strong>Projektnutzung</strong></h5><p>EMEA-weite Leihgeräte-Verwaltung und lückenlose Geräteakten über mehrere Standorte. Bidirektionale Synchronisation mit Fluke MET/TEAM für einen konsistenten Datenbestand.</p><h5><strong>Ergebnis</strong></h5><p>Zentraler Überblick über den gesamten EMEA-Gerätebestand, eliminierte Datensilos zwischen MET/TEAM und calServer, revisionssichere Nachverfolgung.</p>"
+            "body": "EMEA-weite Leihgeräte-Verwaltung und lückenlose Geräteakten über mehrere Standorte. Bidirektionale Synchronisation mit Fluke MET/TEAM für einen konsistenten Datenbestand.",
+            "keyFacts": [
+              "EMEA-weites Deployment",
+              "Bidirektionale MET/TEAM-Synchronisation",
+              "Eliminierte Datensilos",
+              "Revisionssichere Nachverfolgung"
+            ]
           },
           {
             "id": "zf",
             "title": "ZF",
             "badge": "Industrielabor",
             "lead": "Automobilzulieferer · Enterprise-Infrastruktur",
-            "body": "<h5><strong>Projektnutzung</strong></h5><p>API-basierte Messwert-Erfassung auf Kubernetes-Infrastruktur mit SSO-Anbindung (Azure AD). Bidirektionale MET/TEAM-Synchronisation für nahtlosen Datenaustausch.</p><h5><strong>Ergebnis</strong></h5><p>Vollständige Integration in die bestehende Enterprise-IT-Landschaft, automatisierte Messwert-Pipelines und Single-Sign-On für alle Anwender.</p>"
+            "body": "API-basierte Messwert-Erfassung auf Kubernetes-Infrastruktur mit SSO-Anbindung (Azure AD). Bidirektionale MET/TEAM-Synchronisation für nahtlosen Datenaustausch.",
+            "keyFacts": [
+              "Enterprise-Kubernetes-Infrastruktur",
+              "Azure AD SSO-Integration",
+              "Automatisierte Messwert-Pipelines",
+              "Nahtloser MET/TEAM-Datenaustausch"
+            ]
           },
           {
             "id": "vde",
             "title": "VDE",
             "badge": "Qualitätsmanagement",
             "lead": "Verband der Elektrotechnik · Normungsinstitut",
-            "body": "<h5><strong>Projektnutzung</strong></h5><p>Agile Auftragssteuerung mit integriertem Dokumentenmanagement. calServer als zentrales Intranet und Ticketing-Plattform für die QM-Abteilung.</p><h5><strong>Ergebnis</strong></h5><p>Transparente Auftragsprozesse, revisionssicheres DMS und ein zentraler Hub für alle QM-relevanten Workflows – jenseits der klassischen Kalibrierung.</p>"
+            "body": "Agile Auftragssteuerung mit integriertem Dokumentenmanagement. calServer als zentrales Intranet und Ticketing-Plattform für die QM-Abteilung.",
+            "keyFacts": [
+              "Transparente Auftragsprozesse",
+              "Revisionssicheres DMS",
+              "Zentraler QM-Hub",
+              "Einsatz jenseits klassischer Kalibrierung"
+            ]
           },
           {
             "id": "ifm",
             "title": "ifm electronic",
             "badge": "Kalibrierlabor",
             "lead": "Sensorhersteller · 2 Standorte",
-            "body": "<h5><strong>Projektnutzung</strong></h5><p>Standortübergreifendes Ticket-Management für Störungen und CAPA-Prozesse. Bidirektionale Synchronisation mit MET/TEAM und MET/CAL.</p><h5><strong>Ergebnis</strong></h5><p>Einheitliche Störungsbearbeitung über beide Standorte, nachvollziehbare CAPA-Dokumentation und konsistenter Datenbestand mit dem Fluke-Ökosystem.</p>"
+            "body": "Standortübergreifendes Ticket-Management für Störungen und CAPA-Prozesse. Bidirektionale Synchronisation mit MET/TEAM und MET/CAL.",
+            "keyFacts": [
+              "2 Standorte vernetzt",
+              "CAPA-Dokumentation",
+              "MET/TEAM + MET/CAL Sync",
+              "Einheitliche Störungsbearbeitung"
+            ]
           },
           {
             "id": "berliner-stadtwerke",
             "title": "Berliner Stadtwerke",
             "badge": "Assetmanagement",
             "lead": "Kommunaler Energieversorger · Erneuerbare Energien",
-            "body": "<h5><strong>Projektnutzung</strong></h5><p>Projekt- und Wartungsmanagement für dezentrale erneuerbare Energieanlagen (PV, Speicher). calServer als zentrale Plattform jenseits der klassischen Kalibrierung.</p><h5><strong>Ergebnis</strong></h5><p>Strukturierte Wartungsplanung und Projektdokumentation für verteilte Assets – Nachweis, dass calServer auch außerhalb der Kalibrierung funktioniert.</p>"
+            "body": "Projekt- und Wartungsmanagement für dezentrale erneuerbare Energieanlagen (PV, Speicher). calServer als zentrale Plattform jenseits der klassischen Kalibrierung.",
+            "keyFacts": [
+              "Erneuerbare Energien (PV, Speicher)",
+              "Dezentrale Assetverwaltung",
+              "Strukturierte Wartungsplanung",
+              "Einsatz jenseits der Kalibrierung"
+            ]
           },
           {
             "id": "ksw",
             "title": "KSW",
             "badge": "Kalibrierlabor",
             "lead": "Kalibrierdienstleister · End-to-End-Prozess",
-            "body": "<h5><strong>Projektnutzung</strong></h5><p>Kompletter Workflow vom Wareneingang über die Laborbearbeitung bis zur automatisierten Rechnungsstellung – alles in calServer abgebildet.</p><h5><strong>Ergebnis</strong></h5><p>Durchgängig digitaler Auftragsprozess ohne Medienbrüche, automatisierte Abrechnung und vollständige Nachverfolgbarkeit aller Kalibrieraufträge.</p>"
+            "body": "Kompletter Workflow vom Wareneingang über die Laborbearbeitung bis zur automatisierten Rechnungsstellung – alles in calServer abgebildet.",
+            "keyFacts": [
+              "End-to-End-Auftragsprozess",
+              "Automatisierte Abrechnung",
+              "Kein Medienbruch",
+              "Vollständige Nachverfolgbarkeit"
+            ]
           },
           {
             "id": "teramess",
             "title": "TERAMESS",
             "badge": "Kalibrierlabor",
             "lead": "Kalibrierdienstleister · DAkkS-akkreditiert",
-            "body": "<h5><strong>Projektnutzung</strong></h5><p>DAkkS-konforme Kalibrierscheine direkt aus calServer in der Cloud erstellen. Audit-sichere Dokumentation über den gesamten Kalibrierprozess.</p><h5><strong>Ergebnis</strong></h5><p>Normkonforme Zertifikate auf Knopfdruck, durchgängig digitale Prozesskette und jederzeitige Audit-Bereitschaft – vollständig cloudbasiert.</p>"
+            "body": "DAkkS-konforme Kalibrierscheine direkt aus calServer in der Cloud erstellen. Audit-sichere Dokumentation über den gesamten Kalibrierprozess.",
+            "keyFacts": [
+              "DAkkS-akkreditiert",
+              "Cloud-basiert",
+              "Normkonforme Zertifikate",
+              "Jederzeitige Audit-Bereitschaft"
+            ]
           },
           {
             "id": "systems-engineering",
             "title": "Systems Engineering",
             "badge": "Kalibrierlabor",
             "lead": "Kalibrierdienstleister · Auftragssteuerung",
-            "body": "<h5><strong>Projektnutzung</strong></h5><p>calServer als steuerndes Herzstück der gesamten Auftragsbearbeitung – von der Anfrage über die Kalibrierung bis zur Auslieferung und Dokumentation.</p><h5><strong>Ergebnis</strong></h5><p>Zentrale Steuerung aller Labortätigkeiten, deutlich reduzierter Verwaltungsaufwand und ein einheitlicher Prozess für alle Kalibrieraufträge.</p>"
+            "body": "calServer als steuerndes Herzstück der gesamten Auftragsbearbeitung – von der Anfrage über die Kalibrierung bis zur Auslieferung und Dokumentation.",
+            "keyFacts": [
+              "Zentrale Auftragssteuerung",
+              "Reduzierter Verwaltungsaufwand",
+              "Einheitlicher Prozess",
+              "End-to-End-Dokumentation"
+            ]
           }
         ]
       }
