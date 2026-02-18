@@ -62,7 +62,7 @@ final class PageAiPromptTemplateService
 
         return array_values(array_filter(
             $this->list(),
-            static fn (array $entry): bool => ($entry['output_format'] ?? '') === $format
+            static fn (array $entry): bool => $entry['output_format'] === $format
         ));
     }
 
