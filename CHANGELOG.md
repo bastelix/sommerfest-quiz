@@ -496,6 +496,8 @@
 - Delegate block-based impressum content to PageController
 - Prevent 404 error when deleting pages with numeric slugs
 - Remove redundant null coalescing on guaranteed array offset
+- Prevent CssSanitizer from mangling scroll-behavior property
+- Stop tracking generated namespace CSS and auto-rebuild on first request
 
 ### Merge
 
