@@ -469,6 +469,8 @@
 - *(admin)* Add missing namespace middleware to rag-chat route
 - *(templates)* Use null coalescing instead of default filter for boolean toggles
 - Resolve localhost requests to main domain namespace
+- *(calserver)* Align block contract with new page data
+- *(calserver)* Correct visual styling for hero, trust bar, and navbar
 
 ### Merge
 
