@@ -466,6 +466,7 @@
 - *(seo)* Show specific field errors when saving SEO config
 - *(calserver)* Use snake_case column name design_tokens in migration
 - Use namespace-specific brand name for browser tab title
+- *(admin)* Add missing namespace middleware to rag-chat route
 
 ### Merge
 
