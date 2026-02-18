@@ -33,18 +33,28 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
   font-family: var(--font-family-heading);
 }
 
-/* ── Hero section (navy gradient) ── */
+/* ── Hero section (navy gradient, compact padding) ── */
 [data-namespace="calserver"] .section[data-section-intent="hero"] {
   background: linear-gradient(170deg, #0b1a2e 0%, #122240 100%) !important;
+  --section-padding-outer: clamp(20px, 3vw, 40px);
+  --section-padding-inner: clamp(16px, 2.5vw, 28px);
+  padding-top: clamp(20px, 3vw, 40px);
+  padding-bottom: clamp(20px, 3vw, 40px);
+}
+[data-namespace="calserver"] .section[data-section-intent="hero"].section--full .section__inner {
+  padding: clamp(16px, 2.5vw, 28px);
 }
 [data-namespace="calserver"] .section[data-section-intent="hero"] .uk-heading-medium {
   color: #fff;
   font-weight: 800;
   font-size: clamp(2.4rem, 5vw, 3.4rem);
   line-height: 1.1;
+  margin-bottom: 0.5em;
 }
 [data-namespace="calserver"] .section[data-section-intent="hero"] .uk-text-lead {
   color: rgba(255, 255, 255, 0.85);
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  line-height: 1.5;
 }
 
 /* Stat tiles inside hero */
@@ -52,13 +62,17 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
   background: rgba(255, 255, 255, 0.07) !important;
   border: 1px solid rgba(255, 255, 255, 0.10);
   text-align: center;
+  padding: 1.2rem 1rem;
 }
 [data-namespace="calserver"] .cs-stat-num {
-  font-size: 2.6rem;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
   font-weight: 800;
   font-family: var(--font-family-heading);
   color: #58a6ff;
   line-height: 1.1;
+}
+[data-namespace="calserver"] .cs-stat-tile .uk-text-small {
+  font-size: 0.82rem;
 }
 [data-namespace="calserver"] .section[data-section-intent="hero"] .cs-stat-tile .uk-text-muted {
   color: rgba(255, 255, 255, 0.65) !important;
@@ -70,8 +84,11 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
   color: #fff !important;
   border-color: #1a73e8 !important;
   border-radius: 100px;
-  padding: 0 2rem;
+  padding: 0 2.2rem;
   font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 44px;
+  height: 44px;
 }
 [data-namespace="calserver"] .section[data-section-intent="hero"] .uk-button-primary:hover {
   background: #1557b0 !important;
@@ -80,12 +97,19 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
   color: rgba(255, 255, 255, 0.9);
   border-color: rgba(255, 255, 255, 0.25);
   border-radius: 100px;
-  padding: 0 2rem;
+  padding: 0 2.2rem;
   font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 44px;
+  height: 44px;
 }
 [data-namespace="calserver"] .section[data-section-intent="hero"] .uk-button-default:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
+}
+/* Hero CTA group spacing */
+[data-namespace="calserver"] .hero-cta-group {
+  gap: 0.75rem;
 }
 
 /* ── ProvenExpert badge ── */
@@ -303,6 +327,30 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
 [data-namespace="calserver"] .section[data-block-type="faq"] .uk-accordion-title {
   font-weight: 600;
 }
+
+/* ── Logo / topbar styling ── */
+[data-namespace="calserver"] .uk-logo {
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+  font-family: var(--font-family-heading, 'Plus Jakarta Sans', system-ui, sans-serif);
+  color: #0b1a2e;
+}
+[data-namespace="calserver"] .qr-topbar .uk-navbar-container {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ── Section heading sizes ── */
+[data-namespace="calserver"] .section h2,
+[data-namespace="calserver"] .section .uk-heading-small {
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+}
+[data-namespace="calserver"] .section .uk-text-lead {
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  line-height: 1.55;
+}
 $CSS$
 WHERE event_uid = 'calserver';
 
@@ -321,7 +369,15 @@ SET design_tokens = jsonb_set(
 )
 WHERE event_uid = 'calserver';
 
--- ── 4. Fix referenzen block: HTML body → plain text, add keyFacts ──
+-- ── 4. Configure project_settings for calserver namespace (logo) ──
+
+INSERT INTO project_settings (namespace, header_logo_mode, header_logo_label)
+VALUES ('calserver', 'text', 'calServer')
+ON CONFLICT (namespace) DO UPDATE SET
+  header_logo_mode = EXCLUDED.header_logo_mode,
+  header_logo_label = EXCLUDED.header_logo_label;
+
+-- ── 5. Fix referenzen block: HTML body → plain text, add keyFacts ──
 
 UPDATE pages
 SET content = jsonb_set(
