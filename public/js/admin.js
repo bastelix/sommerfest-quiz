@@ -610,17 +610,8 @@ const executePageRename = async (oldSlug, namespace, newSlug) => {
 };
 
 const executePageDelete = async (slug, namespace) => {
-  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-  if (!csrfToken) {
-    throw new Error('CSRF-Token fehlt. Bitte Seite neu laden.');
-  }
-  const response = await fetch(
-    withBase('/admin/pages/' + encodeURIComponent(slug) + '?namespace=' + encodeURIComponent(namespace)),
-    {
-      method: 'DELETE',
-      headers: { 'X-CSRF-Token': csrfToken }
-    }
-  );
+  const url = '/admin/pages/' + encodeURIComponent(slug) + '?namespace=' + encodeURIComponent(namespace);
+  const response = await apiFetch(url, { method: 'DELETE' });
   if (response.status === 204) return;
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
