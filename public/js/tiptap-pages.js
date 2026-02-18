@@ -4048,16 +4048,41 @@ const isTreeStartpageEnabled = () => {
   return container?.dataset.hasDomainNamespace === '1';
 };
 
+const getTreeDomainOptions = () => {
+  const container = document.querySelector('[data-page-tree]');
+  const raw = container?.dataset.startpageDomainOptions || '';
+  if (!raw.trim()) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+const getAllStartpagePageIds = () => {
+  const ids = new Set();
+  for (const [, value] of Object.entries(startpageMap)) {
+    const n = Number(value);
+    if (Number.isFinite(n) && n > 0) {
+      ids.add(n);
+    }
+  }
+  return ids;
+};
+
 const updateTreeStartpageIndicators = () => {
   const container = document.querySelector('[data-page-tree]');
   if (!container) {
     return;
   }
-  const activeId = getTreeStartpageId();
+  const activeIds = getAllStartpagePageIds();
   container.querySelectorAll('[data-page-tree-item]').forEach(item => {
     const existingIcon = item.querySelector('[data-startpage-indicator]');
     const nodeId = item.dataset.pageTreeNodeId ? Number(item.dataset.pageTreeNodeId) : null;
-    const isStartpage = nodeId !== null && nodeId === activeId;
+    const isStartpage = nodeId !== null && activeIds.has(nodeId);
     if (isStartpage && !existingIcon) {
       const infoEl = item.querySelector('[data-page-tree-info]');
       if (infoEl) {
@@ -4077,14 +4102,13 @@ const updateTreeStartpageIndicators = () => {
   });
 };
 
-const toggleTreeStartpage = async (pageId) => {
+const toggleTreeStartpage = async (pageId, domain) => {
   if (!isTreeStartpageEnabled()) {
     notify('Kein Domain-Namespace konfiguriert.', 'warning');
     return;
   }
-  const currentId = getTreeStartpageId();
-  const isCurrentlyStartpage = currentId === pageId;
-  const domain = getTreeStartpageDomain();
+  const effectiveDomain = typeof domain === 'string' ? domain : '';
+  const isCurrentlyStartpage = resolveStartpageIdForDomain(effectiveDomain) === pageId;
 
   try {
     const response = await apiFetch(withNamespace(`/admin/pages/${encodeURIComponent(pageId)}/startpage`), {
@@ -4094,7 +4118,7 @@ const toggleTreeStartpage = async (pageId) => {
         Accept: 'application/json',
         'X-CSRF-Token': window.csrfToken || ''
       },
-      body: JSON.stringify({ is_startpage: !isCurrentlyStartpage, domain })
+      body: JSON.stringify({ is_startpage: !isCurrentlyStartpage, domain: effectiveDomain })
     });
 
     const payload = await response.json().catch(() => ({}));
@@ -4104,14 +4128,20 @@ const toggleTreeStartpage = async (pageId) => {
 
     const updatedId = payload?.startpagePageId ? Number(payload.startpagePageId) : null;
     const newId = Number.isFinite(updatedId) ? updatedId : null;
-    setTreeStartpageId(newId);
-    currentStartpagePageId = newId;
-    startpageMap[domain] = newId;
+    startpageMap[effectiveDomain] = newId;
+
+    // Update the primary startpage ID if this domain matches the default
+    const defaultDomain = getTreeStartpageDomain();
+    if (effectiveDomain === defaultDomain) {
+      setTreeStartpageId(newId);
+      currentStartpagePageId = newId;
+    }
+
     const treeEl = document.querySelector('[data-page-tree]');
     if (treeEl) {
       treeEl.dataset.startpageMap = JSON.stringify(startpageMap);
     }
-    refreshStartpageOptionState(newId);
+    refreshStartpageOptionState(currentStartpagePageId);
     syncStartpageToggle();
 
     // Re-render tree so dropdown labels reflect the updated startpage state
@@ -4142,7 +4172,7 @@ function buildPageTreeList(nodes, level = 0) {
     return list;
   }
 
-  const treeStartpageId = getTreeStartpageId();
+  const startpagePageIds = getAllStartpagePageIds();
 
   nodes.forEach(node => {
     const selectableSlug = node.slug || node.id;
@@ -4164,7 +4194,7 @@ function buildPageTreeList(nodes, level = 0) {
     title.textContent = node.title || node.slug || 'Ohne Titel';
     info.appendChild(title);
 
-    if (nodeId !== null && nodeId === treeStartpageId) {
+    if (nodeId !== null && startpagePageIds.has(nodeId)) {
       const homeIcon = document.createElement('span');
       homeIcon.dataset.startpageIndicator = 'true';
       homeIcon.className = 'uk-text-primary uk-margin-small-left';
@@ -4237,24 +4267,79 @@ function buildPageTreeList(nodes, level = 0) {
       const nav = document.createElement('ul');
       nav.className = 'uk-nav uk-dropdown-nav';
 
-      // Startpage toggle
+      // Startpage submenu
       if (nodeId !== null && isTreeStartpageEnabled()) {
-        const isStartpage = nodeId === treeStartpageId;
-        const startpageLi = document.createElement('li');
-        const startpageLink = document.createElement('a');
-        startpageLink.href = '#';
-        const currentDomain = getTreeStartpageDomain();
-        const domainSuffix = currentDomain ? ` (${currentDomain})` : '';
-        startpageLink.innerHTML = isStartpage
-          ? '<span uk-icon="icon: close; ratio: 0.8" class="uk-margin-small-right"></span>Startseite entfernen' + domainSuffix
-          : '<span uk-icon="icon: home; ratio: 0.8" class="uk-margin-small-right"></span>Als Startseite setzen' + domainSuffix;
-        startpageLink.addEventListener('click', (e) => {
-          e.preventDefault();
-          UIkit.dropdown(dropdown).hide(false);
-          toggleTreeStartpage(nodeId);
-        });
-        startpageLi.appendChild(startpageLink);
-        nav.appendChild(startpageLi);
+        const domainOptions = getTreeDomainOptions();
+
+        if (domainOptions.length > 1) {
+          // Section header
+          const headerLi = document.createElement('li');
+          headerLi.className = 'uk-nav-header';
+          headerLi.textContent = 'Startseite';
+          nav.appendChild(headerLi);
+
+          // One entry per domain
+          domainOptions.forEach(option => {
+            const domainValue = option.value ?? '';
+            let domainLabel = option.label || domainValue || 'Namespace-weit (Fallback)';
+            if (option.is_unassigned) {
+              domainLabel += ' (nicht zugewiesen)';
+            }
+            if (option.is_active === false) {
+              domainLabel += ' (inaktiv)';
+            }
+            const isStartpageForDomain = resolveStartpageIdForDomain(domainValue) === nodeId;
+
+            const domainLi = document.createElement('li');
+            const domainLink = document.createElement('a');
+            domainLink.href = '#';
+
+            const indicator = document.createElement('span');
+            indicator.className = 'uk-margin-small-right';
+            indicator.style.display = 'inline-block';
+            indicator.style.width = '20px';
+            indicator.style.textAlign = 'center';
+            if (isStartpageForDomain) {
+              indicator.setAttribute('uk-icon', 'icon: check; ratio: 0.8');
+            }
+            domainLink.appendChild(indicator);
+
+            const labelSpan = document.createElement('span');
+            labelSpan.textContent = domainLabel;
+            domainLink.appendChild(labelSpan);
+
+            domainLink.addEventListener('click', (e) => {
+              e.preventDefault();
+              UIkit.dropdown(dropdown).hide(false);
+              toggleTreeStartpage(nodeId, domainValue);
+            });
+
+            domainLi.appendChild(domainLink);
+            nav.appendChild(domainLi);
+          });
+
+          // Divider after startpage section
+          const startpageDivider = document.createElement('li');
+          startpageDivider.className = 'uk-nav-divider';
+          nav.appendChild(startpageDivider);
+        } else {
+          // Single domain fallback
+          const singleDomain = domainOptions.length === 1 ? (domainOptions[0].value ?? '') : '';
+          const isStartpage = resolveStartpageIdForDomain(singleDomain) === nodeId;
+          const startpageLi = document.createElement('li');
+          const startpageLink = document.createElement('a');
+          startpageLink.href = '#';
+          startpageLink.innerHTML = isStartpage
+            ? '<span uk-icon="icon: close; ratio: 0.8" class="uk-margin-small-right"></span>Startseite entfernen'
+            : '<span uk-icon="icon: home; ratio: 0.8" class="uk-margin-small-right"></span>Als Startseite setzen';
+          startpageLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            UIkit.dropdown(dropdown).hide(false);
+            toggleTreeStartpage(nodeId, singleDomain);
+          });
+          startpageLi.appendChild(startpageLink);
+          nav.appendChild(startpageLi);
+        }
       }
 
       // Rename
@@ -4311,6 +4396,7 @@ function buildPageTreeList(nodes, level = 0) {
 
       if (window.UIkit && UIkit.icon) {
         UIkit.icon(toggle);
+        nav.querySelectorAll('[uk-icon]').forEach(el => UIkit.icon(el));
       }
     }
 

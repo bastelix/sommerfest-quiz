@@ -18,29 +18,6 @@
   <p class="uk-text-meta uk-margin-small-top">
     Strukturierte Übersicht der Seiten inklusive Parent-Beziehungen.
   </p>
-  {% if hasDomainNamespace|default(false) and startpage_domain_options|default([])|length > 1 %}
-  <div class="uk-grid-small uk-flex-middle uk-margin-small" uk-grid>
-    <div class="uk-width-auto">
-      <label class="uk-form-label uk-margin-remove" for="treeDomainSelect">
-        Startseite-Domain
-      </label>
-    </div>
-    <div class="uk-width-1-1 uk-width-medium@m">
-      <select id="treeDomainSelect" class="uk-select uk-form-small" data-tree-domain-select>
-        {% for option in startpage_domain_options|default([]) %}
-          <option
-            value="{{ option.value|default('')|e('html_attr') }}"
-            {% if option.value|default('') == startpage_selected_domain|default('') %}selected{% endif %}
-          >
-            {{ option.label|default(option.value|default('Namespace-weit')) }}
-            {% if option.is_unassigned|default(false) %} (nicht zugewiesen){% endif %}
-            {% if not option.is_active|default(true) %} (inaktiv){% endif %}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-  {% endif %}
   <div
     class="page-tree"
     data-page-tree
