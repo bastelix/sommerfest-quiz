@@ -1388,7 +1388,8 @@ const DATA_VALIDATORS = {
   process_steps: validateProcessStepsData,
   testimonial: data => (
     (hasContent(data?.quote) && hasContent(data?.author?.name))
-    || (Array.isArray(data?.quotes) && data.quotes.length > 0)
+    || (Array.isArray(data?.quotes) && data.quotes.length > 0
+      && data.quotes.every(q => hasContent(q?.quote) && hasContent(q?.author?.name)))
   ),
   rich_text: data => hasContent(data?.body),
   content_slider: validateContentSliderData,
