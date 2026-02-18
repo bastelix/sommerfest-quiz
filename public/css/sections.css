@@ -1557,29 +1557,29 @@ body.page-render .qr-page-renderer table {
   border-radius: clamp(8px, 2vw, 12px);
 }
 
-/* Info media switcher (calserver modules grid): stack on mobile */
-.calserver-modules-grid {
+/* Info media switcher: stack on mobile, side-by-side on desktop */
+.info-media-switcher {
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 4vw, 24px);
 }
 
 @media (min-width: 960px) {
-  .calserver-modules-grid {
+  .info-media-switcher {
     display: grid;
     grid-template-columns: minmax(240px, 1fr) 2fr;
     gap: 32px;
   }
 }
 
-/* Switcher navigation tabs: horizontal scroll on mobile */
-.calserver-modules-nav {
+/* Switcher navigation */
+.info-media-switcher__nav {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.calserver-modules-nav__link {
+.info-media-switcher__nav-link {
   display: block;
   padding: clamp(10px, 2vw, 14px) clamp(12px, 3vw, 18px);
   text-decoration: none;
@@ -1587,29 +1587,22 @@ body.page-render .qr-page-renderer table {
   transition: background 0.15s;
 }
 
-.calserver-modules-nav__title {
+.info-media-switcher__nav-title {
   display: block;
   font-weight: 600;
   font-size: clamp(0.95rem, 1.8vw, 1.05rem);
 }
 
-.calserver-modules-nav__desc {
-  display: block;
-  font-size: clamp(0.85rem, 1.5vw, 0.95rem);
-  opacity: 0.72;
-  margin-top: 2px;
-}
-
 /* Switcher figure: image and caption stack */
-.calserver-module-figure {
+.info-media-switcher__figure {
   margin: 0;
 }
 
-.calserver-module-figure__visual-wrapper {
+.info-media-switcher__visual-wrap {
   margin-bottom: clamp(12px, 3vw, 20px);
 }
 
-.calserver-module-figure__visual img {
+.info-media-switcher__visual img {
   width: 100%;
   height: auto;
   border-radius: clamp(8px, 2vw, 12px);
