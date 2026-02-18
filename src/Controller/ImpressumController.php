@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Controller\Marketing\PageController;
 use App\Service\LegalPageResolver;
 use App\Service\NamespaceResolver;
 use App\Service\NamespaceAppearanceService;
@@ -25,9 +26,21 @@ class ImpressumController
         if ($html === null) {
             return $response->withStatus(404);
         }
+
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+
+        $trimmed = trim($html);
+        if ($trimmed !== '' && str_starts_with($trimmed, '{')) {
+            $decoded = json_decode($trimmed, true);
+            if (is_array($decoded) && array_key_exists('blocks', $decoded)) {
+                $request = $request->withAttribute('namespace', $namespace);
+                $controller = new PageController('impressum');
+                return $controller($request, $response);
+            }
+        }
+
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $html = str_replace('{{ basePath }}', $basePath, $html);
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $appearance = (new NamespaceAppearanceService())->load($namespace);
         $html = PageVariableService::apply($html, $namespace);
 
