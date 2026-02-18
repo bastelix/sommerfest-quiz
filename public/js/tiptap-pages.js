@@ -2138,7 +2138,7 @@ const loadStartpageState = () => {
   const rawStartpageId = manager?.dataset.startpagePageId
     || treeContainer?.dataset.startpageId
     || '';
-  const rawMap = manager?.dataset.startpageMap || '';
+  const rawMap = manager?.dataset.startpageMap || treeContainer?.dataset.startpageMap || '';
   startpageMap = normalizeStartpageMap(rawMap);
   selectedStartpageDomain = manager?.dataset.selectedDomain
     || treeContainer?.dataset.startpageDomain
@@ -2182,6 +2182,30 @@ const bindStartpageDomainSelect = () => {
     selectedStartpageDomain = select.value || '';
     currentStartpagePageId = resolveStartpageIdForDomain(selectedStartpageDomain);
     refreshStartpageOptionState(currentStartpagePageId);
+    syncStartpageToggle();
+  });
+
+  select.dataset.bound = '1';
+};
+
+const bindTreeDomainSelect = () => {
+  const select = getTreeDomainSelect();
+  if (!select || select.dataset.bound === '1') {
+    return;
+  }
+
+  select.addEventListener('change', () => {
+    const newDomain = select.value || '';
+    setTreeStartpageDomain(newDomain);
+
+    const newStartpageId = resolveStartpageIdForDomain(newDomain);
+    setTreeStartpageId(newStartpageId);
+
+    selectedStartpageDomain = newDomain;
+    currentStartpagePageId = newStartpageId;
+
+    updateTreeStartpageIndicators();
+    refreshStartpageOptionState(newStartpageId);
     syncStartpageToggle();
   });
 
@@ -4002,6 +4026,15 @@ const getTreeStartpageDomain = () => {
   return container?.dataset.startpageDomain || '';
 };
 
+const setTreeStartpageDomain = (domain) => {
+  const container = document.querySelector('[data-page-tree]');
+  if (container) {
+    container.dataset.startpageDomain = typeof domain === 'string' ? domain : '';
+  }
+};
+
+const getTreeDomainSelect = () => document.querySelector('[data-tree-domain-select]');
+
 const isTreeStartpageEnabled = () => {
   const container = document.querySelector('[data-page-tree]');
   return container?.dataset.hasDomainNamespace === '1';
@@ -4066,6 +4099,10 @@ const toggleTreeStartpage = async (pageId) => {
     setTreeStartpageId(newId);
     currentStartpagePageId = newId;
     startpageMap[domain] = newId;
+    const treeEl = document.querySelector('[data-page-tree]');
+    if (treeEl) {
+      treeEl.dataset.startpageMap = JSON.stringify(startpageMap);
+    }
     refreshStartpageOptionState(newId);
     syncStartpageToggle();
     updateTreeStartpageIndicators();
@@ -4190,9 +4227,11 @@ function buildPageTreeList(nodes, level = 0) {
         const startpageLi = document.createElement('li');
         const startpageLink = document.createElement('a');
         startpageLink.href = '#';
+        const currentDomain = getTreeStartpageDomain();
+        const domainSuffix = currentDomain ? ` (${currentDomain})` : '';
         startpageLink.innerHTML = isStartpage
-          ? '<span uk-icon="icon: close; ratio: 0.8" class="uk-margin-small-right"></span>Startseite entfernen'
-          : '<span uk-icon="icon: home; ratio: 0.8" class="uk-margin-small-right"></span>Als Startseite setzen';
+          ? '<span uk-icon="icon: close; ratio: 0.8" class="uk-margin-small-right"></span>Startseite entfernen' + domainSuffix
+          : '<span uk-icon="icon: home; ratio: 0.8" class="uk-margin-small-right"></span>Als Startseite setzen' + domainSuffix;
         startpageLink.addEventListener('click', (e) => {
           e.preventDefault();
           UIkit.dropdown(dropdown).hide(false);
@@ -4710,6 +4749,7 @@ const initPagesModule = () => {
   runInitStep('prefetch-quiz-links', prefetchQuizLinks);
   runInitStep('startpage-domain-select', bindStartpageDomainSelect);
   runInitStep('startpage-state', loadStartpageState);
+  runInitStep('tree-domain-select', bindTreeDomainSelect);
   runInitStep('page-editors', initPageEditors);
   runInitStep('page-selection', initPageSelection);
   runInitStep('startpage-toggle', bindStartpageToggle);
