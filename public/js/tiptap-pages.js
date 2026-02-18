@@ -4066,7 +4066,7 @@ const toggleTreeStartpage = async (pageId, domain) => {
   }
 };
 
-function buildPageTreeList(nodes, level = 0) {
+function buildPageTreeList(nodes, level = 0, availableMenus = [], menuAssignmentMap = {}) {
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-collapse';
   if (level > 0) {
@@ -4090,6 +4090,9 @@ function buildPageTreeList(nodes, level = 0) {
     }
     const row = document.createElement('div');
     row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
+    if (nodeId !== null) {
+      row.setAttribute('data-page-row', nodeId);
+    }
 
     const info = document.createElement('div');
     info.dataset.pageTreeInfo = 'true';
@@ -4151,6 +4154,16 @@ function buildPageTreeList(nodes, level = 0) {
       statusLabel.className = 'uk-label uk-label-default uk-margin-small-left';
       statusLabel.textContent = status;
       meta.appendChild(statusLabel);
+    }
+
+    const menuAssignment = nodeId !== null ? menuAssignmentMap[nodeId] : null;
+    if (menuAssignment && menuAssignment.menuLabel) {
+      const menuBadge = document.createElement('span');
+      menuBadge.className = 'uk-label uk-label-success uk-margin-small-left';
+      menuBadge.textContent = menuAssignment.menuLabel;
+      menuBadge.setAttribute('data-menu-badge', nodeId);
+      menuBadge.title = 'Top-Menü: ' + menuAssignment.menuLabel;
+      meta.appendChild(menuBadge);
     }
 
     if (selectableSlug) {
@@ -4274,6 +4287,21 @@ function buildPageTreeList(nodes, level = 0) {
       transferLi.appendChild(transferLink);
       nav.appendChild(transferLi);
 
+      // Menu assignment
+      if (nodeId !== null && availableMenus.length > 0 && typeof window.openMenuAssignModal === 'function') {
+        const menuLi = document.createElement('li');
+        const menuLink = document.createElement('a');
+        menuLink.href = '#';
+        menuLink.innerHTML = '<span uk-icon="icon: menu; ratio: 0.8" class="uk-margin-small-right"></span>Menü zuweisen';
+        menuLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          UIkit.dropdown(dropdown).hide(false);
+          window.openMenuAssignModal(node, availableMenus, menuAssignmentMap);
+        });
+        menuLi.appendChild(menuLink);
+        nav.appendChild(menuLi);
+      }
+
       // Divider
       const divider = document.createElement('li');
       divider.className = 'uk-nav-divider';
@@ -4309,7 +4337,7 @@ function buildPageTreeList(nodes, level = 0) {
     item.appendChild(row);
 
     if (Array.isArray(node.children) && node.children.length) {
-      item.appendChild(buildPageTreeList(node.children, level + 1));
+      item.appendChild(buildPageTreeList(node.children, level + 1, availableMenus, menuAssignmentMap));
     }
 
     list.appendChild(item);
@@ -4435,7 +4463,10 @@ function renderPageTreeSections(container, namespaces, emptyMessage, activeNames
     const flatPages = flattenTreeNodes(pages, namespace).filter(page => page.namespace === namespace);
     const tree = buildTreeFromFlatPages(flatPages);
 
-    container.appendChild(tree.length ? buildPageTreeList(tree) : (() => {
+    const availableMenus = Array.isArray(section.availableMenus) ? section.availableMenus : [];
+    const menuAssignmentMap = section.menuAssignmentMap || {};
+
+    container.appendChild(tree.length ? buildPageTreeList(tree, 0, availableMenus, menuAssignmentMap) : (() => {
       const empty = document.createElement('div');
       empty.className = 'uk-text-meta';
       empty.textContent = emptyMessage;
