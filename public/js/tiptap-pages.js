@@ -3238,7 +3238,8 @@ const initAiPageCreation = () => {
     ai_failed: createErrorMessage,
     ai_error: createErrorMessage,
     ai_invalid_html: invalidHtmlMessage,
-    ai_invalid_json: invalidHtmlMessage
+    ai_invalid_json: invalidHtmlMessage,
+    dispatch_failed: 'KI-Generierung konnte nicht gestartet werden. Bitte erneut versuchen.'
   };
 
   const delay = ms => new Promise(resolve => {
@@ -3332,8 +3333,9 @@ const initAiPageCreation = () => {
   };
 
   const pollJobStatus = async jobId => {
-    const maxAttempts = 60;
-    const pollDelayMs = 2000;
+    const maxAttempts = 40;
+    const baseDelayMs = 1500;
+    const maxDelayMs = 8000;
 
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       const statusResponse = await apiFetch(
@@ -3356,7 +3358,8 @@ const initAiPageCreation = () => {
 
       const status = typeof statusPayload.status === 'string' ? statusPayload.status : '';
       if (status === 'pending') {
-        await delay(pollDelayMs);
+        const currentDelay = Math.min(baseDelayMs * Math.pow(1.3, attempt), maxDelayMs);
+        await delay(currentDelay);
         continue;
       }
 
