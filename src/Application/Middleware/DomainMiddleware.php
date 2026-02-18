@@ -143,6 +143,10 @@ class DomainMiddleware implements MiddlewareInterface
         $service = new DomainService($pdo);
         $domain = $service->getDomainForHost($originalHost, includeInactive: true);
 
+        if (($domain === null || $domain['namespace'] === null) && $allowLocalHost && $effectiveMainDomain !== '') {
+            $domain = $service->getDomainForHost($effectiveMainDomain, includeInactive: true);
+        }
+
         if ($domain === null || $domain['namespace'] === null) {
             error_log(sprintf(
                 'DomainMiddleware missing domain mapping for host "%s" (normalized: "%s")',
