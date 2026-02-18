@@ -447,6 +447,7 @@
 - *(design)* Resolve contrast panel issues for transparent secondary bg and missing card-dark token
 - Make secondary button visible in design preview primary/secondary sections
 - *(sections)* Remove column-gap that broke 3-column grid on desktop
+- *(calserver)* Align block data with block-contract schema
 
 ### Merge
 
