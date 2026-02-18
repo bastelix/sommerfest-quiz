@@ -495,6 +495,7 @@
 - *(ai)* Add shutdown handler, fix template sync, and align polling budget
 - Delegate block-based impressum content to PageController
 - Prevent 404 error when deleting pages with numeric slugs
+- Remove redundant null coalescing on guaranteed array offset
 
 ### Merge
 
