@@ -87,7 +87,8 @@ const VARIANT_LABELS = {
     cards: 'Cards (vergleichend)',
     'three-up': 'Three-up',
     centered: 'Zentriert (signalstark)',
-    highlight: 'Highlight (Kennzahlen)'
+    highlight: 'Highlight (Kennzahlen)',
+    trust_band: 'Trust-Band (unter Hero)'
   },
   proof: {
     'metric-callout': 'Kennzahl-Highlight'
@@ -123,7 +124,7 @@ const CARD_VARIANT_GROUPS = {
   },
   stat_strip: {
     card: ['cards'],
-    noCard: ['inline', 'centered', 'highlight']
+    noCard: ['inline', 'centered', 'highlight', 'trust_band']
   },
   testimonial: {
     card: ['quote_wall'],
@@ -885,6 +886,17 @@ const createStatStripHighlightPreview = () => {
   return preview;
 };
 
+const createStatStripTrustBandPreview = () => {
+  const preview = createPreviewContainer('layout-preview--columns', 5);
+  for (let index = 0; index < 5; index += 1) {
+    const item = document.createElement('div');
+    item.className = 'layout-preview__metric';
+    item.append(createPreviewLine('70%'));
+    preview.append(item);
+  }
+  return preview;
+};
+
 const LAYOUT_PREVIEWS = {
   hero: {
     centered_cta: createCenteredCtaPreview,
@@ -929,7 +941,8 @@ const LAYOUT_PREVIEWS = {
     cards: () => createColumnsPreview(3),
     'three-up': () => createColumnsPreview(3),
     centered: createStatStripCenteredPreview,
-    highlight: createStatStripHighlightPreview
+    highlight: createStatStripHighlightPreview,
+    trust_band: createStatStripTrustBandPreview
   },
   proof: {
     'metric-callout': createMetricCalloutPreview
