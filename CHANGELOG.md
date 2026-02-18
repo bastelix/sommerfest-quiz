@@ -464,6 +464,7 @@
 - *(seo)* Extract text from block-based JSON for AI SEO import
 - *(seo)* Improve AI import error messages with German details
 - *(seo)* Show specific field errors when saving SEO config
+- *(calserver)* Use snake_case column name design_tokens in migration
 
 ### Merge
 
