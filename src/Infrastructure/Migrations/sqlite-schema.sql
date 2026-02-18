@@ -445,6 +445,7 @@ CREATE TABLE IF NOT EXISTS namespace_profile (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Created early (20260216) so CMS-page migrations can reference it
 CREATE TABLE IF NOT EXISTS namespaces (
     namespace TEXT PRIMARY KEY,
     label TEXT,
