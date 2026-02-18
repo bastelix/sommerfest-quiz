@@ -104,7 +104,13 @@ class CssSanitizerTest extends TestCase
         $css = '.foo { behavior: url("https://evil.com/xss.htc"); }';
         $result = $this->sanitizer->sanitize($css);
         // The behavior property is neutralized (replaced with _removed:)
-        $this->assertDoesNotMatchRegularExpression('/\bbehavior\s*:/', $result);
+        $this->assertDoesNotMatchRegularExpression('/(?<!-)behavior\s*:/', $result);
+    }
+
+    public function testPreservesScrollBehavior(): void
+    {
+        $css = 'html { scroll-behavior: smooth; }';
+        $this->assertSame($css, $this->sanitizer->sanitize($css));
     }
 
     public function testHandlesEmptyInput(): void
@@ -117,7 +123,7 @@ class CssSanitizerTest extends TestCase
         $css = "@import url('evil.css'); .foo { behavior: url(x.htc); -moz-binding: url(y); width: expression(1); }";
         $result = $this->sanitizer->sanitize($css);
         $this->assertStringNotContainsString('@import url', $result);
-        $this->assertDoesNotMatchRegularExpression('/\bbehavior\s*:/', $result);
+        $this->assertDoesNotMatchRegularExpression('/(?<!-)behavior\s*:/', $result);
         $this->assertDoesNotMatchRegularExpression('/-moz-binding\s*:/', $result);
         $this->assertDoesNotMatchRegularExpression('/expression\s*\(/', $result);
     }
