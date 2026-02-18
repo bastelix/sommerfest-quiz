@@ -31,3 +31,24 @@ html[data-namespace="future-is-green"] {
   --card-radius: 10px;
   --font-heading-weight: 700;
 }
+
+html[data-namespace="future-is-green"][data-theme="dark"] {
+  --brand-primary: #138f52;
+  --brand-accent: #9cd78f;
+  --brand-secondary: #123524;
+  --contrast-text-on-primary: #000000;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #138f52;
+  --marketing-accent: #9cd78f;
+  --marketing-secondary: #123524;
+  --marketing-link: #138f52;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
+}

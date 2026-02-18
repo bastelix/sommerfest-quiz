@@ -31,3 +31,24 @@ html[data-namespace="sunset"] {
   --card-radius: 10px;
   --font-heading-weight: 700;
 }
+
+html[data-namespace="sunset"][data-theme="dark"] {
+  --brand-primary: #f97316;
+  --brand-accent: #ec4899;
+  --brand-secondary: #be185d;
+  --contrast-text-on-primary: #000000;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #f97316;
+  --marketing-accent: #ec4899;
+  --marketing-secondary: #be185d;
+  --marketing-link: #f97316;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
+}

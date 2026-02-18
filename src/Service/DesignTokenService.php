@@ -34,6 +34,19 @@ class DesignTokenService
 
     private const DEFAULT_MARKETING_SURFACE = 'var(--surface-card, #ffffff)';
 
+    private const DEFAULT_MARKETING_SURFACE_DARK = 'var(--surface-card, #1a2636)';
+
+    /**
+     * Default dark-mode surface colors used by variables.css.
+     *
+     * @var array<string, string>
+     */
+    private const DARK_SURFACES = [
+        'surface' => '#1a2636',
+        'surfaceMuted' => '#0b111a',
+        'surfacePage' => '#0a0d12',
+    ];
+
     /** @var list<string> */
     private const LAYOUT_PROFILES = ['narrow', 'standard', 'wide'];
 
@@ -602,6 +615,10 @@ class DesignTokenService
 
             $mergedTokens = $this->mergeTokens($defaultTokens, $this->mergeWithDefaults($tokens));
             $blocks[] = $this->renderTokenCssBlock('[data-namespace="' . $namespace . '"]', $mergedTokens);
+            $blocks[] = $this->renderDarkTokenCssBlock(
+                '[data-namespace="' . $namespace . '"][data-theme="dark"]',
+                $mergedTokens,
+            );
 
             $customCss = $this->getCustomCssForNamespace($namespace);
             if ($customCss !== '') {
@@ -658,6 +675,62 @@ class DesignTokenService
             '  --typography-preset: ' . $this->escapeCssValue($tokens['typography']['preset'] ?? self::DEFAULT_TOKENS['typography']['preset']) . ';',
             '  --components-card-style: ' . $this->escapeCssValue($tokens['components']['cardStyle'] ?? self::DEFAULT_TOKENS['components']['cardStyle']) . ';',
             '  --components-button-style: ' . $this->escapeCssValue($tokens['components']['buttonStyle'] ?? self::DEFAULT_TOKENS['components']['buttonStyle']) . ';',
+        ];
+        if ($extraLines !== []) {
+            $lines = array_merge($lines, $extraLines);
+        }
+        $lines[] = '}';
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Render a dark-mode CSS block for a namespace.
+     *
+     * Uses a compound selector that combines the namespace attribute with
+     * [data-theme="dark"] so it beats the generic dark-mode definitions in
+     * variables.css (:root[data-theme="dark"] has specificity 0,2,0; the
+     * compound selector html[data-namespace="x"][data-theme="dark"] yields
+     * 0,2,1).
+     *
+     * @param array<string, array<string, string>> $tokens
+     * @param list<string> $extraLines
+     */
+    private function renderDarkTokenCssBlock(string $selector, array $tokens, array $extraLines = []): string
+    {
+        $brandPrimary = $tokens['brand']['primary'] ?? self::DEFAULT_TOKENS['brand']['primary'];
+        $brandAccent = $tokens['brand']['accent'] ?? self::DEFAULT_TOKENS['brand']['accent'];
+        $brandSecondary = $tokens['brand']['secondary'] ?? self::DEFAULT_TOKENS['brand']['secondary'];
+
+        $contrastTokens = $this->contrastService->resolveContrastTokens([
+            'primary' => $brandPrimary,
+            'secondary' => $brandSecondary,
+            'accent' => $brandAccent,
+            'surface' => self::DARK_SURFACES['surface'],
+            'surfaceMuted' => self::DARK_SURFACES['surfaceMuted'],
+            'surfacePage' => self::DARK_SURFACES['surfacePage'],
+        ]);
+
+        $lines = [
+            $selector . ' {',
+            '  --brand-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
+            '  --brand-accent: ' . $this->escapeCssValue($brandAccent) . ';',
+            '  --brand-secondary: ' . $this->escapeCssValue($brandSecondary) . ';',
+            '  --contrast-text-on-primary: ' . $this->escapeCssValue($contrastTokens['textOnPrimary'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-secondary: ' . $this->escapeCssValue($contrastTokens['textOnSecondary'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-accent: ' . $this->escapeCssValue($contrastTokens['textOnAccent'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-surface: ' . $this->escapeCssValue($contrastTokens['textOnSurface'] ?? '#f2f5fa') . ';',
+            '  --contrast-text-on-surface-muted: ' . $this->escapeCssValue($contrastTokens['textOnSurfaceMuted'] ?? '#f2f5fa') . ';',
+            '  --contrast-text-on-page: ' . $this->escapeCssValue($contrastTokens['textOnPage'] ?? '#f2f5fa') . ';',
+            '  --marketing-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
+            '  --marketing-accent: ' . $this->escapeCssValue($brandAccent) . ';',
+            '  --marketing-secondary: ' . $this->escapeCssValue($brandSecondary) . ';',
+            '  --marketing-link: ' . $this->escapeCssValue($brandPrimary) . ';',
+            '  --marketing-surface: ' . $this->escapeCssValue(self::DEFAULT_MARKETING_SURFACE_DARK) . ';',
+            '  --marketing-white: #ffffff;',
+            '  --marketing-black: #000000;',
+            '  --marketing-black-rgb: 0 0 0;',
+            '  --marketing-ink: #f2f5fa;',
         ];
         if ($extraLines !== []) {
             $lines = array_merge($lines, $extraLines);
@@ -735,10 +808,12 @@ class DesignTokenService
     {
         $tokens = $this->getTokensForNamespace($namespace);
         $selector = 'html[data-namespace="' . $namespace . '"]';
+        $darkSelector = 'html[data-namespace="' . $namespace . '"][data-theme="dark"]';
 
         $blocks = [
             "/**\n * Auto-generated. Do not edit manually.\n */",
             $this->renderTokenCssBlock($selector, $tokens, $this->getBaseTokenLines()),
+            $this->renderDarkTokenCssBlock($darkSelector, $tokens),
         ];
 
         $customCss = $this->getCustomCssForNamespace($namespace);

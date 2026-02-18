@@ -76,6 +76,11 @@ foreach ($namespaces as $ns => $tokens) {
     }
     $merged = mergeTokens($defaultMerged, mergeTokens($defaultTokens, $tokens));
     $blocks[] = renderTokenCssBlock('[data-namespace="' . $ns . '"]', $merged, $contrastService);
+    $blocks[] = renderDarkTokenCssBlock(
+        '[data-namespace="' . $ns . '"][data-theme="dark"]',
+        $merged,
+        $contrastService,
+    );
 }
 
 $blocks[] = renderBaseTokenBlock(':root');
@@ -95,10 +100,12 @@ foreach ($namespaces as $ns => $tokens) {
         mkdir($dir, 0777, true);
     }
     $selector = 'html[data-namespace="' . $ns . '"]';
+    $darkSelector = 'html[data-namespace="' . $ns . '"][data-theme="dark"]';
     $merged = mergeTokens($defaultMerged, mergeTokens($defaultTokens, $tokens));
     $perNsCss = implode("\n\n", [
         "/**\n * Auto-generated. Do not edit manually.\n */",
         renderTokenCssBlock($selector, $merged, $contrastService, getBaseTokenLines()),
+        renderDarkTokenCssBlock($darkSelector, $merged, $contrastService),
     ]) . "\n";
     file_put_contents($dir . '/namespace-tokens.css', $perNsCss);
     echo "  Written: /public/css/{$ns}/namespace-tokens.css\n";
@@ -283,6 +290,53 @@ function getBaseTokenLines(): array
         '  --card-radius: 10px;',
         '  --font-heading-weight: 700;',
     ];
+}
+
+function renderDarkTokenCssBlock(
+    string $selector,
+    array $tokens,
+    ColorContrastService $cs,
+    array $extraLines = []
+): string {
+    $primary = $tokens['brand']['primary'] ?? '#1e87f0';
+    $accent = $tokens['brand']['accent'] ?? '#f97316';
+    $secondary = $tokens['brand']['secondary'] ?? '#f97316';
+
+    $contrast = $cs->resolveContrastTokens([
+        'primary' => $primary,
+        'secondary' => $secondary,
+        'accent' => $accent,
+        'surface' => '#1a2636',
+        'surfaceMuted' => '#0b111a',
+        'surfacePage' => '#0a0d12',
+    ]);
+
+    $lines = [
+        $selector . ' {',
+        '  --brand-primary: ' . $primary . ';',
+        '  --brand-accent: ' . $accent . ';',
+        '  --brand-secondary: ' . $secondary . ';',
+        '  --contrast-text-on-primary: ' . ($contrast['textOnPrimary'] ?? '#ffffff') . ';',
+        '  --contrast-text-on-secondary: ' . ($contrast['textOnSecondary'] ?? '#ffffff') . ';',
+        '  --contrast-text-on-accent: ' . ($contrast['textOnAccent'] ?? '#ffffff') . ';',
+        '  --contrast-text-on-surface: ' . ($contrast['textOnSurface'] ?? '#f2f5fa') . ';',
+        '  --contrast-text-on-surface-muted: ' . ($contrast['textOnSurfaceMuted'] ?? '#f2f5fa') . ';',
+        '  --contrast-text-on-page: ' . ($contrast['textOnPage'] ?? '#f2f5fa') . ';',
+        '  --marketing-primary: ' . $primary . ';',
+        '  --marketing-accent: ' . $accent . ';',
+        '  --marketing-secondary: ' . $secondary . ';',
+        '  --marketing-link: ' . $primary . ';',
+        '  --marketing-surface: var(--surface-card, #1a2636);',
+        '  --marketing-white: #ffffff;',
+        '  --marketing-black: #000000;',
+        '  --marketing-black-rgb: 0 0 0;',
+        '  --marketing-ink: #f2f5fa;',
+    ];
+    if ($extraLines !== []) {
+        $lines = array_merge($lines, $extraLines);
+    }
+    $lines[] = '}';
+    return implode("\n", $lines);
 }
 
 function renderBaseTokenBlock(string $selector): string
