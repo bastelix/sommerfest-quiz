@@ -481,8 +481,10 @@
 - Remove unused nullable type from PageAiGenerator::$blockContractValidator
 - *(ai-page)* Restore prompt template selection and add Impressum template
 - *(ai)* Limit template selector to block-contract prompts and backfill missing templates
+- *(calserver)* Move CSS and logo config changes to new migration
 - *(calserver)* Add module switcher styles for CMS page namespace
 - *(calserver)* Add new migration for updated CSS (20300104 was already applied)
+- *(calserver)* Increase hero spacing, compact stats strip, enlarge logo
 
 ### Merge
 
