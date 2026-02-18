@@ -501,7 +501,8 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
 [data-namespace="calserver"] .section[data-section-intent="hero"] .uk-heading-medium {
   color: #fff;
   font-weight: 800;
-  line-height: 1.15;
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  line-height: 1.1;
 }
 [data-namespace="calserver"] .section[data-section-intent="hero"] .uk-text-lead {
   color: rgba(255, 255, 255, 0.85);
@@ -526,14 +527,15 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
 
 /* Hero CTA buttons */
 [data-namespace="calserver"] .section[data-section-intent="hero"] .uk-button-primary {
-  background: #1a73e8;
-  color: #fff;
+  background: #1a73e8 !important;
+  color: #fff !important;
+  border-color: #1a73e8 !important;
   border-radius: 100px;
   padding: 0 2rem;
   font-weight: 600;
 }
 [data-namespace="calserver"] .section[data-section-intent="hero"] .uk-button-primary:hover {
-  background: #1557b0;
+  background: #1557b0 !important;
 }
 [data-namespace="calserver"] .section[data-section-intent="hero"] .uk-button-default {
   color: rgba(255, 255, 255, 0.9);
@@ -569,6 +571,8 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
 
 /* ── Trust bar ── */
 [data-namespace="calserver"] .section[data-block-variant="trust_bar"] {
+  background: var(--global-muted-background, #f8f8f8);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 [data-namespace="calserver"] .section[data-block-variant="trust_bar"] .uk-subnav-divider > li {
@@ -672,14 +676,15 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
   color: rgba(255, 255, 255, 0.85);
 }
 [data-namespace="calserver"] .section[data-section-intent="highlight"] .uk-button-primary {
-  background: #1a73e8;
-  color: #fff;
+  background: #1a73e8 !important;
+  color: #fff !important;
+  border-color: #1a73e8 !important;
   border-radius: 100px;
   padding: 0 2rem;
   font-weight: 600;
 }
 [data-namespace="calserver"] .section[data-section-intent="highlight"] .uk-button-primary:hover {
-  background: #1557b0;
+  background: #1557b0 !important;
 }
 [data-namespace="calserver"] .section[data-section-intent="highlight"] .uk-button-default {
   color: rgba(255, 255, 255, 0.9);
@@ -699,15 +704,27 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
 }
 
 /* ── Eyebrow tag style (green hosted badge) ── */
-[data-namespace="calserver"] .section[data-section-intent="hero"] .section-header__eyebrow,
-[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-label {
+[data-namespace="calserver"] .section[data-section-intent="hero"] .hero-eyebrow-tag {
   background: rgba(52, 211, 153, 0.15);
   color: #34d399;
   border-radius: 100px;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   padding: 0.35rem 1rem;
   font-weight: 600;
   letter-spacing: 0.03em;
+  text-transform: none;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+[data-namespace="calserver"] .section[data-section-intent="hero"] .hero-eyebrow-tag::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='currentColor' d='M16.707 5.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L8 12.586l7.293-7.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E") no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='currentColor' d='M16.707 5.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L8 12.586l7.293-7.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E") no-repeat center / contain;
+  vertical-align: -2px;
 }
 
 /* ── Section header label/eyebrow ── */
@@ -717,6 +734,25 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: 0.8rem;
+}
+
+/* ── Logo blue border ── */
+[data-namespace="calserver"] .cs-logo__image {
+  border: 2px solid #1a73e8;
+  border-radius: 8px;
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ── Navbar CTA button ── */
+[data-namespace="calserver"] .cs-nav-cta {
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0 1.2rem;
+  margin-right: 0.5rem;
 }
 
 /* ── General card radius ── */
