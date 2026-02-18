@@ -68,16 +68,21 @@ $blocks[] = "/**\n * Auto-generated. Do not edit manually.\n */";
 
 $defaultMerged = mergeTokens($defaultTokens, $namespaces['default']);
 $blocks[] = renderTokenCssBlock(':root', $defaultMerged, $contrastService);
-$blocks[] = renderTokenCssBlock('[data-namespace="default"]', $defaultMerged, $contrastService);
+$blocks[] = renderTokenCssBlock('html[data-namespace="default"]', $defaultMerged, $contrastService);
+$blocks[] = renderDarkTokenCssBlock(
+    'html[data-namespace="default"][data-theme="dark"]',
+    $defaultMerged,
+    $contrastService,
+);
 
 foreach ($namespaces as $ns => $tokens) {
     if ($ns === 'default') {
         continue;
     }
     $merged = mergeTokens($defaultMerged, mergeTokens($defaultTokens, $tokens));
-    $blocks[] = renderTokenCssBlock('[data-namespace="' . $ns . '"]', $merged, $contrastService);
+    $blocks[] = renderTokenCssBlock('html[data-namespace="' . $ns . '"]', $merged, $contrastService);
     $blocks[] = renderDarkTokenCssBlock(
-        '[data-namespace="' . $ns . '"][data-theme="dark"]',
+        'html[data-namespace="' . $ns . '"][data-theme="dark"]',
         $merged,
         $contrastService,
     );

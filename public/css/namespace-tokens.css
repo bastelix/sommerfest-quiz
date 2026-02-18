@@ -27,7 +27,7 @@
   --components-button-style: ghost;
 }
 
-[data-namespace="default"] {
+html[data-namespace="default"] {
   --brand-primary: #111111;
   --brand-accent: #f97316;
   --brand-secondary: #f97316;
@@ -52,7 +52,7 @@
   --components-button-style: ghost;
 }
 
-[data-namespace="default"][data-theme="dark"] {
+html[data-namespace="default"][data-theme="dark"] {
   --brand-primary: #111111;
   --brand-accent: #f97316;
   --brand-secondary: #f97316;
@@ -73,7 +73,7 @@
   --marketing-ink: #f2f5fa;
 }
 
-[data-namespace="aurora"] {
+html[data-namespace="aurora"] {
   --brand-primary: #1f6feb;
   --brand-accent: #58a6ff;
   --brand-secondary: #475569;
@@ -98,7 +98,7 @@
   --components-button-style: filled;
 }
 
-[data-namespace="aurora"][data-theme="dark"] {
+html[data-namespace="aurora"][data-theme="dark"] {
   --brand-primary: #1f6feb;
   --brand-accent: #58a6ff;
   --brand-secondary: #475569;
@@ -119,7 +119,7 @@
   --marketing-ink: #f2f5fa;
 }
 
-[data-namespace="calhelp"] {
+html[data-namespace="calhelp"] {
   --brand-primary: #2b5e4a;
   --brand-accent: #c4a35a;
   --brand-secondary: #1a3a50;
@@ -144,7 +144,7 @@
   --components-button-style: filled;
 }
 
-[data-namespace="calhelp"][data-theme="dark"] {
+html[data-namespace="calhelp"][data-theme="dark"] {
   --brand-primary: #2b5e4a;
   --brand-accent: #c4a35a;
   --brand-secondary: #1a3a50;
@@ -165,7 +165,7 @@
   --marketing-ink: #f2f5fa;
 }
 
-[data-namespace="calserver"] {
+html[data-namespace="calserver"] {
   --brand-primary: #1e87f0;
   --brand-accent: #222222;
   --brand-secondary: #f97316;
@@ -190,7 +190,7 @@
   --components-button-style: filled;
 }
 
-[data-namespace="calserver"][data-theme="dark"] {
+html[data-namespace="calserver"][data-theme="dark"] {
   --brand-primary: #1e87f0;
   --brand-accent: #222222;
   --brand-secondary: #f97316;
@@ -211,7 +211,53 @@
   --marketing-ink: #f2f5fa;
 }
 
-[data-namespace="future-is-green"] {
+html[data-namespace="calserver-neu"] {
+  --brand-primary: #1f6feb;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #475569;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #000000;
+  --contrast-text-on-surface-muted: #000000;
+  --contrast-text-on-page: #000000;
+  --marketing-primary: #1f6feb;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #475569;
+  --marketing-link: #1f6feb;
+  --marketing-surface: var(--surface-card, #ffffff);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #0f172a;
+  --layout-profile: standard;
+  --typography-preset: modern;
+  --components-card-style: rounded;
+  --components-button-style: filled;
+}
+
+html[data-namespace="calserver-neu"][data-theme="dark"] {
+  --brand-primary: #1f6feb;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #475569;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #1f6feb;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #475569;
+  --marketing-link: #1f6feb;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
+}
+
+html[data-namespace="future-is-green"] {
   --brand-primary: #138f52;
   --brand-accent: #9cd78f;
   --brand-secondary: #123524;
@@ -236,7 +282,7 @@
   --components-button-style: filled;
 }
 
-[data-namespace="future-is-green"][data-theme="dark"] {
+html[data-namespace="future-is-green"][data-theme="dark"] {
   --brand-primary: #138f52;
   --brand-accent: #9cd78f;
   --brand-secondary: #123524;
@@ -257,7 +303,7 @@
   --marketing-ink: #f2f5fa;
 }
 
-[data-namespace="midnight"] {
+html[data-namespace="midnight"] {
   --brand-primary: #6366f1;
   --brand-accent: #14b8a6;
   --brand-secondary: #0d9488;
@@ -282,7 +328,7 @@
   --components-button-style: filled;
 }
 
-[data-namespace="midnight"][data-theme="dark"] {
+html[data-namespace="midnight"][data-theme="dark"] {
   --brand-primary: #6366f1;
   --brand-accent: #14b8a6;
   --brand-secondary: #0d9488;
@@ -303,7 +349,7 @@
   --marketing-ink: #f2f5fa;
 }
 
-[data-namespace="monochrome"] {
+html[data-namespace="monochrome"] {
   --brand-primary: #111111;
   --brand-accent: #1f1f1f;
   --brand-secondary: #333333;
@@ -328,7 +374,7 @@
   --components-button-style: outline;
 }
 
-[data-namespace="monochrome"][data-theme="dark"] {
+html[data-namespace="monochrome"][data-theme="dark"] {
   --brand-primary: #111111;
   --brand-accent: #1f1f1f;
   --brand-secondary: #333333;
@@ -349,7 +395,7 @@
   --marketing-ink: #f2f5fa;
 }
 
-[data-namespace="quizrace"] {
+html[data-namespace="quizrace"] {
   --brand-primary: #1f6feb;
   --brand-accent: #58a6ff;
   --brand-secondary: #475569;
@@ -374,7 +420,7 @@
   --components-button-style: filled;
 }
 
-[data-namespace="quizrace"][data-theme="dark"] {
+html[data-namespace="quizrace"][data-theme="dark"] {
   --brand-primary: #1f6feb;
   --brand-accent: #58a6ff;
   --brand-secondary: #475569;
@@ -395,7 +441,7 @@
   --marketing-ink: #f2f5fa;
 }
 
-[data-namespace="sunset"] {
+html[data-namespace="sunset"] {
   --brand-primary: #f97316;
   --brand-accent: #ec4899;
   --brand-secondary: #be185d;
@@ -420,7 +466,7 @@
   --components-button-style: filled;
 }
 
-[data-namespace="sunset"][data-theme="dark"] {
+html[data-namespace="sunset"][data-theme="dark"] {
   --brand-primary: #f97316;
   --brand-accent: #ec4899;
   --brand-secondary: #be185d;
@@ -441,7 +487,7 @@
   --marketing-ink: #f2f5fa;
 }
 
-[data-namespace="uikit-default"] {
+html[data-namespace="uikit-default"] {
   --brand-primary: #1e87f0;
   --brand-accent: #222222;
   --brand-secondary: #222222;
@@ -466,7 +512,7 @@
   --components-button-style: filled;
 }
 
-[data-namespace="uikit-default"][data-theme="dark"] {
+html[data-namespace="uikit-default"][data-theme="dark"] {
   --brand-primary: #1e87f0;
   --brand-accent: #222222;
   --brand-secondary: #222222;

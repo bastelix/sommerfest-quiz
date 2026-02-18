@@ -55,10 +55,10 @@ class DesignTokenServiceTest extends TestCase
         $this->assertSame('new-namespace', $namespace);
         $this->assertNotFalse($configTokens);
         $this->assertSame('#222222', $tokens['brand']['primary']);
-        $this->assertStringContainsString('[data-namespace="new-namespace"]', (string) $stylesheet);
+        $this->assertStringContainsString('html[data-namespace="new-namespace"]', (string) $stylesheet);
         $this->assertStringContainsString('--brand-primary: #222222', (string) $stylesheet);
         $this->assertNotFalse($namespacedStylesheet);
-        $this->assertStringContainsString("@import '../namespace-tokens.css';", (string) $namespacedStylesheet);
+        $this->assertStringContainsString('html[data-namespace="new-namespace"]', (string) $namespacedStylesheet);
 
         putenv('DASHBOARD_TOKEN_SECRET');
         unset($_ENV['DASHBOARD_TOKEN_SECRET']);
@@ -101,8 +101,8 @@ class DesignTokenServiceTest extends TestCase
         $this->assertNotFalse($stylesheet);
         $this->assertStringContainsString(':root {', (string) $stylesheet);
         $this->assertStringContainsString('--brand-primary: #111111', (string) $stylesheet);
-        $this->assertStringContainsString('[data-namespace="calserver"]', (string) $stylesheet);
-        $this->assertStringContainsString("[data-namespace=\"calserver\"] {\n  --brand-primary: #111111", (string) $stylesheet);
+        $this->assertStringContainsString('html[data-namespace="calserver"]', (string) $stylesheet);
+        $this->assertStringContainsString("html[data-namespace=\"calserver\"] {\n  --brand-primary: #111111", (string) $stylesheet);
         $this->assertStringContainsString('--brand-accent: #222222', (string) $stylesheet);
         $this->assertStringContainsString('--components-button-style: ghost', (string) $stylesheet);
 

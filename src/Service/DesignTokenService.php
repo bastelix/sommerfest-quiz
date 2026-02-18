@@ -607,6 +607,11 @@ class DesignTokenService
 
         $defaultTokens = $this->mergeWithDefaults($namespaces[PageService::DEFAULT_NAMESPACE] ?? []);
         $blocks[] = $this->renderTokenCssBlock(':root', $defaultTokens);
+        $blocks[] = $this->renderTokenCssBlock('html[data-namespace="' . PageService::DEFAULT_NAMESPACE . '"]', $defaultTokens);
+        $blocks[] = $this->renderDarkTokenCssBlock(
+            'html[data-namespace="' . PageService::DEFAULT_NAMESPACE . '"][data-theme="dark"]',
+            $defaultTokens,
+        );
 
         foreach ($namespaces as $namespace => $tokens) {
             if ($namespace === PageService::DEFAULT_NAMESPACE) {
@@ -614,9 +619,9 @@ class DesignTokenService
             }
 
             $mergedTokens = $this->mergeTokens($defaultTokens, $this->mergeWithDefaults($tokens));
-            $blocks[] = $this->renderTokenCssBlock('[data-namespace="' . $namespace . '"]', $mergedTokens);
+            $blocks[] = $this->renderTokenCssBlock('html[data-namespace="' . $namespace . '"]', $mergedTokens);
             $blocks[] = $this->renderDarkTokenCssBlock(
-                '[data-namespace="' . $namespace . '"][data-theme="dark"]',
+                'html[data-namespace="' . $namespace . '"][data-theme="dark"]',
                 $mergedTokens,
             );
 

@@ -115,7 +115,7 @@
 %}
 {% set marketingSecondary = appearanceColors.secondary is defined and appearanceColors.secondary
   ? appearanceColors.secondary
-  : marketingAccent
+  : 'var(--brand-secondary)'
 %}
 {% set marketingSurface = appearanceVars.surface is defined and appearanceVars.surface
   ? appearanceVars.surface
