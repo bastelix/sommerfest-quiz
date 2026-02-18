@@ -39,7 +39,7 @@
                 type="checkbox"
                 id="showLanguageToggle"
                 name="show_language_toggle"
-                {% if navSettings.show_language_toggle|default(true) %}checked{% endif %}
+                {% if navSettings.show_language_toggle ?? true %}checked{% endif %}
               >
               Sprache-Umschalter im Header einblenden
             </label>
@@ -54,7 +54,7 @@
                 type="checkbox"
                 id="showThemeToggle"
                 name="show_theme_toggle"
-                {% if navSettings.show_theme_toggle|default(true) %}checked{% endif %}
+                {% if navSettings.show_theme_toggle ?? true %}checked{% endif %}
               >
               Light/Dark-Umschalter sichtbar
             </label>
@@ -69,7 +69,7 @@
                 type="checkbox"
                 id="showContrastToggle"
                 name="show_contrast_toggle"
-                {% if navSettings.show_contrast_toggle|default(true) %}checked{% endif %}
+                {% if navSettings.show_contrast_toggle ?? true %}checked{% endif %}
               >
               High-Contrast-Umschalter sichtbar
             </label>

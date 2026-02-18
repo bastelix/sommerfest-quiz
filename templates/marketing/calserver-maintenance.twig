@@ -43,9 +43,9 @@
           {{ menu.render_menu(menuItems, 'uk-navbar-nav uk-visible@m', 'uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left"') }}
           {% include 'components/config-menu.twig' with {
             show_help: false,
-            show_language: headerConfig.show_language|default(true),
-            show_theme_toggle: headerConfig.show_theme_toggle|default(true),
-            show_contrast_toggle: headerConfig.show_contrast_toggle|default(true)
+            show_language: headerConfig.show_language ?? true,
+            show_theme_toggle: headerConfig.show_theme_toggle ?? true,
+            show_contrast_toggle: headerConfig.show_contrast_toggle ?? true
           } %}
 
         </div>
