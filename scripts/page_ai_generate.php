@@ -47,7 +47,7 @@ try {
     $jobRepository->markDone($jobId, $content);
 } catch (Throwable $exception) {
     $jobId = $jobId ?? '';
-    if (is_string($jobId) && $jobId !== '' && isset($job) && is_array($job)) {
+    if (is_string($jobId) && $jobId !== '') {
         try {
             $mapper = new PageAiErrorMapper();
             $mapped = $mapper->map($exception);

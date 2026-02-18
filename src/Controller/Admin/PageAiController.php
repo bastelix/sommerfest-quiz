@@ -129,7 +129,16 @@ final class PageAiController
             $promptTemplate
         );
 
-        $this->jobDispatcher->dispatch($jobId);
+        try {
+            $this->jobDispatcher->dispatch($jobId);
+        } catch (\RuntimeException) {
+            return $this->errorResponse(
+                $response,
+                'dispatch_failed',
+                'Failed to start the AI generation process. Please try again.',
+                503
+            );
+        }
 
         return $this->successResponse($response, [
             'status' => 'queued',

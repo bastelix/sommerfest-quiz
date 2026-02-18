@@ -11,6 +11,7 @@ use PDOException;
 use function array_filter;
 use function array_merge;
 use function array_values;
+use function count;
 use function file_get_contents;
 use function is_array;
 use function is_readable;
@@ -95,34 +96,22 @@ final class PageAiPromptTemplateService
             return $this->loadTemplatesFromFile();
         }
 
-        $fileTemplates = $this->loadTemplatesFromFile();
-
         if ($dbTemplates === []) {
+            $fileTemplates = $this->loadTemplatesFromFile();
             if ($fileTemplates === []) {
                 return [];
             }
+
             $this->seedDatabaseTemplates($fileTemplates);
 
             return $fileTemplates;
         }
 
-        $missing = $this->findMissingTemplates($dbTemplates, $fileTemplates);
-        if ($missing !== []) {
-            $this->seedDatabaseTemplates($missing);
-
-            return array_values(array_merge($dbTemplates, $missing));
+        $fileTemplates = $this->loadTemplatesFromFile();
+        if ($fileTemplates === [] || count($fileTemplates) <= count($dbTemplates)) {
+            return $dbTemplates;
         }
 
-        return $dbTemplates;
-    }
-
-    /**
-     * @param array<int, array{id:string,label:string,template:string,output_format:string}> $dbTemplates
-     * @param array<int, array{id:string,label:string,template:string,output_format:string}> $fileTemplates
-     * @return array<int, array{id:string,label:string,template:string,output_format:string}>
-     */
-    private function findMissingTemplates(array $dbTemplates, array $fileTemplates): array
-    {
         $existingIds = [];
         foreach ($dbTemplates as $template) {
             $existingIds[$template['id']] = true;
@@ -135,7 +124,13 @@ final class PageAiPromptTemplateService
             }
         }
 
-        return $missing;
+        if ($missing === []) {
+            return $dbTemplates;
+        }
+
+        $this->seedDatabaseTemplates($missing);
+
+        return array_values(array_merge($dbTemplates, $missing));
     }
 
     /**
