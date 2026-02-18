@@ -3794,10 +3794,15 @@ const ensureTreeRenameModal = () => {
   el.innerHTML = [
     '<div class="uk-modal-dialog uk-modal-body">',
     '  <h3 class="uk-modal-title">Seite umbenennen</h3>',
-    '  <label class="uk-form-label" for="treeRenameInput">Neuer Slug</label>',
-    '  <input id="treeRenameInput" class="uk-input" type="text">',
+    '  <div class="uk-margin-small">',
+    '    <label class="uk-form-label" for="treeRenameTitleInput">Titel</label>',
+    '    <input id="treeRenameTitleInput" class="uk-input" type="text">',
+    '  </div>',
+    '  <div class="uk-margin-small">',
+    '    <label class="uk-form-label" for="treeRenameInput">Slug</label>',
+    '    <input id="treeRenameInput" class="uk-input" type="text">',
+    '  </div>',
     '  <div id="treeRenameError" class="uk-text-danger uk-margin-small-top" hidden></div>',
-    '  <p id="treeRenameHint" class="uk-text-meta uk-margin-small-top"></p>',
     '  <div class="uk-margin-top uk-text-right">',
     '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
     '    <button id="treeRenameSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">Umbenennen</button>',
@@ -3811,11 +3816,26 @@ const ensureTreeRenameModal = () => {
   document.getElementById('treeRenameSave').addEventListener('click', async () => {
     if (!treeRenamePending) return;
     const input = document.getElementById('treeRenameInput');
+    const titleInput = document.getElementById('treeRenameTitleInput');
     const errorEl = document.getElementById('treeRenameError');
     const newSlug = (input.value || '').trim();
+    const newTitle = (titleInput.value || '').trim();
 
-    if (!newSlug || newSlug === treeRenamePending.slug) {
-      errorEl.textContent = 'Bitte einen neuen Slug eingeben.';
+    const slugChanged = newSlug && newSlug !== treeRenamePending.slug;
+    const titleChanged = newTitle && newTitle !== treeRenamePending.title;
+
+    if (!slugChanged && !titleChanged) {
+      errorEl.textContent = 'Bitte mindestens den Slug oder den Titel ändern.';
+      errorEl.hidden = false;
+      return;
+    }
+    if (!newSlug) {
+      errorEl.textContent = 'Der Slug darf nicht leer sein.';
+      errorEl.hidden = false;
+      return;
+    }
+    if (!newTitle) {
+      errorEl.textContent = 'Der Titel darf nicht leer sein.';
       errorEl.hidden = false;
       return;
     }
@@ -3825,13 +3845,18 @@ const ensureTreeRenameModal = () => {
       return;
     }
 
+    const body = { newSlug };
+    if (titleChanged) {
+      body.newTitle = newTitle;
+    }
+
     try {
       const response = await apiFetch(
         withNamespace('/admin/pages/' + encodeURIComponent(treeRenamePending.slug) + '/rename'),
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ newSlug })
+          body: JSON.stringify(body)
         }
       );
       if (!response.ok) {
@@ -3844,6 +3869,13 @@ const ensureTreeRenameModal = () => {
     } catch (error) {
       errorEl.textContent = error.message || 'Fehler beim Umbenennen der Seite';
       errorEl.hidden = false;
+    }
+  });
+
+  document.getElementById('treeRenameTitleInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('treeRenameSave').click();
     }
   });
 
@@ -3903,14 +3935,14 @@ const openTreeRenameModal = (slug, title) => {
   ensureTreeRenameModal();
   treeRenamePending = { slug, title };
   const input = document.getElementById('treeRenameInput');
+  const titleInput = document.getElementById('treeRenameTitleInput');
   const errorEl = document.getElementById('treeRenameError');
-  const hint = document.getElementById('treeRenameHint');
   input.value = slug;
+  titleInput.value = title;
   errorEl.hidden = true;
   errorEl.textContent = '';
-  hint.textContent = 'Aktuelle Seite: \u201e' + title + '\u201c';
   UIkit.modal('#treeRenameModal').show();
-  setTimeout(() => { input.select(); }, 100);
+  setTimeout(() => { titleInput.select(); }, 100);
 };
 
 const openTreeDeleteModal = (slug, title, hasChildren) => {
