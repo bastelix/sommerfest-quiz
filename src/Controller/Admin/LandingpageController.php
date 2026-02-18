@@ -182,12 +182,12 @@ class LandingpageController
     {
         $payload = $this->parseJsonBody($request);
         if ($payload === null) {
-            return $response->withStatus(400);
+            return $this->jsonError($response, 'invalid_request', 'Ungültige Anfrage: JSON-Body fehlt oder ist ungültig.', 400);
         }
 
         $pageId = (int) ($payload['pageId'] ?? $payload['page_id'] ?? 0);
         if ($pageId <= 0) {
-            return $response->withStatus(422);
+            return $this->jsonError($response, 'missing_page', 'Keine Seite ausgewählt. Bitte eine Seite auswählen und erneut versuchen.', 422);
         }
 
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
@@ -197,7 +197,7 @@ class LandingpageController
             || $page->getNamespace() !== $namespace
             || in_array($page->getSlug(), self::EXCLUDED_SLUGS, true)
         ) {
-            return $response->withStatus(404);
+            return $this->jsonError($response, 'page_not_found', 'Die ausgewählte Seite wurde nicht gefunden oder ist für SEO-Import gesperrt.', 404);
         }
 
         $domain = $this->domainService->normalizeDomain(isset($payload['domain']) ? (string) $payload['domain'] : '');
@@ -352,6 +352,18 @@ class LandingpageController
         $decoded = json_decode($raw, true);
 
         return is_array($decoded) ? $decoded : null;
+    }
+
+    private function jsonError(Response $response, string $errorCode, string $message, int $status): Response
+    {
+        $response->getBody()->write(json_encode([
+            'error' => $message,
+            'error_code' => $errorCode,
+        ], JSON_PRETTY_PRINT));
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($status);
     }
 
     private function ensureCsrfToken(): string

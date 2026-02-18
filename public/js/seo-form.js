@@ -652,7 +652,7 @@ export function initSeoForm() {
       const activeId = getActivePageId();
       if (!activeId) return;
       if (!aiImportUrl) {
-        notify(aiMessages.error, 'danger');
+        notify('KI-Import-URL nicht konfiguriert. Bitte Seite neu laden.', 'danger');
         return;
       }
 
@@ -684,7 +684,12 @@ export function initSeoForm() {
 
         const payload = await response.json().catch(() => ({}));
         if (!response.ok || !payload || !payload.config) {
-          notify(payload?.error || aiMessages.error, 'danger');
+          const code = payload?.error_code || '';
+          const detail = payload?.error || '';
+          const msg = detail
+            ? `${detail}${code ? ` (${code})` : ''}`
+            : `${aiMessages.error}${code ? ` (${code})` : ` (HTTP ${response.status})`}`;
+          notify(msg, 'danger');
           return;
         }
 
@@ -706,7 +711,10 @@ export function initSeoForm() {
         notify(aiMessages.success, 'success');
       } catch (error) {
         if (error?.name !== 'AbortError') {
-          notify(aiMessages.error, 'danger');
+          const detail = error?.message || '';
+          notify(detail
+            ? `KI-Import fehlgeschlagen: ${detail}`
+            : 'KI-Import fehlgeschlagen. Bitte Netzwerkverbindung prüfen.', 'danger');
         }
       } finally {
         setAiLoading(false);
