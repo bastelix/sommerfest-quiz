@@ -605,23 +605,52 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
       const fixButton = row.querySelector('[data-contrast-fix]');
       if (fixButton instanceof HTMLButtonElement) {
         fixButton.addEventListener('click', () => {
-          const backgroundValue = resolveTargetValue(config, 'background');
-          const backgroundColor = blendWithSurface(parseColorWithAlpha(backgroundValue));
-          if (!backgroundColor) {
+          const originalTheme = preview.dataset.theme;
+          const candidates = [
+            { color: { r: 0, g: 0, b: 0 }, hex: '#000000' },
+            { color: { r: 255, g: 255, b: 255 }, hex: '#ffffff' },
+          ];
+          let bestHex = null;
+          let bestMinRatio = -1;
+
+          for (const { color, hex } of candidates) {
+            let minRatio = Infinity;
+            let resolvable = true;
+
+            for (const theme of themes) {
+              preview.dataset.theme = theme;
+              const backgroundValue = resolveTargetValue(config, 'background');
+              const backgroundColor = blendWithSurface(parseColorWithAlpha(backgroundValue));
+              if (!backgroundColor) {
+                resolvable = false;
+                break;
+              }
+              const ratio = contrastRatio(color, backgroundColor);
+              minRatio = Math.min(minRatio, ratio);
+            }
+
+            if (resolvable && minRatio > bestMinRatio) {
+              bestMinRatio = minRatio;
+              bestHex = hex;
+            }
+          }
+
+          if (originalTheme) {
+            preview.dataset.theme = originalTheme;
+          } else {
+            delete preview.dataset.theme;
+          }
+
+          if (!bestHex) {
             return;
           }
-          const black = { r: 0, g: 0, b: 0 };
-          const white = { r: 255, g: 255, b: 255 };
-          const blackRatio = contrastRatio(black, backgroundColor);
-          const whiteRatio = contrastRatio(white, backgroundColor);
-          const chosen = blackRatio >= whiteRatio ? black : white;
-          const hex = formatHex(chosen);
+
           config.applyVars.forEach(variable => {
-            preview.style.setProperty(variable, hex);
+            preview.style.setProperty(variable, bestHex);
           });
           const input = inputMap[config.inputKey || key];
           if (input instanceof HTMLInputElement) {
-            input.value = hex;
+            input.value = bestHex;
             input.disabled = false;
           }
           refreshContrastChecks();
@@ -676,32 +705,58 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
           fixButton.disabled = !hasResults || meetsAll;
         }
 
-        // Auto-fix: when a contrast row fails AA for the current theme,
-        // automatically apply the optimal foreground color so the user
-        // never has to manually fix basic readability issues.
+        // Auto-fix: when a contrast row fails AA for any theme,
+        // automatically apply the foreground color (black or white) that
+        // maximises the minimum contrast ratio across all themes.
         if (anyFailed && !autoFixRunning) {
           const rowKey = row.dataset.contrastRow;
           const rowConfig = rowKey ? targets[rowKey] : null;
           if (rowConfig) {
-            const currentThemeResult = stored[originalTheme || 'light'];
-            if (currentThemeResult && !currentThemeResult.meetsAA) {
-              preview.dataset.theme = originalTheme || 'light';
-              const bgValue = resolveTargetValue(rowConfig, 'background');
-              const bgColor = blendWithSurface(parseColorWithAlpha(bgValue));
-              if (bgColor) {
-                const optimal = computeOptimalTextColor(formatHex(bgColor));
-                if (optimal) {
-                  rowConfig.applyVars.forEach(variable => {
-                    preview.style.setProperty(variable, optimal);
-                  });
-                  const rowInput = inputMap[rowConfig.inputKey || rowKey];
-                  if (rowInput instanceof HTMLInputElement) {
-                    rowInput.value = optimal;
-                    rowInput.disabled = false;
-                  }
-                  needsRecheck = true;
+            const candidates = [
+              { color: { r: 0, g: 0, b: 0 }, hex: '#000000' },
+              { color: { r: 255, g: 255, b: 255 }, hex: '#ffffff' },
+            ];
+            let bestHex = null;
+            let bestMinRatio = -1;
+
+            for (const { color, hex } of candidates) {
+              let minRatio = Infinity;
+              let resolvable = true;
+
+              for (const theme of themes) {
+                preview.dataset.theme = theme;
+                const bgValue = resolveTargetValue(rowConfig, 'background');
+                const bgColor = blendWithSurface(parseColorWithAlpha(bgValue));
+                if (!bgColor) {
+                  resolvable = false;
+                  break;
                 }
+                const ratio = contrastRatio(color, bgColor);
+                minRatio = Math.min(minRatio, ratio);
               }
+
+              if (resolvable && minRatio > bestMinRatio) {
+                bestMinRatio = minRatio;
+                bestHex = hex;
+              }
+            }
+
+            if (originalTheme) {
+              preview.dataset.theme = originalTheme;
+            } else {
+              delete preview.dataset.theme;
+            }
+
+            if (bestHex) {
+              rowConfig.applyVars.forEach(variable => {
+                preview.style.setProperty(variable, bestHex);
+              });
+              const rowInput = inputMap[rowConfig.inputKey || rowKey];
+              if (rowInput instanceof HTMLInputElement) {
+                rowInput.value = bestHex;
+                rowInput.disabled = false;
+              }
+              needsRecheck = true;
             }
           }
         }
