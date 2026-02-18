@@ -457,6 +457,7 @@
 - *(calserver)* Update CTA hrefs to match renamed demo anchor
 - *(design)* Auto-fix contrast button now considers all themes
 - Create namespaces table before calserver CMS page migration
+- *(topbar)* Use display:contents for namespace label to prevent line wrap
 
 ### Merge
 
