@@ -329,6 +329,7 @@ const schema = {
         "subtitle": { "type": "string" },
         "lead": { "type": "string" },
         "intro": { "type": "string" },
+        "columns": { "type": "integer", "minimum": 1, "maximum": 6 },
         "items": {
           "type": "array",
           "minItems": 1,
@@ -447,7 +448,6 @@ const schema = {
     "StatStripData": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["metrics"],
       "properties": {
         "title": { "type": "string" },
         "lede": { "type": "string" },
@@ -455,6 +455,11 @@ const schema = {
         "metrics": {
           "type": "array",
           "items": { "$ref": "#/definitions/Metric" },
+          "minItems": 1
+        },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/StatStripItem" },
           "minItems": 1
         },
         "marquee": {
@@ -613,10 +618,18 @@ const schema = {
         "benefit": { "type": "string" }
       }
     },
+    "StatStripItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "icon": { "type": "string" },
+        "label": { "type": "string" }
+      }
+    },
     "AudienceCase": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title"],
+      "required": ["title"],
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "badge": { "type": "string" },
@@ -655,7 +668,7 @@ const schema = {
     "PackagePlan": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title"],
+      "required": ["title"],
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "title": { "type": "string", "minLength": 1 },
@@ -1373,7 +1386,10 @@ const DATA_VALIDATORS = {
   hero: validateHeroData,
   feature_list: validateFeatureListData,
   process_steps: validateProcessStepsData,
-  testimonial: data => hasContent(data?.quote) && hasContent(data?.author?.name),
+  testimonial: data => (
+    (hasContent(data?.quote) && hasContent(data?.author?.name))
+    || (Array.isArray(data?.quotes) && data.quotes.length > 0)
+  ),
   rich_text: data => hasContent(data?.body),
   content_slider: validateContentSliderData,
   contact_form: data => (

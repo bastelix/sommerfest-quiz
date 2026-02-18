@@ -189,48 +189,56 @@
         "subtitle": "Ausgewählte Referenzen – vom Kalibrierlabor über Industriekonzerne bis zum öffentlichen Versorger.",
         "cases": [
           {
+            "id": "thermo-fisher",
             "title": "Thermo Fisher Scientific",
             "badge": "Kalibrierlabor",
             "lead": "Globaler Life-Science-Konzern · EMEA-weites Deployment",
             "body": "<h5><strong>Projektnutzung</strong></h5><p>EMEA-weite Leihgeräte-Verwaltung und lückenlose Geräteakten über mehrere Standorte. Bidirektionale Synchronisation mit Fluke MET/TEAM für einen konsistenten Datenbestand.</p><h5><strong>Ergebnis</strong></h5><p>Zentraler Überblick über den gesamten EMEA-Gerätebestand, eliminierte Datensilos zwischen MET/TEAM und calServer, revisionssichere Nachverfolgung.</p>"
           },
           {
+            "id": "zf",
             "title": "ZF",
             "badge": "Industrielabor",
             "lead": "Automobilzulieferer · Enterprise-Infrastruktur",
             "body": "<h5><strong>Projektnutzung</strong></h5><p>API-basierte Messwert-Erfassung auf Kubernetes-Infrastruktur mit SSO-Anbindung (Azure AD). Bidirektionale MET/TEAM-Synchronisation für nahtlosen Datenaustausch.</p><h5><strong>Ergebnis</strong></h5><p>Vollständige Integration in die bestehende Enterprise-IT-Landschaft, automatisierte Messwert-Pipelines und Single-Sign-On für alle Anwender.</p>"
           },
           {
+            "id": "vde",
             "title": "VDE",
             "badge": "Qualitätsmanagement",
             "lead": "Verband der Elektrotechnik · Normungsinstitut",
             "body": "<h5><strong>Projektnutzung</strong></h5><p>Agile Auftragssteuerung mit integriertem Dokumentenmanagement. calServer als zentrales Intranet und Ticketing-Plattform für die QM-Abteilung.</p><h5><strong>Ergebnis</strong></h5><p>Transparente Auftragsprozesse, revisionssicheres DMS und ein zentraler Hub für alle QM-relevanten Workflows – jenseits der klassischen Kalibrierung.</p>"
           },
           {
+            "id": "ifm",
             "title": "ifm electronic",
             "badge": "Kalibrierlabor",
             "lead": "Sensorhersteller · 2 Standorte",
             "body": "<h5><strong>Projektnutzung</strong></h5><p>Standortübergreifendes Ticket-Management für Störungen und CAPA-Prozesse. Bidirektionale Synchronisation mit MET/TEAM und MET/CAL.</p><h5><strong>Ergebnis</strong></h5><p>Einheitliche Störungsbearbeitung über beide Standorte, nachvollziehbare CAPA-Dokumentation und konsistenter Datenbestand mit dem Fluke-Ökosystem.</p>"
           },
           {
+            "id": "berliner-stadtwerke",
             "title": "Berliner Stadtwerke",
             "badge": "Assetmanagement",
             "lead": "Kommunaler Energieversorger · Erneuerbare Energien",
             "body": "<h5><strong>Projektnutzung</strong></h5><p>Projekt- und Wartungsmanagement für dezentrale erneuerbare Energieanlagen (PV, Speicher). calServer als zentrale Plattform jenseits der klassischen Kalibrierung.</p><h5><strong>Ergebnis</strong></h5><p>Strukturierte Wartungsplanung und Projektdokumentation für verteilte Assets – Nachweis, dass calServer auch außerhalb der Kalibrierung funktioniert.</p>"
           },
           {
+            "id": "ksw",
             "title": "KSW",
             "badge": "Kalibrierlabor",
             "lead": "Kalibrierdienstleister · End-to-End-Prozess",
             "body": "<h5><strong>Projektnutzung</strong></h5><p>Kompletter Workflow vom Wareneingang über die Laborbearbeitung bis zur automatisierten Rechnungsstellung – alles in calServer abgebildet.</p><h5><strong>Ergebnis</strong></h5><p>Durchgängig digitaler Auftragsprozess ohne Medienbrüche, automatisierte Abrechnung und vollständige Nachverfolgbarkeit aller Kalibrieraufträge.</p>"
           },
           {
+            "id": "teramess",
             "title": "TERAMESS",
             "badge": "Kalibrierlabor",
             "lead": "Kalibrierdienstleister · DAkkS-akkreditiert",
             "body": "<h5><strong>Projektnutzung</strong></h5><p>DAkkS-konforme Kalibrierscheine direkt aus calServer in der Cloud erstellen. Audit-sichere Dokumentation über den gesamten Kalibrierprozess.</p><h5><strong>Ergebnis</strong></h5><p>Normkonforme Zertifikate auf Knopfdruck, durchgängig digitale Prozesskette und jederzeitige Audit-Bereitschaft – vollständig cloudbasiert.</p>"
           },
           {
+            "id": "systems-engineering",
             "title": "Systems Engineering",
             "badge": "Kalibrierlabor",
             "lead": "Kalibrierdienstleister · Auftragssteuerung",
@@ -307,6 +315,7 @@
         "subtitle": "Monatliche Laufzeit · 30 Tage Kündigungsfrist · DSGVO-konform",
         "plans": [
           {
+            "id": "standard",
             "title": "Standard-Hosting",
             "description": "Cloud in Deutschland – schnell starten.",
             "features": [
@@ -321,6 +330,7 @@
             }
           },
           {
+            "id": "performance",
             "title": "Performance-Hosting",
             "badge": "Beliebt",
             "description": "Mehr Leistung & Spielraum.",
@@ -336,6 +346,7 @@
             }
           },
           {
+            "id": "enterprise",
             "title": "Enterprise (On-Prem)",
             "description": "Volle Datenhoheit – Ihr Netzwerk.",
             "features": [
