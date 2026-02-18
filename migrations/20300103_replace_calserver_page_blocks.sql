@@ -723,10 +723,10 @@ WHERE event_uid = 'calserver';
 -- ── 4. Update design tokens ──
 
 UPDATE config
-SET "designTokens" = jsonb_set(
+SET design_tokens = jsonb_set(
   jsonb_set(
     jsonb_set(
-      COALESCE("designTokens", '{}')::jsonb,
+      COALESCE(design_tokens, '{}')::jsonb,
       '{brand,primary}', '"#1a73e8"'
     ),
     '{brand,secondary}', '"#0b1a2e"'
