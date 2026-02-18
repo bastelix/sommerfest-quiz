@@ -475,6 +475,7 @@
 - *(calserver)* Sync block-contract.schema.json with block-contract.js
 - *(calserver)* Add JS cache-busting, fix PHP testimonial validator, revert legacy twig
 - *(header)* Hide config menu when no options are enabled
+- *(calserver)* Rebuild namespace CSS after migrations and write full stylesheet
 
 ### Merge
 
