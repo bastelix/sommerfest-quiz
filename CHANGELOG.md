@@ -293,6 +293,7 @@
 - *(calserver)* Add CMS page migration for calserver namespace
 - *(calserver)* Add CMS menu migration for calserver namespace
 - *(pages)* Add domain selector to page tree for per-domain startpage assignment
+- *(calserver)* Replace marketing page with CMS block-based design
 
 ### Fix
 
