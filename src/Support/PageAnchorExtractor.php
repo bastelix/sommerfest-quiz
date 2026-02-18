@@ -48,6 +48,12 @@ class PageAnchorExtractor
     {
         $anchors = [];
 
+        // Check for top-level blocks array and auto-generate anchors
+        if (isset($data['blocks']) && is_array($data['blocks'])) {
+            $anchors = array_merge($anchors, $this->extractAnchorsFromBlocks($data['blocks']));
+            return $anchors;
+        }
+
         foreach ($data as $key => $value) {
             if ($key === 'anchor' && is_string($value)) {
                 $normalized = $this->normalizeAnchor($value);
@@ -59,6 +65,51 @@ class PageAnchorExtractor
             if (is_array($value)) {
                 $anchors = array_merge($anchors, $this->extractAnchorsFromArray($value));
             }
+        }
+
+        return $anchors;
+    }
+
+    /**
+     * Extract anchors from a blocks array, auto-generating from block type when meta.anchor is not set.
+     *
+     * @param array<int, mixed> $blocks
+     * @return array<int, string>
+     */
+    private function extractAnchorsFromBlocks(array $blocks): array
+    {
+        $anchors = [];
+        $usedAnchors = [];
+
+        foreach ($blocks as $block) {
+            if (!is_array($block)) {
+                continue;
+            }
+
+            $explicitAnchor = $block['meta']['anchor'] ?? null;
+            if (is_string($explicitAnchor)) {
+                $normalized = $this->normalizeAnchor($explicitAnchor);
+                if ($normalized !== null) {
+                    $anchors[] = $normalized;
+                    $usedAnchors[$normalized] = true;
+                    continue;
+                }
+            }
+
+            $type = $block['type'] ?? null;
+            if (!is_string($type) || $type === '') {
+                continue;
+            }
+
+            $base = strtolower(str_replace('_', '-', $type));
+            $anchor = $base;
+            $counter = 2;
+            while (isset($usedAnchors[$anchor])) {
+                $anchor = $base . '-' . $counter;
+                $counter++;
+            }
+            $usedAnchors[$anchor] = true;
+            $anchors[] = $anchor;
         }
 
         return $anchors;
