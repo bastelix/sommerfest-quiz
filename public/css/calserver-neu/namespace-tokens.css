@@ -31,3 +31,24 @@ html[data-namespace="calserver-neu"] {
   --card-radius: 10px;
   --font-heading-weight: 700;
 }
+
+html[data-namespace="calserver-neu"][data-theme="dark"] {
+  --brand-primary: #1f6feb;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #475569;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #1f6feb;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #475569;
+  --marketing-link: #1f6feb;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
+}

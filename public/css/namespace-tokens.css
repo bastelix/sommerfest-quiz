@@ -27,31 +27,6 @@
   --components-button-style: ghost;
 }
 
-[data-namespace="default"] {
-  --brand-primary: #111111;
-  --brand-accent: #f97316;
-  --brand-secondary: #f97316;
-  --contrast-text-on-primary: #ffffff;
-  --contrast-text-on-secondary: #000000;
-  --contrast-text-on-accent: #000000;
-  --contrast-text-on-surface: #000000;
-  --contrast-text-on-surface-muted: #000000;
-  --contrast-text-on-page: #000000;
-  --marketing-primary: #111111;
-  --marketing-accent: #f97316;
-  --marketing-secondary: #f97316;
-  --marketing-link: #111111;
-  --marketing-surface: var(--surface-card, #ffffff);
-  --marketing-white: #ffffff;
-  --marketing-black: #000000;
-  --marketing-black-rgb: 0 0 0;
-  --marketing-ink: #0f172a;
-  --layout-profile: standard;
-  --typography-preset: modern;
-  --components-card-style: rounded;
-  --components-button-style: ghost;
-}
-
 [data-namespace="aurora"] {
   --brand-primary: #1f6feb;
   --brand-accent: #58a6ff;
@@ -75,6 +50,27 @@
   --typography-preset: modern;
   --components-card-style: rounded;
   --components-button-style: filled;
+}
+
+[data-namespace="aurora"][data-theme="dark"] {
+  --brand-primary: #1f6feb;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #475569;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #1f6feb;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #475569;
+  --marketing-link: #1f6feb;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
 }
 
 [data-namespace="calhelp"] {
@@ -102,6 +98,27 @@
   --components-button-style: filled;
 }
 
+[data-namespace="calhelp"][data-theme="dark"] {
+  --brand-primary: #2b5e4a;
+  --brand-accent: #c4a35a;
+  --brand-secondary: #1a3a50;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #2b5e4a;
+  --marketing-accent: #c4a35a;
+  --marketing-secondary: #1a3a50;
+  --marketing-link: #2b5e4a;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
+}
+
 [data-namespace="calserver"] {
   --brand-primary: #1e87f0;
   --brand-accent: #222222;
@@ -125,6 +142,73 @@
   --typography-preset: modern;
   --components-card-style: rounded;
   --components-button-style: filled;
+}
+
+[data-namespace="calserver"][data-theme="dark"] {
+  --brand-primary: #1e87f0;
+  --brand-accent: #222222;
+  --brand-secondary: #f97316;
+  --contrast-text-on-primary: #000000;
+  --contrast-text-on-secondary: #000000;
+  --contrast-text-on-accent: #ffffff;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #1e87f0;
+  --marketing-accent: #222222;
+  --marketing-secondary: #f97316;
+  --marketing-link: #1e87f0;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
+}
+
+[data-namespace="calserver-neu"] {
+  --brand-primary: #1f6feb;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #475569;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #000000;
+  --contrast-text-on-surface-muted: #000000;
+  --contrast-text-on-page: #000000;
+  --marketing-primary: #1f6feb;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #475569;
+  --marketing-link: #1f6feb;
+  --marketing-surface: var(--surface-card, #ffffff);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #0f172a;
+  --layout-profile: standard;
+  --typography-preset: modern;
+  --components-card-style: rounded;
+  --components-button-style: filled;
+}
+
+[data-namespace="calserver-neu"][data-theme="dark"] {
+  --brand-primary: #1f6feb;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #475569;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #1f6feb;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #475569;
+  --marketing-link: #1f6feb;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
 }
 
 [data-namespace="future-is-green"] {
@@ -152,6 +236,27 @@
   --components-button-style: filled;
 }
 
+[data-namespace="future-is-green"][data-theme="dark"] {
+  --brand-primary: #138f52;
+  --brand-accent: #9cd78f;
+  --brand-secondary: #123524;
+  --contrast-text-on-primary: #000000;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #138f52;
+  --marketing-accent: #9cd78f;
+  --marketing-secondary: #123524;
+  --marketing-link: #138f52;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
+}
+
 [data-namespace="midnight"] {
   --brand-primary: #6366f1;
   --brand-accent: #14b8a6;
@@ -175,6 +280,27 @@
   --typography-preset: tech;
   --components-card-style: rounded;
   --components-button-style: filled;
+}
+
+[data-namespace="midnight"][data-theme="dark"] {
+  --brand-primary: #6366f1;
+  --brand-accent: #14b8a6;
+  --brand-secondary: #0d9488;
+  --contrast-text-on-primary: #000000;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #6366f1;
+  --marketing-accent: #14b8a6;
+  --marketing-secondary: #0d9488;
+  --marketing-link: #6366f1;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
 }
 
 [data-namespace="monochrome"] {
@@ -202,6 +328,27 @@
   --components-button-style: outline;
 }
 
+[data-namespace="monochrome"][data-theme="dark"] {
+  --brand-primary: #111111;
+  --brand-accent: #1f1f1f;
+  --brand-secondary: #333333;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #ffffff;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #111111;
+  --marketing-accent: #1f1f1f;
+  --marketing-secondary: #333333;
+  --marketing-link: #111111;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
+}
+
 [data-namespace="quizrace"] {
   --brand-primary: #1f6feb;
   --brand-accent: #58a6ff;
@@ -225,6 +372,27 @@
   --typography-preset: modern;
   --components-card-style: rounded;
   --components-button-style: filled;
+}
+
+[data-namespace="quizrace"][data-theme="dark"] {
+  --brand-primary: #1f6feb;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #475569;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #1f6feb;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #475569;
+  --marketing-link: #1f6feb;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
 }
 
 [data-namespace="sunset"] {
@@ -252,6 +420,27 @@
   --components-button-style: filled;
 }
 
+[data-namespace="sunset"][data-theme="dark"] {
+  --brand-primary: #f97316;
+  --brand-accent: #ec4899;
+  --brand-secondary: #be185d;
+  --contrast-text-on-primary: #000000;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #f97316;
+  --marketing-accent: #ec4899;
+  --marketing-secondary: #be185d;
+  --marketing-link: #f97316;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
+}
+
 [data-namespace="uikit-default"] {
   --brand-primary: #1e87f0;
   --brand-accent: #222222;
@@ -275,6 +464,27 @@
   --typography-preset: modern;
   --components-card-style: rounded;
   --components-button-style: filled;
+}
+
+[data-namespace="uikit-default"][data-theme="dark"] {
+  --brand-primary: #1e87f0;
+  --brand-accent: #222222;
+  --brand-secondary: #222222;
+  --contrast-text-on-primary: #000000;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #ffffff;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #1e87f0;
+  --marketing-accent: #222222;
+  --marketing-secondary: #222222;
+  --marketing-link: #1e87f0;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #f2f5fa;
 }
 
 :root {
