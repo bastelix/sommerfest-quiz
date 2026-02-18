@@ -295,6 +295,7 @@
 - *(pages)* Add domain selector to page tree for per-domain startpage assignment
 - *(calserver)* Replace marketing page with CMS block-based design
 - *(page-tree)* Add top menu assignment to page tree context menu
+- *(page-tree)* Add menu assignment to pages content tree
 
 ### Fix
 
