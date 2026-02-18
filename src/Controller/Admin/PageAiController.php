@@ -75,6 +75,7 @@ final class PageAiController
         $slug = $this->normaliseSlug((string) ($payload['slug'] ?? ''));
         $title = trim((string) ($payload['title'] ?? ''));
         $problem = trim((string) ($payload['problem'] ?? ''));
+        $promptTemplateId = trim((string) ($payload['promptTemplateId'] ?? $payload['prompt_template_id'] ?? ''));
 
         if ($slug === '' || $title === '' || $problem === '') {
             return $this->errorResponse(
@@ -94,12 +95,13 @@ final class PageAiController
             );
         }
 
-        $templateEntry = $this->promptTemplateService->findById(self::BLOCK_CONTRACT_TEMPLATE_ID);
+        $resolvedTemplateId = $promptTemplateId !== '' ? $promptTemplateId : self::BLOCK_CONTRACT_TEMPLATE_ID;
+        $templateEntry = $this->promptTemplateService->findById($resolvedTemplateId);
         if ($templateEntry === null) {
             return $this->errorResponse(
                 $response,
                 'prompt_template_invalid',
-                'The block-contract AI prompt template was not found.',
+                'The requested AI prompt template was not found.',
                 422
             );
         }

@@ -396,6 +396,21 @@
                 </div>
               </div>
               <div class="uk-margin">
+                <label class="uk-form-label" for="aiPagePromptTemplate">{{ t('label_ai_page_prompt_template') }}</label>
+                <div class="uk-form-controls">
+                  <select class="uk-select" id="aiPagePromptTemplate" name="prompt_template_id">
+                    <option value="">{{ t('placeholder_ai_page_prompt_template') }}</option>
+                    {% for template in prompt_templates|default([]) %}
+                      {% set templateId = template.id|default('') %}
+                      {% set templateLabel = template.label|default('') %}
+                      {% if templateId is not empty and templateLabel is not empty %}
+                        <option value="{{ templateId|e('html_attr') }}">{{ templateLabel }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="uk-margin">
                 <div class="uk-form-controls">
                   <label>
                     <input class="uk-checkbox" id="aiPageCreateMenuItem" name="create_menu_item" type="checkbox">
