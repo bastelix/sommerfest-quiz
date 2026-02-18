@@ -460,6 +460,8 @@
 - *(topbar)* Use display:contents for namespace label to prevent line wrap
 - *(rag-chat)* Add namespace selector to chatbot admin page
 - Handle PostgreSQL boolean string representations in normalizeBoolean
+- *(seo)* Extract text from block-based JSON for AI SEO import
+- *(seo)* Improve AI import error messages with German details
 
 ### Merge
 
