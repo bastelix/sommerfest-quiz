@@ -59,9 +59,9 @@
           </a>
           {% include 'components/config-menu.twig' with {
             show_help: false,
-            show_language: headerConfig.show_language|default(true),
-            show_theme_toggle: headerConfig.show_theme_toggle|default(true),
-            show_contrast_toggle: headerConfig.show_contrast_toggle|default(true)
+            show_language: headerConfig.show_language ?? true,
+            show_theme_toggle: headerConfig.show_theme_toggle ?? true,
+            show_contrast_toggle: headerConfig.show_contrast_toggle ?? true
           } %}
         </div>
       </nav>
