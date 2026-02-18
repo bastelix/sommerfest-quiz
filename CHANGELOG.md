@@ -292,6 +292,7 @@
 - *(calserver)* Implement one-pager design via CMS blocks and namespace CSS
 - *(calserver)* Add CMS page migration for calserver namespace
 - *(calserver)* Add CMS menu migration for calserver namespace
+- *(pages)* Add domain selector to page tree for per-domain startpage assignment
 
 ### Fix
 
