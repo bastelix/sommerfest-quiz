@@ -34,11 +34,11 @@ INSERT INTO marketing_menu_items (menu_id, namespace, label, href, icon, positio
 SELECT menu_id, 'calserver', v.label, v.href, v.icon, v.pos, FALSE, 'de', TRUE, 'link', v.is_start
 FROM cs_menu,
 (VALUES
-    ('Funktionen',  '#funktionen', 'settings',    0, TRUE),
-    ('Referenzen',  '#referenzen', 'users',       1, FALSE),
-    ('Stimmen',     '#stimmen',    'comment',      2, FALSE),
-    ('Preise',      '#preise',     'credit-card',  3, FALSE),
-    ('Kontakt',     '#kontakt',    'mail',         4, FALSE)
+    ('Funktionen',  '#features',   'settings',    0, TRUE),
+    ('Referenzen',  '#usecases',   'users',       1, FALSE),
+    ('Bewertungen', '#trust',      'comment',     2, FALSE),
+    ('Preise',      '#pricing',    'credit-card', 3, FALSE),
+    ('Kontakt',     '#demo',       'mail',        4, FALSE)
 ) AS v(label, href, icon, pos, is_start)
 WHERE NOT EXISTS (
     SELECT 1 FROM marketing_menu_items WHERE menu_id = cs_menu.menu_id AND namespace = 'calserver' AND locale = 'de'
@@ -74,11 +74,11 @@ INSERT INTO marketing_menu_items (menu_id, namespace, label, href, icon, positio
 SELECT menu_id, 'calserver', v.label, v.href, v.icon, v.pos, FALSE, 'en', TRUE, 'link', v.is_start
 FROM cs_menu_en,
 (VALUES
-    ('Features',       '#funktionen', 'settings',    0, TRUE),
-    ('References',     '#referenzen', 'users',       1, FALSE),
-    ('Testimonials',   '#stimmen',    'comment',      2, FALSE),
-    ('Pricing',        '#preise',     'credit-card',  3, FALSE),
-    ('Contact',        '#kontakt',    'mail',         4, FALSE)
+    ('Features',       '#features',   'settings',    0, TRUE),
+    ('References',     '#usecases',   'users',       1, FALSE),
+    ('Testimonials',   '#trust',      'comment',     2, FALSE),
+    ('Pricing',        '#pricing',    'credit-card', 3, FALSE),
+    ('Contact',        '#demo',       'mail',        4, FALSE)
 ) AS v(label, href, icon, pos, is_start)
 WHERE NOT EXISTS (
     SELECT 1 FROM marketing_menu_items WHERE menu_id = cs_menu_en.menu_id AND namespace = 'calserver' AND locale = 'en'

@@ -125,7 +125,7 @@ VALUES (
         ]
       },
       "meta": {
-        "anchor": "funktionen",
+        "anchor": "features",
         "sectionStyle": {
           "container": { "width": "wide" }
         }
@@ -186,7 +186,7 @@ VALUES (
         ]
       },
       "meta": {
-        "anchor": "referenzen",
+        "anchor": "usecases",
         "sectionStyle": {
           "background": { "mode": "color", "colorToken": "muted" },
           "container": { "width": "wide" }
@@ -205,7 +205,7 @@ VALUES (
         "author": { "name": "Dave D.", "role": "ProvenExpert" }
       },
       "meta": {
-        "anchor": "stimmen",
+        "anchor": "trust",
         "sectionStyle": {
           "container": { "width": "wide" }
         }
@@ -260,7 +260,7 @@ VALUES (
         "disclaimer": "Vollständige AGB, SLA und AVV auf Anfrage oder im Kundenportal einsehbar."
       },
       "meta": {
-        "anchor": "preise",
+        "anchor": "pricing",
         "sectionStyle": {
           "background": { "mode": "color", "colorToken": "surface" },
           "container": { "width": "wide" }
@@ -286,7 +286,7 @@ VALUES (
         "secondary": { "label": "Demo buchen", "href": "https://calendly.com/calhelp/calserver-vorstellung" }
       },
       "meta": {
-        "anchor": "kontakt",
+        "anchor": "demo",
         "sectionStyle": {
           "intent": "highlight",
           "layout": "full",

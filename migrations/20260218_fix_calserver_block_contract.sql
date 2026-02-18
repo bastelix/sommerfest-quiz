@@ -117,7 +117,7 @@ SET content = $CONTENT${
         ]
       },
       "meta": {
-        "anchor": "funktionen",
+        "anchor": "features",
         "sectionStyle": {
           "container": { "width": "wide" }
         }
@@ -178,7 +178,7 @@ SET content = $CONTENT${
         ]
       },
       "meta": {
-        "anchor": "referenzen",
+        "anchor": "usecases",
         "sectionStyle": {
           "background": { "mode": "color", "colorToken": "muted" },
           "container": { "width": "wide" }
@@ -197,7 +197,7 @@ SET content = $CONTENT${
         "author": { "name": "Dave D.", "role": "ProvenExpert" }
       },
       "meta": {
-        "anchor": "stimmen",
+        "anchor": "trust",
         "sectionStyle": {
           "container": { "width": "wide" }
         }
@@ -252,7 +252,7 @@ SET content = $CONTENT${
         "disclaimer": "Vollständige AGB, SLA und AVV auf Anfrage oder im Kundenportal einsehbar."
       },
       "meta": {
-        "anchor": "preise",
+        "anchor": "pricing",
         "sectionStyle": {
           "background": { "mode": "color", "colorToken": "surface" },
           "container": { "width": "wide" }
@@ -278,7 +278,7 @@ SET content = $CONTENT${
         "secondary": { "label": "Demo buchen", "href": "https://calendly.com/calhelp/calserver-vorstellung" }
       },
       "meta": {
-        "anchor": "kontakt",
+        "anchor": "demo",
         "sectionStyle": {
           "intent": "highlight",
           "layout": "full",
