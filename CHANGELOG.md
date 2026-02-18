@@ -472,6 +472,7 @@
 - *(calserver)* Align block contract with new page data
 - *(calserver)* Correct visual styling for hero, trust bar, and navbar
 - *(testimonial)* Validate individual quote entries in testimonial block contract
+- *(calserver)* Sync block-contract.schema.json with block-contract.js
 
 ### Merge
 
