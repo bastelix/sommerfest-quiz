@@ -10,6 +10,7 @@ use App\Domain\CmsPageWikiArticle;
 use App\Domain\Page;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
+use App\Service\CmsMenuDefinitionService;
 use App\Service\ConfigService;
 use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
@@ -44,6 +45,7 @@ class ProjectController
     private NamespaceRepository $namespaceRepository;
     private ProjectSettingsService $projectSettings;
     private ImageUploadService $imageUploadService;
+    private CmsMenuDefinitionService $menuDefinitions;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -54,7 +56,8 @@ class ProjectController
         ?LandingMediaReferenceService $mediaReferenceService = null,
         ?NamespaceRepository $namespaceRepository = null,
         ?ProjectSettingsService $projectSettings = null,
-        ?ImageUploadService $imageUploadService = null
+        ?ImageUploadService $imageUploadService = null,
+        ?CmsMenuDefinitionService $menuDefinitions = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -70,6 +73,7 @@ class ProjectController
         $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
         $this->imageUploadService = $imageUploadService ?? new ImageUploadService();
+        $this->menuDefinitions = $menuDefinitions ?? new CmsMenuDefinitionService($pdo);
     }
 
     /**
@@ -349,6 +353,39 @@ class ProjectController
                 'is_active' => true,
                 'is_default' => $namespace === PageService::DEFAULT_NAMESPACE,
             ];
+
+            $availableMenus = [];
+            $menuAssignmentMap = [];
+
+            try {
+                $menus = $this->menuDefinitions->listMenus($namespace);
+                $menuLookup = [];
+                foreach ($menus as $menu) {
+                    $availableMenus[] = [
+                        'id' => $menu->getId(),
+                        'label' => $menu->getLabel(),
+                        'locale' => $menu->getLocale(),
+                    ];
+                    $menuLookup[$menu->getId()] = $menu->getLabel();
+                }
+
+                $assignments = $this->menuDefinitions->listAssignments($namespace, null, null, 'main');
+                foreach ($assignments as $assignment) {
+                    $pageId = $assignment->getPageId();
+                    if ($pageId !== null && !isset($menuAssignmentMap[$pageId])) {
+                        $menuAssignmentMap[$pageId] = [
+                            'assignmentId' => $assignment->getId(),
+                            'menuId' => $assignment->getMenuId(),
+                            'menuLabel' => $menuLookup[$assignment->getMenuId()] ?? '',
+                            'locale' => $assignment->getLocale(),
+                            'isActive' => $assignment->isActive(),
+                        ];
+                    }
+                }
+            } catch (\RuntimeException $exception) {
+                // Silently ignore menu lookup errors
+            }
+
             $payload[] = [
                 'namespace' => $namespace,
                 'namespaceInfo' => $info,
@@ -357,6 +394,8 @@ class ProjectController
                 'landingNews' => $this->buildLandingNewsEntries($namespacePages, $basePath, $namespace),
                 'newsletterSlugs' => $this->buildNewsletterSlugs($namespace, $basePath),
                 'mediaReferences' => $this->buildMediaReferences($namespace),
+                'availableMenus' => $availableMenus,
+                'menuAssignmentMap' => (object) $menuAssignmentMap,
             ];
         }
 
