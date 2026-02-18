@@ -431,7 +431,8 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
     $app->get('/admin/domains', DomainPageController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/backups', AdminBackupController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/rag-chat', AdminController::class)
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER));
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR, Roles::CUSTOMER))
+        ->add($namespaceQueryMiddleware);
     $app->get('/admin/profile', AdminController::class)
         ->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))
         ->add(new CsrfMiddleware());
