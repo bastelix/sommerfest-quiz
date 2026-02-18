@@ -112,16 +112,35 @@ class PageController
 
     public function delete(Request $request, Response $response, array $args): Response {
         $slug = $args['slug'] ?? '';
-        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+
+        try {
+            $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        } catch (\Throwable $exception) {
+            return $this->createJsonResponse($response, ['error' => 'Namespace konnte nicht aufgelöst werden.'], 400);
+        }
+
         if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
-            return $response->withStatus(404);
+            return $this->createJsonResponse(
+                $response,
+                ['error' => sprintf('Seite "%s" wurde im Namespace "%s" nicht gefunden.', $slug, $namespace)],
+                404
+            );
         }
 
         if ($this->pageService->findByKey($namespace, (string) $slug) === null) {
-            return $response->withStatus(404);
+            return $this->createJsonResponse(
+                $response,
+                ['error' => sprintf('Seite "%s" existiert nicht im Namespace "%s".', $slug, $namespace)],
+                404
+            );
         }
 
-        $this->pageService->deleteTree($namespace, (string) $slug);
+        try {
+            $this->pageService->deleteTree($namespace, (string) $slug);
+        } catch (RuntimeException $exception) {
+            return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 500);
+        }
+
         unset($this->editableSlugs[$namespace]);
 
         return $response->withStatus(204);

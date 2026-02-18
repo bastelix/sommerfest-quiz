@@ -909,6 +909,12 @@ class PageService
         }
     }
 
+    /** @var list<string> */
+    private const RESERVED_SLUGS = [
+        '400', '401', '402', '403', '404', '405', '410', '418', '422', '429', '500', '502', '503',
+        'admin', 'api', 'login', 'logout', 'register', 'healthz',
+    ];
+
     private function assertValidSlug(string $slug): void
     {
         if ($slug === '') {
@@ -919,6 +925,12 @@ class PageService
             throw new InvalidArgumentException(
                 'Der Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten '
                 . '(max. 100 Zeichen).'
+            );
+        }
+
+        if (in_array($slug, self::RESERVED_SLUGS, true)) {
+            throw new InvalidArgumentException(
+                sprintf('Der Slug "%s" ist reserviert und kann nicht verwendet werden.', $slug)
             );
         }
     }

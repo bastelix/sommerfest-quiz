@@ -21,7 +21,7 @@ class CsrfMiddleware implements MiddlewareInterface
     public function process(Request $request, RequestHandler $handler): Response {
         $token = $_SESSION['csrf_token'] ?? null;
 
-        if ($request->getMethod() === 'POST') {
+        if (in_array($request->getMethod(), ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
             $header = $request->getHeaderLine('X-CSRF-Token');
             $bodyToken = '';
             $data = $request->getParsedBody();
