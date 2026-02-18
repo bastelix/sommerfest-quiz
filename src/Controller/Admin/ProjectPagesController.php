@@ -550,7 +550,11 @@ class ProjectPagesController
             if ($isStartpage) {
                 $this->pageService->markAsStartpage($pageId, $namespace, $normalizedDomain);
             } else {
-                $this->pageService->clearStartpageForNamespace($namespace, $normalizedDomain);
+                $clearDomain = $normalizedDomain;
+                if ($page->isStartpage()) {
+                    $clearDomain = $page->getStartpageDomain();
+                }
+                $this->pageService->clearStartpageForNamespace($namespace, $clearDomain);
             }
 
             $current = $this->pageService->resolveStartpage($namespace, null, $normalizedDomain);

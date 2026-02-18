@@ -2204,9 +2204,17 @@ const bindTreeDomainSelect = () => {
     selectedStartpageDomain = newDomain;
     currentStartpagePageId = newStartpageId;
 
-    updateTreeStartpageIndicators();
     refreshStartpageOptionState(newStartpageId);
     syncStartpageToggle();
+
+    // Re-render tree so dropdown labels and home icons reflect the new domain
+    const container = document.querySelector('[data-page-tree]');
+    if (container) {
+      const emptyMessage = container.dataset.empty || 'Keine Seiten vorhanden.';
+      const activeNs = resolveActiveNamespace(container);
+      renderPageTreeFromState(container, emptyMessage, activeNs);
+      applyValidationIndicatorsToTree();
+    }
   });
 
   select.dataset.bound = '1';
@@ -4105,7 +4113,15 @@ const toggleTreeStartpage = async (pageId) => {
     }
     refreshStartpageOptionState(newId);
     syncStartpageToggle();
-    updateTreeStartpageIndicators();
+
+    // Re-render tree so dropdown labels reflect the updated startpage state
+    const container = document.querySelector('[data-page-tree]');
+    if (container) {
+      const emptyMessage = container.dataset.empty || 'Keine Seiten vorhanden.';
+      const activeNs = resolveActiveNamespace(container);
+      renderPageTreeFromState(container, emptyMessage, activeNs);
+      applyValidationIndicatorsToTree();
+    }
 
     const message = !isCurrentlyStartpage
       ? 'Startseite gesetzt.'
