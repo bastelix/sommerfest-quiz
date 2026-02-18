@@ -1,60 +1,13 @@
-/**
- * Auto-generated. Do not edit manually.
- */
+-- Migration 20300105: update calserver namespace CSS with all design improvements.
+-- Previous edits to 20300104 were not applied because the filename was already
+-- tracked in the migrations table. This migration replaces custom_css with the
+-- complete set of styles including hero padding, module switcher, logo/topbar,
+-- and section heading sizes.
 
-html[data-namespace="calserver"] {
-  --brand-primary: #1a73e8;
-  --brand-accent: #58a6ff;
-  --brand-secondary: #0b1a2e;
-  --contrast-text-on-primary: #ffffff;
-  --contrast-text-on-secondary: #ffffff;
-  --contrast-text-on-accent: #000000;
-  --contrast-text-on-surface: #000000;
-  --contrast-text-on-surface-muted: #000000;
-  --contrast-text-on-page: #000000;
-  --marketing-primary: #1a73e8;
-  --marketing-accent: #58a6ff;
-  --marketing-secondary: #0b1a2e;
-  --marketing-link: #1a73e8;
-  --marketing-surface: var(--surface-card, #ffffff);
-  --marketing-white: #ffffff;
-  --marketing-black: #000000;
-  --marketing-black-rgb: 0 0 0;
-  --marketing-ink: #0f172a;
-  --layout-profile: standard;
-  --typography-preset: modern;
-  --components-card-style: rounded;
-  --components-button-style: filled;
-  --brand-surface: #0b1a2e;
-  --brand-on-surface: #ffffff;
-  --section-gap: 2.25rem;
-  --card-radius: 10px;
-  --font-heading-weight: 700;
-}
+-- ── 1. Replace custom_css with full updated CSS ──
 
-html[data-namespace="calserver"][data-theme="dark"] {
-  --brand-primary: #1a73e8;
-  --brand-accent: #58a6ff;
-  --brand-secondary: #0b1a2e;
-  --contrast-text-on-primary: #ffffff;
-  --contrast-text-on-secondary: #ffffff;
-  --contrast-text-on-accent: #000000;
-  --contrast-text-on-surface: #ffffff;
-  --contrast-text-on-surface-muted: #ffffff;
-  --contrast-text-on-page: #ffffff;
-  --marketing-primary: #1a73e8;
-  --marketing-accent: #58a6ff;
-  --marketing-secondary: #0b1a2e;
-  --marketing-link: #1a73e8;
-  --marketing-surface: var(--surface-card, #1a2636);
-  --marketing-white: #ffffff;
-  --marketing-black: #000000;
-  --marketing-black-rgb: 0 0 0;
-  --marketing-ink: #f2f5fa;
-}
-
-/* Custom CSS overrides */
-/* ── calServer page namespace styles (2026-02) ── */
+UPDATE config
+SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ── */
 
 /* ── Typography ── */
 [data-namespace="calserver"] {
@@ -537,3 +490,13 @@ html[data-namespace="calserver"][data-theme="dark"] {
     width: 100%;
   }
 }
+$CSS$
+WHERE event_uid = 'calserver';
+
+-- ── 2. Configure project_settings for calserver namespace (logo) ──
+
+INSERT INTO project_settings (namespace, header_logo_mode, header_logo_label)
+VALUES ('calserver', 'text', 'calServer')
+ON CONFLICT (namespace) DO UPDATE SET
+  header_logo_mode  = EXCLUDED.header_logo_mode,
+  header_logo_label = EXCLUDED.header_logo_label;
