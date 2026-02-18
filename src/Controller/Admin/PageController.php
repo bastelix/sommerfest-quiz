@@ -678,9 +678,12 @@ class PageController
         }
 
         $newSlug = (string) ($data['newSlug'] ?? $data['new_slug'] ?? $data['slug'] ?? '');
+        $newTitle = isset($data['newTitle']) || isset($data['new_title']) || isset($data['title'])
+            ? (string) ($data['newTitle'] ?? $data['new_title'] ?? $data['title'] ?? '')
+            : null;
 
         try {
-            $page = $this->pageService->rename($namespace, (string) $slug, $newSlug);
+            $page = $this->pageService->rename($namespace, (string) $slug, $newSlug, $newTitle);
         } catch (InvalidArgumentException $exception) {
             $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
 

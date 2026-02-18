@@ -545,7 +545,7 @@ class PageService
     /**
      * Rename a page by updating its slug.
      */
-    public function rename(string $namespace, string $oldSlug, string $newSlug): Page
+    public function rename(string $namespace, string $oldSlug, string $newSlug, ?string $newTitle = null): Page
     {
         $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
         $this->assertValidNamespace($normalizedNamespace);
@@ -556,8 +556,9 @@ class PageService
         $normalizedNewSlug = $this->normalizeSlugInput($newSlug);
         $this->assertValidSlug($normalizedNewSlug);
 
-        if ($normalizedOldSlug === $normalizedNewSlug) {
-            throw new InvalidArgumentException('Der neue Slug muss sich vom alten unterscheiden.');
+        $trimmedTitle = $newTitle !== null ? trim($newTitle) : null;
+        if ($trimmedTitle === '') {
+            throw new InvalidArgumentException('Der Titel darf nicht leer sein.');
         }
 
         $page = $this->findByKey($normalizedNamespace, $normalizedOldSlug);
@@ -565,18 +566,45 @@ class PageService
             throw new LogicException('Die Seite wurde nicht gefunden.');
         }
 
-        $existingPage = $this->findByKey($normalizedNamespace, $normalizedNewSlug);
-        if ($existingPage !== null) {
-            throw new LogicException(
-                sprintf('Eine Seite mit dem Slug "%s" existiert bereits.', $normalizedNewSlug)
-            );
+        $slugChanged = $normalizedOldSlug !== $normalizedNewSlug;
+        $titleChanged = $trimmedTitle !== null && $trimmedTitle !== $page->getTitle();
+
+        if (!$slugChanged && !$titleChanged) {
+            throw new InvalidArgumentException('Es wurden keine Änderungen vorgenommen.');
         }
 
-        $stmt = $this->pdo->prepare('UPDATE pages SET slug = ?, updated_at = CURRENT_TIMESTAMP WHERE namespace = ? AND slug = ?');
+        if ($slugChanged) {
+            $existingPage = $this->findByKey($normalizedNamespace, $normalizedNewSlug);
+            if ($existingPage !== null) {
+                throw new LogicException(
+                    sprintf('Eine Seite mit dem Slug "%s" existiert bereits.', $normalizedNewSlug)
+                );
+            }
+        }
+
+        $setClauses = [];
+        $params = [];
+
+        if ($slugChanged) {
+            $setClauses[] = 'slug = ?';
+            $params[] = $normalizedNewSlug;
+        }
+
+        if ($titleChanged) {
+            $setClauses[] = 'title = ?';
+            $params[] = $trimmedTitle;
+        }
+
+        $setClauses[] = 'updated_at = CURRENT_TIMESTAMP';
+        $params[] = $normalizedNamespace;
+        $params[] = $normalizedOldSlug;
+
+        $sql = 'UPDATE pages SET ' . implode(', ', $setClauses) . ' WHERE namespace = ? AND slug = ?';
+        $stmt = $this->pdo->prepare($sql);
 
         $this->pdo->beginTransaction();
         try {
-            $stmt->execute([$normalizedNewSlug, $normalizedNamespace, $normalizedOldSlug]);
+            $stmt->execute($params);
 
             if ((int) $stmt->rowCount() === 0) {
                 throw new RuntimeException('Die Seite konnte nicht umbenannt werden.');
@@ -588,7 +616,8 @@ class PageService
             throw new RuntimeException('Die Seite konnte nicht umbenannt werden.', 0, $exception);
         }
 
-        $renamedPage = $this->findByKey($normalizedNamespace, $normalizedNewSlug);
+        $finalSlug = $slugChanged ? $normalizedNewSlug : $normalizedOldSlug;
+        $renamedPage = $this->findByKey($normalizedNamespace, $finalSlug);
         if ($renamedPage === null) {
             throw new RuntimeException('Die umbenannte Seite konnte nicht geladen werden.');
         }
