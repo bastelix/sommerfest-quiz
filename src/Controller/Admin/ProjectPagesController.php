@@ -13,7 +13,6 @@ use App\Repository\NamespaceRepository;
 use App\Service\DomainService;
 use App\Service\CmsMenuDefinitionService;
 use App\Service\Marketing\MarketingMenuAiErrorMapper;
-use App\Service\Marketing\PageAiPromptTemplateService;
 use App\Service\CmsPageMenuService;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceService;
@@ -47,7 +46,6 @@ class ProjectPagesController
     private NamespaceRepository $namespaceRepository;
     private NamespaceService $namespaceService;
     private TenantService $tenantService;
-    private PageAiPromptTemplateService $promptTemplateService;
     private ProjectSettingsService $projectSettings;
     private CmsPageMenuService $cmsMenu;
     private CmsMenuDefinitionService $menuDefinitions;
@@ -64,7 +62,6 @@ class ProjectPagesController
         ?NamespaceRepository $namespaceRepository = null,
         ?NamespaceService $namespaceService = null,
         ?TenantService $tenantService = null,
-        ?PageAiPromptTemplateService $promptTemplateService = null,
         ?ProjectSettingsService $projectSettings = null,
         ?CmsPageMenuService $cmsMenu = null,
         ?CmsMenuDefinitionService $menuDefinitions = null,
@@ -80,7 +77,6 @@ class ProjectPagesController
         $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
         $this->namespaceService = $namespaceService ?? new NamespaceService($this->namespaceRepository);
         $this->tenantService = $tenantService ?? new TenantService($pdo);
-        $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
         $this->cmsMenu = $cmsMenu ?? new CmsPageMenuService($pdo, $this->pageService);
         $this->menuDefinitions = $menuDefinitions ?? new CmsMenuDefinitionService($pdo);
@@ -147,7 +143,6 @@ class ProjectPagesController
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'content',
             'tenant' => $this->resolveTenant($request),
-            'prompt_templates' => $this->promptTemplateService->list(),
             'startpage_page_id' => $startpagePageId,
             'domainNamespace' => $domainNamespace,
             'hasDomainNamespace' => $hasDomainNamespace,

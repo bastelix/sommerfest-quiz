@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Repository\PageAiJobRepository;
 use App\Service\Marketing\PageAiJobDispatcher;
 use App\Service\Marketing\PageAiPromptTemplateService;
+use App\Service\NamespaceDesignFileRepository;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -16,13 +17,20 @@ use function is_array;
 use function json_decode;
 use function json_encode;
 use function preg_match;
+use function sprintf;
 use function strtolower;
 use function trim;
+use function ucfirst;
 
 final class PageAiController
 {
     private const SLUG_PATTERN = '/^[a-z0-9][a-z0-9\-]{0,99}$/';
     private const JOB_ID_PATTERN = '/^[a-f0-9]{32}$/';
+    private const BLOCK_CONTRACT_TEMPLATE_ID = 'landing-block-contract';
+
+    private const DEFAULT_PRIMARY_COLOR = '#1e87f0';
+    private const DEFAULT_ACCENT_COLOR = '#f59e0b';
+    private const DEFAULT_BACKGROUND_COLOR = '#0f172a';
 
     private PageService $pageService;
 
@@ -34,18 +42,22 @@ final class PageAiController
 
     private PageAiJobDispatcher $jobDispatcher;
 
+    private NamespaceDesignFileRepository $designFileRepository;
+
     public function __construct(
         ?PageService $pageService = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?PageAiPromptTemplateService $promptTemplateService = null,
         ?PageAiJobRepository $jobRepository = null,
-        ?PageAiJobDispatcher $jobDispatcher = null
+        ?PageAiJobDispatcher $jobDispatcher = null,
+        ?NamespaceDesignFileRepository $designFileRepository = null
     ) {
         $this->pageService = $pageService ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
         $this->jobRepository = $jobRepository ?? new PageAiJobRepository();
         $this->jobDispatcher = $jobDispatcher ?? new PageAiJobDispatcher();
+        $this->designFileRepository = $designFileRepository ?? new NamespaceDesignFileRepository();
     }
 
     public function generate(Request $request, Response $response): Response
@@ -62,16 +74,13 @@ final class PageAiController
 
         $slug = $this->normaliseSlug((string) ($payload['slug'] ?? ''));
         $title = trim((string) ($payload['title'] ?? ''));
-        $theme = trim((string) ($payload['theme'] ?? ''));
-        $colorScheme = trim((string) ($payload['colorScheme'] ?? $payload['color_scheme'] ?? ''));
         $problem = trim((string) ($payload['problem'] ?? ''));
-        $promptTemplateId = trim((string) ($payload['promptTemplateId'] ?? $payload['prompt_template_id'] ?? ''));
 
-        if ($slug === '' || $title === '' || $theme === '' || $colorScheme === '' || $problem === '') {
+        if ($slug === '' || $title === '' || $problem === '') {
             return $this->errorResponse(
                 $response,
                 'missing_fields',
-                'Slug, title, theme, colorScheme, and problem are required.',
+                'Slug, title, and problem are required.',
                 422
             );
         }
@@ -85,19 +94,16 @@ final class PageAiController
             );
         }
 
-        $promptTemplate = null;
-        if ($promptTemplateId !== '') {
-            $templateEntry = $this->promptTemplateService->findById($promptTemplateId);
-            if ($templateEntry === null) {
-                return $this->errorResponse(
-                    $response,
-                    'prompt_template_invalid',
-                    'The requested AI prompt template was not found.',
-                    422
-                );
-            }
-            $promptTemplate = $templateEntry['template'];
+        $templateEntry = $this->promptTemplateService->findById(self::BLOCK_CONTRACT_TEMPLATE_ID);
+        if ($templateEntry === null) {
+            return $this->errorResponse(
+                $response,
+                'prompt_template_invalid',
+                'The block-contract AI prompt template was not found.',
+                422
+            );
         }
+        $promptTemplate = $templateEntry['template'];
 
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         if ($this->pageService->findByKey($namespace, $slug) === null) {
@@ -109,12 +115,14 @@ final class PageAiController
             );
         }
 
+        $design = $this->resolveDesignTokens($namespace);
+
         $jobId = $this->jobRepository->createJob(
             $namespace,
             $slug,
             $title,
-            $theme,
-            $colorScheme,
+            $design['theme'],
+            $design['colorScheme'],
             $problem,
             $promptTemplate
         );
@@ -165,14 +173,64 @@ final class PageAiController
 
         if ($job['status'] === PageAiJobRepository::STATUS_DONE) {
             $payload['html'] = $job['html'] ?? '';
+            $payload['content'] = $job['html'] ?? '';
             $payload['namespace'] = $job['namespace'];
             $payload['slug'] = $job['slug'];
         } elseif ($job['status'] === PageAiJobRepository::STATUS_FAILED) {
             $payload['error'] = $job['error_code'] ?? 'ai_error';
-            $payload['message'] = $job['error_message'] ?? 'The AI responder failed to generate HTML.';
+            $payload['message'] = $job['error_message'] ?? 'The AI responder failed to generate content.';
         }
 
         return $this->successResponse($response, $payload);
+    }
+
+    /**
+     * @return array{theme:string,colorScheme:string,primaryColor:string,accentColor:string,backgroundColor:string}
+     */
+    private function resolveDesignTokens(string $namespace): array
+    {
+        $designData = $this->designFileRepository->loadFile($namespace);
+
+        $meta = $designData['meta'] ?? [];
+        $config = $designData['config'] ?? [];
+        $tokens = is_array($config) ? ($config['designTokens'] ?? []) : [];
+        $brand = is_array($tokens) ? ($tokens['brand'] ?? []) : [];
+        $colors = is_array($config) ? ($config['colors'] ?? []) : [];
+
+        $theme = is_array($meta) ? trim((string) ($meta['name'] ?? '')) : '';
+        if ($theme === '') {
+            $theme = ucfirst($namespace);
+        }
+
+        $primaryColor = is_array($brand) ? trim((string) ($brand['primary'] ?? '')) : '';
+        if ($primaryColor === '') {
+            $primaryColor = self::DEFAULT_PRIMARY_COLOR;
+        }
+
+        $accentColor = is_array($brand) ? trim((string) ($brand['accent'] ?? '')) : '';
+        if ($accentColor === '') {
+            $accentColor = self::DEFAULT_ACCENT_COLOR;
+        }
+
+        $backgroundColor = is_array($colors) ? trim((string) ($colors['background'] ?? '')) : '';
+        if ($backgroundColor === '') {
+            $backgroundColor = self::DEFAULT_BACKGROUND_COLOR;
+        }
+
+        $colorScheme = sprintf(
+            'Primary: %s; Background: %s; Accent: %s',
+            $primaryColor,
+            $backgroundColor,
+            $accentColor
+        );
+
+        return [
+            'theme' => $theme,
+            'colorScheme' => $colorScheme,
+            'primaryColor' => $primaryColor,
+            'accentColor' => $accentColor,
+            'backgroundColor' => $backgroundColor,
+        ];
     }
 
     private function decodePayload(Request $request): ?array

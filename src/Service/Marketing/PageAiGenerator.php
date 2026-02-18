@@ -15,6 +15,7 @@ use function sprintf;
 use function str_replace;
 use function str_starts_with;
 use function trim;
+use function ucfirst;
 
 final class PageAiGenerator
 {
@@ -23,8 +24,9 @@ final class PageAiGenerator
     public const ERROR_RESPONDER_FAILED = 'responder-failed';
     public const ERROR_EMPTY_RESPONSE = 'empty-response';
     public const ERROR_INVALID_HTML = 'invalid-html';
+    public const ERROR_INVALID_JSON = 'invalid-json';
 
-    private const SYSTEM_PROMPT = 'You generate clean UIkit HTML for QuizRace marketing pages.';
+    private const SYSTEM_PROMPT = 'You are a CMS content architect. You generate block-contract-v1 JSON for marketing landing pages. Return only valid JSON, no Markdown or code fences.';
 
     private const PROMPT_TEMPLATE = <<<'PROMPT'
 Create German UIkit HTML for a marketing landing page. The HTML is injected into the content block of
@@ -61,18 +63,22 @@ PROMPT;
 
     private string $promptTemplate;
 
-    private PageAiHtmlSanitizer $htmlSanitizer;
+    private ?PageAiHtmlSanitizer $htmlSanitizer;
+
+    private ?PageAiBlockContractValidator $blockContractValidator;
 
     public function __construct(
         ?RagChatService $ragChatService = null,
         ?ChatResponderInterface $chatResponder = null,
         ?string $promptTemplate = null,
-        ?PageAiHtmlSanitizer $htmlSanitizer = null
+        ?PageAiHtmlSanitizer $htmlSanitizer = null,
+        ?PageAiBlockContractValidator $blockContractValidator = null
     ) {
         $this->ragChatService = $ragChatService ?? new RagChatService();
         $this->chatResponder = $chatResponder;
         $this->promptTemplate = $promptTemplate ?? self::PROMPT_TEMPLATE;
-        $this->htmlSanitizer = $htmlSanitizer ?? new PageAiHtmlSanitizer();
+        $this->htmlSanitizer = $htmlSanitizer;
+        $this->blockContractValidator = $blockContractValidator ?? new PageAiBlockContractValidator();
     }
 
     public function generate(
@@ -81,9 +87,10 @@ PROMPT;
         string $theme,
         string $colorScheme,
         string $problem,
-        ?string $promptTemplate = null
+        ?string $promptTemplate = null,
+        string $namespace = ''
     ): string {
-        $prompt = $this->buildPrompt($slug, $title, $theme, $colorScheme, $problem, $promptTemplate);
+        $prompt = $this->buildPrompt($slug, $title, $theme, $colorScheme, $problem, $promptTemplate, $namespace);
         if ($prompt === '') {
             throw new RuntimeException(self::ERROR_PROMPT_MISSING);
         }
@@ -92,7 +99,7 @@ PROMPT;
             ['role' => 'system', 'content' => self::SYSTEM_PROMPT],
             ['role' => 'user', 'content' => $prompt],
         ];
-        $context = [$this->buildContext($slug, $title, $theme, $colorScheme)];
+        $context = [$this->buildContext($slug, $title, $theme, $colorScheme, $namespace)];
 
         $responder = $this->chatResponder ?? $this->ragChatService->getChatResponder();
         if ($responder === null) {
@@ -109,17 +116,36 @@ PROMPT;
             );
         }
 
-        $html = $this->normaliseHtml($response);
-        if ($html === '') {
+        $content = $this->normaliseResponse($response);
+        if ($content === '') {
             throw new RuntimeException(self::ERROR_EMPTY_RESPONSE);
         }
 
-        $sanitized = $this->htmlSanitizer->sanitize($html);
-        if ($sanitized === '') {
-            throw new RuntimeException(self::ERROR_INVALID_HTML);
+        return $this->validateContent($content);
+    }
+
+    private function validateContent(string $content): string
+    {
+        // Try block-contract JSON validation first
+        if ($this->blockContractValidator !== null) {
+            try {
+                return $this->blockContractValidator->validate($content);
+            } catch (RuntimeException) {
+                // Fall through to HTML sanitization if JSON validation fails
+            }
         }
 
-        return $sanitized;
+        // Fall back to HTML sanitization for legacy prompt templates
+        if ($this->htmlSanitizer !== null) {
+            $sanitized = $this->htmlSanitizer->sanitize($content);
+            if ($sanitized === '') {
+                throw new RuntimeException(self::ERROR_INVALID_HTML);
+            }
+
+            return $sanitized;
+        }
+
+        throw new RuntimeException(self::ERROR_INVALID_JSON);
     }
 
     private function buildPrompt(
@@ -128,7 +154,8 @@ PROMPT;
         string $theme,
         string $colorScheme,
         string $problem,
-        ?string $promptTemplate = null
+        ?string $promptTemplate = null,
+        string $namespace = ''
     ): string {
         $template = $this->resolvePromptTemplate($promptTemplate);
         if ($template === '') {
@@ -136,6 +163,7 @@ PROMPT;
         }
 
         $tokens = $this->resolveColorTokens($colorScheme);
+        $companyName = trim($namespace) !== '' ? ucfirst(trim($namespace)) : '';
 
         return str_replace(
             [
@@ -147,6 +175,9 @@ PROMPT;
                 '{{backgroundColor}}',
                 '{{accentColor}}',
                 '{{problem}}',
+                '{{namespace}}',
+                '{{companyName}}',
+                '{{productDescription}}',
             ],
             [
                 trim($slug),
@@ -156,6 +187,9 @@ PROMPT;
                 $tokens['primary'],
                 $tokens['background'],
                 $tokens['accent'],
+                trim($problem),
+                trim($namespace),
+                $companyName,
                 trim($problem),
             ],
             $template
@@ -179,13 +213,15 @@ PROMPT;
         string $slug,
         string $title,
         string $theme,
-        string $colorScheme
+        string $colorScheme,
+        string $namespace = ''
     ): array {
         $tokens = $this->resolveColorTokens($colorScheme);
         $summary = sprintf(
-            'Generate UIkit marketing HTML for slug "%s" with title "%s" (theme: %s, colors: %s).',
+            'Generate block-contract-v1 JSON for slug "%s" with title "%s" (namespace: %s, theme: %s, colors: %s).',
             $slug,
             $title,
+            $namespace,
             $theme,
             $colorScheme
         );
@@ -197,6 +233,7 @@ PROMPT;
             'metadata' => [
                 'slug' => $slug,
                 'title' => $title,
+                'namespace' => $namespace,
                 'theme' => $theme,
                 'color_scheme' => $colorScheme,
                 'color_tokens' => $tokens,
@@ -204,17 +241,17 @@ PROMPT;
         ];
     }
 
-    private function normaliseHtml(string $response): string
+    private function normaliseResponse(string $response): string
     {
-        $html = trim($response);
+        $content = trim($response);
 
-        if (str_starts_with($html, '```')) {
-            $html = preg_replace('/^```[a-z]*\s*/i', '', $html) ?? $html;
-            $html = trim($html);
-            $html = preg_replace('/```\s*$/', '', $html) ?? $html;
+        if (str_starts_with($content, '```')) {
+            $content = preg_replace('/^```[a-z]*\s*/i', '', $content) ?? $content;
+            $content = trim($content);
+            $content = preg_replace('/```\s*$/', '', $content) ?? $content;
         }
 
-        return trim($html);
+        return trim($content);
     }
 
     /**

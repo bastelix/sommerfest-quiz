@@ -52,6 +52,18 @@ final class PageAiErrorMapper
             ];
         }
 
+        if ($message === PageAiGenerator::ERROR_INVALID_JSON
+            || $message === PageAiBlockContractValidator::ERROR_INVALID_JSON
+            || $message === PageAiBlockContractValidator::ERROR_MISSING_META
+            || $message === PageAiBlockContractValidator::ERROR_MISSING_BLOCKS
+            || $message === PageAiBlockContractValidator::ERROR_INVALID_SCHEMA
+        ) {
+            return [
+                'error_code' => 'ai_invalid_json',
+                'message' => 'The AI responder returned JSON that did not pass block-contract validation.',
+            ];
+        }
+
         if ($message !== '' && str_starts_with($message, PageAiGenerator::ERROR_RESPONDER_FAILED . ':')) {
             $details = trim(substr($message, strlen(PageAiGenerator::ERROR_RESPONDER_FAILED . ':')));
             if ($this->isTimeout($exception)) {
@@ -66,14 +78,14 @@ final class PageAiErrorMapper
             return [
                 'error_code' => 'ai_failed',
                 'message' => $details !== ''
-                    ? sprintf('The AI responder failed to generate HTML. %s', $details)
-                    : 'The AI responder failed to generate HTML.',
+                    ? sprintf('The AI responder failed to generate content. %s', $details)
+                    : 'The AI responder failed to generate content.',
             ];
         }
 
         return [
             'error_code' => 'ai_error',
-            'message' => 'The AI responder failed to generate HTML.',
+            'message' => 'The AI responder failed to generate content.',
         ];
     }
 

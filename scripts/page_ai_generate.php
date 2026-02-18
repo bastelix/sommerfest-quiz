@@ -5,6 +5,7 @@ declare(strict_types=1);
 require __DIR__ . '/../vendor/autoload.php';
 
 use App\Repository\PageAiJobRepository;
+use App\Service\Marketing\PageAiBlockContractValidator;
 use App\Service\Marketing\PageAiErrorMapper;
 use App\Service\Marketing\PageAiGenerator;
 use App\Service\PageService;
@@ -28,20 +29,22 @@ try {
         throw new RuntimeException('Job not found or already processed.');
     }
 
-    $generator = new PageAiGenerator();
-    $html = $generator->generate(
+    $validator = new PageAiBlockContractValidator();
+    $generator = new PageAiGenerator(null, null, null, null, $validator);
+    $content = $generator->generate(
         $job['slug'],
         $job['title'],
         $job['theme'],
         $job['color_scheme'],
         $job['problem'],
-        $job['prompt_template']
+        $job['prompt_template'],
+        $job['namespace']
     );
 
     $pageService = new PageService();
-    $pageService->save($job['namespace'], $job['slug'], $html);
+    $pageService->save($job['namespace'], $job['slug'], $content);
 
-    $jobRepository->markDone($jobId, $html);
+    $jobRepository->markDone($jobId, $content);
 } catch (Throwable $exception) {
     $jobId = $jobId ?? '';
     if (is_string($jobId) && $jobId !== '' && isset($job) && is_array($job)) {

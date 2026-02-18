@@ -3204,20 +3204,9 @@ const initAiPageCreation = () => {
     return;
   }
 
-  const themeInput = form.querySelector('#aiPageTheme');
-  const colorSchemeInput = form.querySelector('#aiPageColorScheme');
   const problemInput = form.querySelector('#aiPageProblem');
-  const promptTemplateSelect = form.querySelector('#aiPagePromptTemplate');
   const slugInput = form.querySelector('#aiPageSlug');
   const titleInput = form.querySelector('#aiPageTitle');
-  const primaryColorInput = form.querySelector('#aiPagePrimaryColor');
-  const backgroundColorInput = form.querySelector('#aiPageBackgroundColor');
-  const accentColorInput = form.querySelector('#aiPageAccentColor');
-  const colorValueDisplays = {
-    primary: form.querySelector('[data-ai-color-value="aiPagePrimaryColor"]'),
-    background: form.querySelector('[data-ai-color-value="aiPageBackgroundColor"]'),
-    accent: form.querySelector('[data-ai-color-value="aiPageAccentColor"]')
-  };
   const createMenuItemCheckbox = form.querySelector('#aiPageCreateMenuItem');
   const menuLabelInput = form.querySelector('#aiPageMenuLabel');
   const menuLabelWrapper = form.querySelector('[data-ai-page-menu-label]');
@@ -3235,11 +3224,6 @@ const initAiPageCreation = () => {
   const timeoutMessage = window.transAiPageTimeout || 'Server antwortet nicht rechtzeitig.';
   const pendingMessage = window.transAiPagePending || 'Die KI-Seite wird erstellt…';
   const createdMessage = window.transAiPageCreated || 'KI-Seite erstellt';
-  const defaultColorTokens = {
-    primary: primaryColorInput?.dataset.default || '#1e87f0',
-    background: backgroundColorInput?.dataset.default || '#0f172a',
-    accent: accentColorInput?.dataset.default || '#f59e0b'
-  };
   const errorMessageMap = {
     missing_fields: missingFieldsMessage,
     invalid_payload: createErrorMessage,
@@ -3252,7 +3236,8 @@ const initAiPageCreation = () => {
     ai_timeout: timeoutMessage,
     ai_failed: createErrorMessage,
     ai_error: createErrorMessage,
-    ai_invalid_html: invalidHtmlMessage
+    ai_invalid_html: invalidHtmlMessage,
+    ai_invalid_json: invalidHtmlMessage
   };
 
   const delay = ms => new Promise(resolve => {
@@ -3301,83 +3286,6 @@ const initAiPageCreation = () => {
     createMenuItemCheckbox.addEventListener('change', updateMenuLabelVisibility);
   }
   updateMenuLabelVisibility();
-
-  const normaliseColorValue = (value, fallback) => {
-    const candidate = (value || '').trim();
-    if (/^#[0-9a-fA-F]{6}$/.test(candidate)) {
-      return candidate;
-    }
-    if (/^[0-9a-fA-F]{6}$/.test(candidate)) {
-      return `#${candidate}`;
-    }
-    return fallback;
-  };
-
-  const getColorTokens = () => ({
-    primary: normaliseColorValue(primaryColorInput?.value, defaultColorTokens.primary),
-    background: normaliseColorValue(backgroundColorInput?.value, defaultColorTokens.background),
-    accent: normaliseColorValue(accentColorInput?.value, defaultColorTokens.accent)
-  });
-
-  const getColorTokensText = () => Object.entries(getColorTokens())
-    .filter(([, value]) => Boolean(value))
-    .map(([key, value]) => `${key.charAt(0).toUpperCase()}${key.slice(1)}: ${value}`)
-    .join('; ');
-
-  const stripTokensFromValue = value => {
-    const tokensText = getColorTokensText();
-    if (!tokensText) {
-      return (value || '').trim();
-    }
-
-    const escapedTokens = tokensText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const pattern = new RegExp(`\\s*${escapedTokens}$`);
-    return (value || '').replace(pattern, '').trim();
-  };
-
-  const applyColorTokensToScheme = () => {
-    if (!colorSchemeInput) {
-      return;
-    }
-    const manualValue = stripTokensFromValue(colorSchemeInput.dataset.manual || colorSchemeInput.value);
-    colorSchemeInput.dataset.manual = manualValue;
-
-    const colorTokensText = getColorTokensText();
-    const combined = [manualValue, colorTokensText].filter(Boolean).join(' ').trim();
-    colorSchemeInput.value = combined;
-  };
-
-  if (colorSchemeInput) {
-    colorSchemeInput.dataset.manual = stripTokensFromValue(colorSchemeInput.value);
-    colorSchemeInput.addEventListener('input', () => {
-      colorSchemeInput.dataset.manual = stripTokensFromValue(colorSchemeInput.value);
-      applyColorTokensToScheme();
-    });
-  }
-
-  const syncColorDisplay = (input, display, fallback, onChange) => {
-    if (!input) {
-      return;
-    }
-    const updateDisplay = () => {
-      const value = normaliseColorValue(input.value, fallback);
-      input.value = value;
-      if (display) {
-        display.textContent = value;
-      }
-      if (typeof onChange === 'function') {
-        onChange();
-      }
-    };
-    updateDisplay();
-    input.addEventListener('input', updateDisplay);
-    input.addEventListener('change', updateDisplay);
-  };
-
-  syncColorDisplay(primaryColorInput, colorValueDisplays.primary, defaultColorTokens.primary, applyColorTokensToScheme);
-  syncColorDisplay(backgroundColorInput, colorValueDisplays.background, defaultColorTokens.background, applyColorTokensToScheme);
-  syncColorDisplay(accentColorInput, colorValueDisplays.accent, defaultColorTokens.accent, applyColorTokensToScheme);
-  applyColorTokensToScheme();
 
   const setFeedback = message => {
     if (!feedback) {
@@ -3472,16 +3380,11 @@ const initAiPageCreation = () => {
 
     const slugValue = (slugInput?.value || '').trim().toLowerCase();
     const titleValue = (titleInput?.value || '').trim();
-    const themeValue = (themeInput?.value || '').trim();
-    const colorSchemeValue = (colorSchemeInput?.value || '').trim();
     const problemValue = (problemInput?.value || '').trim();
-    const colorTokensText = getColorTokensText();
-    const colorSchemeWithTokens = [colorSchemeValue, colorTokensText].filter(Boolean).join(' ').trim();
-    const promptTemplateId = (promptTemplateSelect?.value || '').trim();
     const shouldCreateMenuItem = Boolean(createMenuItemCheckbox?.checked);
     const menuLabelValue = (menuLabelInput?.value || '').trim();
 
-    if (!slugValue || !titleValue || !themeValue || !colorSchemeValue || !problemValue) {
+    if (!slugValue || !titleValue || !problemValue) {
       setFeedback(missingFieldsMessage);
       return;
     }
@@ -3524,10 +3427,7 @@ const initAiPageCreation = () => {
         body: JSON.stringify({
           slug: slugValue,
           title: titleValue,
-          theme: themeValue,
-          colorScheme: colorSchemeWithTokens,
-          problem: problemValue,
-          promptTemplateId: promptTemplateId || undefined
+          problem: problemValue
         })
       });
 
@@ -3549,8 +3449,9 @@ const initAiPageCreation = () => {
       setFeedback(pendingMessage);
 
       const statusPayload = await pollJobStatus(jobId);
-      const html = typeof statusPayload.html === 'string' ? statusPayload.html.trim() : '';
-      if (!html) {
+      const content = typeof statusPayload.content === 'string' ? statusPayload.content.trim()
+        : (typeof statusPayload.html === 'string' ? statusPayload.html.trim() : '');
+      if (!content) {
         setFeedback(emptyResponseMessage);
         return;
       }
@@ -3558,14 +3459,14 @@ const initAiPageCreation = () => {
       const page = createdPage || {
         slug: slugValue,
         title: titleValue,
-        content: html
+        content
       };
       page.title = titleValue;
-      page.content = html;
+      page.content = content;
 
       if (existingForm) {
         updatePageOptionLabel(page);
-        updatePageContentInInterface(slugValue, html);
+        updatePageContentInInterface(slugValue, content);
         ensurePageSelected(slugValue);
       } else {
         addPageToInterface(page);
