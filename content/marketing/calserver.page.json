@@ -52,7 +52,7 @@
     {
       "id": "trust-bar",
       "type": "stat_strip",
-      "variant": "trust_bar",
+      "variant": "trust_band",
       "meta": {
         "sectionStyle": {
           "layout": "normal",

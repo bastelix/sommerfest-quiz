@@ -2312,6 +2312,24 @@ function renderStatStripTrustBar(block, options = {}) {
   return renderSection({ block, variant: 'trust_bar', content, sectionClass: 'uk-section-xsmall' });
 }
 
+function renderStatStripTrustBand(block, options = {}) {
+  const items = Array.isArray(block.data?.items) ? block.data.items : [];
+  if (!items.length) {
+    return renderSection({ block, variant: 'trust_band', content: '<!-- trust_band: no items -->' });
+  }
+
+  const listItems = items.map(item => {
+    const icon = typeof item.icon === 'string' && item.icon.trim()
+      ? `<span data-uk-icon="icon: ${escapeAttribute(item.icon)}; ratio: 1;" class="uk-margin-small-right cs-blue"></span>`
+      : '';
+    const label = escapeHtml(item.label || '');
+    return `<li><span class="trust-band__item">${icon}${label}</span></li>`;
+  }).join('');
+
+  const content = `<ul class="uk-subnav uk-subnav-divider uk-flex-center uk-margin-remove trust-band__list" data-uk-margin>${listItems}</ul>`;
+  return renderSection({ block, variant: 'trust_band', content, sectionClass: 'trust-band' });
+}
+
 function renderProofMetricCallout(block, options = {}) {
   const context = options?.context || 'frontend';
   const header = renderSectionHeader(block, {
@@ -2772,7 +2790,8 @@ export const RENDERER_MATRIX = {
     centered: renderStatStripCentered,
     highlight: renderStatStripHighlight,
     'three-up': renderStatStripCards,
-    trust_bar: renderStatStripTrustBar
+    trust_bar: renderStatStripTrustBar,
+    trust_band: renderStatStripTrustBand
   },
   proof: {
     'metric-callout': renderProofMetricCallout

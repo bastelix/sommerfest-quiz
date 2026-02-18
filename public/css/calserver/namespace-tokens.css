@@ -180,6 +180,39 @@ html[data-namespace="calserver"][data-theme="dark"] {
   padding-left: 1rem;
 }
 
+/* ── Trust band – seamless strip below hero ── */
+[data-namespace="calserver"] .section[data-block-variant="trust_band"] {
+  background: var(--global-muted-background, #f8f8f8);
+  border: none;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+[data-namespace="calserver"] .section[data-block-variant="trust_band"] .trust-band__list {
+  padding: 18px 0;
+  gap: 2rem;
+}
+[data-namespace="calserver"] .section[data-block-variant="trust_band"] .trust-band__item {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--marketing-ink, #0f172a);
+}
+[data-namespace="calserver"] .section[data-block-variant="trust_band"] .trust-band__item .cs-blue {
+  color: #1a73e8 !important;
+}
+
+/* Dark mode */
+html[data-namespace="calserver"][data-theme="dark"] .section[data-block-variant="trust_band"] {
+  background: rgba(11, 26, 46, 0.6);
+}
+html[data-namespace="calserver"][data-theme="dark"] .section[data-block-variant="trust_band"] .trust-band__item {
+  color: rgba(255, 255, 255, 0.85);
+}
+html[data-namespace="calserver"][data-theme="dark"] .section[data-block-variant="trust_band"] .trust-band__item .cs-blue {
+  color: #58a6ff !important;
+}
+
 /* ── Blue icon accent ── */
 [data-namespace="calserver"] .cs-blue {
   color: #1a73e8 !important;
