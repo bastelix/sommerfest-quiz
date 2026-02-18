@@ -3,19 +3,19 @@
  */
 
 html[data-namespace="calserver"] {
-  --brand-primary: #111111;
-  --brand-accent: #222222;
-  --brand-secondary: #f97316;
+  --brand-primary: #1a73e8;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #0b1a2e;
   --contrast-text-on-primary: #ffffff;
-  --contrast-text-on-secondary: #000000;
-  --contrast-text-on-accent: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
   --contrast-text-on-surface: #000000;
   --contrast-text-on-surface-muted: #000000;
   --contrast-text-on-page: #000000;
-  --marketing-primary: #111111;
-  --marketing-accent: #222222;
-  --marketing-secondary: #f97316;
-  --marketing-link: #111111;
+  --marketing-primary: #1a73e8;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #0b1a2e;
+  --marketing-link: #1a73e8;
   --marketing-surface: var(--surface-card, #ffffff);
   --marketing-white: #ffffff;
   --marketing-black: #000000;
@@ -24,8 +24,8 @@ html[data-namespace="calserver"] {
   --layout-profile: standard;
   --typography-preset: modern;
   --components-card-style: rounded;
-  --components-button-style: ghost;
-  --brand-surface: #0f172a;
+  --components-button-style: filled;
+  --brand-surface: #0b1a2e;
   --brand-on-surface: #ffffff;
   --section-gap: 2.25rem;
   --card-radius: 10px;
@@ -33,19 +33,19 @@ html[data-namespace="calserver"] {
 }
 
 html[data-namespace="calserver"][data-theme="dark"] {
-  --brand-primary: #111111;
-  --brand-accent: #222222;
-  --brand-secondary: #f97316;
+  --brand-primary: #1a73e8;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #0b1a2e;
   --contrast-text-on-primary: #ffffff;
-  --contrast-text-on-secondary: #000000;
-  --contrast-text-on-accent: #ffffff;
+  --contrast-text-on-secondary: #ffffff;
+  --contrast-text-on-accent: #000000;
   --contrast-text-on-surface: #ffffff;
   --contrast-text-on-surface-muted: #ffffff;
   --contrast-text-on-page: #ffffff;
-  --marketing-primary: #111111;
-  --marketing-accent: #222222;
-  --marketing-secondary: #f97316;
-  --marketing-link: #111111;
+  --marketing-primary: #1a73e8;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #0b1a2e;
+  --marketing-link: #1a73e8;
   --marketing-surface: var(--surface-card, #1a2636);
   --marketing-white: #ffffff;
   --marketing-black: #000000;

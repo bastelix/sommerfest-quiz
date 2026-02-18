@@ -933,6 +933,53 @@ function renderHeroMinimal(block, options = {}) {
   return renderHeroSection({ block, variant: 'minimal', content, sectionModifiers: 'uk-section-small' });
 }
 
+function renderHeroStatTiles(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const eyebrow = renderEyebrow(block, '', context);
+  const headline = renderHeadline(block, '', context);
+  const subheadline = renderSubheadline(block, '', context);
+  const ctas = renderHeroCtas(block.data?.cta);
+
+  const provenExpert = block.data?.provenExpert;
+  let provenExpertHtml = '';
+  if (provenExpert) {
+    const rating = escapeHtml(provenExpert.rating || '4,91 / 5');
+    const recommendation = escapeHtml(provenExpert.recommendation || '100 % Empfehlung');
+    const reviewCount = escapeHtml(provenExpert.reviewCount || '63');
+    const reviewSource = escapeHtml(provenExpert.reviewSource || 'ProvenExpert');
+    const stars = Array(5).fill('<svg class="cs-star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.17H19l-5.3 4.05L15.8 18 10 13.94 4.2 18l2.1-6.78L1 7.17h6.61z"/></svg>').join('');
+    provenExpertHtml = `
+      <div class="cs-proven-expert uk-margin-medium-top uk-flex uk-flex-middle">
+        <div class="cs-proven-expert__stars">${stars}</div>
+        <div class="cs-proven-expert__text">
+          <div class="uk-text-small uk-text-bold">${rating} \u00b7 ${recommendation}</div>
+          <div class="uk-text-meta">${reviewCount} Bewertungen auf ${reviewSource}</div>
+        </div>
+      </div>`;
+  }
+
+  const statTiles = Array.isArray(block.data?.statTiles) ? block.data.statTiles : [];
+  const tiles = statTiles.map(tile => {
+    const value = escapeHtml(tile.value || '');
+    const label = escapeHtml(tile.label || '');
+    return `<div>
+      <div class="cs-stat-tile uk-tile uk-tile-default uk-border-rounded uk-padding-small">
+        <div class="cs-stat-num">${value}</div>
+        <div class="uk-text-small uk-text-muted">${label}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const tilesGrid = statTiles.length
+    ? `<div class="uk-grid uk-grid-small uk-child-width-1-2 uk-grid-match" data-uk-grid>${tiles}</div>`
+    : '';
+
+  const textColumn = `<div class="uk-width-1-1 uk-width-1-2@m">${eyebrow}${headline}${subheadline}${ctas}${provenExpertHtml}</div>`;
+  const tilesColumn = tilesGrid ? `<div class="uk-width-1-1 uk-width-1-2@m">${tilesGrid}</div>` : '';
+  const grid = `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid data-uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 150;">${textColumn}${tilesColumn}</div>`;
+  return renderHeroSection({ block, variant: 'stat_tiles', content: grid });
+}
+
 function renderFeatureBullets(bullets) {
   if (!Array.isArray(bullets) || bullets.length === 0) {
     return '';
@@ -959,13 +1006,16 @@ function renderFeatureMedia(media) {
 }
 
 function renderFeatureListItemContent(item) {
+  const icon = typeof item.icon === 'string' && item.icon.trim()
+    ? `<span data-uk-icon="icon: ${escapeAttribute(item.icon)}; ratio: 1.8;" class="cs-blue uk-margin-small-bottom uk-display-block" aria-hidden="true"></span>`
+    : '';
   const title = `<h3 class="uk-card-title">${escapeHtml(item.title || '')}</h3>`;
   const description = item.description
     ? `<div class="uk-margin-small-top uk-margin-remove-bottom">${item.description}</div>`
     : '';
   const bullets = renderFeatureBullets(item.bullets);
 
-  return `${title}${description}${bullets}`;
+  return `${icon}${title}${description}${bullets}`;
 }
 
 function normalizeFeatureListItems(block) {
@@ -1596,6 +1646,61 @@ function renderTestimonialWall(block, options = {}) {
   return renderSection({ block, variant: 'quote_wall', content: `${header}${grid}` });
 }
 
+function renderTestimonialSlider(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const quotes = Array.isArray(block.data?.quotes) ? block.data.quotes : [];
+
+  if (!quotes.length) {
+    const singleQuote = block.data?.quote;
+    if (singleQuote) {
+      return renderTestimonialSingle(block, options);
+    }
+    return renderSection({ block, variant: 'slider', content: '<!-- testimonial: no quotes -->' });
+  }
+
+  const header = renderSectionHeader(block, {
+    subtitleClass: 'uk-text-lead uk-margin-small-top uk-margin-remove-bottom uk-text-muted',
+    wrapperClass: 'uk-width-xlarge uk-margin-auto uk-text-center uk-margin-large-bottom',
+    context
+  });
+
+  const slides = quotes.map((item) => {
+    const q = typeof item.quote === 'string' ? item.quote : '';
+    const name = item.author?.name || '';
+    const role = item.author?.role || '';
+    const source = item.source || '';
+    const initials = (item.avatarInitials || name.split(' ').map(w => w[0]).join('').substring(0, 2)).toUpperCase();
+
+    const quoteText = q
+      ? `<p class="uk-text-small uk-text-italic uk-text-muted uk-margin-medium-bottom">${escapeHtml(q)}</p>`
+      : '';
+    const quoteDeco = '<div class="cs-quote-deco uk-position-top-right uk-position-small">\u201C</div>';
+
+    const avatarHtml = `<div class="uk-width-auto"><div class="cs-avatar">${escapeHtml(initials)}</div></div>`;
+    const nameLine = name ? `<div class="uk-text-bold uk-text-small">${escapeHtml(name)}</div>` : '';
+    const roleLine = role || source
+      ? `<div class="uk-text-meta">${escapeHtml([role, source].filter(Boolean).join(' \u00b7 '))}</div>`
+      : '';
+    const authorGrid = `<div class="uk-grid uk-grid-small uk-flex-middle" data-uk-grid>${avatarHtml}<div class="uk-width-expand">${nameLine}${roleLine}</div></div>`;
+
+    return `<li><div class="uk-card uk-card-default uk-card-body uk-border-rounded">${quoteDeco}${quoteText}${authorGrid}</div></li>`;
+  }).join('');
+
+  const slider = `
+    <div data-uk-slider="autoplay: true; autoplay-interval: 5000; pause-on-hover: true;">
+      <div class="uk-position-relative">
+        <div class="uk-slider-container">
+          <ul class="uk-slider-items uk-grid uk-grid-match uk-child-width-1-1 uk-child-width-1-3@m">${slides}</ul>
+        </div>
+        <a class="uk-position-center-left-out uk-position-small uk-hidden@s" href data-uk-slidenav-previous data-uk-slider-item="previous"></a>
+        <a class="uk-position-center-right-out uk-position-small uk-hidden@s" href data-uk-slidenav-next data-uk-slider-item="next"></a>
+      </div>
+      <ul class="uk-slider-nav uk-dotnav uk-flex-center uk-margin-medium-top"></ul>
+    </div>`;
+
+  return renderSection({ block, variant: 'slider', content: `${header}${slider}` });
+}
+
 function renderRichTextProse(block, options = {}) {
   const context = options?.context || 'frontend';
   const editable = buildEditableAttributes(block, 'data.body', context, { type: 'richtext' });
@@ -2199,6 +2304,24 @@ function renderStatStripHighlight(block, options = {}) {
   return renderSection({ block, variant: 'highlight', content: `${header}${layout}${marquee}` });
 }
 
+function renderStatStripTrustBar(block, options = {}) {
+  const items = Array.isArray(block.data?.items) ? block.data.items : [];
+  if (!items.length) {
+    return renderSection({ block, variant: 'trust_bar', content: '<!-- trust_bar: no items -->' });
+  }
+
+  const listItems = items.map(item => {
+    const icon = typeof item.icon === 'string' && item.icon.trim()
+      ? `<span data-uk-icon="icon: ${escapeAttribute(item.icon)}; ratio: .75;" class="uk-margin-xsmall-right cs-blue"></span>`
+      : '';
+    const label = escapeHtml(item.label || '');
+    return `<li><span class="uk-text-small uk-text-muted">${icon}${label}</span></li>`;
+  }).join('');
+
+  const content = `<ul class="uk-subnav uk-subnav-divider uk-flex-center uk-margin-remove" data-uk-margin>${listItems}</ul>`;
+  return renderSection({ block, variant: 'trust_bar', content, sectionClass: 'uk-section-xsmall' });
+}
+
 function renderProofMetricCallout(block, options = {}) {
   const context = options?.context || 'frontend';
   const header = renderSectionHeader(block, {
@@ -2611,7 +2734,8 @@ export const RENDERER_MATRIX = {
     media_video: renderHeroMediaVideo,
     'media-right': renderHeroMediaRight,
     'media-left': renderHeroMediaLeft,
-    minimal: renderHeroMinimal
+    minimal: renderHeroMinimal,
+    stat_tiles: renderHeroStatTiles
   },
   feature_list: {
     'detailed-cards': renderFeatureListDetailedCards,
@@ -2631,7 +2755,8 @@ export const RENDERER_MATRIX = {
   },
   testimonial: {
     single_quote: renderTestimonialSingle,
-    quote_wall: renderTestimonialWall
+    quote_wall: renderTestimonialWall,
+    slider: renderTestimonialSlider
   },
   rich_text: {
     prose: renderRichTextProse
@@ -2656,7 +2781,8 @@ export const RENDERER_MATRIX = {
     cards: renderStatStripCards,
     centered: renderStatStripCentered,
     highlight: renderStatStripHighlight,
-    'three-up': renderStatStripCards
+    'three-up': renderStatStripCards,
+    trust_bar: renderStatStripTrustBar
   },
   proof: {
     'metric-callout': renderProofMetricCallout

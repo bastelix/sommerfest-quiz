@@ -8,9 +8,9 @@
   "config": {
     "designTokens": {
       "brand": {
-        "primary": "#1f6feb",
+        "primary": "#1a73e8",
         "accent": "#58a6ff",
-        "secondary": "#475569"
+        "secondary": "#0b1a2e"
       },
       "layout": {
         "profile": "standard"
