@@ -297,6 +297,7 @@
 - *(page-tree)* Add top menu assignment to page tree context menu
 - *(page-tree)* Add menu assignment to pages content tree
 - *(pages)* Auto-generate section anchors and expose them in menu editor
+- *(calserver)* Add trust_band variant for seamless trust strip below hero
 
 ### Fix
 
@@ -615,6 +616,7 @@
 - Improve optional contact fields UI with proper card design
 - *(sections)* Connect marketing design tokens to section rendering
 - *(admin)* Align namespace selectors to compact partial layout
+- *(calserver)* Redesign trust-bar section as chip/badge layout
 
 ### Test
 
