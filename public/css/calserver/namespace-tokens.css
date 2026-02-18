@@ -170,14 +170,94 @@ html[data-namespace="calserver"][data-theme="dark"] {
   color: rgba(255, 255, 255, 0.55);
 }
 
-/* ── Trust bar ── */
+/* ── Trust bar – chip/badge design ── */
 [data-namespace="calserver"] .section[data-block-variant="trust_bar"] {
-  background: var(--global-muted-background, #f8f8f8);
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #f0f5fc 0%, #eef2f7 100%);
+  border-top: 1px solid rgba(26, 115, 232, 0.08);
+  border-bottom: 1px solid rgba(26, 115, 232, 0.1);
 }
+
+/* Remove UIKit subnav divider lines */
+[data-namespace="calserver"] .section[data-block-variant="trust_bar"] .uk-subnav-divider > :nth-child(n+2):not(.uk-first-column)::before {
+  display: none;
+}
+
+/* Flex layout with gap instead of dividers */
+[data-namespace="calserver"] .section[data-block-variant="trust_bar"] .uk-subnav {
+  gap: 10px;
+  row-gap: 8px;
+}
+
+/* Reset UIKit divider padding on list items */
 [data-namespace="calserver"] .section[data-block-variant="trust_bar"] .uk-subnav-divider > li {
-  padding-left: 1rem;
+  padding-left: 0;
+}
+
+/* Trust chips: pill-style badges */
+[data-namespace="calserver"] .section[data-block-variant="trust_bar"] .uk-subnav > li > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(26, 115, 232, 0.12);
+  border-radius: 100px;
+  padding: 7px 16px 7px 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--marketing-ink, #0f172a);
+  letter-spacing: 0.01em;
+  transition: background 200ms, box-shadow 200ms, transform 200ms;
+  cursor: default;
+}
+
+[data-namespace="calserver"] .section[data-block-variant="trust_bar"] .uk-subnav > li > span:hover {
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(26, 115, 232, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Icon in circular background */
+[data-namespace="calserver"] .section[data-block-variant="trust_bar"] .cs-blue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(26, 115, 232, 0.1);
+  border-radius: 50%;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+
+/* Mobile: slightly smaller chips */
+@media (max-width: 639px) {
+  [data-namespace="calserver"] .section[data-block-variant="trust_bar"] .uk-subnav > li > span {
+    font-size: 0.78rem;
+    padding: 5px 12px 5px 6px;
+  }
+  [data-namespace="calserver"] .section[data-block-variant="trust_bar"] .cs-blue {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Dark mode */
+html[data-namespace="calserver"][data-theme="dark"] .section[data-block-variant="trust_bar"] {
+  background: linear-gradient(135deg, rgba(26, 115, 232, 0.06) 0%, rgba(11, 26, 46, 0.5) 100%);
+  border-top-color: rgba(88, 166, 255, 0.1);
+  border-bottom-color: rgba(88, 166, 255, 0.12);
+}
+html[data-namespace="calserver"][data-theme="dark"] .section[data-block-variant="trust_bar"] .uk-subnav > li > span {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(88, 166, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+}
+html[data-namespace="calserver"][data-theme="dark"] .section[data-block-variant="trust_bar"] .uk-subnav > li > span:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 12px rgba(88, 166, 255, 0.1);
+}
+html[data-namespace="calserver"][data-theme="dark"] .section[data-block-variant="trust_bar"] .cs-blue {
+  background: rgba(26, 115, 232, 0.2);
 }
 
 /* ── Blue icon accent ── */
