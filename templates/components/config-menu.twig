@@ -2,6 +2,7 @@
 {% set show_language = show_language is defined ? show_language : true %}
 {% set show_theme_toggle = show_theme_toggle is defined ? show_theme_toggle : true %}
 {% set show_contrast_toggle = show_contrast_toggle is defined ? show_contrast_toggle : true %}
+{% if show_help or show_language or show_theme_toggle or show_contrast_toggle %}
 <div class="uk-navbar-item config-menu uk-inline">
   <button id="configMenuToggle"
           type="button"
@@ -118,3 +119,4 @@
     </ul>
   </div>
 </div>
+{% endif %}
