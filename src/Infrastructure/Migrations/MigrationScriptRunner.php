@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Migrations;
 
 use App\Infrastructure\Database;
+use App\Service\DesignTokenService;
 use PDO;
 use PDOException;
 use RuntimeException;
@@ -63,6 +64,13 @@ class MigrationScriptRunner
             } catch (Throwable $e) {
                 $errors[] = sprintf('Migration failed for schema "%s": %s', $schema, $e->getMessage());
             }
+        }
+
+        // Rebuild namespace stylesheets to include any custom CSS changes from migrations.
+        try {
+            (new DesignTokenService($base))->rebuildStylesheet();
+        } catch (Throwable $e) {
+            $errors[] = 'Stylesheet rebuild failed: ' . $e->getMessage();
         }
 
         return $errors;
