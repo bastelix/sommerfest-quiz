@@ -588,6 +588,7 @@
 - Compact admin layout for mobile screens
 - Improve optional contact fields UI with proper card design
 - *(sections)* Connect marketing design tokens to section rendering
+- *(admin)* Align namespace selectors to compact partial layout
 
 ### Test
 
