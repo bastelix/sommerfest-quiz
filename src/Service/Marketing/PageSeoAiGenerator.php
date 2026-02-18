@@ -9,7 +9,10 @@ use App\Service\RagChat\ChatResponderInterface;
 use App\Service\RagChat\RagChatService;
 use RuntimeException;
 
+use function array_merge;
+use function implode;
 use function is_array;
+use function is_string;
 use function json_decode;
 use function mb_substr;
 use function preg_replace;
@@ -44,6 +47,12 @@ Vorgaben:
 - robotsMeta standardmäßig "index, follow".
 - Verwende den bereitgestellten Slug unverändert.
 - Schreibe prägnant, aktiv und vorteilsorientiert.
+
+Regeln:
+- Verwende AUSSCHLIESSLICH die unter "Seiteninhalt" bereitgestellten Informationen.
+- Erfinde KEINE Features, Vorteile oder Details, die nicht im Seiteninhalt vorkommen.
+- Wenn der Seiteninhalt zu wenig Informationen liefert, schreibe eine kürzere, aber korrekte Beschreibung.
+- Übernimm KEINE bestehenden SEO-Tags oder Meta-Daten; generiere alles neu auf Basis des Seiteninhalts.
 
 Basisdaten:
 - Titel: {{title}}
@@ -180,12 +189,258 @@ PROMPT;
         ];
     }
 
-    private function summariseContent(string $html): string
+    private function summariseContent(string $content): string
     {
-        $stripped = strip_tags($html);
+        $decoded = json_decode($content, true);
+
+        if (is_array($decoded)) {
+            $blocks = isset($decoded['blocks']) && is_array($decoded['blocks'])
+                ? $decoded['blocks']
+                : [];
+
+            if ($blocks !== []) {
+                $texts = $this->extractBlockText($blocks);
+                $joined = implode("\n", $texts);
+                $normalized = preg_replace('/\s+/', ' ', $joined) ?? $joined;
+
+                return trim(mb_substr(trim($normalized), 0, 1200));
+            }
+        }
+
+        // Fallback: treat as HTML (legacy pages)
+        $stripped = strip_tags($content);
         $normalized = preg_replace('/\s+/', ' ', $stripped) ?? $stripped;
 
         return trim(mb_substr(trim($normalized), 0, 1200));
+    }
+
+    /**
+     * @param array<int, mixed> $blocks
+     * @return list<string>
+     */
+    private function extractBlockText(array $blocks): array
+    {
+        $texts = [];
+
+        foreach ($blocks as $block) {
+            if (!is_array($block)) {
+                continue;
+            }
+
+            $type = isset($block['type']) && is_string($block['type']) ? $block['type'] : '';
+            $data = isset($block['data']) && is_array($block['data']) ? $block['data'] : [];
+
+            if ($data === []) {
+                continue;
+            }
+
+            $extracted = match ($type) {
+                'hero' => $this->extractStringFields($data, ['eyebrow', 'headline', 'subheadline']),
+                'feature_list' => $this->extractFeatureListText($data),
+                'process_steps' => $this->extractProcessStepsText($data),
+                'faq' => $this->extractFaqText($data),
+                'stat_strip' => $this->extractStatStripText($data),
+                'testimonial' => $this->extractTestimonialText($data),
+                'rich_text' => $this->extractStringFields($data, ['body']),
+                'info_media', 'system_module' => $this->extractInfoMediaText($data),
+                'audience_spotlight', 'case_showcase' => $this->extractAudienceSpotlightText($data),
+                'package_summary' => $this->extractPackageSummaryText($data),
+                'cta' => $this->extractStringFields($data, ['title', 'body']),
+                'content_slider' => $this->extractContentSliderText($data),
+                'latest_news' => $this->extractStringFields($data, ['heading']),
+                'proof' => $this->extractProofText($data),
+                'contact_form' => $this->extractStringFields($data, ['title', 'description']),
+                default => $this->extractFallbackText($data),
+            };
+
+            foreach ($extracted as $text) {
+                $cleaned = trim((string) $text);
+                if ($cleaned !== '') {
+                    $texts[] = $cleaned;
+                }
+            }
+        }
+
+        return $texts;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractStringFields(array $data, array $keys): array
+    {
+        $texts = [];
+        foreach ($keys as $key) {
+            if (isset($data[$key]) && is_string($data[$key])) {
+                $stripped = strip_tags(trim($data[$key]));
+                if ($stripped !== '') {
+                    $texts[] = $stripped;
+                }
+            }
+        }
+
+        return $texts;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractArrayItemFields(array $data, string $arrayKey, array $fieldKeys): array
+    {
+        $texts = [];
+        $items = isset($data[$arrayKey]) && is_array($data[$arrayKey]) ? $data[$arrayKey] : [];
+        foreach ($items as $item) {
+            if (is_array($item)) {
+                $texts = array_merge($texts, $this->extractStringFields($item, $fieldKeys));
+            }
+        }
+
+        return $texts;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractFeatureListText(array $data): array
+    {
+        $texts = $this->extractStringFields($data, ['eyebrow', 'title', 'lead', 'subtitle', 'intro']);
+
+        return array_merge($texts, $this->extractArrayItemFields($data, 'items', ['title', 'description']));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractProcessStepsText(array $data): array
+    {
+        $texts = $this->extractStringFields($data, ['title', 'intro', 'summary']);
+        $texts = array_merge($texts, $this->extractArrayItemFields($data, 'steps', ['title', 'description']));
+
+        $closing = isset($data['closing']) && is_array($data['closing']) ? $data['closing'] : [];
+        if ($closing !== []) {
+            $texts = array_merge($texts, $this->extractStringFields($closing, ['title', 'body']));
+        }
+
+        return $texts;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractFaqText(array $data): array
+    {
+        $texts = $this->extractStringFields($data, ['title']);
+
+        return array_merge($texts, $this->extractArrayItemFields($data, 'items', ['question', 'answer']));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractStatStripText(array $data): array
+    {
+        $texts = $this->extractStringFields($data, ['title', 'lede']);
+        $texts = array_merge($texts, $this->extractArrayItemFields($data, 'metrics', ['label', 'benefit']));
+
+        $marquee = isset($data['marquee']) && is_array($data['marquee']) ? $data['marquee'] : [];
+        foreach ($marquee as $entry) {
+            if (is_string($entry) && trim($entry) !== '') {
+                $texts[] = trim($entry);
+            }
+        }
+
+        return $texts;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractTestimonialText(array $data): array
+    {
+        $texts = $this->extractStringFields($data, ['quote']);
+        $author = isset($data['author']) && is_array($data['author']) ? $data['author'] : [];
+        if ($author !== []) {
+            $texts = array_merge($texts, $this->extractStringFields($author, ['name']));
+        }
+
+        return $texts;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractInfoMediaText(array $data): array
+    {
+        $texts = $this->extractStringFields($data, ['eyebrow', 'title', 'subtitle', 'body']);
+
+        return array_merge($texts, $this->extractArrayItemFields($data, 'items', ['title', 'description']));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractAudienceSpotlightText(array $data): array
+    {
+        $texts = $this->extractStringFields($data, ['title', 'subtitle']);
+
+        return array_merge($texts, $this->extractArrayItemFields($data, 'cases', ['title', 'lead', 'body']));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractPackageSummaryText(array $data): array
+    {
+        $texts = $this->extractStringFields($data, ['title', 'subtitle', 'disclaimer']);
+        $texts = array_merge($texts, $this->extractArrayItemFields($data, 'options', ['title', 'intro']));
+
+        return array_merge($texts, $this->extractArrayItemFields($data, 'plans', ['title', 'description']));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractContentSliderText(array $data): array
+    {
+        $texts = $this->extractStringFields($data, ['title', 'eyebrow', 'intro']);
+
+        return array_merge($texts, $this->extractArrayItemFields($data, 'slides', ['label', 'body']));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractProofText(array $data): array
+    {
+        // proof uses StatStripData (metric-callout) or AudienceSpotlightData (logo-row)
+        $texts = $this->extractStatStripText($data);
+
+        return array_merge($texts, $this->extractAudienceSpotlightText($data));
+    }
+
+    /**
+     * Recursive fallback for unknown block types: collect all string values.
+     *
+     * @return list<string>
+     */
+    private function extractFallbackText(array $data): array
+    {
+        $texts = [];
+        foreach ($data as $key => $value) {
+            if ($key === 'id' || $key === 'type' || $key === 'variant') {
+                continue;
+            }
+            if (is_string($value)) {
+                $stripped = strip_tags(trim($value));
+                if ($stripped !== '') {
+                    $texts[] = $stripped;
+                }
+            } elseif (is_array($value)) {
+                $texts = array_merge($texts, $this->extractFallbackText($value));
+            }
+        }
+
+        return $texts;
     }
 
     private function normalizeResponse(string $response): string
