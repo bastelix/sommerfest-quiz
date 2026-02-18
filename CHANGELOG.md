@@ -452,6 +452,8 @@
 - *(calserver)* Align block data with block-contract schema
 - *(calserver)* Repair block-contract violations in database content
 - *(pages)* Resolve startpage removal bug and stale tree menu labels
+- *(calserver)* Repair block-contract violations in update_calserver_page_blocks migration
+- *(design)* Generate dark-mode namespace tokens to prevent cascade overrides
 
 ### Merge
 
