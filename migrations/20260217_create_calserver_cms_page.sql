@@ -201,23 +201,8 @@ VALUES (
       "type": "testimonial",
       "variant": "quote_wall",
       "data": {
-        "title": "Was unsere Kunden sagen",
         "quote": "Sehr professioneller und individueller Service. Besonders die breitbandige Unterstützung durch die Unabhängigkeit und Erfahrung hat uns sehr weitergeholfen.",
-        "author": { "name": "Dave D.", "role": "ProvenExpert" },
-        "quotes": [
-          {
-            "quote": "Sehr professioneller und individueller Service. Besonders die breitbandige Unterstützung durch die Unabhängigkeit und Erfahrung hat uns sehr weitergeholfen.",
-            "author": { "name": "Dave D.", "role": "ProvenExpert" }
-          },
-          {
-            "quote": "Es gibt keine Alternative als calHelp, denn die Erfahrung und Kompetenz hebt sich einfach ab zu allen anderen in dem Bereich.",
-            "author": { "name": "Markus M.", "role": "ZF · ProvenExpert" }
-          },
-          {
-            "quote": "Vom ersten Kontakt bis zur letzten Minute wurden unsere Belange zur vollsten Zufriedenheit erfüllt. Das Ziel einer funktionsfähigen Umgebung mit migrierten Daten wurde eingehalten.",
-            "author": { "name": "Migrationskunde", "role": "ProvenExpert" }
-          }
-        ]
+        "author": { "name": "Dave D.", "role": "ProvenExpert" }
       },
       "meta": {
         "anchor": "stimmen",
@@ -235,6 +220,7 @@ VALUES (
         "subtitle": "Monatliche Laufzeit, 30 Tage Kündigungsfrist, DSGVO-konform.",
         "plans": [
           {
+            "id": "standard",
             "title": "Standard-Hosting",
             "description": "Cloud in Deutschland – für Teams, die schnell starten wollen.",
             "features": [
@@ -246,6 +232,7 @@ VALUES (
             "primaryCta": { "label": "Anfrage senden", "href": "#kontakt" }
           },
           {
+            "id": "performance",
             "badge": "Beliebt",
             "title": "Performance-Hosting",
             "description": "Mehr Leistung & Spielraum für wachsende Anforderungen.",
@@ -258,6 +245,7 @@ VALUES (
             "primaryCta": { "label": "Anfrage senden", "href": "#kontakt" }
           },
           {
+            "id": "enterprise",
             "title": "Enterprise (On-Prem)",
             "description": "Volle Datenhoheit in Ihrer eigenen Infrastruktur.",
             "features": [
