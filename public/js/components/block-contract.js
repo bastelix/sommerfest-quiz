@@ -76,7 +76,7 @@ const schema = {
       "title": "Hero block",
       "properties": {
         "type": { "const": "hero" },
-        "variant": { "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left", "media_video", "media-video", "minimal"] },
+        "variant": { "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left", "media_video", "media-video", "minimal", "stat_tiles"] },
         "data": { "$ref": "#/definitions/HeroData" }
       },
       "required": ["type", "variant", "data"]
@@ -112,7 +112,7 @@ const schema = {
       "title": "Testimonial block",
       "properties": {
         "type": { "const": "testimonial" },
-        "variant": { "enum": ["single_quote", "quote_wall"] },
+        "variant": { "enum": ["single_quote", "quote_wall", "slider"] },
         "data": { "$ref": "#/definitions/TestimonialData" }
       },
       "required": ["type", "variant", "data"]
@@ -148,7 +148,7 @@ const schema = {
       "title": "Stat strip block",
       "properties": {
         "type": { "const": "stat_strip" },
-        "variant": { "enum": ["inline", "cards", "centered", "highlight", "three-up", "three_up"] },
+        "variant": { "enum": ["inline", "cards", "centered", "highlight", "three-up", "three_up", "trust_bar"] },
         "data": { "$ref": "#/definitions/StatStripData" }
       },
       "required": ["type", "variant", "data"]
@@ -286,7 +286,26 @@ const schema = {
         "media": { "$ref": "#/definitions/Media" },
         "cta": { "$ref": "#/definitions/CallToActionGroup" },
         "video": { "$ref": "#/definitions/HeroVideo" },
-        "referenceLink": { "$ref": "#/definitions/CallToAction" }
+        "referenceLink": { "$ref": "#/definitions/CallToAction" },
+        "statTiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": { "type": "string" },
+              "label": { "type": "string" }
+            }
+          }
+        },
+        "provenExpert": {
+          "type": "object",
+          "properties": {
+            "rating": { "type": "string" },
+            "recommendation": { "type": "string" },
+            "reviewCount": { "type": "string" },
+            "reviewSource": { "type": "string" }
+          }
+        }
       }
     },
     "HeroVideo": {
@@ -339,11 +358,26 @@ const schema = {
     "TestimonialData": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["quote", "author"],
       "properties": {
-        "quote": { "type": "string", "minLength": 1 },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "quote": { "type": "string" },
         "author": { "$ref": "#/definitions/Author" },
-        "source": { "type": "string" }
+        "source": { "type": "string" },
+        "inlineHtml": { "type": "string" },
+        "quotes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "quote": { "type": "string" },
+              "author": { "$ref": "#/definitions/Author" },
+              "source": { "type": "string" },
+              "avatarInitials": { "type": "string" },
+              "inlineHtml": { "type": "string" }
+            }
+          }
+        }
       }
     },
     "RichTextData": {

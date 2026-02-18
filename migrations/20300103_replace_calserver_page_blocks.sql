@@ -1,4 +1,10 @@
-{
+-- Replace calServer marketing page with CMS block-based content.
+-- Updates page content (blocks JSON), namespace custom CSS, and design tokens.
+
+-- ── 1. Update page content with new 10-block structure ──
+
+UPDATE pages
+SET content = $CONTENT${
   "meta": {
     "namespace": "calserver",
     "slug": "calserver",
@@ -446,4 +452,285 @@
       }
     }
   ]
+}$CONTENT$,
+    content_source = NULL,
+    updated_at = CURRENT_TIMESTAMP
+WHERE slug = 'calserver' AND namespace = 'calserver';
+
+-- ── 2. Ensure config row exists for calserver namespace ──
+
+INSERT INTO config (event_uid)
+SELECT 'calserver'
+WHERE NOT EXISTS (SELECT 1 FROM config WHERE event_uid = 'calserver');
+
+-- ── 3. Update namespace custom CSS ──
+
+UPDATE config
+SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ── */
+
+/* ── Typography ── */
+[data-namespace="calserver"] {
+  --font-family-heading: 'Plus Jakarta Sans', 'Poppins', system-ui, sans-serif;
+  --font-family-body: 'Plus Jakarta Sans', 'Poppins', system-ui, sans-serif;
+  scroll-behavior: smooth;
 }
+[data-namespace="calserver"] h1,
+[data-namespace="calserver"] h2,
+[data-namespace="calserver"] h3,
+[data-namespace="calserver"] h4,
+[data-namespace="calserver"] .uk-heading-medium,
+[data-namespace="calserver"] .uk-heading-small {
+  font-family: var(--font-family-heading);
+}
+
+/* ── Hero section (navy gradient) ── */
+[data-namespace="calserver"] .section[data-section-intent="hero"] {
+  background: linear-gradient(170deg, #0b1a2e 0%, #122240 100%) !important;
+}
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-heading-medium {
+  color: #fff;
+  font-weight: 800;
+  line-height: 1.15;
+}
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-text-lead {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Stat tiles inside hero */
+[data-namespace="calserver"] .cs-stat-tile {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  text-align: center;
+}
+[data-namespace="calserver"] .cs-stat-num {
+  font-size: 2.6rem;
+  font-weight: 800;
+  font-family: var(--font-family-heading);
+  color: #58a6ff;
+  line-height: 1.1;
+}
+[data-namespace="calserver"] .section[data-section-intent="hero"] .cs-stat-tile .uk-text-muted {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Hero CTA buttons */
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-button-primary {
+  background: #1a73e8;
+  color: #fff;
+  border-radius: 100px;
+  padding: 0 2rem;
+  font-weight: 600;
+}
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-button-primary:hover {
+  background: #1557b0;
+}
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-button-default {
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.25);
+  border-radius: 100px;
+  padding: 0 2rem;
+  font-weight: 600;
+}
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-button-default:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ── ProvenExpert badge ── */
+[data-namespace="calserver"] .cs-proven-expert {
+  gap: 0.75rem;
+}
+[data-namespace="calserver"] .cs-proven-expert__stars {
+  display: flex;
+  gap: 2px;
+}
+[data-namespace="calserver"] .cs-star {
+  width: 18px;
+  height: 18px;
+  fill: #eab308;
+}
+[data-namespace="calserver"] .cs-proven-expert__text .uk-text-small {
+  color: rgba(255, 255, 255, 0.9);
+}
+[data-namespace="calserver"] .cs-proven-expert__text .uk-text-meta {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── Trust bar ── */
+[data-namespace="calserver"] .section[data-block-variant="trust_bar"] {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+[data-namespace="calserver"] .section[data-block-variant="trust_bar"] .uk-subnav-divider > li {
+  padding-left: 1rem;
+}
+
+/* ── Blue icon accent ── */
+[data-namespace="calserver"] .cs-blue {
+  color: #1a73e8 !important;
+}
+
+/* ── Feature cards (grid-bullets) ── */
+[data-namespace="calserver"] .section[data-block-type="feature_list"] .uk-card {
+  border-top: 3px solid #1a73e8;
+  border-radius: 10px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+[data-namespace="calserver"] .section[data-block-type="feature_list"] .uk-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* ── Product screenshots (info_media:switcher) ── */
+[data-namespace="calserver"] .section[data-block-type="info_media"] .uk-subnav > li > a {
+  font-weight: 600;
+}
+
+/* ── Referenzen (audience_spotlight:tabs) ── */
+[data-namespace="calserver"] .section[data-block-type="audience_spotlight"] .uk-card {
+  border-radius: 10px;
+}
+
+/* ── Testimonial slider ── */
+[data-namespace="calserver"] .cs-quote-deco {
+  font-size: 4.5rem;
+  line-height: 1;
+  color: rgba(26, 115, 232, 0.12);
+  font-family: Georgia, serif;
+  pointer-events: none;
+}
+[data-namespace="calserver"] .cs-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a73e8, #58a6ff);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+[data-namespace="calserver"] .section[data-block-type="testimonial"] .uk-card {
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Pricing cards ── */
+[data-namespace="calserver"] .section[data-block-type="package_summary"] .uk-card {
+  border-radius: 10px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+[data-namespace="calserver"] .section[data-block-type="package_summary"] .uk-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+/* Popular plan ring */
+[data-namespace="calserver"] .section[data-block-type="package_summary"] .uk-card:has(.uk-label) {
+  box-shadow: 0 0 0 2px #1a73e8;
+}
+[data-namespace="calserver"] .section[data-block-type="package_summary"] .uk-label {
+  background: #1a73e8;
+  border-radius: 4px;
+}
+[data-namespace="calserver"] .section[data-block-type="package_summary"] .uk-button-primary {
+  border-radius: 100px;
+  background: #1a73e8;
+  font-weight: 600;
+}
+[data-namespace="calserver"] .section[data-block-type="package_summary"] .uk-button-primary:hover {
+  background: #1557b0;
+}
+
+/* ── Founder card ── */
+[data-namespace="calserver"] .cs-link-btn {
+  border-radius: 100px;
+  font-size: 0.82rem;
+}
+
+/* ── CTA section (highlight intent – navy gradient) ── */
+[data-namespace="calserver"] .section[data-section-intent="highlight"] {
+  background: linear-gradient(170deg, #0b1a2e 0%, #122240 100%) !important;
+}
+[data-namespace="calserver"] .section[data-section-intent="highlight"] .uk-heading-medium {
+  color: #fff;
+  font-weight: 800;
+}
+[data-namespace="calserver"] .section[data-section-intent="highlight"] .uk-text-lead {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-namespace="calserver"] .section[data-section-intent="highlight"] .uk-button-primary {
+  background: #1a73e8;
+  color: #fff;
+  border-radius: 100px;
+  padding: 0 2rem;
+  font-weight: 600;
+}
+[data-namespace="calserver"] .section[data-section-intent="highlight"] .uk-button-primary:hover {
+  background: #1557b0;
+}
+[data-namespace="calserver"] .section[data-section-intent="highlight"] .uk-button-default {
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.25);
+  border-radius: 100px;
+  padding: 0 2rem;
+  font-weight: 600;
+}
+[data-namespace="calserver"] .section[data-section-intent="highlight"] .uk-button-default:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ── General rounded buttons for calServer ── */
+[data-namespace="calserver"] .section .uk-button {
+  border-radius: 100px;
+}
+
+/* ── Eyebrow tag style (green hosted badge) ── */
+[data-namespace="calserver"] .section[data-section-intent="hero"] .section-header__eyebrow,
+[data-namespace="calserver"] .section[data-section-intent="hero"] .uk-label {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  padding: 0.35rem 1rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* ── Section header label/eyebrow ── */
+[data-namespace="calserver"] .section .uk-text-meta {
+  color: #1a73e8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+}
+
+/* ── General card radius ── */
+[data-namespace="calserver"] .uk-card {
+  border-radius: 10px;
+}
+
+/* ── FAQ section ── */
+[data-namespace="calserver"] .section[data-block-type="faq"] .uk-accordion-title {
+  font-weight: 600;
+}
+$CSS$
+WHERE event_uid = 'calserver';
+
+-- ── 4. Update design tokens ──
+
+UPDATE config
+SET "designTokens" = jsonb_set(
+  jsonb_set(
+    jsonb_set(
+      COALESCE("designTokens", '{}')::jsonb,
+      '{brand,primary}', '"#1a73e8"'
+    ),
+    '{brand,secondary}', '"#0b1a2e"'
+  ),
+  '{brand,accent}', '"#58a6ff"'
+)
+WHERE event_uid = 'calserver';
