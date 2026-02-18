@@ -23,8 +23,8 @@ SET content = $CONTENT${
         "headline": "Mehr Überblick, weniger Aufwand.",
         "subheadline": "Geräte, Termine und Dokumente – organisiert an einem Ort. calServer strukturiert die Kalibrier- und Inventarverwaltung für das ganze Team.",
         "cta": {
-          "primary": { "label": "Jetzt testen", "href": "#kontakt" },
-          "secondary": { "label": "Demo buchen", "href": "#kontakt" }
+          "primary": { "label": "Jetzt testen", "href": "#demo" },
+          "secondary": { "label": "Demo buchen", "href": "#demo" }
         }
       },
       "meta": {
@@ -221,7 +221,7 @@ SET content = $CONTENT${
               "Tägliche Backups, SSL & Subdomain",
               "Rollen & Berechtigungen"
             ],
-            "primaryCta": { "label": "Anfrage senden", "href": "#kontakt" }
+            "primaryCta": { "label": "Anfrage senden", "href": "#demo" }
           },
           {
             "id": "performance",
@@ -234,7 +234,7 @@ SET content = $CONTENT${
               "Priorisiertes Monitoring",
               "Team-Workflows & Berechtigungen"
             ],
-            "primaryCta": { "label": "Anfrage senden", "href": "#kontakt" }
+            "primaryCta": { "label": "Anfrage senden", "href": "#demo" }
           },
           {
             "id": "enterprise",
@@ -246,7 +246,7 @@ SET content = $CONTENT${
               "Individuelle SLAs & Compliance",
               "MET/TEAM-Synchronisation optional"
             ],
-            "primaryCta": { "label": "Anfrage senden", "href": "#kontakt" }
+            "primaryCta": { "label": "Anfrage senden", "href": "#demo" }
           }
         ],
         "disclaimer": "Vollständige AGB, SLA und AVV auf Anfrage oder im Kundenportal einsehbar."
@@ -278,7 +278,7 @@ SET content = $CONTENT${
         "secondary": { "label": "Demo buchen", "href": "https://calendly.com/calhelp/calserver-vorstellung" }
       },
       "meta": {
-        "anchor": "kontakt",
+        "anchor": "demo",
         "sectionStyle": {
           "intent": "highlight",
           "layout": "full",
