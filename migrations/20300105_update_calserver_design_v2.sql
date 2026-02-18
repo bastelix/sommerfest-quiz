@@ -1,19 +1,10 @@
--- Fix calserver page: ensure config row exists, set custom CSS + design tokens,
--- and fix referenzen block data (HTML body → plain text, add keyFacts).
---
--- Root cause: Earlier migrations (20260217, 20300103) tried to INSERT into config
--- with event_uid='calserver' while the FK constraint to events(uid) still existed.
--- The FK was only dropped in 20290625_allow_namespace_config.sql, but the INSERT
--- was attempted before that. This migration runs after the FK drop, so the INSERT
--- succeeds reliably.
+-- Migration 20300105: update calserver namespace CSS with all design improvements.
+-- Previous edits to 20300104 were not applied because the filename was already
+-- tracked in the migrations table. This migration replaces custom_css with the
+-- complete set of styles including hero padding, module switcher, logo/topbar,
+-- and section heading sizes.
 
--- ── 1. Ensure config row exists (FK to events was dropped in 20290625) ──
-
-INSERT INTO config (event_uid)
-SELECT 'calserver'
-WHERE NOT EXISTS (SELECT 1 FROM config WHERE event_uid = 'calserver');
-
--- ── 2. Set namespace custom CSS ──
+-- ── 1. Replace custom_css with full updated CSS ──
 
 UPDATE config
 SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ── */
@@ -502,141 +493,10 @@ SET custom_css = $CSS$/* ── calServer page namespace styles (2026-02) ──
 $CSS$
 WHERE event_uid = 'calserver';
 
--- ── 3. Set design tokens ──
-
-UPDATE config
-SET design_tokens = jsonb_set(
-  jsonb_set(
-    jsonb_set(
-      COALESCE(design_tokens, '{}')::jsonb,
-      '{brand,primary}', '"#1a73e8"'
-    ),
-    '{brand,secondary}', '"#0b1a2e"'
-  ),
-  '{brand,accent}', '"#58a6ff"'
-)
-WHERE event_uid = 'calserver';
-
--- ── 4. Configure project_settings for calserver namespace (logo) ──
+-- ── 2. Configure project_settings for calserver namespace (logo) ──
 
 INSERT INTO project_settings (namespace, header_logo_mode, header_logo_label)
 VALUES ('calserver', 'text', 'calServer')
 ON CONFLICT (namespace) DO UPDATE SET
-  header_logo_mode = EXCLUDED.header_logo_mode,
+  header_logo_mode  = EXCLUDED.header_logo_mode,
   header_logo_label = EXCLUDED.header_logo_label;
-
--- ── 5. Fix referenzen block: HTML body → plain text, add keyFacts ──
-
-UPDATE pages
-SET content = jsonb_set(
-  content::jsonb,
-  '{blocks,4,data,cases}',
-  $CASES$[
-    {
-      "id": "thermo-fisher",
-      "title": "Thermo Fisher Scientific",
-      "badge": "Kalibrierlabor",
-      "lead": "Globaler Life-Science-Konzern \u00b7 EMEA-weites Deployment",
-      "body": "EMEA-weite Leihger\u00e4te-Verwaltung und l\u00fcckenlose Ger\u00e4teakten \u00fcber mehrere Standorte. Bidirektionale Synchronisation mit Fluke MET/TEAM f\u00fcr einen konsistenten Datenbestand.",
-      "keyFacts": [
-        "EMEA-weites Deployment",
-        "Bidirektionale MET/TEAM-Synchronisation",
-        "Eliminierte Datensilos",
-        "Revisionssichere Nachverfolgung"
-      ]
-    },
-    {
-      "id": "zf",
-      "title": "ZF",
-      "badge": "Industrielabor",
-      "lead": "Automobilzulieferer \u00b7 Enterprise-Infrastruktur",
-      "body": "API-basierte Messwert-Erfassung auf Kubernetes-Infrastruktur mit SSO-Anbindung (Azure AD). Bidirektionale MET/TEAM-Synchronisation f\u00fcr nahtlosen Datenaustausch.",
-      "keyFacts": [
-        "Enterprise-Kubernetes-Infrastruktur",
-        "Azure AD SSO-Integration",
-        "Automatisierte Messwert-Pipelines",
-        "Nahtloser MET/TEAM-Datenaustausch"
-      ]
-    },
-    {
-      "id": "vde",
-      "title": "VDE",
-      "badge": "Qualit\u00e4tsmanagement",
-      "lead": "Verband der Elektrotechnik \u00b7 Normungsinstitut",
-      "body": "Agile Auftragssteuerung mit integriertem Dokumentenmanagement. calServer als zentrales Intranet und Ticketing-Plattform f\u00fcr die QM-Abteilung.",
-      "keyFacts": [
-        "Transparente Auftragsprozesse",
-        "Revisionssicheres DMS",
-        "Zentraler QM-Hub",
-        "Einsatz jenseits klassischer Kalibrierung"
-      ]
-    },
-    {
-      "id": "ifm",
-      "title": "ifm electronic",
-      "badge": "Kalibrierlabor",
-      "lead": "Sensorhersteller \u00b7 2 Standorte",
-      "body": "Standort\u00fcbergreifendes Ticket-Management f\u00fcr St\u00f6rungen und CAPA-Prozesse. Bidirektionale Synchronisation mit MET/TEAM und MET/CAL.",
-      "keyFacts": [
-        "2 Standorte vernetzt",
-        "CAPA-Dokumentation",
-        "MET/TEAM + MET/CAL Sync",
-        "Einheitliche St\u00f6rungsbearbeitung"
-      ]
-    },
-    {
-      "id": "berliner-stadtwerke",
-      "title": "Berliner Stadtwerke",
-      "badge": "Assetmanagement",
-      "lead": "Kommunaler Energieversorger \u00b7 Erneuerbare Energien",
-      "body": "Projekt- und Wartungsmanagement f\u00fcr dezentrale erneuerbare Energieanlagen (PV, Speicher). calServer als zentrale Plattform jenseits der klassischen Kalibrierung.",
-      "keyFacts": [
-        "Erneuerbare Energien (PV, Speicher)",
-        "Dezentrale Assetverwaltung",
-        "Strukturierte Wartungsplanung",
-        "Einsatz jenseits der Kalibrierung"
-      ]
-    },
-    {
-      "id": "ksw",
-      "title": "KSW",
-      "badge": "Kalibrierlabor",
-      "lead": "Kalibrierdienstleister \u00b7 End-to-End-Prozess",
-      "body": "Kompletter Workflow vom Wareneingang \u00fcber die Laborbearbeitung bis zur automatisierten Rechnungsstellung \u2013 alles in calServer abgebildet.",
-      "keyFacts": [
-        "End-to-End-Auftragsprozess",
-        "Automatisierte Abrechnung",
-        "Kein Medienbruch",
-        "Vollst\u00e4ndige Nachverfolgbarkeit"
-      ]
-    },
-    {
-      "id": "teramess",
-      "title": "TERAMESS",
-      "badge": "Kalibrierlabor",
-      "lead": "Kalibrierdienstleister \u00b7 DAkkS-akkreditiert",
-      "body": "DAkkS-konforme Kalibrierscheine direkt aus calServer in der Cloud erstellen. Audit-sichere Dokumentation \u00fcber den gesamten Kalibrierprozess.",
-      "keyFacts": [
-        "DAkkS-akkreditiert",
-        "Cloud-basiert",
-        "Normkonforme Zertifikate",
-        "Jederzeitige Audit-Bereitschaft"
-      ]
-    },
-    {
-      "id": "systems-engineering",
-      "title": "Systems Engineering",
-      "badge": "Kalibrierlabor",
-      "lead": "Kalibrierdienstleister \u00b7 Auftragssteuerung",
-      "body": "calServer als steuerndes Herzst\u00fcck der gesamten Auftragsbearbeitung \u2013 von der Anfrage \u00fcber die Kalibrierung bis zur Auslieferung und Dokumentation.",
-      "keyFacts": [
-        "Zentrale Auftragssteuerung",
-        "Reduzierter Verwaltungsaufwand",
-        "Einheitlicher Prozess",
-        "End-to-End-Dokumentation"
-      ]
-    }
-  ]$CASES$::jsonb
-)::text,
-    updated_at = CURRENT_TIMESTAMP
-WHERE slug = 'calserver' AND namespace = 'calserver';
