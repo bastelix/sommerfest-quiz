@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Migrations;
 
+use App\Service\DesignTokenService;
 use PDO;
 
 /**
@@ -17,6 +18,8 @@ final class MigrationRuntime
      * @var array<string, bool>
      */
     private static array $executed = [];
+
+    private static bool $stylesheetsRebuilt = false;
 
     /**
      * Run migrations for the given connection once per process when enabled.
@@ -33,6 +36,15 @@ final class MigrationRuntime
 
         Migrator::migrate($connection, $directory);
         self::$executed[$key] = true;
+
+        if (!self::$stylesheetsRebuilt) {
+            self::$stylesheetsRebuilt = true;
+            try {
+                (new DesignTokenService($connection))->rebuildStylesheet();
+            } catch (\Throwable $e) {
+                // Non-critical: stylesheet rebuild can be retried on next request.
+            }
+        }
     }
 
     /**
@@ -41,6 +53,7 @@ final class MigrationRuntime
     public static function reset(): void
     {
         self::$executed = [];
+        self::$stylesheetsRebuilt = false;
     }
 
     private static function shouldRunOnRequest(): bool
