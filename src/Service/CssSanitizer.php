@@ -40,7 +40,8 @@ class CssSanitizer
         $css = (string) preg_replace('/-moz-binding\s*:/i', '/* -moz-binding removed */ _removed:', $css);
 
         // Remove behavior: property (IE HTC XSS vector)
-        $css = (string) preg_replace('/\bbehavior\s*:/i', '/* behavior removed */ _removed:', $css);
+        // Negative lookbehind prevents matching scroll-behavior and similar compound properties
+        $css = (string) preg_replace('/(?<!-)behavior\s*:/i', '/* behavior removed */ _removed:', $css);
 
         return $css;
     }
