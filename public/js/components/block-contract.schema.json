@@ -63,7 +63,8 @@
             "media_left",
             "media_video",
             "media-video",
-            "minimal"
+            "minimal",
+            "stat_tiles"
           ]
         },
         "data": {
@@ -159,7 +160,8 @@
         "variant": {
           "enum": [
             "single_quote",
-            "quote_wall"
+            "quote_wall",
+            "slider"
           ]
         },
         "data": {
@@ -253,7 +255,8 @@
             "centered",
             "highlight",
             "three-up",
-            "three_up"
+            "three_up",
+            "trust_bar"
           ]
         },
         "data": {
@@ -609,6 +612,25 @@
         },
         "referenceLink": {
           "$ref": "#/definitions/CallToAction"
+        },
+        "statTiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": { "type": "string" },
+              "label": { "type": "string" }
+            }
+          }
+        },
+        "provenExpert": {
+          "type": "object",
+          "properties": {
+            "rating": { "type": "string" },
+            "recommendation": { "type": "string" },
+            "reviewCount": { "type": "string" },
+            "reviewSource": { "type": "string" }
+          }
         }
       }
     },
@@ -656,6 +678,11 @@
         },
         "intro": {
           "type": "string"
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
         },
         "items": {
           "type": "array",
@@ -708,11 +735,13 @@
     "TestimonialData": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "quote",
-        "author"
-      ],
       "properties": {
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
         "quote": {
           "type": "string",
           "minLength": 1
@@ -726,6 +755,21 @@
         "inlineHtml": {
           "type": "string",
           "description": "Optional inline HTML for embedding review platform widgets (e.g. ProvenExpert or Google review links)."
+        },
+        "quotes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "quote": { "type": "string" },
+              "author": { "$ref": "#/definitions/Author" },
+              "source": { "type": "string" },
+              "avatarInitials": { "type": "string" },
+              "inlineHtml": { "type": "string" }
+            }
+          },
+          "minItems": 1
         }
       }
     },
@@ -857,9 +901,6 @@
     "StatStripData": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "metrics"
-      ],
       "properties": {
         "title": {
           "type": "string"
@@ -879,11 +920,30 @@
           },
           "minItems": 1
         },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StatStripItem"
+          },
+          "minItems": 1
+        },
         "marquee": {
           "type": "array",
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "StatStripItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "icon": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
         }
       }
     },
@@ -1133,7 +1193,6 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "id",
         "title"
       ],
       "properties": {
@@ -1224,7 +1283,6 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "id",
         "title"
       ],
       "properties": {
