@@ -100,6 +100,42 @@ final class CmsPageMenuServiceGenerationTest extends TestCase
         }
     }
 
+    public function testGenerateWithExplicitMenuIdBypassesAssignment(): void
+    {
+        $page = $this->seedPage('landing');
+        $menuId = $this->seedMenu($page->getNamespace());
+
+        $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
+            'items' => [
+                ['label' => 'Neu', 'href' => '#neu', 'layout' => 'link', 'children' => []],
+            ],
+        ])), '{{slug}}');
+
+        $service = new CmsPageMenuService($this->pdo, $this->pageService, null, $generator);
+        $items = $service->generateMenuFromPage($page, 'de', true, $menuId);
+
+        $this->assertCount(1, $items);
+        $this->assertSame('Neu', $items[0]->getLabel());
+        $this->assertSame('#neu', $items[0]->getHref());
+    }
+
+    public function testGenerateWithInvalidExplicitMenuIdThrows(): void
+    {
+        $page = $this->seedPage('landing');
+
+        $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
+            'items' => [
+                ['label' => 'X', 'href' => '#x', 'layout' => 'link', 'children' => []],
+            ],
+        ])), '{{slug}}');
+
+        $service = new CmsPageMenuService($this->pdo, $this->pageService, null, $generator);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Menu not found for the given ID.');
+        $service->generateMenuFromPage($page, 'de', true, 9999);
+    }
+
     private function createSchema(): void
     {
         $this->pdo->exec(

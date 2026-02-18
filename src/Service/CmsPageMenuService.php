@@ -264,10 +264,12 @@ final class CmsPageMenuService
      *
      * @return CmsMenuItem[]
      */
-    public function generateMenuFromPage(Page $page, ?string $locale, bool $overwrite): array
+    public function generateMenuFromPage(Page $page, ?string $locale, bool $overwrite, ?int $menuId = null): array
     {
         $normalizedLocale = $locale !== null ? $this->normalizeLocale($locale) : null;
-        $menuContext = $this->requireMenuContext($page, $normalizedLocale);
+        $menuContext = $menuId !== null
+            ? $this->buildMenuContextFromId($page, $menuId)
+            : $this->requireMenuContext($page, $normalizedLocale);
         $startpageLocales = $overwrite ? [] : $this->collectStartpageLocales($page, $normalizedLocale);
 
         $items = $this->menuAiGenerator->generate($page, $normalizedLocale);
@@ -303,6 +305,10 @@ final class CmsPageMenuService
             $status = $exception instanceof PDOException ? 500 : 500;
 
             throw new MarketingMenuAiException($errorMessage, $errorCode, $status, $exception);
+        }
+
+        if ($menuId !== null) {
+            return $this->fetchItemsForMenuId($menuContext['menuId'], $menuContext['namespace'], $normalizedLocale, false);
         }
 
         return $this->getMenuItemsForPage($page->getId(), $normalizedLocale, false);
@@ -1042,6 +1048,24 @@ final class CmsPageMenuService
         }
 
         return $menuContext;
+    }
+
+    /**
+     * Build a menu context from an explicitly provided menu ID.
+     *
+     * @return array{menuId: int, namespace: string}
+     */
+    private function buildMenuContextFromId(Page $page, int $menuId): array
+    {
+        $menu = $this->menuDefinitions->getMenuById($page->getNamespace(), $menuId);
+        if ($menu === null) {
+            throw new RuntimeException('Menu not found for the given ID.');
+        }
+
+        return [
+            'menuId' => $menu->getId(),
+            'namespace' => $page->getNamespace(),
+        ];
     }
 
     /**

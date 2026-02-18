@@ -1362,7 +1362,7 @@ if (manager) {
     apiFetch(path, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ locale, overwrite })
+      body: JSON.stringify({ locale, overwrite, menuId: state.menuId })
     })
       .then(response => {
         if (!response.ok) {

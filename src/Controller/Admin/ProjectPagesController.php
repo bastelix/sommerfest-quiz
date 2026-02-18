@@ -420,9 +420,10 @@ class ProjectPagesController
         $payload = $this->parseJsonBody($request) ?? [];
         $locale = isset($payload['locale']) && is_string($payload['locale']) ? $payload['locale'] : null;
         $overwrite = $this->parseBooleanFlag($payload['overwrite'] ?? false);
+        $menuId = isset($payload['menuId']) && is_numeric($payload['menuId']) ? (int) $payload['menuId'] : null;
 
         try {
-            $items = $this->cmsMenu->generateMenuFromPage($page, $locale, $overwrite);
+            $items = $this->cmsMenu->generateMenuFromPage($page, $locale, $overwrite, $menuId);
         } catch (\RuntimeException $exception) {
             $mapper = new MarketingMenuAiErrorMapper();
             $mapped = $mapper->map($exception);
