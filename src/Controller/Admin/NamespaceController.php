@@ -104,6 +104,13 @@ final class NamespaceController
         $data = $this->parsePayload($request);
         $namespace = is_array($data) ? (string) ($data['namespace'] ?? '') : '';
         $labelPayload = $this->parseLabelPayload($data);
+        $designPreset = is_array($data) ? ($data['design_preset'] ?? null) : null;
+        if ($designPreset !== null) {
+            $designPreset = trim((string) $designPreset);
+            if ($designPreset === '') {
+                $designPreset = null;
+            }
+        }
         $normalized = $this->validator->normalize($namespace);
 
         $validationError = $this->validateNamespace($request, $response, $normalized);
@@ -112,7 +119,7 @@ final class NamespaceController
         }
 
         try {
-            $entry = $this->service->create($normalized, $labelPayload['label']);
+            $entry = $this->service->create($normalized, $labelPayload['label'], $designPreset);
             $this->grantUserNamespaceAccess($request, $normalized);
         } catch (DuplicateNamespaceException) {
             return $this->jsonError($response, $this->translate($request, 'error_namespace_duplicate', 'Namespace exists.'), 409);
