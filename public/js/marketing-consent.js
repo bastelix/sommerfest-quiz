@@ -1359,37 +1359,28 @@
     card.dataset.state = 'loaded';
   }
 
-  function initHeroVideoConsent() {
-    var cards = document.querySelectorAll('[data-hero-video-consent]');
-    if (!cards.length) {
+  function setupHeroVideoCard(card) {
+    if (!card || card.dataset.heroVideoInit === 'true') {
       return;
     }
 
-    var cardList = Array.prototype.slice.call(cards);
-
-    var loadAll = function () {
-      cardList.forEach(loadHeroVideo);
-    };
+    card.dataset.heroVideoInit = 'true';
 
     if (marketingAllowed()) {
-      loadAll();
+      loadHeroVideo(card);
     } else {
       var handlePreference = function (event) {
         if (event && event.detail && event.detail.marketing) {
           document.removeEventListener(EVENT_NAME, handlePreference);
-          loadAll();
+          loadHeroVideo(card);
         }
       };
 
       document.addEventListener(EVENT_NAME, handlePreference);
     }
 
-    cardList.forEach(function (card) {
-      var consentButton = card.querySelector('[data-hero-video-consent-accept]');
-      if (!consentButton) {
-        return;
-      }
-
+    var consentButton = card.querySelector('[data-hero-video-consent-accept]');
+    if (consentButton) {
       consentButton.addEventListener('click', function () {
         if (card.dataset.state === 'loaded') {
           return;
@@ -1398,7 +1389,38 @@
         ensureMarketingConsent();
         loadHeroVideo(card);
       });
-    });
+    }
+  }
+
+  function initHeroVideoConsent() {
+    document.querySelectorAll('[data-hero-video-consent]').forEach(setupHeroVideoCard);
+
+    if (typeof MutationObserver === 'function') {
+      var observer = new MutationObserver(function (mutations) {
+        for (var i = 0; i < mutations.length; i++) {
+          var added = mutations[i].addedNodes;
+          for (var j = 0; j < added.length; j++) {
+            var node = added[j];
+            if (node.nodeType !== 1) {
+              continue;
+            }
+
+            if (node.hasAttribute && node.hasAttribute('data-hero-video-consent')) {
+              setupHeroVideoCard(node);
+            }
+
+            if (node.querySelectorAll) {
+              node.querySelectorAll('[data-hero-video-consent]').forEach(setupHeroVideoCard);
+            }
+          }
+        }
+      });
+
+      observer.observe(document.body || document.documentElement, {
+        childList: true,
+        subtree: true
+      });
+    }
   }
 
   document.addEventListener('DOMContentLoaded', initModuleVideoFullscreen);
