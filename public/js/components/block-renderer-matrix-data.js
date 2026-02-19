@@ -585,6 +585,8 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   const presetStyle = preset.styleVariables.length ? `${preset.styleVariables.join('; ')};` : '';
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const layoutFlag = (layout === 'card' || layout === 'full-card') ? 'card' : '';
+  const viewportHeight = block?.meta?.sectionStyle?.viewportHeight;
+  const hasViewportHeight = viewportHeight && viewportHeight !== 'auto';
   const classes = [
     'section',
     'uk-section',
@@ -594,6 +596,7 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
     background.mode === 'color' ? `section--bg-${background.colorToken}` : '',
     background.mode === 'image' ? 'section--bg-image' : '',
     background.mode === 'image' && background.attachment === 'fixed' ? 'section--bg-fixed' : '',
+    hasViewportHeight ? 'section--viewport-height' : '',
     ...normalizeClassList(sectionClass)
   ]
     .filter(Boolean)
@@ -628,6 +631,9 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
     background.mode === 'image' && background.overlay !== undefined
       ? `data-section-background-overlay="${escapeAttribute(String(background.overlay))}"`
       : null,
+    hasViewportHeight
+      ? `data-viewport-height="${escapeAttribute(viewportHeight)}"`
+      : null,
     ...backgroundStyle.dataAttributes,
   ]
     .filter(Boolean)
@@ -651,10 +657,18 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
 
   const dataAttributesString = dataAttributes ? ` ${dataAttributes}` : '';
 
-  const styleSegments = [presetStyle, backgroundStyle.style].filter(Boolean).map(value => value.trim().replace(/;$/, ''));
+  const viewportHeightStyle = viewportHeight === 'reduced' ? 'min-height: 80vh' : '';
+  const styleSegments = [presetStyle, backgroundStyle.style, viewportHeightStyle].filter(Boolean).map(value => value.trim().replace(/;$/, ''));
   const style = styleSegments.length ? ` style="${styleSegments.join('; ')};"` : '';
 
-  return `<section${anchor} class="${classes}"${dataAttributesString}${style}>${inner}</section>`;
+  let viewportAttr = '';
+  if (viewportHeight === 'full') {
+    viewportAttr = ' uk-height-viewport';
+  } else if (viewportHeight === 'minus-next') {
+    viewportAttr = ' uk-height-viewport="offset-bottom: true"';
+  }
+
+  return `<section${anchor} class="${classes}"${dataAttributesString}${style}${viewportAttr}>${inner}</section>`;
 }
 
 function renderHeroSection({ block, variant, content, sectionModifiers = '' }) {

@@ -88,6 +88,46 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Viewport height                                                    */
+/* ------------------------------------------------------------------ */
+
+/*
+ * When a section has a viewport-height setting, vertically centre
+ * the content within the tall section via flexbox.
+ */
+.section--viewport-height {
+  display: flex;
+  flex-direction: column;
+}
+
+.section--viewport-height > .uk-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+}
+
+/* CSS fallback for the 80 vh (reduced) mode – no UIkit attribute needed */
+.section[data-viewport-height="reduced"] {
+  min-height: 80vh;
+}
+
+/* Responsive: disable viewport height on small screens to prevent
+   excessively tall hero sections on mobile devices. */
+@media (max-width: 959px) {
+  .section[data-viewport-height="full"],
+  .section[data-viewport-height="reduced"],
+  .section[data-viewport-height="minus-next"] {
+    min-height: auto !important;
+    height: auto !important;
+  }
+
+  .section--viewport-height > .uk-container {
+    justify-content: flex-start;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Dark mode: section surface + text overrides                        */
 /* ------------------------------------------------------------------ */
 

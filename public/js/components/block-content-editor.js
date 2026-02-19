@@ -18,6 +18,7 @@ import {
   CONTAINER_WIDTHS,
   CONTAINER_FRAMES,
   CONTAINER_SPACINGS,
+  VIEWPORT_HEIGHTS,
   DEFAULT_CONTAINER_BY_TYPE
 } from './section-intents.js';
 import { RENDERER_MATRIX } from './block-renderer-matrix.js';
@@ -328,6 +329,13 @@ const CONTAINER_SPACING_OPTIONS = [
   { value: 'compact', label: 'Kompakt', description: 'Wenig vertikaler Abstand.' },
   { value: 'normal', label: 'Normal', description: 'Standard-Abstand.' },
   { value: 'generous', label: 'Grosszügig', description: 'Viel vertikaler Abstand.' }
+];
+
+const VIEWPORT_HEIGHT_OPTIONS = [
+  { value: 'auto', label: 'Auto', description: 'Höhe ergibt sich aus dem Inhalt.' },
+  { value: 'full', label: '100 vh', description: 'Füllt die gesamte Bildschirmhöhe.' },
+  { value: 'reduced', label: '80 vh', description: '80 % der Bildschirmhöhe – zeigt Folgeinhalte an.' },
+  { value: 'minus-next', label: '\u2212 nächster', description: 'Bildschirmhöhe minus Höhe des nächsten Abschnitts.' }
 ];
 
 const BACKGROUND_PRESET_OPTIONS = [
@@ -1581,6 +1589,11 @@ function sanitizeBlock(block) {
   const storedContainer = sanitizedMeta?.sectionStyle?.container;
   if (isPlainObject(storedContainer)) {
     resolvedSectionStyle.container = storedContainer;
+  }
+
+  const storedViewportHeight = sanitizedMeta?.sectionStyle?.viewportHeight;
+  if (typeof storedViewportHeight === 'string' && VIEWPORT_HEIGHTS.includes(storedViewportHeight)) {
+    resolvedSectionStyle.viewportHeight = storedViewportHeight;
   }
 
   const mergedMeta = {
@@ -2958,6 +2971,38 @@ export class BlockContentEditor {
 
     spacingGroup.append(spacingOptions);
     sectionPanel.append(spacingGroup);
+
+    // Viewport height picker (hero blocks only)
+    if (block.type === 'hero') {
+      const { viewportHeight: currentViewportHeight } = resolveContainerConfig(block);
+      const activeViewportHeight = currentViewportHeight || 'auto';
+
+      const vpGroup = document.createElement('div');
+      vpGroup.className = 'section-config-panel__group';
+      const vpLabel = document.createElement('div');
+      vpLabel.className = 'field-label';
+      vpLabel.textContent = 'Bildschirmhöhe';
+      vpGroup.append(vpLabel);
+
+      const vpOptions = document.createElement('div');
+      vpOptions.className = 'layout-style-picker__options layout-style-picker__options--inline';
+
+      VIEWPORT_HEIGHT_OPTIONS.forEach(option => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'layout-style-card layout-style-card--compact';
+        const selected = option.value === activeViewportHeight;
+        btn.dataset.selected = String(selected);
+        btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        btn.textContent = option.label;
+        btn.title = option.description;
+        btn.addEventListener('click', () => this.updateViewportHeight(block.id, option.value));
+        vpOptions.append(btn);
+      });
+
+      vpGroup.append(vpOptions);
+      sectionPanel.append(vpGroup);
+    }
 
     wrapper.append(sectionPanel);
 
@@ -5206,9 +5251,9 @@ export class BlockContentEditor {
         return block;
       }
 
-      const { container, background: bgConfig } = resolveContainerConfig(block);
+      const { container, background: bgConfig, viewportHeight } = resolveContainerConfig(block);
       const updatedContainer = { ...container, ...patch };
-      const stored = toStoredSectionStyle(updatedContainer, bgConfig);
+      const stored = toStoredSectionStyle(updatedContainer, bgConfig, viewportHeight);
       return applySectionStyle(block, stored);
     });
 
@@ -5230,16 +5275,27 @@ export class BlockContentEditor {
     this._applyContainerChange(blockId, { spacing });
   }
 
+  updateViewportHeight(blockId, viewportHeight) {
+    if (!VIEWPORT_HEIGHTS.includes(viewportHeight)) return;
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) return block;
+      const { container, background: bgConfig } = resolveContainerConfig(block);
+      const stored = toStoredSectionStyle(container, bgConfig, viewportHeight);
+      return applySectionStyle(block, stored);
+    });
+    this.render();
+  }
+
   updateBackgroundBleed(blockId, bleed) {
     this.state.blocks = this.state.blocks.map(block => {
       if (block.id !== blockId) {
         return block;
       }
 
-      const { container, background: bgConfig } = resolveContainerConfig(block);
+      const { container, background: bgConfig, viewportHeight } = resolveContainerConfig(block);
       const updatedBg = { ...bgConfig, bleed: !!bleed };
 
-      const stored = toStoredSectionStyle(container, updatedBg);
+      const stored = toStoredSectionStyle(container, updatedBg, viewportHeight);
       return applySectionStyle(block, stored);
     });
 
@@ -5253,7 +5309,7 @@ export class BlockContentEditor {
     const targetBlock = this.state.blocks.find(block => block.id === blockId);
     if (!targetBlock) return;
 
-    const { container, background: currentBg } = resolveContainerConfig(targetBlock);
+    const { container, background: currentBg, viewportHeight } = resolveContainerConfig(targetBlock);
     const preset = option.preset;
 
     if (preset.mode === 'image') {
@@ -5268,7 +5324,7 @@ export class BlockContentEditor {
       if (currentBackground.overlay !== undefined) {
         updatedBg.overlay = currentBackground.overlay;
       }
-      const stored = toStoredSectionStyle(container, updatedBg);
+      const stored = toStoredSectionStyle(container, updatedBg, viewportHeight);
       this.state.blocks = this.state.blocks.map(block =>
         block.id === blockId ? applySectionStyle(block, stored) : block
       );
@@ -5284,7 +5340,7 @@ export class BlockContentEditor {
       updatedBg.colorToken = preset.colorToken;
     }
 
-    const stored = toStoredSectionStyle(container, updatedBg);
+    const stored = toStoredSectionStyle(container, updatedBg, viewportHeight);
     this.state.blocks = this.state.blocks.map(block =>
       block.id === blockId ? applySectionStyle(block, stored) : block
     );

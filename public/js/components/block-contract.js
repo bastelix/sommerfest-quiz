@@ -272,7 +272,8 @@ const schema = {
         "layout": { "enum": SECTION_LAYOUTS, "default": "normal" },
         "intent": { "enum": SECTION_INTENTS },
         "background": { "$ref": "#/definitions/SectionBackground" },
-        "container": { "$ref": "#/definitions/SectionContainer" }
+        "container": { "$ref": "#/definitions/SectionContainer" },
+        "viewportHeight": { "enum": ["auto", "full", "reduced", "minus-next"] }
       }
     },
     "BlockMeta": {
@@ -1202,6 +1203,11 @@ function normalizeSectionStyle(sectionStyle, legacyBackgroundImage, legacyAppear
     normalized.container = container;
   }
 
+  const VALID_VIEWPORT_HEIGHTS = ['auto', 'full', 'reduced', 'minus-next'];
+  if (typeof source.viewportHeight === 'string' && VALID_VIEWPORT_HEIGHTS.includes(source.viewportHeight) && source.viewportHeight !== 'auto') {
+    normalized.viewportHeight = source.viewportHeight;
+  }
+
   return normalized;
 }
 
@@ -1325,7 +1331,7 @@ function validateSectionStyle(style) {
     return false;
   }
 
-  const allowedKeys = ['layout', 'background', 'intent', 'container'];
+  const allowedKeys = ['layout', 'background', 'intent', 'container', 'viewportHeight'];
   if (Object.keys(style).some(key => !allowedKeys.includes(key))) {
     return false;
   }
@@ -1336,6 +1342,11 @@ function validateSectionStyle(style) {
   }
 
   if (style.intent !== undefined && !normalizeSectionIntent(style.intent)) {
+    return false;
+  }
+
+  const VALID_VIEWPORT_HEIGHTS = ['auto', 'full', 'reduced', 'minus-next'];
+  if (style.viewportHeight !== undefined && !VALID_VIEWPORT_HEIGHTS.includes(style.viewportHeight)) {
     return false;
   }
 
