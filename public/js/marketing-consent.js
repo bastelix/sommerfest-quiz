@@ -1359,67 +1359,64 @@
     card.dataset.state = 'loaded';
   }
 
-  function setupHeroVideoCard(card) {
-    if (!card || card.dataset.heroVideoInit === 'true') {
-      return;
-    }
-
-    card.dataset.heroVideoInit = 'true';
-
-    if (marketingAllowed()) {
-      loadHeroVideo(card);
-    } else {
-      var handlePreference = function (event) {
-        if (event && event.detail && event.detail.marketing) {
-          document.removeEventListener(EVENT_NAME, handlePreference);
-          loadHeroVideo(card);
-        }
-      };
-
-      document.addEventListener(EVENT_NAME, handlePreference);
-    }
-
-    var consentButton = card.querySelector('[data-hero-video-consent-accept]');
-    if (consentButton) {
-      consentButton.addEventListener('click', function () {
-        if (card.dataset.state === 'loaded') {
-          return;
-        }
-
-        ensureMarketingConsent();
-        loadHeroVideo(card);
-      });
-    }
-  }
-
   function initHeroVideoConsent() {
-    document.querySelectorAll('[data-hero-video-consent]').forEach(setupHeroVideoCard);
+    // Event delegation – handles clicks on consent buttons regardless of when
+    // the elements are added to the DOM (async hydrator, CMS preview re-render).
+    document.addEventListener('click', function (event) {
+      var button = event.target.closest
+        ? event.target.closest('[data-hero-video-consent-accept]')
+        : null;
+      if (!button) {
+        return;
+      }
+      var card = button.closest('[data-hero-video-consent]');
+      if (!card || card.dataset.state === 'loaded') {
+        return;
+      }
+      ensureMarketingConsent();
+      loadHeroVideo(card);
+    });
 
-    if (typeof MutationObserver === 'function') {
-      var observer = new MutationObserver(function (mutations) {
-        for (var i = 0; i < mutations.length; i++) {
-          var added = mutations[i].addedNodes;
-          for (var j = 0; j < added.length; j++) {
-            var node = added[j];
-            if (node.nodeType !== 1) {
-              continue;
-            }
-
-            if (node.hasAttribute && node.hasAttribute('data-hero-video-consent')) {
-              setupHeroVideoCard(node);
-            }
-
-            if (node.querySelectorAll) {
-              node.querySelectorAll('[data-hero-video-consent]').forEach(setupHeroVideoCard);
+    // Auto-load cards inserted after consent was already granted (hydrator,
+    // CMS preview). loadHeroVideo is idempotent via dataset.state guard.
+    var observer = new MutationObserver(function (mutations) {
+      if (!marketingAllowed()) {
+        return;
+      }
+      var i, j, node, cards, k;
+      for (i = 0; i < mutations.length; i++) {
+        for (j = 0; j < mutations[i].addedNodes.length; j++) {
+          node = mutations[i].addedNodes[j];
+          if (node.nodeType !== 1) {
+            continue;
+          }
+          if (node.hasAttribute && node.hasAttribute('data-hero-video-consent')) {
+            loadHeroVideo(node);
+          }
+          if (node.querySelectorAll) {
+            cards = node.querySelectorAll('[data-hero-video-consent]');
+            for (k = 0; k < cards.length; k++) {
+              loadHeroVideo(cards[k]);
             }
           }
         }
-      });
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
 
-      observer.observe(document.body || document.documentElement, {
-        childList: true,
-        subtree: true
-      });
+    // When consent is granted via the cookie banner, load all existing cards.
+    document.addEventListener(EVENT_NAME, function (event) {
+      if (!event || !event.detail || !event.detail.marketing) {
+        return;
+      }
+      var cards = document.querySelectorAll('[data-hero-video-consent]');
+      Array.prototype.slice.call(cards).forEach(loadHeroVideo);
+    });
+
+    // Initial sweep for cards already present in the DOM at this point.
+    var existing = document.querySelectorAll('[data-hero-video-consent]');
+    if (existing.length && marketingAllowed()) {
+      Array.prototype.slice.call(existing).forEach(loadHeroVideo);
     }
   }
 
