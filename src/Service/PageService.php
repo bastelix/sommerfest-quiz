@@ -94,6 +94,7 @@ class PageService
 
         $normalizedSlug = $this->normalizeSlugInput($slug);
         $this->assertValidSlug($normalizedSlug);
+        $this->assertSlugNotReserved($normalizedSlug);
 
         $normalizedTitle = trim($title);
         if ($normalizedTitle === '') {
@@ -555,6 +556,7 @@ class PageService
 
         $normalizedNewSlug = $this->normalizeSlugInput($newSlug);
         $this->assertValidSlug($normalizedNewSlug);
+        $this->assertSlugNotReserved($normalizedNewSlug);
 
         $trimmedTitle = $newTitle !== null ? trim($newTitle) : null;
         if ($trimmedTitle === '') {
@@ -927,7 +929,10 @@ class PageService
                 . '(max. 100 Zeichen).'
             );
         }
+    }
 
+    private function assertSlugNotReserved(string $slug): void
+    {
         if (in_array($slug, self::RESERVED_SLUGS, true)) {
             throw new InvalidArgumentException(
                 sprintf('Der Slug "%s" ist reserviert und kann nicht verwendet werden.', $slug)
