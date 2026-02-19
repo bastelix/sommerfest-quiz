@@ -442,6 +442,45 @@ function resolveContainerPreset(block) {
       ? { token: 'text-on-muted', fallback: 'var(--contrast-text-on-surface-muted, var(--color-text, #111827))' }
       : { token: 'text-on-surface', fallback: 'var(--contrast-text-on-surface, var(--color-text, #111827))' };
 
+  /* Compute styleVariables so the inline CSS variables match the container-
+     derived surfaceToken.  Without these the intent preset's variables
+     (e.g. muted for "feature") would survive the merge in renderSection
+     and override the user's explicit background choice. */
+  const styleVariables = [];
+  const themeAwareSurface = THEME_AWARE_SURFACE_VARS[surfaceToken];
+
+  if (isDark) {
+    const surface = resolveAppearanceValue(surfaceToken, DEFAULT_APPEARANCE.colors[surfaceToken]);
+    if (surface) {
+      styleVariables.push(`--section-surface:${surface}`);
+      styleVariables.push(`--section-bg-color:${surface}`);
+    }
+    const darkText = resolveAppearanceValue(
+      'text-on-primary',
+      'var(--text-on-primary, var(--marketing-text-on-primary, #ffffff))'
+    );
+    styleVariables.push(`--section-text-color:${darkText}`);
+  } else {
+    if (themeAwareSurface) {
+      styleVariables.push(`--section-surface:${themeAwareSurface}`);
+      styleVariables.push(`--section-bg-color:${themeAwareSurface}`);
+    } else {
+      const surface = resolveAppearanceValue(surfaceToken, DEFAULT_APPEARANCE.colors[surfaceToken]);
+      if (surface) {
+        styleVariables.push(`--section-surface:${surface}`);
+        styleVariables.push(`--section-bg-color:${surface}`);
+      }
+    }
+    if (themeAwareSurface && textToken.fallback) {
+      styleVariables.push(`--section-text-color:${textToken.fallback}`);
+    } else {
+      const textColor = resolveAppearanceValue(textToken.token, textToken.fallback);
+      if (textColor) {
+        styleVariables.push(`--section-text-color:${textColor}`);
+      }
+    }
+  }
+
   return {
     intent,
     preset: {
@@ -449,7 +488,12 @@ function resolveContainerPreset(block) {
       containerClass,
       innerClass,
       surfaceToken,
-      textToken
+      textToken,
+      appearanceTokens: {
+        surface: surfaceToken,
+        text: textToken?.token
+      },
+      styleVariables
     }
   };
 }
