@@ -302,6 +302,7 @@
 - *(cms)* Add event_highlight page block
 - *(hero)* Add optional video support to stat_tiles variant
 - *(cms)* Register event_highlight block in page editor
+- *(hero)* Add viewport height options to hero sections
 
 ### Fix
 
