@@ -504,6 +504,7 @@
 - Allow deleting pages with reserved slugs
 - Use CSS variable references for section backgrounds to support dark mode
 - Remove redundant null coalesce on always-present array key
+- Remove redundant getEditableSlugs check from page deletion
 
 ### Merge
 
