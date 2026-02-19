@@ -988,6 +988,20 @@ function renderHeroStatTiles(block, options = {}) {
     </div>`;
   }).join('');
 
+  const hasVideo = Boolean(block.data?.video?.embedUrl);
+
+  if (hasVideo) {
+    const videoCard = renderHeroMediaVideoCard(block.data?.media, block.data?.video, block.data?.referenceLink);
+    const compactTiles = statTiles.length
+      ? `<div class="cs-stat-tiles-compact uk-grid uk-grid-small uk-child-width-1-2 uk-margin-medium-top" data-uk-grid>${tiles}</div>`
+      : '';
+
+    const textColumn = `<div class="uk-width-1-1 uk-width-1-2@m">${eyebrow}${headline}${subheadline}${ctas}${compactTiles}${provenExpertHtml}</div>`;
+    const videoColumn = videoCard ? `<div class="uk-width-1-1 uk-width-1-2@m">${videoCard}</div>` : '';
+    const grid = `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid data-uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 150;">${textColumn}${videoColumn}</div>`;
+    return renderHeroSection({ block, variant: 'stat_tiles', content: grid, sectionModifiers: 'hero-block--stat-tiles-video' });
+  }
+
   const tilesGrid = statTiles.length
     ? `<div class="uk-grid uk-grid-small uk-child-width-1-2 uk-grid-match" data-uk-grid>${tiles}</div>`
     : '';

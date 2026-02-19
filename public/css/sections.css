@@ -1183,6 +1183,19 @@ body.page-render .qr-page-renderer table {
   }
 }
 
+/* Compact stat tiles when video replaces tile column */
+.cs-stat-tiles-compact .cs-stat-tile {
+  padding: 12px;
+}
+
+.cs-stat-tiles-compact .cs-stat-num {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+}
+
+.cs-stat-tiles-compact .uk-text-small {
+  font-size: 0.75rem;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Feature list: mobile-first                                         */
 /* ------------------------------------------------------------------ */
