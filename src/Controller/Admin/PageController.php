@@ -119,15 +119,8 @@ class PageController
             return $this->createJsonResponse($response, ['error' => 'Namespace konnte nicht aufgelöst werden.'], 400);
         }
 
-        if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
-            return $this->createJsonResponse(
-                $response,
-                ['error' => sprintf('Seite "%s" wurde im Namespace "%s" nicht gefunden.', $slug, $namespace)],
-                404
-            );
-        }
-
-        if ($this->pageService->findByKey($namespace, (string) $slug) === null) {
+        $page = $this->pageService->findByKey($namespace, (string) $slug);
+        if ($page === null) {
             return $this->createJsonResponse(
                 $response,
                 ['error' => sprintf('Seite "%s" existiert nicht im Namespace "%s".', $slug, $namespace)],
@@ -137,7 +130,7 @@ class PageController
 
         try {
             $this->pageService->deleteTree($namespace, (string) $slug);
-        } catch (RuntimeException $exception) {
+        } catch (\Throwable $exception) {
             return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 500);
         }
 
