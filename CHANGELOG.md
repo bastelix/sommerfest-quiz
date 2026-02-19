@@ -299,6 +299,7 @@
 - *(pages)* Auto-generate section anchors and expose them in menu editor
 - *(calserver)* Add trust_band variant for seamless trust strip below hero
 - *(menu)* Replace native datalist with grouped anchor suggestion dropdown
+- *(cms)* Add event_highlight page block
 
 ### Fix
 
