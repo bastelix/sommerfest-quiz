@@ -499,6 +499,7 @@
 - Prevent CssSanitizer from mangling scroll-behavior property
 - Stop tracking generated namespace CSS and auto-rebuild on first request
 - *(preview)* Render editor preview in iframe for responsive fidelity
+- *(menu)* Pass menuId to AI generation endpoint
 
 ### Merge
 
