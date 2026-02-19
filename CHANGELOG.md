@@ -590,6 +590,7 @@
 - *(ai-page)* Rework AI page creation to block-contract-v1
 - *(calserver)* Rename switcher classes to generic BEM names
 - Remove sectionStyleDefaults from page types
+- *(stripe)* Improve subscription management for easier plan switching, cancellation, and trial handling
 
 ### Style
 
