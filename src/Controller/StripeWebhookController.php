@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use App\Service\StripeService;
 use App\Service\TenantService;
 use App\Infrastructure\Database;
 use App\Service\LogService;
@@ -19,7 +20,7 @@ class StripeWebhookController
     public function __invoke(Request $request, Response $response): Response {
         $payload = (string) $request->getBody();
         $sigHeader = $request->getHeaderLine('Stripe-Signature');
-        $webhookSecret = getenv('STRIPE_WEBHOOK_SECRET') ?: '';
+        $webhookSecret = StripeService::getWebhookSecret();
         $logger = LogService::create('stripe');
 
         if ($webhookSecret === '') {
@@ -116,7 +117,7 @@ class StripeWebhookController
                 $customerId = (string) ($object['customer'] ?? '');
                 if ($customerId !== '') {
                     $priceId = (string) ($object['items']['data'][0]['price']['id'] ?? '');
-                    $plan = $this->mapPriceToPlan($priceId);
+                    $plan = StripeService::mapPriceToPlan($priceId);
                     $status = (string) ($object['status'] ?? '');
                     $currentEnd = isset($object['current_period_end'])
                         ? date('Y-m-d H:i:sP', (int) $object['current_period_end'])
@@ -148,14 +149,4 @@ class StripeWebhookController
         return $response->withStatus(200);
     }
 
-    private function mapPriceToPlan(string $priceId): ?string {
-        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
-        $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
-        $map = [
-            getenv($prefix . 'PRICE_STARTER') ?: '' => 'starter',
-            getenv($prefix . 'PRICE_STANDARD') ?: '' => 'standard',
-            getenv($prefix . 'PRICE_PROFESSIONAL') ?: '' => 'professional',
-        ];
-        return $map[$priceId] ?? null;
-    }
 }

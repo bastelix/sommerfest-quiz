@@ -39,14 +39,7 @@ class StripeCheckoutController
             return $this->jsonError($response, 503, 'service unavailable');
         }
 
-        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
-        $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
-        $priceMap = [
-            Plan::STARTER->value => getenv($prefix . 'PRICE_STARTER') ?: '',
-            Plan::STANDARD->value => getenv($prefix . 'PRICE_STANDARD') ?: '',
-            Plan::PROFESSIONAL->value => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
-        ];
-        $priceId = $priceMap[$plan->value];
+        $priceId = StripeService::priceIdForPlan($plan->value);
         if ($priceId === '') {
             error_log('Missing priceId for plan ' . $plan->value);
             return $this->jsonError($response, 422, 'invalid plan');

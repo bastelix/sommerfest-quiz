@@ -770,7 +770,10 @@ return [
       'label_invoice_status' => 'Invoice status',
       'label_invoice_pdf' => 'Download invoice PDF',
       'label_next_payment' => 'Next payment',
+      'label_trial' => 'Trial',
       'action_cancel_subscription' => 'Cancel subscription',
+      'action_reactivate_subscription' => 'Reactivate subscription',
+      'text_cancel_scheduled' => 'Cancellation scheduled at period end',
       'stripe_payment_terms' => 'Payment is processed via Stripe. The ' .
           '<a href="https://stripe.com/payment-terms/legal" target="_blank" ' .
           'rel="noopener">Stripe payment terms</a> apply.',

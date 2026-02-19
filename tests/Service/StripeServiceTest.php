@@ -60,14 +60,17 @@ final class StripeServiceTest extends TestCase
                 };
                 $this->subscriptions = new class {
                     public array $lastParams = [];
+                    public array $lastUpdateParams = [];
 
                     public function all(array $params) {
                         $this->lastParams = $params;
                         return (object) ['data' => [
                             (object) [
+                                'id' => 'sub_123',
                                 'items' => (object) [
                                     'data' => [
                                         (object) [
+                                            'id' => 'si_1',
                                             'price' => (object) [
                                                 'id' => 'price_standard',
                                                 'unit_amount' => 3900,
@@ -76,10 +79,21 @@ final class StripeServiceTest extends TestCase
                                         ],
                                     ],
                                 ],
+                                'status' => 'active',
                                 'current_period_end' => strtotime('2024-01-01T00:00:00Z'),
                                 'latest_invoice' => (object) ['status' => 'paid'],
+                                'cancel_at_period_end' => false,
                             ],
                         ]];
+                    }
+
+                    public function update(string $id, array $params) {
+                        $this->lastUpdateParams = ['id' => $id, 'params' => $params];
+                        return (object) ['id' => $id];
+                    }
+
+                    public function cancel(string $id, array $params) {
+                        return (object) ['id' => $id];
                     }
                 };
             }
@@ -254,6 +268,64 @@ final class StripeServiceTest extends TestCase
         $this->assertSame(
             '2024-01-01T00:00:00+00:00',
             $info['next_payment'] ?? null
+        );
+        $this->assertSame(
+            'sub_123',
+            $info['subscription_id'] ?? null
+        );
+        $this->assertSame(
+            'active',
+            $info['subscription_status'] ?? null
+        );
+        $this->assertFalse($info['cancel_at_period_end']);
+    }
+
+    public function testMapPriceToPlanReturnsCorrectPlan(): void {
+        putenv('STRIPE_PRICE_STARTER=price_starter');
+        putenv('STRIPE_PRICE_STANDARD=price_standard');
+        putenv('STRIPE_PRICE_PROFESSIONAL=price_pro');
+        $this->assertSame('starter', StripeService::mapPriceToPlan('price_starter'));
+        $this->assertSame('standard', StripeService::mapPriceToPlan('price_standard'));
+        $this->assertSame('professional', StripeService::mapPriceToPlan('price_pro'));
+        $this->assertNull(StripeService::mapPriceToPlan('price_unknown'));
+        $this->assertNull(StripeService::mapPriceToPlan(''));
+    }
+
+    public function testPriceIdForPlanReturnsCorrectId(): void {
+        putenv('STRIPE_PRICE_STARTER=price_starter');
+        putenv('STRIPE_PRICE_STANDARD=price_standard');
+        putenv('STRIPE_PRICE_PROFESSIONAL=price_pro');
+        $this->assertSame('price_starter', StripeService::priceIdForPlan('starter'));
+        $this->assertSame('price_standard', StripeService::priceIdForPlan('standard'));
+        $this->assertSame('price_pro', StripeService::priceIdForPlan('professional'));
+        $this->assertSame('', StripeService::priceIdForPlan('unknown'));
+    }
+
+    public function testGetWebhookSecretReturnsSandboxSecret(): void {
+        putenv('STRIPE_SANDBOX=true');
+        putenv('STRIPE_SANDBOX_WEBHOOK_SECRET=whsec_sandbox');
+        putenv('STRIPE_WEBHOOK_SECRET=whsec_live');
+        $this->assertSame('whsec_sandbox', StripeService::getWebhookSecret());
+        putenv('STRIPE_SANDBOX=false');
+        $this->assertSame('whsec_live', StripeService::getWebhookSecret());
+    }
+
+    public function testUpdateSubscriptionIncludesProrationBehavior(): void {
+        $client = $this->createFakeStripeClient();
+        $service = new StripeService(client: $client);
+        $service->updateSubscriptionForCustomer('cus_123', 'price_pro');
+        $this->assertSame(
+            'create_prorations',
+            $client->subscriptions->lastUpdateParams['params']['proration_behavior'] ?? null
+        );
+    }
+
+    public function testCancelSubscriptionAtPeriodEnd(): void {
+        $client = $this->createFakeStripeClient();
+        $service = new StripeService(client: $client);
+        $service->cancelSubscriptionForCustomer('cus_123', true);
+        $this->assertTrue(
+            $client->subscriptions->lastUpdateParams['params']['cancel_at_period_end'] ?? false
         );
     }
 }

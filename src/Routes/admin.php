@@ -483,15 +483,10 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->post('/admin/subscription/toggle', function (Request $request, Response $response) {
-        $domainType = $request->getAttribute('domainType');
-        $target = 'main';
-        if ($domainType !== 'main') {
-            $sub = explode('.', $request->getUri()->getHost())[0];
-            if ($sub !== 'demo') {
-                return $response->withStatus(403);
-            }
-            $target = 'demo';
-        }
+        $domainType = (string) $request->getAttribute('domainType');
+        $host = $request->getUri()->getHost();
+        $sub = explode('.', $host)[0];
+        $target = $domainType === 'main' ? 'main' : $sub;
         $data = json_decode((string) $request->getBody(), true);
         $plan = $data['plan'] ?? null;
         if ($plan === '') {
@@ -509,14 +504,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
             if ($customerId !== null && $customerId !== '') {
                 $stripeSvc = new StripeService();
                 if ($plan !== null) {
-                    $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
-                    $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
-                    $map = [
-                        'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
-                        'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
-                        'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
-                    ];
-                    $priceId = $map[$plan];
+                    $priceId = StripeService::priceIdForPlan($plan);
                     if ($priceId === '') {
                         throw new \RuntimeException('price-id-missing');
                     }
@@ -532,7 +520,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         }
         $response->getBody()->write((string) json_encode(['plan' => $plan]));
         return $response->withHeader('Content-Type', 'application/json');
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
     $app->post(
         '/admin/subscription/checkout',
         AdminSubscriptionCheckoutController::class
