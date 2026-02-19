@@ -300,6 +300,7 @@
 - *(calserver)* Add trust_band variant for seamless trust strip below hero
 - *(menu)* Replace native datalist with grouped anchor suggestion dropdown
 - *(cms)* Add event_highlight page block
+- *(hero)* Add optional video support to stat_tiles variant
 
 ### Fix
 
