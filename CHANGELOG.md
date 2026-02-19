@@ -517,6 +517,7 @@
 - Use theme-aware vars in resolveSectionBackgroundStyles for color backgrounds
 - *(hero)* Apply video card styles to stat_tiles variant
 - *(effects)* Extend hover micro-interactions to custom card components
+- *(consent)* Use MutationObserver for hero video consent init
 
 ### Merge
 
