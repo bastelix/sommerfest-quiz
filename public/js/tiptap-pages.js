@@ -268,7 +268,9 @@ const ensurePreviewSlots = form => {
   const previewRoot = document.createElement('div');
   previewRoot.dataset.previewCanvas = 'true';
   previewRoot.dataset.namespace = resolvePageNamespace() || 'default';
-  previewRoot.classList.add('marketing-scope', 'cms-page-render', 'marketing-page');
+  /* marketing-scope / cms-page-render / marketing-page are applied inside
+     the PreviewCanvas iframe body so that @media queries fire relative to
+     the iframe viewport – not the browser window. */
 
   const modes = [
     { id: 'desktop', label: '🖥 Desktop' },

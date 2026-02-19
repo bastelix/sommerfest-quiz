@@ -2890,7 +2890,6 @@ body.admin-page {
 .page-preview-mode-toggle {
   display: inline-flex;
   gap: 8px;
-  margin-bottom: 8px;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -2961,7 +2960,7 @@ body.admin-page {
   background: var(--surface-section, #fff);
   border: 1px solid var(--border-muted, #e5e7eb);
   border-radius: 8px;
-  padding: 12px;
+  padding: 0;
   max-height: 80vh;
   overflow: auto;
   width: 100%;
@@ -2970,18 +2969,11 @@ body.admin-page {
   pointer-events: auto;
 }
 
-.page-preview-surface .site-footer {
-  min-height: 180px;
-}
-
-.page-preview-surface .site-footer .footer-columns {
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  align-content: start;
-}
-
-.page-preview-surface [data-block-id] {
-  outline: 1px dashed transparent;
-  transition: outline-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+.page-preview-iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+  min-height: 120px;
 }
 
 .page-preview-pane[data-preview-mode="tablet"] .page-preview-canvas {
@@ -3036,72 +3028,9 @@ body.admin-page {
   max-width: 375px;
 }
 
-.page-preview-surface [data-block-id]:hover {
-  outline-color: var(--border-muted, #cbd2d9);
-  background-color: var(--surface-subtle, #f8fafc);
-}
-
-.page-preview-surface [data-preview-selected="true"] {
-  outline-color: var(--brand-primary, #1e87f0);
-  box-shadow: 0 0 0 2px var(--brand-primary, #1e87f0), 0 6px 14px rgba(30, 135, 240, 0.15);
-  background-color: var(--surface-accent-soft, #f0f7ff);
-}
-
-.page-preview-surface [data-preview-hover="true"] {
-  outline-color: var(--border-muted, #94a2b8);
-  box-shadow: 0 0 0 2px var(--border-muted, #cbd2d9);
-  background-color: var(--surface-subtle, #f8fafc);
-}
-
-.page-preview-pane[data-preview-intent="preview"] .page-preview-surface [data-block-id],
-.page-preview-pane[data-preview-intent="design"] .page-preview-surface [data-block-id] {
-  outline-color: transparent;
-  box-shadow: none;
-  background-color: inherit;
-}
-
-.page-preview-pane[data-preview-intent="preview"] .page-preview-canvas [data-editable="true"],
-.page-preview-pane[data-preview-intent="design"] .page-preview-canvas [data-editable="true"] {
-  outline: none;
-  box-shadow: none;
-  pointer-events: none;
-  cursor: default;
-}
-
-.page-preview-canvas [data-editable="true"] {
-  outline: 1px dashed transparent;
-  outline-offset: 2px;
-  transition: outline-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.page-preview-canvas [data-editable="true"]:hover {
-  outline-color: var(--border-muted, #b7c5dc);
-  cursor: text;
-}
-
-.page-preview-canvas [data-editable="true"][data-editing="true"] {
-  outline: 2px solid var(--brand-primary, #1e87f0);
-  box-shadow: 0 0 0 2px rgba(30, 135, 240, 0.2);
-}
-
-.page-preview-surface .preview-status {
-  position: relative;
-  z-index: 1;
-}
-
-.page-preview-surface .preview-status .uk-alert {
-  margin-bottom: 12px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.page-preview-surface .preview-status .uk-link-text {
-  font-weight: 600;
-}
+/* Block selection, hover, editable and preview-intent styles for the
+   preview surface are injected as inline <style> inside the preview iframe
+   so that they cascade correctly within the iframe document context. */
 
 /* Stat strip block */
 .stat-strip__grid {

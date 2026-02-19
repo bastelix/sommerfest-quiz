@@ -54,6 +54,96 @@ const resolveGlobalPageContext = (root, override) => {
   return {};
 };
 
+const escapeAttr = str => String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const IFRAME_INLINE_STYLES = `
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+  body {
+    padding: 12px;
+  }
+  .page-preview-surface [data-block-id] {
+    outline: 1px dashed transparent;
+    transition: outline-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+  .page-preview-surface [data-block-id]:hover {
+    outline-color: var(--border-muted, #cbd2d9);
+    background-color: var(--surface-subtle, #f8fafc);
+  }
+  .page-preview-surface [data-preview-selected="true"] {
+    outline-color: var(--brand-primary, #1e87f0);
+    box-shadow: 0 0 0 2px var(--brand-primary, #1e87f0), 0 6px 14px rgba(30, 135, 240, 0.15);
+    background-color: var(--surface-accent-soft, #f0f7ff);
+  }
+  .page-preview-surface [data-preview-hover="true"] {
+    outline-color: var(--border-muted, #94a2b8);
+    box-shadow: 0 0 0 2px var(--border-muted, #cbd2d9);
+    background-color: var(--surface-subtle, #f8fafc);
+  }
+  body[data-preview-intent="preview"] .page-preview-surface [data-block-id],
+  body[data-preview-intent="design"] .page-preview-surface [data-block-id] {
+    outline-color: transparent;
+    box-shadow: none;
+    background-color: inherit;
+  }
+  [data-editable="true"] {
+    outline: 1px dashed transparent;
+    outline-offset: 2px;
+    transition: outline-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  [data-editable="true"]:hover {
+    outline-color: var(--border-muted, #b7c5dc);
+    cursor: text;
+  }
+  [data-editable="true"][data-editing="true"] {
+    outline: 2px solid var(--brand-primary, #1e87f0);
+    box-shadow: 0 0 0 2px rgba(30, 135, 240, 0.2);
+  }
+  body[data-preview-intent="preview"] [data-editable="true"],
+  body[data-preview-intent="design"] [data-editable="true"] {
+    outline: none;
+    box-shadow: none;
+    pointer-events: none;
+    cursor: default;
+  }
+  .page-preview-surface .site-footer {
+    min-height: 180px;
+  }
+  .page-preview-surface .site-footer .footer-columns {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    align-content: start;
+  }
+  .page-preview-surface .preview-status {
+    position: relative;
+    z-index: 1;
+  }
+  .page-preview-surface .preview-status .uk-alert {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .page-preview-surface .preview-status .uk-link-text {
+    font-weight: 600;
+  }
+  .page-preview-surface .page-preview-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted, #6b7280);
+  }
+`;
+
+const collectPreviewStylesheets = () => {
+  const links = document.querySelectorAll('link[data-preview-asset="page-preview"]');
+  return Array.from(links).map(link => link.href);
+};
+
 export class PreviewCanvas {
   constructor(root, options = {}) {
     this.root = root;
@@ -70,28 +160,131 @@ export class PreviewCanvas {
     this.visibleBlocks = [];
     this.activeEdit = null;
     this.cleanupInlineEdit = null;
+    this.cleanupEffects = null;
+    this.iframe = null;
+    this.iframeDoc = null;
+    this._heightObserver = null;
+    this._themeObserver = null;
 
-    this.surface = document.createElement('div');
-    this.surface.className = 'page-preview-surface';
+    this.root.classList.add('page-preview-canvas');
 
-    this.root.classList.add('page-preview-canvas', 'marketing-scope', 'cms-page-render', 'marketing-page');
-    this.root.append(this.surface);
+    this._initIframe();
 
     this.handleClick = this.handleClick.bind(this);
     this.handleEditableClick = this.handleEditableClick.bind(this);
-    this.root.addEventListener('click', this.handleClick, true);
-    this.surface.addEventListener('click', this.handleEditableClick);
 
-    this.cleanupEffects = null;
+    if (this.iframeDoc) {
+      this.iframeDoc.addEventListener('click', this.handleClick, true);
+      this.surface.addEventListener('click', this.handleEditableClick);
+      this._observeTheme();
+    }
+  }
+
+  _initIframe() {
+    this.iframe = document.createElement('iframe');
+    this.iframe.className = 'page-preview-iframe';
+    this.iframe.setAttribute('title', 'Live-Vorschau');
+    this.iframe.setAttribute('frameborder', '0');
+    this.iframe.setAttribute('scrolling', 'no');
+    this.root.append(this.iframe);
+
+    const doc = this.iframe.contentDocument || this.iframe.contentWindow?.document;
+    if (!doc) {
+      return;
+    }
+
+    const stylesheets = collectPreviewStylesheets();
+    const linkTags = stylesheets.map(href => `<link rel="stylesheet" href="${escapeAttr(href)}">`).join('\n');
+
+    doc.open();
+    doc.write(
+      `<!DOCTYPE html><html><head><meta charset="utf-8">\n${linkTags}\n<style>${IFRAME_INLINE_STYLES}</style></head>` +
+      `<body class="marketing-scope cms-page-render marketing-page" data-preview-intent="${escapeAttr(this.intent)}">` +
+      `<div class="page-preview-surface"></div></body></html>`
+    );
+    doc.close();
+
+    this.iframeDoc = doc;
+    this.surface = doc.querySelector('.page-preview-surface');
+
+    this._setupHeightSync();
+  }
+
+  _syncThemeToIframe() {
+    if (!this.iframeDoc?.documentElement) {
+      return;
+    }
+    const theme = this.root.dataset.theme || '';
+    const html = this.iframeDoc.documentElement;
+    const body = this.iframeDoc.body;
+    if (theme) {
+      html.dataset.theme = theme;
+      if (body) {
+        body.dataset.theme = theme;
+      }
+    } else {
+      delete html.dataset.theme;
+      if (body) {
+        delete body.dataset.theme;
+      }
+    }
+    const hc = this.root.classList.contains('high-contrast');
+    html.classList.toggle('high-contrast', hc);
+    if (body) {
+      body.classList.toggle('high-contrast', hc);
+    }
+  }
+
+  _observeTheme() {
+    this._syncThemeToIframe();
+    this._themeObserver = new MutationObserver(() => this._syncThemeToIframe());
+    this._themeObserver.observe(this.root, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+  }
+
+  _setupHeightSync() {
+    if (!this.iframeDoc?.body) {
+      return;
+    }
+
+    const syncHeight = () => {
+      if (!this.iframe || !this.iframeDoc) {
+        return;
+      }
+      const height = this.iframeDoc.documentElement?.scrollHeight || this.iframeDoc.body?.scrollHeight || 0;
+      if (height > 0) {
+        this.iframe.style.height = height + 'px';
+      }
+    };
+
+    const IframeResizeObserver = this.iframe.contentWindow?.ResizeObserver;
+    if (IframeResizeObserver) {
+      this._heightObserver = new IframeResizeObserver(syncHeight);
+      this._heightObserver.observe(this.iframeDoc.body);
+    }
+
+    this._syncIframeHeight = syncHeight;
+    syncHeight();
   }
 
   destroy() {
-    this.root.removeEventListener('click', this.handleClick, true);
-    this.surface.removeEventListener('click', this.handleEditableClick);
+    if (this.iframeDoc) {
+      this.iframeDoc.removeEventListener('click', this.handleClick, true);
+      if (this.surface) {
+        this.surface.removeEventListener('click', this.handleEditableClick);
+      }
+    }
     this.finishInlineEdit(false);
     if (typeof this.cleanupEffects === 'function') {
       this.cleanupEffects();
       this.cleanupEffects = null;
+    }
+    if (this._heightObserver) {
+      this._heightObserver.disconnect();
+      this._heightObserver = null;
+    }
+    if (this._themeObserver) {
+      this._themeObserver.disconnect();
+      this._themeObserver = null;
     }
     this.root.innerHTML = '';
     this.blockIds.clear();
@@ -134,6 +327,10 @@ export class PreviewCanvas {
     const mode = this.intent === 'preview' ? 'preview' : (this.intent === 'design' ? 'design-preview' : 'edit');
     const effects = initEffects(this.surface, { namespace, mode });
     this.cleanupEffects = effects?.destroy || null;
+
+    if (this._syncIframeHeight) {
+      requestAnimationFrame(() => this._syncIframeHeight());
+    }
   }
 
   setIntent(intent = 'edit') {
@@ -143,6 +340,11 @@ export class PreviewCanvas {
       return;
     }
     this.intent = normalized;
+
+    if (this.iframeDoc?.body) {
+      this.iframeDoc.body.dataset.previewIntent = normalized;
+    }
+
     if (this.intent !== 'edit') {
       this.finishInlineEdit(false);
       this.setHoverBlock(null);
@@ -166,12 +368,16 @@ export class PreviewCanvas {
       return;
     }
 
-    const surfaceRect = this.surface.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    const offset = targetRect.top - surfaceRect.top + this.root.scrollTop - 8;
+    let top = 0;
+    let el = target;
+    const boundary = this.iframeDoc?.body || null;
+    while (el && el !== boundary) {
+      top += el.offsetTop;
+      el = el.offsetParent;
+    }
 
     this.root.scrollTo({
-      top: offset < 0 ? 0 : offset,
+      top: Math.max(0, top - 8),
       behavior: 'smooth'
     });
 
@@ -249,9 +455,11 @@ export class PreviewCanvas {
       editableElement.removeEventListener('click', swallowClick);
     };
 
-    const selection = typeof window !== 'undefined' ? window.getSelection?.() : null;
+    const iframeWindow = this.iframe?.contentWindow;
+    const selection = iframeWindow?.getSelection?.() || window.getSelection?.();
     if (selection && typeof selection.removeAllRanges === 'function' && editableElement.firstChild) {
-      const range = document.createRange();
+      const ownerDoc = editableElement.ownerDocument || document;
+      const range = ownerDoc.createRange();
       range.selectNodeContents(editableElement);
       range.collapse(false);
       selection.removeAllRanges();
