@@ -1247,6 +1247,12 @@ body.admin-page {
   height: auto !important;
 }
 
+/* Also neutralize CSS-based viewport heights (e.g. 80 vh) in the editor */
+.page-editor .section[data-viewport-height] {
+  min-height: auto !important;
+  height: auto !important;
+}
+
 /* Page editor layout */
 .page-editor [data-editor-root="true"] {
   display: flex;

@@ -587,6 +587,14 @@
         },
         "background": {
           "$ref": "#/definitions/SectionBackground"
+        },
+        "viewportHeight": {
+          "enum": [
+            "auto",
+            "full",
+            "reduced",
+            "minus-next"
+          ]
         }
       }
     },

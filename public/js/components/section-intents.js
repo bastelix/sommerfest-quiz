@@ -54,6 +54,7 @@ export function resolveSectionIntentInfo(blockOrType) {
 export const CONTAINER_WIDTHS = ['normal', 'wide', 'full'];
 export const CONTAINER_FRAMES = ['none', 'card'];
 export const CONTAINER_SPACINGS = ['compact', 'normal', 'generous'];
+export const VIEWPORT_HEIGHTS = ['auto', 'full', 'reduced', 'minus-next'];
 
 const DARK_BACKGROUND_TOKENS = new Set(['primary', 'secondary', 'accent']);
 
@@ -123,6 +124,9 @@ export function fromStoredSectionStyle(stored, blockType) {
         spacing: INTENT_TO_CONTAINER_SPACING[intent] || 'normal'
       };
 
+  const rawViewportHeight = stored?.viewportHeight;
+  const viewportHeight = VIEWPORT_HEIGHTS.includes(rawViewportHeight) ? rawViewportHeight : 'auto';
+
   return {
     container,
     background: {
@@ -132,11 +136,12 @@ export function fromStoredSectionStyle(stored, blockType) {
       attachment: bg.attachment,
       overlay: bg.overlay,
       bleed: layout === 'full' || layout === 'full-card'
-    }
+    },
+    viewportHeight
   };
 }
 
-export function toStoredSectionStyle(container, background) {
+export function toStoredSectionStyle(container, background, viewportHeight) {
   const bleed = background?.bleed ?? false;
   const frame = container?.frame || 'none';
   const layout = bleed && frame === 'card' ? 'full-card' : bleed ? 'full' : frame === 'card' ? 'card' : 'normal';
@@ -160,10 +165,16 @@ export function toStoredSectionStyle(container, background) {
     spacing: container?.spacing || 'normal'
   };
 
-  return {
+  const result = {
     layout,
     intent,
     background: storedBackground,
     container: storedContainer
   };
+
+  if (viewportHeight && viewportHeight !== 'auto' && VIEWPORT_HEIGHTS.includes(viewportHeight)) {
+    result.viewportHeight = viewportHeight;
+  }
+
+  return result;
 }
