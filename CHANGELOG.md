@@ -309,6 +309,7 @@
 - *(hero)* Suppress unrelated YouTube recommendations via rel=0
 - *(theme)* Add default theme based on calServer design
 - *(subscription)* Inline cancel and upgrade/downgrade on abo page
+- *(theme)* Allow design preset selection on namespace creation
 
 ### Fix
 
