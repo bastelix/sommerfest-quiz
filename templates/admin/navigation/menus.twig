@@ -5,6 +5,7 @@
 {% block title %}{{ t('tab_navigation_menus') }}{% endblock %}
 
 {% block admin_head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/href-suggest.css">
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 {% endblock %}
 
@@ -404,6 +405,7 @@
 
 {% block scripts %}
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
+  <script src="{{ basePath }}/js/marketing-menu-href-suggest.js"></script>
   {% if useNavigationTree %}
     <script type="module" src="{{ basePath }}/js/marketing-menu-tree.js"></script>
   {% else %}

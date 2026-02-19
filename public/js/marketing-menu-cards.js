@@ -69,6 +69,7 @@
   let feedbackEl = null;
   let previewTree = null;
   let previewEmpty = null;
+  let hrefSuggestCtrl = null;
 
   /* ── Initialization ───────────────────────────────────────── */
   function init() {
@@ -87,6 +88,12 @@
     /* Preview lives outside the cards container (in the aside), so query from document */
     previewTree = document.querySelector('[data-menu-cards-preview]');
     previewEmpty = document.querySelector('[data-menu-cards-preview-empty]');
+
+    /* Grouped href suggestion dropdown */
+    if (window.hrefSuggest) {
+      const internalLinks = window.hrefSuggest.parseInternalLinks(container);
+      hrefSuggestCtrl = window.hrefSuggest.create(internalLinks, () => resolveNamespace(container));
+    }
 
     /* Delegate card events once (not per render) */
     attachCardEvents();
@@ -446,6 +453,14 @@
     editArea.hidden = !shouldOpen;
     editArea.closest('.menu-card')?.classList.toggle('menu-card--editing', shouldOpen);
     state.editingId = shouldOpen ? itemId : null;
+
+    /* Attach href suggest dropdown when editor opens */
+    if (shouldOpen && hrefSuggestCtrl) {
+      const hrefInput = editArea.querySelector('[data-field="href"]');
+      if (hrefInput) {
+        hrefSuggestCtrl.attach(hrefInput);
+      }
+    }
   }
 
   function toggleActive(itemId) {

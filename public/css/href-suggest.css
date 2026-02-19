@@ -1,0 +1,145 @@
+/* ── Href Suggest Dropdown ─────────────────────────────────────────────── */
+
+.href-suggest {
+  position: absolute;
+  z-index: 1060;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+  min-width: 280px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.href-suggest[hidden] {
+  display: none;
+}
+
+/* ── Group header (page path) ─────────────────────────────────────────── */
+
+.href-suggest__group {
+  position: sticky;
+  top: 0;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #666;
+  background: #f8f8f8;
+  border-bottom: 1px solid #e5e5e5;
+  user-select: none;
+}
+
+.href-suggest__group:not(:first-child) {
+  border-top: 1px solid #e5e5e5;
+}
+
+/* ── Option row ───────────────────────────────────────────────────────── */
+
+.href-suggest__option {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.href-suggest__option:hover,
+.href-suggest__option[data-active="true"] {
+  background: #e2f0fd;
+}
+
+.href-suggest__value {
+  flex: 0 0 auto;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  color: #1e87f0;
+  white-space: nowrap;
+}
+
+.href-suggest__meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #999;
+  font-size: 11px;
+}
+
+.href-suggest__type {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: #eee;
+  color: #666;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-right: 4px;
+  vertical-align: baseline;
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────── */
+
+.href-suggest__empty {
+  padding: 10px;
+  color: #999;
+  font-style: italic;
+  text-align: center;
+}
+
+/* ── Namespace badge in group header ──────────────────────────────────── */
+
+.href-suggest__ns {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: #d4e6f9;
+  color: #356;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 6px;
+  vertical-align: baseline;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Dark mode ────────────────────────────────────────────────────────── */
+
+.uk-light .href-suggest,
+[data-theme="dark"] .href-suggest {
+  background: #1e1e2e;
+  border-color: #444;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .href-suggest__group {
+  background: #2a2a3a;
+  border-color: #444;
+  color: #aaa;
+}
+
+[data-theme="dark"] .href-suggest__option:hover,
+[data-theme="dark"] .href-suggest__option[data-active="true"] {
+  background: #2d3a4f;
+}
+
+[data-theme="dark"] .href-suggest__value {
+  color: #6cb6ff;
+}
+
+[data-theme="dark"] .href-suggest__meta {
+  color: #777;
+}
+
+[data-theme="dark"] .href-suggest__type {
+  background: #333;
+  color: #aaa;
+}
