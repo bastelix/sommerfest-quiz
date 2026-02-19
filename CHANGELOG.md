@@ -512,6 +512,7 @@
 - Use section-default vars for light-mode namespace surface colors
 - *(renderer)* Honor container frame 'none' in resolveContainerPreset
 - Use theme-aware vars in resolveSectionBackgroundStyles for color backgrounds
+- *(hero)* Apply video card styles to stat_tiles variant
 
 ### Merge
 
