@@ -527,6 +527,7 @@
 - *(cms)* Pass page namespace to events API in event_highlight form
 - *(subscription)* Use Stripe customer portal in platform mode
 - Generate correct inline surface styles for container-based section presets
+- Load .env in page AI generation script and detach background process
 
 ### Merge
 
