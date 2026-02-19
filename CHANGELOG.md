@@ -298,6 +298,7 @@
 - *(page-tree)* Add menu assignment to pages content tree
 - *(pages)* Auto-generate section anchors and expose them in menu editor
 - *(calserver)* Add trust_band variant for seamless trust strip below hero
+- *(menu)* Replace native datalist with grouped anchor suggestion dropdown
 
 ### Fix
 
