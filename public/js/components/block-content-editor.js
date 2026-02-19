@@ -1852,45 +1852,16 @@ const SECTION_TEMPLATES = [
     }
   },
   {
-    id: 'event-highlight-hero',
-    label: 'Veranstaltung (Hero)',
-    description: 'Präsentiert ein Event großformatig mit Logo, Countdown und Start-Button.',
+    id: 'event-highlight',
+    label: 'Veranstaltung',
+    description: 'Zeigt ein Event des Namespace mit Logo, Countdown und Start-Button.',
     type: 'event_highlight',
     variant: 'hero',
     build: variant => {
       const block = getDefaultBlock('event_highlight', variant);
       block.data.eventSlug = 'mein-event';
-      block.data.ctaLabel = 'Jetzt starten';
       block.data.showCountdown = true;
       block.data.showDescription = true;
-      return block;
-    }
-  },
-  {
-    id: 'event-highlight-card',
-    label: 'Veranstaltung (Karte)',
-    description: 'Kompakte Karte mit Event-Info, Datum und direktem Einstieg.',
-    type: 'event_highlight',
-    variant: 'card',
-    build: variant => {
-      const block = getDefaultBlock('event_highlight', variant);
-      block.data.eventSlug = 'mein-event';
-      block.data.ctaLabel = 'Zum Event';
-      block.data.showCountdown = true;
-      block.data.showDescription = true;
-      return block;
-    }
-  },
-  {
-    id: 'event-highlight-compact',
-    label: 'Veranstaltung (Kompakt)',
-    description: 'Einzeilige Event-Vorschau mit Name, Datum und Start-Link.',
-    type: 'event_highlight',
-    variant: 'compact',
-    build: variant => {
-      const block = getDefaultBlock('event_highlight', variant);
-      block.data.eventSlug = 'mein-event';
-      block.data.ctaLabel = 'Starten';
       return block;
     }
   }
@@ -3267,6 +3238,8 @@ export class BlockContentEditor {
         return this.buildPackageSummaryForm(block);
       case 'latest_news':
         return this.buildLatestNewsForm(block);
+      case 'event_highlight':
+        return this.buildEventHighlightForm(block);
       default:
         return this.buildGenericJsonForm(block);
     }
@@ -3318,6 +3291,134 @@ export class BlockContentEditor {
     infoSection.append(infoText);
 
     wrapper.append(headingSection, configSection, infoSection);
+    return wrapper;
+  }
+
+  buildEventHighlightForm(block) {
+    const wrapper = document.createElement('div');
+
+    const eventSection = createFieldSection('Veranstaltung', 'Wähle ein Event aus dem Namespace.');
+
+    const selectWrapper = document.createElement('div');
+    const eventSelect = document.createElement('select');
+    eventSelect.className = 'uk-select';
+    eventSelect.disabled = true;
+
+    const loadingOption = document.createElement('option');
+    loadingOption.textContent = 'Events werden geladen\u2026';
+    eventSelect.append(loadingOption);
+    selectWrapper.append(eventSelect);
+
+    const statusEl = document.createElement('p');
+    statusEl.className = 'uk-text-meta uk-margin-small-top';
+    statusEl.style.display = 'none';
+    selectWrapper.append(statusEl);
+
+    eventSection.append(selectWrapper);
+
+    const basePath = (typeof window !== 'undefined' && typeof window.basePath === 'string')
+      ? window.basePath.replace(/\/+$/, '')
+      : '';
+    const eventsUrl = `${basePath}/events.json`;
+
+    fetch(eventsUrl, { credentials: 'same-origin' })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(events => {
+        eventSelect.innerHTML = '';
+        const list = Array.isArray(events) ? events : [];
+        if (list.length === 0) {
+          const emptyOption = document.createElement('option');
+          emptyOption.value = '';
+          emptyOption.textContent = 'Keine Events vorhanden';
+          eventSelect.append(emptyOption);
+          eventSelect.disabled = true;
+          statusEl.textContent = 'Es sind keine Veranstaltungen im Namespace angelegt. Erstelle zuerst ein Event.';
+          statusEl.style.display = '';
+          return;
+        }
+        const placeholderOpt = document.createElement('option');
+        placeholderOpt.value = '';
+        placeholderOpt.textContent = '— Event auswählen —';
+        eventSelect.append(placeholderOpt);
+        list.forEach(ev => {
+          const opt = document.createElement('option');
+          opt.value = ev.slug || ev.uid || '';
+          opt.textContent = ev.name || ev.slug || ev.uid || '(unbenannt)';
+          if (opt.value === block.data.eventSlug) {
+            opt.selected = true;
+          }
+          eventSelect.append(opt);
+        });
+        eventSelect.disabled = false;
+        if (block.data.eventSlug && !list.some(ev => (ev.slug || ev.uid) === block.data.eventSlug)) {
+          statusEl.textContent = `Event „${block.data.eventSlug}" wurde nicht gefunden.`;
+          statusEl.className = 'uk-text-meta uk-text-warning uk-margin-small-top';
+          statusEl.style.display = '';
+        }
+      })
+      .catch(() => {
+        eventSelect.innerHTML = '';
+        const errOption = document.createElement('option');
+        errOption.value = '';
+        errOption.textContent = 'Fehler beim Laden';
+        eventSelect.append(errOption);
+        eventSelect.disabled = true;
+        statusEl.textContent = 'Events konnten nicht geladen werden. Bitte Seite neu laden.';
+        statusEl.style.display = '';
+      });
+
+    eventSelect.addEventListener('change', () => {
+      const slug = eventSelect.value;
+      if (slug) {
+        this.updateBlockData(block.id, ['data', 'eventSlug'], slug);
+        statusEl.style.display = 'none';
+      }
+    });
+
+    const optionsSection = createFieldSection('Anzeigeoptionen', 'Steuert die Darstellung des Event-Blocks.');
+    optionsSection.append(
+      this.addLabeledInput('CTA-Label', block.data.ctaLabel || '', value => this.updateBlockData(block.id, ['data', 'ctaLabel'], value || undefined), {
+        placeholder: 'z.\u00a0B. Jetzt starten'
+      })
+    );
+    optionsSection.append(
+      this.addLabeledInput('CTA Aria-Label', block.data.ctaAriaLabel || '', value => this.updateBlockData(block.id, ['data', 'ctaAriaLabel'], value || undefined), {
+        placeholder: 'z.\u00a0B. Event Sommerfest starten'
+      })
+    );
+
+    const countdownLabel = document.createElement('label');
+    countdownLabel.className = 'uk-flex uk-flex-middle uk-margin-small-top';
+    const countdownCheckbox = document.createElement('input');
+    countdownCheckbox.type = 'checkbox';
+    countdownCheckbox.className = 'uk-checkbox uk-margin-small-right';
+    countdownCheckbox.checked = block.data.showCountdown !== false;
+    countdownCheckbox.addEventListener('change', () => {
+      this.updateBlockData(block.id, ['data', 'showCountdown'], countdownCheckbox.checked);
+    });
+    const countdownText = document.createElement('span');
+    countdownText.textContent = 'Countdown anzeigen';
+    countdownLabel.append(countdownCheckbox, countdownText);
+    optionsSection.append(countdownLabel);
+
+    const descLabel = document.createElement('label');
+    descLabel.className = 'uk-flex uk-flex-middle uk-margin-small-top';
+    const descCheckbox = document.createElement('input');
+    descCheckbox.type = 'checkbox';
+    descCheckbox.className = 'uk-checkbox uk-margin-small-right';
+    descCheckbox.checked = block.data.showDescription !== false;
+    descCheckbox.addEventListener('change', () => {
+      this.updateBlockData(block.id, ['data', 'showDescription'], descCheckbox.checked);
+    });
+    const descText = document.createElement('span');
+    descText.textContent = 'Beschreibung anzeigen';
+    descLabel.append(descCheckbox, descText);
+    optionsSection.append(descLabel);
+
+    wrapper.append(eventSection, optionsSection);
     return wrapper;
   }
 
