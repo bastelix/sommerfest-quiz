@@ -1,0 +1,266 @@
+{# ──────────────────────────────────────────────────────────
+   Default Theme – Reusable base template
+   Based on the calServer page design.
+
+   Usage:
+     {% extends 'marketing/default-theme.twig' %}
+     {% set brandName = 'MyProduct' %}
+     {% set brandLogoSrc = basePath ~ '/uploads/my-logo.webp' %}
+     {% set brandWordmark = 'MyProduct' %}
+     {% block theme_content %}{{ content|raw }}{% endblock %}
+   ────────────────────────────────────────────────────────── #}
+
+{% extends 'layout.twig' %}
+
+{% import 'marketing/partials/menu.twig' as menu %}
+
+{% set cmsMainNavigation = cmsMainNavigation|default([]) %}
+{% set menuItems = cmsMainNavigation is not empty ? cmsMainNavigation : cmsMenuItems|default([]) %}
+{% set footerColumns = cmsFooterColumns|default([]) %}
+{% set legalNavigation = cmsLegalNavigation|default([]) %}
+{% set marketingChatEnabled = marketingChatEndpoint is defined and marketingChatEndpoint %}
+
+{# ── Configurable brand parameters (override in child templates) ── #}
+{% set brandName = brandName|default('') %}
+{% set brandLogoSrc = brandLogoSrc|default(null) %}
+{% set brandWordmark = brandWordmark|default(brandName) %}
+{% set brandHomeUrl = brandHomeUrl|default(basePath) %}
+{% set brandDescription = brandDescription|default('') %}
+{% set contactName = contactName|default('') %}
+{% set contactEmailUser = contactEmailUser|default('') %}
+{% set contactEmailDomain = contactEmailDomain|default('') %}
+{% set contactPhone = contactPhone|default('') %}
+{% set contactPhoneLabel = contactPhoneLabel|default('') %}
+
+{% block title %}{{ metaTitle|default(brandName) }}{% endblock %}
+
+{% block head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+  <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/default-theme.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
+  <script type="module" src="{{ basePath }}/js/marketing-design.js"></script>
+  {% block theme_head %}{% endblock %}
+{% endblock %}
+
+{% block body_class %}marketing-page calserver-layout default-theme{% endblock %}
+
+{% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
+  <div class="marketing-layout">
+    <header class="qr-topbar uk-position-sticky uk-top" id="start"
+            data-uk-sticky="animation: uk-animation-slide-top; sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky;">
+      <nav class="uk-navbar-container topbar" data-uk-navbar>
+        <div class="uk-navbar-left">
+          <div class="uk-navbar-item">
+            <button id="offcanvas-toggle"
+                    class="uk-navbar-toggle uk-hidden@m git-btn"
+                    data-uk-navbar-toggle-icon
+                    data-uk-toggle="target: #qr-offcanvas"
+                    aria-controls="qr-offcanvas"
+                    aria-expanded="false"
+                    aria-label="Menu"></button>
+            <a class="uk-logo cs-logo" href="{{ brandHomeUrl }}">
+              <span class="cs-logo__sr">{{ brandName }}</span>
+              {% if brandLogoSrc %}
+                <span class="cs-logo__image" aria-hidden="true">
+                  <img class="cs-logo__img"
+                       src="{{ brandLogoSrc }}"
+                       alt=""
+                       loading="eager"
+                       decoding="async">
+                </span>
+              {% endif %}
+              <span class="cs-logo__wordmark" aria-hidden="true">{{ brandWordmark }}</span>
+            </a>
+          </div>
+        </div>
+        <div class="uk-navbar-center uk-visible@m">
+          {{ menu.render_menu(menuItems, 'uk-navbar-nav cs-mega-nav', 'data-uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left"') }}
+        </div>
+        <div class="uk-navbar-right">
+          {% include 'components/config-menu.twig' with {
+            show_help: false,
+            show_language: headerConfig.show_language ?? true,
+            show_theme_toggle: headerConfig.show_theme_toggle ?? true,
+            show_contrast_toggle: headerConfig.show_contrast_toggle ?? true
+          } %}
+        </div>
+      </nav>
+    </header>
+
+    <div id="qr-offcanvas" data-uk-offcanvas="overlay: true; flip: true">
+      <div class="uk-offcanvas-bar">
+        <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Close menu"></button>
+        {{ menu.render_offcanvas(menuItems, 'uk-nav uk-nav-default') }}
+      </div>
+    </div>
+
+    {% if marketingChatEnabled %}
+      {% include 'marketing/partials/marketing-chat.twig' %}
+    {% endif %}
+
+    {% block theme_content %}
+      {{ content|default('')|raw }}
+    {% endblock %}
+
+    {% include 'marketing/partials/page-modules.twig' with {
+      modules: pageModules['after-content']|default([]),
+      position: 'after-content'
+    } %}
+
+    {% include 'marketing/partials/cookie-consent.twig' %}
+  </div>
+{% endblock %}
+
+{% block footer %}
+  {% set accessibilityLocale = locale() ?: 'de' %}
+  {% include 'marketing/partials/footer-standard.twig' with {
+    brandName: brandName,
+    brandDescription: brandDescription,
+    contactName: contactName,
+    contactEmailUser: contactEmailUser,
+    contactEmailDomain: contactEmailDomain,
+    contactPhone: contactPhone,
+    contactPhoneLabel: contactPhoneLabel,
+    footerColumns: footerColumns,
+    legalNavigation: legalNavigation
+  } only %}
+{% endblock %}
+
+{% block scripts %}
+  {% if turnstileSiteKey is defined and turnstileSiteKey %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+  {% endif %}
+  <script src="{{ basePath }}/js/custom-icons.js" defer></script>
+  <script src="{{ basePath }}/js/storage.js"></script>
+  <script>
+    (function () {
+      try {
+        var hasStorageHelpers = typeof STORAGE_KEYS !== 'undefined' &&
+          typeof getStored === 'function' &&
+          typeof setStored === 'function';
+        var darkKey = hasStorageHelpers ? STORAGE_KEYS.DARK_MODE : 'darkMode';
+        var storedTheme = hasStorageHelpers ? getStored(darkKey) : (function () {
+          try {
+            return (typeof localStorage !== 'undefined') ? localStorage.getItem(darkKey) : null;
+          } catch (error) {
+            return null;
+          }
+        })();
+
+        if (storedTheme === null) {
+          if (hasStorageHelpers) {
+            setStored(darkKey, 'false');
+          } else if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(darkKey, 'false');
+          }
+        }
+      } catch (error) {
+        /* empty */
+      }
+    })();
+  </script>
+  <script>
+    (function () {
+      if (!document.body.classList.contains('calserver-layout')) {
+        return;
+      }
+
+      var hoverIntentTimer;
+
+      function scheduleSwap(event) {
+        var link = event.target.closest('a[data-explain]');
+        if (!link || !link.closest('.cs-mega-nav')) {
+          return;
+        }
+
+        clearTimeout(hoverIntentTimer);
+
+        if (event.type === 'focusin') {
+          swapPane(link);
+          return;
+        }
+
+        hoverIntentTimer = setTimeout(function () {
+          swapPane(link);
+        }, 90);
+      }
+
+      function swapPane(link) {
+        var dropdown = link.closest('.uk-navbar-dropdown');
+        if (!dropdown) {
+          return;
+        }
+
+        var explainKey = link.getAttribute('data-explain');
+        if (!explainKey) {
+          return;
+        }
+
+        dropdown.querySelectorAll('.menu-explain .explain-pane').forEach(function (pane) {
+          var key = pane.getAttribute('data-explain-pane');
+          pane.classList.toggle('uk-hidden', key !== explainKey);
+        });
+      }
+
+      document.addEventListener('mouseover', scheduleSwap, true);
+      document.addEventListener('focusin', scheduleSwap, true);
+    })();
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.js-email-link').forEach(function (anchor) {
+        var user = anchor.getAttribute('data-user');
+        var domain = anchor.getAttribute('data-domain');
+        if (user && domain) {
+          var email = user + '@' + domain;
+          anchor.href = 'mailto:' + email;
+          anchor.textContent = email;
+        }
+      });
+      var contactForm = document.getElementById('contact-form');
+      if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
+        contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/api/contact-form');
+      }
+    });
+  </script>
+  {% if marketingChatEnabled %}
+    <script>
+      window.marketingChatConfig = {
+        endpoint: '{{ marketingChatEndpoint|e('js') }}',
+        slug: '{{ marketingSlug|e('js') }}',
+        csrfToken: '{{ csrf_token|default('')|e('js') }}',
+        locale: '{{ locale() }}',
+        texts: {
+          intro: '{{ t('marketing_chat_intro_message')|e('js') }}',
+          loading: '{{ t('marketing_chat_loading')|e('js') }}',
+          errorGeneric: '{{ t('marketing_chat_error_generic')|e('js') }}',
+          errorValidation: '{{ t('marketing_chat_error_validation')|e('js') }}',
+          errorRateLimited: '{{ t('marketing_chat_error_rate_limited')|e('js') }}',
+          sources: '{{ t('marketing_chat_sources')|e('js') }}',
+          sourcesToggle: '{{ t('marketing_chat_sources_toggle')|e('js') }}',
+          score: '{{ t('marketing_chat_score')|e('js') }}',
+          empty: '{{ t('marketing_chat_empty')|e('js') }}',
+          question: '{{ t('marketing_chat_question_label')|e('js') }}'
+        }
+      };
+    </script>
+  {% endif %}
+  <script>
+    window.cookieConsentConfig = {{ cookieConsentConfig|default({})|json_encode|raw }};
+  </script>
+  <script src="{{ basePath }}/js/marketing-cookie.js" defer></script>
+  <script src="{{ basePath }}/js/marketing-consent.js" defer></script>
+  {% if marketingChatEnabled %}
+    <script src="{{ basePath }}/js/marketing-chat.js" defer></script>
+  {% endif %}
+  <script src="{{ basePath }}/js/landing.js" defer></script>
+  {% block theme_scripts %}{% endblock %}
+{% endblock %}
