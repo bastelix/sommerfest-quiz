@@ -467,12 +467,15 @@ function resolveAppearanceValue(token, fallback) {
   return cssVariable;
 }
 
-/* Map light-surface intent tokens to CSS variable references so the
-   dark-mode cascade in sections.css / variables.css can provide the
-   correct palette without being overridden by inline styles. */
+/* Map light-surface intent tokens to CSS variable references that:
+   - In light mode resolve via --section-default-surface / --section-default-muted
+     (set by marketing-design.js to the namespace-specific palette values).
+   - In dark mode fall back to --surface / --surface-muted (the generic dark
+     values from variables.css) because marketing-design.js skips setting the
+     section-default properties in dark mode. */
 const THEME_AWARE_SURFACE_VARS = {
-  surface: 'var(--surface)',
-  muted: 'var(--surface-muted)',
+  surface: 'var(--section-default-surface, var(--surface))',
+  muted: 'var(--section-default-muted, var(--surface-muted))',
 };
 
 function resolveSectionIntentPreset(block) {
