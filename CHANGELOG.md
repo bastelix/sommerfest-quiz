@@ -506,6 +506,7 @@
 - Remove redundant null coalesce on always-present array key
 - Remove redundant getEditableSlugs check from page deletion
 - *(admin)* Stop leaking internal exception messages on page delete
+- Use section-default vars for light-mode namespace surface colors
 
 ### Merge
 
