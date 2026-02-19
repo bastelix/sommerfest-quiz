@@ -3319,7 +3319,12 @@ export class BlockContentEditor {
     const basePath = (typeof window !== 'undefined' && typeof window.basePath === 'string')
       ? window.basePath.replace(/\/+$/, '')
       : '';
-    const eventsUrl = `${basePath}/events.json`;
+    const ns = (typeof window !== 'undefined' && typeof window.pageNamespace === 'string' && window.pageNamespace)
+      ? window.pageNamespace
+      : '';
+    const eventsUrl = ns
+      ? `${basePath}/events.json?namespace=${encodeURIComponent(ns)}`
+      : `${basePath}/events.json`;
 
     fetch(eventsUrl, { credentials: 'same-origin' })
       .then(res => {

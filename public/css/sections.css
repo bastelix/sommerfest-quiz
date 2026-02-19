@@ -243,14 +243,14 @@
 
 .section__inner--panel {
   background: var(--surface);
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius, var(--card-radius, 10px));
   border: 1px solid color-mix(in srgb, var(--surface-muted) 72%, var(--surface) 28%);
   box-shadow: var(--marketing-shadow-panel, 0 16px 32px rgba(15, 23, 42, 0.08));
 }
 
 .section__inner--card {
   background: var(--surface);
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius, var(--card-radius, 10px));
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
   box-shadow: var(--marketing-shadow-card, 0 22px 48px rgba(15, 23, 42, 0.09));
 }
@@ -258,7 +258,7 @@
 .section__inner--accent {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius, var(--card-radius, 10px));
   box-shadow: var(--marketing-shadow-accent, 0 28px 60px rgba(0, 0, 0, 0.18));
 }
 
@@ -285,7 +285,7 @@
   background: var(--section-hero-surface);
   color: var(--section-text-color, var(--color-text));
   border: 1px solid var(--section-hero-border);
-  border-radius: calc(var(--card-radius) + 4px);
+  border-radius: calc(var(--marketing-card-radius, var(--card-radius, 10px)) + 4px);
   box-shadow: 0 34px 76px color-mix(in srgb, var(--section-hero-glow) 55%, rgba(0, 0, 0, 0.24));
   backdrop-filter: blur(4px);
 }
@@ -313,14 +313,14 @@
 
 .section[data-section-layout="card"] .section__inner {
   background: var(--surface);
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius, var(--card-radius, 10px));
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
   box-shadow: var(--marketing-shadow-card-soft, 0 16px 36px rgba(0, 0, 0, 0.05));
 }
 
 .section--full[data-section-layout="card"] .section__inner {
   background: var(--surface);
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius, var(--card-radius, 10px));
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
   box-shadow: var(--marketing-shadow-card-soft, 0 16px 36px rgba(0, 0, 0, 0.05));
 }
@@ -908,7 +908,7 @@
   align-items: flex-start;
   gap: 16px;
   padding: clamp(18px, 3vw, 26px);
-  border-radius: calc(var(--card-radius) + 6px);
+  border-radius: calc(var(--marketing-card-radius, var(--card-radius, 10px)) + 6px);
   background: color-mix(in srgb, var(--stat-card-surface) 92%, var(--stat-card-accent) 8%);
   border: 1px solid color-mix(in srgb, var(--stat-card-accent) 30%, var(--stat-card-surface-muted) 70%);
   box-shadow: var(--marketing-shadow-panel, 0 18px 30px rgba(15, 23, 42, 0.08));
@@ -981,7 +981,7 @@
   background: color-mix(in srgb, var(--stat-card-surface) 90%, var(--stat-card-surface-muted) 10%);
   color: var(--stat-card-text);
   border: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 72%, var(--stat-card-surface) 28%);
-  border-radius: calc(var(--card-radius) + 2px);
+  border-radius: calc(var(--marketing-card-radius, var(--card-radius, 10px)) + 2px);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--stat-card-surface-muted) 70%, transparent),
     0 18px 38px rgba(15, 23, 42, 0.08);
   isolation: isolate;
@@ -2178,7 +2178,7 @@ body.page-render .qr-page-renderer table {
 /* ------------------------------------------------------------------ */
 
 .section .uk-card {
-  border-radius: var(--card-radius, 10px);
+  border-radius: var(--marketing-card-radius, var(--card-radius, 10px));
   border: 1px solid var(--border-muted, #dfe3eb);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
