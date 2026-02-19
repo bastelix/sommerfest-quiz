@@ -85,7 +85,7 @@ const schema = {
       "title": "Feature list block",
       "properties": {
         "type": { "const": "feature_list" },
-        "variant": { "enum": ["stacked_cards", "icon_grid", "detailed-cards", "grid-bullets", "text-columns", "card-stack", "slider"] },
+        "variant": { "enum": ["stacked_cards", "icon_grid", "detailed-cards", "grid-bullets", "text-columns", "card-stack", "slider", "clustered-tabs"] },
         "data": { "$ref": "#/definitions/FeatureListData" }
       },
       "required": ["type", "variant", "data"]
@@ -345,6 +345,10 @@ const schema = {
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/definitions/FeatureItem" }
+        },
+        "groups": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/FeatureGroup" }
         },
         "cta": { "$ref": "#/definitions/CallToAction" }
       }
@@ -741,7 +745,17 @@ const schema = {
         "description": { "type": "string", "minLength": 1 },
         "label": { "type": "string" },
         "bullets": { "type": "array", "items": { "type": "string" } },
-        "media": { "$ref": "#/definitions/Media" }
+        "media": { "$ref": "#/definitions/Media" },
+        "group": { "type": "string" }
+      }
+    },
+    "FeatureGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 }
       }
     },
     "ProcessStep": {

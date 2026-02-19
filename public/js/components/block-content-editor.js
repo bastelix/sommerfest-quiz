@@ -58,7 +58,8 @@ const VARIANT_LABELS = {
     'card-stack': 'Karten',
     stacked_cards: 'Karten',
     icon_grid: 'Icon-Raster',
-    slider: 'Slider'
+    slider: 'Slider',
+    'clustered-tabs': 'Gruppierte Tabs'
   },
   content_slider: {
     words: 'Text-Slider',
@@ -126,7 +127,7 @@ const VARIANT_LABELS = {
 
 const CARD_VARIANT_GROUPS = {
   feature_list: {
-    card: ['detailed-cards', 'grid-bullets', 'card-stack', 'slider'],
+    card: ['detailed-cards', 'grid-bullets', 'card-stack', 'slider', 'clustered-tabs'],
     noCard: ['text-columns']
   },
   stat_strip: {
@@ -926,7 +927,28 @@ const LAYOUT_PREVIEWS = {
     'text-columns': () => createColumnsPreview(2),
     'card-stack': createStackedCardsPreview,
     stacked_cards: createStackedCardsPreview,
-    icon_grid: createIconGridPreview
+    icon_grid: createIconGridPreview,
+    'clustered-tabs': () => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'layout-preview';
+      const tabs = document.createElement('div');
+      tabs.style.cssText = 'display:flex;gap:2px;margin-bottom:3px;';
+      for (let i = 0; i < 3; i++) {
+        const tab = document.createElement('div');
+        tab.style.cssText = `flex:1;height:3px;border-radius:1px;background:${i === 0 ? '#666' : '#ccc'}`;
+        tabs.append(tab);
+      }
+      wrapper.append(tabs);
+      const grid = document.createElement('div');
+      grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;';
+      for (let i = 0; i < 3; i++) {
+        const card = document.createElement('div');
+        card.style.cssText = 'height:12px;border-radius:2px;background:#e5e5e5;';
+        grid.append(card);
+      }
+      wrapper.append(grid);
+      return wrapper;
+    }
   },
   process_steps: {
     'numbered-vertical': () => createStepsPreview('vertical'),
@@ -1276,18 +1298,26 @@ function buildDefaultBlock(type, variant) {
         }
       }
     }),
-    feature_list: () => ({
-      id: createId(),
-      type: 'feature_list',
-      variant,
-      data: {
-        title: 'Feature Headline',
-        intro: '',
-        items: [
-          { id: createId(), title: 'Feature eins', description: 'Beschreibung' }
-        ]
+    feature_list: () => {
+      const groupId = createId();
+      const block = {
+        id: createId(),
+        type: 'feature_list',
+        variant,
+        data: {
+          title: 'Feature Headline',
+          intro: '',
+          items: [
+            { id: createId(), title: 'Feature eins', description: 'Beschreibung' }
+          ]
+        }
+      };
+      if (variant === 'clustered-tabs') {
+        block.data.groups = [{ id: groupId, label: 'Gruppe 1' }];
+        block.data.items[0].group = groupId;
       }
-    }),
+      return block;
+    },
     content_slider: () => ({
       id: createId(),
       type: 'content_slider',
@@ -1686,6 +1716,31 @@ const SECTION_TEMPLATES = [
         { id: createId(), title: 'Funktion 1', description: 'Erklären Sie den Nutzen.' },
         { id: createId(), title: 'Funktion 2', description: 'Welche Aufgabe wird damit gelöst?' },
         { id: createId(), title: 'Funktion 3', description: 'Warum ist das relevant?' }
+      ];
+      return block;
+    }
+  },
+  {
+    id: 'feature-clustered-tabs',
+    label: 'Module in Gruppen',
+    description: 'Module gruppiert als Tabs mit je drei Karten.',
+    type: 'feature_list',
+    variant: 'clustered-tabs',
+    build: variant => {
+      const block = getDefaultBlock('feature_list', variant);
+      const g1 = createId();
+      const g2 = createId();
+      block.data.title = 'Unsere Module';
+      block.data.subtitle = 'Entdecken Sie alle Funktionen auf einen Blick.';
+      block.data.groups = [
+        { id: g1, label: 'Verwaltung' },
+        { id: g2, label: 'Analyse' }
+      ];
+      block.data.items = [
+        { id: createId(), icon: 'settings', title: 'Modul A', description: 'Beschreibung von Modul A.', group: g1 },
+        { id: createId(), icon: 'database', title: 'Modul B', description: 'Beschreibung von Modul B.', group: g1 },
+        { id: createId(), icon: 'search', title: 'Modul C', description: 'Beschreibung von Modul C.', group: g2 },
+        { id: createId(), icon: 'bolt', title: 'Modul D', description: 'Beschreibung von Modul D.', group: g2 }
       ];
       return block;
     }
@@ -4463,6 +4518,48 @@ export class BlockContentEditor {
     this.mountRichText(introField, block.data.intro, value => this.updateBlockData(block.id, ['data', 'intro'], value));
     wrapper.append(this.wrapField('Intro', introField));
 
+    if (block.variant === 'clustered-tabs') {
+      const groupsSection = createFieldSection(
+        'Gruppen (Tabs)',
+        'Legen Sie die Reihenfolge und Bezeichnung der Tabs fest.'
+      );
+
+      const groupsWrapper = document.createElement('div');
+      groupsWrapper.className = 'collection-list';
+      groupsWrapper.dataset.field = 'groups';
+
+      const groups = Array.isArray(block.data.groups) ? block.data.groups : [];
+      groups.forEach((group, index) => {
+        const body = [
+          this.addLabeledInput('Tab-Bezeichnung', group.label, value =>
+            this.updateFeatureGroup(block.id, group.id, 'label', value)
+          )
+        ];
+        const card = this.createCollectionCard({
+          title: (group.label || '').trim() || `Gruppe ${index + 1}`,
+          meta: `Tab ${index + 1}`,
+          index,
+          onRemove: () => this.removeFeatureGroup(block.id, group.id),
+          onMoveUp: () => this.moveFeatureGroup(block.id, group.id, -1),
+          onMoveDown: () => this.moveFeatureGroup(block.id, group.id, 1),
+          moveUpDisabled: index === 0,
+          moveDownDisabled: index === groups.length - 1,
+          removeDisabled: groups.length <= 1,
+          body
+        });
+        groupsWrapper.append(card);
+      });
+
+      groupsWrapper.append(
+        this.createCollectionAddButton('Gruppe hinzufügen', () =>
+          this.addFeatureGroup(block.id)
+        )
+      );
+
+      groupsSection.append(groupsWrapper);
+      wrapper.append(groupsSection);
+    }
+
     const itemsWrapper = document.createElement('div');
     itemsWrapper.dataset.field = 'items';
     itemsWrapper.className = 'collection-list';
@@ -4477,6 +4574,15 @@ export class BlockContentEditor {
         this.addLabeledInput('Titel', item.title, value => this.updateFeatureItem(block.id, item.id, 'title', value)),
         this.wrapField('Beschreibung', descField)
       ];
+
+      if (block.variant === 'clustered-tabs') {
+        const groups = Array.isArray(block.data.groups) ? block.data.groups : [];
+        body.push(this.wrapField('Gruppe', this.buildGroupSelect(
+          item.group,
+          groups,
+          value => this.updateFeatureItem(block.id, item.id, 'group', value)
+        )));
+      }
 
       const card = this.createCollectionCard({
         title: (item.title || item.description || '').trim() || `Feature ${index + 1}`,
@@ -4972,6 +5078,20 @@ export class BlockContentEditor {
     clone.id = createId();
     if (clone.type === 'feature_list' && Array.isArray(clone.data.items)) {
       clone.data.items = clone.data.items.map(item => ({ ...item, id: createId() }));
+    }
+    if (clone.type === 'feature_list' && Array.isArray(clone.data.groups)) {
+      const groupIdMap = {};
+      clone.data.groups = clone.data.groups.map(group => {
+        const newId = createId();
+        groupIdMap[group.id] = newId;
+        return { ...group, id: newId };
+      });
+      if (Array.isArray(clone.data.items)) {
+        clone.data.items = clone.data.items.map(item => ({
+          ...item,
+          group: item.group ? (groupIdMap[item.group] || item.group) : item.group
+        }));
+      }
     }
     if (clone.type === 'process_steps' && Array.isArray(clone.data.steps)) {
       clone.data.steps = clone.data.steps.map(step => ({ ...step, id: createId() }));
@@ -5727,7 +5847,11 @@ export class BlockContentEditor {
       }
       const updated = deepClone(block);
       const items = Array.isArray(updated.data.items) ? updated.data.items : [];
-      items.push({ id: createId(), icon: '', title: 'Feature', description: 'Beschreibung' });
+      const newItem = { id: createId(), icon: '', title: 'Feature', description: 'Beschreibung' };
+      if (updated.variant === 'clustered-tabs' && Array.isArray(updated.data.groups) && updated.data.groups.length > 0) {
+        newItem.group = updated.data.groups[0].id;
+      }
+      items.push(newItem);
       updated.data.items = items;
       return updated;
     });
@@ -5777,6 +5901,82 @@ export class BlockContentEditor {
       const [entry] = items.splice(index, 1);
       items.splice(target, 0, entry);
       updated.data.items = items;
+      return updated;
+    });
+    this.render();
+  }
+
+  buildGroupSelect(currentValue, groups, onChange) {
+    const select = document.createElement('select');
+    select.className = 'uk-select';
+
+    const emptyOption = document.createElement('option');
+    emptyOption.value = '';
+    emptyOption.textContent = '— Keine Gruppe —';
+    if (!currentValue) emptyOption.selected = true;
+    select.append(emptyOption);
+
+    groups.forEach(group => {
+      const option = document.createElement('option');
+      option.value = group.id;
+      option.textContent = group.label || group.id;
+      if (currentValue === group.id) option.selected = true;
+      select.append(option);
+    });
+
+    select.addEventListener('change', event => onChange(event.target.value || ''));
+    return select;
+  }
+
+  addFeatureGroup(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) return block;
+      const updated = deepClone(block);
+      const groups = Array.isArray(updated.data.groups) ? updated.data.groups : [];
+      groups.push({ id: createId(), label: 'Neue Gruppe' });
+      updated.data.groups = groups;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateFeatureGroup(blockId, groupId, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) return block;
+      const updated = deepClone(block);
+      updated.data.groups = (updated.data.groups || []).map(g =>
+        g.id === groupId ? { ...g, [field]: value } : g
+      );
+      return updated;
+    });
+  }
+
+  removeFeatureGroup(blockId, groupId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) return block;
+      const updated = deepClone(block);
+      const groups = Array.isArray(updated.data.groups) ? [...updated.data.groups] : [];
+      if (groups.length <= 1) return block;
+      updated.data.groups = groups.filter(g => g.id !== groupId);
+      updated.data.items = (updated.data.items || []).map(item =>
+        item.group === groupId ? { ...item, group: '' } : item
+      );
+      return updated;
+    });
+    this.render();
+  }
+
+  moveFeatureGroup(blockId, groupId, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) return block;
+      const updated = deepClone(block);
+      const groups = Array.isArray(updated.data.groups) ? [...updated.data.groups] : [];
+      const index = groups.findIndex(g => g.id === groupId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= groups.length) return block;
+      const [entry] = groups.splice(index, 1);
+      groups.splice(target, 0, entry);
+      updated.data.groups = groups;
       return updated;
     });
     this.render();
