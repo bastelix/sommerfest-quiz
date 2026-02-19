@@ -130,7 +130,9 @@ class PageController
 
         try {
             $this->pageService->deleteTree($namespace, (string) $slug);
-        } catch (\Throwable $exception) {
+        } catch (InvalidArgumentException $exception) {
+            return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 422);
+        } catch (RuntimeException $exception) {
             return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 500);
         }
 
