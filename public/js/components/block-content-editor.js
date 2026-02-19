@@ -3302,6 +3302,7 @@ export class BlockContentEditor {
 
   buildLatestNewsForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     const headingSection = createFieldSection('Überschrift', 'Titel des Nachrichtenbereichs.');
     headingSection.append(
@@ -3351,6 +3352,7 @@ export class BlockContentEditor {
 
   buildEventHighlightForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     const eventSection = createFieldSection('Veranstaltung', 'Wähle ein Event aus dem Namespace.');
 
@@ -3484,6 +3486,7 @@ export class BlockContentEditor {
 
   buildContactForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     const introSection = createFieldSection('Titel & Einleitung', 'Leitet das Formular ein.');
     introSection.append(
@@ -3642,6 +3645,7 @@ export class BlockContentEditor {
 
   buildContentSliderForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
     wrapper.append(this.addLabeledInput('Eyebrow', block.data.eyebrow, value => this.updateBlockData(block.id, ['data', 'eyebrow'], value)));
@@ -3696,6 +3700,7 @@ export class BlockContentEditor {
 
   buildPackageSummaryForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
     wrapper.append(this.addLabeledInput('Untertitel', block.data.subtitle, value => this.updateBlockData(block.id, ['data', 'subtitle'], value)));
@@ -3827,6 +3832,7 @@ export class BlockContentEditor {
 
   buildAudienceSpotlightForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
     wrapper.append(this.addLabeledInput('Untertitel', block.data.subtitle, value => this.updateBlockData(block.id, ['data', 'subtitle'], value)));
@@ -3882,6 +3888,7 @@ export class BlockContentEditor {
 
   buildGenericJsonForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
     const info = document.createElement('p');
     info.textContent = 'Dieser Block nutzt eine generische Struktur. Passe die Felder als JSON an.';
     wrapper.append(info);
@@ -3962,37 +3969,46 @@ export class BlockContentEditor {
 
   buildStringList(items, label, onChange) {
     const listWrapper = document.createElement('div');
+    listWrapper.className = 'string-list';
     const listLabel = document.createElement('div');
+    listLabel.className = 'string-list__label';
     listLabel.textContent = label;
     listWrapper.append(listLabel);
 
     const addEntryBtn = document.createElement('button');
     addEntryBtn.type = 'button';
+    addEntryBtn.className = 'uk-button uk-button-default uk-button-small string-list__add';
     addEntryBtn.textContent = `${label} hinzufügen`;
     addEntryBtn.addEventListener('click', onChange.add);
     listWrapper.append(addEntryBtn);
 
     (items || []).forEach((item, index) => {
       const entry = document.createElement('div');
+      entry.className = 'string-list__entry';
       const input = document.createElement('input');
+      input.className = 'uk-input';
       input.value = item || '';
       input.addEventListener('input', event => onChange.update(index, event.target.value));
       entry.append(input);
 
       const controls = document.createElement('div');
+      controls.className = 'string-list__controls';
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
+      removeBtn.className = 'uk-button uk-button-danger uk-button-small';
       removeBtn.textContent = 'Entfernen';
       removeBtn.addEventListener('click', () => onChange.remove(index));
 
       const moveUp = document.createElement('button');
       moveUp.type = 'button';
+      moveUp.className = 'uk-button uk-button-default uk-button-small';
       moveUp.textContent = '↑';
       moveUp.disabled = index === 0;
       moveUp.addEventListener('click', () => onChange.move(index, -1));
 
       const moveDown = document.createElement('button');
       moveDown.type = 'button';
+      moveDown.className = 'uk-button uk-button-default uk-button-small';
       moveDown.textContent = '↓';
       moveDown.disabled = index === (items?.length || 0) - 1;
       moveDown.addEventListener('click', () => onChange.move(index, 1));
@@ -4017,6 +4033,7 @@ export class BlockContentEditor {
 
   buildHeroForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     const textSection = createFieldSection('Titel & Text', 'Führe die Leser:innen mit einer klaren Einstiegsbotschaft.');
 
@@ -4029,18 +4046,17 @@ export class BlockContentEditor {
     );
 
     const tagToggle = document.createElement('label');
-    tagToggle.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;';
+    tagToggle.className = 'field-toggle';
     const tagCheckbox = document.createElement('input');
     tagCheckbox.type = 'checkbox';
     tagCheckbox.checked = Boolean(block.data.eyebrowAsTag);
     tagCheckbox.addEventListener('change', () => this.updateBlockData(block.id, ['data', 'eyebrowAsTag'], tagCheckbox.checked));
     const tagLabel = document.createElement('span');
     tagLabel.textContent = 'Als Tag/Badge darstellen';
-    tagLabel.style.fontSize = '0.9rem';
+    tagLabel.className = 'field-toggle__label';
     tagToggle.append(tagCheckbox, tagLabel);
     const tagHelper = createHelperText('Stellt den Aufhänger als kompaktes, abgerundetes Label dar.');
     if (tagHelper) {
-      tagHelper.style.marginTop = '4px';
       eyebrowSection.append(tagToggle, tagHelper);
     } else {
       eyebrowSection.append(tagToggle);
@@ -4141,19 +4157,18 @@ export class BlockContentEditor {
     );
 
     const consentToggle = document.createElement('label');
-    consentToggle.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;';
+    consentToggle.className = 'field-toggle';
     const consentCheckbox = document.createElement('input');
     consentCheckbox.type = 'checkbox';
     consentCheckbox.checked = Boolean(block.data.video?.consentRequired);
     consentCheckbox.addEventListener('change', () => this.updateBlockData(block.id, ['data', 'video', 'consentRequired'], consentCheckbox.checked));
     const consentLabel = document.createElement('span');
     consentLabel.textContent = 'DSGVO-Schutz aktivieren';
-    consentLabel.style.fontSize = '0.9rem';
+    consentLabel.className = 'field-toggle__label';
     consentToggle.append(consentCheckbox, consentLabel);
     const consentHelper = createHelperText('Video wird erst nach Cookie-Einwilligung geladen. Ohne Zustimmung erscheint ein Datenschutz-Hinweis.');
     videoSection.append(consentToggle);
     if (consentHelper) {
-      consentHelper.style.marginTop = '4px';
       videoSection.append(consentHelper);
     }
 
@@ -4222,6 +4237,7 @@ export class BlockContentEditor {
 
   buildCtaForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     const copySection = createFieldSection('Titel & Text', 'Mache klar, was hinter dem Call-to-Action steckt.');
     copySection.append(
@@ -4311,6 +4327,7 @@ export class BlockContentEditor {
 
   buildRichTextForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
     const bodyField = document.createElement('div');
     bodyField.dataset.field = 'body';
     bodyField.dataset.richtext = 'true';
@@ -4318,6 +4335,7 @@ export class BlockContentEditor {
     wrapper.append(this.wrapField('Text', bodyField));
 
     const alignmentSelect = document.createElement('select');
+    alignmentSelect.className = 'uk-select';
     ['start', 'center', 'end', 'justify'].forEach(value => {
       const option = document.createElement('option');
       option.value = value;
@@ -4335,6 +4353,7 @@ export class BlockContentEditor {
 
   buildInfoMediaForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     wrapper.append(this.addLabeledInput('Eyebrow', block.data.eyebrow, value => this.updateBlockData(block.id, ['data', 'eyebrow'], value)));
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
@@ -4497,6 +4516,7 @@ export class BlockContentEditor {
 
   buildFeatureListForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     const titleField = document.createElement('div');
     titleField.dataset.field = 'title';
@@ -4608,6 +4628,7 @@ export class BlockContentEditor {
 
   buildProcessStepsForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
     wrapper.append(this.addLabeledInput('Zusammenfassung', block.data.summary, value => this.updateBlockData(block.id, ['data', 'summary'], value), { multiline: true }));
@@ -4683,6 +4704,7 @@ export class BlockContentEditor {
 
   buildTestimonialForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     const quoteField = document.createElement('div');
     quoteField.dataset.field = 'quote';
@@ -4699,6 +4721,7 @@ export class BlockContentEditor {
 
   buildFaqForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     const titleSection = createFieldSection('Abschnittstitel', 'Steuert die Überschrift oberhalb des FAQ-Blocks.');
     titleSection.append(
@@ -4760,6 +4783,7 @@ export class BlockContentEditor {
 
   buildStatStripForm(block) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
 
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
     wrapper.append(
@@ -4940,6 +4964,7 @@ export class BlockContentEditor {
 
   wrapField(labelText, element, options = {}) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'field-wrapper';
     const label = document.createElement('div');
     label.textContent = labelText;
     label.className = 'field-label';

@@ -1381,10 +1381,13 @@ body.admin-page {
 
 .page-editor .field-label {
   font-weight: 600;
-  color: var(--text-body, #111827);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+  color: var(--text-heading, #0b1728);
 }
 
 .page-editor [data-field-label="true"],
+.page-editor .field-wrapper,
 .page-editor .field-label + .field-helper-text {
   display: grid;
   gap: 6px;
@@ -1398,13 +1401,22 @@ body.admin-page {
   box-sizing: border-box;
 }
 
+.page-editor select {
+  max-width: 20rem;
+}
+
+.block-form-fields {
+  display: grid;
+  gap: 16px;
+}
+
 .block-form-section {
   border: 1px solid var(--border-muted, #e5e7eb);
   background: var(--surface-card, #fff);
   border-radius: 12px;
-  padding: 12px;
+  padding: 16px;
   display: grid;
-  gap: 10px;
+  gap: 14px;
   box-sizing: border-box;
 }
 
@@ -1418,7 +1430,8 @@ body.admin-page {
 
 .block-form-section__hint,
 .page-editor .field-helper-text {
-  font-size: 13px;
+  font-size: 0.75rem;
+  line-height: 1.4;
   color: var(--text-muted, #4b5563);
 }
 
@@ -1447,9 +1460,9 @@ body.admin-page {
 
 /* ── Optional section body (inside <details>) ── */
 .optional-section__body {
-  padding: 12px;
+  padding: 16px;
   display: grid;
-  gap: 10px;
+  gap: 14px;
 }
 
 /* ── Optional field card ── */
@@ -1589,6 +1602,50 @@ body.admin-page {
 .collection-item__body {
   display: grid;
   gap: 10px;
+}
+
+/* ── String list (buildStringList) ── */
+.string-list {
+  display: grid;
+  gap: 8px;
+}
+
+.string-list__label {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--text-heading, #0b1728);
+}
+
+.string-list__add {
+  justify-self: start;
+}
+
+.string-list__entry {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.string-list__entry input {
+  min-width: 0;
+}
+
+.string-list__controls {
+  display: flex;
+  gap: 4px;
+}
+
+/* ── Inline toggle (checkbox + label) ── */
+.field-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.field-toggle__label {
+  font-size: 0.9rem;
 }
 
 .qr-img {
@@ -3307,6 +3364,10 @@ body.admin-page {
   .optional-section__body {
     padding: 10px;
     gap: 8px;
+  }
+
+  .block-form-fields {
+    gap: 10px;
   }
 
   .optional-field-card {
