@@ -373,6 +373,7 @@
           "intent": "content",
           "container": {
             "width": "normal",
+            "frame": "none",
             "spacing": "normal"
           }
         }
