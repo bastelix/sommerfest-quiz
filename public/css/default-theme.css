@@ -1,0 +1,339 @@
+/* ══════════════════════════════════════════════════════════
+   Default Theme – Block-level styles
+   Based on the calServer namespace design.
+   Activated via body class .default-theme
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Typography ── */
+.default-theme {
+  --font-family-heading: 'Plus Jakarta Sans', 'Poppins', system-ui, sans-serif;
+  --font-family-body: 'Plus Jakarta Sans', 'Poppins', system-ui, sans-serif;
+  scroll-behavior: smooth;
+}
+.default-theme h1,
+.default-theme h2,
+.default-theme h3,
+.default-theme h4,
+.default-theme .uk-heading-medium,
+.default-theme .uk-heading-small {
+  font-family: var(--font-family-heading);
+}
+
+/* ── Hero section (navy gradient, compact padding) ── */
+.default-theme .section[data-section-intent="hero"] {
+  background: linear-gradient(170deg, #0b1a2e 0%, #122240 100%) !important;
+  --section-padding-outer: clamp(20px, 3vw, 40px);
+  --section-padding-inner: clamp(16px, 2.5vw, 28px);
+  padding-top: clamp(20px, 3vw, 40px);
+  padding-bottom: clamp(20px, 3vw, 40px);
+}
+.default-theme .section[data-section-intent="hero"].section--full .section__inner {
+  padding: clamp(16px, 2.5vw, 28px);
+}
+.default-theme .section[data-section-intent="hero"] .uk-heading-medium {
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  line-height: 1.1;
+  margin-bottom: 0.5em;
+}
+.default-theme .section[data-section-intent="hero"] .uk-text-lead {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  line-height: 1.5;
+}
+
+/* Stat tiles inside hero */
+.default-theme .cs-stat-tile {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  text-align: center;
+  padding: 1.2rem 1rem;
+}
+.default-theme .cs-stat-num {
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 800;
+  font-family: var(--font-family-heading);
+  color: #58a6ff;
+  line-height: 1.1;
+}
+.default-theme .cs-stat-tile .uk-text-small {
+  font-size: 0.82rem;
+}
+.default-theme .section[data-section-intent="hero"] .cs-stat-tile .uk-text-muted {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Hero CTA buttons */
+.default-theme .section[data-section-intent="hero"] .uk-button-primary {
+  background: #1a73e8 !important;
+  color: #fff !important;
+  border-color: #1a73e8 !important;
+  border-radius: 100px;
+  padding: 0 2.2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 44px;
+  height: 44px;
+}
+.default-theme .section[data-section-intent="hero"] .uk-button-primary:hover {
+  background: #1557b0 !important;
+}
+.default-theme .section[data-section-intent="hero"] .uk-button-default {
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.25);
+  border-radius: 100px;
+  padding: 0 2.2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 44px;
+  height: 44px;
+}
+.default-theme .section[data-section-intent="hero"] .uk-button-default:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+/* Hero CTA group spacing */
+.default-theme .hero-cta-group {
+  gap: 0.75rem;
+}
+
+/* ── ProvenExpert badge ── */
+.default-theme .cs-proven-expert {
+  gap: 0.75rem;
+}
+.default-theme .cs-proven-expert__stars {
+  display: flex;
+  gap: 2px;
+}
+.default-theme .cs-star {
+  width: 18px;
+  height: 18px;
+  fill: #eab308;
+}
+.default-theme .cs-proven-expert__text .uk-text-small {
+  color: rgba(255, 255, 255, 0.9);
+}
+.default-theme .cs-proven-expert__text .uk-text-meta {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── Trust bar ── */
+.default-theme .section[data-block-variant="trust_bar"] {
+  background: var(--global-muted-background, #f8f8f8);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+.default-theme .section[data-block-variant="trust_bar"] .uk-subnav-divider > li {
+  padding-left: 1rem;
+}
+
+/* ── Blue icon accent ── */
+.default-theme .cs-blue {
+  color: #1a73e8 !important;
+}
+
+/* ── Feature cards (grid-bullets) ── */
+.default-theme .section[data-block-type="feature_list"] .uk-card {
+  border-top: 3px solid #1a73e8;
+  border-radius: 10px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.default-theme .section[data-block-type="feature_list"] .uk-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* ── Product screenshots (info_media:switcher) ── */
+.default-theme .section[data-block-type="info_media"] .uk-subnav > li > a {
+  font-weight: 600;
+}
+
+/* ── Referenzen (audience_spotlight:tabs) ── */
+.default-theme .section[data-block-type="audience_spotlight"] .uk-card {
+  border-radius: 10px;
+}
+
+/* ── Testimonial slider ── */
+.default-theme .cs-quote-deco {
+  font-size: 4.5rem;
+  line-height: 1;
+  color: rgba(26, 115, 232, 0.12);
+  font-family: Georgia, serif;
+  pointer-events: none;
+}
+.default-theme .cs-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a73e8, #58a6ff);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+.default-theme .section[data-block-type="testimonial"] .uk-card {
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Pricing cards ── */
+.default-theme .section[data-block-type="package_summary"] .uk-card {
+  border-radius: 10px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.default-theme .section[data-block-type="package_summary"] .uk-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+/* Popular plan ring */
+.default-theme .section[data-block-type="package_summary"] .uk-card:has(.uk-label) {
+  box-shadow: 0 0 0 2px #1a73e8;
+}
+.default-theme .section[data-block-type="package_summary"] .uk-label {
+  background: #1a73e8;
+  border-radius: 4px;
+}
+.default-theme .section[data-block-type="package_summary"] .uk-button-primary {
+  border-radius: 100px;
+  background: #1a73e8;
+  font-weight: 600;
+}
+.default-theme .section[data-block-type="package_summary"] .uk-button-primary:hover {
+  background: #1557b0;
+}
+
+/* ── Founder card ── */
+.default-theme .cs-link-btn {
+  border-radius: 100px;
+  font-size: 0.82rem;
+}
+
+/* ── CTA section (highlight intent – navy gradient) ── */
+.default-theme .section[data-section-intent="highlight"] {
+  background: linear-gradient(170deg, #0b1a2e 0%, #122240 100%) !important;
+}
+.default-theme .section[data-section-intent="highlight"] .uk-heading-medium {
+  color: #fff;
+  font-weight: 800;
+}
+.default-theme .section[data-section-intent="highlight"] .uk-text-lead {
+  color: rgba(255, 255, 255, 0.85);
+}
+.default-theme .section[data-section-intent="highlight"] .uk-button-primary {
+  background: #1a73e8 !important;
+  color: #fff !important;
+  border-color: #1a73e8 !important;
+  border-radius: 100px;
+  padding: 0 2rem;
+  font-weight: 600;
+}
+.default-theme .section[data-section-intent="highlight"] .uk-button-primary:hover {
+  background: #1557b0 !important;
+}
+.default-theme .section[data-section-intent="highlight"] .uk-button-default {
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.25);
+  border-radius: 100px;
+  padding: 0 2rem;
+  font-weight: 600;
+}
+.default-theme .section[data-section-intent="highlight"] .uk-button-default:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ── General rounded buttons ── */
+.default-theme .section .uk-button {
+  border-radius: 100px;
+}
+
+/* ── Eyebrow tag style (green hosted badge) ── */
+.default-theme .section[data-section-intent="hero"] .hero-eyebrow-tag {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border-radius: 100px;
+  font-size: 0.82rem;
+  padding: 0.35rem 1rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+.default-theme .section[data-section-intent="hero"] .hero-eyebrow-tag::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='currentColor' d='M16.707 5.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L8 12.586l7.293-7.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E") no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='currentColor' d='M16.707 5.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L8 12.586l7.293-7.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E") no-repeat center / contain;
+  vertical-align: -2px;
+}
+
+/* ── Section header label/eyebrow ── */
+.default-theme .section .uk-text-meta {
+  color: #1a73e8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+}
+
+/* ── Logo blue border ── */
+.default-theme .cs-logo__image {
+  border: 2px solid #1a73e8;
+  border-radius: 8px;
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ── Navbar CTA button ── */
+.default-theme .cs-nav-cta {
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0 1.2rem;
+  margin-right: 0.5rem;
+}
+
+/* ── General card radius ── */
+.default-theme .uk-card {
+  border-radius: 10px;
+}
+
+/* ── FAQ section ── */
+.default-theme .section[data-block-type="faq"] .uk-accordion-title {
+  font-weight: 600;
+}
+
+/* ── Logo / topbar styling ── */
+.default-theme .uk-logo {
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+  font-family: var(--font-family-heading, 'Plus Jakarta Sans', system-ui, sans-serif);
+  color: #0b1a2e;
+}
+.default-theme .qr-topbar .uk-navbar-container {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ── Section heading sizes ── */
+.default-theme .section h2,
+.default-theme .section .uk-heading-small {
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+}
+.default-theme .section .uk-text-lead {
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  line-height: 1.55;
+}
