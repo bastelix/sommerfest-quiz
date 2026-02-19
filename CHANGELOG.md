@@ -307,6 +307,7 @@
 - *(cms)* Add event dropdown and settings form for event_highlight block
 - *(feature_list)* Add clustered-tabs variant for grouped module display
 - *(hero)* Suppress unrelated YouTube recommendations via rel=0
+- *(theme)* Add default theme based on calServer design
 
 ### Fix
 
