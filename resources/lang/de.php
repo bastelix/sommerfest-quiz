@@ -771,7 +771,10 @@ return [
       'label_invoice_status' => 'Rechnungsstatus',
       'label_invoice_pdf' => 'Download PDF Rechnung',
       'label_next_payment' => 'Nächste Zahlung',
+      'label_trial' => 'Testphase',
       'action_cancel_subscription' => 'Abo kündigen',
+      'action_reactivate_subscription' => 'Abo reaktivieren',
+      'text_cancel_scheduled' => 'Kündigung zum Periodenende geplant',
       'stripe_payment_terms' => 'Die Zahlung wird über Stripe abgewickelt. Es gelten die ' .
           '<a href="https://stripe.com/payment-terms/legal" target="_blank" ' .
           'rel="noopener">Stripe-Zahlungsbedingungen</a>.',

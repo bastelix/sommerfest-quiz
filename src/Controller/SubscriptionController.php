@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\StripeService;
 use App\Service\TenantService;
+use App\Service\LogService;
 use App\Infrastructure\Database;
 use Stripe\StripeClient;
 
@@ -61,7 +62,7 @@ class SubscriptionController
                 $info = $service->getCheckoutSessionInfo($sessionId);
                 $customerId = $info['customer_id'];
                 if ($customerId !== null) {
-                    $service->cancelSubscriptionForCustomer($customerId);
+                    $service->cancelSubscriptionForCustomer($customerId, false);
                 } else {
                     $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
                     $envKey = $useSandbox ? 'STRIPE_SANDBOX_SECRET_KEY' : 'STRIPE_SECRET_KEY';
@@ -71,7 +72,11 @@ class SubscriptionController
                     $client->checkout->sessions->expire($sessionId, []);
                 }
             } catch (\Throwable $e) {
-                // ignore errors
+                $logger = LogService::create('stripe');
+                $logger->warning('Failed to cancel onboarding checkout', [
+                    'session' => $sessionId,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
         return $response->withStatus(204);

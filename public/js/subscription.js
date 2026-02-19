@@ -40,6 +40,14 @@
       planDiv.appendChild(planStrong);
       el.appendChild(planDiv);
 
+      // Show trial badge when subscription is in trialing state
+      if (data.subscription_status === 'trialing') {
+        const trialDiv = document.createElement('div');
+        trialDiv.className = 'uk-label uk-label-warning uk-margin-small-top';
+        trialDiv.textContent = el.dataset.labelTrial || 'Trial';
+        el.appendChild(trialDiv);
+      }
+
       const priceDiv = document.createElement('div');
       priceDiv.textContent = `${el.dataset.labelPrice}: ${price}`;
       el.appendChild(priceDiv);
@@ -52,14 +60,44 @@
       statusDiv.textContent = `${el.dataset.labelStatus}: ${data.status || '-'}`;
       el.appendChild(statusDiv);
 
-      const cancelDiv = document.createElement('div');
-      cancelDiv.className = 'uk-margin-top';
-      const cancelLink = document.createElement('a');
-      cancelLink.className = 'uk-button uk-button-danger uk-button-small';
-      cancelLink.href = safeUrl(withBase('/admin/subscription/portal'));
-      cancelLink.textContent = el.dataset.actionCancel;
-      cancelDiv.appendChild(cancelLink);
-      el.appendChild(cancelDiv);
+      // Show notice when subscription is scheduled for cancellation
+      if (data.cancel_at_period_end) {
+        const cancelNotice = document.createElement('div');
+        cancelNotice.className = 'uk-alert uk-alert-warning uk-margin-small-top';
+        const cancelText = document.createElement('p');
+        const endDate = data.next_payment ? new Date(data.next_payment).toLocaleDateString() : '';
+        cancelText.textContent = (el.dataset.textCancelScheduled || 'Cancellation scheduled') +
+          (endDate ? ` (${endDate})` : '');
+        cancelNotice.appendChild(cancelText);
+        el.appendChild(cancelNotice);
+      }
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'uk-margin-top';
+
+      if (data.cancel_at_period_end) {
+        // Show reactivate button when cancel is pending
+        const reactivateLink = document.createElement('a');
+        reactivateLink.className = 'uk-button uk-button-primary uk-button-small';
+        reactivateLink.href = safeUrl(withBase('/admin/subscription/portal'));
+        reactivateLink.textContent = el.dataset.actionReactivate || 'Reactivate';
+        actionsDiv.appendChild(reactivateLink);
+      } else {
+        // Show manage and cancel buttons
+        const manageLink = document.createElement('a');
+        manageLink.className = 'uk-button uk-button-default uk-button-small uk-margin-small-right';
+        manageLink.href = safeUrl(withBase('/admin/subscription/portal'));
+        manageLink.textContent = el.dataset.actionManage || 'Manage';
+        actionsDiv.appendChild(manageLink);
+
+        const cancelLink = document.createElement('a');
+        cancelLink.className = 'uk-button uk-button-danger uk-button-small';
+        cancelLink.href = safeUrl(withBase('/admin/subscription/portal'));
+        cancelLink.textContent = el.dataset.actionCancel;
+        actionsDiv.appendChild(cancelLink);
+      }
+
+      el.appendChild(actionsDiv);
     } catch (e) {
       console.error(e);
     }

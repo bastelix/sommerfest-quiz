@@ -151,24 +151,7 @@ class StripeService
             } else {
                 $item = $session->line_items->data[0] ?? null;
                 $priceId = $item?->price->id ?? '';
-                if ($priceId !== '') {
-                    $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
-                    $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
-                    $map = [];
-                    $starter = getenv($prefix . 'PRICE_STARTER') ?: '';
-                    if ($starter !== '') {
-                        $map[$starter] = 'starter';
-                    }
-                    $standard = getenv($prefix . 'PRICE_STANDARD') ?: '';
-                    if ($standard !== '') {
-                        $map[$standard] = 'standard';
-                    }
-                    $pro = getenv($prefix . 'PRICE_PROFESSIONAL') ?: '';
-                    if ($pro !== '') {
-                        $map[$pro] = 'professional';
-                    }
-                    $plan = $map[$priceId] ?? null;
-                }
+                $plan = self::mapPriceToPlan($priceId);
             }
 
             return [
@@ -185,50 +168,52 @@ class StripeService
     }
 
     /**
-     * Retrieve details for the first active subscription of a customer.
+     * Retrieve details for the first active or trialing subscription of a customer.
      *
-     * @return array{plan:?string, amount:int, currency:string, status:string, next_payment:?string}|null
+     * @return array{
+     *     plan:?string,
+     *     amount:int,
+     *     currency:string,
+     *     status:string,
+     *     subscription_status:string,
+     *     next_payment:?string,
+     *     subscription_id:string,
+     *     cancel_at_period_end:bool
+     * }|null
      */
     public function getActiveSubscription(string $customerId): ?array {
-        $subs = $this->client->subscriptions->all([
-            'customer' => $customerId,
-            'status' => 'active',
-            'limit' => 1,
-            'expand' => ['data.latest_invoice'],
-        ]);
-        $sub = $subs->data[0] ?? null;
+        // Query active subscriptions first, then trialing if none found.
+        foreach (['active', 'trialing'] as $status) {
+            $subs = $this->client->subscriptions->all([
+                'customer' => $customerId,
+                'status' => $status,
+                'limit' => 1,
+                'expand' => ['data.latest_invoice'],
+            ]);
+            $sub = $subs->data[0] ?? null;
+            if ($sub !== null) {
+                break;
+            }
+        }
         if ($sub === null) {
             return null;
         }
         $item = $sub->items->data[0] ?? null;
         $price = $item?->price;
         $priceId = $price->id ?? '';
-
-        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
-        $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
-        $map = [];
-        $starter = getenv($prefix . 'PRICE_STARTER') ?: '';
-        if ($starter !== '') {
-            $map[$starter] = 'starter';
-        }
-        $standard = getenv($prefix . 'PRICE_STANDARD') ?: '';
-        if ($standard !== '') {
-            $map[$standard] = 'standard';
-        }
-        $pro = getenv($prefix . 'PRICE_PROFESSIONAL') ?: '';
-        if ($pro !== '') {
-            $map[$pro] = 'professional';
-        }
-        $plan = $map[$priceId] ?? null;
+        $plan = self::mapPriceToPlan($priceId);
 
         return [
             'plan' => $plan,
             'amount' => (int) ($price->unit_amount ?? 0),
             'currency' => (string) ($price->currency ?? ''),
             'status' => (string) ($sub->latest_invoice->status ?? ''),
+            'subscription_status' => (string) ($sub->status ?? ''),
             'next_payment' => isset($sub->current_period_end)
                 ? date('c', (int) $sub->current_period_end)
                 : null,
+            'subscription_id' => (string) ($sub->id ?? ''),
+            'cancel_at_period_end' => (bool) ($sub->cancel_at_period_end ?? false),
         ];
     }
 
@@ -253,13 +238,17 @@ class StripeService
                 ['id' => $itemId, 'price' => $priceId],
             ],
             'cancel_at_period_end' => false,
+            'proration_behavior' => 'create_prorations',
         ]);
     }
 
     /**
      * Cancel the first subscription for the given customer.
+     *
+     * When $atPeriodEnd is true the subscription stays active until the current
+     * billing period ends (soft cancel).  When false it is cancelled immediately.
      */
-    public function cancelSubscriptionForCustomer(string $customerId): void {
+    public function cancelSubscriptionForCustomer(string $customerId, bool $atPeriodEnd = true): void {
         $subs = $this->client->subscriptions->all([
             'customer' => $customerId,
             'limit' => 1,
@@ -268,7 +257,30 @@ class StripeService
         if ($sub === null) {
             return;
         }
-        $this->client->subscriptions->cancel((string) $sub->id, []);
+        if ($atPeriodEnd) {
+            $this->client->subscriptions->update((string) $sub->id, [
+                'cancel_at_period_end' => true,
+            ]);
+        } else {
+            $this->client->subscriptions->cancel((string) $sub->id, []);
+        }
+    }
+
+    /**
+     * Reactivate a subscription that was scheduled for cancellation at period end.
+     */
+    public function reactivateSubscriptionForCustomer(string $customerId): void {
+        $subs = $this->client->subscriptions->all([
+            'customer' => $customerId,
+            'limit' => 1,
+        ]);
+        $sub = $subs->data[0] ?? null;
+        if ($sub === null) {
+            throw new \RuntimeException('subscription-not-found');
+        }
+        $this->client->subscriptions->update((string) $sub->id, [
+            'cancel_at_period_end' => false,
+        ]);
     }
 
     /**
@@ -304,6 +316,61 @@ class StripeService
         }
 
         return $result;
+    }
+
+    /**
+     * Map a Stripe price ID to the corresponding plan name.
+     *
+     * Centralises the mapping so it is not duplicated across controllers.
+     */
+    public static function mapPriceToPlan(string $priceId): ?string {
+        if ($priceId === '') {
+            return null;
+        }
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
+        $map = [];
+        $starter = getenv($prefix . 'PRICE_STARTER') ?: '';
+        if ($starter !== '') {
+            $map[$starter] = 'starter';
+        }
+        $standard = getenv($prefix . 'PRICE_STANDARD') ?: '';
+        if ($standard !== '') {
+            $map[$standard] = 'standard';
+        }
+        $pro = getenv($prefix . 'PRICE_PROFESSIONAL') ?: '';
+        if ($pro !== '') {
+            $map[$pro] = 'professional';
+        }
+        return $map[$priceId] ?? null;
+    }
+
+    /**
+     * Resolve the price ID for a given plan name.
+     */
+    public static function priceIdForPlan(string $plan): string {
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
+        $map = [
+            'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
+            'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
+            'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
+        ];
+        return $map[$plan] ?? '';
+    }
+
+    /**
+     * Resolve the webhook secret for the current environment (sandbox-aware).
+     */
+    public static function getWebhookSecret(): string {
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        if ($useSandbox) {
+            $secret = getenv('STRIPE_SANDBOX_WEBHOOK_SECRET') ?: '';
+            if ($secret !== '') {
+                return $secret;
+            }
+        }
+        return getenv('STRIPE_WEBHOOK_SECRET') ?: '';
     }
 
     /**
