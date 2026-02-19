@@ -1331,6 +1331,21 @@
     }
   }
 
+  function applyEmbedDefaults(url) {
+    if (!url || url.indexOf('youtube') === -1) {
+      return url;
+    }
+    try {
+      var parsed = new URL(url);
+      if (!parsed.searchParams.has('rel')) {
+        parsed.searchParams.set('rel', '0');
+      }
+      return parsed.toString();
+    } catch (e) {
+      return url;
+    }
+  }
+
   function loadHeroVideo(card) {
     if (!card || card.dataset.state === 'loaded') {
       return;
@@ -1348,7 +1363,7 @@
     }
 
     var iframe = document.createElement('iframe');
-    iframe.src = embedUrl;
+    iframe.src = applyEmbedDefaults(embedUrl);
     iframe.title = embedTitle;
     iframe.loading = 'lazy';
     iframe.setAttribute('allow', ALLOW_ATTR);

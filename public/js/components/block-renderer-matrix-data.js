@@ -834,11 +834,27 @@ function renderHeroMedia(media) {
   return `<div class="uk-cover-container uk-height-medium uk-border-rounded uk-box-shadow-small"><img src="${escapeAttribute(media.image)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="800" height="600"></canvas></div>`;
 }
 
+function applyEmbedDefaults(url) {
+  if (!url || !url.includes('youtube')) {
+    return url;
+  }
+  try {
+    const parsed = new URL(url);
+    if (!parsed.searchParams.has('rel')) {
+      parsed.searchParams.set('rel', '0');
+    }
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
 function renderHeroMediaVideoCard(media, video, referenceLink) {
   if (!video?.embedUrl && !media?.image) {
     return '';
   }
 
+  const embedUrl = video?.embedUrl ? applyEmbedDefaults(video.embedUrl) : '';
   const consentRequired = Boolean(video?.consentRequired);
   const videoTitle = video?.title ? escapeHtml(video.title) : '';
   const videoSubtitle = video?.subtitle ? escapeHtml(video.subtitle) : '';
@@ -850,7 +866,7 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
     : '';
 
   let embedContent = '';
-  if (consentRequired && video?.embedUrl) {
+  if (consentRequired && embedUrl) {
     const consentPlaceholder = `
       <div class="hero-media-card__consent">
         <div class="hero-media-card__consent-icon" aria-hidden="true">
@@ -861,8 +877,8 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
         <p class="hero-media-card__consent-hint">Mit Klick auf &bdquo;Video laden&ldquo; stimmen Sie der Datenübermittlung zu.</p>
       </div>`;
     embedContent = consentPlaceholder;
-  } else if (video?.embedUrl) {
-    embedContent = `<iframe src="${escapeAttribute(video.embedUrl)}" title="${escapeAttribute(video?.title || 'Video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`;
+  } else if (embedUrl) {
+    embedContent = `<iframe src="${escapeAttribute(embedUrl)}" title="${escapeAttribute(video?.title || 'Video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`;
   }
 
   const fallbackImage = media?.image
@@ -890,8 +906,8 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
       </div>`
     : '';
 
-  const consentAttrs = consentRequired && video?.embedUrl
-    ? ` data-hero-video-consent data-embed-url="${escapeAttribute(video.embedUrl)}" data-embed-title="${escapeAttribute(video?.title || 'Video')}"`
+  const consentAttrs = consentRequired && embedUrl
+    ? ` data-hero-video-consent data-embed-url="${escapeAttribute(embedUrl)}" data-embed-title="${escapeAttribute(video?.title || 'Video')}"`
     : '';
 
   return `
