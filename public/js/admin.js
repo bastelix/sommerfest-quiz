@@ -2468,6 +2468,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (planSelect) {
           planSelect.value = currentPlan;
         }
+        document.querySelectorAll('[data-plan-card]').forEach(card => {
+          card.classList.toggle('pricing-plan-card--active', card.dataset.planCard === currentPlan);
+        });
         })
         .catch(() => {});
   }
@@ -2581,6 +2584,9 @@ document.addEventListener('DOMContentLoaded', function () {
             b.textContent = (b.dataset.plan === plan)
               ? (b.dataset.originalText || plan)
               : (window.transUpgradeAction || 'Upgrade');
+          });
+          document.querySelectorAll('[data-plan-card]').forEach(card => {
+            card.classList.toggle('pricing-plan-card--active', card.dataset.planCard === plan);
           });
           notify(window.transUpgradeAction || 'Plan updated', 'success');
           if (typeof window.loadSubscription === 'function') {
