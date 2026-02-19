@@ -199,6 +199,15 @@ const schema = {
       "required": ["type", "variant", "data"]
     },
     {
+      "title": "Event highlight block",
+      "properties": {
+        "type": { "const": "event_highlight" },
+        "variant": { "enum": ["hero", "card", "compact"] },
+        "data": { "$ref": "#/definitions/EventHighlightData" }
+      },
+      "required": ["type", "variant", "data"]
+    },
+    {
       // Deprecated: see docs/calserver-block-consolidation.md
       "title": "System module (deprecated)",
       "description": "Deprecated in favour of info_media switcher variant.",
@@ -552,6 +561,18 @@ const schema = {
         "heading": { "type": "string", "minLength": 1 },
         "limit": { "type": "integer", "minimum": 1, "maximum": 6 },
         "showAllLink": { "type": "boolean" }
+      }
+    },
+    "EventHighlightData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eventSlug"],
+      "properties": {
+        "eventSlug": { "type": "string", "minLength": 1 },
+        "ctaLabel": { "type": "string" },
+        "ctaAriaLabel": { "type": "string" },
+        "showCountdown": { "type": "boolean" },
+        "showDescription": { "type": "boolean" }
       }
     },
     "ContentSliderData": {

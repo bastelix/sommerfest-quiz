@@ -20,6 +20,7 @@ use App\Service\PageContentLoader;
 use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\ProjectSettingsService;
+use App\Service\EventService;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
 use App\Service\MarketingSlugResolver;
@@ -216,6 +217,52 @@ class PageController
                 if ($blockNews !== []) {
                     $marketingPayload['featureData']['landingNews'] = $blockNews;
                     $marketingPayload['featureData']['landingNewsBasePath'] = $this->buildNewsBasePath($request, $newsOwnerSlug);
+                }
+            }
+        }
+
+        // Load event data when event_highlight blocks are present.
+        if (is_array($pageBlocks)) {
+            $eventHighlightSlugs = [];
+            foreach ($pageBlocks as $block) {
+                if (isset($block['type']) && $block['type'] === 'event_highlight'
+                    && isset($block['data']['eventSlug']) && is_string($block['data']['eventSlug'])
+                ) {
+                    $eventHighlightSlugs[] = $block['data']['eventSlug'];
+                }
+            }
+
+            if ($eventHighlightSlugs !== []) {
+                $eventSvc = new EventService($pdo, $this->configService);
+                $eventHighlights = [];
+
+                foreach (array_unique($eventHighlightSlugs) as $slug) {
+                    $event = $eventSvc->getBySlug($slug, $contentNamespace);
+                    if ($event === null) {
+                        $event = $eventSvc->getByUidInNamespace($slug, $contentNamespace);
+                    }
+                    if ($event === null) {
+                        continue;
+                    }
+
+                    $eventConfig = $this->configService->getConfigForEvent($event['uid']);
+
+                    $eventHighlights[$slug] = [
+                        'uid' => $event['uid'],
+                        'slug' => $event['slug'],
+                        'name' => $event['name'],
+                        'start_date' => $event['start_date'] ?? null,
+                        'end_date' => $event['end_date'] ?? null,
+                        'description' => $event['description'] ?? null,
+                        'published' => $event['published'] ?? false,
+                        'logoPath' => $eventConfig['logoPath'] ?? null,
+                        'buttonColor' => $eventConfig['buttonColor'] ?? null,
+                        'backgroundColor' => $eventConfig['backgroundColor'] ?? null,
+                    ];
+                }
+
+                if ($eventHighlights !== []) {
+                    $marketingPayload['featureData']['eventHighlights'] = $eventHighlights;
                 }
             }
         }
@@ -539,6 +586,7 @@ class PageController
             'maintenanceWindowLabel' => null,
             'turnstileEnabled' => false,
             'turnstileSiteKey' => null,
+            'eventHighlights' => [],
         ];
 
         if (($pageFeatures['chatEndpoint'] ?? false) === true) {

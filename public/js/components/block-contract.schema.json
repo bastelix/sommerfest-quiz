@@ -358,6 +358,29 @@
       ]
     },
     {
+      "title": "Event highlight block",
+      "properties": {
+        "type": {
+          "const": "event_highlight"
+        },
+        "variant": {
+          "enum": [
+            "hero",
+            "card",
+            "compact"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/EventHighlightData"
+        }
+      },
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
+    },
+    {
       "title": "System module (deprecated)",
       "description": "Deprecated in favour of info_media switcher variant.",
       "properties": {
@@ -1045,6 +1068,31 @@
           "maximum": 6
         },
         "showAllLink": {
+          "type": "boolean"
+        }
+      }
+    },
+    "EventHighlightData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eventSlug"
+      ],
+      "properties": {
+        "eventSlug": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ctaLabel": {
+          "type": "string"
+        },
+        "ctaAriaLabel": {
+          "type": "string"
+        },
+        "showCountdown": {
+          "type": "boolean"
+        },
+        "showDescription": {
           "type": "boolean"
         }
       }

@@ -2761,6 +2761,284 @@ function renderLatestNews(block, options = {}) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// Event Highlight block
+// ---------------------------------------------------------------------------
+
+function resolveEventHighlightData(eventSlug) {
+  const pageContext = resolveActivePageContext();
+  const eventMap = pageContext?.featureData?.eventHighlights || {};
+  return eventMap[eventSlug] || null;
+}
+
+function formatEventDateRange(startDateStr, endDateStr) {
+  const opts = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  const startLabel = startDateStr
+    ? new Date(startDateStr).toLocaleDateString('de-DE', opts)
+    : '';
+  const endLabel = endDateStr
+    ? new Date(endDateStr).toLocaleDateString('de-DE', opts)
+    : '';
+  if (startLabel && endLabel) {
+    return `${startLabel} – ${endLabel}`;
+  }
+  return startLabel || endLabel || '';
+}
+
+function formatEventTimeLabel(dateStr) {
+  if (!dateStr) {
+    return '';
+  }
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) {
+    return '';
+  }
+  return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    + ' um ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+}
+
+let eventCountdownScriptRendered = false;
+
+function buildEventCountdownElement(startDateStr, blockId) {
+  if (!startDateStr) {
+    return '';
+  }
+  const start = new Date(startDateStr);
+  if (Number.isNaN(start.getTime())) {
+    return '';
+  }
+
+  const elementId = `event-countdown-${escapeAttribute(blockId)}`;
+  const countdownEl = `<div id="${elementId}" class="event-highlight__countdown" data-event-countdown data-start="${escapeAttribute(startDateStr)}"></div>`;
+
+  let scriptEl = '';
+  if (!eventCountdownScriptRendered) {
+    eventCountdownScriptRendered = true;
+    scriptEl = `<script>
+(function initEventCountdowns() {
+  function update(el) {
+    var target = new Date(el.dataset.start);
+    if (Number.isNaN(target.getTime())) { el.textContent = ''; return; }
+    var diff = target.getTime() - Date.now();
+    if (diff <= 0) {
+      el.innerHTML = '<span class="uk-label uk-label-success">Jetzt live!</span>';
+      return;
+    }
+    var s = Math.floor(diff / 1000);
+    var d = Math.floor(s / 86400); s %= 86400;
+    var h = Math.floor(s / 3600); s %= 3600;
+    var m = Math.floor(s / 60); s %= 60;
+    var parts = [];
+    if (d > 0) parts.push(d + 'd');
+    if (h > 0) parts.push(h + 'h');
+    if (m > 0) parts.push(m + 'm');
+    parts.push(s + 's');
+    el.innerHTML = '<span class="uk-label uk-label-warning">' + parts.join(' ') + '</span>';
+  }
+  function tick() {
+    document.querySelectorAll('[data-event-countdown]').forEach(update);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { tick(); setInterval(tick, 1000); });
+  } else {
+    tick(); setInterval(tick, 1000);
+  }
+})();
+</script>`;
+  }
+
+  return countdownEl + scriptEl;
+}
+
+function renderEventHighlightHero(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const isPreview = context === 'preview';
+  const eventSlug = block.data?.eventSlug;
+  const ctaLabel = block.data?.ctaLabel || 'Jetzt starten';
+  const ctaAriaLabel = block.data?.ctaAriaLabel || '';
+  const showCountdown = block.data?.showCountdown !== false;
+  const showDescription = block.data?.showDescription !== false;
+
+  if (isPreview) {
+    const content =
+      '<div class="uk-text-center">' +
+        '<div class="uk-margin-bottom" style="opacity:0.4">' +
+          '<div style="width:120px;height:120px;margin:0 auto;border-radius:50%;background:var(--surface-muted,#eee);display:flex;align-items:center;justify-content:center"><span uk-icon="icon:image;ratio:2"></span></div>' +
+        '</div>' +
+        `<h2 class="uk-heading-medium uk-margin-remove"${buildEditableAttributes(block, 'data.eventSlug', context)} style="opacity:0.5">Event: ${escapeHtml(eventSlug || '…')}</h2>` +
+        '<p class="uk-text-lead uk-margin-small-top" style="opacity:0.3">Eventbeschreibung wird zur Laufzeit geladen</p>' +
+        (showCountdown ? '<p class="uk-text-meta" style="opacity:0.3">Countdown zum Event</p>' : '') +
+        '<div class="uk-margin-medium-top">' +
+          `<span class="uk-button uk-button-primary uk-button-large" style="opacity:0.5">${escapeHtml(ctaLabel)}</span>` +
+        '</div>' +
+      '</div>';
+    return renderSection({ block, variant: 'hero', content, sectionClass: 'event-highlight event-highlight--hero' });
+  }
+
+  const eventData = resolveEventHighlightData(eventSlug);
+  if (!eventData) {
+    return '';
+  }
+
+  const basePath = resolveBasePath();
+
+  const logoHtml = eventData.logoPath
+    ? `<div class="event-highlight__logo uk-margin-bottom"><img src="${escapeAttribute(basePath + eventData.logoPath)}" alt="${escapeAttribute(eventData.name)}" class="event-highlight__logo-img" loading="lazy"></div>`
+    : '';
+
+  const nameHtml = `<h2 class="uk-heading-medium uk-margin-remove">${escapeHtml(eventData.name)}</h2>`;
+
+  const descHtml = showDescription && eventData.description
+    ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(eventData.description)}</p>`
+    : '';
+
+  const scheduleStart = formatEventTimeLabel(eventData.start_date);
+  const scheduleEnd = formatEventTimeLabel(eventData.end_date);
+  let scheduleHtml = '';
+  if (scheduleStart) {
+    scheduleHtml += `<p class="event-highlight__dates uk-text-meta uk-margin-small-top">Start: ${escapeHtml(scheduleStart)}</p>`;
+  }
+  if (scheduleEnd) {
+    scheduleHtml += `<p class="event-highlight__dates uk-text-meta uk-margin-remove-top">Ende: ${escapeHtml(scheduleEnd)}</p>`;
+  }
+
+  const countdownHtml = showCountdown ? buildEventCountdownElement(eventData.start_date, block.id) : '';
+
+  const eventUrl = `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}`;
+  const ariaAttr = ctaAriaLabel ? ` aria-label="${escapeAttribute(ctaAriaLabel)}"` : '';
+  const ctaHtml = `<div class="uk-margin-medium-top"><a class="uk-button uk-button-primary uk-button-large" href="${escapeAttribute(eventUrl)}"${ariaAttr}>${escapeHtml(ctaLabel)}</a></div>`;
+
+  const content = `<div class="uk-text-center">${logoHtml}${nameHtml}${descHtml}${scheduleHtml}${countdownHtml}${ctaHtml}</div>`;
+
+  return renderSection({
+    block,
+    variant: 'hero',
+    content,
+    sectionClass: 'event-highlight event-highlight--hero'
+  });
+}
+
+function renderEventHighlightCard(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const isPreview = context === 'preview';
+  const eventSlug = block.data?.eventSlug;
+  const ctaLabel = block.data?.ctaLabel || 'Zum Event';
+  const ctaAriaLabel = block.data?.ctaAriaLabel || '';
+  const showCountdown = block.data?.showCountdown !== false;
+  const showDescription = block.data?.showDescription !== false;
+
+  if (isPreview) {
+    const content =
+      '<div class="uk-card uk-card-default uk-card-body uk-border-rounded">' +
+        '<div class="uk-grid-small uk-flex-middle" data-uk-grid>' +
+          '<div class="uk-width-auto">' +
+            '<div style="width:64px;height:64px;border-radius:50%;background:var(--surface-muted,#eee);display:flex;align-items:center;justify-content:center;opacity:0.4"><span uk-icon="icon:calendar;ratio:1.5"></span></div>' +
+          '</div>' +
+          '<div class="uk-width-expand">' +
+            `<h3 class="uk-card-title uk-margin-remove"${buildEditableAttributes(block, 'data.eventSlug', context)} style="opacity:0.5">Event: ${escapeHtml(eventSlug || '…')}</h3>` +
+            '<p class="uk-text-meta uk-margin-remove" style="opacity:0.3">Datum wird geladen</p>' +
+          '</div>' +
+          '<div class="uk-width-auto">' +
+            `<span class="uk-button uk-button-primary uk-button-small" style="opacity:0.5">${escapeHtml(ctaLabel)}</span>` +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    return renderSection({ block, variant: 'card', content, sectionClass: 'event-highlight event-highlight--card' });
+  }
+
+  const eventData = resolveEventHighlightData(eventSlug);
+  if (!eventData) {
+    return '';
+  }
+
+  const basePath = resolveBasePath();
+
+  const logoHtml = eventData.logoPath
+    ? `<img src="${escapeAttribute(basePath + eventData.logoPath)}" alt="${escapeAttribute(eventData.name)}" style="width:64px;height:64px;object-fit:contain;border-radius:50%" loading="lazy">`
+    : '<div style="width:64px;height:64px;border-radius:50%;background:var(--surface-muted,#eee);display:flex;align-items:center;justify-content:center"><span uk-icon="icon:calendar;ratio:1.5"></span></div>';
+
+  const nameHtml = `<h3 class="uk-card-title uk-margin-remove">${escapeHtml(eventData.name)}</h3>`;
+
+  const dateRange = formatEventDateRange(eventData.start_date, eventData.end_date);
+  const dateHtml = dateRange
+    ? `<p class="uk-text-meta uk-margin-remove">${escapeHtml(dateRange)}</p>`
+    : '';
+
+  const descHtml = showDescription && eventData.description
+    ? `<p class="uk-text-small uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(eventData.description)}</p>`
+    : '';
+
+  const countdownHtml = showCountdown ? buildEventCountdownElement(eventData.start_date, block.id) : '';
+
+  const eventUrl = `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}`;
+  const ariaAttr = ctaAriaLabel ? ` aria-label="${escapeAttribute(ctaAriaLabel)}"` : '';
+  const ctaHtml = `<a class="uk-button uk-button-primary uk-button-small" href="${escapeAttribute(eventUrl)}"${ariaAttr}>${escapeHtml(ctaLabel)}</a>`;
+
+  const content =
+    '<div class="uk-card uk-card-default uk-card-body uk-border-rounded">' +
+      '<div class="uk-grid-small uk-flex-middle" data-uk-grid>' +
+        `<div class="uk-width-auto">${logoHtml}</div>` +
+        `<div class="uk-width-expand">${nameHtml}${dateHtml}${descHtml}${countdownHtml}</div>` +
+        `<div class="uk-width-auto@s">${ctaHtml}</div>` +
+      '</div>' +
+    '</div>';
+
+  return renderSection({
+    block,
+    variant: 'card',
+    content,
+    sectionClass: 'event-highlight event-highlight--card'
+  });
+}
+
+function renderEventHighlightCompact(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const isPreview = context === 'preview';
+  const eventSlug = block.data?.eventSlug;
+  const ctaLabel = block.data?.ctaLabel || 'Starten';
+  const ctaAriaLabel = block.data?.ctaAriaLabel || '';
+
+  if (isPreview) {
+    const content =
+      '<div class="uk-flex uk-flex-middle uk-flex-between uk-flex-wrap" data-uk-margin>' +
+        '<div class="uk-flex uk-flex-middle uk-flex-wrap" data-uk-margin>' +
+          `<span class="uk-text-bold uk-margin-small-right" style="opacity:0.5"${buildEditableAttributes(block, 'data.eventSlug', context)}>Event: ${escapeHtml(eventSlug || '…')}</span>` +
+          '<span class="uk-text-meta" style="opacity:0.3">Datum wird geladen</span>' +
+        '</div>' +
+        `<span class="uk-button uk-button-primary uk-button-small" style="opacity:0.5">${escapeHtml(ctaLabel)}</span>` +
+      '</div>';
+    return renderSection({ block, variant: 'compact', content, sectionClass: 'event-highlight event-highlight--compact' });
+  }
+
+  const eventData = resolveEventHighlightData(eventSlug);
+  if (!eventData) {
+    return '';
+  }
+
+  const basePath = resolveBasePath();
+  const dateRange = formatEventDateRange(eventData.start_date, eventData.end_date);
+
+  const eventUrl = `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}`;
+  const ariaAttr = ctaAriaLabel ? ` aria-label="${escapeAttribute(ctaAriaLabel)}"` : '';
+  const ctaHtml = `<a class="uk-button uk-button-primary uk-button-small" href="${escapeAttribute(eventUrl)}"${ariaAttr}>${escapeHtml(ctaLabel)}</a>`;
+
+  const content =
+    '<div class="uk-flex uk-flex-middle uk-flex-between uk-flex-wrap" data-uk-margin>' +
+      '<div class="uk-flex uk-flex-middle uk-flex-wrap" data-uk-margin>' +
+        `<span class="uk-text-bold uk-margin-small-right">${escapeHtml(eventData.name)}</span>` +
+        (dateRange ? `<span class="uk-text-meta">${escapeHtml(dateRange)}</span>` : '') +
+      '</div>' +
+      ctaHtml +
+    '</div>';
+
+  return renderSection({
+    block,
+    variant: 'compact',
+    content,
+    sectionClass: 'event-highlight event-highlight--compact'
+  });
+}
+
 export const RENDERER_MATRIX = {
   hero: {
     centered_cta: renderHeroCenteredCta,
@@ -2841,6 +3119,11 @@ export const RENDERER_MATRIX = {
   },
   latest_news: {
     cards: renderLatestNews
+  },
+  event_highlight: {
+    hero: renderEventHighlightHero,
+    card: renderEventHighlightCard,
+    compact: renderEventHighlightCompact
   },
   system_module: {
     switcher: renderLegacySystemModule
