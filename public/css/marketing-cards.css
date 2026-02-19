@@ -64,7 +64,7 @@
     flex-direction: column;
     gap: 12px;
     padding: 28px 28px 32px;
-    border-radius: 18px;
+    border-radius: var(--marketing-card-radius, 18px);
     border: 1px solid transparent;
     transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
@@ -250,7 +250,7 @@
     flex-direction: column;
     gap: 14px;
     padding: 28px 28px 32px;
-    border-radius: 18px;
+    border-radius: var(--marketing-card-radius, 18px);
     border: 1px solid transparent;
     transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
@@ -468,7 +468,7 @@
     flex-direction: column;
     gap: 16px;
     padding: 28px 28px 32px;
-    border-radius: 18px;
+    border-radius: var(--marketing-card-radius, 18px);
     border: 1px solid transparent;
     transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
