@@ -501,6 +501,7 @@
 - Stop tracking generated namespace CSS and auto-rebuild on first request
 - *(preview)* Render editor preview in iframe for responsive fidelity
 - *(menu)* Pass menuId to AI generation endpoint
+- Allow deleting pages with reserved slugs
 
 ### Merge
 
