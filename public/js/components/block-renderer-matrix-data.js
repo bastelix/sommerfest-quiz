@@ -467,6 +467,14 @@ function resolveAppearanceValue(token, fallback) {
   return cssVariable;
 }
 
+/* Map light-surface intent tokens to CSS variable references so the
+   dark-mode cascade in sections.css / variables.css can provide the
+   correct palette without being overridden by inline styles. */
+const THEME_AWARE_SURFACE_VARS = {
+  surface: 'var(--surface)',
+  muted: 'var(--surface-muted)',
+};
+
 function resolveSectionIntentPreset(block) {
   const { intent, isExplicit } = resolveSectionIntentInfo(block);
   const basePreset = SECTION_INTENT_CONFIG[intent] || SECTION_INTENT_CONFIG.content;
@@ -483,9 +491,20 @@ function resolveSectionIntentPreset(block) {
     || activeAppearance?.colors?.sectionDefaultSurface;
   const styleVariables = [];
 
+  /* For light-surface intents (content, plain, feature) use a CSS variable
+     reference instead of the resolved hex value.  This lets the dark-mode
+     rules in variables.css / sections.css take effect because the inline
+     style no longer bakes in a light-only colour. */
+  const themeAwareSurface = THEME_AWARE_SURFACE_VARS[basePreset.surfaceToken];
+
   if (isExplicit && surface) {
-    styleVariables.push(`--section-surface:${surface}`);
-    styleVariables.push(`--section-bg-color:${surface}`);
+    if (themeAwareSurface) {
+      styleVariables.push(`--section-surface:${themeAwareSurface}`);
+      styleVariables.push(`--section-bg-color:${themeAwareSurface}`);
+    } else {
+      styleVariables.push(`--section-surface:${surface}`);
+      styleVariables.push(`--section-bg-color:${surface}`);
+    }
   }
 
   // Hero and highlight intents always need their own dark surface colour,
@@ -494,8 +513,8 @@ function resolveSectionIntentPreset(block) {
   // intent's white text token, breaking contrast (~1:1 ratio).
   const isDarkIntent = intent === 'hero' || intent === 'highlight';
   if (!isExplicit && sectionDefaultSurface && !isDarkIntent) {
-    styleVariables.push('--section-surface:var(--section-default-surface)');
-    styleVariables.push('--section-bg-color:var(--section-default-surface)');
+    styleVariables.push('--section-surface:var(--section-default-surface, var(--surface))');
+    styleVariables.push('--section-bg-color:var(--section-default-surface, var(--surface))');
   }
 
   if (hasDarkSurfaceToken) {
@@ -507,9 +526,14 @@ function resolveSectionIntentPreset(block) {
     );
     styleVariables.push(`--section-text-color:${darkFallback}`);
   } else if (textColor) {
-    // Every intent now carries a textToken (dark text for light surfaces,
-    // light text for dark surfaces) so --section-text-color is always set.
-    styleVariables.push(`--section-text-color:${textColor}`);
+    /* For light-surface intents use the CSS variable fallback from the
+       intent config so text colour responds to theme changes.  Dark-
+       surface intents (highlight, hero) keep the resolved value. */
+    if (themeAwareSurface && basePreset.textToken?.fallback) {
+      styleVariables.push(`--section-text-color:${basePreset.textToken.fallback}`);
+    } else {
+      styleVariables.push(`--section-text-color:${textColor}`);
+    }
   }
 
   return {
