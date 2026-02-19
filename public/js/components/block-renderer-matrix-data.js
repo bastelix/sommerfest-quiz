@@ -1009,7 +1009,7 @@ function renderHeroStatTiles(block, options = {}) {
     const textColumn = `<div class="uk-width-1-1 uk-width-1-2@m">${eyebrow}${headline}${subheadline}${ctas}${compactTiles}${provenExpertHtml}</div>`;
     const videoColumn = videoCard ? `<div class="uk-width-1-1 uk-width-1-2@m">${videoCard}</div>` : '';
     const grid = `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid data-uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 150;">${textColumn}${videoColumn}</div>`;
-    return renderHeroSection({ block, variant: 'stat_tiles', content: grid, sectionModifiers: 'hero-block--stat-tiles-video' });
+    return renderHeroSection({ block, variant: 'stat_tiles', content: grid, sectionModifiers: 'hero-block--media-video hero-block--stat-tiles-video' });
   }
 
   const tilesGrid = statTiles.length
