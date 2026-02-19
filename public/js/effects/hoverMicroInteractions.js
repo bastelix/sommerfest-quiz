@@ -35,7 +35,9 @@ export function initHoverMicroInteractions(root, profile, options = {}) {
 
   // Auto-detect cards when no explicit data-effect hover markers exist.
   if (!elements.length) {
-    elements = Array.from(root.querySelectorAll('.uk-card'));
+    elements = Array.from(root.querySelectorAll(
+      '.uk-card, .usecase-card, .module-card, .news-card, .stat-strip__card, .feature-card, .hero-media-card'
+    ));
   }
 
   if (!elements.length) {
