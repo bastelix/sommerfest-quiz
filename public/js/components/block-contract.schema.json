@@ -650,6 +650,9 @@
         "note": {
           "type": "string"
         },
+        "consentRequired": {
+          "type": "boolean"
+        },
         "link": {
           "$ref": "#/definitions/CallToAction"
         }

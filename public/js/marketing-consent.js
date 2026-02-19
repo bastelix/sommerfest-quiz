@@ -1331,10 +1331,81 @@
     }
   }
 
+  function loadHeroVideo(card) {
+    if (!card || card.dataset.state === 'loaded') {
+      return;
+    }
+
+    var embedUrl = card.getAttribute('data-embed-url');
+    var embedTitle = card.getAttribute('data-embed-title') || 'Video';
+    if (!embedUrl) {
+      return;
+    }
+
+    var embedContainer = card.querySelector('.hero-media-card__embed');
+    if (!embedContainer) {
+      return;
+    }
+
+    var iframe = document.createElement('iframe');
+    iframe.src = embedUrl;
+    iframe.title = embedTitle;
+    iframe.loading = 'lazy';
+    iframe.setAttribute('allow', ALLOW_ATTR);
+    iframe.setAttribute('allowfullscreen', 'true');
+
+    embedContainer.innerHTML = '';
+    embedContainer.appendChild(iframe);
+    card.dataset.state = 'loaded';
+  }
+
+  function initHeroVideoConsent() {
+    var cards = document.querySelectorAll('[data-hero-video-consent]');
+    if (!cards.length) {
+      return;
+    }
+
+    var cardList = Array.prototype.slice.call(cards);
+
+    var loadAll = function () {
+      cardList.forEach(loadHeroVideo);
+    };
+
+    if (marketingAllowed()) {
+      loadAll();
+    } else {
+      var handlePreference = function (event) {
+        if (event && event.detail && event.detail.marketing) {
+          document.removeEventListener(EVENT_NAME, handlePreference);
+          loadAll();
+        }
+      };
+
+      document.addEventListener(EVENT_NAME, handlePreference);
+    }
+
+    cardList.forEach(function (card) {
+      var consentButton = card.querySelector('[data-hero-video-consent-accept]');
+      if (!consentButton) {
+        return;
+      }
+
+      consentButton.addEventListener('click', function () {
+        if (card.dataset.state === 'loaded') {
+          return;
+        }
+
+        ensureMarketingConsent();
+        loadHeroVideo(card);
+      });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', initModuleVideoFullscreen);
   document.addEventListener('DOMContentLoaded', initModuleSwitcherAutoplay);
   document.addEventListener('DOMContentLoaded', initModuleDownloadLinks);
   document.addEventListener('DOMContentLoaded', initHeroBackground);
   document.addEventListener('DOMContentLoaded', initProSealWidgets);
   document.addEventListener('DOMContentLoaded', hideUsecasePdfLinks);
+  document.addEventListener('DOMContentLoaded', initHeroVideoConsent);
 })();
