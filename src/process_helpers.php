@@ -7,8 +7,7 @@ namespace App;
 use Symfony\Component\Process\Process;
 
 /**
- * Run a shell script in the background.
- * Falls back to exec if the Symfony Process component is unavailable.
+ * Run a shell script in the background using exec() with &.
  */
 function runBackgroundProcess(string $script, array $args = [], ?string $logFile = null): void {
     $cmd = array_merge([$script], $args);
@@ -27,30 +26,11 @@ function runBackgroundProcess(string $script, array $args = [], ?string $logFile
         FILE_APPEND
     );
 
-    try {
-        if (!class_exists(Process::class)) {
-            throw new \RuntimeException('Symfony Process component is unavailable.');
-        }
-
-        $process = Process::fromShellCommandline($commandLine);
-        $process->start();
-        return;
-    } catch (\Throwable $e) {
-        $message = sprintf(
-            'runBackgroundProcess failed to start "%s": %s',
-            $escapedCommand,
-            $e->getMessage()
-        );
-
-        error_log($message);
-        file_put_contents(
-            $logFile,
-            '[' . date('c') . '] ERROR ' . $message . PHP_EOL,
-            FILE_APPEND
-        );
-
-        throw $e instanceof \RuntimeException ? $e : new \RuntimeException($message, 0, $e);
-    }
+    // Use exec() with & to fully detach the background process.
+    // Symfony Process::start() is not suitable here because the Process
+    // destructor kills the child when the object goes out of scope.
+    $backgroundCommand = $commandLine . ' &';
+    exec($backgroundCommand);
 }
 
 /**
