@@ -20,20 +20,19 @@ class SubscriptionController
     public function __invoke(Request $request, Response $response): Response {
         $host = $request->getUri()->getHost();
         $parts = explode('.', $host);
-        $mainDomain = getenv('MAIN_DOMAIN') ?: $host;
-        if ($host === $mainDomain || count($parts) < 2) {
-            if ($host === $mainDomain) {
-                $selectUrl = $request->getUri()->getScheme() . '://' . $host . '/admin/tenants';
-                return $response->withHeader('Location', $selectUrl)->withStatus(302);
-            }
-            $response->getBody()->write('Missing tenant context');
-            return $response->withStatus(400);
-        }
-        $sub = $parts[0];
+        $domainType = (string) $request->getAttribute('domainType');
 
         $base = Database::connectFromEnv();
         $tenantService = new TenantService($base);
-        $tenant = $tenantService->getBySubdomain($sub);
+
+        if ($domainType === 'main') {
+            $tenant = $tenantService->getMainTenant();
+        } elseif (count($parts) >= 2) {
+            $tenant = $tenantService->getBySubdomain($parts[0]);
+        } else {
+            $response->getBody()->write('Missing tenant context');
+            return $response->withStatus(400);
+        }
         $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
         $uri = $request->getUri();
         if ($customerId === '') {
