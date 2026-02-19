@@ -515,6 +515,7 @@
 - *(renderer)* Honor container frame 'none' in resolveContainerPreset
 - Use theme-aware vars in resolveSectionBackgroundStyles for color backgrounds
 - *(hero)* Apply video card styles to stat_tiles variant
+- *(effects)* Extend hover micro-interactions to custom card components
 
 ### Merge
 
