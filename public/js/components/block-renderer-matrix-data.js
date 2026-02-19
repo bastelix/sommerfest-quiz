@@ -331,10 +331,20 @@ function resolveSectionBackgroundStyles(background) {
   const dataAttributes = [];
 
   if (background.mode === 'color') {
-    const colorValue = resolveBackgroundColor(background.colorToken);
-    if (colorValue) {
-      styles.push(`--section-bg-color:${colorValue}`);
+    /* For light-surface tokens use the same theme-aware CSS variable
+       references that the intent preset uses.  This prevents a hardcoded
+       light-theme hex value from overriding the preset's theme-aware
+       --section-bg-color later in the inline style attribute. */
+    const themeAwareValue = THEME_AWARE_SURFACE_VARS[background.colorToken];
+    if (themeAwareValue) {
+      styles.push(`--section-bg-color:${themeAwareValue}`);
       dataAttributes.push('data-section-background="color"');
+    } else {
+      const colorValue = resolveBackgroundColor(background.colorToken);
+      if (colorValue) {
+        styles.push(`--section-bg-color:${colorValue}`);
+        dataAttributes.push('data-section-background="color"');
+      }
     }
   }
 
