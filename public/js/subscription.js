@@ -105,19 +105,7 @@
         });
         actionsDiv.appendChild(reactivateBtn);
       } else {
-        // Show manage and cancel buttons
-        const manageBtn = document.createElement('button');
-        manageBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-small-right';
-        manageBtn.textContent = el.dataset.actionManage || 'Manage';
-        manageBtn.addEventListener('click', () => {
-          const table = document.getElementById('planCompareBody');
-          if (table) {
-            const target = table.closest('.uk-overflow-auto') || table;
-            target.scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-        actionsDiv.appendChild(manageBtn);
-
+        // Show cancel button
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'uk-button uk-button-danger uk-button-small';
         cancelBtn.textContent = el.dataset.actionCancel;
