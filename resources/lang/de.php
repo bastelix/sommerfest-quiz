@@ -775,6 +775,7 @@ return [
       'action_cancel_subscription' => 'Abo kündigen',
       'action_reactivate_subscription' => 'Abo reaktivieren',
       'text_cancel_scheduled' => 'Kündigung zum Periodenende geplant',
+      'confirm_cancel_subscription' => 'Möchten Sie Ihr Abonnement wirklich kündigen? Es bleibt bis zum Ende der aktuellen Abrechnungsperiode aktiv.',
       'stripe_payment_terms' => 'Die Zahlung wird über Stripe abgewickelt. Es gelten die ' .
           '<a href="https://stripe.com/payment-terms/legal" target="_blank" ' .
           'rel="noopener">Stripe-Zahlungsbedingungen</a>.',
