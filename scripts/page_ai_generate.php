@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+\App\Support\EnvLoader::loadAndSet(__DIR__ . '/../.env');
+
 use App\Repository\PageAiJobRepository;
 use App\Service\Marketing\PageAiBlockContractValidator;
 use App\Service\Marketing\PageAiErrorMapper;
