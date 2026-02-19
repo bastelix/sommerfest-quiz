@@ -66,7 +66,7 @@ class PageAnchorExtractor
         $unique = [];
         $seen = [];
         foreach ($anchors as $entry) {
-            $anchor = $entry['anchor'] ?? '';
+            $anchor = $entry['anchor'];
             if ($anchor === '' || isset($seen[$anchor])) {
                 continue;
             }
