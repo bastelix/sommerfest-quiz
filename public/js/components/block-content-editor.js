@@ -38,7 +38,8 @@ const BLOCK_TYPE_LABELS = {
   case_showcase: 'Referenzen (alt)',
   cta: 'Call to Action',
   proof: 'Nachweise',
-  latest_news: 'Neuigkeiten'
+  latest_news: 'Neuigkeiten',
+  event_highlight: 'Veranstaltung'
 };
 
 const VARIANT_LABELS = {
@@ -111,6 +112,11 @@ const VARIANT_LABELS = {
   },
   latest_news: {
     cards: 'Karten'
+  },
+  event_highlight: {
+    hero: 'Hero',
+    card: 'Karte',
+    compact: 'Kompakt'
   },
   system_module: {
     switcher: 'Module'
@@ -1445,6 +1451,14 @@ function buildDefaultBlock(type, variant) {
         limit: 3,
         showAllLink: true
       }
+    }),
+    event_highlight: () => ({
+      id: createId(),
+      type: 'event_highlight',
+      variant,
+      data: {
+        eventSlug: 'mein-event'
+      }
     })
   };
 
@@ -1821,6 +1835,49 @@ const SECTION_TEMPLATES = [
       block.data.heading = 'Neuigkeiten';
       block.data.limit = 3;
       block.data.showAllLink = true;
+      return block;
+    }
+  },
+  {
+    id: 'event-highlight-hero',
+    label: 'Veranstaltung (Hero)',
+    description: 'Präsentiert ein Event großformatig mit Logo, Countdown und Start-Button.',
+    type: 'event_highlight',
+    variant: 'hero',
+    build: variant => {
+      const block = getDefaultBlock('event_highlight', variant);
+      block.data.eventSlug = 'mein-event';
+      block.data.ctaLabel = 'Jetzt starten';
+      block.data.showCountdown = true;
+      block.data.showDescription = true;
+      return block;
+    }
+  },
+  {
+    id: 'event-highlight-card',
+    label: 'Veranstaltung (Karte)',
+    description: 'Kompakte Karte mit Event-Info, Datum und direktem Einstieg.',
+    type: 'event_highlight',
+    variant: 'card',
+    build: variant => {
+      const block = getDefaultBlock('event_highlight', variant);
+      block.data.eventSlug = 'mein-event';
+      block.data.ctaLabel = 'Zum Event';
+      block.data.showCountdown = true;
+      block.data.showDescription = true;
+      return block;
+    }
+  },
+  {
+    id: 'event-highlight-compact',
+    label: 'Veranstaltung (Kompakt)',
+    description: 'Einzeilige Event-Vorschau mit Name, Datum und Start-Link.',
+    type: 'event_highlight',
+    variant: 'compact',
+    build: variant => {
+      const block = getDefaultBlock('event_highlight', variant);
+      block.data.eventSlug = 'mein-event';
+      block.data.ctaLabel = 'Starten';
       return block;
     }
   }
