@@ -304,6 +304,7 @@
 - *(cms)* Register event_highlight block in page editor
 - *(hero)* Add viewport height options to hero sections
 - *(hero)* Add DSGVO consent gate for embedded videos
+- *(cms)* Add event dropdown and settings form for event_highlight block
 
 ### Fix
 
