@@ -1398,6 +1398,58 @@ function renderFeatureListSlider(block, options = {}) {
   return renderSection({ block, variant: 'slider', content: `${header}${intro}${nav}${slider}${script}` });
 }
 
+function renderFeatureListClusteredTabs(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const items = normalizeFeatureListItems(block);
+  const groups = Array.isArray(block.data?.groups) ? block.data.groups.filter(g => g && typeof g.label === 'string') : [];
+
+  if (!groups.length) {
+    return renderFeatureListDetailedCards(block, options);
+  }
+
+  const eyebrow = renderEyebrow(block, 'uk-text-center', context);
+  const titleAndLead = renderSectionHeader(block, {
+    headingClass: 'uk-heading-small uk-text-center',
+    subtitleClass: 'uk-text-lead uk-text-center uk-margin-medium-bottom',
+    subtitleField: 'lead',
+    subtitleFallbackField: 'subtitle',
+    context
+  });
+  const header = (eyebrow || titleAndLead) ? `<div class="uk-width-1-1">${eyebrow}${titleAndLead}</div>` : '';
+
+  const tabItems = groups
+    .map(group => `<li><a href="#">${escapeHtml(group.label)}</a></li>`)
+    .join('');
+  const tabNav = `<ul class="uk-flex-center" data-uk-tab data-uk-switcher="animation: uk-animation-fade; swiping: true">${tabItems}</ul>`;
+
+  const switcherId = `feature-clustered-${block.id ? escapeAttribute(block.id) : 'section'}`;
+
+  const panels = groups
+    .map(group => {
+      const groupItems = items.filter(item => item.group === group.id);
+      if (!groupItems.length) {
+        return '<li><div class="uk-text-center uk-text-muted uk-padding">Keine Einträge in dieser Gruppe.</div></li>';
+      }
+      const columns = resolveGridColumns(block, groupItems.length, { maxColumns: 4 });
+      const childClass = buildResponsiveGridClasses(columns, { mode: 'width' });
+      const cards = groupItems
+        .map(item => {
+          const content = renderFeatureListItemContent(item);
+          return `<div class="${childClass}"><div class="uk-card uk-card-default uk-card-hover uk-height-1-1"><div class="uk-card-body">${content}</div></div></div>`;
+        })
+        .join('');
+      return `<li><div class="uk-grid uk-grid-medium uk-grid-match" data-uk-grid>${cards}</div></li>`;
+    })
+    .join('');
+
+  const switcher = `<ul id="${escapeAttribute(switcherId)}" class="uk-switcher uk-margin">${panels}</ul>`;
+
+  const ctas = renderHeroCtas(block.data?.cta);
+  const footer = ctas || '';
+
+  return renderSection({ block, variant: 'clustered-tabs', content: `${header}${tabNav}${switcher}${footer}` });
+}
+
 function normalizeProcessStepsVariant(variant) {
   const mapping = {
     'timeline': 'timeline',
@@ -3112,7 +3164,8 @@ export const RENDERER_MATRIX = {
     'text-columns': (block, options) => renderFeatureList(block, 'text-columns', options),
     'card-stack': (block, options) => renderFeatureList(block, 'card-stack', options),
     stacked_cards: (block, options) => renderFeatureList(block, 'card-stack', options),
-    icon_grid: renderFeatureListGridBullets
+    icon_grid: renderFeatureListGridBullets,
+    'clustered-tabs': renderFeatureListClusteredTabs
   },
   process_steps: {
     'numbered-vertical': (block, options) => renderProcessSteps(block, 'numbered-vertical', options),

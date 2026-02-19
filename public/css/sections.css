@@ -2222,3 +2222,29 @@ body.page-render .qr-page-renderer table {
     padding-right: max(clamp(16px, 4vw, 40px), env(safe-area-inset-right));
   }
 }
+
+/* ------------------------------------------------------------------ */
+/*  Feature list: clustered-tabs variant                               */
+/* ------------------------------------------------------------------ */
+
+.section[data-block-variant="clustered-tabs"] .uk-tab {
+  margin-bottom: clamp(20px, 4vw, 32px);
+}
+
+.section[data-block-variant="clustered-tabs"] .uk-tab > li > a {
+  font-size: clamp(0.9rem, 1.6vw, 1rem);
+  text-transform: none;
+}
+
+.section[data-block-variant="clustered-tabs"] .uk-switcher > :not(.uk-active) {
+  display: none;
+}
+
+.section[data-block-variant="clustered-tabs"] .uk-switcher > .uk-active {
+  animation: clustered-tabs-fade .4s ease both;
+}
+
+@keyframes clustered-tabs-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
