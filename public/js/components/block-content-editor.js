@@ -3979,6 +3979,23 @@ export class BlockContentEditor {
       })
     );
 
+    const consentToggle = document.createElement('label');
+    consentToggle.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;';
+    const consentCheckbox = document.createElement('input');
+    consentCheckbox.type = 'checkbox';
+    consentCheckbox.checked = Boolean(block.data.video?.consentRequired);
+    consentCheckbox.addEventListener('change', () => this.updateBlockData(block.id, ['data', 'video', 'consentRequired'], consentCheckbox.checked));
+    const consentLabel = document.createElement('span');
+    consentLabel.textContent = 'DSGVO-Schutz aktivieren';
+    consentLabel.style.fontSize = '0.9rem';
+    consentToggle.append(consentCheckbox, consentLabel);
+    const consentHelper = createHelperText('Video wird erst nach Cookie-Einwilligung geladen. Ohne Zustimmung erscheint ein Datenschutz-Hinweis.');
+    videoSection.append(consentToggle);
+    if (consentHelper) {
+      consentHelper.style.marginTop = '4px';
+      videoSection.append(consentHelper);
+    }
+
     const referenceSection = createFieldSection('Optional: Referenzlink', 'Platziere einen Referenz- oder Case-Link im Hero.', { optional: true });
     referenceSection.append(
       this.addLabeledInput('Referenz-Linktext', block.data.referenceLink?.label, value => this.updateBlockData(block.id, ['data', 'referenceLink', 'label'], value), {

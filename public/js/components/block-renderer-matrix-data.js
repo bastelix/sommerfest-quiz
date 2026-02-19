@@ -839,6 +839,7 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
     return '';
   }
 
+  const consentRequired = Boolean(video?.consentRequired);
   const videoTitle = video?.title ? escapeHtml(video.title) : '';
   const videoSubtitle = video?.subtitle ? escapeHtml(video.subtitle) : '';
   const videoNote = video?.note ? escapeHtml(video.note) : '';
@@ -847,9 +848,23 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
   const videoLink = video?.link?.href && videoLinkLabel
     ? `<a class="hero-media-card__link" href="${escapeAttribute(video.link.href)}"${videoLinkAria}>${videoLinkLabel}</a>`
     : '';
-  const iframe = video?.embedUrl
-    ? `<iframe src="${escapeAttribute(video.embedUrl)}" title="${escapeAttribute(video?.title || 'Video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`
-    : '';
+
+  let embedContent = '';
+  if (consentRequired && video?.embedUrl) {
+    const consentPlaceholder = `
+      <div class="hero-media-card__consent">
+        <div class="hero-media-card__consent-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <p class="hero-media-card__consent-text">Dieses Video wird von einem externen Anbieter bereitgestellt. Beim Abspielen können personenbezogene Daten übermittelt werden.</p>
+        <button type="button" class="hero-media-card__consent-button" data-hero-video-consent-accept>Video laden</button>
+        <p class="hero-media-card__consent-hint">Mit Klick auf &bdquo;Video laden&ldquo; stimmen Sie der Datenübermittlung zu.</p>
+      </div>`;
+    embedContent = consentPlaceholder;
+  } else if (video?.embedUrl) {
+    embedContent = `<iframe src="${escapeAttribute(video.embedUrl)}" title="${escapeAttribute(video?.title || 'Video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`;
+  }
+
   const fallbackImage = media?.image
     ? `<img src="${escapeAttribute(media.image)}" alt="${escapeAttribute(media?.alt || '')}" loading="lazy">`
     : '';
@@ -875,11 +890,15 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
       </div>`
     : '';
 
+  const consentAttrs = consentRequired && video?.embedUrl
+    ? ` data-hero-video-consent data-embed-url="${escapeAttribute(video.embedUrl)}" data-embed-title="${escapeAttribute(video?.title || 'Video')}"`
+    : '';
+
   return `
-    <div class="hero-media-card">
+    <div class="hero-media-card"${consentAttrs}>
       <div class="hero-media-card__frame">
         <div class="hero-media-card__embed">
-          ${iframe || fallbackImage}
+          ${embedContent || fallbackImage}
         </div>
       </div>
       ${meta}

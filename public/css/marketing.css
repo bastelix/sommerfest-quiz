@@ -1221,6 +1221,64 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
   }
 }
 
+/* ── Hero video consent placeholder ─────────────────────────────── */
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-media-card__consent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: clamp(16px, 4vw, 32px);
+  text-align: center;
+  background: color-mix(in oklab, var(--qr-card) 92%, var(--marketing-primary) 8%);
+  border-radius: inherit;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-media-card__consent-icon {
+  color: var(--qr-muted);
+  opacity: 0.6;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-media-card__consent-text {
+  margin: 0;
+  font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+  line-height: 1.5;
+  color: var(--qr-text);
+  max-width: 36ch;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-media-card__consent-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--marketing-primary) 50%, transparent);
+  background: color-mix(in oklab, var(--marketing-primary) 22%, transparent);
+  color: var(--qr-text);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-media-card__consent-button:hover,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-media-card__consent-button:focus-visible {
+  background: color-mix(in oklab, var(--marketing-primary) 32%, transparent);
+  border-color: color-mix(in oklab, var(--marketing-primary) 68%, transparent);
+  transform: translateY(-1px);
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-media-card__consent-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--qr-muted);
+  max-width: 36ch;
+}
+
 /* ── About page (calhelp-about) ─────────────────────────────────── */
 
 .calhelp-about-page {

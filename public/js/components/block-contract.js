@@ -326,6 +326,7 @@ const schema = {
         "title": { "type": "string" },
         "subtitle": { "type": "string" },
         "note": { "type": "string" },
+        "consentRequired": { "type": "boolean" },
         "link": { "$ref": "#/definitions/CallToAction" }
       }
     },
