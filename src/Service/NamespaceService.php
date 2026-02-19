@@ -103,7 +103,7 @@ final class NamespaceService
     /**
      * @return array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}
      */
-    public function create(string $namespace, ?string $label = null): array
+    public function create(string $namespace, ?string $label = null, ?string $designPreset = null): array
     {
         $normalized = $this->validator->normalize($namespace);
         $this->validator->assertValid($normalized);
@@ -114,7 +114,12 @@ final class NamespaceService
         }
 
         $this->repository->create($normalized, $normalizedLabel);
-        $this->designTokenService->resetToDefaults($normalized);
+
+        if ($designPreset !== null) {
+            $this->designTokenService->importDesign($normalized, $designPreset);
+        } else {
+            $this->designTokenService->resetToDefaults($normalized);
+        }
 
         return $this->repository->find($normalized) ?? [
             'namespace' => $normalized,
