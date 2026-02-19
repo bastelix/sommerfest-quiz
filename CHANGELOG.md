@@ -305,6 +305,7 @@
 - *(hero)* Add viewport height options to hero sections
 - *(hero)* Add DSGVO consent gate for embedded videos
 - *(cms)* Add event dropdown and settings form for event_highlight block
+- *(feature_list)* Add clustered-tabs variant for grouped module display
 
 ### Fix
 
@@ -521,6 +522,7 @@
 - *(consent)* Use MutationObserver for hero video consent init
 - *(css)* Propagate namespace card-style token to sections and marketing cards
 - *(cms)* Pass page namespace to events API in event_highlight form
+- *(subscription)* Use Stripe customer portal in platform mode
 
 ### Merge
 
