@@ -2347,6 +2347,7 @@
             data-action-manage="{{ t('action_open_subscription') }}"
             data-action-reactivate="{{ t('action_reactivate_subscription') }}"
             data-text-cancel-scheduled="{{ t('text_cancel_scheduled') }}"
+            data-confirm-cancel="{{ t('confirm_cancel_subscription') }}"
             data-plan-starter="{{ t('plan_starter') }}"
             data-plan-standard="{{ t('plan_standard') }}"
             data-plan-professional="{{ t('plan_professional') }}"></div>
@@ -2437,9 +2438,6 @@
           </table>
         </div>
         </div>
-        {% endif %}
-        {% if domainType == 'tenant' and hasCustomer %}
-        <p class="uk-margin-top"><a class="uk-button uk-button-text" href="{{ basePath }}/admin/subscription/portal">{{ t('action_open_subscription') }}</a></p>
         {% endif %}
         <script>
           window.upgradeUrl = '{{ basePath }}/admin/subscription';

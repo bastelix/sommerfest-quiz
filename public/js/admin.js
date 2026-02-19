@@ -2019,6 +2019,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const planButtons = document.querySelectorAll('.plan-select');
   const emailInput = document.getElementById('subscription-email');
   const planSelect = document.getElementById('planSelect');
+  let currentActivePlan = '';
   const domainTableRoot = document.querySelector('#domainTable');
   const managementSection = document.querySelector('[data-admin-section="management"]')
     || domainTableRoot?.closest('[data-admin-section]')
@@ -2454,6 +2455,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(r => (r.ok ? r.json() : null))
         .then(data => {
         const currentPlan = data?.plan || '';
+        currentActivePlan = currentPlan;
         planButtons.forEach(btn => {
           const btnPlan = btn.dataset.plan;
           if (!btnPlan) return;
@@ -2562,6 +2564,37 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.addEventListener('click', async () => {
       const plan = btn.dataset.plan;
       if (!plan) return;
+
+      // Existing subscriber: use toggle endpoint for plan change
+      if (currentActivePlan && currentActivePlan !== plan) {
+        btn.disabled = true;
+        try {
+          const res = await apiFetch('/admin/subscription/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ plan })
+          });
+          if (!res.ok) throw new Error('Fehler beim Planwechsel');
+          currentActivePlan = plan;
+          planButtons.forEach(b => {
+            b.disabled = (b.dataset.plan === plan);
+            b.textContent = (b.dataset.plan === plan)
+              ? (b.dataset.originalText || plan)
+              : (window.transUpgradeAction || 'Upgrade');
+          });
+          notify(window.transUpgradeAction || 'Plan updated', 'success');
+          if (typeof window.loadSubscription === 'function') {
+            window.loadSubscription();
+          }
+        } catch (e) {
+          console.error(e);
+          notify(e.message || 'Fehler beim Planwechsel', 'danger');
+          btn.disabled = false;
+        }
+        return;
+      }
+
+      // New subscriber: create Stripe Checkout session
       const payload = { plan, embedded: true };
       if (emailInput) {
         const email = emailInput.value.trim();

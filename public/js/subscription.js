@@ -27,7 +27,11 @@
       const res = await fetch(withBase('/admin/subscription/status'));
       if (!res.ok) return;
       const data = await res.json();
-      if (!data.plan) return;
+      if (!data.plan) {
+        window.currentSubscriptionPlan = null;
+        return;
+      }
+      window.currentSubscriptionPlan = data.plan;
       const planName = el.dataset['plan' + capitalize(data.plan)] || data.plan;
       const price = fmtAmount(data.amount || 0, data.currency || 'eur');
       const next = data.next_payment ? new Date(data.next_payment).toLocaleDateString() : '-';
@@ -75,26 +79,67 @@
       const actionsDiv = document.createElement('div');
       actionsDiv.className = 'uk-margin-top';
 
+      const apiFetch = window.apiFetch || fetch;
+      const notify = window.notify || (() => {});
+
       if (data.cancel_at_period_end) {
         // Show reactivate button when cancel is pending
-        const reactivateLink = document.createElement('a');
-        reactivateLink.className = 'uk-button uk-button-primary uk-button-small';
-        reactivateLink.href = safeUrl(withBase('/admin/subscription/portal'));
-        reactivateLink.textContent = el.dataset.actionReactivate || 'Reactivate';
-        actionsDiv.appendChild(reactivateLink);
+        const reactivateBtn = document.createElement('button');
+        reactivateBtn.className = 'uk-button uk-button-primary uk-button-small';
+        reactivateBtn.textContent = el.dataset.actionReactivate || 'Reactivate';
+        reactivateBtn.addEventListener('click', async () => {
+          reactivateBtn.disabled = true;
+          try {
+            const r = await apiFetch(withBase('/admin/subscription/toggle'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ plan: data.plan })
+            });
+            if (!r.ok) throw new Error('Failed');
+            notify(el.dataset.actionReactivate || 'Reactivated', 'success');
+            loadSubscription();
+          } catch (err) {
+            notify(err.message || 'Error', 'danger');
+            reactivateBtn.disabled = false;
+          }
+        });
+        actionsDiv.appendChild(reactivateBtn);
       } else {
         // Show manage and cancel buttons
-        const manageLink = document.createElement('a');
-        manageLink.className = 'uk-button uk-button-default uk-button-small uk-margin-small-right';
-        manageLink.href = safeUrl(withBase('/admin/subscription/portal'));
-        manageLink.textContent = el.dataset.actionManage || 'Manage';
-        actionsDiv.appendChild(manageLink);
+        const manageBtn = document.createElement('button');
+        manageBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-small-right';
+        manageBtn.textContent = el.dataset.actionManage || 'Manage';
+        manageBtn.addEventListener('click', () => {
+          const table = document.getElementById('planCompareBody');
+          if (table) {
+            const target = table.closest('.uk-overflow-auto') || table;
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+        actionsDiv.appendChild(manageBtn);
 
-        const cancelLink = document.createElement('a');
-        cancelLink.className = 'uk-button uk-button-danger uk-button-small';
-        cancelLink.href = safeUrl(withBase('/admin/subscription/portal'));
-        cancelLink.textContent = el.dataset.actionCancel;
-        actionsDiv.appendChild(cancelLink);
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'uk-button uk-button-danger uk-button-small';
+        cancelBtn.textContent = el.dataset.actionCancel;
+        cancelBtn.addEventListener('click', async () => {
+          const msg = el.dataset.confirmCancel || 'Cancel subscription?';
+          if (!window.confirm(msg)) return;
+          cancelBtn.disabled = true;
+          try {
+            const r = await apiFetch(withBase('/admin/subscription/toggle'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ plan: null })
+            });
+            if (!r.ok) throw new Error('Failed');
+            notify(el.dataset.actionCancel || 'Cancelled', 'success');
+            loadSubscription();
+          } catch (err) {
+            notify(err.message || 'Error', 'danger');
+            cancelBtn.disabled = false;
+          }
+        });
+        actionsDiv.appendChild(cancelBtn);
       }
 
       el.appendChild(actionsDiv);
@@ -169,6 +214,8 @@
       console.error(e);
     }
   }
+
+  window.loadSubscription = loadSubscription;
 
   document.addEventListener('DOMContentLoaded', () => {
     loadSubscription();
