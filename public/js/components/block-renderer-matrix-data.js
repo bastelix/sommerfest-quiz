@@ -421,8 +421,6 @@ function resolveContainerPreset(block) {
     innerClass = '';
   } else if (isDark) {
     innerClass = 'section__inner--accent';
-  } else if (container.spacing !== 'generous' && container.width === 'normal') {
-    innerClass = 'section__inner--panel';
   }
 
   const surfaceToken = isDark
