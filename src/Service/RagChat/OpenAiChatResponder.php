@@ -27,7 +27,7 @@ final class OpenAiChatResponder extends HttpChatResponder
         'RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS' => 'max_completion_tokens',
     ];
 
-    private const DEFAULT_MAX_COMPLETION_TOKENS = 4096;
+    private const DEFAULT_MAX_COMPLETION_TOKENS = 16384;
 
     private string $model;
 
