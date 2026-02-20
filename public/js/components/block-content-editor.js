@@ -3967,6 +3967,147 @@ export class BlockContentEditor {
     return wrapper;
   }
 
+  addIconPickerInput(labelText, value, onChange) {
+    const wrapper = document.createElement('label');
+    wrapper.dataset.fieldLabel = 'true';
+
+    const label = document.createElement('div');
+    label.className = 'field-label';
+    label.textContent = labelText;
+    wrapper.append(label);
+
+    const inputRow = document.createElement('div');
+    inputRow.className = 'icon-picker__input-row';
+
+    const preview = document.createElement('span');
+    preview.className = 'icon-picker__preview';
+    if (value) {
+      preview.setAttribute('data-uk-icon', `icon: ${value}`);
+    }
+    inputRow.append(preview);
+
+    const input = document.createElement('input');
+    input.className = 'uk-input icon-picker__text-input';
+    input.value = value ?? '';
+    input.placeholder = 'z.\u202fB. check, star, bolt …';
+    input.addEventListener('input', event => {
+      const v = event.target.value;
+      onChange(v);
+      preview.removeAttribute('data-uk-icon');
+      preview.innerHTML = '';
+      if (v) {
+        preview.setAttribute('data-uk-icon', `icon: ${v}`);
+        if (window.UIkit) UIkit.icon(preview, { icon: v });
+      }
+    });
+    inputRow.append(input);
+
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'uk-button uk-button-default uk-button-small icon-picker__toggle';
+    toggle.innerHTML = '<span data-uk-icon="icon: grid; ratio: 0.85;"></span>';
+    toggle.title = 'Icon-Auswahl öffnen';
+    inputRow.append(toggle);
+    wrapper.append(inputRow);
+
+    const dropdown = document.createElement('div');
+    dropdown.className = 'icon-picker__dropdown';
+    dropdown.hidden = true;
+
+    const searchRow = document.createElement('div');
+    searchRow.className = 'icon-picker__search-row';
+    const searchInput = document.createElement('input');
+    searchInput.className = 'uk-input uk-form-small icon-picker__search';
+    searchInput.type = 'search';
+    searchInput.placeholder = 'Icons durchsuchen …';
+    searchRow.append(searchInput);
+    dropdown.append(searchRow);
+
+    const grid = document.createElement('div');
+    grid.className = 'icon-picker__grid';
+    dropdown.append(grid);
+
+    const ICON_CATALOG = [
+      { group: 'Allgemein', icons: ['check', 'close', 'plus', 'minus', 'star', 'heart', 'bolt', 'bell', 'bookmark', 'tag', 'ban', 'info', 'question', 'warning', 'settings', 'cog', 'search', 'home', 'grid', 'list', 'hashtag', 'happy', 'clock', 'calendar', 'history', 'sun', 'moon', 'handbook', 'future'] },
+      { group: 'Medien', icons: ['image', 'camera', 'play', 'video-camera', 'microphone', 'tv', 'album', 'thumbnails', 'file', 'file-text', 'file-pdf', 'file-edit', 'folder', 'copy', 'code', 'print'] },
+      { group: 'Navigation', icons: ['arrow-up', 'arrow-down', 'arrow-left', 'arrow-right', 'arrow-up-right', 'chevron-up', 'chevron-down', 'chevron-left', 'chevron-right', 'chevron-double-left', 'chevron-double-right', 'triangle-up', 'triangle-down', 'triangle-left', 'triangle-right', 'expand', 'shrink', 'move', 'forward', 'reply', 'refresh', 'arrow-down-arrow-up', 'sorting'] },
+      { group: 'Kommunikation', icons: ['mail', 'comment', 'commenting', 'comments', 'receiver', 'phone', 'phone-landscape', 'social', 'users', 'user', 'location', 'world', 'link', 'link-external', 'push', 'pull', 'rss'] },
+      { group: 'Geräte', icons: ['desktop', 'laptop', 'tablet', 'tablet-landscape', 'server', 'database', 'cloud-upload', 'cloud-download', 'download', 'upload'] },
+      { group: 'Sicherheit', icons: ['lock', 'unlock', 'key', 'shield', 'fingerprint', 'eye', 'eye-slash', 'sign-in', 'sign-out', 'credit-card'] },
+      { group: 'Bearbeiten', icons: ['pencil', 'paint-bucket', 'bold', 'italic', 'strikethrough', 'quote-right', 'nut', 'crosshairs', 'trash', 'bag', 'cart', 'lifesaver'] },
+      { group: 'Marken', icons: ['github', 'github-alt', 'google', 'facebook', 'instagram', 'x', 'linkedin', 'youtube', 'vimeo', 'tiktok', 'discord', 'whatsapp', 'telegram', 'signal', 'bluesky', 'mastodon', 'reddit', 'pinterest', 'dribbble', 'behance', 'wordpress', 'apple', 'android', 'android-robot', 'microsoft', 'uikit'] }
+    ];
+
+    const renderGrid = (filter) => {
+      grid.innerHTML = '';
+      const q = (filter || '').toLowerCase().trim();
+      ICON_CATALOG.forEach(category => {
+        const filtered = q
+          ? category.icons.filter(n => n.includes(q))
+          : category.icons;
+        if (!filtered.length) return;
+
+        const groupLabel = document.createElement('div');
+        groupLabel.className = 'icon-picker__group-label';
+        groupLabel.textContent = category.group;
+        grid.append(groupLabel);
+
+        const row = document.createElement('div');
+        row.className = 'icon-picker__group-icons';
+        filtered.forEach(name => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'icon-picker__icon-btn';
+          if (name === input.value) btn.classList.add('icon-picker__icon-btn--active');
+          btn.title = name;
+          btn.innerHTML = `<span data-uk-icon="icon: ${name};"></span>`;
+          btn.addEventListener('click', () => {
+            input.value = name;
+            onChange(name);
+            preview.removeAttribute('data-uk-icon');
+            preview.innerHTML = '';
+            preview.setAttribute('data-uk-icon', `icon: ${name}`);
+            if (window.UIkit) UIkit.icon(preview, { icon: name });
+            dropdown.hidden = true;
+            grid.querySelectorAll('.icon-picker__icon-btn--active').forEach(b => b.classList.remove('icon-picker__icon-btn--active'));
+            btn.classList.add('icon-picker__icon-btn--active');
+          });
+          row.append(btn);
+        });
+        grid.append(row);
+      });
+      if (window.UIkit) UIkit.update(grid);
+    };
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropdown.hidden = !dropdown.hidden;
+      if (!dropdown.hidden) {
+        searchInput.value = '';
+        renderGrid('');
+        searchInput.focus();
+      }
+    });
+
+    searchInput.addEventListener('input', () => renderGrid(searchInput.value));
+
+    const closeOnOutsideClick = (e) => {
+      if (!dropdown.hidden && !wrapper.contains(e.target)) {
+        dropdown.hidden = true;
+      }
+    };
+    document.addEventListener('click', closeOnOutsideClick, true);
+
+    wrapper.append(dropdown);
+
+    if (value && window.UIkit) {
+      requestAnimationFrame(() => UIkit.icon(preview, { icon: value }));
+    }
+
+    return wrapper;
+  }
+
   buildStringList(items, label, onChange) {
     const listWrapper = document.createElement('div');
     listWrapper.className = 'string-list';
@@ -4590,7 +4731,7 @@ export class BlockContentEditor {
       this.mountRichText(descField, item.description, value => this.updateFeatureItem(block.id, item.id, 'description', value));
 
       const body = [
-        this.addLabeledInput('Icon', item.icon, value => this.updateFeatureItem(block.id, item.id, 'icon', value)),
+        this.addIconPickerInput('Icon', item.icon, value => this.updateFeatureItem(block.id, item.id, 'icon', value)),
         this.addLabeledInput('Titel', item.title, value => this.updateFeatureItem(block.id, item.id, 'title', value)),
         this.wrapField('Beschreibung', descField)
       ];
@@ -4828,7 +4969,7 @@ export class BlockContentEditor {
         this.addLabeledInput('ID', metric.id, value => this.updateStatStripMetric(block.id, metric.id, 'id', value)),
         this.addLabeledInput('Wert', metric.value, value => this.updateStatStripMetric(block.id, metric.id, 'value', value)),
         this.addLabeledInput('Label', metric.label, value => this.updateStatStripMetric(block.id, metric.id, 'label', value)),
-        this.addLabeledInput('Icon', metric.icon, value => this.updateStatStripMetric(block.id, metric.id, 'icon', value)),
+        this.addIconPickerInput('Icon', metric.icon, value => this.updateStatStripMetric(block.id, metric.id, 'icon', value)),
         this.addLabeledInput('Tooltip', metric.tooltip, value => this.updateStatStripMetric(block.id, metric.id, 'tooltip', value)),
         this.addLabeledInput('Stand (as of)', metric.asOf, value => this.updateStatStripMetric(block.id, metric.id, 'asOf', value)),
         this.addLabeledInput(
