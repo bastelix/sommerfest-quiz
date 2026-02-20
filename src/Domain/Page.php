@@ -11,6 +11,10 @@ use JsonSerializable;
  */
 class Page implements JsonSerializable
 {
+    public const STATUS_DRAFT = 'draft';
+    public const STATUS_PUBLISHED = 'published';
+    public const STATUS_ARCHIVED = 'archived';
+
     private int $id;
 
     private string $namespace;
@@ -101,6 +105,10 @@ class Page implements JsonSerializable
 
     public function getStatus(): ?string {
         return $this->status;
+    }
+
+    public function isPublished(): bool {
+        return $this->status === self::STATUS_PUBLISHED;
     }
 
     public function getLanguage(): ?string {

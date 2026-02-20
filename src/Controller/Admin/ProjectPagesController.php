@@ -565,6 +565,57 @@ class ProjectPagesController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function updatePageStatus(Request $request, Response $response, array $args): Response
+    {
+        $pageId = (int) ($args['pageId'] ?? 0);
+        if ($pageId <= 0) {
+            return $response->withStatus(400);
+        }
+
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $page = $this->pageService->findById($pageId);
+        if ($page === null || $page->getNamespace() !== $namespace) {
+            return $response->withStatus(404);
+        }
+
+        $payload = $request->getParsedBody();
+        if (!is_array($payload)) {
+            $contentType = $request->getHeaderLine('Content-Type');
+            $rawBody = (string) $request->getBody();
+            if (stripos($contentType, 'application/json') !== false && $rawBody !== '') {
+                $payload = json_decode($rawBody, true);
+            }
+        }
+
+        $status = is_array($payload) ? (string) ($payload['status'] ?? '') : '';
+
+        try {
+            $updated = $this->pageService->updateStatus($pageId, $status);
+        } catch (\InvalidArgumentException $exception) {
+            $response->getBody()->write(json_encode([
+                'error' => $exception->getMessage(),
+            ], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
+        } catch (\RuntimeException $exception) {
+            $response->getBody()->write(json_encode([
+                'error' => $exception->getMessage(),
+            ], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode([
+            'page' => $updated,
+        ], JSON_PRETTY_PRINT));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     public function wiki(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);

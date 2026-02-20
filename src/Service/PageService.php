@@ -627,6 +627,29 @@ class PageService
         return $renamedPage;
     }
 
+    public function updateStatus(int $pageId, string $status): Page
+    {
+        if (!in_array($status, [
+            Page::STATUS_DRAFT,
+            Page::STATUS_PUBLISHED,
+            Page::STATUS_ARCHIVED,
+        ], true)) {
+            throw new InvalidArgumentException('Ungültiger Status: ' . $status);
+        }
+
+        $page = $this->findById($pageId);
+        if ($page === null) {
+            throw new RuntimeException('Seite nicht gefunden.');
+        }
+
+        $stmt = $this->pdo->prepare(
+            'UPDATE pages SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+        );
+        $stmt->execute([$status, $pageId]);
+
+        return $this->findById($pageId);
+    }
+
     private function loadCreatedPage(string $namespace, string $slug): Page {
         $page = $this->findByKey($namespace, $slug);
         if ($page === null) {

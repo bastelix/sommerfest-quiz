@@ -827,6 +827,12 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         return $controller->updateStartpage($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->post('/admin/pages/{pageId:[0-9]+}/status', function (Request $request, Response $response, array $args) {
+        $controller = new ProjectPagesController();
+
+        return $controller->updatePageStatus($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
     $app->post('/admin/pages/{pageId:[0-9]+}/wiki/theme', function (
         Request $request,
         Response $response,

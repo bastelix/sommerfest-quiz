@@ -149,6 +149,19 @@ class PageController
             return $response->withStatus(404);
         }
 
+        $pageStatus = $page->getStatus();
+        if ($pageStatus !== null && $pageStatus !== Page::STATUS_PUBLISHED) {
+            $view = Twig::fromRequest($request);
+            return $view->render(
+                $response->withStatus(503),
+                'marketing/coming_soon.twig',
+                [
+                    'pageTitle' => $page->getTitle(),
+                    'requestedHost' => $request->getUri()->getHost(),
+                ]
+            );
+        }
+
         $contentNamespace = $page->getNamespace();
         $pageNamespace = $contentNamespace;
         $designNamespace = trim((string) ($request->getAttribute('pageNamespace')

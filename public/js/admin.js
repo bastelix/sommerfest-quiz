@@ -654,6 +654,101 @@ const updateMenuBadge = (pageId, menuLabel) => {
   }
 };
 
+const updateStatusBadge = (pageId, status) => {
+  const existing = document.querySelector('[data-status-badge="' + pageId + '"]');
+  if (!existing) return;
+  existing.className = 'uk-label uk-margin-small-left';
+  if (status === 'published') {
+    existing.classList.add('uk-label-success');
+    existing.textContent = 'Veröffentlicht';
+  } else if (status === 'archived') {
+    existing.classList.add('uk-label-warning');
+    existing.textContent = 'Archiviert';
+  } else {
+    existing.textContent = 'Entwurf';
+  }
+};
+
+let pageStatusPending = null;
+
+const ensurePageStatusModal = () => {
+  if (document.getElementById('pageStatusModal')) return;
+  const el = document.createElement('div');
+  el.id = 'pageStatusModal';
+  el.setAttribute('uk-modal', '');
+  el.innerHTML = [
+    '<div class="uk-modal-dialog uk-modal-body">',
+    '  <h3 class="uk-modal-title">Status ändern</h3>',
+    '  <p id="pageStatusHint" class="uk-text-meta"></p>',
+    '  <label class="uk-form-label" for="pageStatusSelect">Status auswählen</label>',
+    '  <select id="pageStatusSelect" class="uk-select">',
+    '    <option value="draft">Entwurf</option>',
+    '    <option value="published">Veröffentlicht</option>',
+    '    <option value="archived">Archiviert</option>',
+    '  </select>',
+    '  <div id="pageStatusError" class="uk-text-danger uk-margin-small-top" hidden></div>',
+    '  <div class="uk-margin-top uk-text-right">',
+    '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
+    '    <button id="pageStatusSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">Speichern</button>',
+    '  </div>',
+    '</div>'
+  ].join('\n');
+  document.body.appendChild(el);
+
+  el.addEventListener('hidden', () => { pageStatusPending = null; });
+
+  document.getElementById('pageStatusSave').addEventListener('click', async () => {
+    if (!pageStatusPending) return;
+    const { node } = pageStatusPending;
+    const select = document.getElementById('pageStatusSelect');
+    const errorEl = document.getElementById('pageStatusError');
+    const newStatus = select.value;
+    const csrfToken = getCsrfToken();
+
+    if (!csrfToken) {
+      errorEl.textContent = 'CSRF-Token fehlt. Bitte Seite neu laden.';
+      errorEl.hidden = false;
+      return;
+    }
+
+    errorEl.hidden = true;
+    const namespaceParam = '?namespace=' + encodeURIComponent(node.namespace || 'default');
+
+    try {
+      const resp = await fetch(
+        withBase('/admin/pages/' + node.id + '/status' + namespaceParam),
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+          body: JSON.stringify({ status: newStatus })
+        }
+      );
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.error || 'Fehler: ' + resp.status);
+      }
+      node.status = newStatus;
+      updateStatusBadge(node.id, newStatus);
+      UIkit.modal('#pageStatusModal').hide();
+      window.notify('Seitenstatus wurde aktualisiert.', 'success');
+    } catch (error) {
+      errorEl.textContent = error.message || 'Unbekannter Fehler';
+      errorEl.hidden = false;
+    }
+  });
+};
+
+const openPageStatusModal = (node) => {
+  ensurePageStatusModal();
+  pageStatusPending = { node };
+  const hint = document.getElementById('pageStatusHint');
+  hint.textContent = (node.title || node.slug) + ' (/' + node.slug + ')';
+  const select = document.getElementById('pageStatusSelect');
+  select.value = node.status || 'draft';
+  document.getElementById('pageStatusError').hidden = true;
+  UIkit.modal('#pageStatusModal').show();
+};
+
 const ensureMenuAssignModal = () => {
   if (document.getElementById('menuAssignModal')) return;
   const el = document.createElement('div');
@@ -870,6 +965,21 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
       menuBadge.title = 'Top-Menü: ' + menuAssignment.menuLabel;
       meta.appendChild(menuBadge);
     }
+    if (node.status) {
+      const statusBadge = document.createElement('span');
+      statusBadge.className = 'uk-label uk-margin-small-left';
+      statusBadge.setAttribute('data-status-badge', node.id);
+      if (node.status === 'published') {
+        statusBadge.classList.add('uk-label-success');
+        statusBadge.textContent = 'Veröffentlicht';
+      } else if (node.status === 'archived') {
+        statusBadge.classList.add('uk-label-warning');
+        statusBadge.textContent = 'Archiviert';
+      } else {
+        statusBadge.textContent = 'Entwurf';
+      }
+      meta.appendChild(statusBadge);
+    }
     if (meta.childElementCount > 0) {
       row.appendChild(meta);
     }
@@ -916,6 +1026,18 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
         menuLi.appendChild(menuLink);
         nav.appendChild(menuLi);
       }
+
+      const statusLi = document.createElement('li');
+      const statusLink = document.createElement('a');
+      statusLink.href = '#';
+      statusLink.innerHTML = '<span uk-icon="icon: bolt; ratio: 0.8" class="uk-margin-small-right"></span>Status ändern';
+      statusLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        UIkit.dropdown(dropdown).hide(false);
+        openPageStatusModal(node);
+      });
+      statusLi.appendChild(statusLink);
+      nav.appendChild(statusLi);
 
       const divider = document.createElement('li');
       divider.className = 'uk-nav-divider';
