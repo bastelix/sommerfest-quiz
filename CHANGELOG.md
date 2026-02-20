@@ -658,6 +658,7 @@
 - *(calserver)* Redesign trust-bar section as chip/badge layout
 - *(editor)* Improve block configuration form UI hierarchy and spacing
 - *(ui)* Modernize customer portal page layout
+- *(editor)* Strengthen input field contrast and add rich-text borders
 
 ### Test
 
