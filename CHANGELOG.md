@@ -533,6 +533,7 @@
 - Load .env in page AI generation script and detach background process
 - *(editor)* Add padding to optional details section content fields
 - *(subscription)* Use reactivateSubscriptionForCustomer for pending cancellations
+- *(ai)* Increase default max_completion_tokens to 16384
 
 ### Merge
 
