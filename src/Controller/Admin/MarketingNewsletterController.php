@@ -157,7 +157,7 @@ class MarketingNewsletterController
         ) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
-                'label' => 'nicht gespeichert',
+                'label' => 'label_namespace_not_saved',
                 'is_active' => false,
                 'created_at' => null,
                 'updated_at' => null,
@@ -174,7 +174,7 @@ class MarketingNewsletterController
                 ) {
                     $availableNamespaces[] = [
                         'namespace' => $allowedNamespace,
-                        'label' => 'nicht gespeichert',
+                        'label' => 'label_namespace_not_saved',
                         'is_active' => false,
                         'created_at' => null,
                         'updated_at' => null,

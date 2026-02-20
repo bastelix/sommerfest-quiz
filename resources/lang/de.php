@@ -1560,4 +1560,25 @@ return [
     'text_design_preset_midnight' => 'Dunkler Look mit kühlem Akzent.',
     'text_design_preset_monochrome' => 'Schwarz/Weiß mit maximalem Kontrast.',
     'text_design_preset_uikit' => 'Neutrale UIkit-Standardfarben als Basis.',
+
+    // Namespace labels (controllers)
+    'label_namespace_not_saved' => 'nicht gespeichert',
+    'label_namespace_inactive' => 'inaktiv',
+
+    // Controller error/flash messages
+    'error_wiki_invalid_color' => 'Ungültiger Farbwert.',
+    'error_wiki_invalid_stylesheet_url' => 'Ungültige Stylesheet-URL.',
+    'error_wiki_invalid_logo_url' => 'Ungültige Logo-URL.',
+    'error_namespace_resolve_failed' => 'Namespace konnte nicht aufgelöst werden.',
+    'error_page_not_found_in_namespace' => 'Seite "%s" existiert nicht im Namespace "%s".',
+    'error_design_no_preset_selected' => 'Kein Design-Preset ausgewählt.',
+    'notify_design_preset_imported' => 'Design-Preset „%s" erfolgreich importiert.',
+    'error_design_preset_not_found' => 'Design-Preset „%s" wurde nicht gefunden.',
+    'notify_design_reset' => 'Design auf Standard zurückgesetzt.',
+    'notify_design_behavior_saved' => 'Verhalten-Einstellungen gespeichert.',
+    'notify_design_css_saved' => 'Eigenes CSS gespeichert.',
+    'error_invalid_json_request' => 'Ungültige Anfrage: JSON-Body fehlt oder ist ungültig.',
+    'error_no_page_selected' => 'Keine Seite ausgewählt. Bitte eine Seite auswählen und erneut versuchen.',
+    'error_page_not_found_or_locked' => 'Die ausgewählte Seite wurde nicht gefunden oder ist für SEO-Import gesperrt.',
+    'error_startpage_save_failed' => 'Die Startseite konnte nicht gespeichert werden.',
 ];

@@ -348,7 +348,7 @@ class PageService
             $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
-            throw new RuntimeException('Die Startseite konnte nicht gespeichert werden.', 0, $exception);
+            throw new RuntimeException('error_startpage_save_failed', 0, $exception);
         }
     }
 

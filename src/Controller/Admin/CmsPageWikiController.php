@@ -107,7 +107,11 @@ final class CmsPageWikiController
             $themePayload = $this->normalizeThemePayload($body);
             $theme = $this->themeConfigService->saveThemeForSlug($namespace, $page->getSlug(), $themePayload);
         } catch (RuntimeException $exception) {
-            $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
+            $translator = $request->getAttribute('translator');
+            $message = $translator instanceof \App\Service\TranslationService
+                ? $translator->translate($exception->getMessage())
+                : $exception->getMessage();
+            $response->getBody()->write(json_encode(['error' => $message]));
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
@@ -274,7 +278,7 @@ final class CmsPageWikiController
                     continue;
                 }
                 if (!preg_match('/^#([0-9a-fA-F]{6})$/', $colorValue)) {
-                    throw new RuntimeException('Ungültiger Farbwert.');
+                    throw new RuntimeException('error_wiki_invalid_color');
                 }
                 $colors[$colorKey] = strtolower($colorValue);
             }
@@ -285,7 +289,7 @@ final class CmsPageWikiController
 
         foreach ($stylesheets as $stylesheet) {
             if (!$this->isValidUrl($stylesheet)) {
-                throw new RuntimeException('Ungültige Stylesheet-URL.');
+                throw new RuntimeException('error_wiki_invalid_stylesheet_url');
             }
         }
 
@@ -294,7 +298,7 @@ final class CmsPageWikiController
             $logoCandidate = trim((string) $body['logoUrl']);
             if ($logoCandidate !== '') {
                 if (!$this->isValidUrl($logoCandidate)) {
-                    throw new RuntimeException('Ungültige Logo-URL.');
+                    throw new RuntimeException('error_wiki_invalid_logo_url');
                 }
                 $logoUrl = $logoCandidate;
             }

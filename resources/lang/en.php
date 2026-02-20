@@ -1555,4 +1555,25 @@ return [
     'text_design_preset_midnight' => 'Dark look with a cool accent.',
     'text_design_preset_monochrome' => 'Black/white with maximum contrast.',
     'text_design_preset_uikit' => 'Neutral UIkit default colours as a base.',
+
+    // Namespace labels (controllers)
+    'label_namespace_not_saved' => 'not saved',
+    'label_namespace_inactive' => 'inactive',
+
+    // Controller error/flash messages
+    'error_wiki_invalid_color' => 'Invalid colour value.',
+    'error_wiki_invalid_stylesheet_url' => 'Invalid stylesheet URL.',
+    'error_wiki_invalid_logo_url' => 'Invalid logo URL.',
+    'error_namespace_resolve_failed' => 'Namespace could not be resolved.',
+    'error_page_not_found_in_namespace' => 'Page "%s" does not exist in namespace "%s".',
+    'error_design_no_preset_selected' => 'No design preset selected.',
+    'notify_design_preset_imported' => 'Design preset "%s" imported successfully.',
+    'error_design_preset_not_found' => 'Design preset "%s" was not found.',
+    'notify_design_reset' => 'Design reset to defaults.',
+    'notify_design_behavior_saved' => 'Behavior settings saved.',
+    'notify_design_css_saved' => 'Custom CSS saved.',
+    'error_invalid_json_request' => 'Invalid request: JSON body is missing or invalid.',
+    'error_no_page_selected' => 'No page selected. Please select a page and try again.',
+    'error_page_not_found_or_locked' => 'The selected page was not found or is locked for SEO import.',
+    'error_startpage_save_failed' => 'The start page could not be saved.',
 ];
