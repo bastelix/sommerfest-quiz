@@ -504,11 +504,19 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
             if ($customerId !== null && $customerId !== '') {
                 $stripeSvc = new StripeService();
                 if ($plan !== null) {
-                    $priceId = StripeService::priceIdForPlan($plan);
-                    if ($priceId === '') {
-                        throw new \RuntimeException('price-id-missing');
+                    $currentSub = $stripeSvc->getActiveSubscription($customerId);
+                    $isCancelScheduled = (bool) ($currentSub['cancel_at_period_end'] ?? false);
+                    $currentPlan = $currentSub['plan'] ?? null;
+
+                    if ($isCancelScheduled && $currentPlan === $plan) {
+                        $stripeSvc->reactivateSubscriptionForCustomer($customerId);
+                    } else {
+                        $priceId = StripeService::priceIdForPlan($plan);
+                        if ($priceId === '') {
+                            throw new \RuntimeException('price-id-missing');
+                        }
+                        $stripeSvc->updateSubscriptionForCustomer($customerId, $priceId);
                     }
-                    $stripeSvc->updateSubscriptionForCustomer($customerId, $priceId);
                 } else {
                     $stripeSvc->cancelSubscriptionForCustomer($customerId);
                 }
@@ -516,7 +524,9 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
             $tenantSvc->updateProfile($target, ['plan' => $plan]);
         } catch (\Throwable $e) {
             error_log('Stripe subscription update failed: ' . $e->getMessage());
-            return $response->withStatus(500);
+            $errorCode = $e->getMessage();
+            $response->getBody()->write((string) json_encode(['error' => $errorCode]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
         $response->getBody()->write((string) json_encode(['plan' => $plan]));
         return $response->withHeader('Content-Type', 'application/json');

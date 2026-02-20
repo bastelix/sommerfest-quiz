@@ -19,12 +19,23 @@ class StripeService
         return 'cus_test';
     }
 
+    public static ?array $activeSubscription = null;
+
+    public function getActiveSubscription(string $customerId): ?array {
+        self::$calls[] = ['getActiveSubscription', $customerId];
+        return self::$activeSubscription;
+    }
+
     public function updateSubscriptionForCustomer(string $customerId, string $priceId): void {
         self::$calls[] = ['update', $customerId, $priceId];
     }
 
     public function cancelSubscriptionForCustomer(string $customerId): void {
         self::$calls[] = ['cancel', $customerId];
+    }
+
+    public function reactivateSubscriptionForCustomer(string $customerId): void {
+        self::$calls[] = ['reactivate', $customerId];
     }
 
     public static function isConfigured(): array {
