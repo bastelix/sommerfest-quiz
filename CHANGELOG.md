@@ -543,6 +543,7 @@
 - *(ai)* Increase default max_completion_tokens to 16384
 - *(editor)* Translate English labels to German in stat_strip block
 - *(subscription)* Prevent errors on reactivation and plan change
+- *(subscription)* Restore plan in database on reactivation
 
 ### Merge
 
