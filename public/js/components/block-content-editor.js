@@ -4966,14 +4966,14 @@ export class BlockContentEditor {
 
     (block.data.metrics || []).forEach((metric, index) => {
       const body = [
-        this.addLabeledInput('ID', metric.id, value => this.updateStatStripMetric(block.id, metric.id, 'id', value)),
+        this.addLabeledInput('Kennung', metric.id, value => this.updateStatStripMetric(block.id, metric.id, 'id', value)),
         this.addLabeledInput('Wert', metric.value, value => this.updateStatStripMetric(block.id, metric.id, 'value', value)),
         this.addLabeledInput('Label', metric.label, value => this.updateStatStripMetric(block.id, metric.id, 'label', value)),
         this.addIconPickerInput('Icon', metric.icon, value => this.updateStatStripMetric(block.id, metric.id, 'icon', value)),
         this.addLabeledInput('Tooltip', metric.tooltip, value => this.updateStatStripMetric(block.id, metric.id, 'tooltip', value)),
-        this.addLabeledInput('Stand (as of)', metric.asOf, value => this.updateStatStripMetric(block.id, metric.id, 'asOf', value)),
+        this.addLabeledInput('Stand', metric.asOf, value => this.updateStatStripMetric(block.id, metric.id, 'asOf', value)),
         this.addLabeledInput(
-          'Supporting text',
+          'Ergänzungstext',
           metric.benefit,
           value => this.updateStatStripMetric(block.id, metric.id, 'benefit', value),
           { multiline: true, rows: 2 }
