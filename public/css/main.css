@@ -1221,8 +1221,7 @@ body.admin-page {
 }
 
 .page-editor .tiptap-editor:focus {
-  outline: 2px solid var(--brand-primary, #1e87f0);
-  outline-offset: 2px;
+  outline: none;
 }
 
 .page-editor-toolbar .uk-button:focus-visible,
@@ -1399,6 +1398,44 @@ body.admin-page {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+}
+
+/* ── Input field contrast – visible background + stronger border ── */
+.page-editor .uk-input,
+.page-editor .uk-textarea,
+.page-editor .uk-select {
+  background: var(--surface-subtle, #f8fafc);
+  border: 1px solid var(--border-strong, #c4cdd8);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.9375rem;
+  color: var(--text-body, #111827);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.page-editor .uk-input:focus,
+.page-editor .uk-textarea:focus,
+.page-editor .uk-select:focus {
+  border-color: var(--brand-primary, #1e87f0);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary, #1e87f0) 15%, transparent);
+  background: var(--surface-card, #fff);
+  outline: none;
+}
+
+/* ── Rich text editor (TipTap/ProseMirror) – same input look ── */
+.page-editor [data-richtext="true"] {
+  background: var(--surface-subtle, #f8fafc);
+  border: 1px solid var(--border-strong, #c4cdd8);
+  border-radius: 6px;
+  padding: 8px 10px;
+  min-height: 2.5em;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.page-editor [data-richtext="true"]:focus-within {
+  border-color: var(--brand-primary, #1e87f0);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary, #1e87f0) 15%, transparent);
+  background: var(--surface-card, #fff);
 }
 
 .page-editor select {
