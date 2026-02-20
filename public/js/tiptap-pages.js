@@ -3198,6 +3198,10 @@ const initAiPageCreation = () => {
   const menuLabelWrapper = form.querySelector('[data-ai-page-menu-label]');
   const feedback = form.querySelector('[data-ai-page-feedback]');
   const submitBtn = form.querySelector('button[type="submit"]');
+  const progressContainer = form.querySelector('[data-ai-page-progress]');
+  const progressLog = form.querySelector('[data-ai-page-log]');
+  const elapsedDisplay = form.querySelector('[data-ai-page-elapsed]');
+  const submitBtnOriginalHtml = submitBtn ? submitBtn.innerHTML : '';
   const modalEl = document.getElementById('aiPageModal');
   const modal = modalEl && window.UIkit ? window.UIkit.modal(modalEl) : null;
   const missingFieldsMessage = window.transAiPageMissingFields || 'Bitte fülle alle Felder aus.';
@@ -3210,6 +3214,7 @@ const initAiPageCreation = () => {
   const timeoutMessage = window.transAiPageTimeout || 'Server antwortet nicht rechtzeitig.';
   const pendingMessage = window.transAiPagePending || 'Die KI-Seite wird erstellt…';
   const createdMessage = window.transAiPageCreated || 'KI-Seite erstellt';
+  let elapsedTimer = null;
   const errorMessageMap = {
     missing_fields: missingFieldsMessage,
     invalid_payload: createErrorMessage,
@@ -3287,6 +3292,71 @@ const initAiPageCreation = () => {
     feedback.hidden = false;
   };
 
+  const setButtonLoading = loading => {
+    if (!submitBtn) {
+      return;
+    }
+    if (loading) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span uk-spinner="ratio: 0.5"></span>';
+      submitBtn.classList.add('uk-disabled');
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = submitBtnOriginalHtml;
+      submitBtn.classList.remove('uk-disabled');
+    }
+  };
+
+  const resetProgress = () => {
+    if (progressLog) {
+      progressLog.innerHTML = '';
+    }
+    if (progressContainer) {
+      progressContainer.hidden = true;
+    }
+    if (elapsedDisplay) {
+      elapsedDisplay.hidden = true;
+      elapsedDisplay.textContent = '';
+    }
+    if (elapsedTimer) {
+      clearInterval(elapsedTimer);
+      elapsedTimer = null;
+    }
+  };
+
+  const addLogEntry = (text, status) => {
+    if (!progressLog || !progressContainer) {
+      return;
+    }
+    progressContainer.hidden = false;
+    const li = document.createElement('li');
+    const icon = status === 'done' ? 'check' : status === 'error' ? 'warning' : 'clock';
+    const color = status === 'done' ? 'uk-text-success' : status === 'error' ? 'uk-text-danger' : 'uk-text-muted';
+    li.innerHTML = '<span class="' + color + '" uk-icon="icon: ' + icon + '; ratio: 0.75"></span> ' + text;
+    progressLog.appendChild(li);
+  };
+
+  const startElapsedTimer = () => {
+    if (!elapsedDisplay) {
+      return;
+    }
+    const startTime = Date.now();
+    elapsedDisplay.hidden = false;
+    const tick = () => {
+      const seconds = Math.floor((Date.now() - startTime) / 1000);
+      elapsedDisplay.textContent = 'Vergangene Zeit: ' + seconds + 's';
+    };
+    tick();
+    elapsedTimer = setInterval(tick, 1000);
+  };
+
+  const stopElapsedTimer = () => {
+    if (elapsedTimer) {
+      clearInterval(elapsedTimer);
+      elapsedTimer = null;
+    }
+  };
+
   const ensurePageSelected = slug => {
     if (!slug) {
       return;
@@ -3318,7 +3388,7 @@ const initAiPageCreation = () => {
   };
 
   const pollJobStatus = async jobId => {
-    const maxAttempts = 30;
+    const maxAttempts = 60;
     const baseDelayMs = 2000;
     const maxDelayMs = 4000;
 
@@ -3379,15 +3449,16 @@ const initAiPageCreation = () => {
       return;
     }
 
-    if (submitBtn) {
-      submitBtn.disabled = true;
-    }
+    setFeedback('');
+    resetProgress();
+    setButtonLoading(true);
 
     try {
       const existingForm = document.querySelector(`.page-form[data-slug="${slugValue}"]`);
       let createdPage = null;
 
       if (!existingForm) {
+        addLogEntry('Seite wird angelegt\u2026', 'pending');
         const createResponse = await apiFetch(withNamespace('/admin/pages'), {
           method: 'POST',
           headers: {
@@ -3406,8 +3477,10 @@ const initAiPageCreation = () => {
           throw new Error(errorMessage);
         }
         createdPage = createPayload.page;
+        addLogEntry('Seite angelegt', 'done');
       }
 
+      addLogEntry('KI-Generierung wird gestartet\u2026', 'pending');
       const response = await apiFetch(withNamespace('/admin/pages/ai-generate'), {
         method: 'POST',
         headers: {
@@ -3437,15 +3510,23 @@ const initAiPageCreation = () => {
         throw new Error(createErrorMessage);
       }
 
-      setFeedback(pendingMessage);
+      addLogEntry('KI-Generierung gestartet', 'done');
+      addLogEntry('Warte auf KI-Antwort\u2026', 'pending');
+      startElapsedTimer();
 
       const statusPayload = await pollJobStatus(jobId);
+      stopElapsedTimer();
+      addLogEntry('KI-Antwort erhalten', 'done');
+
       const content = typeof statusPayload.content === 'string' ? statusPayload.content.trim()
         : (typeof statusPayload.html === 'string' ? statusPayload.html.trim() : '');
       if (!content) {
+        addLogEntry('Antwort ist leer oder ung\u00fcltig', 'error');
         setFeedback(emptyResponseMessage);
         return;
       }
+
+      addLogEntry('Inhalt wird gespeichert\u2026', 'pending');
 
       const page = createdPage || {
         slug: slugValue,
@@ -3491,14 +3572,19 @@ const initAiPageCreation = () => {
         }
       }
 
+      addLogEntry('Seite erfolgreich erstellt', 'done');
+
       form.reset();
       updateMenuLabelVisibility();
       if (modal) {
         modal.hide();
       }
       setFeedback('');
+      resetProgress();
       notify(createdMessage, 'success');
     } catch (error) {
+      stopElapsedTimer();
+      addLogEntry(error instanceof Error ? error.message : createErrorMessage, 'error');
       let message = createErrorMessage;
       if (error instanceof TypeError && /fetch/i.test(error.message)) {
         message = aiUnavailableMessage;
@@ -3507,9 +3593,7 @@ const initAiPageCreation = () => {
       }
       setFeedback(message);
     } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-      }
+      setButtonLoading(false);
     }
   });
 };

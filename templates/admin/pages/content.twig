@@ -226,6 +226,12 @@
             <h2 class="uk-modal-title">{{ t('heading_ai_page_create') }}</h2>
             <form id="aiPageForm" class="uk-form-stacked">
               <div class="uk-alert uk-alert-danger" data-ai-page-feedback hidden role="alert"></div>
+              <div data-ai-page-progress hidden>
+                <div class="uk-card uk-card-default uk-card-small uk-card-body uk-margin">
+                  <ul class="uk-list" data-ai-page-log></ul>
+                  <div class="uk-text-meta uk-margin-small-top" data-ai-page-elapsed hidden></div>
+                </div>
+              </div>
               <div class="uk-margin">
                 <label class="uk-form-label" for="aiPageSlug">{{ t('label_ai_page_slug') }}</label>
                 <div class="uk-form-controls">
