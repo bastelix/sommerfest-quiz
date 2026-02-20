@@ -268,16 +268,17 @@ class EventService
     /**
      * Retrieve a specific event by its UID.
      *
-     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string,namespace:string}|null
+     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string,published:bool,namespace:string}|null
      */
     public function getByUid(string $uid): ?array {
-        $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,namespace FROM events WHERE uid = ?');
+        $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,published,namespace FROM events WHERE uid = ?');
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row !== false) {
             $row['namespace'] = $this->normalizeNamespace($row['namespace'] ?? null);
             $row['start_date'] = $this->formatDate($row['start_date']);
             $row['end_date'] = $this->formatDate($row['end_date']);
+            $row['published'] = (bool)($row['published'] ?? false);
             return $row;
         }
 
@@ -294,6 +295,7 @@ class EventService
                             'start_date' => $event['start_date'] ?? null,
                             'end_date' => $event['end_date'] ?? null,
                             'description' => $event['description'] ?? null,
+                            'published' => (bool) ($event['published'] ?? false),
                             'namespace' => $this->normalizeNamespace($event['namespace'] ?? null),
                         ];
                     }
@@ -359,7 +361,7 @@ class EventService
      * Retrieve an event by UID, but only if it belongs to the given namespace.
      * When namespace is null, no filtering is applied (backward compatible).
      *
-     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string,namespace:string}|null
+     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string,published:bool,namespace:string}|null
      */
     public function getByUidInNamespace(string $uid, ?string $namespace): ?array {
         $event = $this->getByUid($uid);

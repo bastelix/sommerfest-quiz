@@ -509,7 +509,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
                     if ($currentSub === null) {
                         throw new \RuntimeException('subscription-not-found');
                     }
-                    $isCancelScheduled = (bool) ($currentSub['cancel_at_period_end'] ?? false);
+                    $isCancelScheduled = $currentSub['cancel_at_period_end'];
                     $currentPlan = $currentSub['plan'] ?? null;
 
                     if ($isCancelScheduled && $currentPlan === $plan) {
