@@ -531,6 +531,7 @@
 - Generate correct inline surface styles for container-based section presets
 - Load .env in page AI generation script and detach background process
 - *(editor)* Add padding to optional details section content fields
+- *(subscription)* Use reactivateSubscriptionForCustomer for pending cancellations
 
 ### Merge
 
