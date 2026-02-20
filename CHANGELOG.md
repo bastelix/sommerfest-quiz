@@ -319,6 +319,7 @@
 - *(i18n)* Translate admin controller error messages
 - *(i18n)* Extract admin JS strings to translation system
 - *(i18n)* Translate remaining admin templates
+- *(ai)* Add progress log and spinner to AI page generation modal
 
 ### Fix
 
@@ -544,6 +545,7 @@
 - *(editor)* Translate English labels to German in stat_strip block
 - *(subscription)* Prevent errors on reactivation and plan change
 - *(subscription)* Restore plan in database on reactivation
+- *(ai)* Increase default HTTP timeout from 60s to 180s
 
 ### Merge
 
