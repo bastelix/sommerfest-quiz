@@ -313,6 +313,12 @@
 - *(theme)* Allow design preset selection on namespace creation
 - *(editor)* Add visual icon picker for block icon fields
 - *(pages)* Add page publishing with draft/published/archived status
+- *(i18n)* Translate event config admin page
+- *(i18n)* Translate wiki admin page and add design translation keys
+- *(i18n)* Translate design and cookies admin pages
+- *(i18n)* Translate admin controller error messages
+- *(i18n)* Extract admin JS strings to translation system
+- *(i18n)* Translate remaining admin templates
 
 ### Fix
 
