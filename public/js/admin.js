@@ -95,13 +95,13 @@ const warnExternalEndpoint = (host) => {
   }
 };
 const escape = url => encodeURI(url);
-const transEventsFetchError = window.transEventsFetchError || 'Veranstaltungen konnten nicht geladen werden';
-const transDashboardLinkCopied = window.transDashboardLinkCopied || 'Link kopiert';
-const transDashboardLinkMissing = window.transDashboardLinkMissing || 'Kein Link verfügbar';
-const transDashboardCopyFailed = window.transDashboardCopyFailed || 'Kopieren fehlgeschlagen';
-const transDashboardTokenRotated = window.transDashboardTokenRotated || 'Neues Token erstellt';
-const transDashboardTokenRotateError = window.transDashboardTokenRotateError || 'Token konnte nicht erneuert werden';
-const transDashboardNoEvent = window.transDashboardNoEvent || 'Kein Event ausgewählt';
+const transEventsFetchError = window.transEventsFetchError || 'Could not load events';
+const transDashboardLinkCopied = window.transDashboardLinkCopied || 'Link copied';
+const transDashboardLinkMissing = window.transDashboardLinkMissing || 'No link available';
+const transDashboardCopyFailed = window.transDashboardCopyFailed || 'Copy failed';
+const transDashboardTokenRotated = window.transDashboardTokenRotated || 'New token created';
+const transDashboardTokenRotateError = window.transDashboardTokenRotateError || 'Token could not be renewed';
+const transDashboardNoEvent = window.transDashboardNoEvent || 'No event selected';
 
 const parseBooleanOption = (candidate) => {
   if (candidate === null || candidate === undefined) {
@@ -369,7 +369,7 @@ function showUpgradeModal() {
   modal.id = 'upgrade-modal';
   modal.setAttribute('uk-modal', '');
   modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
-    '<h3 class="uk-modal-title">' + (window.transUpgradeTitle || 'Limit erreicht') + '</h3>' +
+    '<h3 class="uk-modal-title">' + (window.transUpgradeTitle || 'Limit reached') + '</h3>' +
     '<p>' + (window.transUpgradeText || '') + '</p>' +
     '<p class="uk-text-center"><a class="uk-button uk-button-primary" href="' +
     (window.upgradeUrl || withBase('/admin/subscription')) + '">' +
@@ -514,10 +514,10 @@ const ensurePageRenameModal = () => {
     try {
       await executePageRename(pageRenamePending.slug, pageRenamePending.namespace, newSlug);
       UIkit.modal('#pageRenameModal').hide();
-      window.notify('Seite erfolgreich umbenannt', 'success');
+      window.notify(window.transPageRenamed || 'Page successfully renamed', 'success');
       window.location.reload();
     } catch (error) {
-      errorEl.textContent = error.message || 'Fehler beim Umbenennen der Seite';
+      errorEl.textContent = error.message || (window.transPageRenameFailed || 'Error renaming page');
       errorEl.hidden = false;
     }
   });
@@ -537,14 +537,14 @@ const ensurePageDeleteModal = () => {
   el.setAttribute('uk-modal', '');
   el.innerHTML = [
     '<div class="uk-modal-dialog uk-modal-body">',
-    '  <h3 class="uk-modal-title">Seite löschen</h3>',
+    '  <h3 class="uk-modal-title">' + (window.transPageDeleteTitle || 'Delete page') + '</h3>',
     '  <p id="pageDeleteConfirmText"></p>',
     '  <div id="pageDeleteSubtreeWarning" class="uk-alert-danger" uk-alert hidden>',
-    '    <p>Achtung: Alle untergeordneten Seiten werden ebenfalls gelöscht!</p>',
+    '    <p>' + (window.transPageDeleteWarning || 'Warning: All child pages will also be deleted!') + '</p>',
     '  </div>',
     '  <div class="uk-margin-top uk-text-right">',
-    '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
-    '    <button id="pageDeleteConfirm" class="uk-button uk-button-danger uk-margin-small-left" type="button">Endgültig löschen</button>',
+    '    <button class="uk-button uk-button-default uk-modal-close" type="button">' + (window.transCancel || 'Cancel') + '</button>',
+    '    <button id="pageDeleteConfirm" class="uk-button uk-button-danger uk-margin-small-left" type="button">' + (window.transDeletePermanently || 'Delete permanently') + '</button>',
     '  </div>',
     '</div>'
   ].join('\n');
@@ -557,11 +557,11 @@ const ensurePageDeleteModal = () => {
     try {
       await executePageDelete(pageDeletePending.slug, pageDeletePending.namespace);
       UIkit.modal('#pageDeleteConfirmModal').hide();
-      window.notify('Seite erfolgreich gelöscht', 'success');
+      window.notify(window.transPageDeleted || 'Page successfully deleted', 'success');
       window.location.reload();
     } catch (error) {
       UIkit.modal('#pageDeleteConfirmModal').hide();
-      window.notify(error.message || 'Seite konnte nicht gelöscht werden.', 'danger');
+      window.notify(error.message || (window.transPageDeleteFailed || 'Page could not be deleted.'), 'danger');
     }
   });
 };
@@ -575,7 +575,7 @@ const openPageRenameModal = (slug, namespace, title) => {
   input.value = slug;
   errorEl.hidden = true;
   errorEl.textContent = '';
-  hint.textContent = 'Aktuelle Seite: \u201e' + title + '\u201c';
+  hint.textContent = (window.transCurrentPage || 'Current page') + ': \u201e' + title + '\u201c';
   UIkit.modal('#pageRenameModal').show();
   setTimeout(() => { input.select(); }, 100);
 };
@@ -584,7 +584,7 @@ const openPageDeleteModal = (slug, namespace, title, hasChildren) => {
   ensurePageDeleteModal();
   pageDeletePending = { slug, namespace, title, hasChildren };
   document.getElementById('pageDeleteConfirmText').textContent =
-    '\u201e' + title + '\u201c (/' + slug + ') wirklich löschen?';
+    (window.transConfirmPageDelete || 'Really delete \u201e:title\u201c (/:slug)?').replace(':title', title).replace(':slug', slug);
   document.getElementById('pageDeleteSubtreeWarning').hidden = !hasChildren;
   UIkit.modal('#pageDeleteConfirmModal').show();
 };
@@ -592,7 +592,7 @@ const openPageDeleteModal = (slug, namespace, title, hasChildren) => {
 const executePageRename = async (oldSlug, namespace, newSlug) => {
   const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
   if (!csrfToken) {
-    throw new Error('CSRF-Token fehlt. Bitte Seite neu laden.');
+    throw new Error(window.transCsrfMissing || 'CSRF token missing. Please reload the page.');
   }
   const response = await fetch(
     withBase('/admin/pages/' + encodeURIComponent(oldSlug) + '/rename?namespace=' + encodeURIComponent(namespace)),
@@ -604,7 +604,7 @@ const executePageRename = async (oldSlug, namespace, newSlug) => {
   );
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || 'Fehler: ' + response.status);
+    throw new Error(errorData.error || 'Error: ' + response.status);
   }
   return response.json();
 };
@@ -615,7 +615,7 @@ const executePageDelete = async (slug, namespace) => {
   if (response.status === 204) return;
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || 'Fehler: ' + response.status);
+    throw new Error(errorData.error || 'Error: ' + response.status);
   }
 };
 
@@ -626,7 +626,7 @@ const updateMenuBadge = (pageId, menuLabel) => {
   if (menuLabel) {
     if (existing) {
       existing.textContent = menuLabel;
-      existing.title = 'Top-Menü: ' + menuLabel;
+      existing.title = (window.transTopMenu || 'Top menu') + ': ' + menuLabel;
     } else {
       const row = document.querySelector('[data-page-row="' + pageId + '"]');
       if (row) {
@@ -645,7 +645,7 @@ const updateMenuBadge = (pageId, menuLabel) => {
         badge.className = 'uk-label uk-label-success uk-margin-small-left';
         badge.textContent = menuLabel;
         badge.setAttribute('data-menu-badge', pageId);
-        badge.title = 'Top-Menü: ' + menuLabel;
+        badge.title = (window.transTopMenu || 'Top menu') + ': ' + menuLabel;
         meta.appendChild(badge);
       }
     }
@@ -756,14 +756,14 @@ const ensureMenuAssignModal = () => {
   el.setAttribute('uk-modal', '');
   el.innerHTML = [
     '<div class="uk-modal-dialog uk-modal-body">',
-    '  <h3 class="uk-modal-title">Top-Menü zuweisen</h3>',
+    '  <h3 class="uk-modal-title">' + (window.transAssignTopMenu || 'Assign top menu') + '</h3>',
     '  <p id="menuAssignHint" class="uk-text-meta"></p>',
-    '  <label class="uk-form-label" for="menuAssignSelect">Menü auswählen</label>',
+    '  <label class="uk-form-label" for="menuAssignSelect">' + (window.transSelectMenu || 'Select menu') + '</label>',
     '  <select id="menuAssignSelect" class="uk-select"></select>',
     '  <div id="menuAssignError" class="uk-text-danger uk-margin-small-top" hidden></div>',
     '  <div class="uk-margin-top uk-text-right">',
-    '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
-    '    <button id="menuAssignSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">Speichern</button>',
+    '    <button class="uk-button uk-button-default uk-modal-close" type="button">' + (window.transCancel || 'Cancel') + '</button>',
+    '    <button id="menuAssignSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">' + (window.transSave || 'Save') + '</button>',
     '  </div>',
     '</div>'
   ].join('\n');
@@ -795,11 +795,11 @@ const ensureMenuAssignModal = () => {
         );
         if (!resp.ok && resp.status !== 204) {
           const err = await resp.json().catch(() => ({}));
-          throw new Error(err.error || 'Fehler: ' + resp.status);
+          throw new Error(err.error || 'Error: ' + resp.status);
         }
         delete menuAssignmentMap[node.id];
         updateMenuBadge(node.id, null);
-        window.notify('Menü-Zuweisung entfernt', 'success');
+        window.notify(window.transMenuAssignmentRemoved || 'Menu assignment removed', 'success');
 
       } else if (selectedMenuId !== '' && !currentAssignment) {
         const resp = await fetch(
@@ -818,7 +818,7 @@ const ensureMenuAssignModal = () => {
         );
         if (!resp.ok) {
           const err = await resp.json().catch(() => ({}));
-          throw new Error(err.error || 'Fehler: ' + resp.status);
+          throw new Error(err.error || 'Error: ' + resp.status);
         }
         const data = await resp.json();
         const menuLabel = (availableMenus.find(m => String(m.id) === selectedMenuId) || {}).label || '';
@@ -830,7 +830,7 @@ const ensureMenuAssignModal = () => {
           isActive: data.assignment.isActive
         };
         updateMenuBadge(node.id, menuLabel);
-        window.notify('Menü-Zuweisung gespeichert', 'success');
+        window.notify(window.transMenuAssignmentSaved || 'Menu assignment saved', 'success');
 
       } else if (selectedMenuId !== '' && currentAssignment) {
         const resp = await fetch(
@@ -849,7 +849,7 @@ const ensureMenuAssignModal = () => {
         );
         if (!resp.ok) {
           const err = await resp.json().catch(() => ({}));
-          throw new Error(err.error || 'Fehler: ' + resp.status);
+          throw new Error(err.error || 'Error: ' + resp.status);
         }
         const data = await resp.json();
         const menuLabel = (availableMenus.find(m => String(m.id) === selectedMenuId) || {}).label || '';
@@ -861,12 +861,12 @@ const ensureMenuAssignModal = () => {
           isActive: data.assignment.isActive
         };
         updateMenuBadge(node.id, menuLabel);
-        window.notify('Menü-Zuweisung gespeichert', 'success');
+        window.notify(window.transMenuAssignmentSaved || 'Menu assignment saved', 'success');
       }
 
       UIkit.modal('#menuAssignModal').hide();
     } catch (error) {
-      errorEl.textContent = error.message || 'Menü-Zuweisung konnte nicht gespeichert werden.';
+      errorEl.textContent = error.message || (window.transMenuAssignmentFailed || 'Menu assignment could not be saved.');
       errorEl.hidden = false;
     }
   });
@@ -880,7 +880,7 @@ const openMenuAssignModal = (node, availableMenus, menuAssignmentMap) => {
   errorEl.hidden = true;
   errorEl.textContent = '';
 
-  select.innerHTML = '<option value="">\u2014 Kein Menü \u2014</option>';
+  select.innerHTML = '<option value="">' + (window.transNoMenu || '\u2014 No menu \u2014') + '</option>';
   availableMenus.forEach(menu => {
     const opt = document.createElement('option');
     opt.value = menu.id;
@@ -962,7 +962,7 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
       menuBadge.className = 'uk-label uk-label-success uk-margin-small-left';
       menuBadge.textContent = menuAssignment.menuLabel;
       menuBadge.setAttribute('data-menu-badge', node.id);
-      menuBadge.title = 'Top-Menü: ' + menuAssignment.menuLabel;
+      menuBadge.title = (window.transTopMenu || 'Top menu') + ': ' + menuAssignment.menuLabel;
       meta.appendChild(menuBadge);
     }
     if (node.status) {
@@ -1017,7 +1017,7 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
         const menuLi = document.createElement('li');
         const menuLink = document.createElement('a');
         menuLink.href = '#';
-        menuLink.innerHTML = '<span uk-icon="icon: menu; ratio: 0.8" class="uk-margin-small-right"></span>Menü zuweisen';
+        menuLink.innerHTML = '<span uk-icon="icon: menu; ratio: 0.8" class="uk-margin-small-right"></span>' + (window.transAssignMenu || 'Assign menu');
         menuLink.addEventListener('click', (e) => {
           e.preventDefault();
           UIkit.dropdown(dropdown).hide(false);
@@ -1047,7 +1047,7 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
       const deleteLink = document.createElement('a');
       deleteLink.href = '#';
       deleteLink.className = 'uk-text-danger';
-      deleteLink.innerHTML = '<span uk-icon="icon: trash; ratio: 0.8" class="uk-margin-small-right"></span>Löschen';
+      deleteLink.innerHTML = '<span uk-icon="icon: trash; ratio: 0.8" class="uk-margin-small-right"></span>' + (window.transDelete || 'Delete');
       deleteLink.addEventListener('click', (e) => {
         e.preventDefault();
         UIkit.dropdown(dropdown).hide(false);
@@ -1238,7 +1238,7 @@ const buildProjectWikiList = (entries) => {
         }
         if (article.status) {
           const statusLabel = createProjectStatusLabel(
-            article.status === 'published' ? 'Veröffentlicht' : article.status,
+            article.status === 'published' ? (window.transPublished || 'Published') : article.status,
             article.status
           );
           statusLabel.classList.add('uk-margin-small-left');
@@ -1322,7 +1322,7 @@ const buildProjectNewsList = (entries) => {
         const meta = document.createElement('div');
         meta.className = 'uk-flex uk-flex-middle uk-flex-wrap';
         if (news.isPublished !== undefined) {
-          const labelText = news.isPublished ? 'Veröffentlicht' : 'Entwurf';
+          const labelText = news.isPublished ? (window.transPublished || 'Published') : (window.transDraft || 'Draft');
           const labelState = news.isPublished ? 'published' : 'draft';
           meta.appendChild(createProjectStatusLabel(labelText, labelState));
         }
@@ -1416,7 +1416,7 @@ const buildProjectMediaList = (media) => {
   }
 
   if (!files.length && !missing.length) {
-    wrapper.appendChild(createProjectEmptyState('Keine Medien-Referenzen.'));
+    wrapper.appendChild(createProjectEmptyState(window.transNoMediaReferences || 'No media references.'));
   }
 
   return wrapper;
@@ -1575,28 +1575,28 @@ const renderProjectTree = (container, namespaces, emptyMessage) => {
     appendProjectBlock(
       wrapper,
       'Pages',
-      pageTree.length ? buildProjectPageTreeList(pageTree, 0, sectionMenus, sectionMenuMap) : createProjectEmptyState('Keine Seiten vorhanden.')
+      pageTree.length ? buildProjectPageTreeList(pageTree, 0, sectionMenus, sectionMenuMap) : createProjectEmptyState(window.transNoPages || 'No pages available.')
     );
 
     const wikiEntries = Array.isArray(section.wiki) ? section.wiki : [];
     appendProjectBlock(
       wrapper,
       'Wiki-Artikel',
-      wikiEntries.length ? buildProjectWikiList(wikiEntries) : createProjectEmptyState('Keine Wiki-Artikel vorhanden.')
+      wikiEntries.length ? buildProjectWikiList(wikiEntries) : createProjectEmptyState(window.transNoWikiArticles || 'No wiki articles available.')
     );
 
     const newsEntries = Array.isArray(section.landingNews) ? section.landingNews : [];
     appendProjectBlock(
       wrapper,
       'News-Artikel',
-      newsEntries.length ? buildProjectNewsList(newsEntries) : createProjectEmptyState('Keine News-Artikel vorhanden.')
+      newsEntries.length ? buildProjectNewsList(newsEntries) : createProjectEmptyState(window.transNoNewsArticles || 'No news articles available.')
     );
 
     const newsletterSlugs = Array.isArray(section.newsletterSlugs) ? section.newsletterSlugs : [];
     appendProjectBlock(
       wrapper,
       'Newsletter-Slugs',
-      newsletterSlugs.length ? buildProjectSlugList(newsletterSlugs) : createProjectEmptyState('Keine Newsletter-Slugs vorhanden.')
+      newsletterSlugs.length ? buildProjectSlugList(newsletterSlugs) : createProjectEmptyState(window.transNoNewsletterSlugs || 'No newsletter slugs available.')
     );
 
     appendProjectBlock(
@@ -1649,8 +1649,8 @@ const initProjectTree = () => {
     return;
   }
   const loading = container.querySelector('[data-project-tree-loading]');
-  const emptyMessage = container.dataset.empty || 'Keine Namespace-Daten vorhanden.';
-  const errorMessage = container.dataset.error || 'Namespace-Übersicht konnte nicht geladen werden.';
+  const emptyMessage = container.dataset.empty || (window.transNoNamespaceData || 'No namespace data available.');
+  const errorMessage = container.dataset.error || (window.transNamespaceLoadError || 'Namespace overview could not be loaded.');
   const initialPayload = parseDatasetJson(container.dataset.initialPayload, null);
   const endpoint = container.dataset.endpoint || '/admin/projects/tree';
   const namespaceSelect = getPrimaryNamespaceSelect();
@@ -1673,7 +1673,7 @@ const initProjectTree = () => {
   };
 
   if (loading) {
-    loading.textContent = loading.textContent || 'Namespace-Übersicht wird geladen…';
+    loading.textContent = loading.textContent || (window.transNamespaceLoading || 'Loading namespace overview\u2026');
   }
 
   if (Array.isArray(initialPayload)) {
@@ -1912,9 +1912,9 @@ const initProjectSettings = () => {
       }
       const updatedAt = result?.settings?.updated_at || result?.settings?.updatedAt;
       if (updatedLabel) {
-        updatedLabel.textContent = updatedAt ? `Zuletzt gespeichert: ${updatedAt}` : 'Einstellungen gespeichert';
+        updatedLabel.textContent = updatedAt ? `${window.transLastSaved || 'Last saved'}: ${updatedAt}` : (window.transSettingsSaved || 'Settings saved');
       }
-      setStatus('Einstellungen gespeichert.', false);
+      setStatus(window.transSettingsSaved || 'Settings saved.', false);
     } catch (error) {
       setStatus('Einstellungen konnten nicht gespeichert werden.', true);
     }
@@ -1937,8 +1937,8 @@ const initPageNamespaceManager = () => {
   const pageSelectKey = manager.dataset.pageSelectKey || 'slug';
   const pageSelectionParam = manager.dataset.pageSelectionParam || '';
   const pageSelectionValueKey = manager.dataset.pageSelectionValueKey || 'slug';
-  const successMessage = manager.dataset.successMessage || 'Seite verschoben.';
-  const errorMessageDefault = manager.dataset.errorMessage || 'Namespace konnte nicht geändert werden.';
+  const successMessage = manager.dataset.successMessage || (window.transPageMoved || 'Page moved.');
+  const errorMessageDefault = manager.dataset.errorMessage || (window.transNamespaceChangeError || 'Namespace could not be changed.');
   const pageSelect = pageSelectId ? document.getElementById(pageSelectId) : null;
   const activeNamespaceSelect = document.getElementById('pageNamespaceSelect');
 
@@ -2126,13 +2126,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const settingsInitial = window.quizSettings || {};
   const ragChatSecretPlaceholder = window.ragChatSecretPlaceholder || '__SECRET_PRESENT__';
   const ragChatTokenPlaceholder = window.ragChatTokenPlaceholder || '••••••••';
-  const transRagChatSaved = window.transRagChatSaved || 'Einstellung gespeichert';
-  const transCatalogsFetchError = window.transCatalogsFetchError || 'Kataloge konnten nicht geladen werden';
-  const transCatalogsForbidden = window.transCatalogsForbidden || 'Keine Berechtigung zum Laden der Kataloge';
-  const transRagChatSaveError = window.transRagChatSaveError || 'Fehler beim Speichern';
+  const transRagChatSaved = window.transRagChatSaved || 'Setting saved';
+  const transCatalogsFetchError = window.transCatalogsFetchError || 'Could not load catalogues';
+  const transCatalogsForbidden = window.transCatalogsForbidden || 'No permission to load catalogues';
+  const transRagChatSaveError = window.transRagChatSaveError || 'Save failed';
   const transRagChatTokenSaved = window.transRagChatTokenSaved || '';
   const transRagChatTokenMissing = window.transRagChatTokenMissing || '';
-  const transCountdownInvalid = window.transCountdownInvalid || 'Zeitlimit muss 0 oder größer sein.';
+  const transCountdownInvalid = window.transCountdownInvalid || 'Time limit must be 0 or greater.';
   const pagesInitial = window.pagesContent || {};
   const profileForm = document.getElementById('profileForm');
   const profileSaveBtn = document.getElementById('profileSaveBtn');
@@ -2189,11 +2189,11 @@ document.addEventListener('DOMContentLoaded', function () {
     ? window.marketingNewsletterStyles.slice()
     : ['primary', 'secondary', 'link'];
   const marketingNewsletterStyleLabels = window.marketingNewsletterStyleLabels || {};
-  const transMarketingNewsletterSaved = window.transMarketingNewsletterSaved || 'Konfiguration gespeichert.';
-  const transMarketingNewsletterError = window.transMarketingNewsletterError || 'Speichern fehlgeschlagen.';
-  const transMarketingNewsletterInvalidSlug = window.transMarketingNewsletterInvalidSlug || 'Slug erforderlich';
-  const transMarketingNewsletterRemove = window.transMarketingNewsletterRemove || 'Entfernen';
-  const transMarketingNewsletterEmpty = window.transMarketingNewsletterEmpty || 'Keine Einträge vorhanden.';
+  const transMarketingNewsletterSaved = window.transMarketingNewsletterSaved || 'Configuration saved.';
+  const transMarketingNewsletterError = window.transMarketingNewsletterError || 'Save failed.';
+  const transMarketingNewsletterInvalidSlug = window.transMarketingNewsletterInvalidSlug || 'Slug required';
+  const transMarketingNewsletterRemove = window.transMarketingNewsletterRemove || 'Remove';
+  const transMarketingNewsletterEmpty = window.transMarketingNewsletterEmpty || (window.transNoEntries || 'No entries available.');
   const resolveMarketingNewsletterNamespace = () => {
     const candidates = [
       marketingNewsletterSection?.dataset.marketingNamespace,
@@ -2236,9 +2236,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const transDomainSmtpSummaryDsn = window.transDomainSmtpSummaryDsn || 'DSN';
   const transDomainSmtpPasswordSet = window.transDomainSmtpPasswordSet || 'Password stored';
   const secretPlaceholder = window.domainStartPageSecretPlaceholder || '__SECRET_KEEP__';
-  const transDomainContactTemplateEdit = window.transDomainContactTemplateEdit || 'Template bearbeiten';
-  const transDomainContactTemplateSaved = window.transDomainContactTemplateSaved || 'Template gespeichert';
-  const transDomainContactTemplateError = window.transDomainContactTemplateError || 'Fehler beim Speichern';
+  const transDomainContactTemplateEdit = window.transDomainContactTemplateEdit || 'Edit template';
+  const transDomainContactTemplateSaved = window.transDomainContactTemplateSaved || 'Template saved';
+  const transDomainContactTemplateError = window.transDomainContactTemplateError || 'Save failed';
   const transDomainContactTemplateLoadError = window.transDomainContactTemplateLoadError || transDomainContactTemplateError;
   const transDomainContactTemplateInvalidDomain = window.transDomainContactTemplateInvalidDomain || transDomainContactTemplateError;
   const contactTemplateModalEl = document.getElementById('domainContactTemplateModal');
@@ -2605,7 +2605,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const uid = el.getAttribute('data-uid');
     if (action === 'delete') {
       e.preventDefault();
-      if (!confirm('Mandant wirklich löschen?')) return;
+      if (!confirm(window.transConfirmTenantDelete || 'Really delete tenant?')) return;
       el.classList.add('uk-disabled');
       apiFetch('/tenants', {
         method: 'DELETE',
@@ -2617,10 +2617,10 @@ document.addEventListener('DOMContentLoaded', function () {
           return apiFetch('/api/tenants/' + encodeURIComponent(sub), { method: 'DELETE' });
         })
         .then(() => {
-          notify('Mandant entfernt', 'success');
+          notify(window.transTenantRemoved || 'Tenant removed', 'success');
           refreshTenantList();
         })
-        .catch(() => notify('Fehler beim Löschen', 'danger'))
+        .catch(() => notify(window.transErrorDeleteFailed || 'Delete failed', 'danger'))
         .finally(() => {
           el.classList.remove('uk-disabled');
         });
@@ -2632,10 +2632,10 @@ document.addEventListener('DOMContentLoaded', function () {
       apiFetch('/api/docker/build', { method: 'POST' })
         .then(r => r.json().then(data => ({ ok: r.ok, data })))
         .then(({ ok, data }) => {
-          if (!ok) throw new Error(data.error || 'Fehler');
+          if (!ok) throw new Error(data.error || 'Error');
           notify(window.transImageReady, 'success');
         })
-        .catch(err => notify(err.message || 'Fehler beim Erstellen', 'danger'))
+        .catch(err => notify(err.message || (window.transErrorBuildFailed || 'Build failed'), 'danger'))
         .finally(() => {
           el.disabled = false;
           el.innerHTML = original;
@@ -2649,10 +2649,10 @@ document.addEventListener('DOMContentLoaded', function () {
       apiFetch('/api/tenants/' + encodeURIComponent(sub) + '/upgrade', { method: 'POST' })
         .then(r => r.json().then(data => ({ ok: r.ok, data })))
         .then(({ ok, data }) => {
-          if (!ok) throw new Error(data.error || 'Fehler');
-          notify(window.transUpgradeDocker || 'Docker aktualisiert', 'success');
+          if (!ok) throw new Error(data.error || 'Error');
+          notify(window.transUpgradeDocker || 'Docker updated', 'success');
         })
-        .catch(err => notify(err.message || 'Fehler beim Aktualisieren', 'danger'))
+        .catch(err => notify(err.message || (window.transErrorUpgradeFailed || 'Upgrade failed'), 'danger'))
         .finally(() => {
           el.innerHTML = originalHtml;
           el.classList.remove('uk-disabled');
@@ -2662,27 +2662,27 @@ document.addEventListener('DOMContentLoaded', function () {
       apiFetch('/api/tenants/' + encodeURIComponent(sub) + '/restart', { method: 'POST' })
         .then(r => r.json().then(data => ({ ok: r.ok, data })))
         .then(({ ok, data }) => {
-          if (!ok) throw new Error(data.error || 'Fehler');
-          notify(data.status || 'Neu gestartet', 'success');
+          if (!ok) throw new Error(data.error || 'Error');
+          notify(data.status || (window.transRestarted || 'Restarted'), 'success');
         })
-        .catch(err => notify(err.message || 'Fehler beim Neustart', 'danger'));
+        .catch(err => notify(err.message || (window.transErrorRestartFailed || 'Restart failed'), 'danger'));
     } else if (action === 'renew') {
       e.preventDefault();
       apiFetch('/api/tenants/' + encodeURIComponent(sub) + '/renew-ssl', { method: 'POST' })
         .then(r => r.json().then(data => ({ ok: r.ok, data })))
         .then(({ ok, data }) => {
-          if (!ok) throw new Error(data.error || 'Fehler');
-          notify(data.status || 'Zertifikat wird erneuert', 'success');
+          if (!ok) throw new Error(data.error || 'Error');
+          notify(data.status || (window.transCertRenewing || 'Certificate is being renewed'), 'success');
         })
-        .catch(err => notify(err.message || 'Fehler beim Erneuern', 'danger'));
+        .catch(err => notify(err.message || (window.transErrorRenewFailed || 'Renewal failed'), 'danger'));
     } else if (action === 'welcome') {
       e.preventDefault();
       apiFetch('/tenants/' + encodeURIComponent(sub) + '/welcome', { method: 'POST' })
         .then(r => {
-          if (!r.ok) throw new Error('Fehler');
-          notify('Willkommensmail gesendet', 'success');
+          if (!r.ok) throw new Error('Error');
+          notify(window.transWelcomeMailSent || 'Welcome email sent', 'success');
         })
-        .catch(() => notify('Willkommensmail nicht verfügbar', 'danger'));
+        .catch(() => notify(window.transWelcomeMailUnavailable || 'Welcome email not available', 'danger'));
     }
   });
   planButtons.forEach(btn => {
@@ -2699,7 +2699,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ plan })
           });
-          if (!res.ok) throw new Error('Fehler beim Planwechsel');
+          if (!res.ok) throw new Error(window.transErrorPlanChange || 'Plan change failed');
           currentActivePlan = plan;
           planButtons.forEach(b => {
             b.disabled = (b.dataset.plan === plan);
@@ -2716,7 +2716,7 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         } catch (e) {
           console.error(e);
-          notify(e.message || 'Fehler beim Planwechsel', 'danger');
+          notify(e.message || (window.transErrorPlanChange || 'Plan change failed'), 'danger');
           btn.disabled = false;
         }
         return;
@@ -2749,7 +2749,7 @@ document.addEventListener('DOMContentLoaded', function () {
           } catch (e) {
             data = {};
           }
-          let msg = 'Fehler beim Starten der Zahlung';
+          let msg = window.transErrorPaymentStart || 'Error starting payment';
           if (data.error) {
             msg += ': ' + data.error;
           }
@@ -2774,7 +2774,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       } catch (e) {
         console.error(e);
-        notify('Fehler beim Starten der Zahlung', 'danger', 0);
+        notify(window.transErrorPaymentStart || 'Error starting payment', 'danger', 0);
       }
     });
   });
@@ -2828,10 +2828,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!puzzleIcon || !puzzleLabel) return;
     if (puzzleFeedback.trim().length > 0) {
       puzzleIcon.setAttribute('uk-icon', 'icon: check');
-      puzzleLabel.textContent = 'Feedbacktext bearbeiten';
+      puzzleLabel.textContent = window.transEditFeedbackText || 'Edit feedback text';
     } else {
       puzzleIcon.setAttribute('uk-icon', 'icon: pencil');
-      puzzleLabel.textContent = 'Feedbacktext';
+      puzzleLabel.textContent = window.transFeedbackText || 'Feedback text';
     }
     if (window.UIkit && UIkit.icon) {
       UIkit.icon(puzzleIcon, { icon: puzzleIcon.getAttribute('uk-icon').split(': ')[1] });
@@ -2841,9 +2841,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateInviteTextUI() {
       if (!inviteLabel) return;
       if (inviteText.trim().length > 0) {
-        inviteLabel.textContent = 'Einladungstext bearbeiten';
+        inviteLabel.textContent = window.transEditInvitationText || 'Edit invitation text';
       } else {
-        inviteLabel.textContent = 'Einladungstext eingeben';
+        inviteLabel.textContent = window.transEnterInvitationText || 'Enter invitation text';
       }
     }
   // --------- Konfiguration bearbeiten ---------
@@ -4492,7 +4492,7 @@ document.addEventListener('DOMContentLoaded', function () {
         name: 'file',
         multiple: false,
         error: function (e) {
-          const msg = (e && e.xhr && e.xhr.responseText) ? e.xhr.responseText : 'Fehler beim Hochladen';
+          const msg = (e && e.xhr && e.xhr.responseText) ? e.xhr.responseText : (window.transErrorUploadFailed || 'Upload failed');
           notify(msg, 'danger');
         },
         loadStart: function (e) {
@@ -5986,7 +5986,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const row = document.createElement('tr');
         const cell = document.createElement('td');
         cell.colSpan = 4;
-        cell.textContent = domainChatTranslations.empty || 'Keine Dateien vorhanden';
+        cell.textContent = domainChatTranslations.empty || 'No files available';
         row.appendChild(cell);
         tableBody.appendChild(row);
         return;
@@ -6030,7 +6030,7 @@ document.addEventListener('DOMContentLoaded', function () {
               if (!res.ok) {
                 throw new Error(data.error || domainChatTranslations.error || 'Delete failed');
               }
-              notify(domainChatTranslations.deleted || 'Gelöscht', 'success');
+              notify(domainChatTranslations.deleted || 'Deleted', 'success');
               return loadDocuments(currentDomain);
             }))
             .catch(err => {
@@ -6066,7 +6066,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const loadingRow = document.createElement('tr');
         const loadingCell = document.createElement('td');
         loadingCell.colSpan = 4;
-        loadingCell.textContent = domainChatTranslations.loading || 'Lade …';
+        loadingCell.textContent = domainChatTranslations.loading || 'Loading\u2026';
         loadingRow.appendChild(loadingCell);
         tableBody.appendChild(loadingRow);
       }
@@ -6090,15 +6090,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const errorRow = document.createElement('tr');
             const errorCell = document.createElement('td');
             errorCell.colSpan = 4;
-            errorCell.textContent = err.message || domainChatTranslations.error || 'Fehler';
+            errorCell.textContent = err.message || domainChatTranslations.error || 'Error';
             errorRow.appendChild(errorCell);
             tableBody.appendChild(errorRow);
           }
           if (wikiContainer) {
             renderWikiArticles({ enabled: true, available: false, articles: [] });
-            setWikiMessage(err.message || domainChatTranslations.error || 'Fehler', 'danger');
+            setWikiMessage(err.message || domainChatTranslations.error || 'Error', 'danger');
           }
-          showStatus(err.message || domainChatTranslations.error || 'Fehler', 'danger');
+          showStatus(err.message || domainChatTranslations.error || 'Error', 'danger');
         });
     };
 
@@ -6116,12 +6116,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const files = uploadInput?.files;
         const file = files && files.length ? files[0] : null;
         if (!selectedDomain || !file) {
-          notify(domainChatTranslations.error || 'Keine Datei ausgewählt', 'danger');
+          notify(domainChatTranslations.error || 'No file selected', 'danger');
           return;
         }
         if (maxUploadSize > 0 && file.size > maxUploadSize) {
           const sizeMb = (maxUploadSize / 1048576).toFixed(1);
-          notify(domainChatTranslations.error || `Datei zu groß (max. ${sizeMb} MB)`, 'danger');
+          notify(domainChatTranslations.error || `File too large (max. ${sizeMb} MB)`, 'danger');
           return;
         }
 
@@ -6147,7 +6147,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!res.ok) {
               throw new Error(data.error || domainChatTranslations.error || 'Upload failed');
             }
-            notify(domainChatTranslations.uploaded || 'Dokument gespeichert', 'success');
+            notify(domainChatTranslations.uploaded || 'Document saved', 'success');
             if (uploadInput) {
               uploadInput.value = '';
             }
@@ -6174,11 +6174,11 @@ document.addEventListener('DOMContentLoaded', function () {
       wikiSaveButton.addEventListener('click', () => {
         const selectedDomain = domainSelect?.value?.trim() || currentDomain;
         if (!selectedDomain) {
-          notify(domainChatTranslations.error || 'Keine Domain ausgewählt', 'danger');
+          notify(domainChatTranslations.error || 'No domain selected', 'danger');
           return;
         }
         if (!wikiState.enabled || !wikiState.available) {
-          notify(domainChatTranslations.wikiUnavailable || domainChatTranslations.error || 'Aktion nicht verfügbar', 'danger');
+          notify(domainChatTranslations.wikiUnavailable || domainChatTranslations.error || 'Action not available', 'danger');
           return;
         }
 
@@ -6198,7 +6198,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!res.ok || data.success !== true) {
               const message = typeof data.error === 'string'
                 ? data.error
-                : (domainChatTranslations.wikiError || domainChatTranslations.error || 'Speichern fehlgeschlagen');
+                : (domainChatTranslations.wikiError || domainChatTranslations.error || 'Save failed');
               throw new Error(message);
             }
 
@@ -6206,12 +6206,12 @@ document.addEventListener('DOMContentLoaded', function () {
               renderWikiArticles(data.wiki ?? { enabled: true, available: false, articles: [] });
             }
 
-            const successMessage = domainChatTranslations.wikiSaved || 'Auswahl gespeichert';
+            const successMessage = domainChatTranslations.wikiSaved || 'Selection saved';
             showStatus(successMessage, 'success');
             notify(successMessage, 'success');
           }))
           .catch(err => {
-            const message = err.message || domainChatTranslations.wikiError || domainChatTranslations.error || 'Speichern fehlgeschlagen';
+            const message = err.message || domainChatTranslations.wikiError || domainChatTranslations.error || 'Save failed';
             notify(message, 'danger');
             setWikiMessage(message, 'danger');
           })
@@ -6225,7 +6225,7 @@ document.addEventListener('DOMContentLoaded', function () {
       rebuildButton.addEventListener('click', () => {
         const selectedDomain = domainSelect?.value?.trim() || currentDomain;
         if (!selectedDomain) {
-          notify(domainChatTranslations.error || 'Keine Domain ausgewählt', 'danger');
+          notify(domainChatTranslations.error || 'No domain selected', 'danger');
           return;
         }
         rebuildButton.disabled = true;
@@ -6243,7 +6243,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (status === 'throttled') {
               const retryAfter = typeof data.retry_after === 'number' ? data.retry_after : null;
               const suffix = retryAfter ? ` (${retryAfter}s)` : '';
-              const message = (domainChatTranslations.rebuildThrottled || 'Bitte warten, bevor der Index neu aufgebaut wird.')
+              const message = (domainChatTranslations.rebuildThrottled || 'Please wait before rebuilding the index.')
                 + suffix;
               showStatus(message, 'warning');
               notify(message, 'warning');
@@ -6268,14 +6268,14 @@ document.addEventListener('DOMContentLoaded', function () {
               throw error;
             }
             if (data.queued === true || status === 'queued') {
-              const message = domainChatTranslations.rebuildQueued || 'Index-Aufbau eingeplant';
+              const message = domainChatTranslations.rebuildQueued || 'Index rebuild scheduled';
               showStatus(message, 'success');
               notify(message, 'success');
               return null;
             }
             const message = data.cleared
-              ? (domainChatTranslations.rebuildCleared || 'Index zurückgesetzt')
-              : (domainChatTranslations.rebuild || 'Index aktualisiert');
+              ? (domainChatTranslations.rebuildCleared || 'Index reset')
+              : (domainChatTranslations.rebuild || 'Index updated');
             const stdout = typeof data.stdout === 'string' ? data.stdout.trim() : '';
             showStatus(message, 'success', stdout);
             return loadDocuments(selectedDomain);
@@ -6299,7 +6299,7 @@ document.addEventListener('DOMContentLoaded', function () {
       downloadButton.addEventListener('click', () => {
         const selectedDomain = domainSelect?.value?.trim() || currentDomain;
         if (!selectedDomain) {
-          notify(domainChatTranslations.error || 'Keine Domain ausgewählt', 'danger');
+          notify(domainChatTranslations.error || 'No domain selected', 'danger');
           return;
         }
 
@@ -6530,11 +6530,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }).then(r => {
       if (r.ok) {
         Object.assign(cfgInitial, data);
-        notify('Einstellung gespeichert', 'success');
+        notify(window.transSettingSaved || 'Setting saved', 'success');
       } else {
-        notify('Fehler beim Speichern', 'danger');
+        notify(window.transErrorSaveFailed || 'Save failed', 'danger');
       }
-    }).catch(() => notify('Fehler beim Speichern', 'danger'));
+    }).catch(() => notify(window.transErrorSaveFailed || 'Save failed', 'danger'));
   }
 
   document.querySelectorAll('[data-config-form]').forEach(form => {
@@ -6710,7 +6710,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updatePuzzleFeedbackUI();
     puzzleModal.hide();
     cfgInitial.puzzleFeedback = puzzleFeedback;
-    notify('Feedbacktext gespeichert', 'success');
+    notify(window.transFeedbackTextSaved || 'Feedback text saved', 'success');
     queueCfgSave();
   });
 
@@ -6720,7 +6720,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updateInviteTextUI();
     inviteModal.hide();
     cfgInitial.inviteText = inviteText;
-    notify('Einladungstext gespeichert', 'success');
+    notify(window.transInvitationTextSaved || 'Invitation text saved', 'success');
     queueCfgSave();
   });
 
@@ -6733,10 +6733,10 @@ document.addEventListener('DOMContentLoaded', function () {
       await saveCatalogs(list);
       commentModal.hide();
       currentCommentItem = null;
-      notify('Kommentar gespeichert', 'success');
+      notify(window.transCommentSaved || 'Comment saved', 'success');
     } catch (err) {
       console.error(err);
-      notify('Fehler beim Speichern', 'danger');
+      notify(window.transErrorSaveFailed || 'Save failed', 'danger');
     }
   });
 
@@ -6749,11 +6749,11 @@ document.addEventListener('DOMContentLoaded', function () {
       body: JSON.stringify({ registration_enabled: settingsInitial.registration_enabled })
     }).then(r => {
       if (r.ok) {
-        notify('Einstellung gespeichert', 'success');
+        notify(window.transSettingSaved || 'Setting saved', 'success');
       } else {
-        notify('Fehler beim Speichern', 'danger');
+        notify(window.transErrorSaveFailed || 'Save failed', 'danger');
       }
-    }).catch(() => notify('Fehler beim Speichern', 'danger'));
+    }).catch(() => notify(window.transErrorSaveFailed || 'Save failed', 'danger'));
   });
   function bindTeamPrintButtons(root = document) {
     if (!root || typeof root.querySelectorAll !== 'function') {
@@ -6918,14 +6918,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogColumns = [
     { key: 'slug', label: 'Slug', className: 'uk-table-shrink', editable: true },
     { key: 'name', label: 'Name', className: 'uk-table-expand', editable: true },
-    { key: 'description', label: 'Beschreibung', className: 'uk-table-expand', editable: true },
-    { key: 'raetsel_buchstabe', label: 'Rätsel-Buchstabe', className: 'uk-table-shrink', editable: true },
+    { key: 'description', label: window.transDescription || 'Description', className: 'uk-table-expand', editable: true },
+    { key: 'raetsel_buchstabe', label: window.transPuzzleLetter || 'Puzzle letter', className: 'uk-table-shrink', editable: true },
     {
       key: 'comment',
-      label: 'Kommentar',
+      label: window.transComment || 'Comment',
       className: 'uk-table-expand',
       editable: true,
-      ariaDesc: 'Kommentar bearbeiten',
+      ariaDesc: window.transEditComment || 'Edit comment',
       render: renderCatalogComment
     },
     {
@@ -6937,8 +6937,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const delBtn = document.createElement('button');
         delBtn.className = 'uk-icon-button qr-action uk-text-danger';
         delBtn.setAttribute('uk-icon', 'trash');
-        delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
-        delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+        delBtn.setAttribute('aria-label', window.transDelete || 'Delete');
+        delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Delete') + '; pos: left');
         delBtn.addEventListener('click', () => deleteCatalogById(item.id));
 
         wrapper.appendChild(delBtn);
@@ -6951,7 +6951,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const delBtn = document.createElement('button');
         delBtn.className = 'uk-icon-button qr-action uk-text-danger';
         delBtn.setAttribute('uk-icon', 'trash');
-        delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+        delBtn.setAttribute('aria-label', window.transDelete || 'Delete');
         delBtn.addEventListener('click', () => deleteCatalogById(item.id));
 
         wrapper.appendChild(delBtn);
@@ -7035,7 +7035,7 @@ document.addEventListener('DOMContentLoaded', function () {
           item.slug = id;
         } catch (err) {
           console.error(err);
-          notify('Fehler beim Erstellen', 'danger');
+          notify(window.transErrorCreateFailed || 'Creation failed', 'danger');
         }
       } else if (currentId && item.file && item.file !== newFile) {
         try {
@@ -7046,7 +7046,7 @@ document.addEventListener('DOMContentLoaded', function () {
           item.file = newFile;
         } catch (err) {
           console.error(err);
-          notify('Fehler beim Umbenennen', 'danger');
+          notify(window.transErrorRenameFailed || 'Rename failed', 'danger');
         }
       }
       item.file = newFile;
@@ -7084,14 +7084,14 @@ document.addEventListener('DOMContentLoaded', function () {
         catSelect.value = catalogs[0].id;
         loadCatalog(catSelect.value);
       }
-      if (show && !reorder) notify('Katalogliste gespeichert', 'success');
+      if (show && !reorder) notify(window.transCatalogListSaved || 'Catalogue list saved', 'success');
     } catch (err) {
       console.error(err);
       if (retries > 0) {
-        notify('Fehler beim Speichern, versuche es erneut …', 'warning');
+        notify(window.transErrorSaveRetry || 'Save failed, please try again\u2026', 'warning');
         setTimeout(() => saveCatalogs(list, show, reorder, retries - 1), 1000);
       } else {
-        notify('Fehler beim Speichern', 'danger');
+        notify(window.transErrorSaveFailed || 'Save failed', 'danger');
       }
     }
   }
@@ -7207,7 +7207,7 @@ document.addEventListener('DOMContentLoaded', function () {
       catalogManager.render(list.filter(c => c.id !== id));
       return;
     }
-    if (!confirm('Katalog wirklich löschen?')) return;
+    if (!confirm(window.transConfirmCatalogDelete || 'Really delete catalogue?')) return;
     apiFetch('/kataloge/' + cat.file, { method: 'DELETE' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
@@ -7225,11 +7225,11 @@ document.addEventListener('DOMContentLoaded', function () {
           resetQuestionEditorState();
         }
         saveCatalogs(updated);
-        notify('Katalog gelöscht', 'success');
+        notify(window.transCatalogDeleted || 'Catalogue deleted', 'success');
       })
       .catch(err => {
         console.error(err);
-        notify('Fehler beim Löschen', 'danger');
+        notify(window.transErrorDeleteFailed || 'Delete failed', 'danger');
       });
   }
 
@@ -7260,12 +7260,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const typeSelect = document.createElement('select');
     typeSelect.className = 'uk-select uk-margin-small-bottom type-select';
     const labelMap = {
-      mc: 'Multiple Choice',
-      assign: 'Zuordnen',
-      sort: 'Sortieren',
-      swipe: 'Swipe-Karten',
-      photoText: 'Foto + Text',
-      flip: 'Hätten Sie es gewusst?'
+      mc: window.transQuizTypeMc || 'Multiple Choice',
+      assign: window.transQuizTypeAssign || 'Assign',
+      sort: window.transQuizTypeSort || 'Sort',
+      swipe: window.transQuizTypeSwipe || 'Swipe cards',
+      photoText: window.transQuizTypePhotoText || 'Photo + Text',
+      flip: window.transQuizTypeFlip || 'Did you know?'
     };
     ['sort', 'assign', 'mc', 'swipe', 'photoText', 'flip'].forEach(t => {
       const opt = document.createElement('option');
@@ -7279,15 +7279,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // Infotext passend zum gewählten Fragetyp anzeigen
     function updateInfo() {
       const map = {
-        sort: 'Items in die richtige Reihenfolge bringen.',
-        assign: 'Begriffe den passenden Definitionen zuordnen.',
-        mc: 'Mehrfachauswahl (Multiple Choice, mehrere Antworten möglich).',
-        swipe: 'Karten nach links oder rechts wischen.',
-        photoText: 'Foto aufnehmen und passende Antwort eingeben.',
-        flip: 'Frage mit umdrehbarer Antwortkarte.'
+        sort: window.transQuizInfoSort || 'Put items in the correct order.',
+        assign: window.transQuizInfoAssign || 'Match terms to their definitions.',
+        mc: window.transQuizInfoMc || 'Multiple choice (several answers possible).',
+        swipe: window.transQuizInfoSwipe || 'Swipe cards left or right.',
+        photoText: window.transQuizInfoPhotoText || 'Take a photo and enter the matching answer.',
+        flip: window.transQuizInfoFlip || 'Question with a flippable answer card.'
       };
       const base = map[typeSelect.value] || '';
-      typeInfo.textContent = base + ' Für kleine Displays kannst du "/-" als verstecktes Worttrennzeichen nutzen.';
+      typeInfo.textContent = base + ' ' + (window.transQuizInfoSoftHyphen || 'For small displays you can use "/-" as a hidden soft hyphen.');
     }
     updateInfo();
     typeSelect.addEventListener('change', () => {
@@ -7298,7 +7298,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     const prompt = document.createElement('textarea');
     prompt.className = 'uk-textarea uk-margin-small-bottom prompt';
-    prompt.placeholder = 'Fragetext';
+    prompt.placeholder = window.transQuestionText || 'Question text';
     prompt.value = q.prompt || '';
     const countdownEnabled = isCountdownFeatureEnabled();
     const defaultCountdown = getDefaultCountdownSeconds();
@@ -7325,10 +7325,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const countdownMeta = document.createElement('div');
     countdownMeta.className = 'uk-text-meta';
     const countdownDisabledHint = cfgFields.countdownEnabled
-      ? 'In den Event-Einstellungen unter „Extras“ den Countdown aktivieren, um ein Zeitlimit festzulegen.'
-      : 'Countdown aktivieren, um ein Zeitlimit festzulegen.';
+      ? (window.transCountdownEnableHintExtras || 'Enable countdown under "Extras" in the event settings to set a time limit.')
+      : (window.transCountdownEnableHint || 'Enable countdown to set a time limit.');
     countdownMeta.textContent = countdownEnabled
-      ? 'Leer für Standardwert, 0 deaktiviert den Timer.'
+      ? (window.transCountdownTimerHint || 'Leave empty for default, 0 disables the timer.')
       : countdownDisabledHint;
     countdownGroup.appendChild(countdownLabel);
     countdownGroup.appendChild(countdownInput);
@@ -7429,7 +7429,7 @@ document.addEventListener('DOMContentLoaded', function () {
           })
           .catch(err => {
             console.error(err);
-            notify('Fehler beim Löschen', 'danger');
+            notify(window.transErrorDeleteFailed || 'Delete failed', 'danger');
           });
       } else {
         card.remove();
@@ -7551,7 +7551,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const add = document.createElement('button');
         add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
         add.setAttribute("uk-icon", "plus");
-        add.setAttribute("aria-label", "Item hinzufügen");
+        add.setAttribute("aria-label", window.transAddItem || "Add item");
         add.onclick = e => {
           e.preventDefault();
           list.appendChild(addItem(''));
@@ -7566,7 +7566,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const add = document.createElement('button');
         add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
         add.setAttribute("uk-icon", "plus");
-        add.setAttribute("aria-label", "Begriff hinzufügen");
+        add.setAttribute("aria-label", window.transAddTerm || "Add term");
         add.onclick = e => {
           e.preventDefault();
           list.appendChild(addPair('', ''));
@@ -7577,20 +7577,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const right = document.createElement('input');
         right.className = 'uk-input uk-margin-small-bottom right-label';
         right.type = 'text';
-        right.placeholder = 'Label rechts (\u27A1, z.B. Ja)';
+        right.placeholder = window.transSwipeRightPlaceholder || 'Label right (\u27A1, e.g. Yes)';
         right.style.borderColor = 'green';
         right.value = q.rightLabel || '';
-        right.setAttribute('aria-label', 'Label f\u00fcr Swipe nach rechts');
-        right.setAttribute('uk-tooltip', 'title: Text, der beim Wischen nach rechts angezeigt wird.; pos: right');
+        right.setAttribute('aria-label', window.transSwipeRightLabel || 'Label for swipe right');
+        right.setAttribute('uk-tooltip', 'title: ' + (window.transSwipeRightTooltip || 'Text shown when swiping right.') + '; pos: right');
 
         const left = document.createElement('input');
         left.className = 'uk-input uk-margin-small-bottom left-label';
         left.type = 'text';
-        left.placeholder = 'Label links (\u2B05, z.B. Nein)';
+        left.placeholder = window.transSwipeLeftPlaceholder || 'Label left (\u2B05, e.g. No)';
         left.style.borderColor = 'red';
         left.value = q.leftLabel || '';
-        left.setAttribute('aria-label', 'Label f\u00fcr Swipe nach links');
-        left.setAttribute('uk-tooltip', 'title: Text, der beim Wischen nach links angezeigt wird.; pos: right');
+        left.setAttribute('aria-label', window.transSwipeLeftLabel || 'Label for swipe left');
+        left.setAttribute('uk-tooltip', 'title: ' + (window.transSwipeLeftTooltip || 'Text shown when swiping left.') + '; pos: right');
 
         fields.appendChild(right);
         fields.appendChild(left);
@@ -7601,21 +7601,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const add = document.createElement('button');
         add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
         add.setAttribute("uk-icon", "plus");
-        add.setAttribute("aria-label", "Karte hinzufügen");
+        add.setAttribute("aria-label", window.transAddCard || "Add card");
         add.onclick = e => { e.preventDefault(); list.appendChild(addCard('', false)); };
         fields.appendChild(list);
         fields.appendChild(add);
       } else if (typeSelect.value === 'flip') {
         const ans = document.createElement('textarea');
         ans.className = 'uk-textarea uk-margin-small-bottom flip-answer';
-        ans.placeholder = 'Antwort';
+        ans.placeholder = window.transAnswer || 'Answer';
         ans.value = q.answer || '';
-        ans.setAttribute('aria-label', 'Antwort');
+        ans.setAttribute('aria-label', window.transAnswer || 'Answer');
         fields.appendChild(ans);
       } else if (typeSelect.value === 'photoText') {
         const consent = document.createElement('label');
         consent.className = 'uk-margin-small-bottom';
-        consent.innerHTML = '<input type="checkbox" class="uk-checkbox consent-box"> Datenschutz-Checkbox anzeigen';
+        consent.innerHTML = '<input type="checkbox" class="uk-checkbox consent-box"> ' + (window.transShowPrivacyCheckbox || 'Show privacy checkbox');
         const chk = consent.querySelector('input');
         if (q.consent) chk.checked = true;
         fields.appendChild(consent);
@@ -7627,7 +7627,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const add = document.createElement('button');
         add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
         add.setAttribute("uk-icon", "plus");
-        add.setAttribute("aria-label", "Option hinzufügen");
+        add.setAttribute("aria-label", window.transAddOption || "Add option");
         add.onclick = e => {
           e.preventDefault();
           list.appendChild(addOption(''));
@@ -7676,7 +7676,7 @@ document.addEventListener('DOMContentLoaded', function () {
           timer.className = 'question-timer uk-margin-small-bottom';
           const timerLabel = document.createElement('span');
           timerLabel.className = 'question-timer__label';
-          timerLabel.textContent = 'Zeitlimit:';
+          timerLabel.textContent = (window.transTimeLimit || 'Time limit') + ':';
           const timerValue = document.createElement('span');
           timerValue.className = 'question-timer__value';
           timerValue.textContent = `${effectiveCountdown}s`;
@@ -7686,7 +7686,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (countdownValue === 0) {
           const noTimer = document.createElement('div');
           noTimer.className = 'uk-text-meta uk-margin-small-bottom';
-          noTimer.textContent = 'Kein Timer für diese Frage.';
+          noTimer.textContent = window.transNoTimerForQuestion || 'No timer for this question.';
           preview.appendChild(noTimer);
         }
       }
@@ -7695,9 +7695,9 @@ document.addEventListener('DOMContentLoaded', function () {
       const pointsInfo = document.createElement('div');
       pointsInfo.className = 'uk-text-meta uk-margin-small-bottom';
       if (scorable) {
-        pointsInfo.textContent = pointsValue === 1 ? '1 Punkt' : `${pointsValue} Punkte`;
+        pointsInfo.textContent = pointsValue === 1 ? (window.transOnePoint || '1 point') : `${pointsValue} ${window.transPoints || 'points'}`;
       } else {
-        pointsInfo.textContent = 'Keine Punktevergabe';
+        pointsInfo.textContent = window.transNoScoring || 'No scoring';
       }
       preview.appendChild(pointsInfo);
       const h = document.createElement('h4');
@@ -8038,7 +8038,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(err => {
           console.error(err);
-          notify('Fehler beim Speichern', 'danger');
+          notify(window.transErrorSaveFailed || 'Save failed', 'danger');
         });
     }, 300);
   }
@@ -8100,13 +8100,13 @@ document.addEventListener('DOMContentLoaded', function () {
     apiFetch('/results', { method: 'DELETE' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        notify('Ergebnisse gelöscht', 'success');
+        notify(window.transResultsCleared || 'Results cleared', 'success');
         resultsResetModal?.hide();
         window.location.reload();
       })
       .catch(err => {
         console.error(err);
-        notify('Fehler beim Löschen', 'danger');
+        notify(window.transErrorDeleteFailed || 'Delete failed', 'danger');
       });
   });
 
@@ -8128,7 +8128,7 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(err => {
         console.error(err);
-      notify('Fehler beim Herunterladen', 'danger');
+      notify(window.transErrorDownloadFailed || 'Download failed', 'danger');
     });
   });
 
@@ -8351,11 +8351,11 @@ document.addEventListener('DOMContentLoaded', function () {
     })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        notify('Veranstaltungen gespeichert', 'success');
+        notify(window.transEventsSaved || 'Events saved', 'success');
         syncCurrentEventState(selectable);
         highlightCurrentEvent();
       })
-      .catch(() => notify('Fehler beim Speichern', 'danger'));
+      .catch(() => notify(window.transErrorSaveFailed || 'Save failed', 'danger'));
   }
 
   function highlightCurrentEvent() {
@@ -8421,7 +8421,7 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(err => {
         console.error(err);
-        notify(err.message || 'Fehler beim Wechseln des Events', 'danger');
+        notify(err.message || (window.transErrorEventSwitch || 'Error switching event'), 'danger');
         currentEventUid = prevUid;
         currentEventName = prevName;
         updateActiveHeader(prevName);
@@ -8517,8 +8517,8 @@ document.addEventListener('DOMContentLoaded', function () {
           const delBtn = document.createElement('button');
           delBtn.className = 'uk-icon-button qr-action uk-text-danger';
           delBtn.setAttribute('uk-icon', 'trash');
-          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
-          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Delete');
+          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Delete') + '; pos: left');
           delBtn.addEventListener('click', () => removeEvent(ev.id));
 
           wrapper.appendChild(delBtn);
@@ -8531,7 +8531,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const delBtn = document.createElement('button');
           delBtn.className = 'uk-icon-button qr-action uk-text-danger';
           delBtn.setAttribute('uk-icon', 'trash');
-          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Delete');
           delBtn.addEventListener('click', () => removeEvent(ev.id));
 
           wrapper.appendChild(delBtn);
@@ -8547,8 +8547,8 @@ document.addEventListener('DOMContentLoaded', function () {
         + '<h3 class="uk-modal-title"></h3>'
         + '<input id="eventEditInput" class="uk-input" type="text">'
         + '<div class="uk-margin-top uk-text-right">'
-        + `<button id="eventEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Abbrechen'}</button>`
-        + `<button id="eventEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Speichern'}</button>`
+        + `<button id="eventEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Cancel'}</button>`
+        + `<button id="eventEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Save'}</button>`
         + '</div>'
         + '</div>';
       document.body.appendChild(modal);
@@ -8692,8 +8692,8 @@ document.addEventListener('DOMContentLoaded', function () {
       + `<h3 class="uk-modal-title">${teamDeleteTitle}</h3>`
       + '<p id="teamDeleteConfirmText"></p>'
       + '<div class="uk-text-right">'
-      + `<button id="teamDeleteCancel" class="uk-button uk-button-default uk-modal-close" type="button">${window.transCancel || 'Abbrechen'}</button>`
-      + `<button id="teamDeleteConfirm" class="uk-button uk-button-danger" type="button">${window.transDelete || 'Löschen'}</button>`
+      + `<button id="teamDeleteCancel" class="uk-button uk-button-default uk-modal-close" type="button">${window.transCancel || 'Cancel'}</button>`
+      + `<button id="teamDeleteConfirm" class="uk-button uk-button-danger" type="button">${window.transDelete || 'Delete'}</button>`
       + '</div>'
       + '</div>';
     document.body.appendChild(modal);
@@ -8748,8 +8748,8 @@ document.addEventListener('DOMContentLoaded', function () {
       + '<input id="teamEditInput" class="uk-input" type="text">'
       + '<div id="teamEditError" class="uk-text-danger uk-margin-small-top" hidden></div>'
       + '<div class="uk-margin-top uk-text-right">'
-      + `<button id="teamEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Abbrechen'}</button>`
-      + `<button id="teamEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Speichern'}</button>`
+      + `<button id="teamEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Cancel'}</button>`
+      + `<button id="teamEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Save'}</button>`
       + '</div>'
       + '</div>';
     document.body.appendChild(modal);
@@ -8792,8 +8792,8 @@ document.addEventListener('DOMContentLoaded', function () {
           const delBtn = document.createElement('button');
           delBtn.className = 'uk-icon-button qr-action uk-text-danger uk-margin-small-left';
           delBtn.setAttribute('uk-icon', 'trash');
-          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
-          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Delete');
+          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Delete') + '; pos: left');
           delBtn.addEventListener('click', () => requestTeamRemoval(item));
           wrapper.appendChild(delBtn);
 
@@ -8812,7 +8812,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const delBtn = document.createElement('button');
           delBtn.className = 'uk-icon-button qr-action uk-text-danger uk-margin-small-left';
           delBtn.setAttribute('uk-icon', 'trash');
-          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Delete');
           delBtn.addEventListener('click', () => requestTeamRemoval(item));
 
           wrapper.appendChild(pdfBtn);
@@ -8863,15 +8863,15 @@ document.addEventListener('DOMContentLoaded', function () {
     })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        if (show) notify('Liste gespeichert', 'success');
+        if (show) notify(window.transListSaved || 'List saved', 'success');
       })
       .catch(err => {
         console.error(err);
         if (retries > 0) {
-          notify('Fehler beim Speichern, versuche es erneut …', 'warning');
+          notify(window.transErrorSaveRetry || 'Save failed, please try again\u2026', 'warning');
           setTimeout(() => saveTeamList(list, show, retries - 1), 1000);
         } else {
-          notify('Fehler beim Speichern', 'danger');
+          notify(window.transErrorSaveFailed || 'Save failed', 'danger');
         }
       });
   }
@@ -9284,12 +9284,12 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .then(data => {
         renderUsers(data);
-        notify('Liste gespeichert', 'success');
+        notify(window.transListSaved || 'List saved', 'success');
       })
       .catch(err => {
         if (err) {
           console.error(err);
-          notify('Fehler beim Speichern', 'danger');
+          notify(window.transErrorSaveFailed || 'Save failed', 'danger');
         }
       });
   }
@@ -9554,8 +9554,8 @@ document.addEventListener('DOMContentLoaded', function () {
           passBtn.type = 'button';
           passBtn.className = 'uk-icon-button qr-action';
           passBtn.setAttribute('uk-icon', 'key');
-          passBtn.setAttribute('aria-label', window.transUserPass || 'Passwort setzen');
-          passBtn.setAttribute('uk-tooltip', 'title: ' + (window.transUserPass || 'Passwort setzen') + '; pos: left');
+          passBtn.setAttribute('aria-label', window.transUserPass || 'Set password');
+          passBtn.setAttribute('uk-tooltip', 'title: ' + (window.transUserPass || 'Set password') + '; pos: left');
           passBtn.addEventListener('click', () => openPassModal(item.id));
           wrapper.appendChild(passBtn);
 
@@ -9563,8 +9563,8 @@ document.addEventListener('DOMContentLoaded', function () {
           delBtn.type = 'button';
           delBtn.className = 'uk-icon-button qr-action uk-text-danger uk-margin-small-left';
           delBtn.setAttribute('uk-icon', 'trash');
-          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
-          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Delete');
+          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Delete') + '; pos: left');
           delBtn.addEventListener('click', () => removeUser(item.id));
           wrapper.appendChild(delBtn);
 
@@ -9577,14 +9577,14 @@ document.addEventListener('DOMContentLoaded', function () {
           const passBtn = document.createElement('button');
           passBtn.className = 'uk-icon-button qr-action';
           passBtn.setAttribute('uk-icon', 'key');
-          passBtn.setAttribute('aria-label', window.transUserPass || 'Passwort setzen');
+          passBtn.setAttribute('aria-label', window.transUserPass || 'Set password');
           passBtn.addEventListener('click', () => openPassModal(item.id));
           wrapper.appendChild(passBtn);
 
           const delBtn = document.createElement('button');
           delBtn.className = 'uk-icon-button qr-action uk-text-danger uk-margin-small-left';
           delBtn.setAttribute('uk-icon', 'trash');
-          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Delete');
           delBtn.addEventListener('click', () => removeUser(item.id));
           wrapper.appendChild(delBtn);
 
@@ -9647,11 +9647,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const p1 = userPassInput.value;
     const p2 = userPassRepeat.value;
     if (p1 === '' || p2 === '') {
-      notify('Passwort darf nicht leer sein', 'danger');
+      notify(window.transPasswordEmpty || 'Password must not be empty', 'danger');
       return;
     }
     if (p1 !== p2) {
-      notify('Passwörter stimmen nicht überein', 'danger');
+      notify(window.transPasswordMismatch || 'Passwords do not match', 'danger');
       return;
     }
     const list = userManager.getData();
@@ -9779,13 +9779,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const computedThrottled = nextAllowedMs !== null ? nextAllowedMs > now : false;
     const isThrottled = nextAllowedMs !== null ? computedThrottled : Boolean(tenantSyncState.is_throttled);
 
-    let text = window.transTenantSyncOk || 'Aktuell';
+    let text = window.transTenantSyncOk || 'Up to date';
     let background = '#32d296';
     if (isStale) {
-      text = window.transTenantSyncStale || 'Sync nötig';
+      text = window.transTenantSyncStale || 'Sync needed';
       background = '#faa05a';
     } else if (isThrottled) {
-      text = window.transTenantSyncCooling || 'Wartezeit';
+      text = window.transTenantSyncCooling || 'Cooldown';
       background = '#1e87f0';
     }
 
@@ -9936,11 +9936,11 @@ document.addEventListener('DOMContentLoaded', function () {
         return `<label><input class="uk-checkbox" type="checkbox" data-col="${def.key}" ${checked}> ${def.label}</label>`;
       }).join('<br>');
       modal.innerHTML = `<div class="uk-modal-dialog uk-modal-body">
-        <h2 class="uk-modal-title">Spalten auswählen</h2>
+        <h2 class="uk-modal-title">${window.transSelectColumns || 'Select columns'}</h2>
         <form>${options}</form>
         <p class="uk-text-right">
-          <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
-          <button class="uk-button uk-button-primary" type="button" id="tenantColumnSave">Speichern</button>
+          <button class="uk-button uk-button-default uk-modal-close" type="button">${window.transCancel || 'Cancel'}</button>
+          <button class="uk-button uk-button-primary" type="button" id="tenantColumnSave">${window.transSave || 'Save'}</button>
         </p>
       </div>`;
       document.body.appendChild(modal);
@@ -10032,7 +10032,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (!r.ok) throw new Error(r.statusText);
           notify('Import abgeschlossen', 'success');
         })
-        .catch(() => notify('Fehler beim Import', 'danger'));
+        .catch(() => notify(window.transErrorImportFailed || 'Import failed', 'danger'));
     } else if (action === 'download') {
       apiFetch('/backups/' + encodeURIComponent(name) + '/download')
         .then(r => r.blob())
@@ -10044,7 +10044,7 @@ document.addEventListener('DOMContentLoaded', function () {
           a.click();
           URL.revokeObjectURL(url);
         })
-        .catch(() => notify('Fehler beim Download', 'danger'));
+        .catch(() => notify(window.transErrorDownloadFailed || 'Download failed', 'danger'));
     } else if (action === 'delete') {
       apiFetch('/backups/' + encodeURIComponent(name), { method: 'DELETE' })
         .then(r => {
@@ -10056,7 +10056,7 @@ document.addEventListener('DOMContentLoaded', function () {
             throw new Error(data.error || r.statusText);
           });
         })
-        .catch(err => notify(err.message || 'Fehler beim Löschen', 'danger'));
+        .catch(err => notify(err.message || (window.transErrorDeleteFailed || 'Delete failed'), 'danger'));
     }
   });
   importJsonBtn?.addEventListener('click', e => {
@@ -10068,7 +10068,7 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(err => {
         console.error(err);
-        notify('Fehler beim Import', 'danger');
+        notify(window.transErrorImportFailed || 'Import failed', 'danger');
       });
   });
 
@@ -10077,11 +10077,11 @@ document.addEventListener('DOMContentLoaded', function () {
     apiFetch('/export-default', { method: 'POST' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        notify('Demodaten gespeichert', 'success');
+        notify(window.transDemoDataSaved || 'Demo data saved', 'success');
       })
       .catch(err => {
         console.error(err);
-        notify('Fehler beim Speichern', 'danger');
+        notify(window.transErrorSaveFailed || 'Save failed', 'danger');
       });
   });
 
@@ -10108,7 +10108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     apiFetch('/tenants/export')
       .then(async r => {
-        if (!r.ok) throw new Error('Fehler');
+        if (!r.ok) throw new Error('Error');
         const blob = await r.blob();
         const disposition = r.headers.get('Content-Disposition') || '';
         let filename = 'tenants.csv';
@@ -10125,14 +10125,14 @@ document.addEventListener('DOMContentLoaded', function () {
         a.remove();
         window.URL.revokeObjectURL(url);
       })
-      .catch(() => notify('Fehler beim Export', 'danger'));
+      .catch(() => notify(window.transErrorExportFailed || 'Export failed', 'danger'));
   });
 
   tenantReportBtn?.addEventListener('click', e => {
     e.preventDefault();
     apiFetch('/tenants/report')
       .then(async r => {
-        if (!r.ok) throw new Error('Fehler');
+        if (!r.ok) throw new Error('Error');
         const contentType = r.headers.get('Content-Type') || '';
         const disposition = r.headers.get('Content-Disposition') || '';
         if (contentType.includes('pdf')) {
@@ -10166,7 +10166,7 @@ document.addEventListener('DOMContentLoaded', function () {
         a.remove();
         window.URL.revokeObjectURL(url);
       })
-      .catch(() => notify('Fehler beim Bericht', 'danger'));
+      .catch(() => notify(window.transErrorReportFailed || 'Report failed', 'danger'));
   });
 
   tenantSyncBtn?.addEventListener('click', e => {
@@ -10200,7 +10200,7 @@ document.addEventListener('DOMContentLoaded', function () {
           updateTenantSyncState(data.sync);
         }
         if (data?.throttled) {
-          notify(window.transTenantSyncThrottled || 'Sync läuft bereits – bitte später erneut versuchen', 'warning');
+          notify(window.transTenantSyncThrottled || 'Sync already in progress \u2013 please try again later', 'warning');
           return;
         }
 
@@ -10213,14 +10213,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (imported > 0) {
           notify(window.transTenantSyncSuccess || 'Mandanten eingelesen', 'success');
         } else {
-          const template = window.transTenantSyncNoChanges || 'Keine neuen Mandanten gefunden ({count} importiert)';
+          const template = window.transTenantSyncNoChanges || 'No new tenants found ({count} imported)';
           const message = template.replace('{count}', String(imported));
           notify(message, 'warning');
         }
       })
       .catch(err => {
         console.error(err);
-        notify('Fehler beim Synchronisieren', 'danger');
+        notify(window.transErrorSyncFailed || 'Sync failed', 'danger');
       })
       .finally(() => {
         if (shouldRefresh) {
@@ -11232,8 +11232,8 @@ document.addEventListener('DOMContentLoaded', function () {
         body: JSON.stringify(data)
       }).then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        notify('Profil gespeichert', 'success');
-      }).catch(() => notify('Fehler beim Speichern', 'danger'));
+        notify(window.transProfileSaved || 'Profile saved', 'success');
+      }).catch(() => notify(window.transErrorSaveFailed || 'Save failed', 'danger'));
     });
 
     welcomeMailBtn?.addEventListener('click', e => {
@@ -11241,9 +11241,9 @@ document.addEventListener('DOMContentLoaded', function () {
       apiFetch('/admin/profile/welcome', { method: 'POST' })
         .then(r => {
           if (!r.ok) throw new Error('failed');
-          notify('Willkommensmail gesendet', 'success');
+          notify(window.transWelcomeMailSent || 'Welcome email sent', 'success');
         })
-        .catch(() => notify('Fehler beim Senden', 'danger'));
+        .catch(() => notify(window.transErrorSendFailed || 'Send failed', 'danger'));
     });
 
     planSelect?.addEventListener('change', async () => {
@@ -11260,7 +11260,7 @@ document.addEventListener('DOMContentLoaded', function () {
             notify('Plan: ' + (data?.plan || 'none'), 'success');
             window.location.reload();
           })
-          .catch(() => notify('Fehler', 'danger'));
+          .catch(() => notify(window.transErrorGeneric || 'Error', 'danger'));
         return;
       }
       if (!plan) return;
@@ -11290,7 +11290,7 @@ document.addEventListener('DOMContentLoaded', function () {
           } catch (e) {
             data = {};
           }
-          let msg = 'Fehler beim Starten der Zahlung';
+          let msg = window.transErrorPaymentStart || 'Error starting payment';
           if (data.error) {
             msg += ': ' + data.error;
           }
@@ -11315,7 +11315,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       } catch (e) {
         console.error(e);
-        notify('Fehler beim Starten der Zahlung', 'danger', 0);
+        notify(window.transErrorPaymentStart || 'Error starting payment', 'danger', 0);
       }
     });
 

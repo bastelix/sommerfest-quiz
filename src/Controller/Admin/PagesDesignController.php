@@ -113,6 +113,7 @@ class PagesDesignController
 
     public function save(Request $request, Response $response): Response
     {
+        $translator = $request->getAttribute('translator');
         /** @var mixed $parsedBody */
         $parsedBody = $request->getParsedBody();
         if (!is_array($parsedBody)) {
@@ -147,7 +148,7 @@ class PagesDesignController
             if ($preset === null) {
                 $_SESSION['page_design_flash'] = [
                     'type' => 'danger',
-                    'message' => 'Kein Design-Preset ausgewählt.',
+                    'message' => $translator instanceof \App\Service\TranslationService ? $translator->translate('error_design_no_preset_selected') : 'No design preset selected.',
                 ];
 
                 return $response
@@ -157,11 +158,15 @@ class PagesDesignController
 
             try {
                 $designService->importDesign($namespace, $preset);
-                $message = 'Design-Preset „' . htmlspecialchars($preset, ENT_QUOTES, 'UTF-8') . '" erfolgreich importiert.';
+                $message = $translator instanceof \App\Service\TranslationService
+                    ? sprintf($translator->translate('notify_design_preset_imported'), htmlspecialchars($preset, ENT_QUOTES, 'UTF-8'))
+                    : 'Design preset "' . htmlspecialchars($preset, ENT_QUOTES, 'UTF-8') . '" imported successfully.';
             } catch (\InvalidArgumentException $e) {
                 $_SESSION['page_design_flash'] = [
                     'type' => 'danger',
-                    'message' => 'Design-Preset „' . htmlspecialchars($preset, ENT_QUOTES, 'UTF-8') . '" wurde nicht gefunden.',
+                    'message' => $translator instanceof \App\Service\TranslationService
+                        ? sprintf($translator->translate('error_design_preset_not_found'), htmlspecialchars($preset, ENT_QUOTES, 'UTF-8'))
+                        : 'Design preset "' . htmlspecialchars($preset, ENT_QUOTES, 'UTF-8') . '" not found.',
                 ];
 
                 return $response
@@ -170,15 +175,15 @@ class PagesDesignController
             }
         } elseif ($action === 'reset_all') {
             $designService->resetToDefaults($namespace);
-            $message = 'Design auf Standard zurückgesetzt.';
+            $message = $translator instanceof \App\Service\TranslationService ? $translator->translate('notify_design_reset') : 'Design reset to defaults.';
         } elseif ($action === 'save_effects') {
             $effects = $this->extractEffects($parsedBody);
             $effectsService->persist($namespace, $effects);
-            $message = 'Verhalten-Einstellungen gespeichert.';
+            $message = $translator instanceof \App\Service\TranslationService ? $translator->translate('notify_design_behavior_saved') : 'Behavior settings saved.';
         } elseif ($action === 'save_css') {
             $customCss = (string) ($parsedBody['custom_css'] ?? '');
             $designService->persistCustomCss($namespace, $customCss);
-            $message = 'Eigenes CSS gespeichert.';
+            $message = $translator instanceof \App\Service\TranslationService ? $translator->translate('notify_design_css_saved') : 'Custom CSS saved.';
         } else {
             $incoming = $this->extractTokens($parsedBody);
             [$hasAppearanceVariables, $appearanceVariables] = $this->extractAppearanceVariables($parsedBody);
@@ -375,7 +380,7 @@ class PagesDesignController
         ) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
-                'label' => 'nicht gespeichert',
+                'label' => 'label_namespace_not_saved',
                 'is_active' => false,
                 'created_at' => null,
                 'updated_at' => null,
@@ -392,7 +397,7 @@ class PagesDesignController
                 ) {
                     $availableNamespaces[] = [
                         'namespace' => $allowedNamespace,
-                        'label' => 'nicht gespeichert',
+                        'label' => 'label_namespace_not_saved',
                         'is_active' => false,
                         'created_at' => null,
                         'updated_at' => null,

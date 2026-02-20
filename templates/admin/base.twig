@@ -7,6 +7,26 @@
 {% block head %}
   <meta name="csrf-token" content="{{ csrf_token|default(csrfToken|default('')) }}">
   <script>window.csrfToken = '{{ csrf_token|default(csrfToken|default(''))|e('js') }}';</script>
+  <script>
+    {# Common admin translations – available on every admin page #}
+    window.transDelete = '{{ t('action_delete')|e('js') }}';
+    window.transCancel = '{{ t('action_cancel')|e('js') }}';
+    window.transSave = '{{ t('action_save')|e('js') }}';
+    window.transClose = '{{ t('action_close')|e('js') }}';
+    window.transLoading = '{{ t('text_loading')|e('js') }}';
+    window.transPreview = '{{ t('action_preview')|e('js') }}';
+    window.transActive = '{{ t('label_active')|e('js') }}';
+    window.transInactive = '{{ t('label_inactive')|e('js') }}';
+    window.transErrorGeneric = '{{ t('error_generic')|e('js') }}';
+    window.transErrorDeleteFailed = '{{ t('error_delete_failed')|e('js') }}';
+    window.transNotifyDeleted = '{{ t('notify_deleted')|e('js') }}';
+    window.transNotifySaved = '{{ t('notify_saved')|e('js') }}';
+    window.transConfirmDelete = '{{ t('confirm_delete')|e('js') }}';
+    window.transNoEntries = '{{ t('text_no_entries')|e('js') }}';
+    window.transPublished = '{{ t('label_published')|e('js') }}';
+    window.transDraft = '{{ t('label_draft')|e('js') }}';
+    window.transAdminLocale = '{{ locale() }}';
+  </script>
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">

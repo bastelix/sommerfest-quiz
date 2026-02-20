@@ -76,9 +76,9 @@
       <div class="uk-container uk-container-large">
         <h1 class="uk-heading-bullet">{{ t('heading_pages') }}</h1>
         <p class="uk-text-meta uk-margin-small-top">
-          Seiten nutzen die Design-Defaults ihres Namespace. Overrides sind optional und werden nur explizit gespeichert.
+          {{ t('text_pages_design_defaults_hint') }}
           {% if designUsedDefaults|default(false) %}
-            Aktuell sind keine Overrides gesetzt.
+            {{ t('text_no_design_overrides') }}
           {% endif %}
         </p>
       </div>
@@ -115,16 +115,16 @@
             <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
             <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
             <div class="uk-margin-top uk-flex uk-flex-middle uk-flex-wrap" data-editor-actions="true" style="gap: 8px;">
-              <button class="uk-button uk-button-primary save-page-btn" type="button">Speichern</button>
-              <button class="uk-button uk-button-default preview-link" type="button">Vorschau</button>
+              <button class="uk-button uk-button-primary save-page-btn" type="button">{{ t('action_save') }}</button>
+              <button class="uk-button uk-button-default preview-link" type="button">{{ t('action_preview') }}</button>
               <div class="uk-inline">
-                <button class="uk-button uk-button-default" type="button">Weitere Aktionen <span uk-icon="icon: chevron-down; ratio: 0.75"></span></button>
+                <button class="uk-button uk-button-default" type="button">{{ t('action_more_actions') }} <span uk-icon="icon: chevron-down; ratio: 0.75"></span></button>
                 <div uk-dropdown="mode: click; pos: bottom-right">
                   <ul class="uk-nav uk-dropdown-nav">
-                    <li><a class="export-page-btn" href="#">Export als JSON</a></li>
+                    <li><a class="export-page-btn" href="#">{{ t('action_export_json') }}</a></li>
                     <li>
                       {% set importInputId = 'pageImportInput-' ~ page.slug %}
-                      <label class="import-page-btn" for="{{ importInputId|e('html_attr') }}" style="cursor: pointer;">Import aus JSON</label>
+                      <label class="import-page-btn" for="{{ importInputId|e('html_attr') }}" style="cursor: pointer;">{{ t('action_import_json') }}</label>
                       <input
                         id="{{ importInputId|e('html_attr') }}"
                         class="page-import-input"
@@ -145,43 +145,43 @@
         </div>
         <div id="preview-modal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
-            <h3>Vorschau</h3>
+            <h3>{{ t('action_preview') }}</h3>
             <div id="preview-content" data-namespace="{{ pageNamespace|e('html_attr') }}"></div>
-            <button class="uk-button uk-button-default uk-modal-close" type="button">Schließen</button>
+            <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_close') }}</button>
           </div>
         </div>
         <div id="createPageModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
-            <h2 class="uk-modal-title">Neue Seite anlegen</h2>
+            <h2 class="uk-modal-title">{{ t('heading_create_new_page') }}</h2>
             <ul uk-tab>
-              <li class="uk-active"><a href="#">Leer</a></li>
-              <li><a href="#">Aus JSON importieren</a></li>
+              <li class="uk-active"><a href="#">{{ t('label_empty') }}</a></li>
+              <li><a href="#">{{ t('label_import_from_json') }}</a></li>
             </ul>
             <ul class="uk-switcher uk-margin-small-top">
               <li>
             <form id="createPageForm" class="uk-form-stacked">
               <div id="createPageFeedback" class="uk-alert uk-alert-danger" hidden></div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="newPageSlug">Slug</label>
+                <label class="uk-form-label" for="newPageSlug">{{ t('label_slug') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="newPageSlug" name="slug" type="text" required maxlength="100" placeholder="z. B. neue-landingpage">
+                  <input class="uk-input" id="newPageSlug" name="slug" type="text" required maxlength="100" placeholder="{{ t('placeholder_new_page_slug') }}">
                 </div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="newPageTitle">Titel</label>
+                <label class="uk-form-label" for="newPageTitle">{{ t('label_title') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="newPageTitle" name="title" type="text" required placeholder="Seitentitel">
+                  <input class="uk-input" id="newPageTitle" name="title" type="text" required placeholder="{{ t('placeholder_page_title') }}">
                 </div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="newPageContent">Initiales HTML (optional)</label>
+                <label class="uk-form-label" for="newPageContent">{{ t('label_initial_html') }}</label>
                 <div class="uk-form-controls">
                   <textarea class="uk-textarea" id="newPageContent" name="content" rows="6" placeholder="&lt;section class=&quot;uk-section&quot;&gt;...&lt;/section&gt;"></textarea>
                 </div>
               </div>
               <div class="uk-flex uk-flex-right">
-                <button type="submit" class="uk-button uk-button-primary">Seite erstellen</button>
-                <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
+                <button type="submit" class="uk-button uk-button-primary">{{ t('action_create_page') }}</button>
+                <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">{{ t('action_cancel') }}</button>
               </div>
             </form>
               </li>
@@ -189,23 +189,23 @@
                 <form id="importCreatePageForm" class="uk-form-stacked" enctype="multipart/form-data">
                   <div id="importCreateFeedback" class="uk-alert uk-alert-danger" hidden></div>
                   <div class="uk-margin">
-                    <label class="uk-form-label" for="importPageFile">.page.json Datei</label>
+                    <label class="uk-form-label" for="importPageFile">{{ t('label_page_json_file') }}</label>
                     <div class="uk-form-controls">
                       <input class="uk-input" id="importPageFile" name="file" type="file" accept=".json,.page.json,application/json" required>
                     </div>
-                    <p class="uk-text-meta uk-margin-small-top">Slug und Titel werden aus der JSON-Datei übernommen. Du kannst sie unten überschreiben.</p>
+                    <p class="uk-text-meta uk-margin-small-top">{{ t('text_json_slug_title_hint') }}</p>
                   </div>
                   <div id="importCreatePreview" hidden>
                     <div class="uk-margin">
-                      <label class="uk-form-label" for="importPageSlug">Slug</label>
+                      <label class="uk-form-label" for="importPageSlug">{{ t('label_slug') }}</label>
                       <div class="uk-form-controls">
-                        <input class="uk-input" id="importPageSlug" name="slug" type="text" maxlength="100" placeholder="Aus JSON übernommen">
+                        <input class="uk-input" id="importPageSlug" name="slug" type="text" maxlength="100" placeholder="{{ t('placeholder_from_json') }}">
                       </div>
                     </div>
                     <div class="uk-margin">
-                      <label class="uk-form-label" for="importPageTitle">Titel</label>
+                      <label class="uk-form-label" for="importPageTitle">{{ t('label_title') }}</label>
                       <div class="uk-form-controls">
-                        <input class="uk-input" id="importPageTitle" name="title" type="text" placeholder="Aus JSON übernommen">
+                        <input class="uk-input" id="importPageTitle" name="title" type="text" placeholder="{{ t('placeholder_from_json') }}">
                       </div>
                     </div>
                     <div class="uk-margin">
@@ -213,8 +213,8 @@
                     </div>
                   </div>
                   <div class="uk-flex uk-flex-right">
-                    <button type="submit" class="uk-button uk-button-primary">Seite aus JSON erstellen</button>
-                    <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
+                    <button type="submit" class="uk-button uk-button-primary">{{ t('action_create_page_from_json') }}</button>
+                    <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">{{ t('action_cancel') }}</button>
                   </div>
                 </form>
               </li>
@@ -270,14 +270,14 @@
                 <div class="uk-form-controls">
                   <label>
                     <input class="uk-checkbox" id="aiPageCreateMenuItem" name="create_menu_item" type="checkbox">
-                    Menüpunkt erstellen
+                    {{ t('label_create_menu_item') }}
                   </label>
                 </div>
               </div>
               <div class="uk-margin" data-ai-page-menu-label hidden>
-                <label class="uk-form-label" for="aiPageMenuLabel">Menü-Titel (optional)</label>
+                <label class="uk-form-label" for="aiPageMenuLabel">{{ t('label_menu_title_optional') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="aiPageMenuLabel" name="menu_label" type="text" placeholder="Standard: Seitentitel">
+                  <input class="uk-input" id="aiPageMenuLabel" name="menu_label" type="text" placeholder="{{ t('placeholder_default_page_title') }}">
                 </div>
               </div>
               <div class="uk-flex uk-flex-right">

@@ -116,14 +116,24 @@ class PageController
         try {
             $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         } catch (\Throwable $exception) {
-            return $this->createJsonResponse($response, ['error' => 'Namespace konnte nicht aufgelöst werden.'], 400);
+            $translator = $request->getAttribute('translator');
+            $msg = $translator instanceof \App\Service\TranslationService
+                ? $translator->translate('error_namespace_resolve_failed')
+                : 'Namespace could not be resolved.';
+            return $this->createJsonResponse($response, ['error' => $msg], 400);
         }
 
         $page = $this->pageService->findByKey($namespace, (string) $slug);
         if ($page === null) {
             return $this->createJsonResponse(
                 $response,
-                ['error' => sprintf('Seite "%s" existiert nicht im Namespace "%s".', $slug, $namespace)],
+                ['error' => sprintf(
+                    ($request->getAttribute('translator') instanceof \App\Service\TranslationService
+                        ? $request->getAttribute('translator')->translate('error_page_not_found_in_namespace')
+                        : 'Page "%s" does not exist in namespace "%s".'),
+                    $slug,
+                    $namespace
+                )],
                 404
             );
         }

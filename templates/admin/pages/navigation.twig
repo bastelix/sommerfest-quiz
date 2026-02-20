@@ -42,15 +42,15 @@
         >
           <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
             <div>
-              <div class="uk-text-meta uk-text-uppercase">Navigation</div>
-              <h3 class="uk-card-title uk-margin-remove">Menü-Übersicht</h3>
+              <div class="uk-text-meta uk-text-uppercase">{{ t('heading_navigation') }}</div>
+              <h3 class="uk-card-title uk-margin-remove">{{ t('heading_menu_overview') }}</h3>
             </div>
-            <span class="uk-text-meta">Einträge pro Namespace</span>
+            <span class="uk-text-meta">{{ t('text_menu_entries_per_namespace') }}</span>
           </div>
           <form class="uk-form-stacked uk-margin-small-top" data-menu-create-form>
             <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@s uk-flex-middle" uk-grid>
               <div>
-                <label class="uk-form-label" for="newMenuLabel">Neues Menü</label>
+                <label class="uk-form-label" for="newMenuLabel">{{ t('label_new_menu') }}</label>
                 <div class="uk-form-controls">
                   <input
                     id="newMenuLabel"
@@ -58,13 +58,13 @@
                     type="text"
                     name="label"
                     maxlength="64"
-                    placeholder="z. B. Hauptnavigation"
+                    placeholder="{{ t('placeholder_menu_label') }}"
                     required
                   >
                 </div>
               </div>
               <div>
-                <label class="uk-form-label" for="newMenuLocale">Locale</label>
+                <label class="uk-form-label" for="newMenuLocale">{{ t('label_locale') }}</label>
                 <div class="uk-form-controls">
                   <input
                     id="newMenuLocale"
@@ -79,9 +79,9 @@
               <div class="uk-flex uk-flex-middle">
                 <label class="uk-flex uk-flex-middle uk-margin-small-right">
                   <input class="uk-checkbox" type="checkbox" name="isActive" checked>
-                  <span class="uk-margin-small-left">Aktiv</span>
+                  <span class="uk-margin-small-left">{{ t('label_active') }}</span>
                 </label>
-                <button type="submit" class="uk-button uk-button-primary">Anlegen</button>
+                <button type="submit" class="uk-button uk-button-primary">{{ t('action_create') }}</button>
               </div>
             </div>
           </form>
@@ -89,17 +89,17 @@
             <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
               <thead>
                 <tr>
-                  <th>Menü</th>
-                  <th class="uk-table-shrink">Locale</th>
-                  <th class="uk-table-shrink">Status</th>
-                  <th class="uk-table-shrink uk-text-center">In Verwendung</th>
-                  <th class="uk-table-shrink">Aktualisiert</th>
-                  <th class="uk-table-shrink uk-text-right">Aktionen</th>
+                  <th>{{ t('label_table_menu') }}</th>
+                  <th class="uk-table-shrink">{{ t('label_table_locale') }}</th>
+                  <th class="uk-table-shrink">{{ t('label_table_status') }}</th>
+                  <th class="uk-table-shrink uk-text-center">{{ t('label_table_in_use') }}</th>
+                  <th class="uk-table-shrink">{{ t('label_table_updated') }}</th>
+                  <th class="uk-table-shrink uk-text-right">{{ t('label_table_actions') }}</th>
                 </tr>
               </thead>
               <tbody data-menu-overview-items>
                 <tr data-menu-overview-loading>
-                  <td colspan="6">Lädt…</td>
+                  <td colspan="6">{{ t('text_loading') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -108,12 +108,12 @@
         </div>
         <div id="menuDefinitionModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
-            <h2 class="uk-modal-title" data-menu-modal-title>Menü bearbeiten</h2>
+            <h2 class="uk-modal-title" data-menu-modal-title>{{ t('heading_edit_menu') }}</h2>
             <form class="uk-form-stacked" data-menu-modal-form>
               <input type="hidden" name="menuId">
               <input type="hidden" name="mode" value="rename">
               <div class="uk-margin">
-                <label class="uk-form-label" for="menuModalLabel">Menü-Label</label>
+                <label class="uk-form-label" for="menuModalLabel">{{ t('label_menu_label') }}</label>
                 <div class="uk-form-controls">
                   <input
                     id="menuModalLabel"
@@ -126,7 +126,7 @@
                 </div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="menuModalLocale">Locale</label>
+                <label class="uk-form-label" for="menuModalLocale">{{ t('label_locale') }}</label>
                 <div class="uk-form-controls">
                   <input
                     id="menuModalLocale"
@@ -140,19 +140,19 @@
               <div class="uk-margin">
                 <label class="uk-flex uk-flex-middle">
                   <input class="uk-checkbox" type="checkbox" name="isActive">
-                  <span class="uk-margin-small-left">Aktiv</span>
+                  <span class="uk-margin-small-left">{{ t('label_active') }}</span>
                 </label>
               </div>
               <div class="uk-margin uk-flex uk-flex-right uk-flex-middle" style="gap: 8px;">
-                <button type="button" class="uk-button uk-button-default uk-modal-close">Abbrechen</button>
-                <button type="submit" class="uk-button uk-button-primary" data-menu-modal-submit>Speichern</button>
+                <button type="button" class="uk-button uk-button-default uk-modal-close">{{ t('action_cancel') }}</button>
+                <button type="submit" class="uk-button uk-button-primary" data-menu-modal-submit>{{ t('action_save') }}</button>
               </div>
             </form>
           </div>
         </div>
 
         <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <label class="uk-form-label" for="menuDefinitionSelect">Menü auswählen</label>
+          <label class="uk-form-label" for="menuDefinitionSelect">{{ t('label_select_menu') }}</label>
           <div class="uk-form-controls">
             <select
               id="menuDefinitionSelect"
@@ -161,7 +161,7 @@
               {% if not hasMenus %}disabled{% endif %}
             >
               {% if not hasMenus %}
-                <option value="" selected>Keine Menüs vorhanden</option>
+                <option value="" selected>{{ t('text_no_menus') }}</option>
               {% endif %}
               {% for menu in menuDefinitions %}
                 <option
@@ -174,7 +174,7 @@
         </div>
 
         <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <label class="uk-form-label" for="menuVariantSelect">Footer-Layout</label>
+          <label class="uk-form-label" for="menuVariantSelect">{{ t('label_footer_layout') }}</label>
           <div class="uk-form-controls">
             <select
               id="menuVariantSelect"
@@ -192,17 +192,17 @@
             </select>
           </div>
           <div class="uk-text-meta uk-margin-small-top">
-            Steuert, wie viele Spalten im Footer befüllt werden können (z. B. 2 oder 3 Listen).
+            {{ t('text_footer_layout_hint') }}
           </div>
         </div>
 
         {% set marketingLocaleOptions = ['de', 'en'] %}
         {% set selectedMenuLocale = locale()|default('de') %}
         <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <label class="uk-form-label" for="menuLocaleSelect">Locale-Filter</label>
+          <label class="uk-form-label" for="menuLocaleSelect">{{ t('label_locale_filter') }}</label>
           <div class="uk-form-controls">
             <select id="menuLocaleSelect" class="uk-select" data-menu-locale-select>
-              <option value="">Alle Locales</option>
+              <option value="">{{ t('option_all_locales') }}</option>
               {% for localeOption in marketingLocaleOptions %}
                 <option
                   value="{{ localeOption|e('html_attr') }}"
@@ -212,7 +212,7 @@
             </select>
           </div>
           <div class="uk-text-meta uk-margin-small-top">
-            Optional: Ohne Auswahl werden Menüeinträge aus allen Locales angezeigt.
+            {{ t('text_locale_filter_hint') }}
           </div>
         </div>
         {% if useNavigationTree %}
@@ -233,7 +233,7 @@
             >
                   <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
                   <div>
-                    <h3 class="uk-card-title uk-margin-remove">Navigation</h3>
+                    <h3 class="uk-card-title uk-margin-remove">{{ t('heading_navigation') }}</h3>
                     <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
                   </div>
                   <div class="uk-flex uk-flex-middle uk-flex-wrap" style="gap: 8px;">
@@ -242,49 +242,49 @@
                       class="uk-button uk-button-default"
                       data-menu-generate-ai
                       {% if selectedMenuId == '' %}disabled{% endif %}
-                    >Menü automatisch generieren/aktualisieren</button>
+                    >{{ t('action_menu_auto_generate') }}</button>
                     <div class="uk-button-group">
                       <button
                         type="button"
                         class="uk-button uk-button-primary"
                         data-menu-save-all
                         disabled
-                        aria-label="Änderungen speichern"
-                      >Speichern</button>
+                        aria-label="{{ t('action_save') }}"
+                      >{{ t('action_save') }}</button>
                       <button
                         type="button"
                         class="uk-button uk-button-default"
                         data-menu-cancel
-                        aria-label="Änderungen verwerfen"
-                      >Abbrechen</button>
+                        aria-label="{{ t('action_cancel') }}"
+                      >{{ t('action_cancel') }}</button>
                     </div>
                     <div class="uk-button-group">
-                      <button type="button" class="uk-button uk-button-default" data-menu-export {% if selectedMenuId == '' %}disabled{% endif %}>Menü exportieren</button>
-                    <button type="button" class="uk-button uk-button-default" data-menu-import {% if selectedMenuId == '' %}disabled{% endif %}>Menü importieren</button>
+                      <button type="button" class="uk-button uk-button-default" data-menu-export {% if selectedMenuId == '' %}disabled{% endif %}>{{ t('action_menu_export') }}</button>
+                    <button type="button" class="uk-button uk-button-default" data-menu-import {% if selectedMenuId == '' %}disabled{% endif %}>{{ t('action_menu_import') }}</button>
                   </div>
                   <input type="file" accept="application/json" data-menu-import-input hidden>
-                  <button type="button" class="uk-button uk-button-default" data-menu-add {% if selectedMenuId == '' %}disabled{% endif %}>Eintrag hinzufügen</button>
+                  <button type="button" class="uk-button uk-button-default" data-menu-add {% if selectedMenuId == '' %}disabled{% endif %}>{{ t('action_add_entry') }}</button>
                   </div>
                 </div>
                 {% if not hasMenus %}
                   <div class="uk-alert uk-alert-warning uk-margin-small-top">
-                    Erstelle zuerst ein Menü, um die Navigation zu bearbeiten.
+                    {{ t('text_create_menu_first') }}
                   </div>
                 {% endif %}
                 <p class="uk-text-meta uk-margin-small-top">
-                  Pflege der Navigationslinks für das ausgewählte Menü. Drag &amp; Drop pro Ebene passt die Reihenfolgen an.
+                  {{ t('text_menu_tree_instructions_1') }}
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
-                  Basis: Label, Link, Sichtbarkeit. Erweitert: Layout, Icon, Locale, Startpage, Extern und SEO-Texte.
+                  {{ t('text_menu_tree_instructions_2') }}
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
-                  KI-Helfer: Generiert Menü-Einträge automatisch aus dem Seiteninhalt.
+                  {{ t('text_menu_tree_instructions_3') }}
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
-                  Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
+                  {{ t('text_menu_tree_instructions_4') }}
                 </p>
                 <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
-                <div class="menu-tree" role="tree" aria-label="Navigation" tabindex="0" data-menu-tree></div>
+                <div class="menu-tree" role="tree" aria-label="{{ t('heading_navigation') }}" tabindex="0" data-menu-tree></div>
               </div>
             </div>
             <aside class="uk-width-1-3@m uk-width-1-4@l">
@@ -292,13 +292,13 @@
                 <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
                   <div>
                     <div class="uk-text-meta uk-text-uppercase">Preview</div>
-                    <h4 class="uk-heading-line uk-margin-remove"><span>Navigation</span></h4>
+                    <h4 class="uk-heading-line uk-margin-remove"><span>{{ t('heading_navigation') }}</span></h4>
                   </div>
                   <span class="uk-label">Beta</span>
                 </div>
-                <div class="uk-text-meta uk-margin-small-bottom" data-menu-preview-summary>Aktuelle Navigation</div>
+                <div class="uk-text-meta uk-margin-small-bottom" data-menu-preview-summary>{{ t('label_active_menu_items') }}</div>
                 <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-preview-empty hidden>
-                  Noch keine Menüeinträge vorhanden.
+                  {{ t('text_no_menu_items') }}
                 </div>
                 <div class="menu-preview" data-menu-preview-tree></div>
               </div>
@@ -320,7 +320,7 @@
           >
             <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
               <div>
-                <h3 class="uk-card-title uk-margin-remove">Navigation</h3>
+                <h3 class="uk-card-title uk-margin-remove">{{ t('heading_navigation') }}</h3>
                 <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
               </div>
               <div class="uk-flex uk-flex-middle" style="gap: 8px; flex-wrap: wrap;">
@@ -329,20 +329,20 @@
                   class="uk-button uk-button-default"
                   data-menu-generate-ai
                   {% if selectedMenuId == '' %}disabled{% endif %}
-                >Menü automatisch generieren/aktualisieren</button>
+                >{{ t('action_menu_auto_generate') }}</button>
                 <div class="uk-button-group">
                   <button
                     type="button"
                     class="uk-button uk-button-default"
                     data-menu-export
                     {% if selectedMenuId == '' %}disabled{% endif %}
-                  >Menü exportieren</button>
+                  >{{ t('action_menu_export') }}</button>
                   <button
                     type="button"
                     class="uk-button uk-button-default"
                     data-menu-import
                     {% if selectedMenuId == '' %}disabled{% endif %}
-                  >Menü importieren</button>
+                  >{{ t('action_menu_import') }}</button>
                 </div>
                 <input type="file" accept="application/json" data-menu-import-input hidden>
                 <button
@@ -350,25 +350,25 @@
                   class="uk-button uk-button-default"
                   data-menu-add
                   {% if selectedMenuId == '' %}disabled{% endif %}
-                >Eintrag hinzufügen</button>
+                >{{ t('action_add_entry') }}</button>
               </div>
             </div>
             {% if not hasMenus %}
               <div class="uk-alert uk-alert-warning uk-margin-small-top">
-                Erstelle zuerst ein Menü, um die Navigation zu bearbeiten.
+                {{ t('text_create_menu_first') }}
               </div>
             {% endif %}
             <p class="uk-text-meta uk-margin-small-top">
-              Pflege der Navigationslinks für das ausgewählte Menü. Drag &amp; Drop ändert die Reihenfolge.
+              {{ t('text_menu_tree_instructions_1') }}
             </p>
             <p class="uk-text-meta uk-margin-small-top">
-              Parent &amp; Layout steuern Dropdowns, Mega-Menüs und die Hierarchie. Sortierung per Drag &amp; Drop erfolgt je Ebene.
+              {{ t('text_menu_tree_instructions_2') }}
             </p>
             <p class="uk-text-meta uk-margin-small-top">
-              KI-Helfer: Generiert Menü-Einträge automatisch aus dem Seiteninhalt.
+              {{ t('text_menu_tree_instructions_3') }}
             </p>
             <p class="uk-text-meta uk-margin-small-top">
-              Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
+              {{ t('text_menu_tree_instructions_4') }}
             </p>
             <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
             <div class="uk-overflow-auto admin-table-wrapper">
@@ -383,15 +383,15 @@
                     <th class="uk-table-shrink">Icon</th>
                     <th class="uk-table-shrink">Locale</th>
                     <th class="uk-table-shrink uk-text-center">Startpage</th>
-                    <th class="uk-table-shrink uk-text-center">Extern</th>
-                    <th class="uk-table-shrink uk-text-center">Aktiv</th>
-                    <th>Erklärung</th>
+                    <th class="uk-table-shrink uk-text-center">{{ t('label_table_extern') }}</th>
+                    <th class="uk-table-shrink uk-text-center">{{ t('label_active') }}</th>
+                    <th>{{ t('label_table_explanation') }}</th>
                     <th class="uk-table-shrink uk-text-right">Aktionen</th>
                   </tr>
                 </thead>
                 <tbody data-menu-items>
                   <tr data-menu-loading-row>
-                    <td colspan="12">Lädt…</td>
+                    <td colspan="12">{{ t('text_loading') }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -413,7 +413,7 @@
                     return;
                   }
                   loadingRow.dataset.menuFallbackShown = 'true';
-                  loadingRow.innerHTML = '<td colspan="12" class="uk-text-danger">Menü-Editor konnte nicht geladen werden. Bitte Seite neu laden oder Console prüfen.</td>';
+                  loadingRow.innerHTML = '<td colspan="12" class="uk-text-danger">{{ t('error_menu_editor_load_failed')|e('js') }}</td>';
                 };
 
                 const clearErrorIfReady = () => {
@@ -422,7 +422,7 @@
                     return;
                   }
                   loadingRow.dataset.menuFallbackShown = 'false';
-                  loadingRow.innerHTML = '<td colspan="12">Lädt…</td>';
+                  loadingRow.innerHTML = '<td colspan="12">{{ t('text_loading')|e('js') }}</td>';
                 };
 
                 window.addEventListener('load', () => {
@@ -451,17 +451,17 @@
         >
           <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
             <div>
-              <div class="uk-text-meta uk-text-uppercase">Menü-Zuordnung</div>
-              <h3 class="uk-card-title uk-margin-remove">Header &amp; Footer</h3>
+              <div class="uk-text-meta uk-text-uppercase">{{ t('heading_menu_assignments') }}</div>
+              <h3 class="uk-card-title uk-margin-remove">{{ t('label_header_footer') }}</h3>
             </div>
           </div>
           <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-assignments-feedback hidden role="status"></div>
 
           <div class="uk-margin">
-            <h4 class="uk-heading-bullet">Header-Menü pro Seite/Locale</h4>
+            <h4 class="uk-heading-bullet">{{ t('heading_header_menu_per_page') }}</h4>
             <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m" uk-grid>
               <div>
-                <label class="uk-form-label" for="headerMenuPageSelect">Seite</label>
+                <label class="uk-form-label" for="headerMenuPageSelect">{{ t('label_page') }}</label>
                 <div class="uk-form-controls">
                   <select
                     id="headerMenuPageSelect"
@@ -470,7 +470,7 @@
                     {% if not hasMenuPages %}disabled{% endif %}
                   >
                     {% if not hasMenuPages %}
-                      <option value="" selected>Keine Seiten vorhanden</option>
+                      <option value="" selected>{{ t('text_no_pages') }}</option>
                     {% endif %}
                     {% for page in menuPages %}
                       <option value="{{ page.id|e('html_attr') }}">
@@ -481,7 +481,7 @@
                 </div>
               </div>
               <div>
-                <label class="uk-form-label" for="headerMenuLocaleSelect">Locale</label>
+                <label class="uk-form-label" for="headerMenuLocaleSelect">{{ t('label_locale') }}</label>
                 <div class="uk-form-controls">
                   <select id="headerMenuLocaleSelect" class="uk-select" data-header-locale-select>
                     {% for localeOption in marketingLocaleOptions %}
@@ -494,7 +494,7 @@
                 </div>
               </div>
               <div>
-                <label class="uk-form-label" for="headerMenuSelect">Header-Menü</label>
+                <label class="uk-form-label" for="headerMenuSelect">{{ t('label_header_menu') }}</label>
                 <div class="uk-form-controls">
                   <select
                     id="headerMenuSelect"
@@ -502,7 +502,7 @@
                     data-header-menu-select
                     {% if not hasMenus %}disabled data-locked-disabled="true"{% endif %}
                   >
-                    <option value="">Automatisch</option>
+                    <option value="">{{ t('option_automatic') }}</option>
                     {% for menu in menuDefinitions %}
                       <option value="{{ menu.id }}" data-menu-locale="{{ menu.locale|e('html_attr') }}">
                         {{ menu.label }} ({{ menu.locale }})
@@ -513,17 +513,17 @@
               </div>
             </div>
             <div class="uk-text-meta uk-margin-small-top">
-              Automatisch bedeutet: Kein Override, Namespace-Standard bleibt aktiv.
+              {{ t('text_automatic_menu_hint') }}
             </div>
           </div>
 
           <hr class="uk-divider-icon">
 
           <div class="uk-margin">
-            <h4 class="uk-heading-bullet">Footer-Spalten (Namespace)</h4>
+            <h4 class="uk-heading-bullet">{{ t('heading_footer_columns_namespace') }}</h4>
             <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-4@m" uk-grid>
               <div>
-                <label class="uk-form-label" for="footerGlobalLocaleSelect">Locale</label>
+                <label class="uk-form-label" for="footerGlobalLocaleSelect">{{ t('label_locale') }}</label>
                 <div class="uk-form-controls">
                   <select id="footerGlobalLocaleSelect" class="uk-select" data-footer-global-locale-select>
                     {% for localeOption in marketingLocaleOptions %}
@@ -545,7 +545,7 @@
                       data-footer-global-select="{{ slot }}"
                       {% if not hasMenus %}disabled data-locked-disabled="true"{% endif %}
                     >
-                      <option value="">Automatisch</option>
+                      <option value="">{{ t('option_automatic') }}</option>
                       {% for menu in menuDefinitions %}
                         <option value="{{ menu.id }}" data-menu-locale="{{ menu.locale|e('html_attr') }}">
                           {{ menu.label }} ({{ menu.locale }})
@@ -557,15 +557,15 @@
               {% endfor %}
             </div>
             <div class="uk-text-meta uk-margin-small-top">
-              Diese Auswahl gilt für das gesamte Namespace (fallback pro Locale).
+              {{ t('text_footer_global_hint') }}
             </div>
           </div>
 
           <div class="uk-margin">
-            <h4 class="uk-heading-bullet">Footer-Spalten Override pro Seite</h4>
+            <h4 class="uk-heading-bullet">{{ t('heading_footer_columns_page_override') }}</h4>
             <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m uk-flex-middle" uk-grid>
               <div>
-                <label class="uk-form-label" for="footerOverridePageSelect">Seite</label>
+                <label class="uk-form-label" for="footerOverridePageSelect">{{ t('label_page') }}</label>
                 <div class="uk-form-controls">
                   <select
                     id="footerOverridePageSelect"
@@ -574,7 +574,7 @@
                     {% if not hasMenuPages %}disabled{% endif %}
                   >
                     {% if not hasMenuPages %}
-                      <option value="" selected>Keine Seiten vorhanden</option>
+                      <option value="" selected>{{ t('text_no_pages') }}</option>
                     {% endif %}
                     {% for page in menuPages %}
                       <option value="{{ page.id|e('html_attr') }}">
@@ -585,7 +585,7 @@
                 </div>
               </div>
               <div>
-                <label class="uk-form-label" for="footerOverrideLocaleSelect">Locale</label>
+                <label class="uk-form-label" for="footerOverrideLocaleSelect">{{ t('label_locale') }}</label>
                 <div class="uk-form-controls">
                   <select id="footerOverrideLocaleSelect" class="uk-select" data-footer-locale-select>
                     {% for localeOption in marketingLocaleOptions %}
@@ -598,7 +598,7 @@
                 </div>
               </div>
               <div>
-                <label class="uk-form-label">Override aktivieren</label>
+                <label class="uk-form-label">{{ t('label_enable_override') }}</label>
                 <div class="uk-form-controls">
                   <label class="uk-flex uk-flex-middle">
                     <input
@@ -606,7 +606,7 @@
                       type="checkbox"
                       data-footer-override-toggle
                     >
-                    <span class="uk-margin-small-left">Menüs pro Seite überschreiben</span>
+                    <span class="uk-margin-small-left">{{ t('label_override_menus_per_page') }}</span>
                   </label>
                 </div>
               </div>
@@ -622,7 +622,7 @@
                       data-footer-override-select="{{ slot }}"
                       {% if not hasMenus %}disabled data-locked-disabled="true"{% endif %}
                     >
-                      <option value="">Automatisch</option>
+                      <option value="">{{ t('option_automatic') }}</option>
                       {% for menu in menuDefinitions %}
                         <option value="{{ menu.id }}" data-menu-locale="{{ menu.locale|e('html_attr') }}">
                           {{ menu.label }} ({{ menu.locale }})
@@ -634,7 +634,7 @@
               {% endfor %}
             </div>
             <div class="uk-text-meta uk-margin-small-top">
-              Override aktiv = page-spezifische Zuweisungen. Deaktivieren löscht diese Zuweisungen.
+              {{ t('text_override_active_hint') }}
             </div>
           </div>
         </div>
@@ -642,14 +642,12 @@
         <div class="uk-card uk-card-default uk-card-body uk-margin">
           <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
             <div>
-              <div class="uk-text-meta uk-text-uppercase">Header</div>
-              <h3 class="uk-card-title uk-margin-remove">Navigation &amp; Schalter</h3>
+              <div class="uk-text-meta uk-text-uppercase">{{ t('label_header') }}</div>
+              <h3 class="uk-card-title uk-margin-remove">{{ t('label_navigation_switches') }}</h3>
             </div>
           </div>
           <p class="uk-text-meta uk-margin-small-top">
-            Logo, Theme-Toggles und Sprachmenü werden unter
-            <a href="{{ basePath }}/admin/settings/header{% if namespaceQuery is defined and namespaceQuery is not empty %}?{{ namespaceQuery }}{% endif %}">Header-Einstellungen</a>
-            konfiguriert.
+            {{ t('text_header_settings_hint')|replace({'%s': '<a href="' ~ basePath ~ '/admin/settings/header' ~ (namespaceQuery is defined and namespaceQuery is not empty ? '?' ~ namespaceQuery : '') ~ '">' ~ t('label_navigation_header_settings') ~ '</a>'})|raw }}
           </p>
         </div>
       </div>

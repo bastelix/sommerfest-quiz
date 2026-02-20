@@ -28,8 +28,8 @@
           {% if entryNamespace == _activePageNamespace %}selected{% endif %}
         >
           {{ entryNamespace }}
-          {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-          {% if entryIsInactive %} – inaktiv{% endif %}
+          {% if entryLabel is not empty %} – {{ t(entryLabel) }}{% endif %}
+          {% if entryIsInactive %} – {{ t('label_namespace_inactive') }}{% endif %}
         </option>
       {% endfor %}
     </select>

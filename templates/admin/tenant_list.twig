@@ -65,21 +65,21 @@
         <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
         <div uk-dropdown="mode: click; pos: bottom-right; container: body">
           <ul class="uk-nav uk-dropdown-nav">
-            <li class="uk-nav-header">Aktionen</li>
-            <li><a href="#" data-action="welcome" data-sub="{{ sub }}"><span uk-icon="mail" class="uk-margin-small-right"></span>Willkommensmail</a></li>
+            <li class="uk-nav-header">{{ t('label_actions') }}</li>
+            <li><a href="#" data-action="welcome" data-sub="{{ sub }}"><span uk-icon="mail" class="uk-margin-small-right"></span>{{ t('action_welcome_email') }}</a></li>
             <li><a href="#" data-action="upgrade-docker" data-sub="{{ sub }}"><span uk-icon="refresh" class="uk-margin-small-right"></span>{{ t('action_upgrade_docker') }}</a></li>
             <li><a href="#" data-action="restart" data-sub="{{ sub }}"><span uk-icon="history" class="uk-margin-small-right"></span>{{ t('action_restart_tenant') }}</a></li>
-            <li><a href="#" data-action="renew" data-sub="{{ sub }}"><span uk-icon="lock" class="uk-margin-small-right"></span>SSL erneuern</a></li>
+            <li><a href="#" data-action="renew" data-sub="{{ sub }}"><span uk-icon="lock" class="uk-margin-small-right"></span>{{ t('action_renew_ssl') }}</a></li>
             <li class="uk-nav-divider"></li>
-            <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="{{ t.uid }}" data-sub="{{ sub }}">Mandant löschen …</a></li>
+            <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="{{ t.uid }}" data-sub="{{ sub }}">{{ t('action_delete_tenant') }}</a></li>
             <li class="uk-nav-divider"></li>
-            <li class="uk-nav-header">Verbindungen</li>
+            <li class="uk-nav-header">{{ t('label_connections') }}</li>
             {% set customerLink = customerId ? stripe_dashboard ~ '/customers/' ~ customerId : '#' %}
             {% set subscriptionLink = subscriptionId ? stripe_dashboard ~ '/subscriptions/' ~ subscriptionId : '#' %}
             {% set customerClass = customerId ? '' : 'uk-disabled' %}
             {% set subscriptionClass = subscriptionId ? '' : 'uk-disabled' %}
-            <li><a href="{{ customerLink }}" class="{{ customerClass }}" data-action="show-customer" data-sub="{{ sub }}" target="_blank">Kunden anzeigen</a></li>
-            <li><a href="{{ subscriptionLink }}" class="{{ subscriptionClass }}" data-action="show-subscription" data-sub="{{ sub }}" target="_blank">Abo anzeigen</a></li>
+            <li><a href="{{ customerLink }}" class="{{ customerClass }}" data-action="show-customer" data-sub="{{ sub }}" target="_blank">{{ t('action_show_customer') }}</a></li>
+            <li><a href="{{ subscriptionLink }}" class="{{ subscriptionClass }}" data-action="show-subscription" data-sub="{{ sub }}" target="_blank">{{ t('action_show_subscription') }}</a></li>
           </ul>
         </div>
       </div>
@@ -116,21 +116,21 @@
         <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
         <div uk-dropdown="mode: click; pos: bottom-right; container: body">
           <ul class="uk-nav uk-dropdown-nav">
-            <li class="uk-nav-header">Aktionen</li>
-            <li><a href="#" data-action="welcome" data-sub="{{ sub }}"><span uk-icon="mail" class="uk-margin-small-right"></span>Willkommensmail</a></li>
+            <li class="uk-nav-header">{{ t('label_actions') }}</li>
+            <li><a href="#" data-action="welcome" data-sub="{{ sub }}"><span uk-icon="mail" class="uk-margin-small-right"></span>{{ t('action_welcome_email') }}</a></li>
             <li><a href="#" data-action="upgrade-docker" data-sub="{{ sub }}"><span uk-icon="refresh" class="uk-margin-small-right"></span>{{ t('action_upgrade_docker') }}</a></li>
             <li><a href="#" data-action="restart" data-sub="{{ sub }}"><span uk-icon="history" class="uk-margin-small-right"></span>{{ t('action_restart_tenant') }}</a></li>
-            <li><a href="#" data-action="renew" data-sub="{{ sub }}"><span uk-icon="lock" class="uk-margin-small-right"></span>SSL erneuern</a></li>
+            <li><a href="#" data-action="renew" data-sub="{{ sub }}"><span uk-icon="lock" class="uk-margin-small-right"></span>{{ t('action_renew_ssl') }}</a></li>
             <li class="uk-nav-divider"></li>
-            <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="{{ t.uid }}" data-sub="{{ sub }}">Mandant löschen …</a></li>
+            <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="{{ t.uid }}" data-sub="{{ sub }}">{{ t('action_delete_tenant') }}</a></li>
             <li class="uk-nav-divider"></li>
-            <li class="uk-nav-header">Verbindungen</li>
+            <li class="uk-nav-header">{{ t('label_connections') }}</li>
             {% set customerLink = t.stripe_customer_id ? stripe_dashboard ~ '/customers/' ~ t.stripe_customer_id : '#' %}
             {% set subscriptionLink = t.stripe_subscription_id ? stripe_dashboard ~ '/subscriptions/' ~ t.stripe_subscription_id : '#' %}
             {% set customerClass = t.stripe_customer_id ? '' : 'uk-disabled' %}
             {% set subscriptionClass = t.stripe_subscription_id ? '' : 'uk-disabled' %}
-            <li><a href="{{ customerLink }}" class="{{ customerClass }}" data-action="show-customer" data-sub="{{ sub }}" target="_blank">Kunden anzeigen</a></li>
-            <li><a href="{{ subscriptionLink }}" class="{{ subscriptionClass }}" data-action="show-subscription" data-sub="{{ sub }}" target="_blank">Abo anzeigen</a></li>
+            <li><a href="{{ customerLink }}" class="{{ customerClass }}" data-action="show-customer" data-sub="{{ sub }}" target="_blank">{{ t('action_show_customer') }}</a></li>
+            <li><a href="{{ subscriptionLink }}" class="{{ subscriptionClass }}" data-action="show-subscription" data-sub="{{ sub }}" target="_blank">{{ t('action_show_subscription') }}</a></li>
           </ul>
         </div>
       </div>
@@ -141,7 +141,7 @@
         <dd>{{ plan }}</dd>
         <dt>Billing</dt>
         <dd class="uk-text-truncate" title="{{ billing }}">{{ billing }}</dd>
-        <dt>Erstellt</dt>
+        <dt>{{ t('label_created') }}</dt>
         <dd>{{ created }}</dd>
       </dl>
     </div>

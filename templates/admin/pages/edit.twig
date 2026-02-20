@@ -1,7 +1,7 @@
 {% extends 'admin/base.twig' %}
 {% set includeMarketingThemeVars = true %}
 
-{% block title %}Seite bearbeiten{% endblock %}
+{% block title %}{{ t('heading_page_edit') }}{% endblock %}
 
 {% block admin_head %}
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" id="admin-dark-css" data-theme-style="dark" media="all">
@@ -43,16 +43,16 @@
 
 {% block content %}
       <div class="uk-container uk-container-large">
-        <h1 class="uk-heading-bullet">Seite bearbeiten: {{ slug }}</h1>
+        <h1 class="uk-heading-bullet">{{ t('heading_page_edit') }}: {{ slug }}</h1>
       </div>
       <div class="uk-container uk-container-large">
         <div class="uk-card uk-card-default uk-card-body uk-margin-small">
           <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap uk-margin-bottom">
-            <div class="uk-text-meta" aria-hidden="true">Darstellung:</div>
+            <div class="uk-text-meta" aria-hidden="true">{{ t('label_display_mode') }}</div>
             <div class="uk-button-group" role="group" aria-label="Ansicht umschalten" data-theme-toggle>
-              <button type="button" class="uk-button uk-button-default" data-theme-choice="light" aria-pressed="false">Hell</button>
-              <button type="button" class="uk-button uk-button-default" data-theme-choice="dark" aria-pressed="false">Dunkel</button>
-              <button type="button" class="uk-button uk-button-default" data-theme-choice="high-contrast" aria-pressed="false">High-Contrast</button>
+              <button type="button" class="uk-button uk-button-default" data-theme-choice="light" aria-pressed="false">{{ t('option_theme_light') }}</button>
+              <button type="button" class="uk-button uk-button-default" data-theme-choice="dark" aria-pressed="false">{{ t('option_theme_dark') }}</button>
+              <button type="button" class="uk-button uk-button-default" data-theme-choice="high-contrast" aria-pressed="false">{{ t('option_theme_high_contrast') }}</button>
             </div>
           </div>
           <form
@@ -65,8 +65,8 @@
             <input type="hidden" id="pageContent" name="content" value="{{ content|e('html_attr') }}">
             <div class="page-editor" data-content="{{ content|e('html_attr') }}"></div>
             <div class="uk-margin-top" data-editor-actions="true">
-              <button type="button" class="uk-button uk-button-primary save-page-btn">Speichern</button>
-              <button type="button" class="uk-button uk-button-default" onclick="showPreview()">Vorschau</button>
+              <button type="button" class="uk-button uk-button-primary save-page-btn">{{ t('action_save') }}</button>
+              <button type="button" class="uk-button uk-button-default" onclick="showPreview()">{{ t('action_preview') }}</button>
             </div>
           </form>
         </div>
@@ -75,9 +75,9 @@
       <div class="uk-container uk-container-large">
         <div id="preview-modal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
-            <h3>Vorschau</h3>
+            <h3>{{ t('action_preview') }}</h3>
             <div id="preview-content"></div>
-            <button class="uk-button uk-button-default uk-modal-close" type="button">Schließen</button>
+            <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_close') }}</button>
           </div>
         </div>
       </div>
