@@ -311,6 +311,7 @@
 - *(theme)* Add default theme based on calServer design
 - *(subscription)* Inline cancel and upgrade/downgrade on abo page
 - *(theme)* Allow design preset selection on namespace creation
+- *(editor)* Add visual icon picker for block icon fields
 
 ### Fix
 
