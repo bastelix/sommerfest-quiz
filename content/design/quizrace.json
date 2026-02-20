@@ -2,7 +2,7 @@
   "meta": {
     "name": "QuizRace",
     "description": "QuizRace-Markendesign basierend auf dem Aurora-Schema mit kräftigen Blautönen und Slate-Akzenten.",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "author": "QuizRace Design System"
   },
   "config": {
@@ -40,23 +40,6 @@
       "surfaceMutedDark": "#1e293b",
       "background": "#eef2ff",
       "backgroundDark": "#020617"
-    }
-  },
-  "designTokens": {
-    "brand": {
-      "primary": "#1f6feb",
-      "accent": "#58a6ff",
-      "secondary": "#475569"
-    },
-    "layout": {
-      "profile": "standard"
-    },
-    "typography": {
-      "preset": "modern"
-    },
-    "components": {
-      "cardStyle": "rounded",
-      "buttonStyle": "filled"
     }
   },
   "effects": {
