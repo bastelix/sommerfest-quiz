@@ -41,4 +41,15 @@ class StripeService
     public static function isConfigured(): array {
         return ['ok' => true, 'missing' => [], 'warnings' => []];
     }
+
+    public static function priceIdForPlan(string $plan): string {
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
+        $map = [
+            'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
+            'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
+            'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
+        ];
+        return $map[$plan] ?? '';
+    }
 }

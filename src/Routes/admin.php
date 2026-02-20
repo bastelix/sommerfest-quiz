@@ -501,15 +501,20 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         try {
             $tenant = $tenantSvc->getBySubdomain($target) ?? [];
             $customerId = $tenant['stripe_customer_id'] ?? null;
+            $reactivated = false;
             if ($customerId !== null && $customerId !== '') {
                 $stripeSvc = new StripeService();
                 if ($plan !== null) {
                     $currentSub = $stripeSvc->getActiveSubscription($customerId);
+                    if ($currentSub === null) {
+                        throw new \RuntimeException('subscription-not-found');
+                    }
                     $isCancelScheduled = (bool) ($currentSub['cancel_at_period_end'] ?? false);
                     $currentPlan = $currentSub['plan'] ?? null;
 
                     if ($isCancelScheduled && $currentPlan === $plan) {
                         $stripeSvc->reactivateSubscriptionForCustomer($customerId);
+                        $reactivated = true;
                     } else {
                         $priceId = StripeService::priceIdForPlan($plan);
                         if ($priceId === '') {
@@ -521,7 +526,11 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
                     $stripeSvc->cancelSubscriptionForCustomer($customerId);
                 }
             }
-            $tenantSvc->updateProfile($target, ['plan' => $plan]);
+            if ($reactivated) {
+                $tenantSvc->updateProfile($target, ['stripe_cancel_at_period_end' => false]);
+            } else {
+                $tenantSvc->updateProfile($target, ['plan' => $plan]);
+            }
         } catch (\Throwable $e) {
             error_log('Stripe subscription update failed: ' . $e->getMessage());
             $errorCode = $e->getMessage();

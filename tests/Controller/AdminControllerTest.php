@@ -23,6 +23,9 @@ class AdminControllerTest extends TestCase
         $_ENV['POSTGRES_DSN'] = 'sqlite:' . $db;
         $_ENV['POSTGRES_USER'] = '';
         $_ENV['POSTGRES_PASSWORD'] = '';
+        // Prevent .env.test from overriding the SQLite DSN in subprocess tests
+        $ref = new \ReflectionProperty(\Tests\TestCase::class, 'testEnvLoaded');
+        $ref->setValue($this, true);
         return $db;
     }
     public function testRedirectWhenNotLoggedIn(): void {
@@ -433,7 +436,11 @@ class AdminControllerTest extends TestCase
     public function testStripeApiCalledOnPlanChange(): void {
         require_once __DIR__ . '/../Service/StripeServiceStub.php';
         \App\Service\StripeService::$calls = [];
-        \App\Service\StripeService::$activeSubscription = null;
+        \App\Service\StripeService::$activeSubscription = [
+            'plan' => 'starter',
+            'cancel_at_period_end' => false,
+            'subscription_status' => 'active',
+        ];
 
         $db = $this->setupDb();
         putenv('MAIN_DOMAIN=example.com');
@@ -474,6 +481,103 @@ class AdminControllerTest extends TestCase
         unset($_ENV['STRIPE_PRICE_STANDARD']);
         putenv('STRIPE_PRICE_PROFESSIONAL');
         unset($_ENV['STRIPE_PRICE_PROFESSIONAL']);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testStripeReactivationCalledWhenCancelScheduled(): void {
+        require_once __DIR__ . '/../Service/StripeServiceStub.php';
+        \App\Service\StripeService::$calls = [];
+        \App\Service\StripeService::$activeSubscription = [
+            'plan' => 'starter',
+            'cancel_at_period_end' => true,
+            'subscription_status' => 'active',
+        ];
+
+        $db = $this->setupDb();
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        putenv('STRIPE_PRICE_STARTER=price_start');
+        putenv('STRIPE_PRICE_STANDARD=price_standard');
+        putenv('STRIPE_PRICE_PROFESSIONAL=price_pro');
+        $app = $this->getAppInstance();
+        $pdo = new PDO($_ENV['POSTGRES_DSN']);
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, stripe_customer_id, plan) VALUES('t1','main','cus_123','starter')");
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'tok';
+
+        $request = $this->createRequest('POST', '/admin/subscription/toggle', [
+            'X-CSRF-Token' => 'tok',
+            'HTTP_CONTENT_TYPE' => 'application/json',
+        ])->withUri(new Uri('http', 'example.com', 80, '/admin/subscription/toggle'));
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, json_encode(['plan' => 'starter']));
+        rewind($stream);
+        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
+        $response = $app->handle($request);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame([
+            ['getActiveSubscription', 'cus_123'],
+            ['reactivate', 'cus_123'],
+        ], \App\Service\StripeService::$calls);
+
+        // Verify plan dates were NOT reset (reactivation should not change plan_started_at)
+        $plan = $pdo->query("SELECT plan FROM tenants WHERE subdomain='main'")->fetchColumn();
+        $this->assertSame('starter', $plan);
+
+        session_destroy();
+        unlink($db);
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
+        putenv('STRIPE_PRICE_STARTER');
+        unset($_ENV['STRIPE_PRICE_STARTER']);
+        putenv('STRIPE_PRICE_STANDARD');
+        unset($_ENV['STRIPE_PRICE_STANDARD']);
+        putenv('STRIPE_PRICE_PROFESSIONAL');
+        unset($_ENV['STRIPE_PRICE_PROFESSIONAL']);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testSubscriptionToggleReturnsErrorWhenNoActiveSubscription(): void {
+        require_once __DIR__ . '/../Service/StripeServiceStub.php';
+        \App\Service\StripeService::$calls = [];
+        \App\Service\StripeService::$activeSubscription = null;
+
+        $db = $this->setupDb();
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        $app = $this->getAppInstance();
+        $pdo = new PDO($_ENV['POSTGRES_DSN']);
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, stripe_customer_id) VALUES('t1','main','cus_123')");
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'tok';
+
+        $request = $this->createRequest('POST', '/admin/subscription/toggle', [
+            'X-CSRF-Token' => 'tok',
+            'HTTP_CONTENT_TYPE' => 'application/json',
+        ])->withUri(new Uri('http', 'example.com', 80, '/admin/subscription/toggle'));
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, json_encode(['plan' => 'standard']));
+        rewind($stream);
+        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
+        $response = $app->handle($request);
+        $this->assertSame(500, $response->getStatusCode());
+        $data = json_decode((string) $response->getBody(), true);
+        $this->assertSame('subscription-not-found', $data['error']);
+
+        session_destroy();
+        unlink($db);
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
     }
 
     public function testAdminRoutesSkipMigrationsByDefault(): void {
