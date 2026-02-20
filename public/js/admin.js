@@ -902,6 +902,7 @@ const openMenuAssignModal = (node, availableMenus, menuAssignmentMap) => {
 };
 
 window.openMenuAssignModal = openMenuAssignModal;
+window.openPageStatusModal = openPageStatusModal;
 window.updateMenuBadge = updateMenuBadge;
 
 const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAssignmentMap = {}) => {

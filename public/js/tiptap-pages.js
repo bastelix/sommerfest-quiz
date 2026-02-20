@@ -4171,8 +4171,20 @@ function buildPageTreeList(nodes, level = 0, availableMenus = [], menuAssignment
     const status = (node.status || '').trim();
     if (status) {
       const statusLabel = document.createElement('span');
-      statusLabel.className = 'uk-label uk-label-default uk-margin-small-left';
-      statusLabel.textContent = status;
+      statusLabel.className = 'uk-label uk-margin-small-left';
+      if (status === 'published') {
+        statusLabel.classList.add('uk-label-success');
+        statusLabel.textContent = 'Veröffentlicht';
+      } else if (status === 'archived') {
+        statusLabel.classList.add('uk-label-warning');
+        statusLabel.textContent = 'Archiviert';
+      } else {
+        statusLabel.classList.add('uk-label-default');
+        statusLabel.textContent = 'Entwurf';
+      }
+      if (nodeId !== null) {
+        statusLabel.setAttribute('data-status-badge', nodeId);
+      }
       meta.appendChild(statusLabel);
     }
 
@@ -4320,6 +4332,21 @@ function buildPageTreeList(nodes, level = 0, availableMenus = [], menuAssignment
         });
         menuLi.appendChild(menuLink);
         nav.appendChild(menuLi);
+      }
+
+      // Status change
+      if (typeof window.openPageStatusModal === 'function') {
+        const statusLi = document.createElement('li');
+        const statusLink = document.createElement('a');
+        statusLink.href = '#';
+        statusLink.innerHTML = '<span uk-icon="icon: bolt; ratio: 0.8" class="uk-margin-small-right"></span>Status ändern';
+        statusLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          UIkit.dropdown(dropdown).hide(false);
+          window.openPageStatusModal(node);
+        });
+        statusLi.appendChild(statusLink);
+        nav.appendChild(statusLi);
       }
 
       // Divider
