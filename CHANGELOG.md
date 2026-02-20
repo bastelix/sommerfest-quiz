@@ -312,6 +312,7 @@
 - *(subscription)* Inline cancel and upgrade/downgrade on abo page
 - *(theme)* Allow design preset selection on namespace creation
 - *(editor)* Add visual icon picker for block icon fields
+- *(pages)* Add page publishing with draft/published/archived status
 
 ### Fix
 
@@ -534,6 +535,7 @@
 - *(editor)* Add padding to optional details section content fields
 - *(subscription)* Use reactivateSubscriptionForCustomer for pending cancellations
 - *(ai)* Increase default max_completion_tokens to 16384
+- *(editor)* Translate English labels to German in stat_strip block
 
 ### Merge
 
