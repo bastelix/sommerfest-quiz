@@ -546,6 +546,7 @@
 - *(subscription)* Prevent errors on reactivation and plan change
 - *(subscription)* Restore plan in database on reactivation
 - *(ai)* Increase default HTTP timeout from 60s to 180s
+- Resolve PHPStan nullCoalesce.offset errors
 
 ### Merge
 
