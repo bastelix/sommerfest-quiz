@@ -20,6 +20,36 @@
     return '#';
   }
 
+  function statusBadgeClass(status) {
+    const map = {
+      active: 'uk-label uk-label-success',
+      trialing: 'uk-label uk-label-warning',
+      past_due: 'uk-label uk-label-warning',
+      paused: 'uk-label uk-label-warning',
+      canceled: 'uk-label',
+      unpaid: 'uk-label uk-label-danger',
+      incomplete_expired: 'uk-label uk-label-danger'
+    };
+    return map[status] || 'uk-label';
+  }
+
+  function detailItem(label, value, renderFn) {
+    const wrapper = document.createElement('div');
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'uk-text-meta';
+    labelDiv.textContent = label;
+    wrapper.appendChild(labelDiv);
+    const valueDiv = document.createElement('div');
+    valueDiv.className = 'uk-text-bold';
+    if (typeof renderFn === 'function') {
+      renderFn(valueDiv);
+    } else {
+      valueDiv.textContent = value;
+    }
+    wrapper.appendChild(valueDiv);
+    return wrapper;
+  }
+
   async function loadSubscription(){
     const el = document.getElementById('subscription-details');
     if (!el) return;
@@ -35,36 +65,44 @@
       const planName = el.dataset['plan' + capitalize(data.plan)] || data.plan;
       const price = fmtAmount(data.amount || 0, data.currency || 'eur');
       const next = data.next_payment ? new Date(data.next_payment).toLocaleDateString() : '-';
+      const status = data.subscription_status || data.status || '';
 
       el.textContent = '';
 
-      const planDiv = document.createElement('div');
-      const planStrong = document.createElement('strong');
-      planStrong.textContent = `${el.dataset.labelPlan}: ${planName}`;
-      planDiv.appendChild(planStrong);
-      el.appendChild(planDiv);
+      // Detail grid: 2x2 on medium+, stacked on mobile
+      const grid = document.createElement('div');
+      grid.className = 'uk-grid-small uk-child-width-1-2@m uk-margin-small-top';
+      grid.setAttribute('uk-grid', '');
 
-      // Show trial badge when subscription is in trialing state
-      if (data.subscription_status === 'trialing') {
-        const trialDiv = document.createElement('div');
-        trialDiv.className = 'uk-label uk-label-warning uk-margin-small-top';
-        trialDiv.textContent = el.dataset.labelTrial || 'Trial';
-        el.appendChild(trialDiv);
-      }
+      // Plan with inline trial badge
+      grid.appendChild(detailItem(el.dataset.labelPlan, planName, (div) => {
+        div.textContent = planName;
+        if (data.subscription_status === 'trialing') {
+          const badge = document.createElement('span');
+          badge.className = 'uk-label uk-label-warning uk-margin-small-left';
+          badge.style.fontSize = '0.75rem';
+          badge.textContent = el.dataset.labelTrial || 'Trial';
+          div.appendChild(badge);
+        }
+      }));
 
-      const priceDiv = document.createElement('div');
-      priceDiv.textContent = `${el.dataset.labelPrice}: ${price}`;
-      el.appendChild(priceDiv);
+      // Price
+      grid.appendChild(detailItem(el.dataset.labelPrice, price));
 
-      const nextDiv = document.createElement('div');
-      nextDiv.textContent = `${el.dataset.labelNext}: ${next}`;
-      el.appendChild(nextDiv);
+      // Status as colored badge
+      grid.appendChild(detailItem(el.dataset.labelStatus, '', (div) => {
+        const badge = document.createElement('span');
+        badge.className = statusBadgeClass(status);
+        badge.textContent = status || '-';
+        div.appendChild(badge);
+      }));
 
-      const statusDiv = document.createElement('div');
-      statusDiv.textContent = `${el.dataset.labelStatus}: ${data.status || '-'}`;
-      el.appendChild(statusDiv);
+      // Next payment
+      grid.appendChild(detailItem(el.dataset.labelNext, next));
 
-      // Show notice when subscription is scheduled for cancellation
+      el.appendChild(grid);
+
+      // Cancellation notice
       if (data.cancel_at_period_end) {
         const cancelNotice = document.createElement('div');
         cancelNotice.className = 'uk-alert uk-alert-warning uk-margin-small-top';
@@ -76,6 +114,7 @@
         el.appendChild(cancelNotice);
       }
 
+      // Action buttons
       const actionsDiv = document.createElement('div');
       actionsDiv.className = 'uk-margin-top';
 
@@ -83,7 +122,6 @@
       const notify = window.notify || (() => {});
 
       if (data.cancel_at_period_end) {
-        // Show reactivate button when cancel is pending
         const reactivateBtn = document.createElement('button');
         reactivateBtn.className = 'uk-button uk-button-primary uk-button-small';
         reactivateBtn.textContent = el.dataset.actionReactivate || 'Reactivate';
@@ -105,7 +143,6 @@
         });
         actionsDiv.appendChild(reactivateBtn);
       } else {
-        // Show cancel button
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'uk-button uk-button-danger uk-button-small';
         cancelBtn.textContent = el.dataset.actionCancel;
@@ -131,6 +168,12 @@
       }
 
       el.appendChild(actionsDiv);
+
+      // Highlight current plan card
+      document.querySelectorAll('[data-plan-card]').forEach(card => {
+        card.classList.toggle('pricing-plan-card--active', card.dataset.planCard === data.plan);
+      });
+
     } catch (e) {
       console.error(e);
     }
@@ -168,6 +211,8 @@
       thead.appendChild(headRow);
       table.appendChild(thead);
 
+      const invoiceStatusMap = { paid: 'uk-label-success', open: 'uk-label-warning', uncollectible: 'uk-label-danger', void: 'uk-label-danger' };
+
       const tbody = document.createElement('tbody');
       for (const inv of data){
         const row = document.createElement('tr');
@@ -176,11 +221,20 @@
         const amount = fmtAmount(inv.amount || 0, inv.currency || 'eur');
         const status = inv.status || '';
 
-        [num, date, amount, status].forEach(val => {
+        [num, date, amount].forEach(val => {
           const td = document.createElement('td');
           td.textContent = val;
           row.appendChild(td);
         });
+
+        // Status badge
+        const statusTd = document.createElement('td');
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'uk-label ' + (invoiceStatusMap[status] || '');
+        statusBadge.style.fontSize = '0.75rem';
+        statusBadge.textContent = status;
+        statusTd.appendChild(statusBadge);
+        row.appendChild(statusTd);
 
         const downloadTd = document.createElement('td');
         if (inv.invoice_pdf){

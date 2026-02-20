@@ -3502,3 +3502,41 @@ body.admin-page {
     padding: 8px 0;
   }
 }
+
+/* ── 30. Subscription / Customer Portal ── */
+
+.pricing-plan-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pricing-plan-price {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-heading, var(--text-body));
+  margin-top: 0.25rem;
+}
+
+.pricing-plan-price .uk-text-meta {
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.pricing-plan-card .uk-list {
+  flex: 1;
+}
+
+.pricing-plan-card .plan-select {
+  margin-top: auto;
+}
+
+.pricing-plan-card--active {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px var(--brand-primary);
+}
+
+.pricing-plan-card--active .plan-select {
+  opacity: 0.6;
+  pointer-events: none;
+}
