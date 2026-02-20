@@ -527,7 +527,10 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
                 }
             }
             if ($reactivated) {
-                $tenantSvc->updateProfile($target, ['stripe_cancel_at_period_end' => false]);
+                $tenantSvc->updateProfile($target, [
+                    'plan' => $plan,
+                    'stripe_cancel_at_period_end' => false,
+                ]);
             } else {
                 $tenantSvc->updateProfile($target, ['plan' => $plan]);
             }
