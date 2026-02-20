@@ -12,10 +12,9 @@ use Tests\TestCase;
 
 class OnboardTenantEndpointTest extends TestCase
 {
-    public function testEntrypointExportsWildcardHostForSingleContainer(): void
+    public function testEntrypointExportsWildcardHostWhenEnabled(): void
     {
         $envContent = <<<ENV
-TENANT_SINGLE_CONTAINER=1
 ENABLE_WILDCARD_SSL=1
 MAIN_DOMAIN=quiz.example.test
 VIRTUAL_HOST=app.example.test, marketing.example.test
@@ -40,10 +39,9 @@ ENV;
         );
     }
 
-    public function testEntrypointLeavesHostsUntouchedWhenFlagDisabled(): void
+    public function testEntrypointAddsApexHostWhenWildcardDisabled(): void
     {
         $envContent = <<<ENV
-TENANT_SINGLE_CONTAINER=0
 MAIN_DOMAIN=quiz.example.test
 VIRTUAL_HOST=app.example.test,marketing.example.test
 LETSENCRYPT_HOST=app.example.test
@@ -55,8 +53,8 @@ ENV;
         $this->assertArrayHasKey('VIRTUAL_HOST', $exported);
         $this->assertArrayHasKey('LETSENCRYPT_HOST', $exported);
 
-        $this->assertSame('app.example.test,marketing.example.test', $exported['VIRTUAL_HOST']);
-        $this->assertSame('app.example.test', $exported['LETSENCRYPT_HOST']);
+        $this->assertSame('app.example.test,marketing.example.test,quiz.example.test', $exported['VIRTUAL_HOST']);
+        $this->assertSame('app.example.test,quiz.example.test', $exported['LETSENCRYPT_HOST']);
     }
 
     public function testEntrypointStripsRegexHostsFromLetsEncryptList(): void
@@ -78,7 +76,6 @@ ENV;
     public function testEntrypointLeavesHostsUntouchedWithoutBaseDomain(): void
     {
         $envContent = <<<ENV
-TENANT_SINGLE_CONTAINER=1
 VIRTUAL_HOST=app.example.test
 LETSENCRYPT_HOST=app.example.test
 
@@ -93,10 +90,8 @@ ENV;
         $this->assertSame('app.example.test', $exported['LETSENCRYPT_HOST']);
     }
 
-    public function testSingleContainerProvisionsMissingCertificates(): void
+    public function testOnboardProvisionsMissingCertificates(): void
     {
-        putenv('TENANT_SINGLE_CONTAINER=1');
-        $_ENV['TENANT_SINGLE_CONTAINER'] = '1';
         putenv('MAIN_DOMAIN=quiz.example.test');
         $_ENV['MAIN_DOMAIN'] = 'quiz.example.test';
 
@@ -213,7 +208,6 @@ BASH;
             $this->assertIsArray($payload);
             $this->assertSame('completed', $payload['status'] ?? null);
             $this->assertSame('singleslug', $payload['tenant'] ?? null);
-            $this->assertSame('single-container', $payload['mode'] ?? null);
             $this->assertFileExists($certPath);
             $this->assertFileExists($keyPath);
         } finally {
@@ -252,8 +246,6 @@ BASH;
                 }
             }
 
-            putenv('TENANT_SINGLE_CONTAINER');
-            unset($_ENV['TENANT_SINGLE_CONTAINER']);
             putenv('MAIN_DOMAIN');
             unset($_ENV['MAIN_DOMAIN']);
             putenv('RUN_MIGRATIONS_ON_REQUEST');
@@ -271,10 +263,8 @@ BASH;
         }
     }
 
-    public function testSingleContainerSkipsDockerProvisioning(): void
+    public function testOnboardRunsSchemaProvisioning(): void
     {
-        putenv('TENANT_SINGLE_CONTAINER=1');
-        $_ENV['TENANT_SINGLE_CONTAINER'] = '1';
         putenv('MAIN_DOMAIN=quiz.example.test');
         $_ENV['MAIN_DOMAIN'] = 'quiz.example.test';
 
@@ -345,7 +335,6 @@ BASH;
             $this->assertIsArray($payload);
             $this->assertSame('completed', $payload['status'] ?? null);
             $this->assertSame('singleslug', $payload['tenant'] ?? null);
-            $this->assertSame('single-container', $payload['mode'] ?? null);
             $state = $pdo->query("SELECT onboarding_state FROM tenants WHERE subdomain='singleslug'")
                 ->fetchColumn();
             $this->assertSame('provisioned', $state);
@@ -368,8 +357,6 @@ BASH;
                 rmdir($certDir);
             }
 
-            putenv('TENANT_SINGLE_CONTAINER');
-            unset($_ENV['TENANT_SINGLE_CONTAINER']);
             putenv('MAIN_DOMAIN');
             unset($_ENV['MAIN_DOMAIN']);
             putenv('RUN_MIGRATIONS_ON_REQUEST');
@@ -394,7 +381,7 @@ BASH;
         $envFile = $projectRoot . '/.env';
         $originalEnv = is_file($envFile) ? file_get_contents($envFile) : null;
 
-        $varsToReset = ['TENANT_SINGLE_CONTAINER', 'MAIN_DOMAIN', 'DOMAIN', 'VIRTUAL_HOST', 'LETSENCRYPT_HOST', 'ENABLE_WILDCARD_SSL'];
+        $varsToReset = ['MAIN_DOMAIN', 'DOMAIN', 'VIRTUAL_HOST', 'LETSENCRYPT_HOST', 'ENABLE_WILDCARD_SSL'];
         $previousEnv = [];
 
         foreach ($varsToReset as $var) {

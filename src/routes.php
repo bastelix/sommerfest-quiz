@@ -2166,17 +2166,36 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONING);
 
-        $singleContainerFlag = getenv('TENANT_SINGLE_CONTAINER');
-        $singleContainerEnabled = filter_var((string) $singleContainerFlag, FILTER_VALIDATE_BOOLEAN);
+        $baseDomain = trim((string) (getenv('MAIN_DOMAIN') ?: getenv('DOMAIN')));
+        $certDir = realpath(__DIR__ . '/../certs') ?: (__DIR__ . '/../certs');
 
-        if ($singleContainerEnabled) {
-            $baseDomain = trim((string) (getenv('MAIN_DOMAIN') ?: getenv('DOMAIN')));
-            $certDir = realpath(__DIR__ . '/../certs') ?: (__DIR__ . '/../certs');
+        if ($baseDomain === '') {
+            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+            $response->getBody()->write(json_encode([
+                'error' => 'wildcard-domain-missing',
+                'log' => $log,
+            ]));
 
-            if ($baseDomain === '') {
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $certPath = $certDir . '/' . $baseDomain . '.crt';
+        $keyPath = $certDir . '/' . $baseDomain . '.key';
+
+        if (!is_file($certPath) || !is_file($keyPath)) {
+            $overrideScript = getenv('PROVISION_WILDCARD_SCRIPT');
+            if ($overrideScript !== false && $overrideScript !== '') {
+                $provisionScript = $overrideScript;
+            } else {
+                $provisionScript = realpath(__DIR__ . '/../scripts/provision_wildcard.sh');
+            }
+
+            if ($provisionScript === false || !is_file($provisionScript)) {
                 $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
                 $response->getBody()->write(json_encode([
-                    'error' => 'wildcard-domain-missing',
+                    'error' => 'wildcard-script-missing',
                     'log' => $log,
                 ]));
 
@@ -2185,158 +2204,81 @@ return function (\Slim\App $app, TranslationService $translator) {
                     ->withStatus(500);
             }
 
-            $certPath = $certDir . '/' . $baseDomain . '.crt';
-            $keyPath = $certDir . '/' . $baseDomain . '.key';
-
-            if (!is_file($certPath) || !is_file($keyPath)) {
-                $overrideScript = getenv('PROVISION_WILDCARD_SCRIPT');
-                if ($overrideScript !== false && $overrideScript !== '') {
-                    $provisionScript = $overrideScript;
-                } else {
-                    $provisionScript = realpath(__DIR__ . '/../scripts/provision_wildcard.sh');
-                }
-
-                if ($provisionScript === false || !is_file($provisionScript)) {
-                    $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
-                    $response->getBody()->write(json_encode([
-                        'error' => 'wildcard-script-missing',
-                        'log' => $log,
-                    ]));
-
-                    return $response
-                        ->withHeader('Content-Type', 'application/json')
-                        ->withStatus(500);
-                }
-
-                if (!is_dir(dirname($logPath))) {
-                    mkdir(dirname($logPath), 0775, true);
-                }
-
-                $message = sprintf(
-                    '[%s] Missing wildcard certificate for "%s" – provisioning via script.',
-                    date('c'),
-                    $baseDomain
-                );
-                file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
-                $log = (string) file_get_contents($logPath);
-
-                $result = runSyncProcess($provisionScript, ['--domain', $baseDomain]);
-
-                clearstatcache(true, $certPath);
-                clearstatcache(true, $keyPath);
-
-                if (!is_file($certPath) || !is_file($keyPath)) {
-                    $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
-                    $response->getBody()->write(json_encode([
-                        'error' => 'wildcard-provisioning-failed',
-                        'details' => $result['stderr'] !== '' ? $result['stderr'] : $result['stdout'],
-                        'log' => (string) file_get_contents($logPath),
-                    ]));
-
-                    return $response
-                        ->withHeader('Content-Type', 'application/json')
-                        ->withStatus(500);
-                }
-
-                $message = sprintf('[%s] Wildcard certificate ready for "%s".', date('c'), $baseDomain);
-                file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
-                $log = (string) file_get_contents($logPath);
-            }
-
-            $migrationsDir = __DIR__ . '/../migrations';
-
-            try {
-                Migrator::migrate($base, $migrationsDir);
-
-                $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
-                $stmt->execute([$slug]);
-                $schema = $stmt->fetchColumn();
-
-                if ($schema === false) {
-                    $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
-                    $response->getBody()->write(json_encode([
-                        'error' => 'Tenant not found',
-                        'log' => $log,
-                    ]));
-
-                    return $response
-                        ->withHeader('Content-Type', 'application/json')
-                        ->withStatus(404);
-                }
-
-                $pdo = Database::connectWithSchema((string) $schema);
-                Migrator::migrate($pdo, $migrationsDir);
-            } catch (\Throwable $e) {
-                $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
-                if (!is_dir(dirname($logPath))) {
-                    mkdir(dirname($logPath), 0775, true);
-                }
-                $message = sprintf(
-                    '[%s] Failed to migrate tenant "%s" in single container mode: %s',
-                    date('c'),
-                    $slug,
-                    $e->getMessage()
-                );
-                file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
-                $log = (string) file_get_contents($logPath);
-                $response->getBody()->write(json_encode([
-                    'error' => 'Failed to onboard tenant',
-                    'log' => $log,
-                    'details' => $e->getMessage(),
-                ]));
-
-                return $response
-                    ->withHeader('Content-Type', 'application/json')
-                    ->withStatus(500);
-            }
-
-            $message = sprintf(
-                '[%s] Single container mode active – skipped docker onboarding for "%s".',
-                date('c'),
-                $slug
-            );
             if (!is_dir(dirname($logPath))) {
                 mkdir(dirname($logPath), 0775, true);
             }
+
+            $message = sprintf(
+                '[%s] Missing wildcard certificate for "%s" – provisioning via script.',
+                date('c'),
+                $baseDomain
+            );
             file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
             $log = (string) file_get_contents($logPath);
 
-            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONED);
-            $payload = [
-                'status' => 'completed',
-                'tenant' => $slug,
-                'log' => $log,
-                'mode' => 'single-container',
-            ];
-            $response->getBody()->write(json_encode($payload));
+            $result = runSyncProcess($provisionScript, ['--domain', $baseDomain]);
 
-            return $response->withHeader('Content-Type', 'application/json');
+            clearstatcache(true, $certPath);
+            clearstatcache(true, $keyPath);
+
+            if (!is_file($certPath) || !is_file($keyPath)) {
+                $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                $response->getBody()->write(json_encode([
+                    'error' => 'wildcard-provisioning-failed',
+                    'details' => $result['stderr'] !== '' ? $result['stderr'] : $result['stdout'],
+                    'log' => (string) file_get_contents($logPath),
+                ]));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(500);
+            }
+
+            $message = sprintf('[%s] Wildcard certificate ready for "%s".', date('c'), $baseDomain);
+            file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+            $log = (string) file_get_contents($logPath);
         }
 
-        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
+        $migrationsDir = __DIR__ . '/../migrations';
 
-        if (!is_file($script)) {
+        try {
+            Migrator::migrate($base, $migrationsDir);
+
+            $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
+            $stmt->execute([$slug]);
+            $schema = $stmt->fetchColumn();
+
+            if ($schema === false) {
+                $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                $response->getBody()->write(json_encode([
+                    'error' => 'Tenant not found',
+                    'log' => $log,
+                ]));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(404);
+            }
+
+            $pdo = Database::connectWithSchema((string) $schema);
+            Migrator::migrate($pdo, $migrationsDir);
+        } catch (\Throwable $e) {
             $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
-            $response->getBody()->write(json_encode([
-                'error' => 'Onboard script not found',
-                'log' => $log,
-            ]));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
-
-        $result = runSyncProcess($script, [$slug]);
-        $tenantDir = __DIR__ . '/../tenants/' . $slug;
-        $composeFile = $tenantDir . '/docker-compose.yml';
-
-        if (!$result['success'] || !is_file($composeFile)) {
-            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+            if (!is_dir(dirname($logPath))) {
+                mkdir(dirname($logPath), 0775, true);
+            }
+            $message = sprintf(
+                '[%s] Failed to migrate tenant "%s": %s',
+                date('c'),
+                $slug,
+                $e->getMessage()
+            );
+            file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+            $log = (string) file_get_contents($logPath);
             $response->getBody()->write(json_encode([
                 'error' => 'Failed to onboard tenant',
-                'stderr' => $result['stderr'],
                 'log' => $log,
+                'details' => $e->getMessage(),
             ]));
 
             return $response
@@ -2344,8 +2286,23 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
+        $message = sprintf(
+            '[%s] Schema provisioning completed for "%s".',
+            date('c'),
+            $slug
+        );
+        if (!is_dir(dirname($logPath))) {
+            mkdir(dirname($logPath), 0775, true);
+        }
+        file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+        $log = (string) file_get_contents($logPath);
+
         $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONED);
-        $payload = ['status' => 'completed', 'tenant' => $slug, 'log' => $log];
+        $payload = [
+            'status' => 'completed',
+            'tenant' => $slug,
+            'log' => $log,
+        ];
         $response->getBody()->write(json_encode($payload));
 
         return $response->withHeader('Content-Type', 'application/json');
@@ -2361,20 +2318,22 @@ return function (\Slim\App $app, TranslationService $translator) {
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
-        $script = realpath(__DIR__ . '/../scripts/offboard_tenant.sh');
+        $base = Database::connectFromEnv();
+        $tenantService = new TenantService($base);
+        $tenant = $tenantService->getBySubdomain($slug);
 
-        if (!is_file($script)) {
-            $response->getBody()->write(json_encode(['error' => 'Offboard script not found']));
+        if ($tenant === null) {
+            $response->getBody()->write(json_encode(['error' => 'tenant-not-found']));
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
         }
 
-        $result = runSyncProcess($script, [$slug]);
-        if (!$result['success']) {
-            $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
+        try {
+            $tenantService->deleteTenant($tenant['uid']);
+        } catch (\Throwable $e) {
             $response->getBody()->write(json_encode([
                 'error' => 'Failed to remove tenant',
-                'message' => $message,
+                'message' => $e->getMessage(),
             ]));
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
@@ -2481,146 +2440,6 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
         $response->getBody()->write(json_encode(['status' => 'built']));
-
-        return $response->withHeader('Content-Type', 'application/json');
-    })->add(new RoleAuthMiddleware('admin'));
-
-    $app->post('/api/tenants/{slug}/upgrade', function (Request $request, Response $response, array $args) {
-        if ($request->getAttribute('domainType') !== 'main') {
-            return $response->withStatus(403);
-        }
-        $slug = strtolower((string) ($args['slug'] ?? ''));
-        if ($slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
-            $response->getBody()->write(json_encode(['error' => 'Invalid slug']));
-
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-        }
-        $script = realpath(__DIR__ . '/../scripts/upgrade_tenant.sh');
-
-        if (!is_file($script)) {
-            $response->getBody()->write(json_encode(['error' => 'Upgrade script not found']));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
-
-        $result = runSyncProcess($script, [$slug]);
-        if (!$result['success']) {
-            $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
-            $response->getBody()->write(json_encode([
-                'error' => 'Failed to upgrade tenant',
-                'message' => $message,
-            ]));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
-
-        $composeFile = $slug === 'main'
-            ? realpath(__DIR__ . '/../docker-compose.yml')
-            : realpath(__DIR__ . '/../tenants/' . $slug . '/docker-compose.yml');
-        $service = $slug === 'main' ? 'slim' : 'app';
-
-        $dockerCmd = ['docker', 'compose'];
-        $composeCheck = runSyncProcess('docker', ['compose', 'version']);
-        if (!$composeCheck['success']) {
-            $composeCheck = runSyncProcess('docker-compose', ['version']);
-            if (!$composeCheck['success']) {
-                $response->getBody()->write(json_encode(['error' => 'docker compose not available']));
-
-                return $response
-                    ->withHeader('Content-Type', 'application/json')
-                    ->withStatus(500);
-            }
-            $dockerCmd = ['docker-compose'];
-        }
-
-        $psArgs = $dockerCmd[0] === 'docker'
-            ? ['compose', '-f', (string) $composeFile, '-p', $slug, 'ps', '-q', $service]
-            : ['-f', (string) $composeFile, '-p', $slug, 'ps', '-q', $service];
-        $psResult = runSyncProcess($dockerCmd[0], $psArgs);
-        if (!$psResult['success']) {
-            $message = trim($psResult['stderr'] !== '' ? $psResult['stderr'] : $psResult['stdout']);
-            $response->getBody()->write(json_encode([
-                'error' => 'Failed to inspect container',
-                'message' => $message,
-            ]));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
-        $containerId = trim($psResult['stdout']);
-        if ($containerId === '') {
-            $response->getBody()->write(json_encode([
-                'error' => 'Container not found',
-                'slug' => $slug,
-            ]));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
-
-        $inspect = runSyncProcess('docker', ['inspect', '-f', '{{.Config.Image}}', $containerId]);
-        if (!$inspect['success']) {
-            $message = trim($inspect['stderr'] !== '' ? $inspect['stderr'] : $inspect['stdout']);
-            $response->getBody()->write(json_encode([
-                'error' => 'Failed to read image',
-                'message' => $message,
-            ]));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
-        $currentImage = trim($inspect['stdout']);
-
-        $response->getBody()->write(json_encode([
-            'status' => 'success',
-            'slug' => $slug,
-            'image' => $currentImage,
-        ]));
-
-        return $response->withHeader('Content-Type', 'application/json');
-    })->add(new RoleAuthMiddleware('admin'));
-
-    $app->post('/api/tenants/{slug}/restart', function (Request $request, Response $response, array $args) {
-        if ($request->getAttribute('domainType') !== 'main') {
-            return $response->withStatus(403);
-        }
-        $slug = strtolower((string) ($args['slug'] ?? ''));
-        if ($slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
-            $response->getBody()->write(json_encode(['error' => 'Invalid slug']));
-
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-        }
-        $script = realpath(__DIR__ . '/../scripts/restart_tenant.sh');
-
-        if (!is_file($script)) {
-            $response->getBody()->write(json_encode(['error' => 'Restart script not found']));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
-
-        $result = runSyncProcess($script, [$slug]);
-        if (!$result['success']) {
-            $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
-            $response->getBody()->write(json_encode([
-                'error' => 'Failed to restart tenant',
-                'message' => $message,
-            ]));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
-
-        $response->getBody()->write(json_encode(['status' => 'restarted', 'slug' => $slug]));
 
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware('admin'));

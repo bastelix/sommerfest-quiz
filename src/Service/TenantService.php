@@ -21,7 +21,6 @@ class TenantService
     private PDO $pdo;
     private string $migrationsDir;
     private ?NginxService $nginxService;
-    private string $tenantsDir;
 
     private const SYNC_SETTINGS_KEY = 'tenants:last_sync';
     private const SYNC_COOLDOWN_SECONDS = 300;
@@ -65,79 +64,11 @@ class TenantService
     public function __construct(
         ?PDO $pdo = null,
         ?string $migrationsDir = null,
-        ?NginxService $nginxService = null,
-        ?string $tenantsDir = null
+        ?NginxService $nginxService = null
     ) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->migrationsDir = $migrationsDir ?? dirname(__DIR__, 2) . '/migrations';
         $this->nginxService = $nginxService;
-        $this->tenantsDir = $this->resolveTenantsDir($tenantsDir);
-    }
-
-    private function resolveTenantsDir(?string $tenantsDir): string
-    {
-        $projectRoot = dirname(__DIR__, 2);
-        $envValue = getenv('TENANTS_DIR');
-        $path = $tenantsDir ?? ($envValue !== false && $envValue !== '' ? $envValue : $projectRoot . '/tenants');
-
-        if ($path === '') {
-            return $projectRoot . '/tenants';
-        }
-
-        $path = str_replace('\\', '/', $path);
-
-        if (!$this->isAbsolutePath($path)) {
-            $path = rtrim($projectRoot, '/') . '/' . ltrim($path, '/');
-        }
-
-        $path = $this->normalisePath($path);
-        $realPath = realpath($path);
-
-        return $realPath !== false ? $realPath : $path;
-    }
-
-    private function isAbsolutePath(string $path): bool
-    {
-        return str_starts_with($path, '/')
-            || preg_match('~^[A-Za-z]:[\\/]~', $path) === 1
-            || str_starts_with($path, '\\');
-    }
-
-    private function normalisePath(string $path): string
-    {
-        $path = str_replace('\\', '/', $path);
-        $segments = explode('/', $path);
-        $stack = [];
-        $prefix = '';
-
-        if (preg_match('~^[A-Za-z]:$~', $segments[0]) === 1) {
-            $prefix = array_shift($segments) . '/';
-        } elseif (str_starts_with($path, '//')) {
-            $prefix = '//';
-        } elseif (str_starts_with($path, '/')) {
-            $prefix = '/';
-        }
-
-        foreach ($segments as $segment) {
-            if ($segment === '' || $segment === '.') {
-                continue;
-            }
-
-            if ($segment === '..') {
-                if ($stack === []) {
-                    continue;
-                }
-
-                array_pop($stack);
-                continue;
-            }
-
-            $stack[] = $segment;
-        }
-
-        $normalised = $prefix . implode('/', $stack);
-
-        return $normalised !== '' ? $normalised : ($prefix === '' ? '.' : $prefix);
     }
 
     /**
@@ -1086,29 +1017,6 @@ class TenantService
             $ins->execute([bin2hex(random_bytes(16)), $subdomain, self::ONBOARDING_COMPLETED]);
             $existing[] = $subdomain;
             $count++;
-        }
-
-        $tenantsDir = $this->tenantsDir;
-        if (is_dir($tenantsDir)) {
-            foreach (scandir($tenantsDir) as $dir) {
-                if ($dir === '.' || $dir === '..') {
-                    continue;
-                }
-                $schemaName = $dir === self::MAIN_SUBDOMAIN ? 'public' : $dir;
-                if (in_array($dir, $existing, true)) {
-                    continue;
-                }
-                if ($this->isReserved($dir)) {
-                    continue;
-                }
-                if (!in_array($schemaName, $schemas, true)) {
-                    $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schemaName));
-                    $schemas[] = $schemaName;
-                }
-                $ins->execute([bin2hex(random_bytes(16)), $dir, self::ONBOARDING_COMPLETED]);
-                $existing[] = $dir;
-                $count++;
-            }
         }
 
         $this->persistLastSync($now);

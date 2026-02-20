@@ -12,15 +12,13 @@ use Tests\TestCase;
 
 class TenantOnboardRouteTest extends TestCase
 {
-    public function testSingleContainerOnboardReturnsSuccess(): void
+    public function testOnboardReturnsSuccess(): void
     {
-        $previousSingleContainer = getenv('TENANT_SINGLE_CONTAINER');
         $previousMainDomain = getenv('MAIN_DOMAIN');
         $previousDisplayErrorDetails = getenv('DISPLAY_ERROR_DETAILS');
         $previousDashboardSecret = getenv('DASHBOARD_TOKEN_SECRET');
+        $previousPasswordResetSecret = getenv('PASSWORD_RESET_SECRET');
 
-        putenv('TENANT_SINGLE_CONTAINER=1');
-        $_ENV['TENANT_SINGLE_CONTAINER'] = '1';
         putenv('MAIN_DOMAIN=quiz.example.test');
         $_ENV['MAIN_DOMAIN'] = 'quiz.example.test';
 
@@ -91,6 +89,8 @@ class TenantOnboardRouteTest extends TestCase
             $_ENV['DISPLAY_ERROR_DETAILS'] = '1';
             putenv('DASHBOARD_TOKEN_SECRET=test-secret');
             $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
+            putenv('PASSWORD_RESET_SECRET=test-secret');
+            $_ENV['PASSWORD_RESET_SECRET'] = 'test-secret';
 
             $app = $this->getAppInstance();
 
@@ -106,10 +106,6 @@ class TenantOnboardRouteTest extends TestCase
             $this->assertIsArray($data);
             $this->assertSame('completed', $data['status'] ?? null);
             $this->assertSame($slug, $data['tenant'] ?? null);
-            $this->assertSame('single-container', $data['mode'] ?? null);
-
-            $compose = $projectRoot . '/tenants/' . $slug . '/docker-compose.yml';
-            $this->assertFileDoesNotExist($compose);
         } finally {
             if ($originalLog === null) {
                 if (is_file($logPath)) {
@@ -142,14 +138,6 @@ class TenantOnboardRouteTest extends TestCase
                 }
             }
 
-            if ($previousSingleContainer === false) {
-                putenv('TENANT_SINGLE_CONTAINER');
-                unset($_ENV['TENANT_SINGLE_CONTAINER']);
-            } else {
-                putenv('TENANT_SINGLE_CONTAINER=' . $previousSingleContainer);
-                $_ENV['TENANT_SINGLE_CONTAINER'] = $previousSingleContainer;
-            }
-
             if ($previousMainDomain === false) {
                 putenv('MAIN_DOMAIN');
                 unset($_ENV['MAIN_DOMAIN']);
@@ -172,6 +160,14 @@ class TenantOnboardRouteTest extends TestCase
             } else {
                 putenv('DASHBOARD_TOKEN_SECRET=' . $previousDashboardSecret);
                 $_ENV['DASHBOARD_TOKEN_SECRET'] = $previousDashboardSecret;
+            }
+
+            if ($previousPasswordResetSecret === false) {
+                putenv('PASSWORD_RESET_SECRET');
+                unset($_ENV['PASSWORD_RESET_SECRET']);
+            } else {
+                putenv('PASSWORD_RESET_SECRET=' . $previousPasswordResetSecret);
+                $_ENV['PASSWORD_RESET_SECRET'] = $previousPasswordResetSecret;
             }
 
             Database::setFactory(null);
