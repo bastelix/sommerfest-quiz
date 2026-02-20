@@ -1,0 +1,57 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ pageTitle|default('Coming Soon') }} – Demnächst verfügbar{% endblock %}
+
+{% block body_class %}marketing-page marketing-coming-soon uk-background-muted{% endblock %}
+
+{% block head %}
+  <meta name="page-name" content="Coming Soon">
+  <meta name="robots" content="noindex, nofollow">
+  <script type="module" src="{{ basePath }}/js/marketing-design.js"></script>
+  <style>
+    .coming-soon-wrapper {
+      min-height: 80vh;
+      display: grid;
+      place-items: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .coming-soon-card {
+      max-width: 640px;
+      width: 100%;
+      background: var(--surface-card, #fff);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+      text-align: center;
+    }
+
+    .coming-soon-card h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .coming-soon-card p {
+      margin: 0.4rem 0;
+      color: var(--text-body, #555);
+    }
+
+    .coming-soon-card .coming-soon-meta {
+      color: var(--text-muted, #888);
+      font-size: 0.95rem;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
+  <div class="coming-soon-wrapper">
+    <section class="coming-soon-card" role="status" aria-live="polite">
+      <h1>Demnächst verfügbar</h1>
+      <p>Diese Seite wird gerade vorbereitet. Bitte schau bald wieder vorbei.</p>
+      {% if requestedHost %}
+        <p class="coming-soon-meta">{{ requestedHost }}</p>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}
