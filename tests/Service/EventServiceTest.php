@@ -111,9 +111,9 @@ class EventServiceTest extends TestCase
         $this->assertSame(0, $count);
     }
 
-    public function testSaveAllRespectsStarterLimit(): void {
+    public function testSaveAllRespectsFreeLimit(): void {
         $pdo = $this->createPdo();
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','free')");
         $tenantSvc = new TenantService($pdo);
         $svc = new EventService($pdo, null, $tenantSvc, 'sub1');
 
@@ -126,21 +126,20 @@ class EventServiceTest extends TestCase
         ]);
     }
 
-    public function testSaveAllRespectsStandardLimit(): void {
+    public function testSaveAllRespectsStarterLimit(): void {
         $pdo = $this->createPdo();
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t2','sub2','standard')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t2','sub2','starter')");
         $tenantSvc = new TenantService($pdo);
         $svc = new EventService($pdo, null, $tenantSvc, 'sub2');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('max-events-exceeded');
 
-        $svc->saveAll([
-            ['name' => 'A'],
-            ['name' => 'B'],
-            ['name' => 'C'],
-            ['name' => 'D'],
-        ]);
+        $events = [];
+        for ($i = 0; $i < 4; $i++) {
+            $events[] = ['name' => 'Event ' . $i];
+        }
+        $svc->saveAll($events);
     }
 
     public function testCustomLimitOverridesPlan(): void {
@@ -169,7 +168,7 @@ class EventServiceTest extends TestCase
 
     public function testSaveAllAllowsReplacementAtLimit(): void {
         $pdo = $this->createPdo();
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t4','sub4','professional')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t4','sub4','standard')");
         $tenantSvc = new TenantService($pdo);
         $svc = new EventService($pdo, null, $tenantSvc, 'sub4');
 

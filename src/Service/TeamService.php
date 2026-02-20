@@ -7,6 +7,7 @@ namespace App\Service;
 use PDO;
 use App\Service\ConfigService;
 use App\Service\TenantService;
+use App\Service\QuotaService;
 
 /**
  * Service layer for managing quiz teams.
@@ -16,7 +17,9 @@ class TeamService
     private PDO $pdo;
     private ConfigService $config;
     private ?TenantService $tenants;
+    private ?QuotaService $quota;
     private string $subdomain;
+    private string $namespaceProjectId;
 
     /**
      * Inject database connection.
@@ -25,12 +28,16 @@ class TeamService
         PDO $pdo,
         ConfigService $config,
         ?TenantService $tenants = null,
-        string $subdomain = ''
+        string $subdomain = '',
+        ?QuotaService $quota = null,
+        string $namespaceProjectId = ''
     ) {
         $this->pdo = $pdo;
         $this->config = $config;
         $this->tenants = $tenants;
+        $this->quota = $quota;
         $this->subdomain = $subdomain;
+        $this->namespaceProjectId = $namespaceProjectId;
     }
 
 
@@ -131,9 +138,21 @@ class TeamService
         $uid = $this->config->getActiveEventUid();
 
         $teamCount = count($teams);
-        if ($this->tenants !== null && $this->subdomain !== '') {
+        if ($this->quota !== null && $this->namespaceProjectId !== '') {
+            $overview = $this->quota->getQuotaOverview($this->namespaceProjectId);
+            $teamsLimit = null;
+            foreach ($overview as $entry) {
+                if ($entry['metric'] === 'teams') {
+                    $teamsLimit = $entry['max_value'];
+                    break;
+                }
+            }
+            if ($teamsLimit !== null && $teamCount > $teamsLimit) {
+                throw new \RuntimeException('max-teams-exceeded');
+            }
+        } elseif ($this->tenants !== null && $this->subdomain !== '') {
             $limits = $this->tenants->getLimitsBySubdomain($this->subdomain);
-            $max = $limits['maxTeamsPerEvent'] ?? null;
+            $max = $limits['teams'] ?? $limits['maxTeamsPerEvent'] ?? null;
             if ($max !== null && $teamCount > $max) {
                 throw new \RuntimeException('max-teams-exceeded');
             }
@@ -159,6 +178,11 @@ class TeamService
             }
         }
         $this->pdo->commit();
+
+        if ($this->quota !== null && $this->namespaceProjectId !== '') {
+            $totalCount = (int) $this->pdo->query('SELECT COUNT(*) FROM teams')->fetchColumn();
+            $this->quota->setUsage($this->namespaceProjectId, 'teams', $totalCount);
+        }
     }
 
     /**

@@ -46,9 +46,9 @@ class StripeService
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
         $map = [
+            'free' => getenv($prefix . 'PRICE_FREE') ?: '',
             'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
             'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
-            'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
         ];
         return $map[$plan] ?? '';
     }

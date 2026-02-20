@@ -443,12 +443,12 @@ class CatalogServiceTest extends TestCase
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','free')");
         $tenantSvc = new TenantService($pdo);
         $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
 
         $catalogs = [];
-        for ($i = 1; $i <= 6; $i++) {
+        for ($i = 1; $i <= 3; $i++) {
             $catalogs[] = [
                 'uid' => 'u' . $i,
                 'sort_order' => $i,
@@ -465,16 +465,16 @@ class CatalogServiceTest extends TestCase
         $service->write('catalogs.json', $catalogs);
     }
 
-    public function testSaveAllRespectsStandardCatalogLimit(): void {
+    public function testSaveAllRespectsStarterCatalogLimit(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','standard')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
         $tenantSvc = new TenantService($pdo);
         $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
 
         $catalogs = [];
-        for ($i = 1; $i <= 11; $i++) {
+        for ($i = 1; $i <= 16; $i++) {
             $catalogs[] = [
                 'uid' => 'u' . $i,
                 'sort_order' => $i,
@@ -495,12 +495,12 @@ class CatalogServiceTest extends TestCase
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','free')");
         $tenantSvc = new TenantService($pdo);
         $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
 
         $questions = [];
-        for ($i = 0; $i < 6; $i++) {
+        for ($i = 0; $i < 11; $i++) {
             $questions[] = ['type' => 'text', 'prompt' => 'Q' . $i];
         }
 
@@ -510,16 +510,16 @@ class CatalogServiceTest extends TestCase
         $service->write('c1.json', $questions);
     }
 
-    public function testWriteRespectsStandardQuestionLimit(): void {
+    public function testWriteRespectsStarterQuestionLimit(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','standard')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
         $tenantSvc = new TenantService($pdo);
         $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
 
         $questions = [];
-        for ($i = 0; $i < 11; $i++) {
+        for ($i = 0; $i < 101; $i++) {
             $questions[] = ['type' => 'text', 'prompt' => 'Q' . $i];
         }
 

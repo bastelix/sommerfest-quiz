@@ -281,23 +281,23 @@ final class StripeServiceTest extends TestCase
     }
 
     public function testMapPriceToPlanReturnsCorrectPlan(): void {
+        putenv('STRIPE_PRICE_FREE=price_free');
         putenv('STRIPE_PRICE_STARTER=price_starter');
         putenv('STRIPE_PRICE_STANDARD=price_standard');
-        putenv('STRIPE_PRICE_PROFESSIONAL=price_pro');
+        $this->assertSame('free', StripeService::mapPriceToPlan('price_free'));
         $this->assertSame('starter', StripeService::mapPriceToPlan('price_starter'));
         $this->assertSame('standard', StripeService::mapPriceToPlan('price_standard'));
-        $this->assertSame('professional', StripeService::mapPriceToPlan('price_pro'));
         $this->assertNull(StripeService::mapPriceToPlan('price_unknown'));
         $this->assertNull(StripeService::mapPriceToPlan(''));
     }
 
     public function testPriceIdForPlanReturnsCorrectId(): void {
+        putenv('STRIPE_PRICE_FREE=price_free');
         putenv('STRIPE_PRICE_STARTER=price_starter');
         putenv('STRIPE_PRICE_STANDARD=price_standard');
-        putenv('STRIPE_PRICE_PROFESSIONAL=price_pro');
+        $this->assertSame('price_free', StripeService::priceIdForPlan('free'));
         $this->assertSame('price_starter', StripeService::priceIdForPlan('starter'));
         $this->assertSame('price_standard', StripeService::priceIdForPlan('standard'));
-        $this->assertSame('price_pro', StripeService::priceIdForPlan('professional'));
         $this->assertSame('', StripeService::priceIdForPlan('unknown'));
     }
 
