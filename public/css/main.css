@@ -3577,3 +3577,112 @@ body.admin-page {
   opacity: 0.6;
   pointer-events: none;
 }
+
+/* ── Icon picker ────────────────────────────────────────────────── */
+
+.icon-picker__input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-picker__preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-muted, #dfe3eb);
+  border-radius: 6px;
+  background: var(--surface-subtle, #f8fafc);
+  color: var(--text-body, #111827);
+}
+
+.icon-picker__text-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.icon-picker__toggle {
+  flex-shrink: 0;
+  padding: 0 8px;
+  height: 34px;
+}
+
+[data-field-label] {
+  position: relative;
+}
+
+.icon-picker__dropdown {
+  position: absolute;
+  z-index: 1010;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  max-height: 340px;
+  overflow-y: auto;
+  border: 1px solid var(--border-muted, #dfe3eb);
+  border-radius: 10px;
+  background: var(--surface-card, #ffffff);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+}
+
+.icon-picker__search-row {
+  position: sticky;
+  top: -8px;
+  z-index: 1;
+  background: var(--surface-card, #ffffff);
+  padding-bottom: 8px;
+}
+
+.icon-picker__search {
+  width: 100%;
+}
+
+.icon-picker__group-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #6b7280);
+  padding: 8px 4px 4px;
+}
+
+.icon-picker__group-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.icon-picker__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-body, #111827);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  padding: 0;
+}
+
+.icon-picker__icon-btn:hover {
+  background: var(--surface-subtle, #f3f4f6);
+  border-color: var(--border-muted, #dfe3eb);
+}
+
+.icon-picker__icon-btn:focus-visible {
+  outline: 2px solid var(--brand-primary, #1e87f0);
+  outline-offset: -1px;
+}
+
+.icon-picker__icon-btn--active {
+  background: var(--surface-accent-primary-soft, #f0f7ff);
+  border-color: var(--brand-primary, #1e87f0);
+}
