@@ -43,9 +43,9 @@
   const teamNameHistoryLoading = teamNameHistorySection?.querySelector('[data-team-name-history-loading]') || null;
   const teamNameHistoryEmptyDefault = teamNameHistoryEmpty?.textContent || '';
   const TEAM_NAME_HISTORY_STATUS_LABELS = {
-    reserved: 'Reserviert',
-    assigned: 'Zugewiesen',
-    released: 'Freigegeben'
+    reserved: window.transEventConfigStatusReserved || 'Reserved',
+    assigned: window.transEventConfigStatusAssigned || 'Assigned',
+    released: window.transEventConfigStatusReleased || 'Released'
   };
   let teamNameHistoryFormatter;
   let teamNameHistoryEntries = [];
@@ -66,7 +66,8 @@
       return value;
     }
     if (!teamNameHistoryFormatter) {
-      teamNameHistoryFormatter = new Intl.DateTimeFormat('de-DE', {
+      const locale = window.transEventConfigLocale || 'de';
+      teamNameHistoryFormatter = new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'de-DE', {
         dateStyle: 'short',
         timeStyle: 'short'
       });
@@ -202,7 +203,7 @@
       return;
     }
     if (!eventId) {
-      resetTeamNameHistory('Kein Event ausgewählt.');
+      resetTeamNameHistory(window.transEventConfigNoEvent || 'No event selected.');
       return;
     }
     const params = new URLSearchParams({ event_uid: eventId });
@@ -305,7 +306,7 @@
   const RESULTS_PAGE_INTERVAL_MAX = 300;
   const DEFAULT_MODULES = [
     { id: 'header', enabled: true, layout: 'full' },
-    { id: 'pointsLeader', enabled: true, layout: 'wide', options: { title: 'Platzierungen', limit: 5 } },
+    { id: 'pointsLeader', enabled: true, layout: 'wide', options: { title: window.transEventConfigDefaultTitleRankings || 'Live Rankings', limit: 5 } },
     {
       id: 'rankings',
       enabled: true,
@@ -315,7 +316,7 @@
         pageSize: 10,
         pageInterval: RESULTS_DEFAULT_PAGE_INTERVAL,
         sort: 'time',
-        title: 'Live-Rankings',
+        title: window.transEventConfigDefaultTitleRankings || 'Live Rankings',
         showPlacement: false,
       },
     },
@@ -328,15 +329,15 @@
         pageSize: 10,
         pageInterval: RESULTS_DEFAULT_PAGE_INTERVAL,
         sort: 'time',
-        title: 'Ergebnisliste',
+        title: window.transEventConfigDefaultTitleResults || 'Results List',
         showPlacement: false,
       }
     },
-    { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
-    { id: 'infoBanner', enabled: false, layout: 'auto', options: { title: 'Hinweise' } },
+    { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: '' } },
+    { id: 'infoBanner', enabled: false, layout: 'auto', options: { title: 'Info' } },
     { id: 'rankingQr', enabled: false, layout: 'auto', options: { title: 'Ranking-QR' } },
-    { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [], title: 'Katalog-QR-Codes' } },
-    { id: 'media', enabled: false, layout: 'auto', options: { title: 'Highlights' } },
+    { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [], title: 'QR' } },
+    { id: 'media', enabled: false, layout: 'auto', options: { title: 'Media' } },
   ];
   const LAYOUT_OPTIONS = ['auto', 'wide', 'full'];
   const RESULTS_SORT_OPTIONS = ['time', 'points', 'name'];
@@ -528,7 +529,7 @@
     }
     const titleField = item.querySelector('[data-module-results-option="title"]');
     if (titleField) {
-      const fallbackTitle = defaults.title || (moduleId === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
+      const fallbackTitle = defaults.title || (moduleId === 'rankings' ? (window.transEventConfigDefaultTitleRankings || 'Live Rankings') : (window.transEventConfigDefaultTitleResults || 'Results List'));
       const rawTitle = typeof options?.title === 'string' ? options.title.trim() : '';
       titleField.value = rawTitle !== '' ? rawTitle : fallbackTitle;
     }
@@ -739,7 +740,7 @@
       label.appendChild(checkbox);
       const span = document.createElement('span');
       span.className = 'uk-margin-small-left';
-      span.textContent = `Nicht gefunden (${normalizedId})`;
+      span.textContent = `${window.transEventConfigNotFound || 'Not found'} (${normalizedId})`;
       label.appendChild(span);
       qrCatalogContainer.appendChild(label);
     });
@@ -848,7 +849,7 @@
       getEventSwitcher()
         .then(({ setCurrentEvent }) => {
           if (typeof setCurrentEvent !== 'function') {
-            throw new Error('Fehler beim Wechseln des Events');
+            throw new Error(window.transEventConfigSwitchFailed || 'Error switching event');
           }
           return setCurrentEvent(uid, name);
         })
@@ -857,7 +858,7 @@
         })
         .catch((err) => {
           console.error(err);
-          UIkit?.notification({ message: err.message || 'Fehler beim Wechseln des Events', status: 'danger' });
+          UIkit?.notification({ message: err.message || (window.transEventConfigSwitchFailed || 'Error switching event'), status: 'danger' });
           syncCurrentEventSelect(select, prevValue);
         })
         .finally(() => {
@@ -936,7 +937,7 @@
           : (defaults.sort || 'time');
         let titleValue = titleField ? titleField.value.trim() : '';
         if (titleValue === '') {
-          titleValue = defaults.title || (id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
+          titleValue = defaults.title || (id === 'rankings' ? (window.transEventConfigDefaultTitleRankings || 'Live Rankings') : (window.transEventConfigDefaultTitleResults || 'Results List'));
         }
         const placementField = item.querySelector('[data-module-results-option="showPlacement"]');
         let placementValue = false;
@@ -1176,7 +1177,7 @@
         isDirty = false;
       })
       .catch(() => {
-        UIkit?.notification({ message: 'Konfiguration konnte nicht geladen werden', status: 'danger' });
+        UIkit?.notification({ message: window.transEventConfigLoadFailed || 'Configuration could not be loaded', status: 'danger' });
         applyRules();
       });
   }
@@ -1193,10 +1194,10 @@
         if (!res.ok) {
           throw new Error('Failed to save');
         }
-        UIkit?.notification({ message: 'Einstellungen gespeichert', status: 'success' });
+        UIkit?.notification({ message: window.transEventConfigSaved || 'Settings saved', status: 'success' });
       })
       .catch(() => {
-        UIkit?.notification({ message: 'Fehler beim Speichern', status: 'danger' });
+        UIkit?.notification({ message: window.transEventConfigSaveFailed || 'Error saving', status: 'danger' });
       })
       .finally(() => {
         isDirty = false;
@@ -1312,21 +1313,21 @@
         const variant = btn.dataset.copyLink === 'sponsor' ? 'sponsor' : 'public';
         const input = shareInputs[variant];
         if (!input || !input.value) {
-          notify('Kein Link verfügbar', 'warning');
+          notify(window.transEventConfigNoLink || 'No link available', 'warning');
           return;
         }
         if (navigator.clipboard?.writeText) {
           navigator.clipboard
             .writeText(input.value)
-            .then(() => notify('Link kopiert', 'success'))
-            .catch(() => notify('Kopieren fehlgeschlagen', 'danger'));
+            .then(() => notify(window.transEventConfigLinkCopied || 'Link copied', 'success'))
+            .catch(() => notify(window.transEventConfigCopyFailed || 'Copy failed', 'danger'));
         } else {
           input.select();
           try {
             document.execCommand('copy');
-            notify('Link kopiert', 'success');
+            notify(window.transEventConfigLinkCopied || 'Link copied', 'success');
           } catch (err) {
-            notify('Kopieren fehlgeschlagen', 'danger');
+            notify(window.transEventConfigCopyFailed || 'Copy failed', 'danger');
           }
         }
       });
@@ -1334,7 +1335,7 @@
     document.querySelectorAll('[data-rotate-token]').forEach((btn) => {
       btn.addEventListener('click', () => {
         if (!eventId) {
-          notify('Kein Event ausgewählt', 'warning');
+          notify(window.transEventConfigNoEventSelected || 'No event selected', 'warning');
           return;
         }
         const variant = btn.dataset.rotateToken === 'sponsor' ? 'sponsor' : 'public';
@@ -1356,10 +1357,10 @@
               currentShareToken = token;
             }
             updateShareInputs();
-            notify('Neues Token erstellt', 'success');
+            notify(window.transEventConfigTokenCreated || 'New token created', 'success');
           })
           .catch(() => {
-            notify('Token konnte nicht erneuert werden', 'danger');
+            notify(window.transEventConfigTokenFailed || 'Token could not be renewed', 'danger');
           })
           .finally(() => {
             btn.disabled = false;

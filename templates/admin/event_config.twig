@@ -1,6 +1,6 @@
 {% extends 'admin/base.twig' %}
 
-{% block title %}Event konfigurieren{% endblock %}
+{% block title %}{{ t('heading_event_config') }}{% endblock %}
 
 {% block admin_head %}
   <link rel="stylesheet" href="{{ basePath }}/css/admin-config.css">
@@ -11,12 +11,12 @@
     <div class="uk-container uk-container-large">
       <div class="uk-flex uk-flex-between uk-flex-middle">
         <div>
-          <h1 class="uk-heading-bullet uk-margin-remove">Event konfigurieren</h1>
-          <div class="uk-text-meta">ID: {{ event.uid|default('—') }} · letzte Änderung: {{ event.updated_at|default('—') }}</div>
-          <div class="uk-text-meta">Änderungen werden automatisch gespeichert.</div>
+          <h1 class="uk-heading-bullet uk-margin-remove">{{ t('heading_event_config') }}</h1>
+          <div class="uk-text-meta">ID: {{ event.uid|default('—') }} · {{ t('label_event_config_last_change') }} {{ event.updated_at|default('—') }}</div>
+          <div class="uk-text-meta">{{ t('text_event_config_autosave') }}</div>
         </div>
         <div>
-          <a class="uk-button uk-button-default" href="{{ basePath }}/?event={{ event.slug|default('demo') }}" target="_blank">Vorschau</a>
+          <a class="uk-button uk-button-default" href="{{ basePath }}/?event={{ event.slug|default('demo') }}" target="_blank">{{ t('action_preview') }}</a>
         </div>
       </div>
       <div class="uk-margin-top">
@@ -32,101 +32,101 @@
     <div class="uk-grid-large" uk-grid>
       <div class="uk-width-expand@m">
         <ul uk-tab>
-          <li><a href="#">Basis</a></li>
-          <li><a href="#">Login &amp; Zugang</a></li>
-          <li><a href="#">Spielregeln</a></li>
-          <li><a href="#">Countdown</a></li>
-          <li><a href="#">Integrationen</a></li>
-          <li><a href="#">Dashboard</a></li>
-          <li><a href="#">Freigabe</a></li>
-          <li><a href="#">Teamnamen</a></li>
+          <li><a href="#">{{ t('tab_event_config_basic') }}</a></li>
+          <li><a href="#">{{ t('tab_event_config_login_access') }}</a></li>
+          <li><a href="#">{{ t('tab_event_config_game_rules') }}</a></li>
+          <li><a href="#">{{ t('tab_event_config_countdown') }}</a></li>
+          <li><a href="#">{{ t('tab_event_config_integrations') }}</a></li>
+          <li><a href="#">{{ t('tab_event_config_dashboard') }}</a></li>
+          <li><a href="#">{{ t('tab_event_config_sharing') }}</a></li>
+          <li><a href="#">{{ t('tab_event_config_team_names') }}</a></li>
         </ul>
         <ul class="uk-switcher uk-margin">
           <li>
             <form class="uk-form-stacked">
               <div class="uk-margin">
-                <label class="uk-form-label" for="pageTitle">Titel</label>
+                <label class="uk-form-label" for="pageTitle">{{ t('label_event_config_title') }}</label>
                 <div class="uk-form-controls">
-                    <input class="uk-input" id="pageTitle" name="pageTitle" type="text" placeholder="Modernes Quiz mit UIkit" value="{{ config.pageTitle|default('') }}">
+                    <input class="uk-input" id="pageTitle" name="pageTitle" type="text" placeholder="{{ t('placeholder_event_config_title') }}" value="{{ config.pageTitle|default('') }}">
                 </div>
-                <div class="uk-text-meta">Titel des Events für Teilnehmende.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_title_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="logo">Logo</label>
+                <label class="uk-form-label" for="logo">{{ t('label_event_config_logo') }}</label>
                 <div class="uk-form-controls">
                   <div uk-form-custom="target: #logo-filename">
                     <input type="file" id="logo" name="logo" accept="image/*">
-                    <button class="uk-button uk-button-default" type="button">Datei wählen</button>
+                    <button class="uk-button uk-button-default" type="button">{{ t('action_choose_file') }}</button>
                   </div>
-                  <input class="uk-input uk-form-width-medium uk-margin-small-top" id="logo-filename" type="text" placeholder="Keine Datei ausgewählt" disabled>
-                  <img id="logoPreview" class="uk-margin-top" hidden alt="Logo Vorschau">
+                  <input class="uk-input uk-form-width-medium uk-margin-small-top" id="logo-filename" type="text" placeholder="{{ t('placeholder_no_file_selected') }}" disabled>
+                  <img id="logoPreview" class="uk-margin-top" hidden alt="{{ t('label_event_config_logo_preview') }}">
                 </div>
-                <div class="uk-text-meta">Optionales Logo für das Event.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_logo_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="buttonColor">Primärfarbe</label>
+                <label class="uk-form-label" for="buttonColor">{{ t('label_event_config_primary_color') }}</label>
                 <div class="uk-form-controls">
                   <input class="uk-input" id="buttonColor" name="buttonColor" type="color" value="{{ config.buttonColor|default('#1e87f0') }}">
                 </div>
-                <div class="uk-text-meta">Steuert Buttons und Highlights.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_primary_color_hint') }}</div>
               </div>
             </form>
           </li>
           <li>
             <form class="uk-form-stacked">
               <div class="uk-margin">
-                <label class="uk-form-label" for="QRUser">Login erforderlich</label>
+                <label class="uk-form-label" for="QRUser">{{ t('label_event_config_login_required') }}</label>
                 <div class="uk-form-controls">
                     <input class="uk-checkbox" id="QRUser" name="QRUser" type="checkbox">
                 </div>
-                <div class="uk-text-meta">Teilnehmende m&uuml;ssen sich anmelden.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_login_required_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="whitelist">Whitelist</label>
+                <label class="uk-form-label" for="whitelist">{{ t('label_event_config_whitelist') }}</label>
                 <div class="uk-form-controls">
                   <textarea class="uk-textarea" id="whitelist" name="whitelist" rows="3" placeholder="user@example.com"></textarea>
                 </div>
-                <div class="uk-text-meta">Zugelassene E-Mail-Adressen, eine pro Zeile.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_whitelist_hint') }}</div>
               </div>
             </form>
           </li>
           <li>
             <form class="uk-form-stacked">
               <div class="uk-margin">
-                <label class="uk-form-label" for="competitionMode">Wettkampfmodus</label>
+                <label class="uk-form-label" for="competitionMode">{{ t('label_event_config_competition_mode') }}</label>
                 <div class="uk-form-controls">
                   <input class="uk-checkbox" id="competitionMode" name="competitionMode" type="checkbox">
                 </div>
-                <div class="uk-text-meta">Vergibt Punkte und erstellt ein Ranking.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_competition_mode_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="resultsViewMode">Ergebnisansicht</label>
+                <label class="uk-form-label" for="resultsViewMode">{{ t('label_event_config_results_view') }}</label>
                 <div class="uk-form-controls">
                   {% set resultsViewMode = config.resultsViewMode|default('split') %}
                   <select class="uk-select" id="resultsViewMode" name="resultsViewMode">
-                    <option value="split" {% if resultsViewMode != 'hub' %}selected{% endif %}>Getrennte Summary‑ und Ranking‑Seiten</option>
-                    <option value="hub" {% if resultsViewMode == 'hub' %}selected{% endif %}>Zentraler Hub mit Tabs</option>
+                    <option value="split" {% if resultsViewMode != 'hub' %}selected{% endif %}>{{ t('option_event_config_results_split') }}</option>
+                    <option value="hub" {% if resultsViewMode == 'hub' %}selected{% endif %}>{{ t('option_event_config_results_hub') }}</option>
                   </select>
                 </div>
-                <div class="uk-text-meta">Legt fest, ob Summary und Ranking getrennt oder gemeinsam angezeigt werden.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_results_view_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label><input class="uk-checkbox" id="puzzleWordEnabled" name="puzzleWordEnabled" type="checkbox"> R&auml;tselwort aktivieren</label>
-                <div class="uk-text-meta">Erfordert die Eingabe eines R&auml;tselworts zum Abschluss.</div>
+                <label><input class="uk-checkbox" id="puzzleWordEnabled" name="puzzleWordEnabled" type="checkbox"> {{ t('label_event_config_puzzle_word_enabled') }}</label>
+                <div class="uk-text-meta">{{ t('text_event_config_puzzle_word_enabled_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="puzzleWord">R&auml;tselwort</label>
+                <label class="uk-form-label" for="puzzleWord">{{ t('label_event_config_puzzle_word') }}</label>
                 <div class="uk-form-controls">
                   <input class="uk-input" id="puzzleWord" name="puzzleWord" type="text" disabled>
                 </div>
-                <div class="uk-text-meta">Geheimes Wort, das Teams finden m&uuml;ssen.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_puzzle_word_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="puzzleFeedback">Feedback</label>
+                <label class="uk-form-label" for="puzzleFeedback">{{ t('label_event_config_feedback') }}</label>
                 <div class="uk-form-controls">
                   <textarea class="uk-textarea" id="puzzleFeedback" name="puzzleFeedback" rows="3" disabled></textarea>
                 </div>
-                <div class="uk-text-meta">Nachricht bei richtigem R&auml;tselwort.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_feedback_hint') }}</div>
               </div>
             </form>
           </li>
@@ -135,481 +135,481 @@
               <div class="uk-margin">
                 <label>
                   <input class="uk-checkbox" id="countdownEnabled" name="countdownEnabled" type="checkbox" {% if config.countdownEnabled %}checked{% endif %}>
-                  Countdown aktivieren
+                  {{ t('label_event_config_countdown_enabled') }}
                 </label>
-                <div class="uk-text-meta">Zeigt einen Timer bei Fragen mit hinterlegter Zeitvorgabe.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_countdown_enabled_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="countdown">Standard-Zeitlimit (Sekunden)</label>
+                <label class="uk-form-label" for="countdown">{{ t('label_event_config_countdown_limit') }}</label>
                 <div class="uk-form-controls">
                   <input class="uk-input" id="countdown" name="countdown" type="number" min="0" placeholder="0" value="{{ config.countdown|default('') }}">
                 </div>
-                <div class="uk-text-meta">Leer lassen oder 0 für kein globales Limit. Einzelne Fragen können ein eigenes Zeitlimit setzen.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_countdown_limit_hint') }}</div>
               </div>
             </form>
           </li>
           <li>
             <form class="uk-form-stacked">
               <div class="uk-margin">
-                <label class="uk-form-label" for="webhookUrl">Webhook URL</label>
+                <label class="uk-form-label" for="webhookUrl">{{ t('label_event_config_webhook_url') }}</label>
                 <div class="uk-form-controls">
                   <input class="uk-input" id="webhookUrl" name="webhookUrl" type="url" placeholder="https://">
                 </div>
-                <div class="uk-text-meta">Wird bei wichtigen Ereignissen aufgerufen.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_webhook_url_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="analyticsId">Analytics ID</label>
+                <label class="uk-form-label" for="analyticsId">{{ t('label_event_config_analytics_id') }}</label>
                 <div class="uk-form-controls">
                   <input class="uk-input" id="analyticsId" name="analyticsId" type="text">
                 </div>
-                <div class="uk-text-meta">z.B. Google Analytics Tracking-ID.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_analytics_id_hint') }}</div>
               </div>
             </form>
           </li>
           <li>
             <form class="uk-form-stacked">
               <div class="uk-margin">
-                <label class="uk-form-label" for="dashboardRefreshInterval">Aktualisierungsintervall (Sekunden)</label>
+                <label class="uk-form-label" for="dashboardRefreshInterval">{{ t('label_event_config_refresh_interval') }}</label>
                 <div class="uk-form-controls">
                   <input class="uk-input" id="dashboardRefreshInterval" name="dashboardRefreshInterval" type="number" min="5" max="300" value="{{ config.dashboardRefreshInterval|default(15) }}">
                 </div>
-                <div class="uk-text-meta">Legt fest, wie oft das Dashboard neue Daten lädt.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_refresh_interval_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="dashboardFixedHeight">Dashboard-Höhe (optional)</label>
+                <label class="uk-form-label" for="dashboardFixedHeight">{{ t('label_event_config_dashboard_height') }}</label>
                 <div class="uk-form-controls">
                   <input class="uk-input" id="dashboardFixedHeight" name="dashboardFixedHeight" type="text" value="{{ config.dashboardFixedHeight|default('') }}">
                 </div>
-                <div class="uk-text-meta">Akzeptiert Werte wie 1080px, 95vh oder 80rem.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_dashboard_height_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="dashboardTheme">Dashboard-Design</label>
+                <label class="uk-form-label" for="dashboardTheme">{{ t('label_event_config_dashboard_theme') }}</label>
                 <div class="uk-form-controls">
                   {% set eventTheme = config.dashboardTheme|default('light') %}
                   <select class="uk-select" id="dashboardTheme" name="dashboardTheme">
-                    <option value="light" {% if eventTheme != 'dark' %}selected{% endif %}>Hell (Light)</option>
-                    <option value="dark" {% if eventTheme == 'dark' %}selected{% endif %}>Dunkel (Dark)</option>
+                    <option value="light" {% if eventTheme != 'dark' %}selected{% endif %}>{{ t('option_event_config_theme_light') }}</option>
+                    <option value="dark" {% if eventTheme == 'dark' %}selected{% endif %}>{{ t('option_event_config_theme_dark') }}</option>
                   </select>
                 </div>
-                <div class="uk-text-meta">Steuert, ob das Live-Dashboard im hellen oder dunklen Modus startet.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_dashboard_theme_hint') }}</div>
               </div>
               <input type="hidden" id="cfgDashboardModules" name="dashboardModules" value="">
               <input type="hidden" id="cfgDashboardSponsorModules" name="dashboardSponsorModules" value="">
               <div class="uk-margin-small-top">
                 <div class="uk-flex uk-flex-middle uk-flex-wrap uk-margin-small-bottom" data-dashboard-variant-switch>
-                  <span class="uk-text-small uk-margin-small-right">Variante:</span>
+                  <span class="uk-text-small uk-margin-small-right">{{ t('label_event_config_variant') }}</span>
                   <div class="uk-button-group">
                     <button class="uk-button uk-button-default uk-button-small uk-active" type="button" data-dashboard-variant="public">Public</button>
                     <button class="uk-button uk-button-default uk-button-small" type="button" data-dashboard-variant="sponsor">Sponsor</button>
                   </div>
                 </div>
-                <div class="uk-text-meta">Sponsor-Dashboards übernehmen ohne eigene Konfiguration automatisch die Public-Module.</div>
+                <div class="uk-text-meta">{{ t('text_event_config_sponsor_dashboard_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label">Module &amp; Reihenfolge</label>
-                <div class="uk-text-meta">Aktivierte Module erscheinen im Dashboard. Die Reihenfolge lässt sich per Drag &amp; Drop verändern.</div>
+                <label class="uk-form-label">{{ t('label_event_config_modules_order') }}</label>
+                <div class="uk-text-meta">{{ t('text_event_config_modules_order_hint') }}</div>
                 <ul class="uk-list uk-list-divider uk-margin-small-top" data-dashboard-modules uk-sortable="handle: .module-handle">
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="header">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">Header</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">Zeigt Eventtitel, Logo und Countdown.</p>
+                        <h4 class="uk-margin-remove">{{ t('label_module_header') }}</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">{{ t('text_module_header_hint') }}</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_event_config_show') }}</label>
                       </div>
                     </div>
                     <div class="uk-margin-small-top">
-                      <label class="uk-form-label" for="dashboardLayoutHeader">Layout</label>
+                      <label class="uk-form-label" for="dashboardLayoutHeader">{{ t('label_event_config_layout') }}</label>
                       <select class="uk-select uk-form-small" id="dashboardLayoutHeader" data-module-layout data-default-layout="full">
-                        <option value="auto">Automatisch (eine Spalte)</option>
-                        <option value="wide">Breit (zwei Spalten)</option>
-                        <option value="full">Volle Breite</option>
+                        <option value="auto">{{ t('option_layout_auto') }}</option>
+                        <option value="wide">{{ t('option_layout_wide') }}</option>
+                        <option value="full">{{ t('option_layout_full') }}</option>
                       </select>
                     </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="pointsLeader">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">Highscore-Fokus</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">Hebt das führende Team nach Punkten hervor und zeigt den Vorsprung auf die Verfolger.</p>
+                        <h4 class="uk-margin-remove">{{ t('label_module_points_leader') }}</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">{{ t('text_module_points_leader_hint') }}</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_event_config_show') }}</label>
                       </div>
                     </div>
                     <div class="uk-margin-small-top">
-                      <label class="uk-form-label" for="dashboardLayoutPointsLeader">Layout</label>
+                      <label class="uk-form-label" for="dashboardLayoutPointsLeader">{{ t('label_event_config_layout') }}</label>
                       <select class="uk-select uk-form-small" id="dashboardLayoutPointsLeader" data-module-layout data-default-layout="wide">
-                        <option value="auto">Automatisch (eine Spalte)</option>
-                        <option value="wide">Breit (zwei Spalten)</option>
-                        <option value="full">Volle Breite</option>
+                        <option value="auto">{{ t('option_layout_auto') }}</option>
+                        <option value="wide">{{ t('option_layout_wide') }}</option>
+                        <option value="full">{{ t('option_layout_full') }}</option>
                       </select>
                     </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardPointsLeaderLimit">Anzahl Platzierungen</label>
+                        <label class="uk-form-label" for="dashboardPointsLeaderLimit">{{ t('label_module_points_leader_count') }}</label>
                         <input class="uk-input uk-form-small" type="number" min="1" max="10" id="dashboardPointsLeaderLimit" data-module-points-leader-limit placeholder="5">
-                        <div class="uk-text-meta">Bestimmt, wie viele Teams in der Liste erscheinen (1–10).</div>
+                        <div class="uk-text-meta">{{ t('text_module_points_leader_count_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardPointsLeaderTitle">Überschrift</label>
-                        <input class="uk-input uk-form-small" type="text" id="dashboardPointsLeaderTitle" data-module-title placeholder="Highscore-Fokus">
-                        <div class="uk-text-meta">Text für die Überschrift des Highscore-Fokus.</div>
+                        <label class="uk-form-label" for="dashboardPointsLeaderTitle">{{ t('label_event_config_heading') }}</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardPointsLeaderTitle" data-module-title placeholder="{{ t('label_module_points_leader') }}">
+                        <div class="uk-text-meta">{{ t('text_module_points_leader_title_hint') }}</div>
                       </div>
                     </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="rankings">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">Live-Ergebnisliste</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">Zweite Ergebnisliste mit eigener Begrenzung und Sortierung.</p>
+                        <h4 class="uk-margin-remove">{{ t('label_module_rankings') }}</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">{{ t('text_module_rankings_hint') }}</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_event_config_show') }}</label>
                       </div>
                     </div>
                     <div class="uk-margin-small-top">
-                      <label class="uk-form-label" for="dashboardLayoutRankings">Layout</label>
+                      <label class="uk-form-label" for="dashboardLayoutRankings">{{ t('label_event_config_layout') }}</label>
                       <select class="uk-select uk-form-small" id="dashboardLayoutRankings" data-module-layout data-default-layout="wide">
-                        <option value="auto">Automatisch (eine Spalte)</option>
-                        <option value="wide">Breit (zwei Spalten)</option>
-                        <option value="full">Volle Breite</option>
+                        <option value="auto">{{ t('option_layout_auto') }}</option>
+                        <option value="wide">{{ t('option_layout_wide') }}</option>
+                        <option value="full">{{ t('option_layout_full') }}</option>
                       </select>
                     </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardRankingsLimit">Anzahl der Einträge</label>
+                        <label class="uk-form-label" for="dashboardRankingsLimit">{{ t('label_module_entry_count') }}</label>
                         <input class="uk-input uk-form-small" type="number" min="0" max="50" id="dashboardRankingsLimit" data-module-results-option="limit" placeholder="0">
-                        <div class="uk-text-meta">Leer oder 0 zeigt alle Ergebnisse.</div>
+                        <div class="uk-text-meta">{{ t('text_module_entry_count_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardRankingsPageSize">Einträge pro Seite</label>
+                        <label class="uk-form-label" for="dashboardRankingsPageSize">{{ t('label_module_page_size') }}</label>
                         <input class="uk-input uk-form-small" type="number" min="0" id="dashboardRankingsPageSize" data-module-results-option="pageSize" placeholder="0">
-                        <div class="uk-text-meta">Leer oder 0 deaktiviert den automatischen Umbruch.</div>
+                        <div class="uk-text-meta">{{ t('text_module_page_size_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardRankingsSort">Sortierung</label>
+                        <label class="uk-form-label" for="dashboardRankingsSort">{{ t('label_module_sort') }}</label>
                         <select class="uk-select uk-form-small" id="dashboardRankingsSort" data-module-results-option="sort">
-                          <option value="time">Neueste zuerst</option>
-                          <option value="points">Nach Punkten</option>
-                          <option value="name">Alphabetisch (Name)</option>
+                          <option value="time">{{ t('option_sort_newest') }}</option>
+                          <option value="points">{{ t('option_sort_points') }}</option>
+                          <option value="name">{{ t('option_sort_name') }}</option>
                         </select>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" id="dashboardRankingsShowPlacement" data-module-results-option="showPlacement"> Platzierung anzeigen</label>
-                        <div class="uk-text-meta">Fügt eine Spalte mit den Platzierungen vor dem Namen ein.</div>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" id="dashboardRankingsShowPlacement" data-module-results-option="showPlacement"> {{ t('label_module_show_placement') }}</label>
+                        <div class="uk-text-meta">{{ t('text_module_show_placement_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardRankingsTitle">Überschrift</label>
-                        <input class="uk-input uk-form-small" type="text" id="dashboardRankingsTitle" data-module-results-option="title" placeholder="Live-Rankings">
-                        <div class="uk-text-meta">Text für die Überschrift der Live-Ergebnisliste.</div>
+                        <label class="uk-form-label" for="dashboardRankingsTitle">{{ t('label_event_config_heading') }}</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardRankingsTitle" data-module-results-option="title" placeholder="{{ t('label_module_rankings_default_title') }}">
+                        <div class="uk-text-meta">{{ t('text_module_rankings_title_hint') }}</div>
                       </div>
                     </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="results">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">Ergebnisliste</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">Tabelle mit allen Versuchen.</p>
+                        <h4 class="uk-margin-remove">{{ t('label_module_results') }}</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">{{ t('text_module_results_hint') }}</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_event_config_show') }}</label>
                       </div>
                     </div>
                     <div class="uk-margin-small-top">
-                      <label class="uk-form-label" for="dashboardLayoutResults">Layout</label>
+                      <label class="uk-form-label" for="dashboardLayoutResults">{{ t('label_event_config_layout') }}</label>
                       <select class="uk-select uk-form-small" id="dashboardLayoutResults" data-module-layout data-default-layout="full">
-                        <option value="auto">Automatisch (eine Spalte)</option>
-                        <option value="wide">Breit (zwei Spalten)</option>
-                        <option value="full">Volle Breite</option>
+                        <option value="auto">{{ t('option_layout_auto') }}</option>
+                        <option value="wide">{{ t('option_layout_wide') }}</option>
+                        <option value="full">{{ t('option_layout_full') }}</option>
                       </select>
                     </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardResultsLimit">Anzahl der Einträge</label>
+                        <label class="uk-form-label" for="dashboardResultsLimit">{{ t('label_module_entry_count') }}</label>
                         <input class="uk-input uk-form-small" type="number" min="0" max="50" id="dashboardResultsLimit" data-module-results-option="limit" placeholder="0">
-                        <div class="uk-text-meta">Leer oder 0 zeigt alle Ergebnisse.</div>
+                        <div class="uk-text-meta">{{ t('text_module_entry_count_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardResultsPageSize">Einträge pro Seite</label>
+                        <label class="uk-form-label" for="dashboardResultsPageSize">{{ t('label_module_page_size') }}</label>
                         <input class="uk-input uk-form-small" type="number" min="0" id="dashboardResultsPageSize" data-module-results-option="pageSize" placeholder="0">
-                        <div class="uk-text-meta">Leer oder 0 deaktiviert den automatischen Umbruch.</div>
+                        <div class="uk-text-meta">{{ t('text_module_page_size_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardResultsPageInterval">Automatischer Seitenwechsel (Sekunden)</label>
+                        <label class="uk-form-label" for="dashboardResultsPageInterval">{{ t('label_module_page_interval') }}</label>
                         <input class="uk-input uk-form-small" type="number" min="1" max="300" id="dashboardResultsPageInterval" data-module-results-option="pageInterval" placeholder="10">
-                        <div class="uk-text-meta">Bestimmt das Tempo der automatischen Seitenwechsel. Ohne Eingabe gilt der Standardwert von 10&nbsp;Sekunden.</div>
+                        <div class="uk-text-meta">{{ t('text_module_page_interval_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardResultsSort">Sortierung</label>
+                        <label class="uk-form-label" for="dashboardResultsSort">{{ t('label_module_sort') }}</label>
                         <select class="uk-select uk-form-small" id="dashboardResultsSort" data-module-results-option="sort">
-                          <option value="time">Neueste zuerst</option>
-                          <option value="points">Nach Punkten</option>
-                          <option value="name">Alphabetisch (Name)</option>
+                          <option value="time">{{ t('option_sort_newest') }}</option>
+                          <option value="points">{{ t('option_sort_points') }}</option>
+                          <option value="name">{{ t('option_sort_name') }}</option>
                         </select>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" id="dashboardResultsShowPlacement" data-module-results-option="showPlacement"> Platzierung anzeigen</label>
-                        <div class="uk-text-meta">Fügt eine Spalte mit den Platzierungen vor dem Namen ein.</div>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" id="dashboardResultsShowPlacement" data-module-results-option="showPlacement"> {{ t('label_module_show_placement') }}</label>
+                        <div class="uk-text-meta">{{ t('text_module_show_placement_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardResultsTitle">Überschrift</label>
-                        <input class="uk-input uk-form-small" type="text" id="dashboardResultsTitle" data-module-results-option="title" placeholder="Ergebnisliste">
-                        <div class="uk-text-meta">Text für die Überschrift der Ergebnisliste.</div>
+                        <label class="uk-form-label" for="dashboardResultsTitle">{{ t('label_event_config_heading') }}</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardResultsTitle" data-module-results-option="title" placeholder="{{ t('label_module_results') }}">
+                        <div class="uk-text-meta">{{ t('text_module_results_title_hint') }}</div>
                       </div>
                     </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="wrongAnswers">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">Falsch beantwortete Fragen</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">Liste zur Analyse von Stolpersteinen.</p>
+                        <h4 class="uk-margin-remove">{{ t('label_module_wrong_answers') }}</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">{{ t('text_module_wrong_answers_hint') }}</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_event_config_show') }}</label>
                       </div>
                     </div>
                     <div class="uk-margin-small-top">
-                      <label class="uk-form-label" for="dashboardLayoutWrong">Layout</label>
+                      <label class="uk-form-label" for="dashboardLayoutWrong">{{ t('label_event_config_layout') }}</label>
                       <select class="uk-select uk-form-small" id="dashboardLayoutWrong" data-module-layout data-default-layout="auto">
-                        <option value="auto">Automatisch (eine Spalte)</option>
-                        <option value="wide">Breit (zwei Spalten)</option>
-                        <option value="full">Volle Breite</option>
+                        <option value="auto">{{ t('option_layout_auto') }}</option>
+                        <option value="wide">{{ t('option_layout_wide') }}</option>
+                        <option value="full">{{ t('option_layout_full') }}</option>
                       </select>
                     </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardWrongAnswersTitle">Überschrift</label>
-                        <input class="uk-input uk-form-small" type="text" id="dashboardWrongAnswersTitle" data-module-title placeholder="Falsch beantwortete Fragen">
-                        <div class="uk-text-meta">Text für die Überschrift der falsch beantworteten Fragen.</div>
+                        <label class="uk-form-label" for="dashboardWrongAnswersTitle">{{ t('label_event_config_heading') }}</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardWrongAnswersTitle" data-module-title placeholder="{{ t('label_module_wrong_answers') }}">
+                        <div class="uk-text-meta">{{ t('text_module_wrong_answers_title_hint') }}</div>
                       </div>
                     </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="infoBanner">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">Infobanner</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">Freier Text für Sponsoren oder Programmhinweise.</p>
+                        <h4 class="uk-margin-remove">{{ t('label_module_info_banner') }}</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">{{ t('text_module_info_banner_hint') }}</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_event_config_show') }}</label>
                       </div>
                     </div>
                     <div class="uk-margin-small-top">
-                      <label class="uk-form-label" for="dashboardLayoutInfo">Layout</label>
+                      <label class="uk-form-label" for="dashboardLayoutInfo">{{ t('label_event_config_layout') }}</label>
                       <select class="uk-select uk-form-small" id="dashboardLayoutInfo" data-module-layout data-default-layout="auto">
-                        <option value="auto">Automatisch (eine Spalte)</option>
-                        <option value="wide">Breit (zwei Spalten)</option>
-                        <option value="full">Volle Breite</option>
+                        <option value="auto">{{ t('option_layout_auto') }}</option>
+                        <option value="wide">{{ t('option_layout_wide') }}</option>
+                        <option value="full">{{ t('option_layout_full') }}</option>
                       </select>
                     </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardInfoTitle">Überschrift</label>
-                        <input class="uk-input uk-form-small" type="text" id="dashboardInfoTitle" data-module-title placeholder="Infobanner">
-                        <div class="uk-text-meta">Text für die Überschrift des Infobanners.</div>
+                        <label class="uk-form-label" for="dashboardInfoTitle">{{ t('label_event_config_heading') }}</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardInfoTitle" data-module-title placeholder="{{ t('label_module_info_banner') }}">
+                        <div class="uk-text-meta">{{ t('text_module_info_banner_title_hint') }}</div>
                       </div>
                     </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="rankingQr">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">Ranking-QR</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">QR-Code zum direkten Einstieg in die persönliche Ranking-Seite.</p>
+                        <h4 class="uk-margin-remove">{{ t('label_module_ranking_qr') }}</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">{{ t('text_module_ranking_qr_hint') }}</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_event_config_show') }}</label>
                       </div>
                     </div>
                     <div class="uk-margin-small-top">
-                      <label class="uk-form-label" for="dashboardLayoutRankingQr">Layout</label>
+                      <label class="uk-form-label" for="dashboardLayoutRankingQr">{{ t('label_event_config_layout') }}</label>
                       <select class="uk-select uk-form-small" id="dashboardLayoutRankingQr" data-module-layout data-default-layout="auto">
-                        <option value="auto">Automatisch (eine Spalte)</option>
-                        <option value="wide">Breit (zwei Spalten)</option>
-                        <option value="full">Volle Breite</option>
+                        <option value="auto">{{ t('option_layout_auto') }}</option>
+                        <option value="wide">{{ t('option_layout_wide') }}</option>
+                        <option value="full">{{ t('option_layout_full') }}</option>
                       </select>
                     </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardRankingQrTitle">Überschrift</label>
-                        <input class="uk-input uk-form-small" type="text" id="dashboardRankingQrTitle" data-module-title placeholder="Ranking-QR">
-                        <div class="uk-text-meta">Text für die Überschrift des Ranking-QR.</div>
+                        <label class="uk-form-label" for="dashboardRankingQrTitle">{{ t('label_event_config_heading') }}</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardRankingQrTitle" data-module-title placeholder="{{ t('label_module_ranking_qr') }}">
+                        <div class="uk-text-meta">{{ t('text_module_ranking_qr_title_hint') }}</div>
                       </div>
                     </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="qrCodes">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">QR-Kataloge</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">Zeigt QR-Codes für ausgewählte Kataloge an.</p>
+                        <h4 class="uk-margin-remove">{{ t('label_module_qr_catalogs') }}</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">{{ t('text_module_qr_catalogs_hint') }}</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_event_config_show') }}</label>
                       </div>
                     </div>
                     <div class="uk-margin-small-top">
-                      <label class="uk-form-label" for="dashboardLayoutQr">Layout</label>
+                      <label class="uk-form-label" for="dashboardLayoutQr">{{ t('label_event_config_layout') }}</label>
                       <select class="uk-select uk-form-small" id="dashboardLayoutQr" data-module-layout data-default-layout="auto">
-                        <option value="auto">Automatisch (eine Spalte)</option>
-                        <option value="wide">Breit (zwei Spalten)</option>
-                        <option value="full">Volle Breite</option>
+                        <option value="auto">{{ t('option_layout_auto') }}</option>
+                        <option value="wide">{{ t('option_layout_wide') }}</option>
+                        <option value="full">{{ t('option_layout_full') }}</option>
                       </select>
                     </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardQrTitle">Überschrift</label>
-                        <input class="uk-input uk-form-small" type="text" id="dashboardQrTitle" data-module-title placeholder="QR-Kataloge">
-                        <div class="uk-text-meta">Text für die Überschrift der QR-Kataloge.</div>
+                        <label class="uk-form-label" for="dashboardQrTitle">{{ t('label_event_config_heading') }}</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardQrTitle" data-module-title placeholder="{{ t('label_module_qr_catalogs') }}">
+                        <div class="uk-text-meta">{{ t('text_module_qr_catalogs_title_hint') }}</div>
                       </div>
-                      <div class="uk-text-meta">Katalogauswahl</div>
+                      <div class="uk-text-meta">{{ t('label_module_catalog_selection') }}</div>
                       <div class="uk-grid-small uk-child-width-1-2@m" uk-grid data-module-catalogs></div>
-                      <div class="uk-text-meta uk-margin-small-top" data-module-catalogs-empty>Keine Kataloge verfügbar.</div>
+                      <div class="uk-text-meta uk-margin-small-top" data-module-catalogs-empty>{{ t('text_module_no_catalogs') }}</div>
                     </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="media">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">Medienbereich</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">Highlight-Fotos oder Livestream-Links.</p>
+                        <h4 class="uk-margin-remove">{{ t('label_module_media') }}</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">{{ t('text_module_media_hint') }}</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_event_config_show') }}</label>
                       </div>
                     </div>
                     <div class="uk-margin-small-top">
-                      <label class="uk-form-label" for="dashboardLayoutMedia">Layout</label>
+                      <label class="uk-form-label" for="dashboardLayoutMedia">{{ t('label_event_config_layout') }}</label>
                       <select class="uk-select uk-form-small" id="dashboardLayoutMedia" data-module-layout data-default-layout="auto">
-                        <option value="auto">Automatisch (eine Spalte)</option>
-                        <option value="wide">Breit (zwei Spalten)</option>
-                        <option value="full">Volle Breite</option>
+                        <option value="auto">{{ t('option_layout_auto') }}</option>
+                        <option value="wide">{{ t('option_layout_wide') }}</option>
+                        <option value="full">{{ t('option_layout_full') }}</option>
                       </select>
                     </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardMediaTitle">Überschrift</label>
-                        <input class="uk-input uk-form-small" type="text" id="dashboardMediaTitle" data-module-title placeholder="Medienbereich">
-                        <div class="uk-text-meta">Text für die Überschrift des Medienbereichs.</div>
+                        <label class="uk-form-label" for="dashboardMediaTitle">{{ t('label_event_config_heading') }}</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardMediaTitle" data-module-title placeholder="{{ t('label_module_media') }}">
+                        <div class="uk-text-meta">{{ t('text_module_media_title_hint') }}</div>
                       </div>
                     </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="containerMetrics">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">Container-Metriken</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">CPU-, Speicher- und OOM-Werte des Containers.</p>
+                        <h4 class="uk-margin-remove">{{ t('label_module_container_metrics') }}</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">{{ t('text_module_container_metrics_hint') }}</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
-                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_event_config_show') }}</label>
                       </div>
                     </div>
                     <div class="uk-margin-small-top">
-                      <label class="uk-form-label" for="dashboardLayoutContainer">Layout</label>
+                      <label class="uk-form-label" for="dashboardLayoutContainer">{{ t('label_event_config_layout') }}</label>
                       <select class="uk-select uk-form-small" id="dashboardLayoutContainer" data-module-layout data-default-layout="auto">
-                        <option value="auto">Automatisch (eine Spalte)</option>
-                        <option value="wide">Breit (zwei Spalten)</option>
-                        <option value="full">Volle Breite</option>
+                        <option value="auto">{{ t('option_layout_auto') }}</option>
+                        <option value="wide">{{ t('option_layout_wide') }}</option>
+                        <option value="full">{{ t('option_layout_full') }}</option>
                       </select>
                     </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardContainerRefresh">Aktualisierungsintervall (Sekunden)</label>
+                        <label class="uk-form-label" for="dashboardContainerRefresh">{{ t('label_event_config_refresh_interval') }}</label>
                         <input class="uk-input uk-form-small" type="number" min="5" max="300" id="dashboardContainerRefresh" data-module-container-refresh placeholder="15">
-                        <div class="uk-text-meta">Leer lassen, um das globale Intervall zu nutzen.</div>
+                        <div class="uk-text-meta">{{ t('text_module_container_refresh_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardContainerMemory">Referenz-Speicherlimit (MB)</label>
+                        <label class="uk-form-label" for="dashboardContainerMemory">{{ t('label_module_container_memory') }}</label>
                         <input class="uk-input uk-form-small" type="number" min="0" id="dashboardContainerMemory" data-module-container-memory placeholder="0">
-                        <div class="uk-text-meta">Optional, falls kein cgroup-Limit vorliegt.</div>
+                        <div class="uk-text-meta">{{ t('text_module_container_memory_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardContainerCpu">CPU-Obergrenze (%)</label>
+                        <label class="uk-form-label" for="dashboardContainerCpu">{{ t('label_module_container_cpu') }}</label>
                         <input class="uk-input uk-form-small" type="number" min="10" max="400" id="dashboardContainerCpu" data-module-container-cpu-max placeholder="100">
-                        <div class="uk-text-meta">Deckelung der Anzeige; Werte darüber werden begrenzt.</div>
+                        <div class="uk-text-meta">{{ t('text_module_container_cpu_hint') }}</div>
                       </div>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardContainerTitle">Überschrift</label>
-                        <input class="uk-input uk-form-small" type="text" id="dashboardContainerTitle" data-module-title placeholder="Container-Metriken">
-                        <div class="uk-text-meta">Optionaler Titel für die Kachel.</div>
+                        <label class="uk-form-label" for="dashboardContainerTitle">{{ t('label_event_config_heading') }}</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardContainerTitle" data-module-title placeholder="{{ t('label_module_container_metrics') }}">
+                        <div class="uk-text-meta">{{ t('text_module_container_title_hint') }}</div>
                       </div>
                     </div>
                   </li>
                 </ul>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="dashboardInfoText">Infobanner-Inhalt</label>
-                <textarea class="uk-textarea" id="dashboardInfoText" name="dashboardInfoText" rows="4" placeholder="Sponsorenhinweis oder Programm">{{ config.dashboardInfoText|default('') }}</textarea>
-                <div class="uk-text-meta">Unterstützt einfache HTML-Auszeichnungen wie &lt;p&gt;, &lt;br&gt;, &lt;strong&gt;.</div>
+                <label class="uk-form-label" for="dashboardInfoText">{{ t('label_event_config_info_banner_content') }}</label>
+                <textarea class="uk-textarea" id="dashboardInfoText" name="dashboardInfoText" rows="4" placeholder="{{ t('placeholder_event_config_info_banner') }}">{{ config.dashboardInfoText|default('') }}</textarea>
+                <div class="uk-text-meta">{{ t('text_event_config_info_banner_content_hint') }}</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="dashboardMediaEmbed">Medien-Links (ein Eintrag pro Zeile)</label>
-                <textarea class="uk-textarea" id="dashboardMediaEmbed" name="dashboardMediaEmbed" rows="4" placeholder="https://beispiel.de/foto.jpg&#10;https://youtube.com/embed/...">{{ config.dashboardMediaEmbed|default('') }}</textarea>
-                <div class="uk-text-meta">Erlaubt http/https-Links zu Bildern oder Streams. Jeder Link erscheint als Karte.</div>
+                <label class="uk-form-label" for="dashboardMediaEmbed">{{ t('label_event_config_media_links') }}</label>
+                <textarea class="uk-textarea" id="dashboardMediaEmbed" name="dashboardMediaEmbed" rows="4" placeholder="https://example.com/photo.jpg&#10;https://youtube.com/embed/...">{{ config.dashboardMediaEmbed|default('') }}</textarea>
+                <div class="uk-text-meta">{{ t('text_event_config_media_links_hint') }}</div>
               </div>
             </form>
           </li>
           <li>
             <form class="uk-form-stacked">
               <fieldset class="uk-fieldset">
-                <legend>Öffentliches Dashboard</legend>
+                <legend>{{ t('label_event_config_public_dashboard') }}</legend>
                 <label>
                   <input class="uk-checkbox" id="dashboardShareEnabled" name="dashboardShareEnabled" type="checkbox" {% if config.dashboardShareEnabled %}checked{% endif %}>
-                  Dashboard aktivieren
+                  {{ t('label_event_config_dashboard_enabled') }}
                 </label>
                 <div class="uk-margin">
-                  <label class="uk-form-label" for="dashboardPublicLink">Freigabelink</label>
+                  <label class="uk-form-label" for="dashboardPublicLink">{{ t('label_event_config_share_link') }}</label>
                   <div class="uk-form-controls uk-flex">
                     <input class="uk-input uk-flex-1" id="dashboardPublicLink" type="text" readonly data-share-link="public" data-skip-save>
-                    <button class="uk-button uk-button-default uk-margin-small-left" type="button" data-copy-link="public">Kopieren</button>
-                    <button class="uk-button uk-button-secondary uk-margin-small-left" type="button" data-rotate-token="public">Token neu</button>
+                    <button class="uk-button uk-button-default uk-margin-small-left" type="button" data-copy-link="public">{{ t('action_copy') }}</button>
+                    <button class="uk-button uk-button-secondary uk-margin-small-left" type="button" data-rotate-token="public">{{ t('action_rotate_token') }}</button>
                   </div>
-                  <div class="uk-text-meta">Der Link enthält ein zufälliges Token. Beim Rotieren werden alte Links ungültig.</div>
+                  <div class="uk-text-meta">{{ t('text_event_config_share_link_hint') }}</div>
                 </div>
               </fieldset>
               <fieldset class="uk-fieldset uk-margin">
-                <legend>Sponsor &amp; Moderation</legend>
+                <legend>{{ t('label_event_config_sponsor_moderation') }}</legend>
                 <label>
                   <input class="uk-checkbox" id="dashboardSponsorEnabled" name="dashboardSponsorEnabled" type="checkbox" {% if config.dashboardSponsorEnabled %}checked{% endif %}>
-                  Erweiterte Ansicht aktivieren
+                  {{ t('label_event_config_extended_view_enabled') }}
                 </label>
                 <div class="uk-margin">
-                  <label class="uk-form-label" for="dashboardSponsorLink">Freigabelink</label>
+                  <label class="uk-form-label" for="dashboardSponsorLink">{{ t('label_event_config_share_link') }}</label>
                   <div class="uk-form-controls uk-flex">
                     <input class="uk-input uk-flex-1" id="dashboardSponsorLink" type="text" readonly data-share-link="sponsor" data-skip-save>
-                    <button class="uk-button uk-button-default uk-margin-small-left" type="button" data-copy-link="sponsor">Kopieren</button>
-                    <button class="uk-button uk-button-secondary uk-margin-small-left" type="button" data-rotate-token="sponsor">Token neu</button>
+                    <button class="uk-button uk-button-default uk-margin-small-left" type="button" data-copy-link="sponsor">{{ t('action_copy') }}</button>
+                    <button class="uk-button uk-button-secondary uk-margin-small-left" type="button" data-rotate-token="sponsor">{{ t('action_rotate_token') }}</button>
                   </div>
                 </div>
               </fieldset>
               <div class="uk-grid-small" uk-grid>
                 <div class="uk-width-1-2@s">
-                  <label class="uk-form-label" for="dashboardVisibilityStart">Sichtbar ab</label>
+                  <label class="uk-form-label" for="dashboardVisibilityStart">{{ t('label_event_config_visible_from') }}</label>
                   <input class="uk-input" id="dashboardVisibilityStart" name="dashboardVisibilityStart" type="datetime-local" value="{{ config.dashboardVisibilityStart|default('') }}">
                 </div>
                 <div class="uk-width-1-2@s">
-                  <label class="uk-form-label" for="dashboardVisibilityEnd">Sichtbar bis</label>
+                  <label class="uk-form-label" for="dashboardVisibilityEnd">{{ t('label_event_config_visible_until') }}</label>
                   <input class="uk-input" id="dashboardVisibilityEnd" name="dashboardVisibilityEnd" type="datetime-local" value="{{ config.dashboardVisibilityEnd|default('') }}">
                 </div>
               </div>
-              <div class="uk-text-meta uk-margin-small-top">Leer lassen, um das Dashboard dauerhaft freizugeben.</div>
+              <div class="uk-text-meta uk-margin-small-top">{{ t('text_event_config_visibility_hint') }}</div>
             </form>
           </li>
           <li>
             <div data-team-name-history>
               <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
-                <h3 class="uk-heading-bullet uk-margin-remove">Teamnamen-Verlauf</h3>
+                <h3 class="uk-heading-bullet uk-margin-remove">{{ t('label_event_config_team_name_history') }}</h3>
                 <div class="uk-flex uk-flex-middle">
-                  <label class="uk-form-label uk-margin-small-right" for="teamNameHistoryLimit">Anzahl</label>
+                  <label class="uk-form-label uk-margin-small-right" for="teamNameHistoryLimit">{{ t('label_event_config_count') }}</label>
                   <select class="uk-select uk-form-width-small" id="teamNameHistoryLimit" data-team-name-history-limit>
                     <option value="25">25</option>
                     <option value="50" selected>50</option>
@@ -618,22 +618,22 @@
                   </select>
                 </div>
               </div>
-              <div class="uk-text-meta uk-margin-small-bottom">Zeigt reservierte, zugewiesene und freigegebene Teamnamen für dieses Event.</div>
-              <div class="uk-alert uk-alert-warning" hidden data-team-name-history-empty>Keine Reservierungen vorhanden.</div>
-              <div class="uk-alert uk-alert-danger" hidden data-team-name-history-error>Der Verlauf konnte nicht geladen werden.</div>
+              <div class="uk-text-meta uk-margin-small-bottom">{{ t('text_event_config_team_name_history_hint') }}</div>
+              <div class="uk-alert uk-alert-warning" hidden data-team-name-history-empty>{{ t('text_event_config_no_reservations') }}</div>
+              <div class="uk-alert uk-alert-danger" hidden data-team-name-history-error>{{ t('error_event_config_history_load') }}</div>
               <div class="uk-flex uk-flex-middle uk-margin-small-bottom" hidden data-team-name-history-loading>
                 <span uk-spinner></span>
-                <span class="uk-margin-small-left">Lade Verlauf …</span>
+                <span class="uk-margin-small-left">{{ t('text_event_config_loading_history') }}</span>
               </div>
               <div class="uk-overflow-auto">
                 <table class="uk-table uk-table-divider uk-table-small uk-table-middle" data-team-name-history-table>
                   <thead>
                     <tr>
-                      <th scope="col" data-sort-key="name">Name</th>
-                      <th scope="col" data-sort-key="status">Status</th>
-                      <th scope="col" data-sort-key="reserved_at">Reserviert</th>
-                      <th scope="col" data-sort-key="assigned_at">Zugewiesen</th>
-                      <th scope="col" data-sort-key="released_at">Freigegeben</th>
+                      <th scope="col" data-sort-key="name">{{ t('label_name') }}</th>
+                      <th scope="col" data-sort-key="status">{{ t('label_status') }}</th>
+                      <th scope="col" data-sort-key="reserved_at">{{ t('label_event_config_reserved') }}</th>
+                      <th scope="col" data-sort-key="assigned_at">{{ t('label_event_config_assigned') }}</th>
+                      <th scope="col" data-sort-key="released_at">{{ t('label_event_config_released') }}</th>
                     </tr>
                   </thead>
                   <tbody data-team-name-history-body></tbody>
@@ -646,22 +646,22 @@
       <aside class="uk-width-1-4@m event-config-sidebar">
         <div uk-sticky="offset: 20; bottom: true">
           <div class="uk-card uk-card-default uk-card-body">
-            <h3 class="uk-card-title uk-margin-remove">Vorschau</h3>
+            <h3 class="uk-card-title uk-margin-remove">{{ t('action_preview') }}</h3>
             <div class="uk-text-center uk-margin-small-top">
               <img id="preview-logo" src="{{ basePath }}/logo-160.svg" alt="Logo" class="uk-margin-small-bottom">
               <div>
-                <button class="uk-button uk-button-primary uk-margin-small-right">Primär</button>
-                <button class="uk-button uk-button-default">Standard</button>
+                <button class="uk-button uk-button-primary uk-margin-small-right">{{ t('label_event_config_primary') }}</button>
+                <button class="uk-button uk-button-default">{{ t('label_event_config_default') }}</button>
               </div>
             </div>
           </div>
           <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
-            <h3 class="uk-card-title uk-margin-remove">Status</h3>
-            <p class="uk-text-meta uk-margin-small">Entwurf</p>
-            <button class="uk-button uk-button-primary uk-width-1-1">Veröffentlichen</button>
+            <h3 class="uk-card-title uk-margin-remove">{{ t('label_status') }}</h3>
+            <p class="uk-text-meta uk-margin-small">{{ t('label_event_config_draft') }}</p>
+            <button class="uk-button uk-button-primary uk-width-1-1">{{ t('action_publish') }}</button>
           </div>
           <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
-            <h3 class="uk-card-title uk-margin-remove">Presets</h3>
+            <h3 class="uk-card-title uk-margin-remove">{{ t('label_event_config_presets') }}</h3>
             <div class="uk-margin-small-top">
               <button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" data-preset="simple">Simple</button>
               <button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" data-preset="rallye">Rallye</button>
@@ -669,11 +669,11 @@
             </div>
           </div>
           <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
-            <h3 class="uk-card-title uk-margin-remove">QR-Links</h3>
+            <h3 class="uk-card-title uk-margin-remove">{{ t('label_event_config_qr_links') }}</h3>
             <div class="uk-margin-small-top">
-              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/event?event={{ (event.slug|default('demo')) }}&t={{ ('?event=' ~ (event.slug|default('demo')))|url_encode }}" target="_blank">Event‑QR</a>
-              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/catalog?t={{ (baseUrl ~ '/?event=' ~ (event.slug|default('demo')) ~ '&katalog=' ~ (catalog.slug|default('default')))|url_encode }}" target="_blank">Katalog‑QR</a>
-              <a class="uk-button uk-button-default uk-width-1-1" href="{{ basePath }}/qr/team?t={{ (team|default('team-1'))|url_encode }}" target="_blank">Team‑QR</a>
+              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/event?event={{ (event.slug|default('demo')) }}&t={{ ('?event=' ~ (event.slug|default('demo')))|url_encode }}" target="_blank">{{ t('label_event_config_event_qr') }}</a>
+              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/catalog?t={{ (baseUrl ~ '/?event=' ~ (event.slug|default('demo')) ~ '&katalog=' ~ (catalog.slug|default('default')))|url_encode }}" target="_blank">{{ t('label_event_config_catalog_qr') }}</a>
+              <a class="uk-button uk-button-default uk-width-1-1" href="{{ basePath }}/qr/team?t={{ (team|default('team-1'))|url_encode }}" target="_blank">{{ t('label_event_config_team_qr') }}</a>
             </div>
           </div>
         </div>
@@ -683,6 +683,26 @@
 {% endblock %}
 
 {% block scripts %}
+  <script>
+    window.transEventConfigNoEvent = '{{ t('error_event_config_no_event')|e('js') }}';
+    window.transEventConfigLoadFailed = '{{ t('error_event_config_load_failed')|e('js') }}';
+    window.transEventConfigSaved = '{{ t('notify_event_config_saved')|e('js') }}';
+    window.transEventConfigSaveFailed = '{{ t('error_event_config_save_failed')|e('js') }}';
+    window.transEventConfigSwitchFailed = '{{ t('error_event_config_switch_failed')|e('js') }}';
+    window.transEventConfigNoLink = '{{ t('notify_event_config_no_link')|e('js') }}';
+    window.transEventConfigLinkCopied = '{{ t('notify_event_config_link_copied')|e('js') }}';
+    window.transEventConfigCopyFailed = '{{ t('notify_event_config_copy_failed')|e('js') }}';
+    window.transEventConfigNoEventSelected = '{{ t('error_event_config_no_event_selected')|e('js') }}';
+    window.transEventConfigTokenCreated = '{{ t('notify_event_config_token_created')|e('js') }}';
+    window.transEventConfigTokenFailed = '{{ t('error_event_config_token_failed')|e('js') }}';
+    window.transEventConfigNotFound = '{{ t('text_event_config_not_found')|e('js') }}';
+    window.transEventConfigStatusReserved = '{{ t('label_event_config_reserved')|e('js') }}';
+    window.transEventConfigStatusAssigned = '{{ t('label_event_config_assigned')|e('js') }}';
+    window.transEventConfigStatusReleased = '{{ t('label_event_config_released')|e('js') }}';
+    window.transEventConfigDefaultTitleRankings = '{{ t('label_module_rankings_default_title')|e('js') }}';
+    window.transEventConfigDefaultTitleResults = '{{ t('label_module_results')|e('js') }}';
+    window.transEventConfigLocale = '{{ locale() }}';
+  </script>
   <script src="{{ basePath }}/js/results-url.js"></script>
   <script src="{{ basePath }}/js/event-config.js" data-event-id="{{ event.uid }}" data-csrf="{{ csrf_token }}"></script>
 {% endblock %}
