@@ -133,7 +133,16 @@
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ plan: data.plan })
             });
-            if (!r.ok) throw new Error('Failed');
+            if (!r.ok) {
+              let errorMsg = el.dataset.errorSubscriptionUpdateFailed || 'Failed';
+              try {
+                const errData = await r.json();
+                if (errData.error === 'subscription-not-found') {
+                  errorMsg = el.dataset.errorSubscriptionNotFound || errorMsg;
+                }
+              } catch (_) {}
+              throw new Error(errorMsg);
+            }
             notify(el.dataset.actionReactivate || 'Reactivated', 'success');
             loadSubscription();
           } catch (err) {
@@ -156,7 +165,16 @@
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ plan: null })
             });
-            if (!r.ok) throw new Error('Failed');
+            if (!r.ok) {
+              let errorMsg = el.dataset.errorSubscriptionUpdateFailed || 'Failed';
+              try {
+                const errData = await r.json();
+                if (errData.error === 'subscription-not-found') {
+                  errorMsg = el.dataset.errorSubscriptionNotFound || errorMsg;
+                }
+              } catch (_) {}
+              throw new Error(errorMsg);
+            }
             notify(el.dataset.actionCancel || 'Cancelled', 'success');
             loadSubscription();
           } catch (err) {

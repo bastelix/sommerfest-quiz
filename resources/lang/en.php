@@ -775,6 +775,8 @@ return [
       'action_reactivate_subscription' => 'Reactivate subscription',
       'text_cancel_scheduled' => 'Cancellation scheduled at period end',
       'confirm_cancel_subscription' => 'Are you sure you want to cancel your subscription? It will remain active until the end of the current billing period.',
+      'error_subscription_not_found' => 'No active subscription found. Please reload the page.',
+      'error_subscription_update_failed' => 'The subscription change could not be completed. Please try again later.',
       'stripe_payment_terms' => 'Payment is processed via Stripe. The ' .
           '<a href="https://stripe.com/payment-terms/legal" target="_blank" ' .
           'rel="noopener">Stripe payment terms</a> apply.',

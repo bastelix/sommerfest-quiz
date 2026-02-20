@@ -433,6 +433,7 @@ class AdminControllerTest extends TestCase
     public function testStripeApiCalledOnPlanChange(): void {
         require_once __DIR__ . '/../Service/StripeServiceStub.php';
         \App\Service\StripeService::$calls = [];
+        \App\Service\StripeService::$activeSubscription = null;
 
         $db = $this->setupDb();
         putenv('MAIN_DOMAIN=example.com');
@@ -459,6 +460,7 @@ class AdminControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame([
+            ['getActiveSubscription', 'cus_123'],
             ['update', 'cus_123', 'price_standard'],
         ], \App\Service\StripeService::$calls);
 
