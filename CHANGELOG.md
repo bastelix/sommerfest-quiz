@@ -632,6 +632,7 @@
 - Remove sectionStyleDefaults from page types
 - *(stripe)* Improve subscription management for easier plan switching, cancellation, and trial handling
 - *(ui)* Rename subscription page to customer portal and remove redundant button
+- *(tenant)* Replace docker-per-tenant with schema-only isolation
 
 ### Style
 
