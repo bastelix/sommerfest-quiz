@@ -1,16 +1,16 @@
 <div class="uk-card uk-card-default uk-card-body uk-margin">
   <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
-    <h3 class="uk-card-title uk-margin-remove">Namespace-Übersicht</h3>
+    <h3 class="uk-card-title uk-margin-remove">{{ t('heading_namespace_overview') }}</h3>
     <span class="uk-text-meta">{{ t('label_project_namespace') }} · {{ t('menu_content') }}</span>
   </div>
   <p class="uk-text-meta uk-margin-small-top">
-    Strukturierte Übersicht der Marketing-Inhalte inklusive Wiki, News, Newsletter und Medien-Referenzen.
+    {{ t('text_namespace_overview_description') }}
   </p>
   <p class="uk-text-meta uk-margin-small-top">
-    Neue, leere Namespaces zeigen hier einen Hinweis mit direkten Links zum Anlegen der ersten Inhalte.
+    {{ t('text_namespace_overview_empty_hint') }}
   </p>
   <div class="uk-text-meta uk-margin-small-top">
-    <span class="uk-margin-small-right">Status-Legende:</span>
+    <span class="uk-margin-small-right">{{ t('label_namespace_status_legend') }}</span>
     <span class="uk-label uk-label-default uk-margin-small-right">{{ t('label_namespace_default') }}</span>
     <span class="uk-label uk-label-danger uk-margin-small-right">{{ t('label_namespace_inactive') }}</span>
   </div>
@@ -21,9 +21,9 @@
     data-base-url="{{ basePath }}"
     data-initial-payload="{{ project_tree_payload|default([])|json_encode|e('html_attr') }}"
     data-namespace="{{ pageNamespace|default('default')|e('html_attr') }}"
-    data-empty="Keine Namespace-Daten vorhanden."
-    data-error="Namespace-Übersicht konnte nicht geladen werden."
+    data-empty="{{ t('text_namespace_overview_empty') }}"
+    data-error="{{ t('error_namespace_overview_load') }}"
   >
-    <div class="uk-text-meta" data-project-tree-loading>Namespace-Übersicht wird geladen…</div>
+    <div class="uk-text-meta" data-project-tree-loading>{{ t('text_namespace_overview_loading') }}</div>
   </div>
 </div>

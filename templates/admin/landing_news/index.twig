@@ -42,14 +42,14 @@
                 >
                   {{ entryNamespace }}
                   {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                  {% if entryIsInactive %} – inaktiv{% endif %}
+                  {% if entryIsInactive %} – {{ t('label_inactive') }}{% endif %}
                 </option>
               {% endfor %}
             </select>
           </div>
         </div>
         <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-          Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+          {{ t('text_namespace_change_reload') }}
         </div>
       </div>
     </div>

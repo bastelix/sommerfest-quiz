@@ -1,13 +1,13 @@
 <div class="uk-card uk-card-default uk-card-body uk-margin">
   <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
-    <h3 class="uk-card-title uk-margin-remove">Seitenbaum</h3>
+    <h3 class="uk-card-title uk-margin-remove">{{ t('label_page_tree') }}</h3>
     <div class="uk-flex uk-flex-middle uk-flex-wrap">
       <span class="uk-text-meta uk-margin-small-right">{{ t('label_project_namespace') }} · {{ t('column_domain_type') }}</span>
       <button
         class="uk-button uk-button-default uk-button-small uk-margin-small-left"
         type="button"
         uk-toggle="target: #createPageModal"
-      >Neue Seite</button>
+      >{{ t('action_new_page') }}</button>
       <button
         class="uk-button uk-button-primary uk-button-small uk-margin-small-left"
         type="button"
@@ -16,7 +16,7 @@
     </div>
   </div>
   <p class="uk-text-meta uk-margin-small-top">
-    Strukturierte Übersicht der Seiten inklusive Parent-Beziehungen.
+    {{ t('text_page_tree_description') }}
   </p>
   <div
     class="page-tree"
@@ -24,14 +24,14 @@
     data-endpoint="{{ basePath }}/admin/projects/tree"
     data-initial-payload="{{ project_tree_payload|default([])|json_encode|e('html_attr') }}"
     data-namespace="{{ pageNamespace|default('default')|e('html_attr') }}"
-    data-empty="Keine Seiten vorhanden."
-    data-error="Seitenbaum konnte nicht geladen werden."
+    data-empty="{{ t('text_page_tree_empty') }}"
+    data-error="{{ t('text_page_tree_error') }}"
     data-startpage-id="{{ startpage_page_id|default('')|e('html_attr') }}"
     data-startpage-domain="{{ startpage_selected_domain|default('')|e('html_attr') }}"
     data-startpage-domain-options="{{ startpage_domain_options|default([])|json_encode|e('html_attr') }}"
     data-startpage-map="{{ startpage_map|default({})|json_encode|e('html_attr') }}"
     data-has-domain-namespace="{{ hasDomainNamespace|default(false) ? '1' : '0' }}"
   >
-    <div class="uk-text-meta" data-page-tree-loading>Seitenbaum wird geladen…</div>
+    <div class="uk-text-meta" data-page-tree-loading>{{ t('text_page_tree_loading') }}</div>
   </div>
 </div>

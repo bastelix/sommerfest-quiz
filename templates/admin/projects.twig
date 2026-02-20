@@ -5,15 +5,15 @@
 
 {% block content %}
   <div class="uk-container uk-container-large">
-    <h2 class="uk-heading-bullet">Namespace-Übersicht</h2>
+    <h2 class="uk-heading-bullet">{{ t('heading_namespace_overview') }}</h2>
   </div>
   <div class="uk-container uk-container-large">
     {% set projectKpis = [
-      { key: 'pages', label: 'Seiten' },
-      { key: 'wiki', label: 'Wiki-Artikel' },
-      { key: 'news', label: 'News-Artikel' },
-      { key: 'newsletter', label: 'Newsletter-Slugs' },
-      { key: 'media', label: 'Medien-Refs' }
+      { key: 'pages', label: t('label_kpi_pages') },
+      { key: 'wiki', label: t('label_kpi_wiki_articles') },
+      { key: 'news', label: t('label_kpi_news_articles') },
+      { key: 'newsletter', label: t('label_kpi_newsletter_slugs') },
+      { key: 'media', label: t('label_kpi_media_refs') }
     ] %}
     <div
       class="uk-grid-small uk-child-width-1-2@s uk-child-width-1-5@m uk-margin"

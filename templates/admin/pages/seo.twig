@@ -37,7 +37,7 @@
         {% else %}
           <ul class="uk-accordion uk-margin-small" uk-accordion>
             <li>
-              <a class="uk-accordion-title uk-text-small" href="#">Seite in anderen Namespace verschieben</a>
+              <a class="uk-accordion-title uk-text-small" href="#">{{ t('heading_move_page_namespace') }}</a>
               <div class="uk-accordion-content">
                 <div
                   data-page-namespace-manager
@@ -47,8 +47,8 @@
                   data-page-selection-param="seoPage"
                   data-page-selection-value-key="slug"
                   data-active-namespace="{{ activePageNamespace|e('html_attr') }}"
-                  data-success-message="Seite verschoben."
-                  data-error-message="Namespace konnte nicht geändert werden."
+                  data-success-message="{{ t('notify_page_moved') }}"
+                  data-error-message="{{ t('error_namespace_change_failed') }}"
                 >
                   <div class="uk-grid-small uk-flex-middle" uk-grid>
                     <div class="uk-width-1-1 uk-width-expand@m">
@@ -88,7 +88,7 @@
             <input type="hidden" name="domain" id="seoDomain" value="{{ seo_config.domain|default('') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <div class="uk-margin">
-              <label class="uk-form-label" for="seoPageSelect">Marketing-Seite</label>
+              <label class="uk-form-label" for="seoPageSelect">{{ t('label_marketing_page') }}</label>
               <div class="uk-form-controls">
                 <select
                   id="seoPageSelect"
@@ -109,39 +109,39 @@
               </div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="metaTitle">Meta Title</label>
+              <label class="uk-form-label" for="metaTitle">{{ t('label_meta_title') }}</label>
               <div class="uk-form-controls">
                 <input class="uk-input" id="metaTitle" name="meta_title" type="text" required data-maxlength="60" value="{{ seo_config.metaTitle|default('') }}">
                 <small class="uk-text-meta char-count" data-for="metaTitle">0/60</small>
               </div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="metaDescription">Meta Description</label>
+              <label class="uk-form-label" for="metaDescription">{{ t('label_meta_description') }}</label>
               <div class="uk-form-controls">
                 <textarea class="uk-textarea" id="metaDescription" name="meta_description" required data-maxlength="160">{{ seo_config.metaDescription|default('') }}</textarea>
                 <small class="uk-text-meta char-count" data-for="metaDescription">0/160</small>
               </div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="slug">Slug</label>
+              <label class="uk-form-label" for="slug">{{ t('label_slug') }}</label>
               <div class="uk-form-controls">
                 <input class="uk-input" id="slug" name="slug" type="text" required data-maxlength="100" value="{{ seo_config.slug|default('') }}">
               </div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="canonical">Canonical</label>
+              <label class="uk-form-label" for="canonical">{{ t('label_canonical') }}</label>
               <div class="uk-form-controls">
                 <input class="uk-input" id="canonical" name="canonical" type="url" value="{{ seo_config.canonicalUrl|default('') }}">
               </div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="robots">Robots</label>
+              <label class="uk-form-label" for="robots">{{ t('label_robots') }}</label>
               <div class="uk-form-controls">
                 <input class="uk-input" id="robots" name="robots" type="text" placeholder="index, follow" value="{{ seo_config.robotsMeta|default('') }}">
               </div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label">OG-Tags</label>
+              <label class="uk-form-label">{{ t('heading_og_tags') }}</label>
               <div class="uk-form-controls">
                 <input class="uk-input uk-margin-small-bottom" id="ogTitle" name="og_title" type="text" placeholder="og:title" data-maxlength="60" value="{{ seo_config.ogTitle|default('') }}">
                 <input class="uk-input uk-margin-small-bottom" id="ogDescription" name="og_description" type="text" placeholder="og:description" data-maxlength="160" value="{{ seo_config.ogDescription|default('') }}">
@@ -149,24 +149,24 @@
               </div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="schema">Schema.org</label>
+              <label class="uk-form-label" for="schema">{{ t('label_schema_org') }}</label>
               <div class="uk-form-controls">
                 <textarea class="uk-textarea" id="schema" name="schema" rows="4" placeholder="{ }">{{ seo_config.schemaJson|default('') }}</textarea>
               </div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="hreflang">hreflang</label>
+              <label class="uk-form-label" for="hreflang">{{ t('label_hreflang') }}</label>
               <div class="uk-form-controls">
                 <input class="uk-input" id="hreflang" name="hreflang" type="text" placeholder="de, en, ..." value="{{ seo_config.hreflang|default('') }}">
               </div>
             </div>
             <div class="uk-margin">
-              <button type="button" class="uk-button uk-button-default import-seo-example">Beispiel importieren</button>
+              <button type="button" class="uk-button uk-button-default import-seo-example">{{ t('action_import_example') }}</button>
               <button type="button" class="uk-button uk-button-secondary uk-margin-left import-seo-ai">
-                KI-Import
+                {{ t('action_ai_import') }}
                 <span class="uk-margin-small-left" data-seo-ai-spinner hidden uk-spinner="ratio: 0.6"></span>
               </button>
-              <button type="submit" class="uk-button uk-button-primary uk-margin-left">Speichern</button>
+              <button type="submit" class="uk-button uk-button-primary uk-margin-left">{{ t('action_save') }}</button>
             </div>
           </form>
         {% endif %}
