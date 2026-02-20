@@ -1441,7 +1441,7 @@ body.admin-page {
 }
 
 .block-form-section[data-optional-section="true"] > summary {
-  padding: 12px;
+  padding: 16px;
   cursor: pointer;
   list-style: none;
 }
@@ -1455,7 +1455,17 @@ body.admin-page {
 }
 
 .block-form-section[data-optional-section="true"] .block-form-section__hint {
-  padding: 0 12px 12px;
+  padding: 0 16px 4px;
+}
+
+/* Content fields directly inside optional sections (no .optional-section__body wrapper) */
+.block-form-section[data-optional-section="true"] > :not(summary):not(.block-form-section__hint):not(.optional-section__body) {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+.block-form-section[data-optional-section="true"] > :last-child:not(summary):not(.block-form-section__hint) {
+  margin-bottom: 16px;
 }
 
 /* ── Optional section body (inside <details>) ── */
@@ -3364,6 +3374,23 @@ body.admin-page {
   .optional-section__body {
     padding: 10px;
     gap: 8px;
+  }
+
+  .block-form-section[data-optional-section="true"] > summary {
+    padding: 10px;
+  }
+
+  .block-form-section[data-optional-section="true"] > :not(summary):not(.block-form-section__hint):not(.optional-section__body) {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  .block-form-section[data-optional-section="true"] > :last-child:not(summary):not(.block-form-section__hint) {
+    margin-bottom: 10px;
+  }
+
+  .block-form-section[data-optional-section="true"] .block-form-section__hint {
+    padding: 0 10px 2px;
   }
 
   .block-form-fields {
