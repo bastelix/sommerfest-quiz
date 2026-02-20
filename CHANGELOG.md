@@ -38,6 +38,7 @@
 - Remove legacy labor.css, topbar.landing.css, and dead references
 - Add auto-generated namespace token stylesheets
 - Include pre-existing namespace token and upgrade script changes
+- *(design)* Complete v2.0.0 structure for all design presets
 
 ### Ci
 
