@@ -656,6 +656,7 @@
 - *(admin)* Align namespace selectors to compact partial layout
 - *(calserver)* Redesign trust-bar section as chip/badge layout
 - *(editor)* Improve block configuration form UI hierarchy and spacing
+- *(ui)* Modernize customer portal page layout
 
 ### Test
 
