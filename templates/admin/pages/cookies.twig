@@ -34,13 +34,13 @@
             <h3 class="uk-card-title uk-margin-remove">{{ t('tab_cookies') }}</h3>
             <span class="uk-text-meta" data-project-settings-updated>
               {% if cookie_settings.updated_at %}
-                Zuletzt gespeichert: {{ cookie_settings.updated_at }}
+                {{ t('label_cookies_last_saved') }} {{ cookie_settings.updated_at }}
               {% endif %}
             </span>
           </div>
           <form class="uk-form-stacked uk-margin-small-top" data-project-settings-form>
             <div class="uk-margin">
-              <label class="uk-form-label" for="cookieConsentEnabled">Cookie-Banner aktiv</label>
+              <label class="uk-form-label" for="cookieConsentEnabled">{{ t('label_cookies_banner_active') }}</label>
               <div class="uk-form-controls">
                 <label>
                   <input
@@ -50,12 +50,12 @@
                     name="cookie_consent_enabled"
                     {% if cookie_settings.cookie_consent_enabled %}checked{% endif %}
                   >
-                  Banner anzeigen
+                  {{ t('label_cookies_show_banner') }}
                 </label>
               </div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="cookieStorageKey">Storage-Key</label>
+              <label class="uk-form-label" for="cookieStorageKey">{{ t('label_cookies_storage_key') }}</label>
               <div class="uk-form-controls">
                 <input
                   class="uk-input"
@@ -66,10 +66,10 @@
                   autocomplete="off"
                 >
               </div>
-              <div class="uk-text-meta">Wird im Local Storage gespeichert.</div>
+              <div class="uk-text-meta">{{ t('text_cookies_storage_key_hint') }}</div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="cookieBannerTextDe">Banner-Text (DE)</label>
+              <label class="uk-form-label" for="cookieBannerTextDe">{{ t('label_cookies_banner_text_de') }}</label>
               <div class="uk-form-controls">
                 <textarea
                   class="uk-textarea"
@@ -78,10 +78,10 @@
                   rows="4"
                 >{{ cookie_settings.cookie_banner_text_de|default('')|e }}</textarea>
               </div>
-              <div class="uk-text-meta">Hinweistext für externe Inhalte (Deutsch).</div>
+              <div class="uk-text-meta">{{ t('text_cookies_banner_text_de_hint') }}</div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="cookieBannerTextEn">Banner-Text (EN)</label>
+              <label class="uk-form-label" for="cookieBannerTextEn">{{ t('label_cookies_banner_text_en') }}</label>
               <div class="uk-form-controls">
                 <textarea
                   class="uk-textarea"
@@ -90,10 +90,10 @@
                   rows="4"
                 >{{ cookie_settings.cookie_banner_text_en|default('')|e }}</textarea>
               </div>
-              <div class="uk-text-meta">Hinweistext für externe Inhalte (Englisch).</div>
+              <div class="uk-text-meta">{{ t('text_cookies_banner_text_en_hint') }}</div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="cookieVendorFlags">Vendor-Flags (JSON)</label>
+              <label class="uk-form-label" for="cookieVendorFlags">{{ t('label_cookies_vendor_flags') }}</label>
               <div class="uk-form-controls">
                 <textarea
                   class="uk-textarea"
@@ -102,14 +102,14 @@
                   rows="4"
                 >{{ cookie_settings.cookie_vendor_flags|default({})|json_encode|e }}</textarea>
               </div>
-              <div class="uk-text-meta">Optional: Strukturierte Flags für Drittanbieter (JSON).</div>
+              <div class="uk-text-meta">{{ t('text_cookies_vendor_flags_hint') }}</div>
             </div>
-            <h4 class="uk-heading-divider uk-margin-medium-top">Datenschutzbestimmungen</h4>
+            <h4 class="uk-heading-divider uk-margin-medium-top">{{ t('label_cookies_privacy_policy') }}</h4>
             <p class="uk-text-meta uk-margin-remove-top">
-              Verlinke hier die Datenschutzerklärung für die Cookie-Kommunikation.
+              {{ t('text_cookies_privacy_policy_hint') }}
             </p>
             <div class="uk-margin">
-              <label class="uk-form-label" for="privacyUrlDe">Datenschutz-URL (DE)</label>
+              <label class="uk-form-label" for="privacyUrlDe">{{ t('label_cookies_privacy_url_de') }}</label>
               <div class="uk-form-controls">
                 <input
                   class="uk-input"
@@ -121,10 +121,10 @@
                   placeholder="{{ basePath }}/datenschutz"
                 >
               </div>
-              <div class="uk-text-meta">Optionaler Link zur Datenschutzseite (Deutsch).</div>
+              <div class="uk-text-meta">{{ t('text_cookies_privacy_url_de_hint') }}</div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="privacyUrlEn">Datenschutz-URL (EN)</label>
+              <label class="uk-form-label" for="privacyUrlEn">{{ t('label_cookies_privacy_url_en') }}</label>
               <div class="uk-form-controls">
                 <input
                   class="uk-input"
@@ -136,11 +136,11 @@
                   placeholder="{{ basePath }}/privacy"
                 >
               </div>
-              <div class="uk-text-meta">Optionaler Link zur Datenschutzseite (Englisch).</div>
+              <div class="uk-text-meta">{{ t('text_cookies_privacy_url_en_hint') }}</div>
             </div>
             <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
               <div>
-                <button type="submit" class="uk-button uk-button-primary">Einstellungen speichern</button>
+                <button type="submit" class="uk-button uk-button-primary">{{ t('action_save_settings') }}</button>
               </div>
               <div class="uk-text-meta" data-project-settings-status></div>
             </div>

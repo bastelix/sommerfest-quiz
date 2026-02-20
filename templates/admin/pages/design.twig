@@ -1,7 +1,7 @@
 {% extends 'admin/base.twig' %}
 {% set includeMarketingThemeVars = true %}
 
-{% block title %}Design – Namespace: {{ pageNamespace|default('') }}{% endblock %}
+{% block title %}{{ t('heading_design') }} – Namespace: {{ pageNamespace|default('') }}{% endblock %}
 
 {% block admin_head %}
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
@@ -23,8 +23,8 @@
     data-active-tab="{{ activeTab }}"
   >
       <div class="uk-container uk-container-large">
-        <h1 class="uk-heading-bullet">Design – Namespace: {{ pageNamespace }}</h1>
-        <p class="uk-text-lead uk-margin-remove">Erscheinungsbild für alle Seiten dieses Namespace</p>
+        <h1 class="uk-heading-bullet">{{ t('heading_design') }} – Namespace: {{ pageNamespace }}</h1>
+        <p class="uk-text-lead uk-margin-remove">{{ t('text_design_namespace_description') }}</p>
         {% if designUsedDefaults|default(false) %}
           <p class="uk-text-meta uk-margin-small-top">
             No overrides defined – default values are used.
@@ -44,52 +44,52 @@
 
         <ul class="uk-tab design-tab-nav" data-design-tabs>
           <li class="{{ activeTab == 'appearance' ? 'uk-active' : '' }}">
-            <a href="#" data-design-tab="appearance">Erscheinungsbild</a>
+            <a href="#" data-design-tab="appearance">{{ t('tab_design_appearance') }}</a>
           </li>
           {% if canAccessBehavior %}
             <li class="{{ activeTab == 'behavior' ? 'uk-active' : '' }}">
-              <a href="#" data-design-tab="behavior">Verhalten</a>
+              <a href="#" data-design-tab="behavior">{{ t('tab_design_behavior') }}</a>
             </li>
           {% endif %}
           {% if not readOnly %}
             <li class="{{ activeTab == 'css' ? 'uk-active' : '' }}">
-              <a href="#" data-design-tab="css">Eigenes CSS</a>
+              <a href="#" data-design-tab="css">{{ t('tab_design_custom_css') }}</a>
             </li>
           {% endif %}
           <li class="{{ activeTab == 'preview' ? 'uk-active' : '' }}">
-            <a href="#" data-design-tab="preview">Vorschau</a>
+            <a href="#" data-design-tab="preview">{{ t('tab_design_preview') }}</a>
           </li>
         </ul>
         {% if not canAccessBehavior %}
-          <div class="uk-alert uk-alert-primary uk-margin-small">Verhalten wird auf Namespace-Ebene gesteuert.</div>
+          <div class="uk-alert uk-alert-primary uk-margin-small">{{ t('text_design_behavior_namespace_level') }}</div>
         {% endif %}
 
         {# ── Tab 1: Erscheinungsbild ────────────────────────────────── #}
         <div class="design-panel" data-design-panel="appearance" {% if activeTab != 'appearance' %}hidden{% endif %}>
           {% if readOnly %}
-            <div class="uk-alert uk-alert-primary uk-margin-small">Redakteur:innen haben nur Lesezugriff auf die Design-Vorgaben.</div>
+            <div class="uk-alert uk-alert-primary uk-margin-small">{{ t('text_design_read_only') }}</div>
             <div class="uk-card uk-card-default uk-card-body uk-margin-small">
-              <h3 class="uk-card-title uk-margin-remove">Design-Übersicht</h3>
-              <p class="uk-text-meta">Design wird auf Namespace-Ebene gesteuert</p>
+              <h3 class="uk-card-title uk-margin-remove">{{ t('heading_design_overview') }}</h3>
+              <p class="uk-text-meta">{{ t('text_design_managed_at_namespace') }}</p>
               <dl class="design-summary">
                 <div class="design-summary__row">
-                  <dt>Layout-Profil</dt>
+                  <dt>{{ t('label_design_layout_profile') }}</dt>
                   <dd>{{ tokens.layout.profile }}</dd>
                 </div>
                 <div class="design-summary__row">
-                  <dt>Typografie</dt>
+                  <dt>{{ t('label_design_typography') }}</dt>
                   <dd>{{ tokens.typography.preset }}</dd>
                 </div>
                 <div class="design-summary__row">
-                  <dt>Kartendesign</dt>
+                  <dt>{{ t('label_design_card_design') }}</dt>
                   <dd>{{ tokens.components.cardStyle }}</dd>
                 </div>
                 <div class="design-summary__row">
-                  <dt>Button-Stil</dt>
+                  <dt>{{ t('label_design_button_style') }}</dt>
                   <dd>{{ tokens.components.buttonStyle }}</dd>
                 </div>
                 <div class="design-summary__row">
-                  <dt>Farben</dt>
+                  <dt>{{ t('label_design_colors') }}</dt>
                   <dd>
                     <span class="design-summary__swatch" style="background: {{ tokens.brand.primary }}"></span>
                     <code>{{ tokens.brand.primary }}</code>
@@ -109,38 +109,37 @@
               {% set marketingSchemeOptions = {
                 aurora: {
                   label: 'Aurora',
-                  description: 'Frisches Blau mit klarem Akzent.'
+                  description: t('text_design_preset_aurora')
                 },
                 'future-is-green': {
                   label: 'Future is Green',
-                  description: 'Nachhaltiges Waldgrün mit hellen Akzenten.'
+                  description: t('text_design_preset_green')
                 },
                 sunset: {
                   label: 'Sunset',
-                  description: 'Warme Orange-/Pink-Töne für starke CTAs.'
+                  description: t('text_design_preset_sunset')
                 },
                 midnight: {
                   label: 'Midnight',
-                  description: 'Dunkler Look mit kühlem Akzent.'
+                  description: t('text_design_preset_midnight')
                 },
                 monochrome: {
                   label: 'Monochrom',
-                  description: 'Schwarz/Weiß mit maximalem Kontrast.'
+                  description: t('text_design_preset_monochrome')
                 },
                 'uikit-default': {
                   label: 'UIkit Default',
-                  description: 'Neutrale UIkit-Standardfarben als Basis.'
+                  description: t('text_design_preset_uikit')
                 }
               } %}
               <ul class="uk-accordion" uk-accordion>
                 <li class="uk-open">
-                  <a class="uk-accordion-title" href="#">Design-Preset</a>
+                  <a class="uk-accordion-title" href="#">{{ t('heading_design_preset') }}</a>
                   <div class="uk-accordion-content">
                     <p class="uk-text-meta uk-margin-remove-top">
-                      Das Preset steuert Farben, Typografie, Card- und Button-Stil sowie Layout.
-                      Einzelne Werte lassen sich optional im Bereich Anpassungen abweichend setzen.
+                      {{ t('text_design_preset_description') }}
                     </p>
-                    <label class="uk-form-label" for="marketingScheme">Preset</label>
+                    <label class="uk-form-label" for="marketingScheme">{{ t('label_design_preset') }}</label>
                     <div class="uk-form-controls">
                       <select
                         id="marketingScheme"
@@ -149,7 +148,7 @@
                         data-marketing-scheme-select
                         data-current-marketing-scheme="{{ marketingScheme|default('')|e('html_attr') }}"
                       >
-                        <option value="" {% if marketingScheme is empty %}selected{% endif %}>Automatisch (Brand-Tokens)</option>
+                        <option value="" {% if marketingScheme is empty %}selected{% endif %}>{{ t('option_design_preset_auto') }}</option>
                         {% for schemeKey, scheme in marketingSchemeOptions %}
                           <option
                             value="{{ schemeKey|e('html_attr') }}"
@@ -162,26 +161,26 @@
                     </div>
 
                     <details class="uk-margin-top" data-design-overrides>
-                      <summary class="uk-text-meta" style="cursor:pointer">Anpassungen (optional)</summary>
+                      <summary class="uk-text-meta" style="cursor:pointer">{{ t('label_design_overrides') }}</summary>
                       <div class="uk-margin-small-top">
-                        <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-small-bottom">Brand-Farben</h4>
+                        <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-small-bottom">{{ t('heading_design_brand_colors') }}</h4>
                         <div class="uk-grid-small" uk-grid>
                           <div class="uk-width-1-3@s">
-                            <label class="uk-form-label" for="brandPrimary">Primary Color</label>
+                            <label class="uk-form-label" for="brandPrimary">{{ t('label_design_primary_color') }}</label>
                             <div class="uk-flex uk-flex-middle design-color-input">
                               <input id="brandPrimary" class="uk-input" type="color" name="brand[primary]" value="{{ tokens.brand.primary|e('html_attr') }}" data-token-input data-group="brand" data-key="primary">
                               <code class="uk-margin-small-left" data-token-preview="brand.primary">{{ tokens.brand.primary }}</code>
                             </div>
                           </div>
                           <div class="uk-width-1-3@s">
-                            <label class="uk-form-label" for="brandAccent">Accent Color</label>
+                            <label class="uk-form-label" for="brandAccent">{{ t('label_design_accent_color') }}</label>
                             <div class="uk-flex uk-flex-middle design-color-input">
                               <input id="brandAccent" class="uk-input" type="color" name="brand[accent]" value="{{ tokens.brand.accent|e('html_attr') }}" data-token-input data-group="brand" data-key="accent">
                               <code class="uk-margin-small-left" data-token-preview="brand.accent">{{ tokens.brand.accent }}</code>
                             </div>
                           </div>
                           <div class="uk-width-1-3@s">
-                            <label class="uk-form-label" for="brandSecondary">Secondary Color</label>
+                            <label class="uk-form-label" for="brandSecondary">{{ t('label_design_secondary_color') }}</label>
                             <div class="uk-flex uk-flex-middle design-color-input">
                               <input id="brandSecondary" class="uk-input" type="color" name="brand[secondary]" value="{{ tokens.brand.secondary|e('html_attr') }}" data-token-input data-group="brand" data-key="secondary">
                               <code class="uk-margin-small-left" data-token-preview="brand.secondary">{{ tokens.brand.secondary }}</code>
@@ -189,10 +188,10 @@
                           </div>
                         </div>
 
-                        <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-top uk-margin-small-bottom">Layout &amp; Typografie</h4>
+                        <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-top uk-margin-small-bottom">{{ t('heading_design_layout_typo') }}</h4>
                         <div class="uk-grid-small" uk-grid>
                           <div class="uk-width-1-2@s">
-                            <label class="uk-form-label" for="layoutProfile">Layout-Profil</label>
+                            <label class="uk-form-label" for="layoutProfile">{{ t('label_design_layout_profile') }}</label>
                             <div class="uk-form-controls">
                               <select id="layoutProfile" class="uk-select" name="layout[profile]" data-token-input data-group="layout" data-key="profile" data-scheme-default-key="defaultLayout">
                                 {% for option in layoutProfiles %}
@@ -202,7 +201,7 @@
                             </div>
                           </div>
                           <div class="uk-width-1-2@s">
-                            <label class="uk-form-label" for="typographyPreset">Typografie</label>
+                            <label class="uk-form-label" for="typographyPreset">{{ t('label_design_typography') }}</label>
                             <div class="uk-form-controls">
                               <select id="typographyPreset" class="uk-select" name="typography[preset]" data-token-input data-group="typography" data-key="preset" data-scheme-default-key="defaultTypography">
                                 {% for preset in typographyPresets %}
@@ -213,10 +212,10 @@
                           </div>
                         </div>
 
-                        <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-top uk-margin-small-bottom">Komponenten</h4>
+                        <h4 class="uk-text-small uk-text-uppercase uk-text-muted uk-margin-top uk-margin-small-bottom">{{ t('heading_design_components') }}</h4>
                         <div class="uk-grid-small" uk-grid>
                           <div class="uk-width-1-2@s">
-                            <label class="uk-form-label" for="cardStyle">Card Shape</label>
+                            <label class="uk-form-label" for="cardStyle">{{ t('label_design_card_shape') }}</label>
                             <div class="uk-form-controls">
                               <select id="cardStyle" class="uk-select" name="components[cardStyle]" data-token-input data-group="components" data-key="cardStyle" data-scheme-default-key="defaultCardStyle">
                                 {% for style in cardStyles %}
@@ -226,7 +225,7 @@
                             </div>
                           </div>
                           <div class="uk-width-1-2@s">
-                            <label class="uk-form-label" for="buttonStyle">Button Style</label>
+                            <label class="uk-form-label" for="buttonStyle">{{ t('label_design_button_style') }}</label>
                             <div class="uk-form-controls">
                               <select id="buttonStyle" class="uk-select" name="components[buttonStyle]" data-token-input data-group="components" data-key="buttonStyle" data-scheme-default-key="defaultButtonStyle">
                                 {% for style in buttonStyles %}
@@ -237,23 +236,22 @@
                           </div>
                         </div>
 
-                        <button class="uk-button uk-button-default uk-margin-top" type="submit" name="action" value="reset_all_overrides">Alle Anpassungen zurücksetzen</button>
+                        <button class="uk-button uk-button-default uk-margin-top" type="submit" name="action" value="reset_all_overrides">{{ t('action_design_reset_overrides') }}</button>
                       </div>
                     </details>
                   </div>
                 </li>
                 <li>
-                  <a class="uk-accordion-title" href="#">Lesbarkeit &amp; Kontrast</a>
+                  <a class="uk-accordion-title" href="#">{{ t('heading_design_contrast') }}</a>
                   <div class="uk-accordion-content">
                     <p class="uk-text-meta uk-margin-remove-top">
-                      Prüfe, ob Textfarben auf Surface, Background und Primary mindestens WCAG AA (4,5:1) erreichen.
-                      AAA (7:1) ist ideal für besonders gut lesbare Inhalte.
+                      {{ t('text_design_contrast_description') }}
                     </p>
                     <div class="design-contrast" data-contrast-panel>
                       <div class="design-contrast__row" data-contrast-row="text-on-surface">
                         <div>
-                          <div class="design-contrast__label">Text auf Surface</div>
-                          <div class="design-contrast__meta">Prüft Haupttext auf Surface-Flächen.</div>
+                          <div class="design-contrast__label">{{ t('label_contrast_text_on_surface') }}</div>
+                          <div class="design-contrast__meta">{{ t('text_contrast_text_on_surface') }}</div>
                         </div>
                         <div class="design-contrast__metrics">
                           <div class="design-contrast__metric">
@@ -277,8 +275,8 @@
                       </div>
                       <div class="design-contrast__row" data-contrast-row="text-on-card">
                         <div>
-                          <div class="design-contrast__label">Text auf Card</div>
-                          <div class="design-contrast__meta">Vergleicht Card-Text mit Card-Background.</div>
+                          <div class="design-contrast__label">{{ t('label_contrast_text_on_card') }}</div>
+                          <div class="design-contrast__meta">{{ t('text_contrast_text_on_card') }}</div>
                         </div>
                         <div class="design-contrast__metrics">
                           <div class="design-contrast__metric">
@@ -302,8 +300,8 @@
                       </div>
                       <div class="design-contrast__row" data-contrast-row="text-on-background">
                         <div>
-                          <div class="design-contrast__label">Text auf Background</div>
-                          <div class="design-contrast__meta">Prüft Fließtext auf Seitenhintergrund.</div>
+                          <div class="design-contrast__label">{{ t('label_contrast_text_on_background') }}</div>
+                          <div class="design-contrast__meta">{{ t('text_contrast_text_on_background') }}</div>
                         </div>
                         <div class="design-contrast__metrics">
                           <div class="design-contrast__metric">
@@ -327,8 +325,8 @@
                       </div>
                       <div class="design-contrast__row" data-contrast-row="text-on-primary">
                         <div>
-                          <div class="design-contrast__label">Text auf Primary</div>
-                          <div class="design-contrast__meta">Prüft Kontrast für Buttons/CTAs.</div>
+                          <div class="design-contrast__label">{{ t('label_contrast_text_on_primary') }}</div>
+                          <div class="design-contrast__meta">{{ t('text_contrast_text_on_primary') }}</div>
                         </div>
                         <div class="design-contrast__metrics">
                           <div class="design-contrast__metric">
@@ -352,8 +350,8 @@
                       </div>
                       <div class="design-contrast__row" data-contrast-row="text-on-secondary">
                         <div>
-                          <div class="design-contrast__label">Text auf Secondary</div>
-                          <div class="design-contrast__meta">Prüft Kontrast für Secondary-Buttons.</div>
+                          <div class="design-contrast__label">{{ t('label_contrast_text_on_secondary') }}</div>
+                          <div class="design-contrast__meta">{{ t('text_contrast_text_on_secondary') }}</div>
                         </div>
                         <div class="design-contrast__metrics">
                           <div class="design-contrast__metric">
@@ -377,8 +375,8 @@
                       </div>
                       <div class="design-contrast__row" data-contrast-row="text-on-accent">
                         <div>
-                          <div class="design-contrast__label">Text auf Accent</div>
-                          <div class="design-contrast__meta">Prüft Kontrast für Accent-Hintergründe.</div>
+                          <div class="design-contrast__label">{{ t('label_contrast_text_on_accent') }}</div>
+                          <div class="design-contrast__meta">{{ t('text_contrast_text_on_accent') }}</div>
                         </div>
                         <div class="design-contrast__metrics">
                           <div class="design-contrast__metric">
@@ -446,17 +444,16 @@
               </ul>
 
               <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
-                <button class="uk-button uk-button-default" type="submit" name="action" value="reset_all">Auf Standard zurücksetzen</button>
-                <button class="uk-button uk-button-primary" type="submit">Speichern</button>
+                <button class="uk-button uk-button-default" type="submit" name="action" value="reset_all">{{ t('action_design_reset_defaults') }}</button>
+                <button class="uk-button uk-button-primary" type="submit">{{ t('label_save') }}</button>
               </div>
             </form>
 
             {% if availablePresets|default([])|length > 0 %}
               <div class="uk-card uk-card-default uk-card-body uk-margin-top">
-                <h3 class="uk-card-title uk-margin-remove">Design importieren</h3>
+                <h3 class="uk-card-title uk-margin-remove">{{ t('heading_design_import') }}</h3>
                 <p class="uk-text-meta uk-margin-small-bottom">
-                  Übernimm ein vordefiniertes Design-Preset für diesen Namespace.
-                  Tokens, Farben und Verhaltenseinstellungen werden vollständig überschrieben.
+                  {{ t('text_design_import_description') }}
                 </p>
                 <form method="post">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -466,7 +463,7 @@
                   <div class="uk-grid-small uk-flex-middle" uk-grid>
                     <div class="uk-width-expand">
                       <select class="uk-select" name="import_preset" required>
-                        <option value="">Preset auswählen…</option>
+                        <option value="">{{ t('placeholder_design_select_preset') }}</option>
                         {% for preset in availablePresets %}
                           <option value="{{ preset.name|e('html_attr') }}">
                             {{ preset.label }}{% if preset.description %} – {{ preset.description[:80] }}{% if preset.description|length > 80 %}…{% endif %}{% endif %}
@@ -475,7 +472,7 @@
                       </select>
                     </div>
                     <div class="uk-width-auto">
-                      <button class="uk-button uk-button-secondary" type="submit">Importieren</button>
+                      <button class="uk-button uk-button-secondary" type="submit">{{ t('action_design_import') }}</button>
                     </div>
                   </div>
                 </form>
@@ -487,12 +484,12 @@
         {# ── Tab 2: Verhalten ────────────────────────────────────────── #}
         <div class="design-panel" data-design-panel="behavior" {% if activeTab != 'behavior' %}hidden{% endif %}>
           <div class="uk-card uk-card-default uk-card-body">
-            <h2><span>Verhalten – Namespace: {{ pageNamespace }}</span></h2>
-            <p class="uk-text-meta uk-margin-remove">Wie sich Seiten in diesem Namespace bewegen und anfühlen.</p>
+            <h2><span>{{ t('heading_design_behavior') }} – Namespace: {{ pageNamespace }}</span></h2>
+            <p class="uk-text-meta uk-margin-remove">{{ t('text_design_behavior_description') }}</p>
             {% if not canAccessBehavior %}
-              <div class="uk-alert uk-alert-primary uk-margin-small">Verhalten wird auf Namespace-Ebene gesteuert.</div>
+              <div class="uk-alert uk-alert-primary uk-margin-small">{{ t('text_design_behavior_namespace_level') }}</div>
             {% elseif effectsReadOnly %}
-              <div class="uk-alert uk-alert-primary uk-margin-small">Redakteur:innen haben nur Lesezugriff auf die Effekt-Vorgaben.</div>
+              <div class="uk-alert uk-alert-primary uk-margin-small">{{ t('text_design_effects_read_only') }}</div>
             {% endif %}
 
             {% if canAccessBehavior %}
@@ -503,8 +500,8 @@
 
                 <div class="design-effects-section">
                   <div class="design-effects-section__header">
-                    <h3 class="uk-heading-bullet uk-margin-remove">Bewegungsprofil</h3>
-                    <p class="uk-text-meta uk-margin-remove">Über Profile gesteuerte Effekte – kein Freitext.</p>
+                    <h3 class="uk-heading-bullet uk-margin-remove">{{ t('heading_design_motion_profile') }}</h3>
+                    <p class="uk-text-meta uk-margin-remove">{{ t('text_design_motion_profile_hint') }}</p>
                   </div>
                   <div class="design-effects-options">
                     {% for profileKey, profile in effectsProfiles %}
@@ -529,15 +526,15 @@
 
                 <div class="design-effects-section">
                   <div class="design-effects-section__header">
-                    <h3 class="uk-heading-bullet uk-margin-remove">Scroll-Effekte</h3>
-                    <p class="uk-text-meta uk-margin-remove">Abgeleitet vom Bewegungsprofil.</p>
+                    <h3 class="uk-heading-bullet uk-margin-remove">{{ t('heading_design_scroll_effects') }}</h3>
+                    <p class="uk-text-meta uk-margin-remove">{{ t('text_design_scroll_effects_hint') }}</p>
                   </div>
                   <div class="design-effects-detail">
                     <div class="design-effects-detail__row">
                       <span class="design-effects-detail__icon" aria-hidden="true">✓</span>
                       <div>
-                        <div class="design-effects-detail__title">Abschnitte erscheinen beim Scrollen</div>
-                        <div class="design-effects-detail__meta">Gilt global für alle Seiten</div>
+                        <div class="design-effects-detail__title">{{ t('text_design_scroll_sections_appear') }}</div>
+                        <div class="design-effects-detail__meta">{{ t('text_design_scroll_global') }}</div>
                       </div>
                     </div>
                   </div>
@@ -554,8 +551,8 @@
                 {% if hasSliderBlocks %}
                   <div class="design-effects-section">
                     <div class="design-effects-section__header">
-                      <h3 class="uk-heading-bullet uk-margin-remove">Slider-Verhalten</h3>
-                      <p class="uk-text-meta uk-margin-remove">Gilt für alle Slider-fähigen Blöcke.</p>
+                      <h3 class="uk-heading-bullet uk-margin-remove">{{ t('heading_design_slider') }}</h3>
+                      <p class="uk-text-meta uk-margin-remove">{{ t('text_design_slider_hint') }}</p>
                     </div>
                     <div class="design-effects-options">
                       <label class="design-effects-option">
@@ -569,8 +566,8 @@
                           {% if effectsReadOnly %}disabled{% endif %}
                         >
                         <div>
-                          <div class="design-effects-option__label">Statisch</div>
-                          <div class="design-effects-option__description">Keine automatische Rotation.</div>
+                          <div class="design-effects-option__label">{{ t('option_design_slider_static') }}</div>
+                          <div class="design-effects-option__description">{{ t('text_design_slider_static_hint') }}</div>
                         </div>
                       </label>
                       <label class="design-effects-option">
@@ -585,8 +582,8 @@
                           {% if effectsReadOnly %}disabled{% endif %}
                         >
                         <div>
-                          <div class="design-effects-option__label">Automatisch wechseln</div>
-                          <div class="design-effects-option__description">ca. alle 5 Sekunden, pausiert bei Hover</div>
+                          <div class="design-effects-option__label">{{ t('option_design_slider_auto') }}</div>
+                          <div class="design-effects-option__description">{{ t('text_design_slider_auto_hint') }}</div>
                         </div>
                       </label>
                     </div>
@@ -595,23 +592,23 @@
 
                 <div class="design-effects-section">
                   <div class="design-effects-section__header">
-                    <h3 class="uk-heading-bullet uk-margin-remove">Barrierefreiheit</h3>
-                    <p class="uk-text-meta uk-margin-remove">Immer aktiv, nicht editierbar.</p>
+                    <h3 class="uk-heading-bullet uk-margin-remove">{{ t('heading_design_accessibility') }}</h3>
+                    <p class="uk-text-meta uk-margin-remove">{{ t('text_design_accessibility_hint') }}</p>
                   </div>
                   <div class="design-effects-detail">
                     <div class="design-effects-detail__row">
                       <span class="design-effects-detail__icon" aria-hidden="true">✓</span>
                       <div>
-                        <div class="design-effects-detail__title">Systemeinstellung „Bewegung reduzieren" wird respektiert</div>
-                        <div class="design-effects-detail__meta">Effekte werden bei Bedarf automatisch deaktiviert</div>
+                        <div class="design-effects-detail__title">{{ t('text_design_reduced_motion') }}</div>
+                        <div class="design-effects-detail__meta">{{ t('text_design_reduced_motion_hint') }}</div>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
-                  <div class="uk-text-meta">Änderungen gelten für alle Seiten des Namespace.</div>
-                  <button class="uk-button uk-button-primary" type="submit">Verhalten speichern</button>
+                  <div class="uk-text-meta">{{ t('text_design_changes_apply_all') }}</div>
+                  <button class="uk-button uk-button-primary" type="submit">{{ t('action_design_save_behavior') }}</button>
                 </div>
               </form>
             {% endif %}
@@ -622,15 +619,14 @@
         {% if not readOnly %}
         <div class="design-panel" data-design-panel="css" {% if activeTab != 'css' %}hidden{% endif %}>
           <div class="uk-card uk-card-default uk-card-body">
-            <h2>Eigenes CSS – Namespace: {{ pageNamespace }}</h2>
+            <h2>{{ t('heading_design_custom_css') }} – Namespace: {{ pageNamespace }}</h2>
             <p class="uk-text-meta uk-margin-remove">
-              Eigene CSS-Regeln, die zusätzlich zu den Design-Tokens geladen werden.
-              Änderungen werden automatisch mit <code>[data-namespace="{{ pageNamespace }}"]</code> umschlossen.
+              {{ t('text_design_custom_css_description') }}
             </p>
 
             <details class="uk-margin-top">
               <summary class="uk-text-meta" style="cursor:pointer">
-                Verfügbare CSS-Variablen anzeigen
+                {{ t('label_design_show_css_vars') }}
               </summary>
               <div class="uk-margin-small-top">
                 <pre class="design-css-reference"><code>{{ cssVariablesReference|default('')|e }}</code></pre>
@@ -665,8 +661,8 @@
                   class="uk-button uk-button-default"
                   type="button"
                   data-css-reset
-                >Zurücksetzen</button>
-                <button class="uk-button uk-button-primary" type="submit">CSS speichern</button>
+                >{{ t('action_design_css_reset') }}</button>
+                <button class="uk-button uk-button-primary" type="submit">{{ t('action_design_css_save') }}</button>
               </div>
             </form>
           </div>
@@ -678,8 +674,8 @@
           <div class="uk-card uk-card-default uk-card-body design-preview-card">
             <div class="uk-flex uk-flex-between uk-flex-middle">
               <div>
-                <h3 class="uk-card-title uk-margin-remove">Live Preview</h3>
-                <p class="uk-text-meta uk-margin-remove">Änderungen wirken sofort</p>
+                <h3 class="uk-card-title uk-margin-remove">{{ t('heading_design_live_preview') }}</h3>
+                <p class="uk-text-meta uk-margin-remove">{{ t('text_design_live_preview_hint') }}</p>
               </div>
               <div class="uk-button-group" data-theme-toggle>
                 <button type="button" class="uk-button uk-button-default" data-theme-choice="light" aria-pressed="false">Light</button>
@@ -714,9 +710,9 @@
                 <div class="design-preview__badge">{{ activePageNamespace }}</div>
                 <div class="design-preview__section design-preview__section--primary">
                   <div class="design-preview__section-label">Hero / Primary</div>
-                  <h2 class="design-preview__headline">Gestaltete Überschrift</h2>
+                  <h2 class="design-preview__headline">{{ t('label_design_preview_headline') }}</h2>
                   <p class="design-preview__copy">
-                    Einheitliche Design-Tokens sorgen für konsistente Farben, Abstände und Komponenten.
+                    {{ t('text_design_preview_copy') }}
                   </p>
                   <div class="design-preview__cta-group">
                     <button class="uk-button uk-button-primary design-preview__button">Primary Action</button>
@@ -738,7 +734,7 @@
                   </div>
                   <div class="design-preview__effects" data-preview-effects>
                     <div class="design-preview__effects-item">
-                      <span class="design-preview__effects-pill">Verhalten</span>
+                      <span class="design-preview__effects-pill">{{ t('tab_design_behavior') }}</span>
                       <span class="design-preview__effects-value" data-preview-meta="effectsProfile">
                         {{ effectsProfiles[effects.effectsProfile].label|default(effects.effectsProfile) }}
                       </span>
@@ -749,46 +745,46 @@
                     </div>
                     <div class="design-preview__effects-item">
                       <span class="design-preview__effects-pill design-preview__effects-pill--muted">Scroll</span>
-                      <span class="design-preview__effects-value">Abschnitte erscheinen beim Scrollen</span>
+                      <span class="design-preview__effects-value">{{ t('text_design_scroll_sections_appear') }}</span>
                     </div>
                   </div>
                 </div>
                 <div class="design-preview__section design-preview__section--secondary">
                   <div class="design-preview__section-label">CTA / Secondary</div>
-                  <h3 class="design-preview__headline" style="font-size:24px">Jetzt starten</h3>
+                  <h3 class="design-preview__headline" style="font-size:24px">{{ t('label_design_preview_get_started') }}</h3>
                   <div class="design-preview__cta-group">
-                    <button class="uk-button uk-button-primary design-preview__button">Demo ansehen</button>
-                    <button class="uk-button uk-button-default design-preview__button-secondary">Kontakt</button>
+                    <button class="uk-button uk-button-primary design-preview__button">{{ t('label_design_preview_view_demo') }}</button>
+                    <button class="uk-button uk-button-default design-preview__button-secondary">{{ t('label_design_preview_contact') }}</button>
                   </div>
                 </div>
-                <footer class="design-preview__footer" aria-label="Footer Vorschau">
+                <footer class="design-preview__footer" aria-label="{{ t('tab_design_preview') }}">
                   <div class="design-preview__footer-brand">
                     <strong class="design-preview__footer-name">QuizRace</strong>
                     <span class="design-preview__footer-tagline">Business Footer mit klaren Rollen und Links.</span>
                   </div>
                   <div class="design-preview__footer-columns">
                     <div class="design-preview__footer-column">
-                      <span class="design-preview__footer-title">Unternehmen</span>
+                      <span class="design-preview__footer-title">{{ t('label_design_preview_company') }}</span>
                       <ul class="design-preview__footer-list">
-                        <li><a class="design-preview__footer-link" href="#">Über uns</a></li>
-                        <li><a class="design-preview__footer-link" href="#">Leistungen</a></li>
-                        <li><a class="design-preview__footer-link" href="#">Karriere</a></li>
+                        <li><a class="design-preview__footer-link" href="#">{{ t('label_design_preview_about') }}</a></li>
+                        <li><a class="design-preview__footer-link" href="#">{{ t('label_design_preview_services') }}</a></li>
+                        <li><a class="design-preview__footer-link" href="#">{{ t('label_design_preview_careers') }}</a></li>
                       </ul>
                     </div>
                     <div class="design-preview__footer-column">
-                      <span class="design-preview__footer-title">Ressourcen</span>
+                      <span class="design-preview__footer-title">{{ t('label_design_preview_resources') }}</span>
                       <ul class="design-preview__footer-list">
                         <li><a class="design-preview__footer-link" href="#">Support</a></li>
                         <li><a class="design-preview__footer-link" href="#">FAQ</a></li>
-                        <li><a class="design-preview__footer-link" href="#">Kontakt</a></li>
+                        <li><a class="design-preview__footer-link" href="#">{{ t('label_design_preview_contact') }}</a></li>
                       </ul>
                     </div>
                     <div class="design-preview__footer-column">
-                      <span class="design-preview__footer-title">Rechtliches</span>
+                      <span class="design-preview__footer-title">{{ t('label_design_preview_legal') }}</span>
                       <ul class="design-preview__footer-list">
-                        <li><a class="design-preview__footer-link" href="#">Impressum</a></li>
-                        <li><a class="design-preview__footer-link" href="#">Datenschutz</a></li>
-                        <li><a class="design-preview__footer-link" href="#">AGB</a></li>
+                        <li><a class="design-preview__footer-link" href="#">{{ t('label_design_preview_imprint') }}</a></li>
+                        <li><a class="design-preview__footer-link" href="#">{{ t('label_design_preview_privacy') }}</a></li>
+                        <li><a class="design-preview__footer-link" href="#">{{ t('label_design_preview_terms') }}</a></li>
                       </ul>
                     </div>
                   </div>
