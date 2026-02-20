@@ -1,11 +1,11 @@
 #!/bin/sh
-# Restart tenant or main container
+# Restart the main application container
 set -e
 
 SCRIPT_DIR="$(dirname "$0")"
 
 if [ "$#" -lt 1 ]; then
-  echo "Usage: $0 <tenant-slug>|--main" >&2
+  echo "Usage: $0 --main" >&2
   exit 1
 fi
 
@@ -23,11 +23,8 @@ if [ "$1" = "--main" ] || [ "$1" = "--system" ]; then
   COMPOSE_FILE="$SCRIPT_DIR/../docker-compose.yml"
   SERVICE="slim"
 else
-  SLUG="$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')"
-  TENANTS_DIR="${TENANTS_DIR:-$SCRIPT_DIR/../tenants}"
-  TENANT_DIR="$TENANTS_DIR/$SLUG"
-  COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
-  SERVICE="app"
+  echo "Only --main is supported. Per-tenant containers have been removed." >&2
+  exit 1
 fi
 
 if [ ! -f "$COMPOSE_FILE" ]; then
