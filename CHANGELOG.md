@@ -323,6 +323,7 @@
 - *(ai)* Add progress log and spinner to AI page generation modal
 - *(quota)* Add namespace-based quota logging system
 - *(dashboard)* Display all quota metrics on admin dashboard
+- *(media)* Restrict project media access to authenticated namespace users
 
 ### Fix
 
