@@ -1356,8 +1356,12 @@ async function runQuiz(questions, skipIntro){
     const instr = document.createElement('p');
     instr.id = 'sort-desc-' + idx;
     instr.className = 'uk-hidden-visually';
-    instr.textContent = 'Mit Pfeil nach oben oder unten verschiebst du den aktuellen Eintrag.'; // oder die andere Formulierung
+    instr.textContent = 'Mit Pfeil nach oben oder unten verschiebst du den aktuellen Eintrag.';
     div.appendChild(instr);
+    const sortHint = document.createElement('p');
+    sortHint.className = 'uk-text-meta uk-margin-small-bottom';
+    sortHint.textContent = 'Eintr\u00e4ge in die richtige Reihenfolge ziehen.';
+    div.appendChild(sortHint);
     const ul = document.createElement('ul');
     ul.className = 'uk-list uk-list-divider sortable-list uk-margin';
     ul.setAttribute('aria-dropeffect', 'move');
@@ -1573,6 +1577,7 @@ async function runQuiz(questions, skipIntro){
             const item = evt.item;
             zone.textContent = insertSoftHyphens(zone.dataset.definition) + ' \u2013 ' + item.textContent;
             zone.dataset.dropped = item.dataset.term;
+            zone.classList.add('is-filled');
             item.remove();
           }
         });
@@ -1594,6 +1599,7 @@ async function runQuiz(questions, skipIntro){
         if((e.key === 'Enter' || e.key === ' ') && div._selectedTerm){
           zone.textContent = insertSoftHyphens(zone.dataset.definition) + ' \u2013 ' + div._selectedTerm.textContent;
           zone.dataset.dropped = div._selectedTerm.dataset.term;
+          zone.classList.add('is-filled');
           div._selectedTerm.style.visibility = 'hidden';
           div._selectedTerm.setAttribute('aria-grabbed','false');
           div._selectedTerm = null;
@@ -1656,6 +1662,7 @@ async function runQuiz(questions, skipIntro){
     });
     div.querySelectorAll('.dropzone').forEach(zone => {
       zone.textContent = insertSoftHyphens(zone.dataset.definition);
+      zone.classList.remove('is-filled');
       delete zone.dataset.dropped;
     });
     feedback.textContent = '';
@@ -1684,6 +1691,17 @@ async function runQuiz(questions, skipIntro){
       correct,
       correct ? '✅ Korrekt!' : '❌ Das ist nicht korrekt.'
     );
+    // Optionen farblich markieren und deaktivieren
+    div.querySelectorAll('.mc-option').forEach((opt, i) => {
+      const cb = opt.querySelector('input[type="checkbox"]');
+      if(cb) cb.disabled = true;
+      opt.classList.remove('is-correct', 'is-wrong');
+      if(correctIndices.includes(i)){
+        opt.classList.add('is-correct');
+      } else if(selected.includes(i)){
+        opt.classList.add('is-wrong');
+      }
+    });
     updateAnswerEntry(idx, {}, div);
   }
 
@@ -1758,6 +1776,11 @@ async function runQuiz(questions, skipIntro){
     h.textContent = insertSoftHyphens(q.prompt);
     div.appendChild(h);
 
+    const swipeHint = document.createElement('p');
+    swipeHint.className = 'uk-text-meta uk-margin-small-bottom';
+    swipeHint.textContent = 'Karte nach links oder rechts wischen.';
+    div.appendChild(swipeHint);
+
     const container = document.createElement('div');
     container.className = 'swipe-container';
     div.appendChild(container);
@@ -1793,24 +1816,24 @@ async function runQuiz(questions, skipIntro){
     const leftStatic = document.createElement('div');
     leftStatic.textContent = '\u2B05 ' + insertSoftHyphens(q.leftLabel || 'Nein');
     leftStatic.style.position = 'absolute';
-    leftStatic.style.left = '0';
-    leftStatic.style.top = '50%';
-    leftStatic.style.transform = 'translate(-50%, -50%) rotate(180deg)';
-    leftStatic.style.writingMode = 'vertical-rl';
+    leftStatic.style.left = '0.5rem';
+    leftStatic.style.bottom = '0.5rem';
     leftStatic.style.pointerEvents = 'none';
     leftStatic.style.color = 'red';
+    leftStatic.style.fontWeight = '600';
+    leftStatic.style.fontSize = '0.85rem';
     leftStatic.style.zIndex = '10';
     container.appendChild(leftStatic);
 
     const rightStatic = document.createElement('div');
     rightStatic.textContent = insertSoftHyphens(q.rightLabel || 'Ja') + ' \u27A1';
     rightStatic.style.position = 'absolute';
-    rightStatic.style.right = '0';
-    rightStatic.style.top = '50%';
-    rightStatic.style.transform = 'translate(50%, -50%)';
-    rightStatic.style.writingMode = 'vertical-rl';
+    rightStatic.style.right = '0.5rem';
+    rightStatic.style.bottom = '0.5rem';
     rightStatic.style.pointerEvents = 'none';
     rightStatic.style.color = 'green';
+    rightStatic.style.fontWeight = '600';
+    rightStatic.style.fontSize = '0.85rem';
     rightStatic.style.zIndex = '10';
     container.appendChild(rightStatic);
 
@@ -1981,6 +2004,14 @@ async function runQuiz(questions, skipIntro){
     feedback.setAttribute('role','alert');
     feedback.setAttribute('aria-live','polite');
 
+    const photoPreview = document.createElement('img');
+    photoPreview.className = 'uk-margin-small-top';
+    photoPreview.style.maxWidth = '100%';
+    photoPreview.style.maxHeight = '180px';
+    photoPreview.style.borderRadius = '6px';
+    photoPreview.hidden = true;
+    photoPreview.alt = 'Vorschau';
+
     uploadBtn.addEventListener('click', () => {
       if(div.dataset.timedOut === '1') return;
       const user = getStored(STORAGE_KEYS.PLAYER_NAME) || '';
@@ -1989,6 +2020,10 @@ async function runQuiz(questions, skipIntro){
         feedback.textContent = 'Foto gespeichert';
         feedback.classList.remove('uk-text-danger', 'question-feedback--timeout');
         feedback.classList.add('uk-text-success');
+        if(photoPath){
+          photoPreview.src = photoPath;
+          photoPreview.hidden = false;
+        }
       }, !!q.consent);
     });
 
@@ -2014,6 +2049,7 @@ async function runQuiz(questions, skipIntro){
     });
 
     div.appendChild(uploadBtn);
+    div.appendChild(photoPreview);
     div.appendChild(text);
     div.appendChild(feedback);
     div.appendChild(nextBtn);
@@ -2038,9 +2074,13 @@ async function runQuiz(questions, skipIntro){
     inner.appendChild(front);
     inner.appendChild(back);
     card.appendChild(inner);
+    const flipHint = document.createElement('p');
+    flipHint.className = 'flip-hint';
+    flipHint.textContent = 'Klicken zum Aufdecken';
     const toggle = () => {
       if(div.dataset.timedOut === '1') return;
       card.classList.toggle('flipped');
+      flipHint.classList.add('is-hidden');
     };
     card.addEventListener('click', toggle);
     card.addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' ') { e.preventDefault(); toggle(); } });
@@ -2055,6 +2095,7 @@ async function runQuiz(questions, skipIntro){
     feedback.setAttribute('role','status');
     feedback.setAttribute('aria-live','polite');
     div.appendChild(card);
+    div.appendChild(flipHint);
     div.appendChild(feedback);
     div.appendChild(nextBtn);
     return div;

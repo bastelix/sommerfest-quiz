@@ -7251,56 +7251,150 @@ document.addEventListener('DOMContentLoaded', function () {
     undoStack = [JSON.parse(JSON.stringify(initial))];
   }
 
-  // Erstellt ein Bearbeitungsformular für eine Frage
+  // Erstellt ein Bearbeitungsformular für eine Frage (Block-Card-Pattern)
   function createCard(q, index = -1) {
     const card = document.createElement('div');
-    card.className = 'uk-card qr-card uk-card-body uk-margin question-card';
+    card.className = 'question-block-card question-card';
     if (index >= 0) {
       card.dataset.index = String(index);
     }
-    const typeSelect = document.createElement('select');
-    typeSelect.className = 'uk-select uk-margin-small-bottom type-select';
+
+    const TYPES = ['sort', 'assign', 'mc', 'swipe', 'photoText', 'flip'];
     const labelMap = {
       mc: window.transQuizTypeMc || 'Multiple Choice',
       assign: window.transQuizTypeAssign || 'Assign',
       sort: window.transQuizTypeSort || 'Sort',
-      swipe: window.transQuizTypeSwipe || 'Swipe cards',
-      photoText: window.transQuizTypePhotoText || 'Photo + Text',
-      flip: window.transQuizTypeFlip || 'Did you know?'
+      swipe: window.transQuizTypeSwipe || 'Swipe',
+      photoText: window.transQuizTypePhotoText || 'Foto+Text',
+      flip: window.transQuizTypeFlip || 'Wusstest du?'
     };
-    ['sort', 'assign', 'mc', 'swipe', 'photoText', 'flip'].forEach(t => {
+    const abbrMap = { mc: 'MC', assign: 'A', sort: 'S', swipe: 'T', photoText: 'P', flip: 'F' };
+    const colorMap = { sort: '#1e87f0', assign: '#32d296', mc: '#f0506e', swipe: '#faa05a', flip: '#7c5cbf', photoText: '#6c757d' };
+    const infoMap = {
+      sort: window.transQuizInfoSort || 'Put items in the correct order.',
+      assign: window.transQuizInfoAssign || 'Match terms to their definitions.',
+      mc: window.transQuizInfoMc || 'Multiple choice (several answers possible).',
+      swipe: window.transQuizInfoSwipe || 'Swipe cards left or right.',
+      photoText: window.transQuizInfoPhotoText || 'Take a photo and enter the matching answer.',
+      flip: window.transQuizInfoFlip || 'Question with a flippable answer card.'
+    };
+
+    // Hidden select preserved for collect() compatibility
+    const typeSelect = document.createElement('select');
+    typeSelect.className = 'type-select';
+    typeSelect.style.display = 'none';
+    TYPES.forEach(t => {
       const opt = document.createElement('option');
       opt.value = t;
       opt.textContent = labelMap[t] || t;
       typeSelect.appendChild(opt);
     });
     typeSelect.value = q.type || 'mc';
+
+    // ── Summary row ──────────────────────────────────────────────────────
+    const summary = document.createElement('div');
+    summary.className = 'question-block-card__summary';
+
+    const dragHandle = document.createElement('div');
+    dragHandle.className = 'question-block-card__drag';
+    dragHandle.setAttribute('aria-hidden', 'true');
+    dragHandle.setAttribute('uk-icon', 'table');
+    summary.appendChild(dragHandle);
+
+    const typeBadge = document.createElement('div');
+    typeBadge.className = 'question-block-card__icon question-block-card__icon--' + (q.type || 'mc');
+    typeBadge.textContent = abbrMap[q.type || 'mc'] || '?';
+    summary.appendChild(typeBadge);
+
+    const numberBadge = document.createElement('span');
+    numberBadge.className = 'question-block-card__number';
+    numberBadge.textContent = index >= 0 ? String(index + 1) : '#';
+    summary.appendChild(numberBadge);
+
+    const infoEl = document.createElement('div');
+    infoEl.className = 'question-block-card__info';
+    const titleEl = document.createElement('div');
+    titleEl.className = 'question-block-card__title';
+    titleEl.textContent = q.prompt || ('Neue ' + (labelMap[q.type || 'mc'] || 'Frage'));
+    const metaEl = document.createElement('div');
+    metaEl.className = 'question-block-card__meta';
+    infoEl.appendChild(titleEl);
+    infoEl.appendChild(metaEl);
+    summary.appendChild(infoEl);
+
+    const actions = document.createElement('div');
+    actions.className = 'question-block-card__actions';
+    const editBtn = document.createElement('button');
+    editBtn.setAttribute('uk-icon', 'pencil');
+    editBtn.setAttribute('aria-label', 'Bearbeiten');
+    editBtn.setAttribute('type', 'button');
+    editBtn.className = 'btn-edit';
+    const dupBtn = document.createElement('button');
+    dupBtn.setAttribute('uk-icon', 'copy');
+    dupBtn.setAttribute('aria-label', 'Duplizieren');
+    dupBtn.setAttribute('type', 'button');
+    dupBtn.className = 'btn-duplicate';
+    const deleteBtn = document.createElement('button');
+    deleteBtn.setAttribute('uk-icon', 'trash');
+    deleteBtn.setAttribute('aria-label', 'Entfernen');
+    deleteBtn.setAttribute('type', 'button');
+    deleteBtn.className = 'btn-delete';
+    actions.appendChild(editBtn);
+    actions.appendChild(dupBtn);
+    actions.appendChild(deleteBtn);
+    summary.appendChild(actions);
+    card.appendChild(summary);
+
+    // ── Edit area ────────────────────────────────────────────────────────
+    const editArea = document.createElement('div');
+    editArea.className = 'question-block-card__edit-area';
+    if (index >= 0) editArea.classList.add('is-collapsed'); // existing cards start collapsed
+
+    // Type selector grid
+    const typeGrid = document.createElement('div');
+    typeGrid.className = 'question-type-grid uk-margin-small-bottom';
+    TYPES.forEach(t => {
+      const opt = document.createElement('div');
+      opt.className = 'question-type-option' + (typeSelect.value === t ? ' is-active' : '');
+      opt.setAttribute('role', 'button');
+      opt.setAttribute('tabindex', '0');
+      opt.setAttribute('aria-label', labelMap[t] || t);
+      const badge = document.createElement('div');
+      badge.className = 'question-type-option__badge';
+      badge.style.background = colorMap[t] || '#999';
+      badge.textContent = abbrMap[t] || t;
+      const lbl = document.createElement('span');
+      lbl.textContent = labelMap[t] || t;
+      opt.appendChild(badge);
+      opt.appendChild(lbl);
+      opt.addEventListener('click', () => {
+        typeSelect.value = t;
+        typeGrid.querySelectorAll('.question-type-option').forEach(o => o.classList.remove('is-active'));
+        opt.classList.add('is-active');
+        typeBadge.className = 'question-block-card__icon question-block-card__icon--' + t;
+        typeBadge.textContent = abbrMap[t] || '?';
+        updateInfo();
+        renderFields();
+        updatePointsState();
+        updatePreview();
+        updateSummary();
+      });
+      opt.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opt.click(); } });
+      typeGrid.appendChild(opt);
+    });
+    editArea.appendChild(typeSelect);
+    editArea.appendChild(typeGrid);
+
     const typeInfo = document.createElement('div');
     typeInfo.className = 'uk-alert-primary uk-margin-small-bottom type-info';
-    // Infotext passend zum gewählten Fragetyp anzeigen
-    function updateInfo() {
-      const map = {
-        sort: window.transQuizInfoSort || 'Put items in the correct order.',
-        assign: window.transQuizInfoAssign || 'Match terms to their definitions.',
-        mc: window.transQuizInfoMc || 'Multiple choice (several answers possible).',
-        swipe: window.transQuizInfoSwipe || 'Swipe cards left or right.',
-        photoText: window.transQuizInfoPhotoText || 'Take a photo and enter the matching answer.',
-        flip: window.transQuizInfoFlip || 'Question with a flippable answer card.'
-      };
-      const base = map[typeSelect.value] || '';
-      typeInfo.textContent = base + ' ' + (window.transQuizInfoSoftHyphen || 'For small displays you can use "/-" as a hidden soft hyphen.');
-    }
-    updateInfo();
-    typeSelect.addEventListener('change', () => {
-      renderFields();
-      updateInfo();
-      updatePointsState();
-      updatePreview();
-    });
+    editArea.appendChild(typeInfo);
+
     const prompt = document.createElement('textarea');
     prompt.className = 'uk-textarea uk-margin-small-bottom prompt';
     prompt.placeholder = window.transQuestionText || 'Question text';
     prompt.value = q.prompt || '';
+    editArea.appendChild(prompt);
+
     const countdownEnabled = isCountdownFeatureEnabled();
     const defaultCountdown = getDefaultCountdownSeconds();
     const countdownId = `countdown-${cardIndex}`;
@@ -7319,9 +7413,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (hasCountdown && q.countdown !== null && q.countdown !== undefined) {
       countdownInput.value = String(q.countdown);
     }
-    countdownInput.placeholder = defaultCountdown !== null
-      ? `Standard: ${defaultCountdown}s`
-      : 'z.\u00A0B. 45';
+    countdownInput.placeholder = defaultCountdown !== null ? `Standard: ${defaultCountdown}s` : 'z.\u00A0B. 45';
     countdownInput.disabled = !countdownEnabled;
     const countdownMeta = document.createElement('div');
     countdownMeta.className = 'uk-text-meta';
@@ -7334,13 +7426,15 @@ document.addEventListener('DOMContentLoaded', function () {
     countdownGroup.appendChild(countdownLabel);
     countdownGroup.appendChild(countdownInput);
     countdownGroup.appendChild(countdownMeta);
+    editArea.appendChild(countdownGroup);
+
     const pointsId = `points-${cardIndex}`;
     const pointsGroup = document.createElement('div');
     pointsGroup.className = 'uk-margin-small-bottom question-points-group';
     const pointsLabel = document.createElement('label');
     pointsLabel.className = 'uk-form-label';
     pointsLabel.setAttribute('for', pointsId);
-    pointsLabel.textContent = 'Punkte (0–10000)';
+    pointsLabel.textContent = 'Punkte (0\u201310000)';
     const pointsInput = document.createElement('input');
     pointsInput.className = 'uk-input points-input';
     pointsInput.type = 'number';
@@ -7361,63 +7455,49 @@ document.addEventListener('DOMContentLoaded', function () {
     pointsGroup.appendChild(pointsInput);
     pointsGroup.appendChild(pointsMeta);
     let lastScorablePoints = existingPoints ?? 1;
-
-    function updatePointsState() {
-      const scorable = typeSelect.value !== 'flip';
-      if (!scorable) {
-        const parsed = parseQuestionPoints(pointsInput.value);
-        if (parsed !== null) {
-          lastScorablePoints = parsed;
-        }
-        pointsInput.value = '0';
-        pointsInput.disabled = true;
-        pointsMeta.textContent = 'Dieser Fragetyp vergibt keine Punkte.';
-      } else {
-        pointsInput.disabled = false;
-        const parsed = parseQuestionPoints(pointsInput.value);
-        const fallback = Number.isFinite(lastScorablePoints) ? lastScorablePoints : 1;
-        const value = parsed === null ? fallback : parsed;
-        const normalized = normalizeQuestionPoints(value, true);
-        pointsInput.value = String(normalized);
-        lastScorablePoints = normalized;
-        pointsMeta.textContent = 'Punkte pro Frage (0–10000). Leer ergibt 1 Punkt.';
-      }
-    }
-
-    pointsInput.addEventListener('input', () => {
-      if (typeSelect.value !== 'flip') {
-        const parsed = parseQuestionPoints(pointsInput.value);
-        if (parsed !== null) {
-          const normalized = normalizeQuestionPoints(parsed, true);
-          if (String(normalized) !== pointsInput.value) {
-            pointsInput.value = String(normalized);
-          }
-          lastScorablePoints = normalized;
-        }
-      }
-      updatePreview();
-    });
-
-    pointsInput.addEventListener('blur', () => {
-      if (typeSelect.value === 'flip') {
-        return;
-      }
-      const parsed = parseQuestionPoints(pointsInput.value);
-      const fallback = Number.isFinite(lastScorablePoints) ? lastScorablePoints : 1;
-      const value = parsed === null ? fallback : parsed;
-      const normalized = normalizeQuestionPoints(value, true);
-      pointsInput.value = String(normalized);
-      lastScorablePoints = normalized;
-      updatePreview();
-    });
+    editArea.appendChild(pointsGroup);
 
     const fields = document.createElement('div');
     fields.className = 'fields';
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'uk-icon-button uk-button-danger uk-margin-small-top uk-align-right';
-    removeBtn.setAttribute('uk-icon', 'trash');
-    removeBtn.setAttribute('aria-label', 'Entfernen');
-    removeBtn.onclick = () => {
+    editArea.appendChild(fields);
+
+    const previewLabel = document.createElement('div');
+    previewLabel.className = 'question-block-card__preview-label';
+    previewLabel.textContent = window.transPreview || 'Vorschau';
+    editArea.appendChild(previewLabel);
+
+    const preview = document.createElement('div');
+    preview.className = 'uk-card qr-card uk-card-body question-preview';
+    editArea.appendChild(preview);
+
+    const collapseLink = document.createElement('button');
+    collapseLink.type = 'button';
+    collapseLink.className = 'question-block-card__collapse-btn';
+    collapseLink.textContent = window.transCollapse || 'Einklappen';
+    collapseLink.addEventListener('click', () => {
+      editArea.classList.add('is-collapsed');
+      editBtn.classList.remove('is-active');
+    });
+    editArea.appendChild(collapseLink);
+
+    card.appendChild(editArea);
+
+    // ── Edit toggle ───────────────────────────────────────────────────────
+    function toggleEdit() {
+      const opening = editArea.classList.contains('is-collapsed');
+      editArea.classList.toggle('is-collapsed');
+      editBtn.classList.toggle('is-active', !editArea.classList.contains('is-collapsed'));
+      if (opening) updatePreview();
+    }
+    editBtn.addEventListener('click', toggleEdit);
+    // Double-click on summary row also toggles edit
+    summary.addEventListener('dblclick', e => {
+      if (e.target.closest('.question-block-card__actions')) return;
+      toggleEdit();
+    });
+
+    deleteBtn.addEventListener('click', () => {
+      if (!confirm(window.transConfirmQuestionDelete || 'Frage wirklich löschen?')) return;
       const idx = card.dataset.index;
       if (idx !== undefined) {
         undoStack.push(JSON.parse(JSON.stringify(initial)));
@@ -7436,9 +7516,99 @@ document.addEventListener('DOMContentLoaded', function () {
         card.remove();
         saveQuestions();
       }
-    };
+    });
 
-    // Hilfsfunktionen zum Anlegen der Eingabefelder
+    dupBtn.addEventListener('click', () => {
+      const data = collectSingle(card);
+      if (!data) return;
+      const clone = createCard(data, -1);
+      card.after(clone);
+      saveQuestions();
+    });
+
+    // ── updateInfo ────────────────────────────────────────────────────────
+    function updateInfo() {
+      typeInfo.textContent = (infoMap[typeSelect.value] || '') + ' ' + (window.transQuizInfoSoftHyphen || 'For small displays you can use "/-" as a hidden soft hyphen.');
+    }
+    updateInfo();
+
+    // ── updateSummary ─────────────────────────────────────────────────────
+    function updateSummary() {
+      const t = typeSelect.value;
+      typeBadge.className = 'question-block-card__icon question-block-card__icon--' + t;
+      typeBadge.textContent = abbrMap[t] || '?';
+      titleEl.textContent = prompt.value.trim() || ('Neue ' + (labelMap[t] || 'Frage'));
+      const pts = getPointsValue(card, t);
+      const ptsLabel = t === 'flip'
+        ? (window.transNoScoring || 'Keine Punkte')
+        : (pts === 1 ? (window.transOnePoint || '1 Punkt') : `${pts} ${window.transPoints || 'Punkte'}`);
+      let itemCount = '';
+      if (t === 'sort') {
+        const n = fields.querySelectorAll('.item-row').length;
+        itemCount = n > 0 ? ` \u00b7 ${n} Eintr.` : '';
+      } else if (t === 'assign') {
+        const n = fields.querySelectorAll('.term-row').length;
+        itemCount = n > 0 ? ` \u00b7 ${n} Paare` : '';
+      } else if (t === 'mc') {
+        const n = fields.querySelectorAll('.option-row').length;
+        itemCount = n > 0 ? ` \u00b7 ${n} Opt.` : '';
+      } else if (t === 'swipe') {
+        const n = fields.querySelectorAll('.card-row').length;
+        itemCount = n > 0 ? ` \u00b7 ${n} Karten` : '';
+      }
+      metaEl.textContent = (labelMap[t] || t) + ' \u00b7 ' + ptsLabel + itemCount;
+    }
+    updateSummary();
+
+    // ── updatePointsState ─────────────────────────────────────────────────
+    function updatePointsState() {
+      const scorable = typeSelect.value !== 'flip';
+      if (!scorable) {
+        const parsed = parseQuestionPoints(pointsInput.value);
+        if (parsed !== null) { lastScorablePoints = parsed; }
+        pointsInput.value = '0';
+        pointsInput.disabled = true;
+        pointsMeta.textContent = 'Dieser Fragetyp vergibt keine Punkte.';
+      } else {
+        pointsInput.disabled = false;
+        const parsed = parseQuestionPoints(pointsInput.value);
+        const fallback = Number.isFinite(lastScorablePoints) ? lastScorablePoints : 1;
+        const value = parsed === null ? fallback : parsed;
+        const normalized = normalizeQuestionPoints(value, true);
+        pointsInput.value = String(normalized);
+        lastScorablePoints = normalized;
+        pointsMeta.textContent = 'Punkte pro Frage (0\u201310000). Leer ergibt 1 Punkt.';
+      }
+    }
+
+    pointsInput.addEventListener('input', () => {
+      if (typeSelect.value !== 'flip') {
+        const parsed = parseQuestionPoints(pointsInput.value);
+        if (parsed !== null) {
+          const normalized = normalizeQuestionPoints(parsed, true);
+          if (String(normalized) !== pointsInput.value) { pointsInput.value = String(normalized); }
+          lastScorablePoints = normalized;
+        }
+      }
+      updatePreview();
+      updateSummary();
+    });
+
+    pointsInput.addEventListener('blur', () => {
+      if (typeSelect.value === 'flip') { return; }
+      const parsed = parseQuestionPoints(pointsInput.value);
+      const fallback = Number.isFinite(lastScorablePoints) ? lastScorablePoints : 1;
+      const value = parsed === null ? fallback : parsed;
+      const normalized = normalizeQuestionPoints(value, true);
+      pointsInput.value = String(normalized);
+      lastScorablePoints = normalized;
+      updatePreview();
+      updateSummary();
+    });
+
+    prompt.addEventListener('input', () => { updateSummary(); updatePreview(); });
+
+    // ── Helper functions for type-specific fields ─────────────────────────
     function addItem(value = '') {
       const div = document.createElement('div');
       div.className = 'uk-flex uk-margin-small-bottom item-row';
@@ -7451,6 +7621,7 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
       btn.setAttribute('uk-icon', 'trash');
       btn.setAttribute('aria-label', 'Entfernen');
+      btn.type = 'button';
       btn.onclick = () => { div.remove(); saveQuestions(); };
       div.appendChild(input);
       div.appendChild(btn);
@@ -7477,6 +7648,7 @@ document.addEventListener('DOMContentLoaded', function () {
       rem.className = 'uk-icon-button uk-button-danger uk-button-small';
       rem.setAttribute('uk-icon', 'trash');
       rem.setAttribute('aria-label', 'Entfernen');
+      rem.type = 'button';
       rem.onclick = () => { row.remove(); saveQuestions(); };
       const tDiv = document.createElement('div');
       tDiv.appendChild(tInput);
@@ -7493,26 +7665,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addOption(text = '', checked = false) {
       const row = document.createElement('div');
-      row.className = 'uk-flex uk-margin-small-bottom option-row';
+      row.className = 'uk-flex uk-flex-middle uk-margin-small-bottom option-row';
+      const cbId = 'cb-' + Math.random().toString(36).slice(2, 8);
+      const cbLabel = document.createElement('label');
+      cbLabel.className = 'uk-flex uk-flex-middle uk-margin-small-right';
+      cbLabel.setAttribute('for', cbId);
+      cbLabel.style.gap = '4px';
+      cbLabel.style.whiteSpace = 'nowrap';
       const radio = document.createElement('input');
       radio.type = 'checkbox';
       radio.className = 'uk-checkbox answer';
       radio.name = 'ans' + cardIndex;
       radio.checked = checked;
+      radio.id = cbId;
+      const cbText = document.createElement('span');
+      cbText.className = 'uk-text-meta';
+      cbText.style.fontSize = '0.75rem';
+      cbText.textContent = 'Korrekt';
+      cbLabel.appendChild(radio);
+      cbLabel.appendChild(cbText);
       const input = document.createElement('input');
       input.className = 'uk-input option uk-margin-small-left';
       input.type = 'text';
       input.value = text;
       input.setAttribute('aria-label', 'Antworttext');
-      const optId = 'opt-' + Math.random().toString(36).slice(2, 8);
-      input.id = optId;
-      radio.setAttribute('aria-labelledby', optId);
       const rem = document.createElement('button');
       rem.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
       rem.setAttribute('uk-icon', 'trash');
       rem.setAttribute('aria-label', 'Entfernen');
+      rem.type = 'button';
       rem.onclick = () => { row.remove(); saveQuestions(); };
-      row.appendChild(radio);
+      row.appendChild(cbLabel);
       row.appendChild(input);
       row.appendChild(rem);
       return row;
@@ -7520,30 +7703,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addCard(text = '', correct = false) {
       const row = document.createElement('div');
-      row.className = 'uk-flex uk-margin-small-bottom card-row';
+      row.className = 'swipe-card-row card-row';
       const input = document.createElement('input');
       input.className = 'uk-input card-text';
       input.type = 'text';
       input.value = text;
       input.placeholder = 'Kartentext';
       input.setAttribute('aria-label', 'Kartentext');
+      const checkId = 'cc-' + Math.random().toString(36).slice(2, 8);
+      const checkLabel = document.createElement('label');
+      checkLabel.className = 'swipe-card-row__label';
+      checkLabel.setAttribute('for', checkId);
+      checkLabel.setAttribute('title', '\u2192 Rechts wischen = korrekte Antwort');
       const check = document.createElement('input');
       check.type = 'checkbox';
-      check.className = 'uk-checkbox card-correct uk-margin-left';
+      check.className = 'uk-checkbox card-correct';
       check.checked = correct;
-      check.setAttribute('aria-label', 'Richtige Antwort (rechts)');
+      check.id = checkId;
+      const checkSpan = document.createElement('span');
+      checkSpan.textContent = '\u2192';
+      checkLabel.appendChild(checkSpan);
+      checkLabel.appendChild(check);
       const rem = document.createElement('button');
-      rem.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
+      rem.className = 'uk-icon-button uk-button-danger uk-button-small';
       rem.setAttribute('uk-icon', 'trash');
       rem.setAttribute('aria-label', 'Entfernen');
+      rem.type = 'button';
       rem.onclick = () => { row.remove(); saveQuestions(); };
       row.appendChild(input);
+      row.appendChild(checkLabel);
       row.appendChild(rem);
-      row.appendChild(check);
       return row;
     }
 
-    // Zeigt je nach Fragetyp die passenden Eingabefelder an
+    // ── renderFields ──────────────────────────────────────────────────────
     function renderFields() {
       fields.innerHTML = '';
       if (typeSelect.value === 'sort') {
@@ -7551,27 +7744,32 @@ document.addEventListener('DOMContentLoaded', function () {
         (q.items || ['', '']).forEach(it => list.appendChild(addItem(it)));
         const add = document.createElement('button');
         add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
-        add.setAttribute("uk-icon", "plus");
-        add.setAttribute("aria-label", window.transAddItem || "Add item");
-        add.onclick = e => {
-          e.preventDefault();
-          list.appendChild(addItem(''));
-        };
+        add.setAttribute('uk-icon', 'plus');
+        add.setAttribute('aria-label', window.transAddItem || 'Add item');
+        add.type = 'button';
+        add.onclick = e => { e.preventDefault(); list.appendChild(addItem('')); };
+        const hint = document.createElement('p');
+        hint.className = 'uk-text-meta uk-margin-small-top';
+        hint.textContent = 'Eintr\u00e4ge in der richtigen Reihenfolge eingeben \u2013 beim Spieler werden sie gemischt.';
         fields.appendChild(list);
         fields.appendChild(add);
+        fields.appendChild(hint);
       } else if (typeSelect.value === 'assign') {
+        const header = document.createElement('div');
+        header.className = 'assign-column-header';
+        const hBegriff = document.createElement('span'); hBegriff.textContent = 'Begriff';
+        const hDef = document.createElement('span'); hDef.textContent = 'Definition';
+        const hDel = document.createElement('span');
+        header.appendChild(hBegriff); header.appendChild(hDef); header.appendChild(hDel);
         const list = document.createElement('div');
-        (q.terms || [{ term: '', definition: '' }]).forEach(p =>
-          list.appendChild(addPair(p.term, p.definition))
-        );
+        (q.terms || [{ term: '', definition: '' }]).forEach(p => list.appendChild(addPair(p.term, p.definition)));
         const add = document.createElement('button');
         add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
-        add.setAttribute("uk-icon", "plus");
-        add.setAttribute("aria-label", window.transAddTerm || "Add term");
-        add.onclick = e => {
-          e.preventDefault();
-          list.appendChild(addPair('', ''));
-        };
+        add.setAttribute('uk-icon', 'plus');
+        add.setAttribute('aria-label', window.transAddTerm || 'Add term');
+        add.type = 'button';
+        add.onclick = e => { e.preventDefault(); list.appendChild(addPair('', '')); };
+        fields.appendChild(header);
         fields.appendChild(list);
         fields.appendChild(add);
       } else if (typeSelect.value === 'swipe') {
@@ -7583,7 +7781,6 @@ document.addEventListener('DOMContentLoaded', function () {
         right.value = q.rightLabel || '';
         right.setAttribute('aria-label', window.transSwipeRightLabel || 'Label for swipe right');
         right.setAttribute('uk-tooltip', 'title: ' + (window.transSwipeRightTooltip || 'Text shown when swiping right.') + '; pos: right');
-
         const left = document.createElement('input');
         left.className = 'uk-input uk-margin-small-bottom left-label';
         left.type = 'text';
@@ -7592,18 +7789,25 @@ document.addEventListener('DOMContentLoaded', function () {
         left.value = q.leftLabel || '';
         left.setAttribute('aria-label', window.transSwipeLeftLabel || 'Label for swipe left');
         left.setAttribute('uk-tooltip', 'title: ' + (window.transSwipeLeftTooltip || 'Text shown when swiping left.') + '; pos: right');
-
         fields.appendChild(right);
         fields.appendChild(left);
+        const header = document.createElement('div');
+        header.className = 'swipe-card-header';
+        const hText = document.createElement('span'); hText.textContent = 'Kartentext';
+        const hCorrect = document.createElement('span');
+        hCorrect.textContent = '\u2192 Korrekt';
+        hCorrect.setAttribute('title', 'Rechts wischen = korrekte Antwort');
+        const hDel = document.createElement('span');
+        header.appendChild(hText); header.appendChild(hCorrect); header.appendChild(hDel);
         const list = document.createElement('div');
-        (q.cards || [{ text: '', correct: false }]).forEach(c =>
-          list.appendChild(addCard(c.text, c.correct))
-        );
+        (q.cards || [{ text: '', correct: false }]).forEach(c => list.appendChild(addCard(c.text, c.correct)));
         const add = document.createElement('button');
         add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
-        add.setAttribute("uk-icon", "plus");
-        add.setAttribute("aria-label", window.transAddCard || "Add card");
+        add.setAttribute('uk-icon', 'plus');
+        add.setAttribute('aria-label', window.transAddCard || 'Add card');
+        add.type = 'button';
         add.onclick = e => { e.preventDefault(); list.appendChild(addCard('', false)); };
+        fields.appendChild(header);
         fields.appendChild(list);
         fields.appendChild(add);
       } else if (typeSelect.value === 'flip') {
@@ -7621,18 +7825,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (q.consent) chk.checked = true;
         fields.appendChild(consent);
       } else {
+        // mc
         const list = document.createElement('div');
-        (q.options || ['', '']).forEach((opt, i) =>
-          list.appendChild(addOption(opt, (q.answers || []).includes(i)))
-        );
+        (q.options || ['', '']).forEach((opt, i) => list.appendChild(addOption(opt, (q.answers || []).includes(i))));
         const add = document.createElement('button');
         add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
-        add.setAttribute("uk-icon", "plus");
-        add.setAttribute("aria-label", window.transAddOption || "Add option");
-        add.onclick = e => {
-          e.preventDefault();
-          list.appendChild(addOption(''));
-        };
+        add.setAttribute('uk-icon', 'plus');
+        add.setAttribute('aria-label', window.transAddOption || 'Add option');
+        add.type = 'button';
+        add.onclick = e => { e.preventDefault(); list.appendChild(addOption('')); };
         fields.appendChild(list);
         fields.appendChild(add);
       }
@@ -7640,30 +7841,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderFields();
     updatePointsState();
-
-    // Vorschau-Bereich anlegen
-    const preview = document.createElement('div');
-    preview.className = 'uk-card qr-card uk-card-body question-preview';
-
-    const formCol = document.createElement('div');
-    formCol.appendChild(typeSelect);
-    formCol.appendChild(typeInfo);
-    formCol.appendChild(prompt);
-    formCol.appendChild(countdownGroup);
-    formCol.appendChild(pointsGroup);
-    formCol.appendChild(fields);
-    formCol.appendChild(removeBtn);
-
-    const previewCol = document.createElement('div');
-    previewCol.appendChild(preview);
-
-    const grid = document.createElement('div');
-    grid.className = 'uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m';
-    grid.setAttribute('uk-grid', '');
-    grid.appendChild(formCol);
-    grid.appendChild(previewCol);
-
-    card.appendChild(grid);
 
     function updatePreview() {
       preview.innerHTML = '';
@@ -7856,14 +8033,54 @@ document.addEventListener('DOMContentLoaded', function () {
         render();
         preview.appendChild(container);
       } else if (typeSelect.value === 'flip') {
-        const p = document.createElement('p');
+        const flipContainer = document.createElement('div');
+        flipContainer.style.perspective = '600px';
+        flipContainer.style.height = '120px';
+        const flipCard = document.createElement('div');
+        flipCard.style.width = '100%';
+        flipCard.style.height = '100%';
+        flipCard.style.cursor = 'pointer';
+        flipCard.style.position = 'relative';
+        const flipFront = document.createElement('div');
+        flipFront.style.cssText = 'display:flex;align-items:center;justify-content:center;padding:1rem;height:100%;background:#f8f9fa;border-radius:8px;box-sizing:border-box;';
+        flipFront.textContent = insertSoftHyphens(prompt.value || 'Frage');
+        const flipBack = document.createElement('div');
+        flipBack.style.cssText = 'display:none;align-items:center;justify-content:center;padding:1rem;height:100%;background:var(--brand-primary,#1e87f0);color:#fff;border-radius:8px;box-sizing:border-box;';
         const ans = fields.querySelector('.flip-answer');
-        p.textContent = insertSoftHyphens(ans ? ans.value : 'Antwort');
-        preview.appendChild(p);
+        flipBack.textContent = insertSoftHyphens(ans ? ans.value : 'Antwort');
+        flipCard.appendChild(flipFront);
+        flipCard.appendChild(flipBack);
+        flipContainer.appendChild(flipCard);
+        let flipped = false;
+        flipCard.addEventListener('click', () => {
+          flipped = !flipped;
+          flipFront.style.display = flipped ? 'none' : 'flex';
+          flipBack.style.display = flipped ? 'flex' : 'none';
+        });
+        const flipHintPrev = document.createElement('p');
+        flipHintPrev.className = 'uk-text-meta';
+        flipHintPrev.style.fontSize = '0.8rem';
+        flipHintPrev.textContent = 'Klicken zum Aufdecken';
+        preview.appendChild(flipContainer);
+        preview.appendChild(flipHintPrev);
       } else if (typeSelect.value === 'photoText') {
-        const p = document.createElement('p');
-        p.textContent = 'Foto-Upload und Textfeld';
-        preview.appendChild(p);
+        const photoMock = document.createElement('div');
+        photoMock.style.display = 'flex';
+        photoMock.style.flexDirection = 'column';
+        photoMock.style.gap = '0.5rem';
+        const photoBtn = document.createElement('button');
+        photoBtn.type = 'button';
+        photoBtn.className = 'uk-button uk-button-default';
+        photoBtn.disabled = true;
+        photoBtn.textContent = '\uD83D\uDCF7 Foto aufnehmen';
+        const textInput = document.createElement('input');
+        textInput.type = 'text';
+        textInput.className = 'uk-input';
+        textInput.disabled = true;
+        textInput.placeholder = 'Antwort eingeben \u2026';
+        photoMock.appendChild(photoBtn);
+        photoMock.appendChild(textInput);
+        preview.appendChild(photoMock);
       } else {
         const ul = document.createElement('ul');
         Array.from(fields.querySelectorAll('.option-row')).forEach(r => {
@@ -7878,11 +8095,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    prompt.addEventListener('input', updatePreview);
-    fields.addEventListener('input', updatePreview);
+    fields.addEventListener('input', () => { updatePreview(); updateSummary(); });
     countdownInput.addEventListener('input', updatePreview);
     countdownInput.addEventListener('change', updatePreview);
-    typeSelect.addEventListener('change', updatePreview);
     updatePreview();
 
     cardIndex++;
@@ -7945,6 +8160,43 @@ document.addEventListener('DOMContentLoaded', function () {
       return normalizeQuestionPoints(null, scorable);
     }
     return normalizeQuestionPoints(input.value, scorable);
+  }
+
+  function collectSingle(card) {
+    const type = card.querySelector('.type-select').value;
+    const prompt = card.querySelector('.prompt').value.trim();
+    const obj = { type, prompt };
+    const countdown = getCountdownValue(card);
+    if (countdown !== null) obj.countdown = countdown;
+    obj.points = getPointsValue(card, type);
+    if (type === 'sort') {
+      obj.items = Array.from(card.querySelectorAll('.item-row .item')).map(i => i.value.trim()).filter(Boolean);
+    } else if (type === 'assign') {
+      obj.terms = Array.from(card.querySelectorAll('.term-row')).map(r => ({
+        term: r.querySelector('.term').value.trim(),
+        definition: r.querySelector('.definition').value.trim()
+      })).filter(t => t.term || t.definition);
+    } else if (type === 'swipe') {
+      obj.cards = Array.from(card.querySelectorAll('.card-row')).map(r => ({
+        text: r.querySelector('.card-text').value.trim(),
+        correct: r.querySelector('.card-correct').checked
+      })).filter(c => c.text);
+      const rl = card.querySelector('.right-label');
+      const ll = card.querySelector('.left-label');
+      if (rl && rl.value.trim()) obj.rightLabel = rl.value.trim();
+      if (ll && ll.value.trim()) obj.leftLabel = ll.value.trim();
+    } else if (type === 'flip') {
+      const ans = card.querySelector('.flip-answer');
+      obj.answer = ans ? ans.value.trim() : '';
+    } else if (type === 'photoText') {
+      const chk = card.querySelector('.consent-box');
+      obj.consent = chk ? chk.checked : false;
+    } else {
+      obj.options = Array.from(card.querySelectorAll('.option-row .option')).map(i => i.value.trim()).filter(Boolean);
+      const checks = Array.from(card.querySelectorAll('.option-row .answer'));
+      obj.answers = checks.map((c, i) => (c.checked ? i : -1)).filter(i => i >= 0);
+    }
+    return obj;
   }
 
   function collect() {
