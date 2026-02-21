@@ -76,6 +76,7 @@
 - Add CSS audit analyzing stylesheet conflicts and legacy inclusions
 - Fix inaccuracies in CSS audit
 - *(css)* Document intentional hardcoding in highcontrast.css
+- Add UX/UI improvement plan for tenant onboarding
 
 ### Feat
 
