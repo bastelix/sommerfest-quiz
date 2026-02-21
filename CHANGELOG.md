@@ -325,6 +325,8 @@
 - *(dashboard)* Display all quota metrics on admin dashboard
 - *(media)* Restrict project media access to authenticated namespace users
 - *(auth)* Add Google Sign-In for login and onboarding
+- *(quiz)* Redesign question editor with block-card pattern
+- *(quiz)* Enhance question editor with numbering, duplicate and UX polish
 
 ### Fix
 
