@@ -773,7 +773,7 @@ class TenantService
             if ($planEnum === null) {
                 throw new \RuntimeException('invalid-plan');
             }
-            $maxEvents = $planEnum->limits()['maxEvents'] ?? null;
+            $maxEvents = $planEnum->limits()['events'] ?? $planEnum->limits()['maxEvents'] ?? null;
             if ($maxEvents !== null && $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql') {
                 $pdo = $this->pdo;
                 $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);

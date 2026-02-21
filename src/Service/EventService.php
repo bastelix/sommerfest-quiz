@@ -8,6 +8,7 @@ use PDO;
 use PDOException;
 use App\Service\ConfigService;
 use App\Service\TenantService;
+use App\Service\QuotaService;
 use App\Service\PageService;
 use App\Service\NamespaceValidator;
 
@@ -19,19 +20,25 @@ class EventService
     private PDO $pdo;
     private ConfigService $config;
     private ?TenantService $tenants;
+    private ?QuotaService $quota;
     private string $subdomain;
+    private string $namespaceProjectId;
     private NamespaceValidator $namespaceValidator;
 
     public function __construct(
         PDO $pdo,
         ?ConfigService $config = null,
         ?TenantService $tenants = null,
-        string $subdomain = ''
+        string $subdomain = '',
+        ?QuotaService $quota = null,
+        string $namespaceProjectId = ''
     ) {
         $this->pdo = $pdo;
         $this->config = $config ?? new ConfigService($pdo);
         $this->tenants = $tenants;
+        $this->quota = $quota;
         $this->subdomain = $subdomain;
+        $this->namespaceProjectId = $namespaceProjectId;
         $this->namespaceValidator = new NamespaceValidator();
     }
 
@@ -156,9 +163,21 @@ class EventService
         }
         $existing = $existingStmt->fetchAll(PDO::FETCH_COLUMN);
 
-        if ($this->tenants !== null && $this->subdomain !== '') {
+        if ($this->quota !== null && $this->namespaceProjectId !== '') {
+            $limits = $this->quota->getQuotaOverview($this->namespaceProjectId);
+            $eventsLimit = null;
+            foreach ($limits as $entry) {
+                if ($entry['metric'] === 'events') {
+                    $eventsLimit = $entry['max_value'];
+                    break;
+                }
+            }
+            if ($eventsLimit !== null && count($events) > $eventsLimit) {
+                throw new \RuntimeException('max-events-exceeded');
+            }
+        } elseif ($this->tenants !== null && $this->subdomain !== '') {
             $limits = $this->tenants->getLimitsBySubdomain($this->subdomain);
-            $max = $limits['maxEvents'] ?? null;
+            $max = $limits['events'] ?? $limits['maxEvents'] ?? null;
             if ($max !== null && count($events) > $max) {
                 throw new \RuntimeException('max-events-exceeded');
             }
@@ -234,6 +253,11 @@ class EventService
         }
 
         $this->pdo->commit();
+
+        if ($this->quota !== null && $this->namespaceProjectId !== '') {
+            $totalCount = (int) $this->pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
+            $this->quota->setUsage($this->namespaceProjectId, 'events', $totalCount);
+        }
 
         $countStmt = $this->pdo->query('SELECT uid FROM events LIMIT 2');
         $eventUids = $countStmt->fetchAll(PDO::FETCH_COLUMN);

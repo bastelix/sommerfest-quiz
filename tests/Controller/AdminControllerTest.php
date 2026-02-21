@@ -370,13 +370,13 @@ class AdminControllerTest extends TestCase
             'HTTP_CONTENT_TYPE' => 'application/json',
         ])->withUri(new Uri('http', 'example.com', 80, '/admin/subscription/toggle'));
         $stream1 = fopen('php://temp', 'r+');
-        fwrite($stream1, json_encode(['plan' => 'professional']));
+        fwrite($stream1, json_encode(['plan' => 'standard']));
         rewind($stream1);
         $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream1));
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode((string) $response->getBody(), true);
-        $this->assertSame('professional', $data['plan']);
+        $this->assertSame('standard', $data['plan']);
 
         $request2 = $this->createRequest('POST', '/admin/subscription/toggle', [
             'X-CSRF-Token' => 'tok',
@@ -447,7 +447,7 @@ class AdminControllerTest extends TestCase
         $_ENV['MAIN_DOMAIN'] = 'example.com';
         putenv('STRIPE_PRICE_STARTER=price_start');
         putenv('STRIPE_PRICE_STANDARD=price_standard');
-        putenv('STRIPE_PRICE_PROFESSIONAL=price_pro');
+        putenv('STRIPE_PRICE_FREE=price_free');
         $app = $this->getAppInstance();
         $pdo = new PDO($_ENV['POSTGRES_DSN']);
         $pdo->exec("INSERT INTO tenants(uid, subdomain, stripe_customer_id) VALUES('t1','main','cus_123')");
@@ -479,8 +479,8 @@ class AdminControllerTest extends TestCase
         unset($_ENV['STRIPE_PRICE_STARTER']);
         putenv('STRIPE_PRICE_STANDARD');
         unset($_ENV['STRIPE_PRICE_STANDARD']);
-        putenv('STRIPE_PRICE_PROFESSIONAL');
-        unset($_ENV['STRIPE_PRICE_PROFESSIONAL']);
+        putenv('STRIPE_PRICE_FREE');
+        unset($_ENV['STRIPE_PRICE_FREE']);
     }
 
     /**
@@ -501,7 +501,7 @@ class AdminControllerTest extends TestCase
         $_ENV['MAIN_DOMAIN'] = 'example.com';
         putenv('STRIPE_PRICE_STARTER=price_start');
         putenv('STRIPE_PRICE_STANDARD=price_standard');
-        putenv('STRIPE_PRICE_PROFESSIONAL=price_pro');
+        putenv('STRIPE_PRICE_FREE=price_free');
         $app = $this->getAppInstance();
         $pdo = new PDO($_ENV['POSTGRES_DSN']);
         $pdo->exec("INSERT INTO tenants(uid, subdomain, stripe_customer_id, plan) VALUES('t1','main','cus_123','starter')");
@@ -537,8 +537,8 @@ class AdminControllerTest extends TestCase
         unset($_ENV['STRIPE_PRICE_STARTER']);
         putenv('STRIPE_PRICE_STANDARD');
         unset($_ENV['STRIPE_PRICE_STANDARD']);
-        putenv('STRIPE_PRICE_PROFESSIONAL');
-        unset($_ENV['STRIPE_PRICE_PROFESSIONAL']);
+        putenv('STRIPE_PRICE_FREE');
+        unset($_ENV['STRIPE_PRICE_FREE']);
     }
 
     /**

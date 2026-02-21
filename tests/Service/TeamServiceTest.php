@@ -61,29 +61,29 @@ class TeamServiceTest extends TestCase
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
 
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','free')");
         $tenantSvc = new TenantService($pdo);
         $svc = new TeamService($pdo, $cfg, $tenantSvc, 'sub1');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('max-teams-exceeded');
 
-        $svc->saveAll(['A', 'B', 'C', 'D', 'E', 'F']);
+        $svc->saveAll(['A', 'B', 'C', 'D']);
     }
 
-    public function testSaveAllRespectsStandardTeamLimit(): void {
+    public function testSaveAllRespectsStarterTeamLimit(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('e1')");
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
 
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','standard')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
         $tenantSvc = new TenantService($pdo);
         $svc = new TeamService($pdo, $cfg, $tenantSvc, 'sub1');
 
         $teams = [];
-        for ($i = 0; $i < 11; $i++) {
+        for ($i = 0; $i < 31; $i++) {
             $teams[] = 'T' . $i;
         }
 

@@ -492,7 +492,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         if ($plan === '') {
             $plan = null;
         }
-        $allowed = [null, Plan::STARTER->value, Plan::STANDARD->value, Plan::PROFESSIONAL->value];
+        $allowed = [null, Plan::FREE->value, Plan::STARTER->value, Plan::STANDARD->value];
         if (!in_array($plan, $allowed, true)) {
             return $response->withStatus(400);
         }

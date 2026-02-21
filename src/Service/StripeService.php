@@ -338,9 +338,9 @@ class StripeService
         if ($standard !== '') {
             $map[$standard] = 'standard';
         }
-        $pro = getenv($prefix . 'PRICE_PROFESSIONAL') ?: '';
-        if ($pro !== '') {
-            $map[$pro] = 'professional';
+        $free = getenv($prefix . 'PRICE_FREE') ?: '';
+        if ($free !== '') {
+            $map[$free] = 'free';
         }
         return $map[$priceId] ?? null;
     }
@@ -352,9 +352,9 @@ class StripeService
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
         $map = [
+            'free' => getenv($prefix . 'PRICE_FREE') ?: '',
             'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
             'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
-            'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
         ];
         return $map[$plan] ?? '';
     }
@@ -388,7 +388,6 @@ class StripeService
 
         $priceStarter = getenv($prefix . 'PRICE_STARTER') ?: '';
         $priceStandard = getenv($prefix . 'PRICE_STANDARD') ?: '';
-        $pricePro = getenv($prefix . 'PRICE_PROFESSIONAL') ?: '';
         $pricingTableId = getenv($prefix . 'PRICING_TABLE_ID') ?: '';
 
         $mapRequired = [
@@ -396,7 +395,6 @@ class StripeService
             $prefix . 'PUBLISHABLE_KEY' => $pk,
             $prefix . 'PRICE_STARTER' => $priceStarter,
             $prefix . 'PRICE_STANDARD' => $priceStandard,
-            $prefix . 'PRICE_PROFESSIONAL' => $pricePro,
             $prefix . 'PRICING_TABLE_ID' => $pricingTableId,
         ];
 
@@ -456,7 +454,6 @@ class StripeService
             $prices = [
                 'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
                 'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
-                'pro' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
             ];
             foreach ($prices as $name => $id) {
                 if ($id === '') {
