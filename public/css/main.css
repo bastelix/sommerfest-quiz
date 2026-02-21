@@ -1744,6 +1744,11 @@ body.admin-page {
   align-items: stretch;
 }
 
+.uk-progress.uk-progress-warning::-webkit-progress-value { background-color: #faa05a; }
+.uk-progress.uk-progress-warning::-moz-progress-bar { background-color: #faa05a; }
+.uk-progress.uk-progress-danger::-webkit-progress-value { background-color: #f0506e; }
+.uk-progress.uk-progress-danger::-moz-progress-bar { background-color: #f0506e; }
+
 .dashboard-container #badge-upcoming {
   background-color: #fff;
   color: var(--brand-primary);

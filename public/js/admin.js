@@ -11223,7 +11223,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const formData = new FormData(profileForm);
       const data = {};
       formData.forEach((value, key) => { data[key] = value; });
-      const allowedPlans = ['starter', 'standard', 'professional'];
+      const allowedPlans = ['free', 'starter', 'standard'];
       const allowedBilling = ['credit'];
       if (!allowedPlans.includes(data.plan)) delete data.plan;
       if (!allowedBilling.includes(data.billing_info)) delete data.billing_info;

@@ -181,47 +181,49 @@
     if (!els.length || !state.subscription) return;
     const sub = state.subscription;
     els.forEach(el => {
-      const labels = {
-        plan: el.dataset.labelPlan || 'Plan',
-        events: el.dataset.labelEvents || 'Events',
-        catalogs: el.dataset.labelCatalogs || 'Catalogs',
-        questions: el.dataset.labelQuestions || 'Questions',
-        of: el.dataset.labelOf || '/'
-      };
-      const planKey = sub.plan || '';
-      const planName = el.dataset['plan' + capitalize(planKey)] || planKey || '-';
+      const planLabel = el.dataset.labelPlan || 'Plan';
+      const ofLabel = el.dataset.labelOf || '/';
+      const metricLabels = JSON.parse(el.dataset.metrics || '{}');
+      const planKey = sub.plan || 'free';
+      const planName = el.dataset['plan' + capitalize(planKey)] || planKey;
       const limits = sub.limits || {};
       const usage = sub.usage || {};
       el.textContent = '';
+
       const planDiv = document.createElement('div');
+      planDiv.className = 'uk-margin-small-bottom';
       const strong = document.createElement('strong');
-      strong.textContent = `${labels.plan}: ${planName}`;
+      strong.textContent = `${planLabel}: ${planName}`;
       planDiv.appendChild(strong);
       el.appendChild(planDiv);
 
-      const items = [
-        { label: labels.events, used: usage.events, max: limits.maxEvents },
-        { label: labels.catalogs, used: usage.catalogs, max: limits.maxCatalogsPerEvent },
-        { label: labels.questions, used: usage.questions, max: limits.maxQuestionsPerCatalog }
-      ];
-      items.forEach(it => {
+      const metricKeys = Object.keys(metricLabels);
+      metricKeys.forEach(key => {
+        const label = metricLabels[key];
+        const used = usage[key] ?? 0;
+        const max = limits[key];
+        const hasLimit = max !== null && max !== undefined;
+
         const itemDiv = document.createElement('div');
         itemDiv.className = 'uk-margin-small-top';
         const topDiv = document.createElement('div');
         topDiv.className = 'uk-flex uk-flex-between';
         const spanLabel = document.createElement('span');
-        spanLabel.textContent = it.label;
+        spanLabel.textContent = label;
         const spanUsed = document.createElement('span');
-        const maxText = it.max === null || it.max === undefined ? '∞' : it.max;
-        spanUsed.textContent = `${it.used}${it.max !== null && it.max !== undefined ? ' ' + labels.of + ' ' + maxText : ''}`;
+        spanUsed.className = 'uk-text-meta';
+        const maxText = hasLimit ? max : '∞';
+        spanUsed.textContent = hasLimit ? `${used} ${ofLabel} ${maxText}` : `${used}`;
         topDiv.appendChild(spanLabel);
         topDiv.appendChild(spanUsed);
         itemDiv.appendChild(topDiv);
 
-        if (it.max !== null && it.max !== undefined) {
-          const pct = typeof it.max === 'number' ? Math.min(100, Math.round((it.used / it.max) * 100)) : 0;
+        if (hasLimit && typeof max === 'number') {
+          const pct = max > 0 ? Math.min(100, Math.round((used / max) * 100)) : (used > 0 ? 100 : 0);
           const progress = document.createElement('progress');
           progress.className = 'uk-progress';
+          if (pct >= 90) progress.classList.add('uk-progress-danger');
+          else if (pct >= 70) progress.classList.add('uk-progress-warning');
           progress.value = pct;
           progress.max = 100;
           itemDiv.appendChild(progress);
