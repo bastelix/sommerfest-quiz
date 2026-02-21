@@ -58,6 +58,15 @@
             </div>
             {% endif %}
           </form>
+          {% if google_client_id %}
+          <div class="uk-margin uk-text-center">
+            <hr class="uk-divider-icon">
+          </div>
+          <div id="googleSigninError" class="uk-alert-danger" uk-alert hidden>
+            <p id="googleSigninErrorText"></p>
+          </div>
+          <div id="google-signin-btn" class="uk-flex uk-flex-center uk-margin"></div>
+          {% endif %}
       </div>
       {% if version %}
       <div class="uk-text-center uk-text-meta uk-margin-small-top">Version {{ version }}</div>
@@ -69,4 +78,63 @@
 {% block scripts %}
   <script src="{{ basePath }}/js/custom-icons.js"></script>
   <script src="{{ basePath }}/js/storage.js"></script>
+  {% if google_client_id %}
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    (function () {
+      var basePath = '{{ basePath }}';
+      var clientId = '{{ google_client_id|e('js') }}';
+      function initGoogle() {
+        if (typeof google === 'undefined' || !google.accounts) {
+          return setTimeout(initGoogle, 100);
+        }
+        google.accounts.id.initialize({
+          client_id: clientId,
+          callback: handleGoogleResponse
+        });
+        var container = document.getElementById('google-signin-btn');
+        if (container) {
+          google.accounts.id.renderButton(container, {
+            theme: 'outline',
+            size: 'large',
+            width: container.offsetWidth || 300,
+            text: 'signin_with',
+            locale: 'de'
+          });
+        }
+      }
+      function handleGoogleResponse(response) {
+        var errorBox = document.getElementById('googleSigninError');
+        var errorText = document.getElementById('googleSigninErrorText');
+        if (errorBox) errorBox.hidden = true;
+        fetch(basePath + '/auth/google', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'fetch'
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({ credential: response.credential })
+        })
+          .then(function (res) { return res.json().then(function (data) { return { status: res.status, data: data }; }); })
+          .then(function (result) {
+            if (result.data.redirect) {
+              window.location.href = result.data.redirect;
+            } else {
+              var msg = 'Anmeldung fehlgeschlagen.';
+              if (result.data.error === 'inactive') msg = 'Account noch nicht freigeschaltet.';
+              if (result.data.error === 'unknown') msg = 'Kein Konto mit dieser E-Mail-Adresse gefunden.';
+              if (errorText) errorText.textContent = msg;
+              if (errorBox) errorBox.hidden = false;
+            }
+          })
+          .catch(function () {
+            if (errorText) errorText.textContent = 'Verbindungsfehler. Bitte erneut versuchen.';
+            if (errorBox) errorBox.hidden = false;
+          });
+      }
+      initGoogle();
+    })();
+  </script>
+  {% endif %}
 {% endblock %}

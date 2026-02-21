@@ -62,6 +62,15 @@
       <p>Nach Klick auf die Schaltfläche verschicken wir eine E-Mail mit einem Bestätigungslink. Öffne diesen Link, um deine Adresse zu verifizieren und die Registrierung fortzusetzen.</p>
       <button class="uk-button uk-button-primary" id="sendEmail">Bestätigung senden</button>
       <div id="emailStatus" class="uk-margin-small-top uk-text-success" hidden></div>
+      {% if google_client_id %}
+      <div class="uk-margin uk-text-center">
+        <hr class="uk-divider-icon">
+      </div>
+      <div id="google-onboarding-btn" class="uk-flex uk-flex-center uk-margin"></div>
+      <div id="googleOnboardingError" class="uk-alert-danger uk-margin-small-top" uk-alert hidden>
+        <p id="googleOnboardingErrorText"></p>
+      </div>
+      {% endif %}
     </div>
 
     <div class="uk-card qr-card uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step2" hidden>
@@ -129,7 +138,11 @@
     window.mainDomain = '{{ main_domain }}';
     window.csrfToken = '{{ csrf_token|e('js') }}';
     window.stripeConfigured = {{ stripe_configured ? 'true' : 'false' }};
+    window.googleClientId = '{{ google_client_id|default('')|e('js') }}';
   </script>
+  {% if google_client_id %}
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  {% endif %}
   <script src="{{ basePath }}/js/onboarding.js"></script>
 {% endblock %}
 

@@ -330,6 +330,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Google Sign-In for onboarding (skip email verification)
+  if (window.googleClientId) {
+    const initGoogleOnboarding = () => {
+      if (typeof google === 'undefined' || !google.accounts) {
+        return setTimeout(initGoogleOnboarding, 100);
+      }
+      google.accounts.id.initialize({
+        client_id: window.googleClientId,
+        callback: handleGoogleOnboarding
+      });
+      const container = document.getElementById('google-onboarding-btn');
+      if (container) {
+        google.accounts.id.renderButton(container, {
+          theme: 'outline',
+          size: 'large',
+          width: container.offsetWidth || 300,
+          text: 'continue_with',
+          locale: 'de'
+        });
+      }
+    };
+
+    const handleGoogleOnboarding = async (response) => {
+      const errorBox = document.getElementById('googleOnboardingError');
+      const errorText = document.getElementById('googleOnboardingErrorText');
+      if (errorBox) errorBox.hidden = true;
+
+      try {
+        const res = await fetch(withBase('/auth/google/onboarding'), {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'fetch'
+          },
+          body: JSON.stringify({ credential: response.credential })
+        });
+        const data = await res.json();
+        if (res.ok && data.verified) {
+          verified = true;
+          sessionData.email = data.email;
+          sessionData.verified = true;
+          if (emailInput) emailInput.value = data.email;
+          showStep(2);
+        } else {
+          const msg = 'Verifizierung fehlgeschlagen. Bitte versuche es erneut.';
+          if (errorText) errorText.textContent = msg;
+          if (errorBox) errorBox.hidden = false;
+        }
+      } catch (e) {
+        if (errorText) errorText.textContent = 'Verbindungsfehler. Bitte erneut versuchen.';
+        if (errorBox) errorBox.hidden = false;
+      }
+    };
+
+    initGoogleOnboarding();
+  }
+
   async function finalizeTenant() {
       if (!sessionId || tenantFinalizing) { return; }
       tenantFinalizing = true;
