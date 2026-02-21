@@ -703,6 +703,7 @@
 - Ensure summary updates after event switch
 - Generate sticker background during test
 - Use new sticker background route
+- *(onboarding)* Add Playwright E2E tests for onboarding wizard
 
 ## [0.2.0] - 2025-08-18
 
