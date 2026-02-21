@@ -304,10 +304,15 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
             $stats['media'] += count($mediaReferences['files']) + count($mediaReferences['missing']);
         }
 
-        $usageStmt = $pdo->query('SELECT COUNT(*) FROM events');
-        $eventCount = (int) $usageStmt->fetchColumn();
+        $eventCount = (int) $pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
         $catCount = (int) $pdo->query('SELECT COUNT(*) FROM catalogs')->fetchColumn();
         $qCount = (int) $pdo->query('SELECT COUNT(*) FROM questions')->fetchColumn();
+        $teamCount = (int) $pdo->query('SELECT COUNT(*) FROM teams')->fetchColumn();
+        $pageCount = (int) $pdo->query('SELECT COUNT(*) FROM pages')->fetchColumn();
+        $wikiCount = 0;
+        try { $wikiCount = (int) $pdo->query('SELECT COUNT(*) FROM marketing_page_wiki_articles')->fetchColumn(); } catch (\Throwable $e) {}
+        $newsCount = 0;
+        try { $newsCount = (int) $pdo->query('SELECT COUNT(*) FROM landing_news')->fetchColumn(); } catch (\Throwable $e) {}
         $domainType = (string) $request->getAttribute('domainType');
         $host = $request->getUri()->getHost();
         $sub = $domainType === 'main' ? 'main' : explode('.', $host)[0];
@@ -315,6 +320,9 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $tenantSvc = new TenantService($base);
         $plan = $tenantSvc->getPlanBySubdomain($sub);
         $limits = $tenantSvc->getLimitsBySubdomain($sub);
+        $planEnum = Plan::tryFrom($plan ?? '');
+        $planLimits = $planEnum ? $planEnum->limits() : Plan::FREE->limits();
+        $effectiveLimits = array_merge($planLimits, $limits);
         $payload = [
             'period' => $start->format('Y-m'),
             'today' => $now->format('Y-m-d'),
@@ -322,12 +330,16 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
             'upcoming' => $upcoming,
             'stats' => $stats,
             'subscription' => [
-                'plan' => $plan,
-                'limits' => $limits,
+                'plan' => $plan ?? 'free',
+                'limits' => $effectiveLimits,
                 'usage' => [
                     'events' => $eventCount,
+                    'teams' => $teamCount,
                     'catalogs' => $catCount,
                     'questions' => $qCount,
+                    'pages' => $pageCount,
+                    'wiki_entries' => $wikiCount,
+                    'news_articles' => $newsCount,
                 ],
             ],
         ];

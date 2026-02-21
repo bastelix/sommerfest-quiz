@@ -136,20 +136,24 @@
                         <h3 class="uk-card-title uk-margin-remove">{{ t('heading_subscription_usage') }}</h3>
                         <div data-subscription
                              data-label-plan="{{ t('label_plan') }}"
-                             data-label-events="{{ t('label_events') }}"
-                             data-label-catalogs="{{ t('label_catalogs') }}"
-                             data-label-questions="{{ t('label_questions') }}"
                              data-label-of="{{ t('word_of') }}"
+                             data-plan-free="{{ t('plan_free') }}"
                              data-plan-starter="{{ t('plan_starter') }}"
                              data-plan-standard="{{ t('plan_standard') }}"
-                             data-plan-professional="{{ t('plan_professional') }}"></div>
-                        <label for="planSelect" class="uk-form-label uk-margin-small-top">{{ t('label_plan') }}</label>
-                        <select id="planSelect" class="uk-select">
-                          <option value="">{{ t('plan_none') }}</option>
-                          <option value="starter">{{ t('plan_starter') }}</option>
-                          <option value="standard">{{ t('plan_standard') }}</option>
-                          <option value="professional">{{ t('plan_professional') }}</option>
-                        </select>
+                             data-metrics='{{ {
+                               "events": t("label_events"),
+                               "teams": t("label_teams"),
+                               "catalogs": t("label_catalogs"),
+                               "questions": t("label_questions"),
+                               "pages": t("label_pages"),
+                               "wiki_entries": t("label_wiki_entries"),
+                               "news_articles": t("label_news_articles"),
+                               "chatbots": t("label_chatbots"),
+                               "custom_domains": t("label_custom_domains"),
+                               "namespace_users": t("label_namespace_users"),
+                               "storage_mb": t("label_storage_mb"),
+                               "ai_generations_month": t("label_ai_generations_month")
+                             }|json_encode|raw }}'></div>
                       </div>
                     </div>
 
@@ -2352,9 +2356,9 @@
               data-confirm-cancel="{{ t('confirm_cancel_subscription') }}"
               data-error-subscription-not-found="{{ t('error_subscription_not_found') }}"
               data-error-subscription-update-failed="{{ t('error_subscription_update_failed') }}"
+              data-plan-free="{{ t('plan_free') }}"
               data-plan-starter="{{ t('plan_starter') }}"
-              data-plan-standard="{{ t('plan_standard') }}"
-              data-plan-professional="{{ t('plan_professional') }}"></div>
+              data-plan-standard="{{ t('plan_standard') }}"></div>
             {% if tenant and tenant.imprint_email %}
               <div class="uk-text-meta uk-margin-small-top">{{ t('subscription_email') }}: {{ tenant.imprint_email }}</div>
             {% endif %}
@@ -2365,13 +2369,24 @@
             <h3 class="uk-card-title uk-margin-remove-bottom">{{ t('heading_subscription_usage') }}</h3>
             <div data-subscription
               data-label-plan="{{ t('label_plan') }}"
-              data-label-events="{{ t('label_events') }}"
-              data-label-catalogs="{{ t('label_catalogs') }}"
-              data-label-questions="{{ t('label_questions') }}"
               data-label-of="{{ t('word_of') }}"
+              data-plan-free="{{ t('plan_free') }}"
               data-plan-starter="{{ t('plan_starter') }}"
               data-plan-standard="{{ t('plan_standard') }}"
-              data-plan-professional="{{ t('plan_professional') }}"></div>
+              data-metrics='{{ {
+                "events": t("label_events"),
+                "teams": t("label_teams"),
+                "catalogs": t("label_catalogs"),
+                "questions": t("label_questions"),
+                "pages": t("label_pages"),
+                "wiki_entries": t("label_wiki_entries"),
+                "news_articles": t("label_news_articles"),
+                "chatbots": t("label_chatbots"),
+                "custom_domains": t("label_custom_domains"),
+                "namespace_users": t("label_namespace_users"),
+                "storage_mb": t("label_storage_mb"),
+                "ai_generations_month": t("label_ai_generations_month")
+              }|json_encode|raw }}'></div>
           </div>
 
           {# ── Sektion C: Rechnungen ── #}
@@ -2401,16 +2416,17 @@
           </div>
           {% endif %}
           <h3 class="uk-margin-top">Tarife vergleichen</h3>
-          <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m uk-grid-match" uk-grid>
+          <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m uk-grid-match" uk-grid>
             <div>
               <div class="uk-card qr-card uk-card-body pricing-plan-card" data-plan-card="starter">
                 <div class="uk-text-bold uk-text-large">{{ t('plan_starter') }}</div>
                 <div class="pricing-plan-price">9&nbsp;€<span class="uk-text-meta">/Monat</span></div>
                 <ul class="uk-list uk-list-bullet uk-text-small uk-margin-small-top">
-                  <li>1 gleichzeitiges Event</li>
-                  <li>5 Teams &amp; 5 Kataloge</li>
-                  <li>5 Fragen pro Katalog</li>
-                  <li>PDF-Export (Basis)</li>
+                  <li>3 Events</li>
+                  <li>30 Teams &amp; 15 Kataloge</li>
+                  <li>100 Fragen</li>
+                  <li>5 Seiten &amp; 10 Wiki-Artikel</li>
+                  <li>500 MB Speicher</li>
                 </ul>
                 <button class="uk-button uk-button-default uk-width-1-1 plan-select uk-margin-small-top" data-plan="starter">{{ t('action_start_subscription') }}</button>
               </div>
@@ -2420,28 +2436,15 @@
                 <div class="uk-text-bold uk-text-large">{{ t('plan_standard') }}</div>
                 <div class="pricing-plan-price">39&nbsp;€<span class="uk-text-meta">/Monat</span></div>
                 <ul class="uk-list uk-list-bullet uk-text-small uk-margin-small-top">
-                  <li>3 gleichzeitige Events</li>
-                  <li>10 Teams &amp; 10 Kataloge</li>
-                  <li>10 Fragen pro Katalog</li>
-                  <li>Subdomain</li>
-                  <li>Vollständiger PDF-Export</li>
+                  <li>50 Events</li>
+                  <li>200 Teams &amp; 50 Kataloge</li>
+                  <li>500 Fragen</li>
+                  <li>100 Seiten &amp; 100 Wiki-Artikel</li>
+                  <li>5 GB Speicher</li>
+                  <li>3 Custom Domains</li>
+                  <li>100 KI-Generierungen / Monat</li>
                 </ul>
                 <button class="uk-button uk-button-primary uk-width-1-1 plan-select uk-margin-small-top" data-plan="standard">{{ t('action_start_subscription') }}</button>
-              </div>
-            </div>
-            <div>
-              <div class="uk-card qr-card uk-card-body pricing-plan-card" data-plan-card="professional">
-                <div class="uk-text-bold uk-text-large">{{ t('plan_professional') }}</div>
-                <div class="pricing-plan-price">79&nbsp;€<span class="uk-text-meta">/Monat</span></div>
-                <ul class="uk-list uk-list-bullet uk-text-small uk-margin-small-top">
-                  <li>20 gleichzeitige Events</li>
-                  <li>100 Teams &amp; 50 Kataloge</li>
-                  <li>50 Fragen pro Katalog</li>
-                  <li>Subdomain</li>
-                  <li>Vollständiger PDF-Export</li>
-                  <li>White-Label &amp; Rollenverwaltung</li>
-                </ul>
-                <button class="uk-button uk-button-default uk-width-1-1 plan-select uk-margin-small-top" data-plan="professional">{{ t('action_start_subscription') }}</button>
               </div>
             </div>
           </div>
