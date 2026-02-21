@@ -7306,6 +7306,11 @@ document.addEventListener('DOMContentLoaded', function () {
     typeBadge.textContent = abbrMap[q.type || 'mc'] || '?';
     summary.appendChild(typeBadge);
 
+    const numberBadge = document.createElement('span');
+    numberBadge.className = 'question-block-card__number';
+    numberBadge.textContent = index >= 0 ? String(index + 1) : '#';
+    summary.appendChild(numberBadge);
+
     const infoEl = document.createElement('div');
     infoEl.className = 'question-block-card__info';
     const titleEl = document.createElement('div');
@@ -7324,12 +7329,18 @@ document.addEventListener('DOMContentLoaded', function () {
     editBtn.setAttribute('aria-label', 'Bearbeiten');
     editBtn.setAttribute('type', 'button');
     editBtn.className = 'btn-edit';
+    const dupBtn = document.createElement('button');
+    dupBtn.setAttribute('uk-icon', 'copy');
+    dupBtn.setAttribute('aria-label', 'Duplizieren');
+    dupBtn.setAttribute('type', 'button');
+    dupBtn.className = 'btn-duplicate';
     const deleteBtn = document.createElement('button');
     deleteBtn.setAttribute('uk-icon', 'trash');
     deleteBtn.setAttribute('aria-label', 'Entfernen');
     deleteBtn.setAttribute('type', 'button');
     deleteBtn.className = 'btn-delete';
     actions.appendChild(editBtn);
+    actions.appendChild(dupBtn);
     actions.appendChild(deleteBtn);
     summary.appendChild(actions);
     card.appendChild(summary);
@@ -7337,7 +7348,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Edit area ────────────────────────────────────────────────────────
     const editArea = document.createElement('div');
     editArea.className = 'question-block-card__edit-area';
-    editArea.hidden = (index >= 0); // existing cards start collapsed
+    if (index >= 0) editArea.classList.add('is-collapsed'); // existing cards start collapsed
 
     // Type selector grid
     const typeGrid = document.createElement('div');
@@ -7450,21 +7461,43 @@ document.addEventListener('DOMContentLoaded', function () {
     fields.className = 'fields';
     editArea.appendChild(fields);
 
+    const previewLabel = document.createElement('div');
+    previewLabel.className = 'question-block-card__preview-label';
+    previewLabel.textContent = window.transPreview || 'Vorschau';
+    editArea.appendChild(previewLabel);
+
     const preview = document.createElement('div');
     preview.className = 'uk-card qr-card uk-card-body question-preview';
     editArea.appendChild(preview);
 
+    const collapseLink = document.createElement('button');
+    collapseLink.type = 'button';
+    collapseLink.className = 'question-block-card__collapse-btn';
+    collapseLink.textContent = window.transCollapse || 'Einklappen';
+    collapseLink.addEventListener('click', () => {
+      editArea.classList.add('is-collapsed');
+      editBtn.classList.remove('is-active');
+    });
+    editArea.appendChild(collapseLink);
+
     card.appendChild(editArea);
 
     // ── Edit toggle ───────────────────────────────────────────────────────
-    editBtn.addEventListener('click', () => {
-      const opening = editArea.hidden;
-      editArea.hidden = !editArea.hidden;
-      editBtn.classList.toggle('is-active', !editArea.hidden);
+    function toggleEdit() {
+      const opening = editArea.classList.contains('is-collapsed');
+      editArea.classList.toggle('is-collapsed');
+      editBtn.classList.toggle('is-active', !editArea.classList.contains('is-collapsed'));
       if (opening) updatePreview();
+    }
+    editBtn.addEventListener('click', toggleEdit);
+    // Double-click on summary row also toggles edit
+    summary.addEventListener('dblclick', e => {
+      if (e.target.closest('.question-block-card__actions')) return;
+      toggleEdit();
     });
 
     deleteBtn.addEventListener('click', () => {
+      if (!confirm(window.transConfirmQuestionDelete || 'Frage wirklich löschen?')) return;
       const idx = card.dataset.index;
       if (idx !== undefined) {
         undoStack.push(JSON.parse(JSON.stringify(initial)));
@@ -7485,6 +7518,14 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
+    dupBtn.addEventListener('click', () => {
+      const data = collectSingle(card);
+      if (!data) return;
+      const clone = createCard(data, -1);
+      card.after(clone);
+      saveQuestions();
+    });
+
     // ── updateInfo ────────────────────────────────────────────────────────
     function updateInfo() {
       typeInfo.textContent = (infoMap[typeSelect.value] || '') + ' ' + (window.transQuizInfoSoftHyphen || 'For small displays you can use "/-" as a hidden soft hyphen.');
@@ -7501,7 +7542,21 @@ document.addEventListener('DOMContentLoaded', function () {
       const ptsLabel = t === 'flip'
         ? (window.transNoScoring || 'Keine Punkte')
         : (pts === 1 ? (window.transOnePoint || '1 Punkt') : `${pts} ${window.transPoints || 'Punkte'}`);
-      metaEl.textContent = (labelMap[t] || t) + ' \u00b7 ' + ptsLabel;
+      let itemCount = '';
+      if (t === 'sort') {
+        const n = fields.querySelectorAll('.item-row').length;
+        itemCount = n > 0 ? ` \u00b7 ${n} Eintr.` : '';
+      } else if (t === 'assign') {
+        const n = fields.querySelectorAll('.term-row').length;
+        itemCount = n > 0 ? ` \u00b7 ${n} Paare` : '';
+      } else if (t === 'mc') {
+        const n = fields.querySelectorAll('.option-row').length;
+        itemCount = n > 0 ? ` \u00b7 ${n} Opt.` : '';
+      } else if (t === 'swipe') {
+        const n = fields.querySelectorAll('.card-row').length;
+        itemCount = n > 0 ? ` \u00b7 ${n} Karten` : '';
+      }
+      metaEl.textContent = (labelMap[t] || t) + ' \u00b7 ' + ptsLabel + itemCount;
     }
     updateSummary();
 
@@ -8105,6 +8160,43 @@ document.addEventListener('DOMContentLoaded', function () {
       return normalizeQuestionPoints(null, scorable);
     }
     return normalizeQuestionPoints(input.value, scorable);
+  }
+
+  function collectSingle(card) {
+    const type = card.querySelector('.type-select').value;
+    const prompt = card.querySelector('.prompt').value.trim();
+    const obj = { type, prompt };
+    const countdown = getCountdownValue(card);
+    if (countdown !== null) obj.countdown = countdown;
+    obj.points = getPointsValue(card, type);
+    if (type === 'sort') {
+      obj.items = Array.from(card.querySelectorAll('.item-row .item')).map(i => i.value.trim()).filter(Boolean);
+    } else if (type === 'assign') {
+      obj.terms = Array.from(card.querySelectorAll('.term-row')).map(r => ({
+        term: r.querySelector('.term').value.trim(),
+        definition: r.querySelector('.definition').value.trim()
+      })).filter(t => t.term || t.definition);
+    } else if (type === 'swipe') {
+      obj.cards = Array.from(card.querySelectorAll('.card-row')).map(r => ({
+        text: r.querySelector('.card-text').value.trim(),
+        correct: r.querySelector('.card-correct').checked
+      })).filter(c => c.text);
+      const rl = card.querySelector('.right-label');
+      const ll = card.querySelector('.left-label');
+      if (rl && rl.value.trim()) obj.rightLabel = rl.value.trim();
+      if (ll && ll.value.trim()) obj.leftLabel = ll.value.trim();
+    } else if (type === 'flip') {
+      const ans = card.querySelector('.flip-answer');
+      obj.answer = ans ? ans.value.trim() : '';
+    } else if (type === 'photoText') {
+      const chk = card.querySelector('.consent-box');
+      obj.consent = chk ? chk.checked : false;
+    } else {
+      obj.options = Array.from(card.querySelectorAll('.option-row .option')).map(i => i.value.trim()).filter(Boolean);
+      const checks = Array.from(card.querySelectorAll('.option-row .answer'));
+      obj.answers = checks.map((c, i) => (c.checked ? i : -1)).filter(i => i >= 0);
+    }
+    return obj;
   }
 
   function collect() {
