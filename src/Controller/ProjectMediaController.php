@@ -7,7 +7,7 @@ namespace App\Controller;
 use App\Domain\Roles;
 use App\Service\ConfigService;
 use App\Service\LogService;
-use App\Service\NamespaceResolver;
+use App\Service\NamespaceAccessService;
 use App\Service\NamespaceValidator;
 use App\Support\HttpCacheHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -87,39 +87,27 @@ class ProjectMediaController
 
     private function isNamespaceAllowed(string $requestedNamespace, Request $request): bool
     {
+        $role = $_SESSION['user']['role'] ?? null;
+        if (!is_string($role) || $role === '') {
+            return false;
+        }
+
+        if ($role === Roles::ADMIN) {
+            return true;
+        }
+
         $validator = new NamespaceValidator();
         $normalizedRequested = $validator->normalizeCandidate($requestedNamespace);
         if ($normalizedRequested === null) {
             return false;
         }
 
-        $sessionNamespace = $this->normalizeSessionNamespace($validator);
-        if ($sessionNamespace !== null) {
-            return $sessionNamespace === $normalizedRequested || $this->isAdmin();
-        }
+        $accessService = new NamespaceAccessService();
 
-        $context = (new NamespaceResolver())->resolve($request->withAttribute('namespace', null));
-        $resolved = $context->getNamespace();
-
-        if ($resolved === $normalizedRequested) {
-            return true;
-        }
-
-        return $this->isAdmin();
-    }
-
-    private function normalizeSessionNamespace(NamespaceValidator $validator): ?string
-    {
-        $sessionNamespace = $_SESSION['user']['active_namespace'] ?? null;
-        if (!is_string($sessionNamespace)) {
-            return null;
-        }
-
-        return $validator->normalizeCandidate($sessionNamespace);
-    }
-
-    private function isAdmin(): bool
-    {
-        return ($_SESSION['user']['role'] ?? null) === Roles::ADMIN;
+        return $accessService->shouldExposeNamespace(
+            $normalizedRequested,
+            $accessService->resolveAllowedNamespaces($role),
+            $role
+        );
     }
 }
