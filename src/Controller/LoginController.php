@@ -37,11 +37,14 @@ class LoginController
         }
         $csrf = \App\Support\CsrfTokenHelper::ensure();
 
+        $googleClientId = getenv('GOOGLE_CLIENT_ID') ?: '';
+
         return $view->render($response, 'login.twig', [
             'registration_allowed' => $allowed,
             'reset_success' => $resetSuccess,
             'version' => $version,
             'csrf_token' => $csrf,
+            'google_client_id' => $googleClientId,
         ]);
     }
 

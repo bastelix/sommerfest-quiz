@@ -363,7 +363,8 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     role TEXT NOT NULL DEFAULT 'catalog-editor' CHECK(role IN ('admin','designer','redakteur','catalog-editor','event-manager','analyst','team-manager','service-account','customer')),
-    position INTEGER NOT NULL DEFAULT 0
+    position INTEGER NOT NULL DEFAULT 0,
+    google_id TEXT UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS user_namespaces (

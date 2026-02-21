@@ -74,6 +74,8 @@ class OnboardingController
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
         $pricingTableId = getenv($prefix . 'PRICING_TABLE_ID') ?: '';
 
+        $googleClientId = getenv('GOOGLE_CLIENT_ID') ?: '';
+
         return $view->render(
             $response,
             'onboarding.twig',
@@ -88,6 +90,7 @@ class OnboardingController
                 'stripe_error' => $stripeConfig['error'] ?? null,
                 'stripe_publishable_key' => $publishableKey,
                 'stripe_pricing_table_id' => $pricingTableId,
+                'google_client_id' => $googleClientId,
             ]
         );
     }

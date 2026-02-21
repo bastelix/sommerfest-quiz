@@ -147,6 +147,7 @@ use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
 use App\Controller\OnboardingSessionController;
+use App\Controller\GoogleAuthController;
 use App\Controller\CatalogSessionController;
 use App\Controller\PlayerContactController;
 use App\Controller\PlayerSessionController;
@@ -1053,6 +1054,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         ->add(new CsrfMiddleware());
     $app->get('/register', [RegisterController::class, 'show']);
     $app->post('/register', [RegisterController::class, 'register']);
+    $app->post('/auth/google', [GoogleAuthController::class, 'login'])
+        ->add(new RateLimitMiddleware(10, 60));
+    $app->post('/auth/google/onboarding', [GoogleAuthController::class, 'onboarding'])
+        ->add(new RateLimitMiddleware(10, 60));
     $app->get('/password/reset/request', function (Request $request, Response $response) {
         $view = Twig::fromRequest($request);
         $csrf = \App\Support\CsrfTokenHelper::ensure();

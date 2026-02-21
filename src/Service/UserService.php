@@ -98,6 +98,36 @@ class UserService
     }
 
     /**
+     * Find a user by Google subject identifier.
+     *
+     * @return array{
+     *     id:int,
+     *     username:string,
+     *     password:string,
+     *     email:?string,
+     *     role:string,
+     *     active:bool,
+     *     namespaces:list<array{namespace:string,is_default:bool}>
+     * }|null
+     */
+    public function getByGoogleId(string $googleId): ?array {
+        $stmt = $this->pdo->prepare(
+            'SELECT id,username,password,email,role,active FROM users WHERE google_id = ?'
+        );
+        $stmt->execute([$googleId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row !== false ? $this->attachNamespaces($row) : null;
+    }
+
+    /**
+     * Store the Google subject identifier for a user.
+     */
+    public function setGoogleId(int $userId, string $googleId): void {
+        $stmt = $this->pdo->prepare('UPDATE users SET google_id = ? WHERE id = ?');
+        $stmt->execute([$googleId, $userId]);
+    }
+
+    /**
      * Create a new user with the given role.
      *
      * @throws UsernameBlockedException

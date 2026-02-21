@@ -166,7 +166,8 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     email TEXT UNIQUE,
-    role user_role NOT NULL DEFAULT 'catalog-editor'
+    role user_role NOT NULL DEFAULT 'catalog-editor',
+    google_id TEXT UNIQUE
 );
 
 -- User namespaces
