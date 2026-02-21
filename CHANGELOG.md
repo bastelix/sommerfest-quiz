@@ -77,6 +77,7 @@
 - Fix inaccuracies in CSS audit
 - *(css)* Document intentional hardcoding in highcontrast.css
 - Add UX/UI improvement plan for tenant onboarding
+- Add FEATURES-MARKETING.md with comprehensive feature documentation
 
 ### Feat
 
