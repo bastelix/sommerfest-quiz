@@ -324,6 +324,7 @@
 - *(quota)* Add namespace-based quota logging system
 - *(dashboard)* Display all quota metrics on admin dashboard
 - *(media)* Restrict project media access to authenticated namespace users
+- *(auth)* Add Google Sign-In for login and onboarding
 
 ### Fix
 
