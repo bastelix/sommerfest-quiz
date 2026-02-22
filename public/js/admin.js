@@ -9862,6 +9862,17 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       usersLoading = true;
       userManager.setColumnLoading('username', true);
+
+      const inline = window.initialUsers;
+      if (Array.isArray(inline) && inline.length > 0) {
+        window.initialUsers = null;
+        renderUsers(inline);
+        usersInitialized = true;
+        usersLoading = false;
+        userManager.setColumnLoading('username', false);
+        return;
+      }
+
       apiFetch('/users.json', { headers: { 'Accept': 'application/json' } })
         .then(r => r.json())
         .then(data => {
