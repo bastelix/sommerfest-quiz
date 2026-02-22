@@ -2339,6 +2339,39 @@
       <li class="{{ activeRoute == 'subscription' ? 'uk-active' }}">
         <div class="admin-section">
           <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>
+
+          {# ── Namespace-Auswahl: bestimmt das Abo ── #}
+          {% set subscriptionNamespaceOptions = available_namespaces|default([]) %}
+          {% set subscriptionNamespace = pageNamespace|default(default_namespace|default('default')) %}
+          {% if subscriptionNamespaceOptions|length > 1 %}
+          <div class="uk-margin-small uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-auto">
+              <label class="uk-form-label uk-margin-remove" for="subscriptionNamespaceSelect">{{ t('label_project_namespace') }}</label>
+            </div>
+            <div class="uk-width-1-1 uk-width-medium@m">
+              <select
+                id="subscriptionNamespaceSelect"
+                class="uk-select uk-form-small"
+                data-subscription-namespace-select
+              >
+                {% for entry in subscriptionNamespaceOptions %}
+                  {% set entryNamespace = entry.namespace|default('') %}
+                  {% set entryLabel = entry.label|default('') %}
+                  {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                  <option
+                    value="{{ entryNamespace|e('html_attr') }}"
+                    {% if entryNamespace == subscriptionNamespace %}selected{% endif %}
+                  >
+                    {{ entryNamespace }}
+                    {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                    {% if entryIsInactive %} – inaktiv{% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          {% endif %}
+
           {% set hasCustomer = tenant and tenant.stripe_customer_id %}
 
           {# ── Sektion A: Abo-Übersicht ── #}
@@ -2390,8 +2423,7 @@
           </div>
 
           {# ── Sektion C: Rechnungen ── #}
-          {% if stripe_configured and hasCustomer %}
-          <div class="uk-card qr-card uk-card-body uk-margin-small">
+          <div class="uk-card qr-card uk-card-body uk-margin-small" id="invoices-card">
             <h3 class="uk-card-title uk-margin-remove-bottom">{{ t('heading_invoices') }}</h3>
             <div id="invoice-list"
                  data-label-invoice="{{ t('billing_invoice') }}"
@@ -2402,7 +2434,6 @@
                  data-action-download="{{ t('action_download') }}"
                  data-text-empty="{{ t('text_no_data') }}"></div>
           </div>
-          {% endif %}
 
           {# ── Sektion D: Tarife ── #}
           {% if stripe_configured %}
@@ -2452,6 +2483,7 @@
 
           <script>
             window.upgradeUrl = '{{ basePath }}/admin/subscription';
+            window.subscriptionNamespace = '{{ subscriptionNamespace|e('js') }}';
           </script>
         </div>
       </li>

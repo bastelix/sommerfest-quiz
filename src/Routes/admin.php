@@ -59,6 +59,8 @@ use App\Service\SettingsService;
 use App\Service\NamespaceValidator;
 use App\Service\NamespaceResolver;
 use App\Repository\NamespaceRepository;
+use App\Service\QuotaService;
+use App\Service\NamespaceSubscriptionService;
 use Slim\Views\Twig;
 
 return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddleware): void {
@@ -304,44 +306,18 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
             $stats['media'] += count($mediaReferences['files']) + count($mediaReferences['missing']);
         }
 
-        $eventCount = (int) $pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
-        $catCount = (int) $pdo->query('SELECT COUNT(*) FROM catalogs')->fetchColumn();
-        $qCount = (int) $pdo->query('SELECT COUNT(*) FROM questions')->fetchColumn();
-        $teamCount = (int) $pdo->query('SELECT COUNT(*) FROM teams')->fetchColumn();
-        $pageCount = (int) $pdo->query('SELECT COUNT(*) FROM pages')->fetchColumn();
-        $wikiCount = 0;
-        try { $wikiCount = (int) $pdo->query('SELECT COUNT(*) FROM marketing_page_wiki_articles')->fetchColumn(); } catch (\Throwable $e) {}
-        $newsCount = 0;
-        try { $newsCount = (int) $pdo->query('SELECT COUNT(*) FROM landing_news')->fetchColumn(); } catch (\Throwable $e) {}
-        $domainType = (string) $request->getAttribute('domainType');
-        $host = $request->getUri()->getHost();
-        $sub = $domainType === 'main' ? 'main' : explode('.', $host)[0];
-        $base = Database::connectFromEnv();
-        $tenantSvc = new TenantService($base);
-        $plan = $tenantSvc->getPlanBySubdomain($sub);
-        $limits = $tenantSvc->getLimitsBySubdomain($sub);
-        $planEnum = Plan::tryFrom($plan ?? '');
-        $planLimits = $planEnum ? $planEnum->limits() : Plan::FREE->limits();
-        $effectiveLimits = array_merge($planLimits, $limits);
+        // Subscription: namespace-based plan, limits and hybrid recount
+        $effectiveNamespace = $namespace !== '' ? $namespace : PageService::DEFAULT_NAMESPACE;
+        $quotaService = new QuotaService($pdo);
+        $subscriptionOverview = $quotaService->getOverviewBySlug($effectiveNamespace);
+
         $payload = [
             'period' => $start->format('Y-m'),
             'today' => $now->format('Y-m-d'),
             'events' => $events,
             'upcoming' => $upcoming,
             'stats' => $stats,
-            'subscription' => [
-                'plan' => $plan ?? 'free',
-                'limits' => $effectiveLimits,
-                'usage' => [
-                    'events' => $eventCount,
-                    'teams' => $teamCount,
-                    'catalogs' => $catCount,
-                    'questions' => $qCount,
-                    'pages' => $pageCount,
-                    'wiki_entries' => $wikiCount,
-                    'news_articles' => $newsCount,
-                ],
-            ],
+            'subscription' => $subscriptionOverview,
         ];
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
@@ -452,54 +428,87 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
     $app->get('/admin/subscription/portal', SubscriptionController::class)
         ->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/subscription/status', function (Request $request, Response $response) {
-        $domainType = (string) $request->getAttribute('domainType');
-        $base = Database::connectFromEnv();
-        $tenantSvc = new TenantService($base);
-        $tenant = $domainType === 'main'
-            ? $tenantSvc->getMainTenant()
-            : $tenantSvc->getBySubdomain(explode('.', $request->getUri()->getHost())[0]);
-        $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
-        $payload = [];
-        if ($customerId !== '' && StripeService::isConfigured()['ok']) {
-            $service = new StripeService();
-            try {
-                $info = $service->getActiveSubscription($customerId);
-                if ($info !== null) {
-                    $payload = $info;
+        $params = $request->getQueryParams();
+        $namespaceSlug = trim((string) ($params['namespace'] ?? ''));
+        if ($namespaceSlug === '') {
+            $namespaceSlug = PageService::DEFAULT_NAMESPACE;
+        }
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+        $nsSvc = new NamespaceSubscriptionService($pdo);
+        $payload = $nsSvc->getSubscriptionStatus($namespaceSlug);
+
+        // Fallback: if namespace has no Stripe info, try tenant-level
+        if (($payload['subscription_status'] ?? null) === null) {
+            $domainType = (string) $request->getAttribute('domainType');
+            $base = Database::connectFromEnv();
+            $tenantSvc = new TenantService($base);
+            $tenant = $domainType === 'main'
+                ? $tenantSvc->getMainTenant()
+                : $tenantSvc->getBySubdomain(explode('.', $request->getUri()->getHost())[0]);
+            $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
+            if ($customerId !== '' && StripeService::isConfigured()['ok']) {
+                $service = new StripeService();
+                try {
+                    $info = $service->getActiveSubscription($customerId);
+                    if ($info !== null) {
+                        $payload = $info;
+                    }
+                } catch (\Throwable $e) {
+                    // ignore errors
                 }
-            } catch (\Throwable $e) {
-                // ignore errors
             }
         }
+
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/subscription/invoices', function (Request $request, Response $response) {
-        $domainType = (string) $request->getAttribute('domainType');
-        $base = Database::connectFromEnv();
-        $tenantSvc = new TenantService($base);
-        $tenant = $domainType === 'main'
-            ? $tenantSvc->getMainTenant()
-            : $tenantSvc->getBySubdomain(explode('.', $request->getUri()->getHost())[0]);
-        $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
-        $payload = [];
-        if ($customerId !== '' && StripeService::isConfigured()['ok']) {
-            $service = new StripeService();
-            try {
-                $payload = $service->listInvoices($customerId);
-            } catch (\Throwable $e) {
-                // ignore errors
+        $params = $request->getQueryParams();
+        $namespaceSlug = trim((string) ($params['namespace'] ?? ''));
+        if ($namespaceSlug === '') {
+            $namespaceSlug = PageService::DEFAULT_NAMESPACE;
+        }
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+        $nsSvc = new NamespaceSubscriptionService($pdo);
+        $payload = $nsSvc->getInvoices($namespaceSlug);
+
+        // Fallback: if namespace has no invoices, try tenant-level
+        if ($payload === []) {
+            $domainType = (string) $request->getAttribute('domainType');
+            $base = Database::connectFromEnv();
+            $tenantSvc = new TenantService($base);
+            $tenant = $domainType === 'main'
+                ? $tenantSvc->getMainTenant()
+                : $tenantSvc->getBySubdomain(explode('.', $request->getUri()->getHost())[0]);
+            $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
+            if ($customerId !== '' && StripeService::isConfigured()['ok']) {
+                $service = new StripeService();
+                try {
+                    $payload = $service->listInvoices($customerId);
+                } catch (\Throwable $e) {
+                    // ignore errors
+                }
             }
         }
+
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->post('/admin/subscription/toggle', function (Request $request, Response $response) {
-        $domainType = (string) $request->getAttribute('domainType');
-        $host = $request->getUri()->getHost();
-        $sub = explode('.', $host)[0];
-        $target = $domainType === 'main' ? 'main' : $sub;
         $data = json_decode((string) $request->getBody(), true);
+        if (!is_array($data)) {
+            return $response->withStatus(400);
+        }
+        $namespaceSlug = trim((string) ($data['namespace'] ?? ''));
+        if ($namespaceSlug === '') {
+            $namespaceSlug = PageService::DEFAULT_NAMESPACE;
+        }
         $plan = $data['plan'] ?? null;
         if ($plan === '') {
             $plan = null;
@@ -508,13 +517,17 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         if (!in_array($plan, $allowed, true)) {
             return $response->withStatus(400);
         }
-        $base = Database::connectFromEnv();
-        $tenantSvc = new TenantService($base);
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+        $nsSvc = new NamespaceSubscriptionService($pdo);
         try {
-            $tenant = $tenantSvc->getBySubdomain($target) ?? [];
-            $customerId = $tenant['stripe_customer_id'] ?? null;
+            $project = $nsSvc->findOrCreate($namespaceSlug);
+            $customerId = $project['stripe_customer_id'] ?? null;
             $reactivated = false;
-            if ($customerId !== null && $customerId !== '') {
+
+            if ($customerId !== null && $customerId !== '' && StripeService::isConfigured()['ok']) {
                 $stripeSvc = new StripeService();
                 if ($plan !== null) {
                     $currentSub = $stripeSvc->getActiveSubscription($customerId);
@@ -538,13 +551,31 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
                     $stripeSvc->cancelSubscriptionForCustomer($customerId);
                 }
             }
+
+            // Update namespace_projects plan
+            if ($plan !== null) {
+                $nsSvc->updatePlan($namespaceSlug, $plan);
+            } else {
+                $nsSvc->updatePlan($namespaceSlug, Plan::FREE->value);
+            }
+
             if ($reactivated) {
-                $tenantSvc->updateProfile($target, [
-                    'plan' => $plan,
+                $nsSvc->updateStripeInfo($namespaceSlug, [
                     'stripe_cancel_at_period_end' => false,
                 ]);
-            } else {
-                $tenantSvc->updateProfile($target, ['plan' => $plan]);
+            }
+
+            // Also sync to tenant for backwards compatibility
+            $domainType = (string) $request->getAttribute('domainType');
+            $host = $request->getUri()->getHost();
+            $sub = explode('.', $host)[0];
+            $target = $domainType === 'main' ? 'main' : $sub;
+            $base = Database::connectFromEnv();
+            $tenantSvc = new TenantService($base);
+            try {
+                $tenantSvc->updateProfile($target, ['plan' => $plan ?? Plan::FREE->value]);
+            } catch (\Throwable) {
+                // Tenant sync is best-effort
             }
         } catch (\Throwable $e) {
             error_log('Stripe subscription update failed: ' . $e->getMessage());
@@ -552,7 +583,7 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
             $response->getBody()->write((string) json_encode(['error' => $errorCode]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
-        $response->getBody()->write((string) json_encode(['plan' => $plan]));
+        $response->getBody()->write((string) json_encode(['plan' => $plan, 'namespace' => $namespaceSlug]));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
     $app->post(
