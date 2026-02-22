@@ -567,6 +567,10 @@
 
 - Nur SEO, Cookies und RAG Chat als zu technisch einschraenken
 
+### Perf
+
+- *(admin)* Optimize table loading for events and logins
+
 ### Refactor
 
 - Centralize SMTP config loading
