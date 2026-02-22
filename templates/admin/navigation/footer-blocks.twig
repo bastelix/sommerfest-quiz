@@ -75,7 +75,7 @@
                 <span uk-icon="icon: plus; ratio: 0.75"></span> Block
               </button>
             </div>
-            <div class="footer-editor-col__blocks" data-blocks-container="footer_1" uk-sortable="group: footer-blocks; handle: .block-card__drag">
+            <div class="footer-editor-col__blocks" data-blocks-container="footer_1" uk-sortable="group: footer-blocks; handle: [data-drag-handle]">
               <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
             </div>
           </div>
@@ -87,7 +87,7 @@
                 <span uk-icon="icon: plus; ratio: 0.75"></span> Block
               </button>
             </div>
-            <div class="footer-editor-col__blocks" data-blocks-container="footer_2" uk-sortable="group: footer-blocks; handle: .block-card__drag">
+            <div class="footer-editor-col__blocks" data-blocks-container="footer_2" uk-sortable="group: footer-blocks; handle: [data-drag-handle]">
               <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
             </div>
           </div>
@@ -99,7 +99,7 @@
                 <span uk-icon="icon: plus; ratio: 0.75"></span> Block
               </button>
             </div>
-            <div class="footer-editor-col__blocks" data-blocks-container="footer_3" uk-sortable="group: footer-blocks; handle: .block-card__drag">
+            <div class="footer-editor-col__blocks" data-blocks-container="footer_3" uk-sortable="group: footer-blocks; handle: [data-drag-handle]">
               <div class="uk-text-center uk-text-muted uk-padding-small"><span uk-spinner="ratio: 0.5"></span></div>
             </div>
           </div>
@@ -249,97 +249,6 @@
       flex: 1;
       min-height: 80px;
     }
-    .footer-editor-col__blocks .block-card {
-      background: #fff;
-      border: 1px solid #dee2e6;
-      border-radius: 6px;
-      margin-bottom: 0.5rem;
-      transition: box-shadow 0.15s ease, border-color 0.15s ease;
-    }
-    .footer-editor-col__blocks .block-card:hover {
-      border-color: #1e87f0;
-      box-shadow: 0 2px 8px rgba(30,135,240,0.1);
-    }
-    .footer-editor-col__blocks .block-card:last-child {
-      margin-bottom: 0;
-    }
-    .block-card__summary {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.625rem 0.75rem;
-    }
-    .block-card__drag {
-      flex-shrink: 0;
-      cursor: grab;
-      color: #ced4da;
-      padding: 2px;
-      display: flex;
-      align-items: center;
-    }
-    .block-card__drag:hover { color: #868e96; }
-    .block-card__icon {
-      flex-shrink: 0;
-      width: 28px;
-      height: 28px;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: #fff;
-    }
-    .block-card__icon--menu { background: #1e87f0; }
-    .block-card__icon--text { background: #32d296; }
-    .block-card__icon--social { background: #f0506e; }
-    .block-card__icon--contact { background: #faa05a; }
-    .block-card__icon--newsletter { background: #7c5cbf; }
-    .block-card__icon--html { background: #6c757d; }
-    .block-card__info { flex: 1; min-width: 0; }
-    .block-card__title {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: #212529;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .block-card__meta {
-      font-size: 0.7rem;
-      color: #868e96;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .block-card__actions {
-      flex-shrink: 0;
-      display: flex;
-      gap: 2px;
-    }
-    .block-card__actions button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
-      color: #868e96;
-      transition: color 0.15s ease, background 0.15s ease;
-    }
-    .block-card__actions button:hover {
-      background: #f1f3f5;
-      color: #212529;
-    }
-    .block-card__actions button.btn-delete:hover {
-      background: #fff5f5;
-      color: #f0506e;
-    }
-    .block-card--inactive { opacity: 0.5; }
-    .block-card--editing {
-      border-color: #1e87f0;
-      box-shadow: 0 2px 12px rgba(30,135,240,0.15);
-    }
     .footer-editor-col__empty {
       text-align: center;
       padding: 2rem 1rem;
@@ -347,21 +256,14 @@
       font-size: 0.8rem;
     }
 
-    /* Inline edit area (Phase 5) */
-    .block-card__edit-area {
-      border-top: 1px solid #e9ecef;
-      padding: 0.75rem;
-      background: #f8f9fa;
-      border-radius: 0 0 6px 6px;
-    }
-    .block-card__edit-area .uk-form-label {
+    .footer-editor-col__blocks .card-row__edit-area .uk-form-label {
       font-size: 0.75rem;
       font-weight: 600;
       color: #495057;
     }
-    .block-card__edit-area .uk-input,
-    .block-card__edit-area .uk-textarea,
-    .block-card__edit-area .uk-select {
+    .footer-editor-col__blocks .card-row__edit-area .uk-input,
+    .footer-editor-col__blocks .card-row__edit-area .uk-textarea,
+    .footer-editor-col__blocks .card-row__edit-area .uk-select {
       font-size: 0.8125rem;
     }
     .inline-edit-actions {

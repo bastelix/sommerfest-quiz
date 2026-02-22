@@ -547,31 +547,15 @@ if (manager) {
         row.appendChild(publishedCell);
 
         const orderCell = document.createElement('td');
-        orderCell.className = 'uk-table-shrink uk-text-nowrap';
-        const orderGroup = document.createElement('div');
-        orderGroup.className = 'uk-button-group';
-        const upButton = document.createElement('button');
-        upButton.type = 'button';
-        upButton.className = 'uk-button uk-button-default uk-button-small';
-        upButton.innerHTML = '&#x2191;';
-        upButton.setAttribute('aria-label', 'Nach oben verschieben');
-        upButton.dataset.action = 'move-up';
-        const downButton = document.createElement('button');
-        downButton.type = 'button';
-        downButton.className = 'uk-button uk-button-default uk-button-small';
-        downButton.innerHTML = '&#x2193;';
-        downButton.setAttribute('aria-label', 'Nach unten verschieben');
-        downButton.dataset.action = 'move-down';
-        if (state.filterLocale !== 'all') {
-          upButton.disabled = true;
-          downButton.disabled = true;
-        } else {
-          const index = state.articles.findIndex(item => item.id === article.id);
-          upButton.disabled = index <= 0;
-          downButton.disabled = index === state.articles.length - 1;
+        orderCell.className = 'uk-table-shrink';
+        if (state.filterLocale === 'all') {
+          const handle = document.createElement('div');
+          handle.className = 'card-row__drag';
+          handle.dataset.dragHandle = 'true';
+          handle.setAttribute('aria-hidden', 'true');
+          handle.setAttribute('uk-icon', 'table');
+          orderCell.appendChild(handle);
         }
-        orderGroup.append(upButton, downButton);
-        orderCell.appendChild(orderGroup);
         row.appendChild(orderCell);
 
         const actionsCell = document.createElement('td');
@@ -669,6 +653,21 @@ if (manager) {
           }
         }
       });
+
+      if (state.filterLocale === 'all' && typeof UIkit !== 'undefined') {
+        try {
+          UIkit.sortable(articlesTableBody, { handle: '[data-drag-handle]', animation: 150 });
+          UIkit.util.on(articlesTableBody, 'moved', () => {
+            const ids = [...articlesTableBody.querySelectorAll('tr[data-article-id]')]
+              .map(tr => Number(tr.dataset.articleId));
+            const articleMap = new Map(state.articles.map(a => [a.id, a]));
+            const reordered = ids.map(id => articleMap.get(id)).filter(Boolean);
+            if (reordered.length === state.articles.length) saveArticleOrder(reordered);
+          });
+        } catch (e) {
+          console.warn('[wiki] sortable init error:', e);
+        }
+      }
     }
 
     function markdownToEditorState(markdown) {
@@ -1173,20 +1172,8 @@ if (manager) {
       });
     }
 
-    function moveArticle(articleId, direction) {
-      const index = state.articles.findIndex(article => article.id === articleId);
-      if (index < 0) {
-        return;
-      }
-      const newIndex = index + direction;
-      if (newIndex < 0 || newIndex >= state.articles.length) {
-        return;
-      }
-      const reordered = state.articles.slice();
-      const [article] = reordered.splice(index, 1);
-      reordered.splice(newIndex, 0, article);
+    function saveArticleOrder(reordered) {
       const orderPayload = reordered.map(item => item.id);
-
       fetchJson(`/admin/pages/${state.pageId}/wiki/articles/sort`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1200,6 +1187,17 @@ if (manager) {
         console.error('Failed to sort articles', error);
         notify(messages.sortError, 'danger');
       });
+    }
+
+    function moveArticle(articleId, direction) {
+      const index = state.articles.findIndex(article => article.id === articleId);
+      if (index < 0) return;
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= state.articles.length) return;
+      const reordered = state.articles.slice();
+      const [article] = reordered.splice(index, 1);
+      reordered.splice(newIndex, 0, article);
+      saveArticleOrder(reordered);
     }
 
     function handleArticleAction(event) {

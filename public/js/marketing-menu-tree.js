@@ -112,15 +112,15 @@ if (container) {
     ];
 
     const layoutOptions = [
-      { value: 'link', label: 'Link', cls: 'menu-tree__badge--link' },
-      { value: 'dropdown', label: 'Dropdown', cls: 'menu-tree__badge--dropdown' },
-      { value: 'mega', label: 'Mega', cls: 'menu-tree__badge--mega' },
-      { value: 'column', label: 'Spalte', cls: 'menu-tree__badge--column' }
+      { value: 'link', label: 'Link', cls: 'badge-blue' },
+      { value: 'dropdown', label: 'Dropdown', cls: 'badge-green' },
+      { value: 'mega', label: 'Mega', cls: 'badge-red' },
+      { value: 'column', label: 'Spalte', cls: 'badge-orange' }
     ];
 
     const layoutBadgeCls = value => {
       const found = layoutOptions.find(o => o.value === value);
-      return found ? found.cls : 'menu-tree__badge--link';
+      return found ? found.cls : 'badge-blue';
     };
 
     const layoutBadgeLabel = value => {
@@ -128,7 +128,6 @@ if (container) {
       return found ? found.label : 'Link';
     };
 
-    const dragHandleSvg = '<svg width="12" height="16" viewBox="0 0 12 16"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="3" cy="8" r="1.5" fill="currentColor"/><circle cx="9" cy="8" r="1.5" fill="currentColor"/><circle cx="3" cy="14" r="1.5" fill="currentColor"/><circle cx="9" cy="14" r="1.5" fill="currentColor"/></svg>';
 
     const allowedSchemes = ['http', 'https', 'mailto', 'tel'];
 
@@ -612,29 +611,28 @@ if (container) {
 
       // ── Summary row (read mode, like footer block-cards) ──
       const summary = document.createElement('div');
-      summary.className = 'menu-tree__summary';
+      summary.className = 'card-row__summary';
 
       const dragHandle = document.createElement('div');
-      dragHandle.className = 'menu-tree__drag';
-      dragHandle.innerHTML = dragHandleSvg;
-      dragHandle.title = 'Ziehen zum Verschieben';
-      dragHandle.setAttribute('aria-label', 'Verschieben');
-      dragHandle.setAttribute('aria-grabbed', 'false');
+      dragHandle.className = 'card-row__drag';
+      dragHandle.dataset.dragHandle = 'true';
+      dragHandle.setAttribute('aria-hidden', 'true');
+      dragHandle.setAttribute('uk-icon', 'table');
 
       const layoutBadge = document.createElement('span');
       const currentLayout = node.layout || 'link';
-      layoutBadge.className = `menu-tree__badge ${layoutBadgeCls(currentLayout)}`;
+      layoutBadge.className = `card-row__badge ${layoutBadgeCls(currentLayout)}`;
       layoutBadge.textContent = layoutBadgeLabel(currentLayout);
 
       const infoBlock = document.createElement('div');
-      infoBlock.className = 'menu-tree__info';
+      infoBlock.className = 'card-row__info';
 
       const titleSpan = document.createElement('span');
-      titleSpan.className = 'menu-tree__title';
+      titleSpan.className = 'card-row__title';
       titleSpan.textContent = node.label || 'Ohne Label';
 
       const metaSpan = document.createElement('span');
-      metaSpan.className = 'menu-tree__meta';
+      metaSpan.className = 'card-row__meta';
       metaSpan.textContent = formatHref(node.href || '');
 
       infoBlock.append(titleSpan, metaSpan);
@@ -655,11 +653,10 @@ if (container) {
       }
 
       const actions = document.createElement('div');
-      actions.className = 'menu-tree__actions';
+      actions.className = 'card-row__actions';
 
       const editBtn = document.createElement('button');
       editBtn.type = 'button';
-      editBtn.className = 'menu-tree__action-btn';
       editBtn.setAttribute('uk-icon', 'icon: pencil; ratio: 0.7');
       editBtn.title = 'Bearbeiten';
       editBtn.setAttribute('aria-label', 'Bearbeiten');
@@ -667,7 +664,6 @@ if (container) {
 
       const visibilityBtn = document.createElement('button');
       visibilityBtn.type = 'button';
-      visibilityBtn.className = 'menu-tree__action-btn';
       visibilityBtn.setAttribute('uk-icon', isInactive ? 'icon: ban; ratio: 0.7' : 'icon: eye; ratio: 0.7');
       visibilityBtn.title = 'Sichtbarkeit umschalten';
       visibilityBtn.setAttribute('aria-label', 'Sichtbarkeit umschalten');
@@ -676,7 +672,7 @@ if (container) {
 
       const deleteBtn = document.createElement('button');
       deleteBtn.type = 'button';
-      deleteBtn.className = 'menu-tree__action-btn menu-tree__action-btn--delete';
+      deleteBtn.className = 'btn-delete';
       deleteBtn.setAttribute('uk-icon', 'icon: trash; ratio: 0.7');
       deleteBtn.title = 'Eintrag entfernen';
       deleteBtn.setAttribute('aria-label', 'Eintrag entfernen');
@@ -747,7 +743,7 @@ if (container) {
         titleSpan.textContent = current.label || 'Ohne Label';
         metaSpan.textContent = formatHref(current.href || '');
         const lay = current.layout || 'link';
-        layoutBadge.className = `menu-tree__badge ${layoutBadgeCls(lay)}`;
+        layoutBadge.className = `card-row__badge ${layoutBadgeCls(lay)}`;
         layoutBadge.textContent = layoutBadgeLabel(lay);
       };
 
@@ -1349,10 +1345,10 @@ if (container) {
     const attachDragHandlers = () => {
       let draggingElement = null;
       treeRoot.querySelectorAll('.menu-tree__item').forEach(item => {
-        const handle = item.querySelector('.menu-tree__drag');
+        const handle = item.querySelector('.card-row__drag');
 
         item.addEventListener('dragstart', event => {
-          if (event.target !== item && !event.target.closest('.menu-tree__drag') && !event.target.closest('.menu-tree__summary')) {
+          if (event.target !== item && !event.target.closest('.card-row__drag') && !event.target.closest('.card-row__summary')) {
             event.preventDefault();
             return;
           }

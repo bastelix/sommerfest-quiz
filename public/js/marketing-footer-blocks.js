@@ -13,12 +13,12 @@ import StarterKit from './vendor/tiptap/starter-kit.esm.js';
 const SLOTS = ['footer_1', 'footer_2', 'footer_3'];
 
 const TYPE_ICONS = {
-  menu: { abbr: 'M', cls: 'block-card__icon--menu' },
-  text: { abbr: 'T', cls: 'block-card__icon--text' },
-  social: { abbr: 'S', cls: 'block-card__icon--social' },
-  contact: { abbr: 'C', cls: 'block-card__icon--contact' },
-  newsletter: { abbr: 'N', cls: 'block-card__icon--newsletter' },
-  html: { abbr: 'H', cls: 'block-card__icon--html' },
+  menu:       { abbr: 'M', color: 'badge-blue'   },
+  text:       { abbr: 'T', color: 'badge-green'  },
+  social:     { abbr: 'S', color: 'badge-red'    },
+  contact:    { abbr: 'C', color: 'badge-orange' },
+  newsletter: { abbr: 'N', color: 'badge-purple' },
+  html:       { abbr: 'H', color: 'badge-gray'   },
 };
 
 let blocksBySlot = { footer_1: [], footer_2: [], footer_3: [] };
@@ -288,32 +288,26 @@ function renderSlot(slot) {
 }
 
 function renderBlockCard(block) {
-  const icon = TYPE_ICONS[block.type] || { abbr: '?', cls: '' };
+  const icon = TYPE_ICONS[block.type] || { abbr: '?', color: 'badge-muted' };
   const title = getBlockTitle(block);
   const meta = getBlockSummary(block);
-  const inactiveClass = block.isActive ? '' : ' block-card--inactive';
+  const inactiveClass = block.isActive ? '' : ' card-row--inactive';
 
   return `
-    <div class="block-card${inactiveClass}" data-block-card="${block.id}">
-      <div class="block-card__summary">
-        <div class="block-card__drag" title="Ziehen zum Verschieben">
-          <svg width="12" height="16" viewBox="0 0 12 16"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="3" cy="8" r="1.5" fill="currentColor"/><circle cx="9" cy="8" r="1.5" fill="currentColor"/><circle cx="3" cy="14" r="1.5" fill="currentColor"/><circle cx="9" cy="14" r="1.5" fill="currentColor"/></svg>
+    <div class="card-row${inactiveClass}" data-block-card="${block.id}">
+      <div class="card-row__summary">
+        <div class="card-row__drag" data-drag-handle="true" aria-hidden="true" uk-icon="table"></div>
+        <div class="card-row__badge ${icon.color}">${icon.abbr}</div>
+        <div class="card-row__info">
+          <div class="card-row__title">${escapeHtml(title)}</div>
+          <div class="card-row__meta">${escapeHtml(meta)}</div>
         </div>
-        <div class="block-card__icon ${icon.cls}">${icon.abbr}</div>
-        <div class="block-card__info">
-          <div class="block-card__title">${escapeHtml(title)}</div>
-          <div class="block-card__meta">${escapeHtml(meta)}</div>
-        </div>
-        <div class="block-card__actions">
-          <button type="button" data-edit-inline="${block.id}" title="Bearbeiten">
-            <span uk-icon="icon: pencil; ratio: 0.7"></span>
-          </button>
-          <button type="button" class="btn-delete" data-delete-block="${block.id}" title="Loeschen">
-            <span uk-icon="icon: trash; ratio: 0.7"></span>
-          </button>
+        <div class="card-row__actions">
+          <button type="button" data-edit-inline="${block.id}" uk-icon="pencil" aria-label="Bearbeiten"></button>
+          <button type="button" class="btn-delete" data-delete-block="${block.id}" uk-icon="trash" aria-label="Löschen"></button>
         </div>
       </div>
-      <div class="block-card__edit-area" data-block-edit="${block.id}" hidden></div>
+      <div class="card-row__edit-area" data-block-edit="${block.id}" hidden></div>
     </div>`;
 }
 
