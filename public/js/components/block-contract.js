@@ -578,7 +578,8 @@ const schema = {
         "ctaLabel": { "type": "string" },
         "ctaAriaLabel": { "type": "string" },
         "showCountdown": { "type": "boolean" },
-        "showDescription": { "type": "boolean" }
+        "showDescription": { "type": "boolean" },
+        "catalogSlug": { "type": "string" }
       }
     },
     "ContentSliderData": {

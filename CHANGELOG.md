@@ -39,6 +39,7 @@
 - Add auto-generated namespace token stylesheets
 - Include pre-existing namespace token and upgrade script changes
 - *(design)* Complete v2.0.0 structure for all design presets
+- Update generated namespace token CSS files
 
 ### Ci
 
@@ -77,6 +78,8 @@
 - Fix inaccuracies in CSS audit
 - *(css)* Document intentional hardcoding in highcontrast.css
 - Add UX/UI improvement plan for tenant onboarding
+- Add FEATURES-MARKETING.md with comprehensive feature documentation
+- *(features)* Add namespace-based subscription and quota model
 
 ### Feat
 
@@ -325,6 +328,11 @@
 - *(dashboard)* Display all quota metrics on admin dashboard
 - *(media)* Restrict project media access to authenticated namespace users
 - *(auth)* Add Google Sign-In for login and onboarding
+- *(quiz)* Redesign question editor with block-card pattern
+- *(quiz)* Enhance question editor with numbering, duplicate and UX polish
+- *(pages)* Modernize block list with type badges and drag-and-drop reorder
+- *(i18n)* Translate admin area including question editor
+- *(quiz)* Add catalog selector to event block and fix quiz start links
 
 ### Fix
 
@@ -553,6 +561,10 @@
 - *(ai)* Increase default HTTP timeout from 60s to 180s
 - Resolve PHPStan nullCoalesce.offset errors
 - *(page-tree)* Add missing "Status ändern" menu item to Seitenbaum
+- *(subscription)* Scope subscription handling to namespace instead of tenant
+- *(quiz)* Pass event UID explicitly in catalog requests
+- *(i18n)* Remove duplicate notify_domain_ssl_issued translation keys
+- Remove conflicting flex layout from block-row in page designer
 
 ### Merge
 
@@ -561,6 +573,10 @@
 ### Nav
 
 - Nur SEO, Cookies und RAG Chat als zu technisch einschraenken
+
+### Perf
+
+- *(admin)* Optimize table loading for events and logins
 
 ### Refactor
 
@@ -643,6 +659,8 @@
 - *(stripe)* Improve subscription management for easier plan switching, cancellation, and trial handling
 - *(ui)* Rename subscription page to customer portal and remove redundant button
 - *(tenant)* Replace docker-per-tenant with schema-only isolation
+- *(ui)* Extract shared card-row system and convert all admin list editors
+- *(subscription)* Rename Kundenportal to Abonnements and improve page layout
 
 ### Style
 

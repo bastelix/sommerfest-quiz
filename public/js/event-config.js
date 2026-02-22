@@ -19,6 +19,11 @@
     const separator = url.includes('?') ? '&' : '?';
     return url + separator + 'namespace=' + encodeURIComponent(ns);
   };
+  const appendEventParam = (url) => {
+    if (!eventId) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return url + separator + 'event=' + encodeURIComponent(eventId);
+  };
   const currentEventSelects = new Set();
   const notify = (message, status = 'primary') => {
     if (window.UIkit?.notification) {
@@ -756,8 +761,13 @@
     if (!modulesList) {
       return Promise.resolve();
     }
+    if (!eventId) {
+      dashboardCatalogs = [];
+      syncQrModuleOptions(selectedIds, false);
+      return Promise.resolve();
+    }
     const requestId = ++catalogFetchEpoch;
-    return fetch(withBase(appendNamespaceParam('/kataloge/catalogs.json')), {
+    return fetch(withBase(appendEventParam(appendNamespaceParam('/kataloge/catalogs.json'))), {
       headers: { Accept: 'application/json' },
       credentials: 'same-origin',
       cache: 'no-store'

@@ -311,6 +311,7 @@ export interface EventHighlightBlockData {
   ctaAriaLabel?: string;
   showCountdown?: boolean;
   showDescription?: boolean;
+  catalogSlug?: string;
 }
 
 export interface BaseBlock<TType extends BlockType, TVariant extends BlockVariant, TData> {

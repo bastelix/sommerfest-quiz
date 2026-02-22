@@ -20,6 +20,14 @@
     return '#';
   }
 
+  function getSelectedNamespace() {
+    const select = document.getElementById('subscriptionNamespaceSelect');
+    if (select) {
+      return select.value || '';
+    }
+    return window.subscriptionNamespace || '';
+  }
+
   function statusBadgeClass(status) {
     const map = {
       active: 'uk-label uk-label-success',
@@ -53,8 +61,10 @@
   async function loadSubscription(){
     const el = document.getElementById('subscription-details');
     if (!el) return;
+    const namespace = getSelectedNamespace();
+    const params = namespace ? `?namespace=${encodeURIComponent(namespace)}` : '';
     try {
-      const res = await fetch(withBase('/admin/subscription/status'));
+      const res = await fetch(withBase(`/admin/subscription/status${params}`));
       if (!res.ok) return;
       const data = await res.json();
       if (!data.plan) {
@@ -131,7 +141,7 @@
             const r = await apiFetch(withBase('/admin/subscription/toggle'), {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ plan: data.plan })
+              body: JSON.stringify({ plan: data.plan, namespace: getSelectedNamespace() })
             });
             if (!r.ok) {
               let errorMsg = el.dataset.errorSubscriptionUpdateFailed || 'Failed';
@@ -163,7 +173,7 @@
             const r = await apiFetch(withBase('/admin/subscription/toggle'), {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ plan: null })
+              body: JSON.stringify({ plan: null, namespace: getSelectedNamespace() })
             });
             if (!r.ok) {
               let errorMsg = el.dataset.errorSubscriptionUpdateFailed || 'Failed';
@@ -200,8 +210,10 @@
   async function loadInvoices(){
     const el = document.getElementById('invoice-list');
     if (!el) return;
+    const namespace = getSelectedNamespace();
+    const params = namespace ? `?namespace=${encodeURIComponent(namespace)}` : '';
     try {
-      const res = await fetch(withBase('/admin/subscription/invoices'));
+      const res = await fetch(withBase(`/admin/subscription/invoices${params}`));
       if (!res.ok) return;
       const data = await res.json();
       if (!Array.isArray(data) || !data.length){
@@ -275,10 +287,58 @@
     }
   }
 
+  function initPlanSelect() {
+    const apiFetch = window.apiFetch || fetch;
+    const notify = window.notify || (() => {});
+
+    document.querySelectorAll('.plan-select').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const plan = btn.dataset.plan;
+        if (!plan) return;
+
+        const namespace = getSelectedNamespace();
+        const emailInput = document.getElementById('subscription-email');
+        const email = emailInput ? emailInput.value : '';
+
+        btn.disabled = true;
+        try {
+          const r = await apiFetch(withBase('/admin/subscription/checkout'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ plan, namespace, email: email || undefined })
+          });
+          const data = await r.json();
+          if (!r.ok) {
+            throw new Error(data.error || 'checkout failed');
+          }
+          if (data.url) {
+            window.location.href = data.url;
+          }
+        } catch (err) {
+          notify(err.message || 'Error', 'danger');
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  function initNamespaceSelect() {
+    const select = document.getElementById('subscriptionNamespaceSelect');
+    if (!select) return;
+
+    select.addEventListener('change', () => {
+      window.subscriptionNamespace = select.value;
+      loadSubscription();
+      loadInvoices();
+    });
+  }
+
   window.loadSubscription = loadSubscription;
 
   document.addEventListener('DOMContentLoaded', () => {
     loadSubscription();
     loadInvoices();
+    initPlanSelect();
+    initNamespaceSelect();
   });
 })();

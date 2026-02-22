@@ -48,6 +48,48 @@ final class UserNamespaceRepository
         return $namespaces;
     }
 
+    /**
+     * Load namespaces for multiple users in a single query.
+     *
+     * @param list<int> $userIds
+     * @return array<int, list<array{namespace:string,is_default:bool}>>
+     */
+    public function loadForUsers(array $userIds): array
+    {
+        $filtered = array_values(array_filter($userIds, static fn ($id) => $id > 0));
+
+        if ($filtered === []) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($filtered), '?'));
+        $stmt = $this->pdo->prepare(
+            "SELECT user_id, namespace, is_default FROM user_namespaces
+             WHERE user_id IN ($placeholders)
+             ORDER BY user_id, is_default DESC, namespace"
+        );
+        $stmt->execute($filtered);
+
+        $grouped = [];
+
+        while (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {
+            $uid = (int) $row['user_id'];
+            $namespace = trim((string) ($row['namespace'] ?? ''));
+            if ($namespace === '') {
+                continue;
+            }
+
+            $grouped[$uid][] = [
+                'namespace' => $namespace,
+                'is_default' => (bool) ($row['is_default'] ?? false),
+            ];
+        }
+
+        $stmt->closeCursor();
+
+        return $grouped;
+    }
+
     public function ensureDefaultNamespace(int $userId, string $namespace = 'default'): void
     {
         if ($userId <= 0) {
