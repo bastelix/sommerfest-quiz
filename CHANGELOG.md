@@ -558,6 +558,7 @@
 - Resolve PHPStan nullCoalesce.offset errors
 - *(page-tree)* Add missing "Status ändern" menu item to Seitenbaum
 - *(subscription)* Scope subscription handling to namespace instead of tenant
+- *(quiz)* Pass event UID explicitly in catalog requests
 
 ### Merge
 
