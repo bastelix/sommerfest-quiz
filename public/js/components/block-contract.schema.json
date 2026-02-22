@@ -1112,6 +1112,9 @@
         },
         "showDescription": {
           "type": "boolean"
+        },
+        "catalogSlug": {
+          "type": "string"
         }
       }
     },

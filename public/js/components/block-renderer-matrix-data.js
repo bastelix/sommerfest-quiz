@@ -3071,7 +3071,10 @@ function renderEventHighlightHero(block, options = {}) {
 
   const countdownHtml = showCountdown ? buildEventCountdownElement(eventData.start_date, block.id) : '';
 
-  const eventUrl = `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}`;
+  const catalogSlug = block.data?.catalogSlug || '';
+  const eventUrl = catalogSlug
+    ? `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}&katalog=${escapeAttribute(catalogSlug)}`
+    : `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}`;
   const ariaAttr = ctaAriaLabel ? ` aria-label="${escapeAttribute(ctaAriaLabel)}"` : '';
   const ctaHtml = `<div class="uk-margin-medium-top"><a class="uk-button uk-button-primary uk-button-large" href="${escapeAttribute(eventUrl)}"${ariaAttr}>${escapeHtml(ctaLabel)}</a></div>`;
 
@@ -3137,7 +3140,10 @@ function renderEventHighlightCard(block, options = {}) {
 
   const countdownHtml = showCountdown ? buildEventCountdownElement(eventData.start_date, block.id) : '';
 
-  const eventUrl = `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}`;
+  const catalogSlug = block.data?.catalogSlug || '';
+  const eventUrl = catalogSlug
+    ? `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}&katalog=${escapeAttribute(catalogSlug)}`
+    : `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}`;
   const ariaAttr = ctaAriaLabel ? ` aria-label="${escapeAttribute(ctaAriaLabel)}"` : '';
   const ctaHtml = `<a class="uk-button uk-button-primary uk-button-small" href="${escapeAttribute(eventUrl)}"${ariaAttr}>${escapeHtml(ctaLabel)}</a>`;
 
@@ -3185,7 +3191,10 @@ function renderEventHighlightCompact(block, options = {}) {
   const basePath = resolveBasePath();
   const dateRange = formatEventDateRange(eventData.start_date, eventData.end_date);
 
-  const eventUrl = `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}`;
+  const catalogSlug = block.data?.catalogSlug || '';
+  const eventUrl = catalogSlug
+    ? `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}&katalog=${escapeAttribute(catalogSlug)}`
+    : `${basePath}/?event=${escapeAttribute(eventData.slug || eventData.uid)}`;
   const ariaAttr = ctaAriaLabel ? ` aria-label="${escapeAttribute(ctaAriaLabel)}"` : '';
   const ctaHtml = `<a class="uk-button uk-button-primary uk-button-small" href="${escapeAttribute(eventUrl)}"${ariaAttr}>${escapeHtml(ctaLabel)}</a>`;
 
