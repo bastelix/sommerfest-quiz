@@ -2879,6 +2879,50 @@ body.admin-page {
   background-color: var(--surface-accent-soft, #f0f7ff);
 }
 
+.page-editor-block-drag {
+  flex-shrink: 0;
+  cursor: grab;
+  color: #ced4da;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  touch-action: none;
+}
+.page-editor-block-drag:hover { color: #868e96; }
+
+.page-editor-block-badge {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+  letter-spacing: 0;
+}
+.page-editor-block-badge--hero             { background: #1e87f0; }
+.page-editor-block-badge--feature_list     { background: #32d296; }
+.page-editor-block-badge--content_slider   { background: #faa05a; }
+.page-editor-block-badge--process_steps    { background: #f0506e; }
+.page-editor-block-badge--testimonial      { background: #7c5cbf; }
+.page-editor-block-badge--rich_text        { background: #6c757d; }
+.page-editor-block-badge--info_media       { background: #1e87f0; }
+.page-editor-block-badge--stat_strip       { background: #32d296; }
+.page-editor-block-badge--audience_spotlight { background: #faa05a; }
+.page-editor-block-badge--package_summary  { background: #f0506e; }
+.page-editor-block-badge--contact_form     { background: #7c5cbf; }
+.page-editor-block-badge--faq              { background: #6c757d; }
+.page-editor-block-badge--cta              { background: #1e87f0; }
+.page-editor-block-badge--proof            { background: #32d296; }
+.page-editor-block-badge--latest_news      { background: #faa05a; }
+.page-editor-block-badge--event_highlight  { background: #f0506e; }
+.page-editor-block-badge--system_module    { background: #868e96; }
+.page-editor-block-badge--case_showcase    { background: #868e96; }
+
 .page-editor-preview-layout {
   display: flex;
   flex-direction: column;

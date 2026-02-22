@@ -43,6 +43,27 @@ const BLOCK_TYPE_LABELS = {
   event_highlight: 'Veranstaltung'
 };
 
+const BLOCK_TYPE_ABBR = {
+  hero: 'H',
+  feature_list: 'FL',
+  content_slider: 'SL',
+  process_steps: 'AB',
+  testimonial: 'ST',
+  rich_text: 'TX',
+  info_media: 'IM',
+  stat_strip: 'KZ',
+  audience_spotlight: 'AW',
+  package_summary: 'PA',
+  contact_form: 'KF',
+  faq: 'FAQ',
+  cta: 'CTA',
+  proof: 'NA',
+  latest_news: 'NG',
+  event_highlight: 'EV',
+  system_module: 'MO',
+  case_showcase: 'CS',
+};
+
 const VARIANT_LABELS = {
   hero: {
     centered_cta: 'Zentriert',
@@ -2628,20 +2649,30 @@ export class BlockContentEditor {
       return aside;
     }
 
-    this.state.blocks.forEach((block, index) => {
+    list.setAttribute('uk-sortable', 'handle: [data-drag-handle]');
+    list.addEventListener('moved', () => {
+      const ids = [...list.querySelectorAll('[data-block-id]')].map(el => el.dataset.blockId);
+      const blockMap = new Map(this.state.blocks.map(b => [b.id, b]));
+      this.state.blocks = ids.map(id => blockMap.get(id)).filter(Boolean);
+    });
+
+    this.state.blocks.forEach(block => {
       const row = document.createElement('li');
       row.dataset.blockRow = 'true';
       row.dataset.blockId = block.id;
       row.dataset.blockHover = 'false';
       row.setAttribute('aria-selected', block.id === this.state.activeSectionId ? 'true' : 'false');
 
-      const selectBtn = document.createElement('button');
-      selectBtn.type = 'button';
-      selectBtn.dataset.action = 'select-block';
-      selectBtn.textContent = 'Auswählen';
-      selectBtn.addEventListener('click', () => this.selectBlock(block.id, { scrollPreview: true }));
-      selectBtn.addEventListener('focus', () => this.highlightPreview(block.id));
-      selectBtn.addEventListener('blur', () => this.clearPreviewHighlight());
+      const dragHandle = document.createElement('div');
+      dragHandle.className = 'page-editor-block-drag';
+      dragHandle.dataset.dragHandle = 'true';
+      dragHandle.setAttribute('aria-hidden', 'true');
+      dragHandle.setAttribute('uk-icon', 'table');
+
+      const typeBadge = document.createElement('div');
+      typeBadge.className = `page-editor-block-badge page-editor-block-badge--${block.type}`;
+      typeBadge.textContent = BLOCK_TYPE_ABBR[block.type] || block.type.slice(0, 2).toUpperCase();
+      typeBadge.title = BLOCK_TYPE_LABELS[block.type] || block.type;
 
       const labelWrapper = document.createElement('div');
       labelWrapper.dataset.blockLabel = 'true';
@@ -2663,20 +2694,6 @@ export class BlockContentEditor {
 
       labelWrapper.append(labelText);
 
-      const moveUp = document.createElement('button');
-      moveUp.type = 'button';
-      moveUp.dataset.action = 'move-up';
-      moveUp.textContent = '↑';
-      moveUp.disabled = index === 0;
-      moveUp.addEventListener('click', () => this.moveBlock(block.id, -1));
-
-      const moveDown = document.createElement('button');
-      moveDown.type = 'button';
-      moveDown.dataset.action = 'move-down';
-      moveDown.textContent = '↓';
-      moveDown.disabled = index === this.state.blocks.length - 1;
-      moveDown.addEventListener('click', () => this.moveBlock(block.id, 1));
-
       const duplicateBtn = document.createElement('button');
       duplicateBtn.type = 'button';
       duplicateBtn.dataset.action = 'duplicate-block';
@@ -2689,7 +2706,7 @@ export class BlockContentEditor {
       deleteBtn.textContent = 'Löschen';
       deleteBtn.addEventListener('click', () => this.deleteBlock(block.id));
 
-      row.append(selectBtn, labelWrapper, moveUp, moveDown, duplicateBtn, deleteBtn);
+      row.append(dragHandle, typeBadge, labelWrapper, duplicateBtn, deleteBtn);
       row.addEventListener('mouseenter', () => {
         row.dataset.blockHover = 'true';
         this.highlightPreview(block.id);
@@ -2707,7 +2724,7 @@ export class BlockContentEditor {
         this.clearPreviewHighlight();
       });
       row.addEventListener('click', event => {
-        if (event.target.closest('button')) {
+        if (event.target.closest('button') || event.target.closest('[data-drag-handle]')) {
           return;
         }
         this.selectBlock(block.id, { scrollPreview: true });
