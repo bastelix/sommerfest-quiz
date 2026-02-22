@@ -7097,11 +7097,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  const appendEventParam = (url) => {
+    if (!currentEventUid) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return url + separator + 'event=' + encodeURIComponent(currentEventUid);
+  };
+
   function loadCatalog(identifier) {
     const cat = catalogs.find(c => c.id === identifier || c.uid === identifier || (c.slug || c.sort_order) === identifier);
     if (!cat) return;
     catalogFile = cat.file;
-    apiFetch(appendNamespaceParam('/kataloge/' + catalogFile), { headers: { 'Accept': 'application/json' } })
+    apiFetch(appendEventParam(appendNamespaceParam('/kataloge/' + catalogFile)), { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
         initial = data;
@@ -7154,7 +7160,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   async function loadLegacyCatalogs() {
-    const res = await apiFetch(appendNamespaceParam('/kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } });
+    const res = await apiFetch(appendEventParam(appendNamespaceParam('/kataloge/catalogs.json')), { headers: { 'Accept': 'application/json' } });
     if (!res.ok) {
       throw new Error(`Legacy catalogs request failed with status ${res.status}`);
     }
@@ -7163,9 +7169,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   async function loadCatalogs() {
+    if (!currentEventUid) {
+      applyCatalogList([]);
+      return;
+    }
     catalogManager?.setColumnLoading('name', true);
     try {
-      const res = await apiFetch(appendNamespaceParam('/admin/catalogs/data'), { headers: { 'Accept': 'application/json' } });
+      const res = await apiFetch(appendEventParam(appendNamespaceParam('/admin/catalogs/data')), { headers: { 'Accept': 'application/json' } });
       if (res.status === 404) {
         await loadLegacyCatalogs();
         return;
@@ -11626,7 +11636,13 @@ document.addEventListener('DOMContentLoaded', function () {
     updateHeading(questionsHeading, currentEventName);
     eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     highlightCurrentEvent();
-    if (catSelect) loadCatalogs();
+    if (catSelect) {
+      if (currentEventUid) {
+        loadCatalogs();
+      } else {
+        applyCatalogList([]);
+      }
+    }
     if (teamListEl) loadTeamList();
     loadSummary();
   });
