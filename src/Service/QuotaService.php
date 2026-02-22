@@ -253,6 +253,185 @@ class QuotaService
     }
 
     /**
+     * Recount live usage from actual database tables for a namespace slug
+     * and sync the counts into namespace_quota_usage (hybrid approach).
+     *
+     * @return array<string,int> Map of metric => count
+     */
+    public function recountBySlug(string $namespaceSlug): array
+    {
+        $slug = strtolower(trim($namespaceSlug));
+        $counts = [];
+
+        // Events
+        $counts['events'] = $this->countByNamespace('events', $slug);
+        // Teams (via events)
+        $counts['teams'] = $this->countByNamespace('teams', $slug);
+        // Catalogs
+        $counts['catalogs'] = $this->countByNamespace('catalogs', $slug);
+        // Questions (via catalogs which have namespace)
+        $counts['questions'] = $this->countQuestionsForNamespace($slug);
+        // Pages
+        $counts['pages'] = $this->countByNamespace('pages', $slug);
+        // Wiki entries
+        $counts['wiki_entries'] = $this->countWikiForNamespace($slug);
+        // News articles
+        $counts['news_articles'] = $this->countNewsForNamespace($slug);
+
+        // Sync to namespace_quota_usage if we can resolve the project UUID
+        $projectId = $this->resolveProjectId($slug);
+        if ($projectId !== null) {
+            foreach ($counts as $metric => $value) {
+                $this->setUsage($projectId, $metric, $value);
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Get a full quota overview by namespace slug (for the admin UI).
+     * Performs a hybrid recount from real tables.
+     *
+     * @return array{plan:string,limits:array<string,int>,usage:array<string,int>}
+     */
+    public function getOverviewBySlug(string $namespaceSlug): array
+    {
+        $slug = strtolower(trim($namespaceSlug));
+
+        // Resolve plan from namespace_projects
+        $plan = $this->getPlanBySlug($slug);
+        $planEnum = Plan::tryFrom($plan);
+        $limits = $planEnum !== null ? $planEnum->limits() : Plan::FREE->limits();
+
+        // Check plan_limits table for overrides
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT metric, max_value FROM plan_limits WHERE plan = :plan'
+            );
+            $stmt->execute([':plan' => $plan]);
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $limits[$row['metric']] = (int) $row['max_value'];
+            }
+        } catch (PDOException) {
+            // plan_limits table may not exist
+        }
+
+        // Get hybrid usage (recount from real tables)
+        $usage = $this->recountBySlug($slug);
+
+        return [
+            'plan' => $plan,
+            'limits' => $limits,
+            'usage' => $usage,
+        ];
+    }
+
+    /**
+     * Resolve the plan for a namespace from namespace_projects by slug.
+     */
+    public function getPlanBySlug(string $slug): string
+    {
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT plan FROM namespace_projects WHERE slug = :slug'
+            );
+            $stmt->execute([':slug' => strtolower(trim($slug))]);
+            $plan = $stmt->fetchColumn();
+            return $plan !== false ? (string) $plan : Plan::FREE->value;
+        } catch (PDOException) {
+            return Plan::FREE->value;
+        }
+    }
+
+    /**
+     * Resolve the namespace_projects UUID from a slug.
+     */
+    private function resolveProjectId(string $slug): ?string
+    {
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT id FROM namespace_projects WHERE slug = :slug'
+            );
+            $stmt->execute([':slug' => $slug]);
+            $id = $stmt->fetchColumn();
+            return $id !== false ? (string) $id : null;
+        } catch (PDOException) {
+            return null;
+        }
+    }
+
+    /**
+     * Count rows in a table filtered by namespace column.
+     */
+    private function countByNamespace(string $table, string $namespace): int
+    {
+        try {
+            $stmt = $this->pdo->prepare(
+                "SELECT COUNT(*) FROM $table WHERE namespace = :ns"
+            );
+            $stmt->execute([':ns' => $namespace]);
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException) {
+            return 0;
+        }
+    }
+
+    /**
+     * Count questions for a namespace (questions belong to catalogs which have a namespace).
+     */
+    private function countQuestionsForNamespace(string $namespace): int
+    {
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT COUNT(*) FROM questions q '
+                . 'JOIN catalogs c ON q.catalog_uid = c.uid '
+                . 'WHERE c.namespace = :ns'
+            );
+            $stmt->execute([':ns' => $namespace]);
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException) {
+            return 0;
+        }
+    }
+
+    /**
+     * Count wiki entries for a namespace (via pages).
+     */
+    private function countWikiForNamespace(string $namespace): int
+    {
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT COUNT(*) FROM marketing_page_wiki_articles w '
+                . 'JOIN pages p ON w.page_id = p.id '
+                . 'WHERE p.namespace = :ns'
+            );
+            $stmt->execute([':ns' => $namespace]);
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException) {
+            return 0;
+        }
+    }
+
+    /**
+     * Count news articles for a namespace (via pages).
+     */
+    private function countNewsForNamespace(string $namespace): int
+    {
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT COUNT(*) FROM landing_news n '
+                . 'JOIN pages p ON n.page_id = p.id '
+                . 'WHERE p.namespace = :ns'
+            );
+            $stmt->execute([':ns' => $namespace]);
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException) {
+            return 0;
+        }
+    }
+
+    /**
      * UPSERT a usage counter increment.
      */
     private function upsertUsage(string $namespaceId, string $metric, int $amount): void

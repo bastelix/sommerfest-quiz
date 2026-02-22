@@ -6,14 +6,20 @@ namespace App\Controller;
 
 use App\Domain\Plan;
 use App\Infrastructure\Database;
+use App\Service\NamespaceSubscriptionService;
+use App\Service\PageService;
 use App\Service\StripeService;
 use App\Service\TenantService;
 use App\Service\LogService;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * Start a Stripe Checkout session from the admin subscription page.
+ *
+ * The checkout is scoped to a namespace: each namespace can have its own
+ * Stripe customer and subscription.
  */
 class AdminSubscriptionCheckoutController
 {
@@ -42,8 +48,14 @@ class AdminSubscriptionCheckoutController
                 return $this->jsonError($response, 422, 'invalid plan');
             }
 
+            $namespaceSlug = trim((string) ($data['namespace'] ?? ''));
+            if ($namespaceSlug === '') {
+                $namespaceSlug = PageService::DEFAULT_NAMESPACE;
+            }
+
             $embedded = filter_var($data['embedded'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
+            // Resolve tenant for email fallback
             $host = $request->getUri()->getHost();
             $sub = explode('.', $host)[0];
             $domainType = (string) $request->getAttribute('domainType');
@@ -57,21 +69,32 @@ class AdminSubscriptionCheckoutController
                 return $this->jsonError($response, 404, 'tenant not found');
             }
 
-            $email = (string) ($tenant['imprint_email'] ?? '');
-            $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
-            if ($email === '') {
-                $payloadEmail = (string) ($data['email'] ?? '');
-                if ($payloadEmail !== '' && filter_var($payloadEmail, FILTER_VALIDATE_EMAIL)) {
-                    $email = $payloadEmail;
-                    $tenant['imprint_email'] = $email;
-                    $tenantService->updateProfile(
-                        $domainType === 'main' ? 'main' : $sub,
-                        ['imprint_email' => $email]
-                    );
-                }
+            // Resolve namespace project
+            $pdo = $request->getAttribute('pdo');
+            if (!$pdo instanceof PDO) {
+                $pdo = Database::connectFromEnv();
             }
+            $nsSvc = new NamespaceSubscriptionService($pdo);
+            $project = $nsSvc->findOrCreate($namespaceSlug);
+
+            // Get email: prefer payload, then namespace profile, then tenant
+            $email = '';
+            $payloadEmail = (string) ($data['email'] ?? '');
+            if ($payloadEmail !== '' && filter_var($payloadEmail, FILTER_VALIDATE_EMAIL)) {
+                $email = $payloadEmail;
+            }
+            if ($email === '') {
+                $email = (string) ($tenant['imprint_email'] ?? '');
+            }
+
+            // Stripe customer: prefer namespace-level, fall back to tenant-level
+            $customerId = (string) ($project['stripe_customer_id'] ?? '');
+            if ($customerId === '') {
+                $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
+            }
+
             if ($email === '' && $customerId === '') {
-                $logger->warning('Missing tenant email', ['tenant' => $tenant['subdomain'] ?? $sub]);
+                $logger->warning('Missing email', ['namespace' => $namespaceSlug]);
                 return $this->jsonError($response, 422, 'missing email');
             }
 
@@ -93,7 +116,11 @@ class AdminSubscriptionCheckoutController
                         $email,
                         $tenant['imprint_name'] ?? null
                     );
-                    $tenant['stripe_customer_id'] = $customerId;
+                    // Store customer on the namespace project
+                    $nsSvc->updateStripeInfo($namespaceSlug, [
+                        'stripe_customer_id' => $customerId,
+                    ]);
+                    // Also store on tenant for backwards compat
                     $tenantService->updateProfile(
                         $domainType === 'main' ? 'main' : $sub,
                         ['stripe_customer_id' => $customerId]
@@ -104,10 +131,21 @@ class AdminSubscriptionCheckoutController
                 }
             }
 
+            // Save email on tenant if it was missing
+            if (($tenant['imprint_email'] ?? '') === '' && $email !== '') {
+                $tenantService->updateProfile(
+                    $domainType === 'main' ? 'main' : $sub,
+                    ['imprint_email' => $email]
+                );
+            }
+
             $uri = $request->getUri();
             $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
-            $successUrl = $baseUrl . '/admin/subscription?session_id={CHECKOUT_SESSION_ID}';
-            $cancelUrl = $baseUrl . '/admin/subscription';
+            $successUrl = $baseUrl . '/admin/subscription?session_id={CHECKOUT_SESSION_ID}&namespace=' . urlencode($namespaceSlug);
+            $cancelUrl = $baseUrl . '/admin/subscription?namespace=' . urlencode($namespaceSlug);
+
+            // Use namespace slug as client reference ID
+            $clientReferenceId = $namespaceSlug;
 
             try {
                 $result = $service->createCheckoutSession(
@@ -117,7 +155,7 @@ class AdminSubscriptionCheckoutController
                     $plan->value,
                     $customerId === '' ? $email : null,
                     $customerId !== '' ? $customerId : null,
-                    $tenant['subdomain'] ?? $sub,
+                    $clientReferenceId,
                     null,
                     $embedded
                 );
@@ -134,7 +172,7 @@ class AdminSubscriptionCheckoutController
             } else {
                 $payload = json_encode(['url' => $result]);
             }
-            $logger->info('Checkout session created', ['embedded' => $embedded]);
+            $logger->info('Checkout session created', ['embedded' => $embedded, 'namespace' => $namespaceSlug]);
             $response->getBody()->write($payload !== false ? $payload : '{}');
             return $response->withHeader('Content-Type', 'application/json');
         } catch (\Throwable $e) {

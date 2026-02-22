@@ -22,7 +22,7 @@
       return queryNamespace;
     }
 
-    const select = document.querySelector('[data-namespace-select], #projectNamespaceSelect, #pageNamespaceSelect, #namespaceSelect');
+    const select = document.querySelector('[data-namespace-select], [data-subscription-namespace-select], #projectNamespaceSelect, #pageNamespaceSelect, #namespaceSelect, #subscriptionNamespaceSelect');
     const candidate = (select?.value || '').trim();
 
     return candidate;

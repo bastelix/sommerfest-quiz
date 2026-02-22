@@ -51,6 +51,56 @@ class QuotaServiceTest extends TestCase
             . ')'
         );
 
+        // Tables for hybrid recount
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS events ('
+            . 'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, '
+            . 'namespace TEXT NOT NULL DEFAULT "default", '
+            . 'name TEXT NOT NULL, start_date TEXT, end_date TEXT, '
+            . 'description TEXT, published INTEGER DEFAULT 0, sort_order INTEGER DEFAULT 0'
+            . ')'
+        );
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS teams ('
+            . 'uid TEXT PRIMARY KEY, sort_order INTEGER NOT NULL, '
+            . 'name TEXT NOT NULL, namespace TEXT DEFAULT "default", '
+            . 'event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE'
+            . ')'
+        );
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS catalogs ('
+            . 'uid TEXT PRIMARY KEY, sort_order INTEGER NOT NULL, '
+            . 'slug TEXT UNIQUE NOT NULL, name TEXT NOT NULL, '
+            . 'namespace TEXT DEFAULT "default", event_uid TEXT'
+            . ')'
+        );
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS questions ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            . 'catalog_uid TEXT NOT NULL, sort_order INTEGER, '
+            . 'question TEXT NOT NULL, answer1 TEXT, answer2 TEXT, answer3 TEXT, answer4 TEXT'
+            . ')'
+        );
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS pages ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            . 'namespace TEXT NOT NULL DEFAULT "default", '
+            . 'slug TEXT NOT NULL, title TEXT NOT NULL, content TEXT NOT NULL'
+            . ')'
+        );
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS marketing_page_wiki_articles ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            . 'page_id INTEGER NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL'
+            . ')'
+        );
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS landing_news ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            . 'page_id INTEGER NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL'
+            . ')'
+        );
+
         return $pdo;
     }
 
@@ -310,5 +360,97 @@ class QuotaServiceTest extends TestCase
 
         $this->assertSame(2, $service->getUsage('ns-1', 'events'));
         $this->assertSame(10, $service->getUsage('ns-1', 'teams'));
+    }
+
+    public function testGetPlanBySlug(): void
+    {
+        $pdo = $this->createPdo();
+        $this->seedPlanLimits($pdo);
+        $this->createNamespace($pdo, 'ns-1', 'starter');
+
+        $service = new QuotaService($pdo);
+
+        $this->assertSame('starter', $service->getPlanBySlug('test-ns-1'));
+    }
+
+    public function testGetPlanBySlugUnknownReturnsFree(): void
+    {
+        $pdo = $this->createPdo();
+        $service = new QuotaService($pdo);
+
+        $this->assertSame('free', $service->getPlanBySlug('nonexistent'));
+    }
+
+    public function testRecountBySlugCountsFromRealTables(): void
+    {
+        $pdo = $this->createPdo();
+        $this->seedPlanLimits($pdo);
+        $this->createNamespace($pdo, 'ns-1', 'starter');
+
+        // Insert real data
+        $pdo->exec("INSERT INTO events (uid, slug, namespace, name) VALUES ('e1', 'event-1', 'test-ns-1', 'Event 1')");
+        $pdo->exec("INSERT INTO events (uid, slug, namespace, name) VALUES ('e2', 'event-2', 'test-ns-1', 'Event 2')");
+        $pdo->exec("INSERT INTO events (uid, slug, namespace, name) VALUES ('e3', 'event-3', 'other', 'Event 3')");
+        $pdo->exec("INSERT INTO teams (uid, sort_order, name, namespace, event_uid) VALUES ('t1', 1, 'Team 1', 'test-ns-1', 'e1')");
+        $pdo->exec("INSERT INTO catalogs (uid, sort_order, slug, name, namespace) VALUES ('c1', 1, 'cat-1', 'Catalog 1', 'test-ns-1')");
+        $pdo->exec("INSERT INTO questions (catalog_uid, sort_order, question) VALUES ('c1', 1, 'What?')");
+        $pdo->exec("INSERT INTO pages (namespace, slug, title, content) VALUES ('test-ns-1', 'page-1', 'Page 1', 'content')");
+
+        $service = new QuotaService($pdo);
+        $counts = $service->recountBySlug('test-ns-1');
+
+        $this->assertSame(2, $counts['events']);
+        $this->assertSame(1, $counts['teams']);
+        $this->assertSame(1, $counts['catalogs']);
+        $this->assertSame(1, $counts['questions']);
+        $this->assertSame(1, $counts['pages']);
+        $this->assertSame(0, $counts['wiki_entries']);
+        $this->assertSame(0, $counts['news_articles']);
+    }
+
+    public function testRecountBySlugSyncsToQuotaUsage(): void
+    {
+        $pdo = $this->createPdo();
+        $this->seedPlanLimits($pdo);
+        $this->createNamespace($pdo, 'ns-1', 'starter');
+
+        $pdo->exec("INSERT INTO events (uid, slug, namespace, name) VALUES ('e1', 'event-1', 'test-ns-1', 'Event 1')");
+
+        $service = new QuotaService($pdo);
+        $service->recountBySlug('test-ns-1');
+
+        // Should be synced to namespace_quota_usage
+        $this->assertSame(1, $service->getUsage('ns-1', 'events'));
+    }
+
+    public function testGetOverviewBySlug(): void
+    {
+        $pdo = $this->createPdo();
+        $this->seedPlanLimits($pdo);
+        $this->createNamespace($pdo, 'ns-1', 'starter');
+
+        $pdo->exec("INSERT INTO events (uid, slug, namespace, name) VALUES ('e1', 'event-1', 'test-ns-1', 'Event 1')");
+
+        $service = new QuotaService($pdo);
+        $overview = $service->getOverviewBySlug('test-ns-1');
+
+        $this->assertSame('starter', $overview['plan']);
+        $this->assertArrayHasKey('limits', $overview);
+        $this->assertArrayHasKey('usage', $overview);
+        $this->assertSame(1, $overview['usage']['events']);
+        $this->assertSame(3, $overview['limits']['events']); // starter: 3 events
+    }
+
+    public function testGetOverviewBySlugUnknownNamespace(): void
+    {
+        $pdo = $this->createPdo();
+        $this->seedPlanLimits($pdo);
+
+        $service = new QuotaService($pdo);
+        $overview = $service->getOverviewBySlug('nonexistent');
+
+        $this->assertSame('free', $overview['plan']);
+        $this->assertSame(0, $overview['usage']['events']);
+        $this->assertSame(1, $overview['limits']['events']); // free: 1 event
     }
 }
