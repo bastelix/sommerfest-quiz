@@ -3449,12 +3449,116 @@ export class BlockContentEditor {
         statusEl.style.display = '';
       });
 
+    // -- Catalog selector --
+    const catalogSection = createFieldSection('Katalog', 'Optional: Wähle einen Katalog, um direkt zur Quizstartseite zu verlinken.');
+
+    const catalogSelectWrapper = document.createElement('div');
+    const catalogSelect = document.createElement('select');
+    catalogSelect.className = 'uk-select';
+    catalogSelect.disabled = true;
+
+    const catalogPlaceholder = document.createElement('option');
+    catalogPlaceholder.value = '';
+    catalogPlaceholder.textContent = 'Kein Katalog (Katalogauswahl anzeigen)';
+    catalogSelect.append(catalogPlaceholder);
+    catalogSelectWrapper.append(catalogSelect);
+
+    const catalogStatusEl = document.createElement('p');
+    catalogStatusEl.className = 'uk-text-meta uk-margin-small-top';
+    catalogStatusEl.style.display = 'none';
+    catalogSelectWrapper.append(catalogStatusEl);
+
+    catalogSection.append(catalogSelectWrapper);
+
+    const loadCatalogs = (eventSlug) => {
+      catalogSelect.innerHTML = '';
+      const noCatalogOpt = document.createElement('option');
+      noCatalogOpt.value = '';
+      noCatalogOpt.textContent = 'Kein Katalog (Katalogauswahl anzeigen)';
+      catalogSelect.append(noCatalogOpt);
+
+      if (!eventSlug) {
+        catalogSelect.disabled = true;
+        catalogStatusEl.textContent = 'Wähle zuerst ein Event aus.';
+        catalogStatusEl.className = 'uk-text-meta uk-margin-small-top';
+        catalogStatusEl.style.display = '';
+        return;
+      }
+
+      catalogSelect.disabled = true;
+      const loadOpt = document.createElement('option');
+      loadOpt.textContent = 'Kataloge werden geladen\u2026';
+      catalogSelect.append(loadOpt);
+      catalogStatusEl.style.display = 'none';
+
+      const catalogUrl = `${basePath}/kataloge/catalogs.json?event=${encodeURIComponent(eventSlug)}`;
+      fetch(catalogUrl, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then(catalogs => {
+          catalogSelect.innerHTML = '';
+          const defaultOpt = document.createElement('option');
+          defaultOpt.value = '';
+          defaultOpt.textContent = 'Kein Katalog (Katalogauswahl anzeigen)';
+          catalogSelect.append(defaultOpt);
+
+          const list = Array.isArray(catalogs) ? catalogs : [];
+          if (list.length === 0) {
+            catalogSelect.disabled = true;
+            catalogStatusEl.textContent = 'Keine Kataloge für dieses Event vorhanden.';
+            catalogStatusEl.style.display = '';
+            return;
+          }
+          list.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.slug || cat.uid || cat.sort_order || '';
+            opt.textContent = cat.name || opt.value || '(unbenannt)';
+            if (opt.value === (block.data.catalogSlug || '')) {
+              opt.selected = true;
+            }
+            catalogSelect.append(opt);
+          });
+          catalogSelect.disabled = false;
+          if (block.data.catalogSlug && !list.some(cat => (cat.slug || cat.uid || cat.sort_order) === block.data.catalogSlug)) {
+            catalogStatusEl.textContent = `Katalog „${block.data.catalogSlug}" wurde nicht gefunden.`;
+            catalogStatusEl.className = 'uk-text-meta uk-text-warning uk-margin-small-top';
+            catalogStatusEl.style.display = '';
+          }
+        })
+        .catch(() => {
+          catalogSelect.innerHTML = '';
+          const errOpt = document.createElement('option');
+          errOpt.value = '';
+          errOpt.textContent = 'Fehler beim Laden';
+          catalogSelect.append(errOpt);
+          catalogSelect.disabled = true;
+          catalogStatusEl.textContent = 'Kataloge konnten nicht geladen werden.';
+          catalogStatusEl.style.display = '';
+        });
+    };
+
+    catalogSelect.addEventListener('change', () => {
+      const val = catalogSelect.value;
+      this.updateBlockData(block.id, ['data', 'catalogSlug'], val || undefined);
+      catalogStatusEl.style.display = 'none';
+    });
+
+    // Load catalogs for the currently selected event
+    if (block.data.eventSlug) {
+      loadCatalogs(block.data.eventSlug);
+    }
+
     eventSelect.addEventListener('change', () => {
       const slug = eventSelect.value;
       if (slug) {
         this.updateBlockData(block.id, ['data', 'eventSlug'], slug);
         statusEl.style.display = 'none';
       }
+      // Reset catalog selection when event changes
+      this.updateBlockData(block.id, ['data', 'catalogSlug'], undefined);
+      loadCatalogs(slug);
     });
 
     const optionsSection = createFieldSection('Anzeigeoptionen', 'Steuert die Darstellung des Event-Blocks.');
@@ -3497,7 +3601,7 @@ export class BlockContentEditor {
     descLabel.append(descCheckbox, descText);
     optionsSection.append(descLabel);
 
-    wrapper.append(eventSection, optionsSection);
+    wrapper.append(eventSection, catalogSection, optionsSection);
     return wrapper;
   }
 
