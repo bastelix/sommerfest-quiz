@@ -22,6 +22,7 @@ import {
   DEFAULT_CONTAINER_BY_TYPE
 } from './section-intents.js';
 import { RENDERER_MATRIX } from './block-renderer-matrix.js';
+import { createDragHandle, createTypeBadge, wireCardSortable } from './card-row.js';
 const BLOCK_TYPE_LABELS = {
   hero: 'Hero',
   feature_list: 'Funktionen',
@@ -43,25 +44,26 @@ const BLOCK_TYPE_LABELS = {
   event_highlight: 'Veranstaltung'
 };
 
+// Each entry: { abbr, color } where color is a badge-* utility class from card-row.css
 const BLOCK_TYPE_ABBR = {
-  hero: 'H',
-  feature_list: 'FL',
-  content_slider: 'SL',
-  process_steps: 'AB',
-  testimonial: 'ST',
-  rich_text: 'TX',
-  info_media: 'IM',
-  stat_strip: 'KZ',
-  audience_spotlight: 'AW',
-  package_summary: 'PA',
-  contact_form: 'KF',
-  faq: 'FAQ',
-  cta: 'CTA',
-  proof: 'NA',
-  latest_news: 'NG',
-  event_highlight: 'EV',
-  system_module: 'MO',
-  case_showcase: 'CS',
+  hero:               { abbr: 'H',   color: 'badge-blue'   },
+  feature_list:       { abbr: 'FL',  color: 'badge-green'  },
+  content_slider:     { abbr: 'SL',  color: 'badge-orange' },
+  process_steps:      { abbr: 'AB',  color: 'badge-red'    },
+  testimonial:        { abbr: 'ST',  color: 'badge-purple' },
+  rich_text:          { abbr: 'TX',  color: 'badge-gray'   },
+  info_media:         { abbr: 'IM',  color: 'badge-blue'   },
+  stat_strip:         { abbr: 'KZ',  color: 'badge-green'  },
+  audience_spotlight: { abbr: 'AW',  color: 'badge-orange' },
+  package_summary:    { abbr: 'PA',  color: 'badge-red'    },
+  contact_form:       { abbr: 'KF',  color: 'badge-purple' },
+  faq:                { abbr: 'FAQ', color: 'badge-gray'   },
+  cta:                { abbr: 'CTA', color: 'badge-blue'   },
+  proof:              { abbr: 'NA',  color: 'badge-green'  },
+  latest_news:        { abbr: 'NG',  color: 'badge-orange' },
+  event_highlight:    { abbr: 'EV',  color: 'badge-red'    },
+  system_module:      { abbr: 'MO',  color: 'badge-muted'  },
+  case_showcase:      { abbr: 'CS',  color: 'badge-muted'  },
 };
 
 const VARIANT_LABELS = {
@@ -2649,12 +2651,12 @@ export class BlockContentEditor {
       return aside;
     }
 
-    list.setAttribute('uk-sortable', 'handle: [data-drag-handle]');
-    list.addEventListener('moved', () => {
-      const ids = [...list.querySelectorAll('[data-block-id]')].map(el => el.dataset.blockId);
-      const blockMap = new Map(this.state.blocks.map(b => [b.id, b]));
-      this.state.blocks = ids.map(id => blockMap.get(id)).filter(Boolean);
-    });
+    wireCardSortable(
+      list,
+      () => this.state.blocks,
+      blocks => { this.state.blocks = blocks; },
+      'blockId'
+    );
 
     this.state.blocks.forEach(block => {
       const row = document.createElement('li');
@@ -2663,50 +2665,48 @@ export class BlockContentEditor {
       row.dataset.blockHover = 'false';
       row.setAttribute('aria-selected', block.id === this.state.activeSectionId ? 'true' : 'false');
 
-      const dragHandle = document.createElement('div');
-      dragHandle.className = 'page-editor-block-drag';
-      dragHandle.dataset.dragHandle = 'true';
-      dragHandle.setAttribute('aria-hidden', 'true');
-      dragHandle.setAttribute('uk-icon', 'table');
-
-      const typeBadge = document.createElement('div');
-      typeBadge.className = `page-editor-block-badge page-editor-block-badge--${block.type}`;
-      typeBadge.textContent = BLOCK_TYPE_ABBR[block.type] || block.type.slice(0, 2).toUpperCase();
-      typeBadge.title = BLOCK_TYPE_LABELS[block.type] || block.type;
+      const typeInfo = BLOCK_TYPE_ABBR[block.type] || { abbr: block.type.slice(0, 2).toUpperCase(), color: 'badge-muted' };
+      const badge = createTypeBadge(typeInfo.abbr, typeInfo.color, BLOCK_TYPE_LABELS[block.type] || block.type);
 
       const labelWrapper = document.createElement('div');
-      labelWrapper.dataset.blockLabel = 'true';
-      labelWrapper.style.display = 'flex';
-      labelWrapper.style.gap = '0.5rem';
-      labelWrapper.style.alignItems = 'center';
+      labelWrapper.className = 'card-row__info';
 
-      const labelText = document.createElement('span');
+      const labelText = document.createElement('div');
+      labelText.className = 'card-row__title';
       labelText.textContent = this.getBlockDisplayTitle(block);
 
       const statuses = this.getBlockStatuses(block);
       statuses.forEach(status => {
-        const badge = document.createElement('span');
-        badge.textContent = status.icon;
-        badge.title = status.tooltip;
-        badge.dataset.blockStatus = 'true';
-        labelWrapper.append(badge);
+        const statusBadge = document.createElement('span');
+        statusBadge.textContent = status.icon;
+        statusBadge.title = status.tooltip;
+        statusBadge.dataset.blockStatus = 'true';
+        labelWrapper.append(statusBadge);
       });
 
       labelWrapper.append(labelText);
 
+      const actions = document.createElement('div');
+      actions.className = 'card-row__actions';
       const duplicateBtn = document.createElement('button');
       duplicateBtn.type = 'button';
-      duplicateBtn.dataset.action = 'duplicate-block';
-      duplicateBtn.textContent = 'Duplizieren';
+      duplicateBtn.className = 'btn-duplicate';
+      duplicateBtn.setAttribute('uk-icon', 'copy');
+      duplicateBtn.setAttribute('aria-label', 'Duplizieren');
       duplicateBtn.addEventListener('click', () => this.duplicateBlock(block.id));
-
       const deleteBtn = document.createElement('button');
       deleteBtn.type = 'button';
-      deleteBtn.dataset.action = 'delete-block';
-      deleteBtn.textContent = 'Löschen';
+      deleteBtn.className = 'btn-delete';
+      deleteBtn.setAttribute('uk-icon', 'trash');
+      deleteBtn.setAttribute('aria-label', 'Löschen');
       deleteBtn.addEventListener('click', () => this.deleteBlock(block.id));
+      actions.append(duplicateBtn, deleteBtn);
 
-      row.append(dragHandle, typeBadge, labelWrapper, duplicateBtn, deleteBtn);
+      const summary = document.createElement('div');
+      summary.className = 'card-row__summary';
+      summary.append(createDragHandle(), badge, labelWrapper, actions);
+      row.append(summary);
+
       row.addEventListener('mouseenter', () => {
         row.dataset.blockHover = 'true';
         this.highlightPreview(block.id);
@@ -3695,20 +3695,25 @@ export class BlockContentEditor {
       ];
 
       const card = this.createCollectionCard({
+        id: slide.id,
         title: (slide.label || '').trim() || `Slide ${index + 1}`,
         meta: `Slide ${index + 1}`,
         body: slideBody,
         onRemove: () => this.removeContentSliderSlide(block.id, slide.id),
-        onMoveUp: () => this.moveContentSliderSlide(block.id, slide.id, -1),
-        onMoveDown: () => this.moveContentSliderSlide(block.id, slide.id, 1),
-        moveUpDisabled: index === 0,
-        moveDownDisabled: index === (block.data.slides || []).length - 1,
         removeDisabled: (block.data.slides || []).length <= 1
       });
 
       slidesWrapper.append(card);
     });
 
+    this.wireCollectionSortable(
+      slidesWrapper,
+      () => this.state.blocks.find(b => b.id === block.id)?.data.slides || [],
+      newOrder => {
+        const b = this.state.blocks.find(b => b.id === block.id);
+        if (b) b.data.slides = newOrder;
+      }
+    );
     slidesWrapper.append(this.createCollectionAddButton('Slide hinzufügen', () => this.addContentSliderSlide(block.id)));
     wrapper.append(slidesWrapper);
 
@@ -3743,14 +3748,10 @@ export class BlockContentEditor {
         ];
 
         const highlightCard = this.createCollectionCard({
+          id: highlightIndex,
           title: (highlight.title || '').trim() || `Highlight ${highlightIndex + 1}`,
           meta: `Highlight ${highlightIndex + 1}`,
-          index: highlightIndex,
           onRemove: () => this.removePackageOptionHighlight(block.id, option.id, highlightIndex),
-          onMoveUp: () => this.movePackageOptionHighlight(block.id, option.id, highlightIndex, -1),
-          onMoveDown: () => this.movePackageOptionHighlight(block.id, option.id, highlightIndex, 1),
-          moveUpDisabled: highlightIndex === 0,
-          moveDownDisabled: highlightIndex === (option.highlights || []).length - 1,
           removeDisabled: (option.highlights || []).length <= 1,
           body: highlightBody
         });
@@ -3768,14 +3769,10 @@ export class BlockContentEditor {
       ];
 
       const optionCard = this.createCollectionCard({
+        id: option.id,
         title: (option.title || option.id || '').trim() || `Option ${index + 1}`,
         meta: `Option ${index + 1}`,
-        index,
         onRemove: () => this.removePackageOption(block.id, option.id),
-        onMoveUp: () => this.movePackageOption(block.id, option.id, -1),
-        onMoveDown: () => this.movePackageOption(block.id, option.id, 1),
-        moveUpDisabled: index === 0,
-        moveDownDisabled: index === (block.data.options || []).length - 1,
         removeDisabled: (block.data.options || []).length <= 1,
         body: optionBody
       });
@@ -3783,6 +3780,14 @@ export class BlockContentEditor {
       optionsWrapper.append(optionCard);
     });
 
+    this.wireCollectionSortable(
+      optionsWrapper,
+      () => this.state.blocks.find(b => b.id === block.id)?.data.options || [],
+      newOrder => {
+        const b = this.state.blocks.find(b => b.id === block.id);
+        if (b) b.data.options = newOrder;
+      }
+    );
     optionsWrapper.append(this.createCollectionAddButton('Option hinzufügen', () => this.addPackageOption(block.id)));
     wrapper.append(optionsWrapper);
 
@@ -3825,14 +3830,10 @@ export class BlockContentEditor {
       planBody.push(secondaryCtaWrapper);
 
       const planCard = this.createCollectionCard({
+        id: plan.id,
         title: (plan.title || plan.badge || '').trim() || `Paket ${index + 1}`,
         meta: `Paket ${index + 1}`,
-        index,
         onRemove: () => this.removePackagePlan(block.id, plan.id),
-        onMoveUp: () => this.movePackagePlan(block.id, plan.id, -1),
-        onMoveDown: () => this.movePackagePlan(block.id, plan.id, 1),
-        moveUpDisabled: index === 0,
-        moveDownDisabled: index === (block.data.plans || []).length - 1,
         removeDisabled: (block.data.plans || []).length <= 1,
         body: planBody
       });
@@ -3840,6 +3841,14 @@ export class BlockContentEditor {
       plansWrapper.append(planCard);
     });
 
+    this.wireCollectionSortable(
+      plansWrapper,
+      () => this.state.blocks.find(b => b.id === block.id)?.data.plans || [],
+      newOrder => {
+        const b = this.state.blocks.find(b => b.id === block.id);
+        if (b) b.data.plans = newOrder;
+      }
+    );
     plansWrapper.append(this.createCollectionAddButton('Paket hinzufügen', () => this.addPackagePlan(block.id)));
     wrapper.append(plansWrapper);
     wrapper.append(this.addLabeledInput('Disclaimer', block.data.disclaimer, value => this.updateBlockData(block.id, ['data', 'disclaimer'], value), { multiline: true }));
@@ -3882,14 +3891,10 @@ export class BlockContentEditor {
       ];
 
       const card = this.createCollectionCard({
+        id: audienceCase.id,
         title: (audienceCase.title || audienceCase.badge || '').trim() || `Use Case ${index + 1}`,
         meta: `Eintrag ${index + 1}`,
-        index,
         onRemove: () => this.removeAudienceCase(block.id, audienceCase.id),
-        onMoveUp: () => this.moveAudienceCase(block.id, audienceCase.id, -1),
-        onMoveDown: () => this.moveAudienceCase(block.id, audienceCase.id, 1),
-        moveUpDisabled: index === 0,
-        moveDownDisabled: index === (block.data.cases || []).length - 1,
         removeDisabled: (block.data.cases || []).length <= 1,
         body
       });
@@ -3897,6 +3902,14 @@ export class BlockContentEditor {
       casesWrapper.append(card);
     });
 
+    this.wireCollectionSortable(
+      casesWrapper,
+      () => this.state.blocks.find(b => b.id === block.id)?.data.cases || [],
+      newOrder => {
+        const b = this.state.blocks.find(b => b.id === block.id);
+        if (b) b.data.cases = newOrder;
+      }
+    );
     casesWrapper.append(this.createCollectionAddButton('Use Case hinzufügen', () => this.addAudienceCase(block.id)));
 
     wrapper.append(casesWrapper);
@@ -4714,20 +4727,24 @@ export class BlockContentEditor {
           )
         ];
         const card = this.createCollectionCard({
+          id: group.id,
           title: (group.label || '').trim() || `Gruppe ${index + 1}`,
           meta: `Tab ${index + 1}`,
-          index,
           onRemove: () => this.removeFeatureGroup(block.id, group.id),
-          onMoveUp: () => this.moveFeatureGroup(block.id, group.id, -1),
-          onMoveDown: () => this.moveFeatureGroup(block.id, group.id, 1),
-          moveUpDisabled: index === 0,
-          moveDownDisabled: index === groups.length - 1,
           removeDisabled: groups.length <= 1,
           body
         });
         groupsWrapper.append(card);
       });
 
+      this.wireCollectionSortable(
+        groupsWrapper,
+        () => this.state.blocks.find(b => b.id === block.id)?.data.groups || [],
+        newOrder => {
+          const b = this.state.blocks.find(b => b.id === block.id);
+          if (b) b.data.groups = newOrder;
+        }
+      );
       groupsWrapper.append(
         this.createCollectionAddButton('Gruppe hinzufügen', () =>
           this.addFeatureGroup(block.id)
@@ -4763,14 +4780,10 @@ export class BlockContentEditor {
       }
 
       const card = this.createCollectionCard({
+        id: item.id,
         title: (item.title || item.description || '').trim() || `Feature ${index + 1}`,
         meta: `Feature ${index + 1}`,
-        index,
         onRemove: () => this.removeFeatureItem(block.id, item.id),
-        onMoveUp: () => this.moveFeatureItem(block.id, item.id, -1),
-        onMoveDown: () => this.moveFeatureItem(block.id, item.id, 1),
-        moveUpDisabled: index === 0,
-        moveDownDisabled: index === (block.data.items || []).length - 1,
         removeDisabled: (block.data.items || []).length <= 1,
         body
       });
@@ -4778,6 +4791,14 @@ export class BlockContentEditor {
       itemsWrapper.append(card);
     });
 
+    this.wireCollectionSortable(
+      itemsWrapper,
+      () => this.state.blocks.find(b => b.id === block.id)?.data.items || [],
+      newOrder => {
+        const b = this.state.blocks.find(b => b.id === block.id);
+        if (b) b.data.items = newOrder;
+      }
+    );
     itemsWrapper.append(this.createCollectionAddButton('Feature hinzufügen', () => this.addFeatureItem(block.id)));
 
     wrapper.append(itemsWrapper);
@@ -4903,14 +4924,10 @@ export class BlockContentEditor {
       ];
 
       const card = this.createCollectionCard({
+        id: item.id,
         title: (item.question || '').trim() || `Frage ${index + 1}`,
         meta: `Eintrag ${index + 1}`,
-        index,
         onRemove: () => this.removeFaqItem(block.id, item.id),
-        onMoveUp: () => this.moveFaqItem(block.id, item.id, -1),
-        onMoveDown: () => this.moveFaqItem(block.id, item.id, 1),
-        moveUpDisabled: index === 0,
-        moveDownDisabled: index === (block.data.items || []).length - 1,
         removeDisabled: (block.data.items || []).length <= 1,
         body
       });
@@ -4918,6 +4935,14 @@ export class BlockContentEditor {
       list.append(card);
     });
 
+    this.wireCollectionSortable(
+      list,
+      () => this.state.blocks.find(b => b.id === block.id)?.data.items || [],
+      newOrder => {
+        const b = this.state.blocks.find(b => b.id === block.id);
+        if (b) b.data.items = newOrder;
+      }
+    );
     list.append(this.createCollectionAddButton('Frage hinzufügen', () => this.addFaqItem(block.id)));
     itemsSection.append(list);
     wrapper.append(itemsSection);
@@ -4998,14 +5023,10 @@ export class BlockContentEditor {
       ];
 
       const card = this.createCollectionCard({
+        id: metric.id,
         title: (metric.label || metric.value || '').trim() || `Kennzahl ${index + 1}`,
         meta: `Eintrag ${index + 1}`,
-        index,
         onRemove: () => this.removeStatStripMetric(block.id, metric.id),
-        onMoveUp: () => this.moveStatStripMetric(block.id, metric.id, -1),
-        onMoveDown: () => this.moveStatStripMetric(block.id, metric.id, 1),
-        moveUpDisabled: index === 0,
-        moveDownDisabled: index === (block.data.metrics || []).length - 1,
         removeDisabled: (block.data.metrics || []).length <= 1,
         body
       });
@@ -5013,6 +5034,14 @@ export class BlockContentEditor {
       metricsWrapper.append(card);
     });
 
+    this.wireCollectionSortable(
+      metricsWrapper,
+      () => this.state.blocks.find(b => b.id === block.id)?.data.metrics || [],
+      newOrder => {
+        const b = this.state.blocks.find(b => b.id === block.id);
+        if (b) b.data.metrics = newOrder;
+      }
+    );
     metricsWrapper.append(this.createCollectionAddButton('Kennzahl hinzufügen', () => this.addStatStripMetric(block.id)));
 
     wrapper.append(metricsWrapper);
@@ -5050,24 +5079,46 @@ export class BlockContentEditor {
     return button;
   }
 
+  wireCollectionSortable(listEl, getItems, setItems) {
+    if (typeof UIkit === 'undefined') return;
+    try {
+      UIkit.sortable(listEl, { handle: '[data-drag-handle]', animation: 150 });
+      UIkit.util.on(listEl, 'moved', () => {
+        const items = getItems();
+        const cards = [...listEl.querySelectorAll(':scope > .collection-item[data-item-id]')];
+        if (cards.length !== items.length) return;
+        const itemMap = new Map(items.map(item => [String(item.id), item]));
+        const reordered = cards.map(el => itemMap.get(el.dataset.itemId)).filter(Boolean);
+        if (reordered.length === items.length) setItems(reordered);
+      });
+    } catch (e) {
+      console.warn('[block-editor] collection sortable error:', e);
+    }
+  }
+
   createCollectionCard(options = {}) {
     const {
+      id,
       title,
       meta,
       body = [],
       onRemove,
-      onMoveUp,
-      onMoveDown,
-      moveUpDisabled = false,
-      moveDownDisabled = false,
       removeDisabled = false
     } = options;
 
     const card = document.createElement('div');
     card.className = 'collection-item';
+    if (id !== undefined) card.dataset.itemId = String(id);
 
     const header = document.createElement('div');
     header.className = 'collection-item__header';
+
+    const dragHandle = document.createElement('div');
+    dragHandle.className = 'card-row__drag';
+    dragHandle.dataset.dragHandle = 'true';
+    dragHandle.setAttribute('aria-hidden', 'true');
+    dragHandle.setAttribute('uk-icon', 'table');
+    header.append(dragHandle);
 
     const titleEl = document.createElement('div');
     titleEl.className = 'collection-item__title';
@@ -5084,15 +5135,8 @@ export class BlockContentEditor {
     const actions = document.createElement('div');
     actions.className = 'collection-item__actions';
 
-    const moveUpBtn = this.createCollectionActionButton('Nach oben', onMoveUp, { disabled: moveUpDisabled });
-    const moveDownBtn = this.createCollectionActionButton('Nach unten', onMoveDown, { disabled: moveDownDisabled });
     const removeBtn = this.createCollectionActionButton('Entfernen', onRemove, { disabled: removeDisabled });
-
-    [moveUpBtn, moveDownBtn, removeBtn].forEach(btn => {
-      if (btn) {
-        actions.append(btn);
-      }
-    });
+    if (removeBtn) actions.append(removeBtn);
 
     header.append(actions);
     card.append(header);
