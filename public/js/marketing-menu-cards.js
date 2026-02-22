@@ -14,10 +14,10 @@
 
   /* ── Layout type badge config ─────────────────────────────── */
   const LAYOUT_TYPES = {
-    link:     { abbr: 'L', cls: 'menu-card__type--link',     label: 'Link' },
-    dropdown: { abbr: 'D', cls: 'menu-card__type--dropdown',  label: 'Dropdown' },
-    mega:     { abbr: 'M', cls: 'menu-card__type--mega',      label: 'Mega' },
-    column:   { abbr: 'C', cls: 'menu-card__type--column',    label: 'Spalte' },
+    link:     { abbr: 'L', color: 'badge-blue',   label: 'Link' },
+    dropdown: { abbr: 'D', color: 'badge-green',  label: 'Dropdown' },
+    mega:     { abbr: 'M', color: 'badge-red',    label: 'Mega' },
+    column:   { abbr: 'C', color: 'badge-orange', label: 'Spalte' },
   };
 
   const ICON_OPTIONS = [
@@ -254,11 +254,11 @@
     const meta = buildMeta(item);
 
     let html = `<div class="menu-card${inactiveClass}" data-card-id="${item.id}" data-parent-id="${item.parentId ?? ''}">`;
-    html += `<div class="menu-card__summary">`;
-    html += `<span class="menu-card__drag" title="Ziehen zum Sortieren"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="3" r="1.5"/><circle cx="11" cy="3" r="1.5"/><circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/><circle cx="5" cy="13" r="1.5"/><circle cx="11" cy="13" r="1.5"/></svg></span>`;
-    html += `<span class="menu-card__type ${lt.cls}" title="${esc(lt.label)}">${lt.abbr}</span>`;
-    html += `<div class="menu-card__info"><div class="menu-card__title">${esc(item.label) || '<em>Ohne Label</em>'}</div><div class="menu-card__meta">${esc(meta)}</div></div>`;
-    html += `<div class="menu-card__actions">`;
+    html += `<div class="card-row__summary">`;
+    html += `<span class="card-row__drag" data-drag-handle="true" aria-hidden="true" uk-icon="table"></span>`;
+    html += `<span class="card-row__badge ${lt.color}" title="${esc(lt.label)}">${lt.abbr}</span>`;
+    html += `<div class="card-row__info"><div class="card-row__title">${esc(item.label) || '<em>Ohne Label</em>'}</div><div class="card-row__meta">${esc(meta)}</div></div>`;
+    html += `<div class="card-row__actions">`;
     html += `<button type="button" data-card-edit="${item.id}" title="Bearbeiten"><span uk-icon="icon: pencil; ratio: 0.8"></span></button>`;
     html += `<button type="button" data-card-toggle-active="${item.id}" title="${item.isActive ? 'Deaktivieren' : 'Aktivieren'}" class="${item.isActive ? '' : 'btn-active--off'}"><span uk-icon="icon: ${item.isActive ? 'eye' : 'eye-slash'}; ratio: 0.8"></span></button>`;
     html += `<button type="button" data-card-add-child="${item.id}" title="Untereintrag hinzufügen"><span uk-icon="icon: plus-circle; ratio: 0.8"></span></button>`;
@@ -635,7 +635,7 @@
       try {
         UIkit.sortable(cardsList, {
           group: 'menu-cards',
-          handle: '.menu-card__drag',
+          handle: '[data-drag-handle]',
           animation: 150,
         });
 
@@ -650,7 +650,7 @@
         try {
           UIkit.sortable(childContainer, {
             group: 'menu-cards',
-            handle: '.menu-card__drag',
+            handle: '[data-drag-handle]',
             animation: 150,
           });
           const parentId = Number(childContainer.dataset.childrenOf);

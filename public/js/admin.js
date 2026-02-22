@@ -7293,17 +7293,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Summary row ──────────────────────────────────────────────────────
     const summary = document.createElement('div');
-    summary.className = 'question-block-card__summary';
+    summary.className = 'card-row__summary';
 
     const dragHandle = document.createElement('div');
-    dragHandle.className = 'question-block-card__drag';
+    dragHandle.className = 'card-row__drag';
+    dragHandle.dataset.dragHandle = 'true';
     dragHandle.setAttribute('aria-hidden', 'true');
     dragHandle.setAttribute('uk-icon', 'table');
     summary.appendChild(dragHandle);
 
+    const quizColorMap = { sort: 'badge-blue', assign: 'badge-green', mc: 'badge-red', swipe: 'badge-orange', flip: 'badge-purple', photoText: 'badge-gray' };
     const typeBadge = document.createElement('div');
-    typeBadge.className = 'question-block-card__icon question-block-card__icon--' + (q.type || 'mc');
+    typeBadge.className = 'card-row__badge ' + (quizColorMap[q.type || 'mc'] || 'badge-muted');
     typeBadge.textContent = abbrMap[q.type || 'mc'] || '?';
+    typeBadge.title = labelMap[q.type || 'mc'] || '';
     summary.appendChild(typeBadge);
 
     const numberBadge = document.createElement('span');
@@ -7312,18 +7315,18 @@ document.addEventListener('DOMContentLoaded', function () {
     summary.appendChild(numberBadge);
 
     const infoEl = document.createElement('div');
-    infoEl.className = 'question-block-card__info';
+    infoEl.className = 'card-row__info';
     const titleEl = document.createElement('div');
-    titleEl.className = 'question-block-card__title';
+    titleEl.className = 'card-row__title';
     titleEl.textContent = q.prompt || ('Neue ' + (labelMap[q.type || 'mc'] || 'Frage'));
     const metaEl = document.createElement('div');
-    metaEl.className = 'question-block-card__meta';
+    metaEl.className = 'card-row__meta';
     infoEl.appendChild(titleEl);
     infoEl.appendChild(metaEl);
     summary.appendChild(infoEl);
 
     const actions = document.createElement('div');
-    actions.className = 'question-block-card__actions';
+    actions.className = 'card-row__actions';
     const editBtn = document.createElement('button');
     editBtn.setAttribute('uk-icon', 'pencil');
     editBtn.setAttribute('aria-label', 'Bearbeiten');
@@ -7371,8 +7374,9 @@ document.addEventListener('DOMContentLoaded', function () {
         typeSelect.value = t;
         typeGrid.querySelectorAll('.question-type-option').forEach(o => o.classList.remove('is-active'));
         opt.classList.add('is-active');
-        typeBadge.className = 'question-block-card__icon question-block-card__icon--' + t;
+        typeBadge.className = 'card-row__badge ' + (quizColorMap[t] || 'badge-muted');
         typeBadge.textContent = abbrMap[t] || '?';
+        typeBadge.title = labelMap[t] || '';
         updateInfo();
         renderFields();
         updatePointsState();
