@@ -556,6 +556,7 @@
 - *(ai)* Increase default HTTP timeout from 60s to 180s
 - Resolve PHPStan nullCoalesce.offset errors
 - *(page-tree)* Add missing "Status ändern" menu item to Seitenbaum
+- *(subscription)* Scope subscription handling to namespace instead of tenant
 
 ### Merge
 
