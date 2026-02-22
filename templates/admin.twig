@@ -2638,6 +2638,7 @@
     window.transUsernameRequired = '{{ t('text_username_required') }}';
     window.stripeDashboard = '{{ stripe_sandbox ? 'https://dashboard.stripe.com/test' : 'https://dashboard.stripe.com' }}';
     window.initialEvents = {{ events|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.initialUsers = {{ users|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.initialEventSlug = '{{ event.slug|default('') }}';
     window.transWikiSettingsSaved = 'Wiki-Einstellungen gespeichert';
     window.transWikiSettingsError = 'Einstellungen konnten nicht gespeichert werden.';

@@ -105,7 +105,12 @@ export default class TableManager {
     const dataMap = new Map(this.data.map(d => [String(d.id), d]));
     const ordered = ids.map(id => dataMap.get(String(id))).filter(Boolean);
     if (ordered.length) {
-      if (ordered.length === this.data.length) {
+      if (this.pagination) {
+        const start = (this.pagination.page - 1) * this.pagination.perPage;
+        const before = this.data.slice(0, start);
+        const after = this.data.slice(start + ordered.length);
+        this.data = [...before, ...ordered, ...after];
+      } else if (ordered.length === this.data.length) {
         this.data = ordered;
       } else {
         const seen = new Set(ids.map(String));
@@ -135,15 +140,16 @@ export default class TableManager {
       }
     }
     this.filteredData = filtered;
-    if (this.tbody) {
-      this.tbody.innerHTML = '';
-    }
-    if (this.mobileCards?.container) {
-      this.mobileCards.container.innerHTML = '';
-    }
-    this.filteredData.forEach(item => this.addRow(item, { skipPaginationUpdate: true }));
     if (this.pagination) {
-      this.#updatePagination();
+      this.#renderPage();
+    } else {
+      if (this.tbody) {
+        this.tbody.innerHTML = '';
+      }
+      if (this.mobileCards?.container) {
+        this.mobileCards.container.innerHTML = '';
+      }
+      this.filteredData.forEach(item => this.addRow(item, { skipPaginationUpdate: true }));
     }
   }
 
@@ -255,7 +261,7 @@ export default class TableManager {
     }
 
     if (this.pagination && !skipPaginationUpdate) {
-      this.#updatePagination();
+      this.#renderPaginationControls();
     }
   }
 
@@ -377,24 +383,36 @@ export default class TableManager {
       const page = parseInt(link.dataset.page, 10);
       if (!isNaN(page)) {
         this.pagination.page = page;
-        this.#updatePagination();
+        this.#renderPage();
       }
     });
-    this.#updatePagination();
+    this.#renderPage();
   }
 
-  #updatePagination() {
-    const { el, perPage, page } = this.pagination;
-    const rows = Array.from(this.tbody.children);
-    const cards = this.mobileCards?.container ? Array.from(this.mobileCards.container.children) : [];
-    const totalPages = Math.max(1, Math.ceil(rows.length / perPage));
-    const current = Math.min(page, totalPages);
-    rows.forEach((r, idx) => {
-      r.style.display = idx >= (current - 1) * perPage && idx < current * perPage ? '' : 'none';
-    });
-    cards.forEach((c, idx) => {
-      c.style.display = idx >= (current - 1) * perPage && idx < current * perPage ? '' : 'none';
-    });
+  #renderPage() {
+    const { perPage } = this.pagination;
+    const totalPages = Math.max(1, Math.ceil(this.filteredData.length / perPage));
+    const current = Math.min(this.pagination.page, totalPages);
+    this.pagination.page = current;
+
+    const start = (current - 1) * perPage;
+    const pageItems = this.filteredData.slice(start, start + perPage);
+
+    if (this.tbody) {
+      this.tbody.innerHTML = '';
+    }
+    if (this.mobileCards?.container) {
+      this.mobileCards.container.innerHTML = '';
+    }
+
+    pageItems.forEach(item => this.addRow(item, { skipPaginationUpdate: true }));
+    this.#renderPaginationControls();
+  }
+
+  #renderPaginationControls() {
+    const { el, perPage } = this.pagination;
+    const totalPages = Math.max(1, Math.ceil(this.filteredData.length / perPage));
+    const current = this.pagination.page;
     el.innerHTML = '';
     for (let i = 1; i <= totalPages; i++) {
       const li = document.createElement('li');

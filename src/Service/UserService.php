@@ -218,8 +218,12 @@ class UserService
     public function getAll(): array {
         $stmt = $this->pdo->query('SELECT id,username,role,active FROM users ORDER BY position');
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userIds = array_map(static fn ($r) => (int) ($r['id'] ?? 0), $rows);
+        $namespacesMap = $this->namespaceRepository->loadForUsers($userIds);
+
         foreach ($rows as &$row) {
-            $row['namespaces'] = $this->namespaceRepository->loadForUser((int) ($row['id'] ?? 0));
+            $row['namespaces'] = $namespacesMap[(int) ($row['id'] ?? 0)] ?? [];
         }
         unset($row);
 
