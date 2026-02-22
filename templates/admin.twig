@@ -2636,6 +2636,237 @@
     window.transPageDeleteError = '{{ t('notify_page_delete_error')|e('js') }}';
     window.transCmsPagesEmpty = '{{ t('text_no_marketing_pages')|e('js') }}';
     window.transUsernameRequired = '{{ t('text_username_required') }}';
+
+    // ── Question editor ──────────────────────────────────────────────────
+    window.transQuizTypeMc = '{{ t('quiz_type_mc')|e('js') }}';
+    window.transQuizTypeAssign = '{{ t('quiz_type_assign')|e('js') }}';
+    window.transQuizTypeSort = '{{ t('quiz_type_sort')|e('js') }}';
+    window.transQuizTypeSwipe = '{{ t('quiz_type_swipe')|e('js') }}';
+    window.transQuizTypePhotoText = '{{ t('quiz_type_photo_text')|e('js') }}';
+    window.transQuizTypeFlip = '{{ t('quiz_type_flip')|e('js') }}';
+    window.transQuizInfoSort = '{{ t('quiz_info_sort')|e('js') }}';
+    window.transQuizInfoAssign = '{{ t('quiz_info_assign')|e('js') }}';
+    window.transQuizInfoMc = '{{ t('quiz_info_mc')|e('js') }}';
+    window.transQuizInfoSwipe = '{{ t('quiz_info_swipe')|e('js') }}';
+    window.transQuizInfoPhotoText = '{{ t('quiz_info_photo_text')|e('js') }}';
+    window.transQuizInfoFlip = '{{ t('quiz_info_flip')|e('js') }}';
+    window.transQuizInfoSoftHyphen = '{{ t('quiz_info_soft_hyphen')|e('js') }}';
+    window.transQuestionText = '{{ t('label_question_text')|e('js') }}';
+    window.transCountdownLabel = '{{ t('label_countdown_seconds')|e('js') }}';
+    window.transCountdownPlaceholder = '{{ t('placeholder_countdown_example')|e('js') }}';
+    window.transCountdownDefault = '{{ t('text_countdown_default')|e('js') }}';
+    window.transCountdownEnableHint = '{{ t('text_countdown_enable_hint')|e('js') }}';
+    window.transCountdownEnableHintExtras = '{{ t('text_countdown_enable_hint_extras')|e('js') }}';
+    window.transCountdownTimerHint = '{{ t('text_countdown_timer_hint')|e('js') }}';
+    window.transPointsRange = '{{ t('label_points_range')|e('js') }}';
+    window.transPointsPerQuestion = '{{ t('label_points_per_question')|e('js') }}';
+    window.transNoScoring = '{{ t('text_no_scoring')|e('js') }}';
+    window.transOnePoint = '{{ t('text_one_point')|e('js') }}';
+    window.transPoints = '{{ t('text_points')|e('js') }}';
+    window.transFlipNoScoring = '{{ t('text_flip_no_scoring')|e('js') }}';
+    window.transPointsHint = '{{ t('text_points_hint')|e('js') }}';
+    window.transCollapse = '{{ t('action_collapse')|e('js') }}';
+    window.transEditQuestion = '{{ t('action_edit_question')|e('js') }}';
+    window.transDuplicate = '{{ t('action_duplicate')|e('js') }}';
+    window.transRemove = '{{ t('action_remove')|e('js') }}';
+    window.transConfirmQuestionDelete = '{{ t('confirm_question_delete')|e('js') }}';
+    window.transNewQuestion = '{{ t('text_new_question')|e('js') }}';
+    window.transItem = '{{ t('label_item')|e('js') }}';
+    window.transAddItem = '{{ t('action_add_item')|e('js') }}';
+    window.transSortHint = '{{ t('text_sort_hint')|e('js') }}';
+    window.transTerm = '{{ t('label_term')|e('js') }}';
+    window.transDefinition = '{{ t('label_definition')|e('js') }}';
+    window.transAddTerm = '{{ t('action_add_term')|e('js') }}';
+    window.transCorrect = '{{ t('label_correct')|e('js') }}';
+    window.transAnswerText = '{{ t('label_answer_text')|e('js') }}';
+    window.transAddOption = '{{ t('action_add_option')|e('js') }}';
+    window.transCardText = '{{ t('label_card_text')|e('js') }}';
+    window.transSwipeRightCorrect = '{{ t('text_swipe_right_correct')|e('js') }}';
+    window.transSwipeCorrect = '{{ t('label_swipe_correct')|e('js') }}';
+    window.transAddCard = '{{ t('action_add_card')|e('js') }}';
+    window.transAnswer = '{{ t('label_answer')|e('js') }}';
+    window.transShowPrivacyCheckbox = '{{ t('label_show_privacy_checkbox')|e('js') }}';
+    window.transTimeLimit = '{{ t('label_time_limit')|e('js') }}';
+    window.transNoTimerForQuestion = '{{ t('text_no_timer_for_question')|e('js') }}';
+    window.transSwipeRightPlaceholder = '{{ t('placeholder_swipe_right')|e('js') }}';
+    window.transSwipeRightLabel = '{{ t('label_swipe_right')|e('js') }}';
+    window.transSwipeRightTooltip = '{{ t('tooltip_swipe_right')|e('js') }}';
+    window.transSwipeLeftPlaceholder = '{{ t('placeholder_swipe_left')|e('js') }}';
+    window.transSwipeLeftLabel = '{{ t('label_swipe_left')|e('js') }}';
+    window.transSwipeLeftTooltip = '{{ t('tooltip_swipe_left')|e('js') }}';
+    window.transEntriesAbbr = '{{ t('text_entries_abbr')|e('js') }}';
+    window.transPairs = '{{ t('text_pairs')|e('js') }}';
+    window.transOptionsAbbr = '{{ t('text_options_abbr')|e('js') }}';
+    window.transCards = '{{ t('text_cards')|e('js') }}';
+    window.transPreviewQuestion = '{{ t('text_preview_question')|e('js') }}';
+    window.transPreviewAnswer = '{{ t('text_preview_answer')|e('js') }}';
+    window.transPreviewClickToReveal = '{{ t('text_preview_click_to_reveal')|e('js') }}';
+    window.transPreviewTakePhoto = '{{ t('text_preview_take_photo')|e('js') }}';
+    window.transAnswerInputPlaceholder = '{{ t('placeholder_answer_input')|e('js') }}';
+
+    // ── Page management ──────────────────────────────────────────────────
+    window.transRenamePage = '{{ t('heading_rename_page')|e('js') }}';
+    window.transNewSlug = '{{ t('label_new_slug')|e('js') }}';
+    window.transRenameAction = '{{ t('action_rename')|e('js') }}';
+    window.transSlugEmpty = '{{ t('error_slug_empty')|e('js') }}';
+    window.transSlugInvalid = '{{ t('error_slug_invalid')|e('js') }}';
+    window.transChangeStatus = '{{ t('heading_change_status')|e('js') }}';
+    window.transSelectStatus = '{{ t('label_select_status')|e('js') }}';
+    window.transStatusDraft = '{{ t('option_status_draft')|e('js') }}';
+    window.transStatusPublished = '{{ t('option_status_published')|e('js') }}';
+    window.transStatusArchived = '{{ t('option_status_archived')|e('js') }}';
+    window.transPageStatusUpdated = '{{ t('notify_page_status_updated')|e('js') }}';
+    window.transCsrfMissing = '{{ t('error_csrf_missing')|e('js') }}';
+    window.transUnknownError = '{{ t('error_unknown')|e('js') }}';
+    window.transCurrentPage = '{{ t('text_current_page')|e('js') }}';
+    window.transRenamePageAction = '{{ t('action_rename_page')|e('js') }}';
+    window.transChangeStatusAction = '{{ t('action_change_status')|e('js') }}';
+    window.transPageDeleteTitle = '{{ t('heading_delete_page')|e('js') }}';
+    window.transPageDeleteWarning = '{{ t('text_delete_page_warning')|e('js') }}';
+    window.transDeletePermanently = '{{ t('action_delete_permanently')|e('js') }}';
+    window.transConfirmPageDelete = '{{ t('confirm_page_delete')|e('js') }}';
+    window.transPageRenamed = '{{ t('notify_page_renamed')|e('js') }}';
+    window.transPageRenameFailed = '{{ t('error_page_rename_failed')|e('js') }}';
+    window.transPageDeleteFailed = '{{ t('error_page_delete_failed')|e('js') }}';
+
+    // ── Page tree (menus) ────────────────────────────────────────────────
+    window.transTopMenu = '{{ t('label_top_menu')|e('js') }}';
+    window.transAssignTopMenu = '{{ t('heading_assign_top_menu')|e('js') }}';
+    window.transSelectMenu = '{{ t('label_select_menu')|e('js') }}';
+    window.transMenuAssignmentRemoved = '{{ t('notify_menu_assignment_removed')|e('js') }}';
+    window.transMenuAssignmentSaved = '{{ t('notify_menu_assignment_saved')|e('js') }}';
+    window.transMenuAssignmentFailed = '{{ t('error_menu_assignment_failed')|e('js') }}';
+    window.transNoMenu = '{{ t('text_no_menu')|e('js') }}';
+    window.transAssignMenu = '{{ t('action_assign_menu')|e('js') }}';
+
+    // ── Project overview / content ───────────────────────────────────────
+    window.transNoMediaReferences = '{{ t('text_no_media_references')|e('js') }}';
+    window.transNoWikiArticles = '{{ t('text_no_wiki_articles')|e('js') }}';
+    window.transNoNewsArticles = '{{ t('text_no_news_articles')|e('js') }}';
+    window.transNoNewsletterSlugs = '{{ t('text_no_newsletter_slugs')|e('js') }}';
+    window.transNoContentYet = '{{ t('text_no_content_yet')|e('js') }}';
+    window.transCreateContentNow = '{{ t('text_create_content_now')|e('js') }}';
+    window.transCreateContentPages = '{{ t('text_create_content_pages')|e('js') }}';
+    window.transCreateContentWiki = '{{ t('text_create_content_wiki')|e('js') }}';
+    window.transCreateContentNews = '{{ t('text_create_content_news')|e('js') }}';
+    window.transCreateContentNewsletter = '{{ t('text_create_content_newsletter')|e('js') }}';
+    window.transMissingMedia = '{{ t('text_missing_media')|e('js') }}';
+    window.transNoPages = '{{ t('text_no_pages')|e('js') }}';
+    window.transKpiWikiArticles = '{{ t('label_kpi_wiki_articles')|e('js') }}';
+    window.transKpiNewsArticles = '{{ t('label_kpi_news_articles')|e('js') }}';
+    window.transKpiNewsletterSlugs = '{{ t('label_kpi_newsletter_slugs')|e('js') }}';
+    window.transKpiMediaRefs = '{{ t('label_kpi_media_refs')|e('js') }}';
+
+    // ── Namespace / Settings ─────────────────────────────────────────────
+    window.transNoNamespaceData = '{{ t('text_no_namespace_data')|e('js') }}';
+    window.transNamespaceLoadError = '{{ t('error_namespace_load')|e('js') }}';
+    window.transNamespaceLoading = '{{ t('text_namespace_loading')|e('js') }}';
+    window.transNamespaceMissing = '{{ t('text_namespace_missing')|e('js') }}';
+    window.transSaving = '{{ t('text_saving')|e('js') }}';
+    window.transSettingsSaveError = '{{ t('error_settings_save_failed')|e('js') }}';
+    window.transLastSaved = '{{ t('notify_last_saved')|e('js') }}';
+    window.transSettingsSaved = '{{ t('notify_settings_saved')|e('js') }}';
+    window.transNamespaceChangeError = '{{ t('error_namespace_change')|e('js') }}';
+
+    // ── Catalog management ───────────────────────────────────────────────
+    window.transCatalogsFetchError = '{{ t('error_catalogs_fetch')|e('js') }}';
+    window.transCatalogsForbidden = '{{ t('error_catalogs_forbidden')|e('js') }}';
+    window.transDescription = '{{ t('label_description')|e('js') }}';
+    window.transPuzzleLetter = '{{ t('label_puzzle_letter')|e('js') }}';
+    window.transComment = '{{ t('label_comment')|e('js') }}';
+    window.transEditComment = '{{ t('action_edit_comment')|e('js') }}';
+    window.transErrorCreateFailed = '{{ t('error_create_failed')|e('js') }}';
+    window.transErrorRenameFailed = '{{ t('error_rename_failed')|e('js') }}';
+    window.transCatalogListSaved = '{{ t('notify_catalog_list_saved')|e('js') }}';
+    window.transErrorSaveRetry = '{{ t('error_save_retry')|e('js') }}';
+    window.transConfirmCatalogDelete = '{{ t('confirm_catalog_delete')|e('js') }}';
+    window.transCatalogDeleted = '{{ t('notify_catalog_deleted')|e('js') }}';
+
+    // ── General notifications ────────────────────────────────────────────
+    window.transSettingSaved = '{{ t('notify_setting_saved')|e('js') }}';
+    window.transErrorSaveFailed = '{{ t('error_save_failed')|e('js') }}';
+    window.transFeedbackTextSaved = '{{ t('notify_feedback_text_saved')|e('js') }}';
+    window.transInvitationTextSaved = '{{ t('notify_invitation_text_saved')|e('js') }}';
+    window.transCommentSaved = '{{ t('notify_comment_saved')|e('js') }}';
+
+    // ── Event management ─────────────────────────────────────────────────
+    window.transEventsSaved = '{{ t('notify_events_saved')|e('js') }}';
+    window.transErrorEventSwitch = '{{ t('error_event_switch')|e('js') }}';
+
+    // ── Results ──────────────────────────────────────────────────────────
+    window.transResultsCleared = '{{ t('notify_results_cleared')|e('js') }}';
+    window.transErrorDownloadFailed = '{{ t('error_download_failed')|e('js') }}';
+
+    // ── Feedback / Invitation text ───────────────────────────────────────
+    window.transEditFeedbackText = '{{ t('label_edit_feedback_text')|e('js') }}';
+    window.transFeedbackText = '{{ t('label_feedback_text')|e('js') }}';
+    window.transEditInvitationText = '{{ t('label_edit_invitation_text')|e('js') }}';
+    window.transEnterInvitationText = '{{ t('label_enter_invitation_text')|e('js') }}';
+
+    // ── Media upload ─────────────────────────────────────────────────────
+    window.transErrorUploadFailed = '{{ t('error_upload_failed')|e('js') }}';
+
+    // ── Domain/SMTP management ───────────────────────────────────────────
+    window.transDomainSmtpSaved = '{{ t('notify_domain_smtp_saved')|e('js') }}';
+    window.transDomainSmtpError = '{{ t('error_domain_smtp')|e('js') }}';
+    window.transDomainSmtpDefault = '{{ t('label_domain_smtp_default')|e('js') }}';
+    window.transDomainSmtpSummaryDsn = '{{ t('label_domain_smtp_dsn')|e('js') }}';
+    window.transDomainSmtpPasswordSet = '{{ t('label_domain_smtp_password_set')|e('js') }}';
+    window.transDomainContactTemplateEdit = '{{ t('action_domain_contact_template_edit')|e('js') }}';
+    window.transDomainContactTemplateSaved = '{{ t('notify_domain_contact_template_saved')|e('js') }}';
+    window.transDomainContactTemplateError = '{{ t('error_domain_contact_template')|e('js') }}';
+
+    // ── Tenant management ────────────────────────────────────────────────
+    window.transConfirmTenantDelete = '{{ t('confirm_tenant_delete')|e('js') }}';
+    window.transTenantRemoved = '{{ t('notify_tenant_removed')|e('js') }}';
+    window.transErrorBuildFailed = '{{ t('error_build_failed')|e('js') }}';
+    window.transErrorUpgradeFailed = '{{ t('error_upgrade_failed')|e('js') }}';
+    window.transRestarted = '{{ t('notify_restarted')|e('js') }}';
+    window.transErrorRestartFailed = '{{ t('error_restart_failed')|e('js') }}';
+    window.transCertRenewing = '{{ t('notify_cert_renewing')|e('js') }}';
+    window.transErrorRenewFailed = '{{ t('error_renew_failed')|e('js') }}';
+    window.transWelcomeMailSent = '{{ t('notify_welcome_mail_sent')|e('js') }}';
+    window.transWelcomeMailUnavailable = '{{ t('error_welcome_mail_unavailable')|e('js') }}';
+    window.transErrorPlanChange = '{{ t('error_plan_change')|e('js') }}';
+    window.transErrorPaymentStart = '{{ t('error_payment_start')|e('js') }}';
+    window.transSelectColumns = '{{ t('label_select_columns')|e('js') }}';
+    window.transErrorImportFailed = '{{ t('error_import_failed')|e('js') }}';
+    window.transDemoDataSaved = '{{ t('notify_demo_data_saved')|e('js') }}';
+    window.transErrorExportFailed = '{{ t('error_export_failed')|e('js') }}';
+    window.transErrorReportFailed = '{{ t('error_report_failed')|e('js') }}';
+
+    // ── Tenant list specifics ────────────────────────────────────────────
+    window.transMissingPermissions = '{{ t('text_missing_permissions_or_folder')|e('js') }}';
+    window.transImportComplete = '{{ t('notify_import_complete')|e('js') }}';
+    window.transExportComplete = '{{ t('notify_export_complete')|e('js') }}';
+    window.transMainDomainMisconfigured = '{{ t('error_main_domain_misconfigured')|e('js') }}';
+    window.transTenantsLoadFailed = '{{ t('error_tenants_load_failed')|e('js') }}';
+
+    // ── Team management ──────────────────────────────────────────────────
+    window.transListSaved = '{{ t('notify_list_saved')|e('js') }}';
+
+    // ── User management ──────────────────────────────────────────────────
+    window.transUserPass = '{{ t('action_set_password')|e('js') }}';
+    window.transPasswordEmpty = '{{ t('error_password_empty')|e('js') }}';
+    window.transPasswordMismatch = '{{ t('error_password_mismatch')|e('js') }}';
+    window.transUsername = '{{ t('label_username')|e('js') }}';
+    window.transRole = '{{ t('label_role')|e('js') }}';
+    window.transNamespaces = '{{ t('label_namespaces')|e('js') }}';
+    window.transNameEmpty = '{{ t('error_name_empty')|e('js') }}';
+    window.transEmailTaken = '{{ t('error_email_taken')|e('js') }}';
+    window.transRoleTaken = '{{ t('error_role_taken')|e('js') }}';
+    window.transUsernameTaken = '{{ t('error_username_taken')|e('js') }}';
+    window.transUsernameNotAllowed = '{{ t('error_username_not_allowed')|e('js') }}';
+    window.transEmailRequired = '{{ t('error_email_required')|e('js') }}';
+
+    // ── Profile / Subscription ───────────────────────────────────────────
+    window.transProfileSaved = '{{ t('notify_profile_saved')|e('js') }}';
+    window.transErrorSendFailed = '{{ t('error_send_failed')|e('js') }}';
+
+    // ── Domain SSL ───────────────────────────────────────────────────────
+    window.transDomainSslIssued = '{{ t('notify_domain_ssl_issued')|e('js') }}';
+    window.transDomainSslError = '{{ t('error_domain_ssl')|e('js') }}';
+
     window.stripeDashboard = '{{ stripe_sandbox ? 'https://dashboard.stripe.com/test' : 'https://dashboard.stripe.com' }}';
     window.initialEvents = {{ events|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.initialEventSlug = '{{ event.slug|default('') }}';
