@@ -33,8 +33,22 @@ html[data-namespace="effect-ns"] {
 }
 
 html[data-namespace="effect-ns"][data-theme="dark"] {
-  --contrast-text-on-surface: #f2f5fa;
-  --contrast-text-on-surface-muted: #f2f5fa;
-  --contrast-text-on-page: #f2f5fa;
+  --brand-primary: #222222;
+  --brand-accent: #f97316;
+  --brand-secondary: #f97316;
+  --contrast-text-on-primary: #ffffff;
+  --contrast-text-on-secondary: #000000;
+  --contrast-text-on-accent: #000000;
+  --contrast-text-on-surface: #ffffff;
+  --contrast-text-on-surface-muted: #ffffff;
+  --contrast-text-on-page: #ffffff;
+  --marketing-primary: #222222;
+  --marketing-accent: #f97316;
+  --marketing-secondary: #f97316;
+  --marketing-link: #222222;
+  --marketing-surface: var(--surface-card, #1a2636);
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
   --marketing-ink: #f2f5fa;
 }
