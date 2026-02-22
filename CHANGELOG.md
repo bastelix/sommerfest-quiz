@@ -332,6 +332,7 @@
 - *(quiz)* Enhance question editor with numbering, duplicate and UX polish
 - *(pages)* Modernize block list with type badges and drag-and-drop reorder
 - *(i18n)* Translate admin area including question editor
+- *(quiz)* Add catalog selector to event block and fix quiz start links
 
 ### Fix
 
