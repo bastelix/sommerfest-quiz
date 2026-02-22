@@ -2765,23 +2765,10 @@ body.admin-page {
 }
 
 [data-block-row="true"] {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
   border: 1px solid var(--border-muted, #e5e7eb);
   border-radius: 8px;
   background: var(--surface-card, #fff);
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-}
-
-[data-block-row="true"] [data-block-label="true"] {
-  flex: 1;
-  font-weight: 600;
-}
-
-[data-block-row="true"] [data-block-status="true"] {
-  font-size: 13px;
 }
 
 [data-block-row="true"][data-block-hover="true"] {
@@ -3252,29 +3239,10 @@ body.admin-page {
   }
 
   /* ── 18. Page editor – structure view block rows ──
-     On mobile the row buttons (select, move, duplicate, delete) don't fit
-     in a single horizontal line. Wrap the row into a two-line layout:
-     label on top, action buttons below. */
-  [data-block-row="true"] {
+     On small screens, let the card-row__summary wrap so action buttons
+     can flow below the label when space is tight. */
+  [data-block-row="true"] .card-row__summary {
     flex-wrap: wrap;
-    padding: 8px 10px;
-    gap: 6px;
-  }
-
-  [data-block-row="true"] [data-block-label="true"] {
-    flex: 1 1 100%;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  [data-block-row="true"] button {
-    font-size: 0.8125rem;
-    padding: 4px 8px;
-  }
-
-  [data-block-row="true"] [data-action="select-block"] {
-    flex: 1 1 auto;
   }
 
   /* ── 19. Template picker grid – single column on small screens ── */
