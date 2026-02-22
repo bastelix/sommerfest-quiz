@@ -563,6 +563,7 @@
 - *(subscription)* Scope subscription handling to namespace instead of tenant
 - *(quiz)* Pass event UID explicitly in catalog requests
 - *(i18n)* Remove duplicate notify_domain_ssl_issued translation keys
+- Remove conflicting flex layout from block-row in page designer
 
 ### Merge
 
