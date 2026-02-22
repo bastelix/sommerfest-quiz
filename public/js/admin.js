@@ -7328,7 +7328,7 @@ document.addEventListener('DOMContentLoaded', function () {
     infoEl.className = 'card-row__info';
     const titleEl = document.createElement('div');
     titleEl.className = 'card-row__title';
-    titleEl.textContent = q.prompt || (window.transNewQuestion || 'New question');
+    titleEl.textContent = q.prompt || ('Neue ' + (labelMap[q.type || 'mc'] || 'Frage'));
     const metaEl = document.createElement('div');
     metaEl.className = 'card-row__meta';
     infoEl.appendChild(titleEl);
