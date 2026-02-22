@@ -2082,6 +2082,5 @@ return [
     'error_send_failed' => 'Senden fehlgeschlagen',
 
     // ── Admin JS: Domain SSL ─────────────────────────────────────────────
-    'notify_domain_ssl_issued' => 'SSL-Zertifikat ausgestellt',
     'error_domain_ssl' => 'SSL-Fehler',
 ];

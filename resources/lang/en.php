@@ -2077,6 +2077,5 @@ return [
     'error_send_failed' => 'Send failed',
 
     // ── Admin JS: Domain SSL ─────────────────────────────────────────────
-    'notify_domain_ssl_issued' => 'SSL certificate issued',
     'error_domain_ssl' => 'SSL error',
 ];
