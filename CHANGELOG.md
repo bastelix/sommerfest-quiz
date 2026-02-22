@@ -328,6 +328,7 @@
 - *(auth)* Add Google Sign-In for login and onboarding
 - *(quiz)* Redesign question editor with block-card pattern
 - *(quiz)* Enhance question editor with numbering, duplicate and UX polish
+- *(pages)* Modernize block list with type badges and drag-and-drop reorder
 
 ### Fix
 
