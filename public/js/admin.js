@@ -479,14 +479,14 @@ const ensurePageRenameModal = () => {
   el.setAttribute('uk-modal', '');
   el.innerHTML = [
     '<div class="uk-modal-dialog uk-modal-body">',
-    '  <h3 class="uk-modal-title">Seite umbenennen</h3>',
-    '  <label class="uk-form-label" for="pageRenameInput">Neuer Slug</label>',
+    '  <h3 class="uk-modal-title">' + (window.transRenamePage || 'Rename page') + '</h3>',
+    '  <label class="uk-form-label" for="pageRenameInput">' + (window.transNewSlug || 'New slug') + '</label>',
     '  <input id="pageRenameInput" class="uk-input" type="text">',
     '  <div id="pageRenameError" class="uk-text-danger uk-margin-small-top" hidden></div>',
     '  <p id="pageRenameHint" class="uk-text-meta uk-margin-small-top"></p>',
     '  <div class="uk-margin-top uk-text-right">',
-    '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
-    '    <button id="pageRenameSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">Umbenennen</button>',
+    '    <button class="uk-button uk-button-default uk-modal-close" type="button">' + (window.transCancel || 'Cancel') + '</button>',
+    '    <button id="pageRenameSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">' + (window.transRenameAction || 'Rename') + '</button>',
     '  </div>',
     '</div>'
   ].join('\n');
@@ -501,12 +501,12 @@ const ensurePageRenameModal = () => {
     const newSlug = (input.value || '').trim();
 
     if (!newSlug || newSlug === pageRenamePending.slug) {
-      errorEl.textContent = 'Bitte einen neuen Slug eingeben.';
+      errorEl.textContent = window.transSlugEmpty || 'Please enter a new slug.';
       errorEl.hidden = false;
       return;
     }
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(newSlug)) {
-      errorEl.textContent = 'Der Slug darf nur Kleinbuchstaben, Ziffern und Bindestriche enthalten.';
+      errorEl.textContent = window.transSlugInvalid || 'The slug may only contain lowercase letters, digits and hyphens.';
       errorEl.hidden = false;
       return;
     }
@@ -660,12 +660,12 @@ const updateStatusBadge = (pageId, status) => {
   existing.className = 'uk-label uk-margin-small-left';
   if (status === 'published') {
     existing.classList.add('uk-label-success');
-    existing.textContent = 'Veröffentlicht';
+    existing.textContent = window.transStatusPublished || 'Published';
   } else if (status === 'archived') {
     existing.classList.add('uk-label-warning');
-    existing.textContent = 'Archiviert';
+    existing.textContent = window.transStatusArchived || 'Archived';
   } else {
-    existing.textContent = 'Entwurf';
+    existing.textContent = window.transStatusDraft || 'Draft';
   }
 };
 
@@ -678,18 +678,18 @@ const ensurePageStatusModal = () => {
   el.setAttribute('uk-modal', '');
   el.innerHTML = [
     '<div class="uk-modal-dialog uk-modal-body">',
-    '  <h3 class="uk-modal-title">Status ändern</h3>',
+    '  <h3 class="uk-modal-title">' + (window.transChangeStatus || 'Change status') + '</h3>',
     '  <p id="pageStatusHint" class="uk-text-meta"></p>',
-    '  <label class="uk-form-label" for="pageStatusSelect">Status auswählen</label>',
+    '  <label class="uk-form-label" for="pageStatusSelect">' + (window.transSelectStatus || 'Select status') + '</label>',
     '  <select id="pageStatusSelect" class="uk-select">',
-    '    <option value="draft">Entwurf</option>',
-    '    <option value="published">Veröffentlicht</option>',
-    '    <option value="archived">Archiviert</option>',
+    '    <option value="draft">' + (window.transStatusDraft || 'Draft') + '</option>',
+    '    <option value="published">' + (window.transStatusPublished || 'Published') + '</option>',
+    '    <option value="archived">' + (window.transStatusArchived || 'Archived') + '</option>',
     '  </select>',
     '  <div id="pageStatusError" class="uk-text-danger uk-margin-small-top" hidden></div>',
     '  <div class="uk-margin-top uk-text-right">',
-    '    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>',
-    '    <button id="pageStatusSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">Speichern</button>',
+    '    <button class="uk-button uk-button-default uk-modal-close" type="button">' + (window.transCancel || 'Cancel') + '</button>',
+    '    <button id="pageStatusSave" class="uk-button uk-button-primary uk-margin-small-left" type="button">' + (window.transSave || 'Save') + '</button>',
     '  </div>',
     '</div>'
   ].join('\n');
@@ -706,7 +706,7 @@ const ensurePageStatusModal = () => {
     const csrfToken = getCsrfToken();
 
     if (!csrfToken) {
-      errorEl.textContent = 'CSRF-Token fehlt. Bitte Seite neu laden.';
+      errorEl.textContent = window.transCsrfMissing || 'CSRF token missing. Please reload the page.';
       errorEl.hidden = false;
       return;
     }
@@ -725,14 +725,14 @@ const ensurePageStatusModal = () => {
       );
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({}));
-        throw new Error(err.error || 'Fehler: ' + resp.status);
+        throw new Error(err.error || (window.transUnknownError || 'Unknown error'));
       }
       node.status = newStatus;
       updateStatusBadge(node.id, newStatus);
       UIkit.modal('#pageStatusModal').hide();
-      window.notify('Seitenstatus wurde aktualisiert.', 'success');
+      window.notify(window.transPageStatusUpdated || 'Page status updated.', 'success');
     } catch (error) {
-      errorEl.textContent = error.message || 'Unbekannter Fehler';
+      errorEl.textContent = error.message || (window.transUnknownError || 'Unknown error');
       errorEl.hidden = false;
     }
   });
@@ -780,7 +780,7 @@ const ensureMenuAssignModal = () => {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
     if (!csrfToken) {
-      errorEl.textContent = 'CSRF-Token fehlt. Bitte Seite neu laden.';
+      errorEl.textContent = window.transCsrfMissing || 'CSRF token missing. Please reload the page.';
       errorEl.hidden = false;
       return;
     }
@@ -895,7 +895,7 @@ const openMenuAssignModal = (node, availableMenus, menuAssignmentMap) => {
     select.value = '';
   }
 
-  hint.textContent = 'Seite: \u201e' + (node.title || node.slug) + '\u201c';
+  hint.textContent = (window.transCurrentPage || 'Page') + ': \u201e' + (node.title || node.slug) + '\u201c';
   menuAssignPending = { node, currentAssignment, menuAssignmentMap, availableMenus };
 
   UIkit.modal('#menuAssignModal').show();
@@ -972,12 +972,12 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
       statusBadge.setAttribute('data-status-badge', node.id);
       if (node.status === 'published') {
         statusBadge.classList.add('uk-label-success');
-        statusBadge.textContent = 'Veröffentlicht';
+        statusBadge.textContent = window.transStatusPublished || 'Published';
       } else if (node.status === 'archived') {
         statusBadge.classList.add('uk-label-warning');
-        statusBadge.textContent = 'Archiviert';
+        statusBadge.textContent = window.transStatusArchived || 'Archived';
       } else {
-        statusBadge.textContent = 'Entwurf';
+        statusBadge.textContent = window.transStatusDraft || 'Draft';
       }
       meta.appendChild(statusBadge);
     }
@@ -994,7 +994,7 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
       toggle.type = 'button';
       toggle.className = 'uk-icon-button page-tree-action-toggle';
       toggle.setAttribute('uk-icon', 'icon: more-vertical; ratio: 0.9');
-      toggle.setAttribute('aria-label', 'Aktionen');
+      toggle.setAttribute('aria-label', window.transActions || 'Actions');
 
       const dropdown = document.createElement('div');
       dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right; container: body');
@@ -1005,7 +1005,7 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
       const renameLi = document.createElement('li');
       const renameLink = document.createElement('a');
       renameLink.href = '#';
-      renameLink.innerHTML = '<span uk-icon="icon: pencil; ratio: 0.8" class="uk-margin-small-right"></span>Umbenennen';
+      renameLink.innerHTML = '<span uk-icon="icon: pencil; ratio: 0.8" class="uk-margin-small-right"></span>' + (window.transRenamePageAction || 'Rename');
       renameLink.addEventListener('click', (e) => {
         e.preventDefault();
         UIkit.dropdown(dropdown).hide(false);
@@ -1031,7 +1031,7 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
       const statusLi = document.createElement('li');
       const statusLink = document.createElement('a');
       statusLink.href = '#';
-      statusLink.innerHTML = '<span uk-icon="icon: bolt; ratio: 0.8" class="uk-margin-small-right"></span>Status ändern';
+      statusLink.innerHTML = '<span uk-icon="icon: bolt; ratio: 0.8" class="uk-margin-small-right"></span>' + (window.transChangeStatusAction || 'Change status');
       statusLink.addEventListener('click', (e) => {
         e.preventDefault();
         UIkit.dropdown(dropdown).hide(false);
@@ -1111,31 +1111,31 @@ const createProjectEmptyStateWithActions = namespace => {
 
   const title = document.createElement('div');
   title.className = 'uk-text-bold';
-  title.textContent = 'Noch keine Inhalte vorhanden.';
+  title.textContent = window.transNoContentYet || 'No content yet.';
   wrapper.appendChild(title);
 
   const hint = document.createElement('div');
   hint.className = 'uk-text-meta uk-margin-small-top';
-  hint.textContent = 'Jetzt Inhalte anlegen:';
+  hint.textContent = window.transCreateContentNow || 'Create content now:';
   wrapper.appendChild(hint);
 
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-collapse uk-margin-small-top';
   const actions = [
     {
-      label: 'Jetzt Inhalte anlegen (Seiten)',
+      label: window.transCreateContentPages || 'Create content (Pages)',
       url: buildProjectAdminUrl('/admin/pages/content', namespace)
     },
     {
-      label: 'Jetzt Inhalte anlegen (Wiki)',
+      label: window.transCreateContentWiki || 'Create content (Wiki)',
       url: buildProjectAdminUrl('/admin/pages/wiki', namespace)
     },
     {
-      label: 'Jetzt Inhalte anlegen (News-Artikel)',
+      label: window.transCreateContentNews || 'Create content (News)',
       url: buildProjectAdminUrl('/admin/landing-news/create', namespace)
     },
     {
-      label: 'Jetzt Inhalte anlegen (Newsletter)',
+      label: window.transCreateContentNewsletter || 'Create content (Newsletter)',
       url: buildProjectAdminUrl('/admin/newsletter', namespace)
     }
   ];
@@ -1403,7 +1403,7 @@ const buildProjectMediaList = (media) => {
   if (missing.length) {
     const missingHeading = document.createElement('div');
     missingHeading.className = 'uk-text-bold uk-margin-small-top';
-    missingHeading.textContent = 'Fehlende Medien';
+    missingHeading.textContent = window.transMissingMedia || 'Missing media';
     wrapper.appendChild(missingHeading);
 
     const missingList = document.createElement('ul');
@@ -1582,27 +1582,27 @@ const renderProjectTree = (container, namespaces, emptyMessage) => {
     const wikiEntries = Array.isArray(section.wiki) ? section.wiki : [];
     appendProjectBlock(
       wrapper,
-      'Wiki-Artikel',
+      window.transKpiWikiArticles || 'Wiki articles',
       wikiEntries.length ? buildProjectWikiList(wikiEntries) : createProjectEmptyState(window.transNoWikiArticles || 'No wiki articles available.')
     );
 
     const newsEntries = Array.isArray(section.landingNews) ? section.landingNews : [];
     appendProjectBlock(
       wrapper,
-      'News-Artikel',
+      window.transKpiNewsArticles || 'News articles',
       newsEntries.length ? buildProjectNewsList(newsEntries) : createProjectEmptyState(window.transNoNewsArticles || 'No news articles available.')
     );
 
     const newsletterSlugs = Array.isArray(section.newsletterSlugs) ? section.newsletterSlugs : [];
     appendProjectBlock(
       wrapper,
-      'Newsletter-Slugs',
+      window.transKpiNewsletterSlugs || 'Newsletter slugs',
       newsletterSlugs.length ? buildProjectSlugList(newsletterSlugs) : createProjectEmptyState(window.transNoNewsletterSlugs || 'No newsletter slugs available.')
     );
 
     appendProjectBlock(
       wrapper,
-      'Medien-Refs',
+      window.transKpiMediaRefs || 'Media refs',
       buildProjectMediaList(section.mediaReferences || {})
     );
 
@@ -1744,7 +1744,7 @@ const initProjectSettings = () => {
 
     const namespace = (namespaceSelect?.value || '').trim();
     if (!namespace) {
-      setStatus('Namespace fehlt.', true);
+      setStatus(window.transNamespaceMissing || 'Namespace missing.', true);
       return;
     }
 
@@ -1816,7 +1816,7 @@ const initProjectSettings = () => {
       payload.append('headerLogoFile', logoFileInput.files[0]);
     }
 
-    setStatus('Speichert…', false);
+    setStatus(window.transSaving || 'Saving\u2026', false);
 
     try {
       const response = await apiFetch(endpoint, {
@@ -1917,7 +1917,7 @@ const initProjectSettings = () => {
       }
       setStatus(window.transSettingsSaved || 'Settings saved.', false);
     } catch (error) {
-      setStatus('Einstellungen konnten nicht gespeichert werden.', true);
+      setStatus(window.transSettingsSaveError || 'Settings could not be saved.', true);
     }
   });
 };
@@ -2730,7 +2730,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (email === '') {
           emailInput.classList.add('uk-form-danger');
           emailInput.focus();
-          notify('Bitte E-Mail-Adresse eingeben', 'warning');
+          notify(window.transEmailRequired || 'Please enter an email address', 'warning');
           return;
         }
         payload.email = email;
@@ -5487,7 +5487,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const renewItem = document.createElement('li');
             renewItem.appendChild(createActionLink({
-              label: window.transRenewSsl || window.transDomainRenew || window.transDomainRenewSsl || 'SSL erneuern',
+              label: window.transRenewSsl || window.transDomainRenew || window.transDomainRenewSsl || 'Renew SSL',
               icon: 'lock',
               action: 'renew-ssl',
               domainId: item.id,
@@ -7325,7 +7325,7 @@ document.addEventListener('DOMContentLoaded', function () {
     infoEl.className = 'question-block-card__info';
     const titleEl = document.createElement('div');
     titleEl.className = 'question-block-card__title';
-    titleEl.textContent = q.prompt || ('Neue ' + (labelMap[q.type || 'mc'] || 'Frage'));
+    titleEl.textContent = q.prompt || (window.transNewQuestion || 'New question');
     const metaEl = document.createElement('div');
     metaEl.className = 'question-block-card__meta';
     infoEl.appendChild(titleEl);
@@ -7336,17 +7336,17 @@ document.addEventListener('DOMContentLoaded', function () {
     actions.className = 'question-block-card__actions';
     const editBtn = document.createElement('button');
     editBtn.setAttribute('uk-icon', 'pencil');
-    editBtn.setAttribute('aria-label', 'Bearbeiten');
+    editBtn.setAttribute('aria-label', window.transEditQuestion || 'Edit');
     editBtn.setAttribute('type', 'button');
     editBtn.className = 'btn-edit';
     const dupBtn = document.createElement('button');
     dupBtn.setAttribute('uk-icon', 'copy');
-    dupBtn.setAttribute('aria-label', 'Duplizieren');
+    dupBtn.setAttribute('aria-label', window.transDuplicate || 'Duplicate');
     dupBtn.setAttribute('type', 'button');
     dupBtn.className = 'btn-duplicate';
     const deleteBtn = document.createElement('button');
     deleteBtn.setAttribute('uk-icon', 'trash');
-    deleteBtn.setAttribute('aria-label', 'Entfernen');
+    deleteBtn.setAttribute('aria-label', window.transRemove || 'Remove');
     deleteBtn.setAttribute('type', 'button');
     deleteBtn.className = 'btn-delete';
     actions.appendChild(editBtn);
@@ -7413,7 +7413,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const countdownLabel = document.createElement('label');
     countdownLabel.className = 'uk-form-label';
     countdownLabel.setAttribute('for', countdownId);
-    countdownLabel.textContent = 'Zeitlimit (Sekunden)';
+    countdownLabel.textContent = window.transCountdownLabel || 'Time limit (seconds)';
     const countdownInput = document.createElement('input');
     countdownInput.className = 'uk-input countdown-input';
     countdownInput.type = 'number';
@@ -7423,7 +7423,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (hasCountdown && q.countdown !== null && q.countdown !== undefined) {
       countdownInput.value = String(q.countdown);
     }
-    countdownInput.placeholder = defaultCountdown !== null ? `Standard: ${defaultCountdown}s` : 'z.\u00A0B. 45';
+    countdownInput.placeholder = defaultCountdown !== null ? (window.transCountdownDefault || 'Default: %ss').replace('%s', defaultCountdown) : (window.transCountdownPlaceholder || 'e.g. 45');
     countdownInput.disabled = !countdownEnabled;
     const countdownMeta = document.createElement('div');
     countdownMeta.className = 'uk-text-meta';
@@ -7444,7 +7444,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const pointsLabel = document.createElement('label');
     pointsLabel.className = 'uk-form-label';
     pointsLabel.setAttribute('for', pointsId);
-    pointsLabel.textContent = 'Punkte (0\u201310000)';
+    pointsLabel.textContent = window.transPointsRange || 'Points (0\u201310000)';
     const pointsInput = document.createElement('input');
     pointsInput.className = 'uk-input points-input';
     pointsInput.type = 'number';
@@ -7452,7 +7452,7 @@ document.addEventListener('DOMContentLoaded', function () {
     pointsInput.min = '0';
     pointsInput.max = '10000';
     pointsInput.step = '1';
-    pointsInput.setAttribute('aria-label', 'Punkte pro Frage');
+    pointsInput.setAttribute('aria-label', window.transPointsPerQuestion || 'Points per question');
     const existingPoints = parseQuestionPoints(q.points);
     if (typeSelect.value === 'flip') {
       pointsInput.value = existingPoints !== null ? String(existingPoints) : '0';
@@ -7547,24 +7547,24 @@ document.addEventListener('DOMContentLoaded', function () {
       const t = typeSelect.value;
       typeBadge.className = 'question-block-card__icon question-block-card__icon--' + t;
       typeBadge.textContent = abbrMap[t] || '?';
-      titleEl.textContent = prompt.value.trim() || ('Neue ' + (labelMap[t] || 'Frage'));
+      titleEl.textContent = prompt.value.trim() || (window.transNewQuestion || 'New question');
       const pts = getPointsValue(card, t);
       const ptsLabel = t === 'flip'
-        ? (window.transNoScoring || 'Keine Punkte')
-        : (pts === 1 ? (window.transOnePoint || '1 Punkt') : `${pts} ${window.transPoints || 'Punkte'}`);
+        ? (window.transNoScoring || 'No scoring')
+        : (pts === 1 ? (window.transOnePoint || '1 point') : `${pts} ${window.transPoints || 'points'}`);
       let itemCount = '';
       if (t === 'sort') {
         const n = fields.querySelectorAll('.item-row').length;
-        itemCount = n > 0 ? ` \u00b7 ${n} Eintr.` : '';
+        itemCount = n > 0 ? ` \u00b7 ${n} ${window.transEntriesAbbr || 'entries'}` : '';
       } else if (t === 'assign') {
         const n = fields.querySelectorAll('.term-row').length;
-        itemCount = n > 0 ? ` \u00b7 ${n} Paare` : '';
+        itemCount = n > 0 ? ` \u00b7 ${n} ${window.transPairs || 'pairs'}` : '';
       } else if (t === 'mc') {
         const n = fields.querySelectorAll('.option-row').length;
-        itemCount = n > 0 ? ` \u00b7 ${n} Opt.` : '';
+        itemCount = n > 0 ? ` \u00b7 ${n} ${window.transOptionsAbbr || 'opts.'}` : '';
       } else if (t === 'swipe') {
         const n = fields.querySelectorAll('.card-row').length;
-        itemCount = n > 0 ? ` \u00b7 ${n} Karten` : '';
+        itemCount = n > 0 ? ` \u00b7 ${n} ${window.transCards || 'cards'}` : '';
       }
       metaEl.textContent = (labelMap[t] || t) + ' \u00b7 ' + ptsLabel + itemCount;
     }
@@ -7578,7 +7578,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (parsed !== null) { lastScorablePoints = parsed; }
         pointsInput.value = '0';
         pointsInput.disabled = true;
-        pointsMeta.textContent = 'Dieser Fragetyp vergibt keine Punkte.';
+        pointsMeta.textContent = window.transFlipNoScoring || 'This question type does not award points.';
       } else {
         pointsInput.disabled = false;
         const parsed = parseQuestionPoints(pointsInput.value);
@@ -7587,7 +7587,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const normalized = normalizeQuestionPoints(value, true);
         pointsInput.value = String(normalized);
         lastScorablePoints = normalized;
-        pointsMeta.textContent = 'Punkte pro Frage (0\u201310000). Leer ergibt 1 Punkt.';
+        pointsMeta.textContent = window.transPointsHint || 'Points per question (0\u201310000). Empty defaults to 1 point.';
       }
     }
 
@@ -7626,11 +7626,11 @@ document.addEventListener('DOMContentLoaded', function () {
       input.className = 'uk-input item';
       input.type = 'text';
       input.value = value;
-      input.setAttribute('aria-label', 'Item');
+      input.setAttribute('aria-label', window.transItem || 'Item');
       const btn = document.createElement('button');
       btn.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
       btn.setAttribute('uk-icon', 'trash');
-      btn.setAttribute('aria-label', 'Entfernen');
+      btn.setAttribute('aria-label', window.transRemove || 'Remove');
       btn.type = 'button';
       btn.onclick = () => { div.remove(); saveQuestions(); };
       div.appendChild(input);
@@ -7645,19 +7645,19 @@ document.addEventListener('DOMContentLoaded', function () {
       const tInput = document.createElement('input');
       tInput.className = 'uk-input term';
       tInput.type = 'text';
-      tInput.placeholder = 'Begriff';
+      tInput.placeholder = window.transTerm || 'Term';
       tInput.value = term;
-      tInput.setAttribute('aria-label', 'Begriff');
+      tInput.setAttribute('aria-label', window.transTerm || 'Term');
       const dInput = document.createElement('input');
       dInput.className = 'uk-input definition';
       dInput.type = 'text';
-      dInput.placeholder = 'Definition';
+      dInput.placeholder = window.transDefinition || 'Definition';
       dInput.value = def;
-      dInput.setAttribute('aria-label', 'Definition');
+      dInput.setAttribute('aria-label', window.transDefinition || 'Definition');
       const rem = document.createElement('button');
       rem.className = 'uk-icon-button uk-button-danger uk-button-small';
       rem.setAttribute('uk-icon', 'trash');
-      rem.setAttribute('aria-label', 'Entfernen');
+      rem.setAttribute('aria-label', window.transRemove || 'Remove');
       rem.type = 'button';
       rem.onclick = () => { row.remove(); saveQuestions(); };
       const tDiv = document.createElement('div');
@@ -7691,18 +7691,18 @@ document.addEventListener('DOMContentLoaded', function () {
       const cbText = document.createElement('span');
       cbText.className = 'uk-text-meta';
       cbText.style.fontSize = '0.75rem';
-      cbText.textContent = 'Korrekt';
+      cbText.textContent = window.transCorrect || 'Correct';
       cbLabel.appendChild(radio);
       cbLabel.appendChild(cbText);
       const input = document.createElement('input');
       input.className = 'uk-input option uk-margin-small-left';
       input.type = 'text';
       input.value = text;
-      input.setAttribute('aria-label', 'Antworttext');
+      input.setAttribute('aria-label', window.transAnswerText || 'Answer text');
       const rem = document.createElement('button');
       rem.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
       rem.setAttribute('uk-icon', 'trash');
-      rem.setAttribute('aria-label', 'Entfernen');
+      rem.setAttribute('aria-label', window.transRemove || 'Remove');
       rem.type = 'button';
       rem.onclick = () => { row.remove(); saveQuestions(); };
       row.appendChild(cbLabel);
@@ -7718,13 +7718,13 @@ document.addEventListener('DOMContentLoaded', function () {
       input.className = 'uk-input card-text';
       input.type = 'text';
       input.value = text;
-      input.placeholder = 'Kartentext';
-      input.setAttribute('aria-label', 'Kartentext');
+      input.placeholder = window.transCardText || 'Card text';
+      input.setAttribute('aria-label', window.transCardText || 'Card text');
       const checkId = 'cc-' + Math.random().toString(36).slice(2, 8);
       const checkLabel = document.createElement('label');
       checkLabel.className = 'swipe-card-row__label';
       checkLabel.setAttribute('for', checkId);
-      checkLabel.setAttribute('title', '\u2192 Rechts wischen = korrekte Antwort');
+      checkLabel.setAttribute('title', window.transSwipeRightCorrect || '\u2192 Swipe right = correct answer');
       const check = document.createElement('input');
       check.type = 'checkbox';
       check.className = 'uk-checkbox card-correct';
@@ -7737,7 +7737,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const rem = document.createElement('button');
       rem.className = 'uk-icon-button uk-button-danger uk-button-small';
       rem.setAttribute('uk-icon', 'trash');
-      rem.setAttribute('aria-label', 'Entfernen');
+      rem.setAttribute('aria-label', window.transRemove || 'Remove');
       rem.type = 'button';
       rem.onclick = () => { row.remove(); saveQuestions(); };
       row.appendChild(input);
@@ -7760,15 +7760,15 @@ document.addEventListener('DOMContentLoaded', function () {
         add.onclick = e => { e.preventDefault(); list.appendChild(addItem('')); };
         const hint = document.createElement('p');
         hint.className = 'uk-text-meta uk-margin-small-top';
-        hint.textContent = 'Eintr\u00e4ge in der richtigen Reihenfolge eingeben \u2013 beim Spieler werden sie gemischt.';
+        hint.textContent = window.transSortHint || 'Enter items in the correct order \u2013 they will be shuffled for the player.';
         fields.appendChild(list);
         fields.appendChild(add);
         fields.appendChild(hint);
       } else if (typeSelect.value === 'assign') {
         const header = document.createElement('div');
         header.className = 'assign-column-header';
-        const hBegriff = document.createElement('span'); hBegriff.textContent = 'Begriff';
-        const hDef = document.createElement('span'); hDef.textContent = 'Definition';
+        const hBegriff = document.createElement('span'); hBegriff.textContent = window.transTerm || 'Term';
+        const hDef = document.createElement('span'); hDef.textContent = window.transDefinition || 'Definition';
         const hDel = document.createElement('span');
         header.appendChild(hBegriff); header.appendChild(hDef); header.appendChild(hDel);
         const list = document.createElement('div');
@@ -7803,10 +7803,10 @@ document.addEventListener('DOMContentLoaded', function () {
         fields.appendChild(left);
         const header = document.createElement('div');
         header.className = 'swipe-card-header';
-        const hText = document.createElement('span'); hText.textContent = 'Kartentext';
+        const hText = document.createElement('span'); hText.textContent = window.transCardText || 'Card text';
         const hCorrect = document.createElement('span');
-        hCorrect.textContent = '\u2192 Korrekt';
-        hCorrect.setAttribute('title', 'Rechts wischen = korrekte Antwort');
+        hCorrect.textContent = window.transSwipeCorrect || '\u2192 Correct';
+        hCorrect.setAttribute('title', window.transSwipeRightCorrect || '\u2192 Swipe right = correct answer');
         const hDel = document.createElement('span');
         header.appendChild(hText); header.appendChild(hCorrect); header.appendChild(hDel);
         const list = document.createElement('div');
@@ -7889,7 +7889,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       preview.appendChild(pointsInfo);
       const h = document.createElement('h4');
-      h.textContent = insertSoftHyphens(prompt.value || 'Vorschau');
+      h.textContent = insertSoftHyphens(prompt.value || (window.transPreview || 'Preview'));
       preview.appendChild(h);
       if (typeSelect.value === 'sort') {
         const ul = document.createElement('ul');
@@ -8053,11 +8053,11 @@ document.addEventListener('DOMContentLoaded', function () {
         flipCard.style.position = 'relative';
         const flipFront = document.createElement('div');
         flipFront.style.cssText = 'display:flex;align-items:center;justify-content:center;padding:1rem;height:100%;background:#f8f9fa;border-radius:8px;box-sizing:border-box;';
-        flipFront.textContent = insertSoftHyphens(prompt.value || 'Frage');
+        flipFront.textContent = insertSoftHyphens(prompt.value || (window.transPreviewQuestion || 'Question'));
         const flipBack = document.createElement('div');
         flipBack.style.cssText = 'display:none;align-items:center;justify-content:center;padding:1rem;height:100%;background:var(--brand-primary,#1e87f0);color:#fff;border-radius:8px;box-sizing:border-box;';
         const ans = fields.querySelector('.flip-answer');
-        flipBack.textContent = insertSoftHyphens(ans ? ans.value : 'Antwort');
+        flipBack.textContent = insertSoftHyphens(ans ? ans.value : (window.transPreviewAnswer || 'Answer'));
         flipCard.appendChild(flipFront);
         flipCard.appendChild(flipBack);
         flipContainer.appendChild(flipCard);
@@ -8070,7 +8070,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const flipHintPrev = document.createElement('p');
         flipHintPrev.className = 'uk-text-meta';
         flipHintPrev.style.fontSize = '0.8rem';
-        flipHintPrev.textContent = 'Klicken zum Aufdecken';
+        flipHintPrev.textContent = window.transPreviewClickToReveal || 'Click to reveal';
         preview.appendChild(flipContainer);
         preview.appendChild(flipHintPrev);
       } else if (typeSelect.value === 'photoText') {
@@ -8082,12 +8082,12 @@ document.addEventListener('DOMContentLoaded', function () {
         photoBtn.type = 'button';
         photoBtn.className = 'uk-button uk-button-default';
         photoBtn.disabled = true;
-        photoBtn.textContent = '\uD83D\uDCF7 Foto aufnehmen';
+        photoBtn.textContent = window.transPreviewTakePhoto || '\uD83D\uDCF7 Take photo';
         const textInput = document.createElement('input');
         textInput.type = 'text';
         textInput.className = 'uk-input';
         textInput.disabled = true;
-        textInput.placeholder = 'Antwort eingeben \u2026';
+        textInput.placeholder = window.transAnswerInputPlaceholder || 'Enter answer \u2026';
         photoMock.appendChild(photoBtn);
         photoMock.appendChild(textInput);
         preview.appendChild(photoMock);
@@ -9103,7 +9103,7 @@ document.addEventListener('DOMContentLoaded', function () {
       getTitle: key => teamColumns.find(c => c.key === key)?.label || '',
       validate: val => {
         if (!val) {
-          teamEditError.textContent = 'Name darf nicht leer sein';
+          teamEditError.textContent = window.transNameEmpty || 'Name must not be empty';
           teamEditError.hidden = false;
           return false;
         }
@@ -9340,10 +9340,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const userPassRepeat = usersRoot?.querySelector('#userPassRepeat') || null;
   const userPassForm = usersRoot?.querySelector('#userPassForm') || null;
   const usersPaginationEl = usersRoot?.querySelector('#usersPagination') || null;
-  const labelUsername = usersListEl?.dataset.labelUsername || 'Benutzername';
-  const labelRole = usersListEl?.dataset.labelRole || 'Rolle';
-  const labelNamespaces = usersListEl?.dataset.labelNamespaces || 'Namespaces';
-  const labelActive = usersListEl?.dataset.labelActive || 'Aktiv';
+  const labelUsername = usersListEl?.dataset.labelUsername || (window.transUsername || 'Username');
+  const labelRole = usersListEl?.dataset.labelRole || (window.transRole || 'Role');
+  const labelNamespaces = usersListEl?.dataset.labelNamespaces || (window.transNamespaces || 'Namespaces');
+  const labelActive = usersListEl?.dataset.labelActive || (window.transActive || 'Active');
   const rawAvailableNamespaces = Array.isArray(window.availableNamespaces)
     ? window.availableNamespaces
     : [];
@@ -9481,16 +9481,16 @@ document.addEventListener('DOMContentLoaded', function () {
       '';
     const normalized = String(hint || getResponseErrorText(payload)).toLowerCase();
     if (normalized.includes('email') || normalized.includes('e-mail') || normalized.includes('mail')) {
-      return 'E-Mail bereits vergeben';
+      return window.transEmailTaken || 'Email already taken';
     }
     if (normalized.includes('rolle') || normalized.includes('role')) {
-      return 'Rolle bereits vergeben';
+      return window.transRoleTaken || 'Role already taken';
     }
     if (normalized.includes('user') || normalized.includes('benutzer') || normalized.includes('name')) {
-      return 'Benutzername bereits vergeben';
+      return window.transUsernameTaken || 'Username already taken';
     }
     const fallback = getResponseErrorText(payload);
-    return fallback || 'Benutzername bereits vergeben';
+    return fallback || (window.transUsernameTaken || 'Username already taken');
   };
 
   const readErrorPayload = async (response) => {
@@ -9506,7 +9506,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveUsers(list = userManager?.getData() || []) {
     if (list.some(u => !u.username?.trim())) {
-      notify('Benutzername darf nicht leer sein', 'warning');
+      notify(window.transUsernameRequired || 'Username must not be empty', 'warning');
       return;
     }
     const payload = list
@@ -9534,7 +9534,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!r.ok) {
           const message = getResponseErrorText(errorPayload);
           if (r.status === 400 || r.status === 422) {
-            notify(message || 'Benutzername nicht erlaubt', 'danger');
+            notify(message || (window.transUsernameNotAllowed || 'Username not allowed'), 'danger');
             return Promise.reject();
           }
           if (message) {
@@ -10284,7 +10284,7 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(err => {
         backupTableBody.innerHTML = '<tr><td colspan="2">Fehler</td></tr>';
-        notify(err.message || 'Fehlende Berechtigungen oder Ordner', 'danger');
+        notify(err.message || (window.transMissingPermissions || 'Missing permissions or folder'), 'danger');
       });
   }
 
@@ -10304,7 +10304,7 @@ document.addEventListener('DOMContentLoaded', function () {
       apiFetch('/backups/' + encodeURIComponent(name) + '/restore', { method: 'POST' })
         .then(r => {
           if (!r.ok) throw new Error(r.statusText);
-          notify('Import abgeschlossen', 'success');
+          notify(window.transImportComplete || 'Import complete', 'success');
         })
         .catch(() => notify(window.transErrorImportFailed || 'Import failed', 'danger'));
     } else if (action === 'download') {
@@ -10338,7 +10338,7 @@ document.addEventListener('DOMContentLoaded', function () {
     apiFetch('/restore-default', { method: 'POST' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        notify('Import abgeschlossen', 'success');
+        notify(window.transImportComplete || 'Import complete', 'success');
       })
       .catch(err => {
         console.error(err);
@@ -10369,12 +10369,12 @@ document.addEventListener('DOMContentLoaded', function () {
             throw new Error(data.error || r.statusText);
           });
         }
-        notify('Export abgeschlossen', 'success');
+        notify(window.transExportComplete || 'Export complete', 'success');
         loadBackups();
       })
       .catch(err => {
         console.error(err);
-        notify(err.message || 'Fehlende Berechtigungen oder Ordner', 'danger');
+        notify(err.message || (window.transMissingPermissions || 'Missing permissions or folder'), 'danger');
       });
   });
 
@@ -10508,7 +10508,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function loadTenants(status = '', query = '', showSpinner = true) {
     if (!tenantTableBody) return;
     if (typeof window.domainType !== 'undefined' && window.domainType !== 'main') {
-      notify('MAIN_DOMAIN falsch konfiguriert – Mandantenliste nicht geladen', 'warning');
+      notify(window.transMainDomainMisconfigured || 'MAIN_DOMAIN misconfigured \u2013 tenant list not loaded', 'warning');
       return;
     }
     if (showSpinner) {
@@ -10527,7 +10527,7 @@ document.addEventListener('DOMContentLoaded', function () {
           tenantTableBody.innerHTML = '';
         }
       })
-      .catch(() => notify('Mandanten konnten nicht geladen werden', 'danger'));
+      .catch(() => notify(window.transTenantsLoadFailed || 'Tenants could not be loaded', 'danger'));
   }
 
   // --------- Hilfe-Seitenleiste ---------
@@ -11544,7 +11544,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (email === '') {
           emailInput.classList.add('uk-form-danger');
           emailInput.focus();
-          notify('Bitte E-Mail-Adresse eingeben', 'warning');
+          notify(window.transEmailRequired || 'Please enter an email address', 'warning');
           return;
         }
         payload.email = email;
