@@ -2,6 +2,8 @@
 
 quizrace ist eine vollständige SaaS-Plattform für interaktive Quiz-Events – von der Erstellung einzelner Fragenkataloge bis zum mandantenfähigen Betrieb mit eigenem Branding. Ob Firmen-Sommerfest, Teambuilding-Tag, Schulprojekt oder öffentliche Veranstaltung: quizrace liefert eine reibungslose Spielerfahrung auf jedem Gerät und gibt Veranstaltenden alle Werkzeuge an die Hand, um das Quiz vollständig ohne technisches Vorwissen durchzuführen. Das System ist vollständig selbst gehostet, DSGVO-konform und über Docker innerhalb weniger Minuten einsatzbereit.
 
+Die Abrechnung erfolgt **pro Namespace**: Jeder Namespace hat sein eigenes Abonnement, und Quotas legen fest, was er abbilden kann – von Events und Katalogen bis hin zu Nutzerplätzen und KI-Generierungen. So lässt sich quizrace sowohl als Einzellösung für ein einziges Event als auch als mehrmandantenfähige Plattform für Event-Agenturen betreiben.
+
 ---
 
 ## Inhaltsverzeichnis
@@ -16,8 +18,9 @@ quizrace ist eine vollständige SaaS-Plattform für interaktive Quiz-Events – 
 8. [CMS & Seiteninhalte](#8-cms--seiteninhalte)
 9. [Medien-Bibliothek](#9-medien-bibliothek)
 10. [Administration & Betrieb](#10-administration--betrieb)
-11. [Technische Highlights](#11-technische-highlights)
-12. [Einsatzszenarien](#12-einsatzszenarien)
+11. [Abonnement & Namespace-Billing](#11-abonnement--namespace-billing)
+12. [Technische Highlights](#12-technische-highlights)
+13. [Einsatzszenarien](#13-einsatzszenarien)
 
 ---
 
@@ -292,8 +295,8 @@ Jede Seite hat eine unabhängige SEO-Konfiguration:
 - Vollständige Datenisolation zwischen Mandanten via PostgreSQL
 - Subdomain-Routing: Jeder Mandant erhält eigene Subdomain (z. B. `kunde1.quizrace.app`)
 - Namespace-System: logische Gruppierung von Events, Seiten, Design und rechtlichen Angaben
-- **Stripe-Billing-Integration**: Abo-Verwaltung, Plan-Limits, Kündigungsfristen – vollständig in der Plattform abgebildet
 - Onboarding-Workflow: Automatisches Setup für neue Mandanten inkl. Admin-User
+- Abonnement und Quota-Enforcement: → siehe [Abschnitt 11](#11-abonnement--namespace-billing)
 
 ### Domain-Management
 - Mehrere Domains und Subdomains pro Mandant
@@ -320,7 +323,104 @@ Wählbar und konfigurierbar je Namespace:
 
 ---
 
-## 11. Technische Highlights
+## 11. Abonnement & Namespace-Billing
+
+### Das Prinzip: Bezahlt wird pro Namespace
+
+Jeder Namespace ist eine eigenständige Abrechnungseinheit mit eigenem Abonnement. Das ermöglicht flexible Nutzungsmodelle:
+
+- Ein Einzelveranstalter hat einen Namespace mit einem kleinen Plan.
+- Eine Event-Agentur betreibt mehrere Namespaces – einen pro Kunde oder Marke – jeder mit eigenem Abo und eigenem Branding.
+- Intern genutzte Namespaces (z. B. für Testumgebungen) können dauerhaft im kostenlosen Tier verbleiben.
+
+Quotas entscheiden, was ein Namespace abbilden kann. Werden Grenzen erreicht, blockiert das System das Erstellen weiterer Ressourcen und zeigt einen klaren Hinweis mit Upgrade-Möglichkeit.
+
+---
+
+### Pläne & Quotas
+
+| Ressource | FREE | STARTER | STANDARD |
+|-----------|:----:|:-------:|:--------:|
+| Events | 1 | 3 | 50 |
+| Teams | 3 | 30 | 200 |
+| Fragenkataloge | 2 | 15 | 50 |
+| Fragen (gesamt) | 10 | 100 | 500 |
+| CMS-Seiten | 1 | 5 | 100 |
+| Wiki-Einträge | 2 | 10 | 100 |
+| News-Artikel | 1 | 5 | 100 |
+| Chatbots | 0 | 1 | 10 |
+| Custom Domains | 0 | 0 | 3 |
+| Namespace-Nutzer | 1 | 2 | 10 |
+| Speicher | 50 MB | 500 MB | 5 GB |
+| KI-Generierungen / Monat | 0 | 0 | 100 |
+
+Limits können alternativ über die **`plan_limits`-Datenbanktabelle** ohne Code-Deployment angepasst werden – ideal für Übergangspläne oder individuelle Vereinbarungen.
+
+---
+
+### Stripe-Integration
+
+**Checkout & Onboarding**
+- Neue Namespaces starten direkt aus dem Onboarding-Flow heraus mit einem Stripe Checkout
+- Standardmäßig **7-tägige Testphase** ohne sofortige Zahlungspflicht (konfigurierbar via `STRIPE_TRIAL_DAYS`)
+- Unterstützt eingebetteten Checkout (Embedded Mode mit Client Secret) und klassischen Redirect-Flow
+
+**Laufendes Abo**
+- Upgrade / Downgrade zwischen Plänen mit automatischer Proration
+- Kündigung zum Periodenende oder sofort – wählbar im Admin-Bereich
+- Reaktivierung einer ausstehenden Kündigung auf Knopfdruck
+- Rechnungsarchiv: bis zu 24 Rechnungen einsehbar im Admin-Panel
+
+**Billing Portal**
+- Weiterleitung zum Stripe Customer Portal für selbstständige Zahlungsmethod-Verwaltung
+- Kein Support-Aufwand für Standard-Änderungen (Kartenupdate, Rechnungsadresse)
+
+**Webhook-Synchronisation**
+Die Plattform verarbeitet automatisch folgende Stripe-Ereignisse:
+
+| Webhook-Ereignis | Aktion |
+|-----------------|--------|
+| `checkout.session.completed` | Namespace aktivieren, Kunden-ID verknüpfen, Plan setzen |
+| `invoice.paid` | Stripe-Status auf `paid` setzen |
+| `invoice.payment_failed` | Stripe-Status auf `past_due` setzen |
+| `customer.subscription.updated` | Plan, Status, Abrechnungsperiode, Kündigungsflag synchronisieren |
+| `customer.subscription.deleted` | Plan entfernen, Status auf `canceled` setzen |
+
+Sandbox- und Live-Modus werden über separate Umgebungsvariablen (`STRIPE_SANDBOX=true/false`) gesteuert; alle Konfigurationswerte haben dedizierte Sandbox-Pendants.
+
+---
+
+### Live-Quota-Tracking
+
+Jede Ressourcen-Operation ist quota-bewusst:
+
+- **Vor dem Erstellen**: `QuotaService::assertCanCreate()` prüft, ob das Limit erreicht ist – andernfalls wird eine `QuotaExceededException` geworfen
+- **Nach dem Erstellen / Löschen**: Zähler werden atomar inkrementiert bzw. dekrementiert (niemals unter 0)
+- **Sync-Operation**: Bei Neuzählung (z. B. nach Import) kann der Zähler per `setUsage()` direkt gesetzt werden
+- **Dashboard-Übersicht**: `getQuotaOverview()` liefert für alle 12 Metriken aktuellen Verbrauch und Maximum
+
+Quota-Checks sind bereits in **CatalogService**, **EventService** und **TeamService** integriert.
+
+---
+
+### Custom Limits (Enterprise)
+
+Für Kunden mit individuellen Anforderungen können Limits per JSON-Override in der Datenbank hinterlegt werden – ohne Änderung am Code oder den Plänen:
+
+```json
+{
+  "events": 25,
+  "teams": 150,
+  "catalogs": 40,
+  "storage_mb": 2000
+}
+```
+
+Custom Limits überschreiben Plan-Limits vollständig und ermöglichen maßgeschneiderte Vereinbarungen außerhalb der Standard-Tiering-Struktur.
+
+---
+
+## 12. Technische Highlights
 
 | Aspekt | Details |
 |--------|---------|
@@ -344,7 +444,7 @@ Wählbar und konfigurierbar je Namespace:
 
 ---
 
-## 12. Einsatzszenarien
+## 13. Einsatzszenarien
 
 ### Firmen-Events & Teambuilding
 Ein Unternehmen richtet einen Sommerfest-Quizabend aus. Jede Abteilung bildet ein Team, scannt den Team-QR-Code mit dem Smartphone und spielt im Wettkampfmodus. Das Live-Dashboard läuft auf einem Beamer – die Rangliste aktualisiert sich in Echtzeit. Ergebnisse werden als PDF-Zusammenfassung mit Fotos der Teilnehmer exportiert.
