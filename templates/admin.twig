@@ -2339,44 +2339,56 @@
       <li class="{{ activeRoute == 'subscription' ? 'uk-active' }}">
         <div class="admin-section">
           <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>
+          <p class="uk-text-meta uk-margin-remove-top">{{ t('text_subscription_intro') }}</p>
 
           {# ── Namespace-Auswahl: bestimmt das Abo ── #}
           {% set subscriptionNamespaceOptions = available_namespaces|default([]) %}
           {% set subscriptionNamespace = pageNamespace|default(default_namespace|default('default')) %}
-          {% if subscriptionNamespaceOptions|length > 1 %}
-          <div class="uk-margin-small uk-grid-small uk-flex-middle" uk-grid>
-            <div class="uk-width-auto">
-              <label class="uk-form-label uk-margin-remove" for="subscriptionNamespaceSelect">{{ t('label_project_namespace') }}</label>
-            </div>
-            <div class="uk-width-1-1 uk-width-medium@m">
-              <select
-                id="subscriptionNamespaceSelect"
-                class="uk-select uk-form-small"
-                data-subscription-namespace-select
-              >
-                {% for entry in subscriptionNamespaceOptions %}
-                  {% set entryNamespace = entry.namespace|default('') %}
-                  {% set entryLabel = entry.label|default('') %}
-                  {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                  <option
-                    value="{{ entryNamespace|e('html_attr') }}"
-                    {% if entryNamespace == subscriptionNamespace %}selected{% endif %}
-                  >
-                    {{ entryNamespace }}
-                    {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                    {% if entryIsInactive %} – inaktiv{% endif %}
-                  </option>
-                {% endfor %}
-              </select>
+          <div class="uk-card qr-card uk-card-body uk-margin-small">
+            <div class="uk-grid-small uk-flex-middle" uk-grid>
+              <div class="uk-width-expand">
+                <label class="uk-form-label" for="subscriptionNamespaceSelect">{{ t('label_project_namespace') }}</label>
+                {% if subscriptionNamespaceOptions|length > 1 %}
+                <select
+                  id="subscriptionNamespaceSelect"
+                  class="uk-select uk-margin-small-top"
+                  data-subscription-namespace-select
+                >
+                  {% for entry in subscriptionNamespaceOptions %}
+                    {% set entryNamespace = entry.namespace|default('') %}
+                    {% set entryLabel = entry.label|default('') %}
+                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                    <option
+                      value="{{ entryNamespace|e('html_attr') }}"
+                      {% if entryNamespace == subscriptionNamespace %}selected{% endif %}
+                    >
+                      {{ entryNamespace }}
+                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      {% if entryIsInactive %} – inaktiv{% endif %}
+                    </option>
+                  {% endfor %}
+                </select>
+                {% else %}
+                <div class="uk-text-bold uk-margin-small-top">{{ subscriptionNamespace }}</div>
+                <input type="hidden" id="subscriptionNamespaceSelect" value="{{ subscriptionNamespace|e('html_attr') }}">
+                {% endif %}
+              </div>
+              {% if tenant and tenant.stripe_customer_id %}
+              <div class="uk-width-auto">
+                <a href="{{ basePath }}/admin/subscription/portal" class="uk-button uk-button-default uk-button-small">
+                  <span uk-icon="icon: link; ratio: 0.8"></span>
+                  {{ t('action_open_subscription') }}
+                </a>
+              </div>
+              {% endif %}
             </div>
           </div>
-          {% endif %}
 
           {% set hasCustomer = tenant and tenant.stripe_customer_id %}
 
-          {# ── Sektion A: Abo-Übersicht ── #}
+          {# ── Sektion A: Aktueller Tarif ── #}
           <div class="uk-card qr-card uk-card-body uk-margin-small" id="subscription-card">
-            <h3 class="uk-card-title uk-margin-remove-bottom">{{ t('label_plan') }}</h3>
+            <h3 class="uk-card-title uk-margin-remove-bottom">{{ t('heading_subscription_plan') }}</h3>
             <div id="subscription-details"
               data-label-plan="{{ t('label_plan') }}"
               data-label-price="{{ t('label_price') }}"
@@ -2441,12 +2453,11 @@
           <div id="stripe-checkout"></div>
           {% if not tenant or not tenant.imprint_email %}
           <div class="uk-margin-top uk-width-1-2@s">
-            <label class="uk-form-label">E-Mail für Abrechnung</label>
+            <label class="uk-form-label">{{ t('subscription_email') }}</label>
             <input class="uk-input" type="email" id="subscription-email" placeholder="name@firma.de" required>
-            <div class="uk-text-meta">Wird für Stripe-Kund*in verwendet.</div>
           </div>
           {% endif %}
-          <h3 class="uk-margin-top">Tarife vergleichen</h3>
+          <h3 class="uk-margin-top">{{ t('heading_subscription_plans') }}</h3>
           <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m uk-grid-match" uk-grid>
             <div>
               <div class="uk-card qr-card uk-card-body pricing-plan-card" data-plan-card="starter">
