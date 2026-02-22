@@ -143,13 +143,6 @@
           </form>
           {% endfor %}
         </div>
-        <div id="preview-modal" uk-modal>
-          <div class="uk-modal-dialog uk-modal-body">
-            <h3>{{ t('action_preview') }}</h3>
-            <div id="preview-content" data-namespace="{{ pageNamespace|e('html_attr') }}"></div>
-            <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_close') }}</button>
-          </div>
-        </div>
         <div id="createPageModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
             <h2 class="uk-modal-title">{{ t('heading_create_new_page') }}</h2>

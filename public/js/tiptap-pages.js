@@ -999,12 +999,6 @@ const updatePageEditorTheme = theme => {
     }
   });
 
-  const preview = document.getElementById('preview-content');
-  if (preview) {
-    preview.dataset.theme = resolvedTheme;
-    preview.classList.toggle('high-contrast', activeTheme === THEME_HIGH_CONTRAST);
-  }
-
   document.querySelectorAll('[data-preview-canvas="true"]').forEach(previewCanvas => {
     previewCanvas.dataset.theme = resolvedTheme;
     previewCanvas.classList.toggle('high-contrast', activeTheme === THEME_HIGH_CONTRAST);
@@ -2459,9 +2453,8 @@ const setupPageForm = form => {
     previewBtn.addEventListener('click', event => {
       event.preventDefault();
       const slug = (form.dataset.slug || '').trim();
-      const handle = slug ? openPreviewInNewTab(slug) : null;
-      if (!handle) {
-        showPreview(form, { forceModal: true });
+      if (slug) {
+        openPreviewInNewTab(slug);
       }
     });
     previewBtn.dataset.bound = '1';
@@ -3631,209 +3624,15 @@ const ensureStylesheetLoaded = (id, href, options = {}) => {
   document.head.appendChild(link);
 };
 
-const loadStylesheet = (id, href, options = {}) => new Promise(resolve => {
-  const absoluteHref = assetUrlToAbsolute(href);
-  let link = document.getElementById(id);
-  if (!link) {
-    link = document.createElement('link');
-    link.id = id;
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-  }
-  if (options.media) {
-    link.media = options.media;
-  }
-  if (options.dataset) {
-    Object.entries(options.dataset).forEach(([key, value]) => {
-      link.dataset[key] = value;
-    });
-  }
-  const matchesHref = link.href === absoluteHref;
-  if (matchesHref && (link.dataset.loaded === '1' || link.sheet)) {
-    resolve(true);
-    return;
-  }
-  const cleanup = () => {
-    link.removeEventListener('load', onLoad);
-    link.removeEventListener('error', onError);
-  };
-  const onLoad = () => {
-    cleanup();
-    link.dataset.loaded = '1';
-    resolve(true);
-  };
-  const onError = () => {
-    cleanup();
-    link.dataset.loaded = '0';
-    resolve(false);
-  };
-  link.addEventListener('load', onLoad);
-  link.addEventListener('error', onError);
-  link.dataset.loaded = '0';
-  link.href = href;
-});
-
-const ensureStylesheetWithFallback = (id, hrefs, options = {}) => {
-  const candidates = Array.isArray(hrefs) ? hrefs.filter(Boolean) : [hrefs].filter(Boolean);
-  if (!candidates.length) {
-    return Promise.resolve();
-  }
-  return candidates
-    .reduce(
-      (promise, href) => promise.then(loaded => (loaded ? loaded : loadStylesheet(id, href, options))),
-      Promise.resolve(false)
-    )
-    .then(() => undefined);
-};
-
-const ensureScriptLoaded = (id, src) => new Promise(resolve => {
-  if (document.getElementById(id)) {
-    resolve();
-    return;
-  }
-  const absoluteSrc = assetUrlToAbsolute(src);
-  const alreadyLoaded = Array.from(document.querySelectorAll('script[src]'))
-    .some(script => script.src === absoluteSrc);
-  if (alreadyLoaded) {
-    resolve();
-    return;
-  }
-  const script = document.createElement('script');
-  script.id = id;
-  script.src = src;
-  script.defer = true;
-  script.onload = () => resolve();
-  script.onerror = () => resolve();
-  document.body.appendChild(script);
-});
-
-const buildNamespacedCssCandidates = filename => {
-  const namespace = resolvePageNamespace();
-  const normalized = (namespace || '').trim().toLowerCase();
-  const candidates = [];
-  if (normalized && normalized !== 'default') {
-    candidates.push(withBase(`/css/${encodeURIComponent(normalized)}/${filename}`));
-  }
-  candidates.push(withBase(`/css/${filename}`));
-  return candidates;
-};
-
-let previewAssetsPromises = {};
-
-const ensurePreviewAssets = () => {
-  const namespace = resolvePageNamespace();
-  const cacheKey = namespace || 'default';
-  if (previewAssetsPromises[cacheKey]) {
-    return previewAssetsPromises[cacheKey];
-  }
-  const uikitCss = withBase('/css/uikit.min.css');
-  const uikitJs = withBase('/js/uikit.min.js');
-  const uikitIconsJs = withBase('/js/uikit-icons.min.js');
-  const styles = [
-    ensureStylesheetWithFallback('preview-uikit-css', uikitCss, {
-      media: 'all',
-      dataset: { previewAsset: 'page-preview' }
-    }),
-    ensureStylesheetWithFallback('preview-variables-css', withBase('/css/variables.css'), {
-      media: 'all',
-      dataset: { previewAsset: 'page-preview' }
-    }),
-    ensureStylesheetWithFallback('preview-namespace-tokens-css', buildNamespacedCssCandidates('namespace-tokens.css'), {
-      media: 'all',
-      dataset: { previewAsset: 'page-preview' }
-    }),
-    ensureStylesheetWithFallback('preview-table-css', withBase('/css/table.css'), {
-      media: 'all',
-      dataset: { previewAsset: 'page-preview' }
-    }),
-    ensureStylesheetWithFallback('preview-topbar-css', withBase('/css/topbar.css'), {
-      media: 'all',
-      dataset: { previewAsset: 'page-preview' }
-    }),
-    ensureStylesheetWithFallback('preview-marketing-css', withBase('/css/marketing.css'), {
-      media: 'all',
-      dataset: { previewAsset: 'page-preview' }
-    })
-  ];
-
-  const scripts = [];
-  if (!window.UIkit) {
-    scripts.push(ensureScriptLoaded('preview-uikit-js', uikitJs));
-  }
-  scripts.push(ensureScriptLoaded('preview-uikit-icons-js', uikitIconsJs));
-  previewAssetsPromises[cacheKey] = Promise.all([...styles, ...scripts]).then(() => undefined);
-  return previewAssetsPromises[cacheKey];
-};
-
-const setPagePreviewMedia = () => {
-  document.querySelectorAll('link[data-preview-asset="page-preview"]').forEach(link => {
-    link.media = 'all';
-  });
-};
-
-const bindPreviewModal = () => {
-  const modalEl = document.getElementById('preview-modal');
-  if (!modalEl || modalEl.dataset.previewBound === '1') {
-    return;
-  }
-  modalEl.addEventListener('hidden', () => {
-    setPagePreviewMedia(false);
-  });
-  modalEl.dataset.previewBound = '1';
-};
-
-export async function showPreview(formOverride = null, options = {}) {
-  const { forceModal = false } = options;
+export function showPreview(formOverride = null) {
   const activeForm = formOverride || document.querySelector('.page-form:not(.uk-hidden)');
   if (!activeForm) {
     return;
   }
 
   const slug = (activeForm.dataset.slug || '').trim();
-  if (!forceModal && slug) {
-    const handle = openPreviewInNewTab(slug);
-    if (handle) {
-      return handle;
-    }
-  }
-
-  const previewContainer = document.getElementById('preview-content');
-  const modalEl = document.getElementById('preview-modal');
-  if (!previewContainer || !modalEl) {
-    return;
-  }
-  if (!previewContainer.dataset.previewIntent) {
-    previewContainer.dataset.previewIntent = 'preview';
-  }
-
-  const namespace = previewContainer.dataset.namespace
-    || document.documentElement?.dataset?.namespace
-    || 'default';
-
-  const editor = ensurePageEditorInitialized(activeForm) || getEditorInstance(activeForm);
-  const editorEl = activeForm.querySelector('.page-editor');
-  const { blocks } = readBlockEditorState(editor);
-  const appearance = resolveNamespaceAppearance(namespace, window.pageAppearance || {});
-  applyNamespaceDesign(previewContainer, namespace, appearance);
-  const rendererOptions = {
-    rendererMatrix: RENDERER_MATRIX,
-    context: 'preview',
-    appearance,
-    page: resolvePageContextForForm(activeForm),
-  };
-  const html = USE_BLOCK_EDITOR
-    ? renderPage(Array.isArray(blocks) ? blocks : [], rendererOptions)
-    : sanitize(typeof editor?.getHTML === 'function' ? editor.getHTML() : editorEl?.dataset.content || '');
-  previewContainer.innerHTML = html;
-
-  await ensurePreviewAssets();
-  setPagePreviewMedia(true);
-  bindPreviewModal();
-  if (window.UIkit && typeof window.UIkit.modal === 'function') {
-    window.UIkit.modal(modalEl).show();
-  }
-  if (USE_BLOCK_EDITOR && !blocks?.length) {
-    return;
+  if (slug) {
+    return openPreviewInNewTab(slug);
   }
 }
 

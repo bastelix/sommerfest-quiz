@@ -132,7 +132,6 @@ async function mountPageEditor(page, { content = '<p>Start</p>' } = {}) {
           <button type="button" class="uk-button uk-button-default preview-link">Vorschau</button>
         </form>
       </div>
-      <div id="preview-modal"><div id="preview-content"></div></div>
       <script>
         window.basePath = '';
         window.__openedUrls = [];
