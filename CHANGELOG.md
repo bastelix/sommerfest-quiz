@@ -660,6 +660,7 @@
 - *(ui)* Rename subscription page to customer portal and remove redundant button
 - *(tenant)* Replace docker-per-tenant with schema-only isolation
 - *(ui)* Extract shared card-row system and convert all admin list editors
+- *(subscription)* Rename Kundenportal to Abonnements and improve page layout
 
 ### Style
 
