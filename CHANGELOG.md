@@ -333,6 +333,7 @@
 - *(pages)* Modernize block list with type badges and drag-and-drop reorder
 - *(i18n)* Translate admin area including question editor
 - *(quiz)* Add catalog selector to event block and fix quiz start links
+- *(tests)* Add vitest unit test suite for admin-utils, catalog, and teams modules
 
 ### Fix
 
