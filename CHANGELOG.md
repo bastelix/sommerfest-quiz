@@ -567,6 +567,7 @@
 - Remove conflicting flex layout from block-row in page designer
 - *(marketing)* Point logo links to root instead of page slug
 - *(admin)* Address codex review – footer handle, wiki sort listener, highlight reorder
+- *(table-manager)* Sync filteredData after paginated reorder
 
 ### Merge
 
