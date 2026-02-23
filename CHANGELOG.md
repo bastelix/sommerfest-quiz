@@ -566,6 +566,7 @@
 - *(i18n)* Remove duplicate notify_domain_ssl_issued translation keys
 - Remove conflicting flex layout from block-row in page designer
 - *(marketing)* Point logo links to root instead of page slug
+- *(admin)* Address codex review – footer handle, wiki sort listener, highlight reorder
 
 ### Merge
 
