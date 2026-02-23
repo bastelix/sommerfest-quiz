@@ -3863,6 +3863,22 @@ export class BlockContentEditor {
         highlightsWrapper.append(highlightCard);
       });
 
+      this.wireCollectionSortable(
+        highlightsWrapper,
+        () => {
+          const b = this.state.blocks.find(b => b.id === block.id);
+          const o = (b?.data?.options || []).find(o => o.id === option.id);
+          return (o?.highlights || []).map((h, i) => ({ ...h, id: i }));
+        },
+        newOrder => {
+          const b = this.state.blocks.find(b => b.id === block.id);
+          if (b) {
+            const o = (b.data.options || []).find(o => o.id === option.id);
+            if (o) o.highlights = newOrder.map(({ id: _id, ...rest }) => rest);
+          }
+        }
+      );
+
       highlightsWrapper.append(this.createCollectionAddButton('Highlight hinzufügen', () => this.addPackageOptionHighlight(block.id, option.id)));
 
       const optionBody = [
