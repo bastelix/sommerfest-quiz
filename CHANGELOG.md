@@ -664,6 +664,12 @@
 - *(subscription)* Rename Kundenportal to Abonnements and improve page layout
 - *(pages)* Remove preview modal from page editor
 - *(wiki)* Replace color settings with tabs and remove theme options
+- *(admin)* Extract utility functions into admin-utils.js
+- *(admin)* Extract page-tree and project modules
+- *(admin)* Extract teams, events, and users modules
+- *(admin)* Integrate events and users module extractions
+- *(admin)* Extract catalog and help sidebar modules
+- *(admin)* Extract configuration module into admin-config.js
 
 ### Style
 
