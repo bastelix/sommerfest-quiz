@@ -165,6 +165,8 @@ if (manager) {
       filterLocale: 'all'
     };
 
+    let articleSortableReady = false;
+
     function escapeHtml(value) {
       return String(value || '')
         .replace(/&/g, '&amp;')
@@ -502,13 +504,16 @@ if (manager) {
       if (state.filterLocale === 'all' && typeof UIkit !== 'undefined') {
         try {
           UIkit.sortable(articlesTableBody, { handle: '[data-drag-handle]', animation: 150 });
-          UIkit.util.on(articlesTableBody, 'moved', () => {
-            const ids = [...articlesTableBody.querySelectorAll('tr[data-article-id]')]
-              .map(tr => Number(tr.dataset.articleId));
-            const articleMap = new Map(state.articles.map(a => [a.id, a]));
-            const reordered = ids.map(id => articleMap.get(id)).filter(Boolean);
-            if (reordered.length === state.articles.length) saveArticleOrder(reordered);
-          });
+          if (!articleSortableReady) {
+            articleSortableReady = true;
+            UIkit.util.on(articlesTableBody, 'moved', () => {
+              const ids = [...articlesTableBody.querySelectorAll('tr[data-article-id]')]
+                .map(tr => Number(tr.dataset.articleId));
+              const articleMap = new Map(state.articles.map(a => [a.id, a]));
+              const reordered = ids.map(id => articleMap.get(id)).filter(Boolean);
+              if (reordered.length === state.articles.length) saveArticleOrder(reordered);
+            });
+          }
         } catch (e) {
           console.warn('[wiki] sortable init error:', e);
         }
