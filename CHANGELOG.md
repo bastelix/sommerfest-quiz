@@ -45,6 +45,7 @@
 
 - Rebase changelog updates before push
 - Add GitHub Pages workflow
+- Add JS unit tests job to PR workflow
 
 ### Docs
 
