@@ -117,6 +117,7 @@ export default class TableManager {
         const rest = this.data.filter(item => !seen.has(String(item.id)));
         this.data = ordered.concat(rest);
       }
+      this.filteredData = this.data;
     }
     if (typeof this.onReorder === 'function') {
       this.onReorder();
