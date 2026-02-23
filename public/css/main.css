@@ -2849,13 +2849,44 @@ body.admin-page {
   display: none;
 }
 
-.page-editor-workspace[data-mode="structure"] .page-preview-pane,
+.page-editor-workspace[data-mode="structure"] .page-preview-pane {
+  display: none;
+}
+
 .page-editor-workspace[data-mode="edit"] .page-preview-pane {
   display: none;
 }
 
 .page-editor-workspace[data-mode="preview"] .page-preview-pane {
   display: block;
+}
+
+/* Side-by-side editor + live preview in edit mode (wide screens) */
+@media (min-width: 1200px) {
+  .page-editor-workspace[data-mode="edit"] {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .page-editor-workspace[data-mode="edit"] [data-editor-pane="true"] {
+    flex: 1 1 55%;
+    min-width: 0;
+  }
+
+  .page-editor-workspace[data-mode="edit"] .page-preview-pane {
+    display: block;
+    flex: 0 0 40%;
+    min-width: 0;
+    position: sticky;
+    top: 16px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+
+  .page-editor-workspace[data-mode="edit"] .page-preview-pane .page-preview-actions {
+    display: none;
+  }
 }
 
 .page-preview-pane {

@@ -422,7 +422,10 @@ const ensurePreviewSlots = form => {
     }
 
     editorPane.hidden = resolvedMode === 'preview';
-    previewPane.hidden = resolvedMode !== 'preview';
+
+    const isWideScreen = window.matchMedia('(min-width: 1200px)').matches;
+    const showSideBySide = resolvedMode === 'edit' && isWideScreen;
+    previewPane.hidden = !(resolvedMode === 'preview' || showSideBySide);
 
     const showPreview = resolvedMode === 'preview';
     previewActions.hidden = !showPreview;
@@ -444,6 +447,16 @@ const ensurePreviewSlots = form => {
     syncPreviewIntent(resolvedMode);
     updateModeButtons(resolvedMode);
   };
+
+  const wideScreenQuery = window.matchMedia('(min-width: 1200px)');
+  const handleViewportChange = () => {
+    if (currentMode === 'edit') {
+      applyEditorMode('edit', { activeSectionId: currentActiveSectionId });
+    }
+  };
+  if (typeof wideScreenQuery.addEventListener === 'function') {
+    wideScreenQuery.addEventListener('change', handleViewportChange);
+  }
 
   editorModes.forEach(mode => {
     const button = document.createElement('button');
