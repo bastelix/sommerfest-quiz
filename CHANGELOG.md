@@ -663,6 +663,7 @@
 - *(ui)* Extract shared card-row system and convert all admin list editors
 - *(subscription)* Rename Kundenportal to Abonnements and improve page layout
 - *(pages)* Remove preview modal from page editor
+- *(wiki)* Replace color settings with tabs and remove theme options
 
 ### Style
 
