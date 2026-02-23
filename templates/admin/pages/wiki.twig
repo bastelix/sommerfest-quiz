@@ -97,162 +97,98 @@
               <div class="uk-alert uk-alert-primary uk-margin-small-top" data-page-namespace-feedback hidden role="status"></div>
             </div>
 
-            <div class="uk-card uk-card-default uk-card-body uk-margin" data-wiki-settings hidden>
-              <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
-                <h3 class="uk-card-title uk-margin-remove">{{ t('heading_wiki_settings') }}</h3>
-                <span class="uk-text-meta" data-wiki-settings-updated></span>
-              </div>
-              <form class="uk-form-stacked" data-wiki-settings-form>
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="wikiActive">{{ t('label_wiki_activate_menu') }}</label>
-                  <div class="uk-form-controls">
-                    <label class="uk-form-label uk-flex uk-flex-middle" style="gap: 8px;">
-                      <input class="uk-checkbox" type="checkbox" id="wikiActive" data-wiki-active>
-                      <span>{{ t('label_wiki_show_article_list') }}</span>
-                    </label>
-                    <p class="uk-text-meta uk-margin-small-top">
-                      {{ t('text_wiki_activate_menu_hint') }}
-                    </p>
-                  </div>
-                </div>
-                <div class="uk-margin">
-                  <label class="uk-form-label">{{ t('label_wiki_menu_label') }}</label>
-                  <ul class="uk-tab" uk-tab>
-                    <li><a href="#">DE</a></li>
-                    <li><a href="#">EN</a></li>
-                  </ul>
-                  <ul class="uk-switcher uk-margin-small-top">
-                    <li>
-                      <input class="uk-input" type="text" data-wiki-menu-label-locale="de" maxlength="80" placeholder="{{ t('placeholder_wiki_menu_label_de') }}">
-                    </li>
-                    <li>
-                      <input class="uk-input" type="text" data-wiki-menu-label-locale="en" maxlength="80" placeholder="e.g. Documentation">
-                    </li>
-                  </ul>
-                  <p class="uk-text-meta uk-margin-small-top">{{ t('text_wiki_menu_label_hint') }}</p>
-                </div>
-                <div class="uk-margin">
-                  <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
-                    <label class="uk-form-label uk-margin-remove">{{ t('label_wiki_theme_options') }}</label>
-                    <span class="uk-text-meta" data-wiki-theme-updated></span>
-                  </div>
-                  <p class="uk-text-meta uk-margin-small-bottom">{{ t('text_wiki_theme_options_hint') }}</p>
-                  <div class="uk-grid-small uk-child-width-1-2@m" uk-grid>
-                    <div>
-                      <label class="uk-form-label" for="wikiThemeHeaderFrom">{{ t('label_wiki_theme_primary_list') }}</label>
-                      <input class="uk-input" type="color" id="wikiThemeHeaderFrom" data-wiki-theme-color="headerFrom">
-                    </div>
-                    <div>
-                      <label class="uk-form-label" for="wikiThemeHeaderTo">{{ t('label_wiki_theme_accent_list') }}</label>
-                      <input class="uk-input" type="color" id="wikiThemeHeaderTo" data-wiki-theme-color="headerTo">
-                    </div>
-                    <div>
-                      <label class="uk-form-label" for="wikiThemeDetailFrom">{{ t('label_wiki_theme_primary_detail') }}</label>
-                      <input class="uk-input" type="color" id="wikiThemeDetailFrom" data-wiki-theme-color="detailHeaderFrom">
-                    </div>
-                    <div>
-                      <label class="uk-form-label" for="wikiThemeDetailTo">{{ t('label_wiki_theme_accent_detail') }}</label>
-                      <input class="uk-input" type="color" id="wikiThemeDetailTo" data-wiki-theme-color="detailHeaderTo">
-                    </div>
-                    <div>
-                      <label class="uk-form-label" for="wikiThemeHeaderText">{{ t('label_wiki_theme_header_text') }}</label>
-                      <input class="uk-input" type="color" id="wikiThemeHeaderText" data-wiki-theme-color="headerText">
-                    </div>
-                    <div>
-                      <label class="uk-form-label" for="wikiThemeExcerpt">{{ t('label_wiki_theme_excerpt_color') }}</label>
-                      <input class="uk-input" type="color" id="wikiThemeExcerpt" data-wiki-theme-color="excerpt">
-                    </div>
-                    <div>
-                      <label class="uk-form-label" for="wikiThemeCalloutBorder">{{ t('label_wiki_theme_callout_accent') }}</label>
-                      <input class="uk-input" type="color" id="wikiThemeCalloutBorder" data-wiki-theme-color="calloutBorder">
-                    </div>
-                    <div>
-                      <label class="uk-form-label" for="wikiThemeCalloutBackground">{{ t('label_wiki_theme_callout_bg') }}</label>
-                      <input class="uk-input" type="color" id="wikiThemeCalloutBackground" data-wiki-theme-color="calloutBackground">
-                    </div>
-                    <div>
-                      <label class="uk-form-label" for="wikiThemeCalloutText">{{ t('label_wiki_theme_callout_text') }}</label>
-                      <input class="uk-input" type="color" id="wikiThemeCalloutText" data-wiki-theme-color="calloutText">
-                    </div>
-                  </div>
-                  <div class="uk-grid-small uk-margin-small-top" uk-grid>
-                    <div class="uk-width-1-2@m">
-                      <label class="uk-form-label" for="wikiThemeLogo">{{ t('label_wiki_theme_logo_url') }}</label>
-                      <input class="uk-input" id="wikiThemeLogo" type="url" data-wiki-theme-logo placeholder="https://...">
-                    </div>
-                    <div class="uk-width-1-2@m">
-                      <label class="uk-form-label" for="wikiThemeBodyClasses">{{ t('label_wiki_theme_body_classes') }}</label>
-                      <input
-                        class="uk-input"
-                        id="wikiThemeBodyClasses"
-                        type="text"
-                        data-wiki-theme-body-classes
-                        placeholder="class-one class-two"
-                      >
-                      <p class="uk-text-meta uk-margin-small-top">{{ t('text_wiki_theme_body_classes_hint') }}</p>
-                    </div>
-                  </div>
-                  <div class="uk-margin">
-                    <label class="uk-form-label" for="wikiThemeStylesheets">{{ t('label_wiki_theme_stylesheets') }}</label>
-                    <textarea
-                      class="uk-textarea"
-                      id="wikiThemeStylesheets"
-                      rows="2"
-                      data-wiki-theme-stylesheets
-                      placeholder="https://cdn.example.com/wiki.css&#10;marketing-wiki.css"
-                    ></textarea>
-                    <p class="uk-text-meta uk-margin-small-top">{{ t('text_wiki_theme_stylesheets_hint') }}</p>
-                  </div>
-                  <div class="uk-flex uk-flex-right uk-flex-middle" style="gap: 8px;">
-                    <button type="button" class="uk-button uk-button-default" data-wiki-theme-reset>{{ t('action_reset_fields') }}</button>
-                    <button type="button" class="uk-button uk-button-primary" data-wiki-theme-save>{{ t('action_save_theme') }}</button>
-                  </div>
-                </div>
-                <div class="uk-flex uk-flex-right uk-flex-middle" style="gap: 12px;">
-                  <button type="submit" class="uk-button uk-button-primary" data-wiki-settings-submit>{{ t('action_save_settings') }}</button>
-                </div>
-              </form>
-            </div>
+            <div data-wiki-tabs hidden>
+              <ul class="uk-tab" uk-tab>
+                <li class="uk-active"><a href="#">{{ t('heading_wiki_articles') }}</a></li>
+                <li><a href="#">{{ t('heading_wiki_settings') }}</a></li>
+              </ul>
 
-            <div class="uk-card uk-card-default uk-card-body uk-margin" data-wiki-articles hidden>
-              <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
-                <h3 class="uk-card-title uk-margin-remove">{{ t('heading_wiki_articles') }}</h3>
-                <div class="uk-flex uk-flex-middle uk-flex-wrap" style="gap: 8px;">
-                  <label class="uk-form-label uk-margin-remove" for="wikiLocaleFilter">Locale</label>
-                  <select id="wikiLocaleFilter" class="uk-select uk-form-small" data-wiki-locale-filter>
-                    <option value="all">{{ t('option_all') }}</option>
-                  </select>
-                  <button type="button" class="uk-button uk-button-default" data-wiki-upload>{{ t('action_wiki_import_markdown') }}</button>
-                  <input
-                    type="file"
-                    accept=".md,.markdown,text/markdown"
-                    hidden
-                    data-wiki-upload-input
-                  >
-                  <button type="button" class="uk-button uk-button-primary" data-wiki-create>{{ t('action_wiki_create_article') }}</button>
-                </div>
-              </div>
-              <p class="uk-text-meta uk-margin-small">{{ t('text_wiki_articles_hint') }}</p>
-              <div class="uk-alert uk-alert-warning" data-wiki-articles-empty hidden>{{ t('text_wiki_no_articles') }}</div>
-              <div class="uk-overflow-auto admin-table-wrapper">
-                <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
-                  <thead>
-                    <tr>
-                      <th>{{ t('label_title') }}</th>
-                      <th>Locale</th>
-                      <th>{{ t('label_status') }}</th>
-                      <th>{{ t('label_published') }}</th>
-                      <th class="uk-table-shrink">{{ t('label_order') }}</th>
-                      <th class="uk-table-shrink">{{ t('label_actions') }}</th>
-                    </tr>
-                  </thead>
-                  <tbody data-wiki-article-list>
-                    <tr data-wiki-loading-row>
-                      <td colspan="6">{{ t('text_loading') }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <ul class="uk-switcher uk-margin-remove-top">
+                <li>
+                  <div class="uk-card uk-card-default uk-card-body uk-margin" data-wiki-articles>
+                    <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+                      <h3 class="uk-card-title uk-margin-remove">{{ t('heading_wiki_articles') }}</h3>
+                      <div class="uk-flex uk-flex-middle uk-flex-wrap" style="gap: 8px;">
+                        <label class="uk-form-label uk-margin-remove" for="wikiLocaleFilter">Locale</label>
+                        <select id="wikiLocaleFilter" class="uk-select uk-form-small" data-wiki-locale-filter>
+                          <option value="all">{{ t('option_all') }}</option>
+                        </select>
+                        <button type="button" class="uk-button uk-button-default" data-wiki-upload>{{ t('action_wiki_import_markdown') }}</button>
+                        <input
+                          type="file"
+                          accept=".md,.markdown,text/markdown"
+                          hidden
+                          data-wiki-upload-input
+                        >
+                        <button type="button" class="uk-button uk-button-primary" data-wiki-create>{{ t('action_wiki_create_article') }}</button>
+                      </div>
+                    </div>
+                    <p class="uk-text-meta uk-margin-small">{{ t('text_wiki_articles_hint') }}</p>
+                    <div class="uk-alert uk-alert-warning" data-wiki-articles-empty hidden>{{ t('text_wiki_no_articles') }}</div>
+                    <div class="uk-overflow-auto admin-table-wrapper">
+                      <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
+                        <thead>
+                          <tr>
+                            <th>{{ t('label_title') }}</th>
+                            <th>Locale</th>
+                            <th>{{ t('label_status') }}</th>
+                            <th>{{ t('label_published') }}</th>
+                            <th class="uk-table-shrink">{{ t('label_order') }}</th>
+                            <th class="uk-table-shrink">{{ t('label_actions') }}</th>
+                          </tr>
+                        </thead>
+                        <tbody data-wiki-article-list>
+                          <tr data-wiki-loading-row>
+                            <td colspan="6">{{ t('text_loading') }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </li>
+
+                <li>
+                  <div class="uk-card uk-card-default uk-card-body uk-margin" data-wiki-settings>
+                    <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
+                      <h3 class="uk-card-title uk-margin-remove">{{ t('heading_wiki_settings') }}</h3>
+                      <span class="uk-text-meta" data-wiki-settings-updated></span>
+                    </div>
+                    <form class="uk-form-stacked" data-wiki-settings-form>
+                      <div class="uk-margin">
+                        <label class="uk-form-label" for="wikiActive">{{ t('label_wiki_activate_menu') }}</label>
+                        <div class="uk-form-controls">
+                          <label class="uk-form-label uk-flex uk-flex-middle" style="gap: 8px;">
+                            <input class="uk-checkbox" type="checkbox" id="wikiActive" data-wiki-active>
+                            <span>{{ t('label_wiki_show_article_list') }}</span>
+                          </label>
+                          <p class="uk-text-meta uk-margin-small-top">
+                            {{ t('text_wiki_activate_menu_hint') }}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="uk-margin">
+                        <label class="uk-form-label">{{ t('label_wiki_menu_label') }}</label>
+                        <ul class="uk-tab" uk-tab>
+                          <li><a href="#">DE</a></li>
+                          <li><a href="#">EN</a></li>
+                        </ul>
+                        <ul class="uk-switcher uk-margin-small-top">
+                          <li>
+                            <input class="uk-input" type="text" data-wiki-menu-label-locale="de" maxlength="80" placeholder="{{ t('placeholder_wiki_menu_label_de') }}">
+                          </li>
+                          <li>
+                            <input class="uk-input" type="text" data-wiki-menu-label-locale="en" maxlength="80" placeholder="e.g. Documentation">
+                          </li>
+                        </ul>
+                        <p class="uk-text-meta uk-margin-small-top">{{ t('text_wiki_menu_label_hint') }}</p>
+                      </div>
+                      <div class="uk-flex uk-flex-right uk-flex-middle" style="gap: 12px;">
+                        <button type="submit" class="uk-button uk-button-primary" data-wiki-settings-submit>{{ t('action_save_settings') }}</button>
+                      </div>
+                    </form>
+                  </div>
+                </li>
+              </ul>
             </div>
           </div>
 
@@ -358,9 +294,6 @@
     window.transWikiArticleStartMarked = '{{ t('notify_wiki_start_marked')|e('js') }}';
     window.transWikiArticleStartRemoved = '{{ t('notify_wiki_start_removed')|e('js') }}';
     window.transWikiArticleStartBadge = '{{ t('label_wiki_start_badge')|e('js') }}';
-    window.transWikiThemeSaved = '{{ t('notify_wiki_theme_saved')|e('js') }}';
-    window.transWikiThemeError = '{{ t('error_wiki_theme_save')|e('js') }}';
-    window.transWikiThemeInvalid = '{{ t('error_wiki_theme_invalid')|e('js') }}';
   </script>
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
   <script type="module" src="{{ basePath }}/js/wiki-admin.js"></script>
