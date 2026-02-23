@@ -2832,6 +2832,23 @@ body.admin-page {
   box-shadow: 0 4px 12px rgba(30, 135, 240, 0.08);
 }
 
+.page-editor-preview-toggle {
+  border: 1px solid var(--border-muted, #e5e7eb);
+  border-radius: 8px;
+  background: var(--surface-card, #fff);
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-muted, #4b5563);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.page-editor-preview-toggle:hover {
+  border-color: var(--brand-primary, #1e87f0);
+  color: var(--brand-primary, #1e87f0);
+}
+
 .page-editor-workspace {
   display: block;
   width: 100%;
@@ -2849,13 +2866,71 @@ body.admin-page {
   display: none;
 }
 
-.page-editor-workspace[data-mode="structure"] .page-preview-pane,
-.page-editor-workspace[data-mode="edit"] .page-preview-pane {
+.page-editor-workspace[data-mode="structure"] .page-preview-pane {
   display: none;
 }
 
 .page-editor-workspace[data-mode="preview"] .page-preview-pane {
   display: block;
+}
+
+/* Edit-mode: stacked preview below editor on narrow screens */
+@media (max-width: 1023px) {
+  .page-editor-workspace[data-mode="edit"] .page-preview-pane {
+    margin-top: 16px;
+  }
+}
+
+/* Side-by-side editor + live preview in edit mode (wide screens) */
+@media (min-width: 1024px) {
+  .page-editor-workspace[data-mode="edit"] {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .page-editor-workspace[data-mode="edit"] [data-editor-pane="true"] {
+    position: sticky;
+    top: 16px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+
+  .page-editor-workspace[data-mode="edit"] .page-preview-pane {
+    position: sticky;
+    top: 16px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+}
+
+/* Hide preview actions (device mode, fullwidth) in edit mode – not applicable to split view */
+.page-editor-workspace[data-mode="edit"] .page-preview-pane .page-preview-actions {
+  display: none;
+}
+
+/* Collapse toggle: hide preview in edit mode when user closes it */
+.page-editor-workspace[data-mode="edit"].is-edit-preview-collapsed .page-preview-pane {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .page-editor-workspace[data-mode="edit"].is-edit-preview-collapsed {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Edit-mode preview: remove the 80vh cap (pane itself is height-constrained) */
+.page-editor-workspace[data-mode="edit"] .page-preview-canvas {
+  max-height: none;
+}
+
+/* Compact preview header in edit-mode split view */
+.page-editor-workspace[data-mode="edit"] .page-preview-pane .page-preview-header {
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-muted, #e5e7eb);
 }
 
 .page-preview-pane {

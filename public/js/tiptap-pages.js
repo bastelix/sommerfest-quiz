@@ -422,28 +422,78 @@ const ensurePreviewSlots = form => {
     }
 
     editorPane.hidden = resolvedMode === 'preview';
-    previewPane.hidden = resolvedMode !== 'preview';
 
-    const showPreview = resolvedMode === 'preview';
-    previewActions.hidden = !showPreview;
-    previewModeToggle.hidden = !showPreview;
-    fullWidthToggle.hidden = !showPreview;
+    // Show preview in both 'edit' and 'preview' modes; hide only in 'structure'
+    previewPane.hidden = resolvedMode === 'structure';
 
-    fullWidthToggle.disabled = !showPreview;
+    const isPreviewMode = resolvedMode === 'preview';
+    const isEditMode = resolvedMode === 'edit';
 
-    if (!showPreview && previewPane.dataset.previewExpanded === 'true') {
+    // Device mode toggle and fullwidth toggle: only in full preview mode
+    previewActions.hidden = !isPreviewMode;
+    previewModeToggle.hidden = !isPreviewMode;
+    fullWidthToggle.hidden = !isPreviewMode;
+    fullWidthToggle.disabled = !isPreviewMode;
+
+    // Clear expanded state when leaving preview mode
+    if (!isPreviewMode && previewPane.dataset.previewExpanded === 'true') {
       setPreviewExpanded(false);
+    }
+
+    // Clear edit-preview collapsed state when leaving edit mode
+    if (!isEditMode) {
+      workspace.classList.remove('is-edit-preview-collapsed');
     }
 
     previewReturnButton.hidden = true;
     previewReturnButton.dataset.exitPreviewMode = 'false';
     previewReturnButton.onclick = null;
 
-    previewCloseButton.hidden = resolvedMode !== 'preview' || previewPane.dataset.previewExpanded !== 'true';
+    // Close button: in preview mode only when expanded; in edit mode always visible
+    if (isPreviewMode) {
+      previewCloseButton.hidden = previewPane.dataset.previewExpanded !== 'true';
+    } else if (isEditMode) {
+      previewCloseButton.hidden = false;
+      previewCloseButton.onclick = () => {
+        workspace.classList.add('is-edit-preview-collapsed');
+        const toggle = layout.querySelector('[data-edit-preview-toggle]');
+        if (toggle) {
+          toggle.hidden = false;
+        }
+      };
+    } else {
+      previewCloseButton.hidden = true;
+      previewCloseButton.onclick = null;
+    }
+
+    // Manage the "show preview" toggle button visibility
+    const editPreviewToggle = layout.querySelector('[data-edit-preview-toggle]');
+    if (editPreviewToggle) {
+      editPreviewToggle.hidden = !isEditMode || !workspace.classList.contains('is-edit-preview-collapsed');
+    }
+
     toggleFormActions(resolvedMode);
     syncPreviewIntent(resolvedMode);
     updateModeButtons(resolvedMode);
+
+    // Force a sync when entering edit or preview mode to ensure the preview is up-to-date
+    if (isEditMode || isPreviewMode) {
+      const binding = blockPreviewBindings.get(form);
+      if (binding?.sync) {
+        requestAnimationFrame(() => binding.sync());
+      }
+    }
   };
+
+  const wideScreenQuery = window.matchMedia('(min-width: 1024px)');
+  const handleViewportChange = () => {
+    if (currentMode === 'edit') {
+      applyEditorMode('edit', { activeSectionId: currentActiveSectionId });
+    }
+  };
+  if (typeof wideScreenQuery.addEventListener === 'function') {
+    wideScreenQuery.addEventListener('change', handleViewportChange);
+  }
 
   editorModes.forEach(mode => {
     const button = document.createElement('button');
@@ -456,7 +506,19 @@ const ensurePreviewSlots = form => {
     modeButtons.append(button);
   });
 
-  modeSwitcher.append(modeLabel, modeButtons);
+  const editPreviewToggle = document.createElement('button');
+  editPreviewToggle.type = 'button';
+  editPreviewToggle.className = 'page-editor-preview-toggle';
+  editPreviewToggle.textContent = 'Vorschau anzeigen';
+  editPreviewToggle.dataset.editPreviewToggle = 'true';
+  editPreviewToggle.setAttribute('aria-label', 'Vorschau einblenden');
+  editPreviewToggle.hidden = true;
+  editPreviewToggle.addEventListener('click', () => {
+    workspace.classList.remove('is-edit-preview-collapsed');
+    editPreviewToggle.hidden = true;
+  });
+
+  modeSwitcher.append(modeLabel, modeButtons, editPreviewToggle);
 
   previewActions.append(previewModeToggle, fullWidthToggle, previewReturnButton);
   previewViewport.append(previewRoot);
