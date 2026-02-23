@@ -335,6 +335,8 @@
 - *(i18n)* Translate admin area including question editor
 - *(quiz)* Add catalog selector to event block and fix quiz start links
 - *(tests)* Add vitest unit test suite for admin-utils, catalog, and teams modules
+- *(editor)* Show live preview side-by-side in edit mode
+- *(editor)* Improve side-by-side preview with responsive layout and collapse toggle
 
 ### Fix
 
