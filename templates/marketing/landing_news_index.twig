@@ -1,7 +1,6 @@
 {% extends 'layouts/cms_base.twig' %}
 
 {% set newsBaseSlug = newsOwnerBaseSlug|default(page.slug) %}
-{% set isCalserverNamespace = (designNamespace|default('')) == 'calserver' %}
 
 {% set includeCmsBaseStyles = false %}
 {% set includeMainStyles = false %}
@@ -20,7 +19,7 @@
   <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
-{% block body_class %}page-render cms-page-render marketing-page uk-background-default{% if isCalserverNamespace %} calserver-layout calserver-news-page{% endif %}{% endblock %}
+{% block body_class %}page-render cms-page-render marketing-page uk-background-default{% endblock %}
 
 {% block body %}
   {% include 'marketing/partials/design-data.twig' %}
@@ -53,12 +52,7 @@
       </nav>
     {% endif %}
 
-    {% set sectionId = isCalserverNamespace ? 'calserver-news' : 'landing-news' %}
-    {% set sectionClasses = 'marketing-section uk-section uk-section-default marketing-news' %}
-    {% if isCalserverNamespace %}
-      {% set sectionClasses = 'marketing-section uk-section uk-section-muted marketing-news calserver-news calserver-news--listing' %}
-    {% endif %}
-    <section id="{{ sectionId }}" class="{{ sectionClasses }}">
+    <section id="landing-news" class="marketing-section uk-section uk-section-default marketing-news">
       <div class="uk-container">
         <h1 class="uk-heading-medium">Neuigkeiten zu {{ page.title }}</h1>
         <div class="uk-grid-medium uk-child-width-1-1 uk-child-width-1-2@m uk-child-width-1-3@l" uk-grid>

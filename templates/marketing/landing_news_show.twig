@@ -1,7 +1,6 @@
 {% extends 'layouts/cms_base.twig' %}
 
 {% set newsBaseSlug = newsOwnerBaseSlug|default(page.slug) %}
-{% set isCalserverNamespace = (designNamespace|default('')) == 'calserver' %}
 
 {% set includeCmsBaseStyles = false %}
 {% set includeMainStyles = false %}
@@ -20,7 +19,7 @@
   <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
-{% block body_class %}page-render cms-page-render marketing-page uk-background-default{% if isCalserverNamespace %} calserver-layout calserver-news-page{% endif %}{% endblock %}
+{% block body_class %}page-render cms-page-render marketing-page uk-background-default{% endblock %}
 
 {% block body %}
   {% include 'marketing/partials/design-data.twig' %}
@@ -53,14 +52,9 @@
       </nav>
     {% endif %}
 
-    {% set sectionId = isCalserverNamespace ? 'calserver-news' : 'landing-news' %}
-    {% set sectionClasses = 'marketing-section uk-section uk-section-default marketing-news' %}
-    {% if isCalserverNamespace %}
-      {% set sectionClasses = 'marketing-section uk-section uk-section-muted marketing-news calserver-news calserver-news--detail' %}
-    {% endif %}
-    <section id="{{ sectionId }}" class="{{ sectionClasses }}">
+    <section id="landing-news" class="marketing-section uk-section uk-section-default marketing-news">
       <div class="uk-container uk-container-small">
-        <article class="marketing-news-entry uk-article{% if isCalserverNamespace %} calserver-news-entry{% endif %}">
+        <article class="marketing-news-entry uk-article">
           <h1 class="uk-article-title">{{ entry.title }}</h1>
           {% if entry.publishedAt %}
             <p class="uk-article-meta">Veröffentlicht am {{ entry.publishedAt|date('d.m.Y') }}</p>
