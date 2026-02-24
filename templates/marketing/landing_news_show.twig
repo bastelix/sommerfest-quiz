@@ -1,11 +1,15 @@
-{% extends 'layout.twig' %}
+{% extends 'layouts/cms_base.twig' %}
 
 {% set newsBaseSlug = newsOwnerBaseSlug|default(page.slug) %}
-{% set isCalserverTheme = newsBaseSlug == 'calserver' %}
+{% set isCalserverNamespace = (designNamespace|default('')) == 'calserver' %}
+
+{% set includeCmsBaseStyles = false %}
+{% set includeMainStyles = false %}
 
 {% block title %}{{ metaTitle|default(entry.title ~ ' – Neuigkeiten') }}{% endblock %}
 
 {% block head %}
+  {{ parent() }}
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/sections.css">
@@ -16,16 +20,17 @@
   <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
-{% block body_class %}marketing-page {% if isCalserverTheme %}calserver-layout calserver-news-page{% else %}dark-mode{% endif %}{% endblock %}
+{% block body_class %}page-render cms-page-render marketing-page uk-background-default{% if isCalserverNamespace %} calserver-layout calserver-news-page{% endif %}{% endblock %}
 
 {% block body %}
   {% include 'marketing/partials/design-data.twig' %}
   <div class="marketing-layout">
-    {% include 'pages/partials/marketing_topbar.twig' with {
+    {% include 'pages/partials/header.twig' with {
+      normalizedNamespace: designNamespace|default('default'),
+      headerTheme: design.theme|default('light'),
+      headerLogo: headerLogo|default({}),
       cmsMenuItems: cmsMainNavigation|default([]),
       cmsMainNavigation: cmsMainNavigation|default([]),
-      headerLogo: headerLogo|default({}),
-      headerTheme: design.theme|default('light'),
       headerConfig: headerConfig|default({}),
       basePath: basePath,
       cmsSlug: cmsSlug|default(newsOwnerSlug|default(page.slug)),
@@ -48,14 +53,14 @@
       </nav>
     {% endif %}
 
-    {% set sectionId = isCalserverTheme ? 'calserver-news' : 'landing-news' %}
+    {% set sectionId = isCalserverNamespace ? 'calserver-news' : 'landing-news' %}
     {% set sectionClasses = 'marketing-section uk-section uk-section-default marketing-news' %}
-    {% if isCalserverTheme %}
+    {% if isCalserverNamespace %}
       {% set sectionClasses = 'marketing-section uk-section uk-section-muted marketing-news calserver-news calserver-news--detail' %}
     {% endif %}
     <section id="{{ sectionId }}" class="{{ sectionClasses }}">
       <div class="uk-container uk-container-small">
-        <article class="marketing-news-entry uk-article{% if isCalserverTheme %} calserver-news-entry{% endif %}">
+        <article class="marketing-news-entry uk-article{% if isCalserverNamespace %} calserver-news-entry{% endif %}">
           <h1 class="uk-article-title">{{ entry.title }}</h1>
           {% if entry.publishedAt %}
             <p class="uk-article-meta">Veröffentlicht am {{ entry.publishedAt|date('d.m.Y') }}</p>
