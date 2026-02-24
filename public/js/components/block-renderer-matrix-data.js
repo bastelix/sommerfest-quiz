@@ -2869,7 +2869,9 @@ function renderLatestNews(block, options = {}) {
   const allNewsUrl = newsBasePath ? `${basePath}${newsBasePath}` : null;
 
   let cardsHtml = '';
+  let displayedCount = 0;
   if (isPreview) {
+    displayedCount = limit;
     const placeholders = [];
     for (let i = 0; i < limit; i++) {
       placeholders.push(
@@ -2883,7 +2885,8 @@ function renderLatestNews(block, options = {}) {
     cardsHtml = placeholders.join('');
   } else {
     const displayItems = landingNews.slice(0, limit);
-    if (displayItems.length === 0) {
+    displayedCount = displayItems.length;
+    if (displayedCount === 0) {
       return '';
     }
     cardsHtml = displayItems.map(item => {
@@ -2917,8 +2920,10 @@ function renderLatestNews(block, options = {}) {
     ? `<a class="uk-button uk-button-text" href="${escapeAttribute(allNewsUrl)}">Alle News</a>`
     : '';
 
+  const gridColumns = Math.min(displayedCount, 3);
+  const gridChildClasses = buildResponsiveGridClasses(gridColumns);
   const headerRow = `<div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">${headerHtml}${allLinkHtml}</div>`;
-  const grid = `<div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@s" uk-grid>${cardsHtml}</div>`;
+  const grid = `<div class="uk-grid-small ${gridChildClasses}" uk-grid>${cardsHtml}</div>`;
 
   return renderSection({
     block,
