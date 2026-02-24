@@ -24,7 +24,7 @@
     </div>
   </div>
   <div class="uk-container uk-container-expand">
-    <form method="post" action="{{ formAction }}" class="uk-form-stacked uk-grid-small" uk-grid>
+    <form method="post" action="{{ formAction }}" class="uk-form-stacked uk-grid-small" uk-grid data-is-edit="{{ isEdit ? 'true' : 'false' }}">
       <input type="hidden" name="_token" value="{{ csrfToken }}">
       <div class="uk-width-1-1 uk-width-1-2@m">
         <label class="uk-form-label" for="landingPage">{{ t('label_news_page') }}</label>
@@ -37,16 +37,19 @@
           </select>
         </div>
       </div>
-      <div class="uk-width-1-1 uk-width-1-2@m">
-        <label class="uk-form-label" for="newsSlug">{{ t('label_news_slug') }}</label>
-        <div class="uk-form-controls">
-          <input id="newsSlug" class="uk-input" type="text" name="slug" value="{{ slug|e }}" required pattern="[a-z0-9\-]+" maxlength="100">
-        </div>
-      </div>
       <div class="uk-width-1-1">
         <label class="uk-form-label" for="newsTitle">{{ t('label_news_title') }}</label>
         <div class="uk-form-controls">
           <input id="newsTitle" class="uk-input" type="text" name="title" value="{{ titleValue|e }}" required>
+        </div>
+      </div>
+      <div class="uk-width-1-1 uk-width-expand@m">
+        <label class="uk-form-label" for="newsSlug">{{ t('label_news_slug') }}</label>
+        <div class="uk-form-controls uk-flex uk-flex-middle" style="gap: 0.5rem;">
+          <input id="newsSlug" class="uk-input" type="text" name="slug" value="{{ slug|e }}" required pattern="[a-z0-9\-]+" maxlength="100">
+          <button type="button" id="newsSlugSuggest" class="uk-button uk-button-default uk-button-small uk-text-nowrap" title="{{ t('label_news_title') }} → Slug">
+            ↺ Aus Titel
+          </button>
         </div>
       </div>
       <div class="uk-width-1-1">
@@ -58,7 +61,8 @@
       <div class="uk-width-1-1">
         <label class="uk-form-label" for="newsContent">{{ t('label_news_content') }}</label>
         <div class="uk-form-controls">
-          <textarea id="newsContent" class="uk-textarea" name="content" rows="12" required>{{ contentValue|e }}</textarea>
+          <div id="newsContentEditor" class="news-content-editor"></div>
+          <textarea id="newsContent" name="content" style="display:none" required>{{ contentValue|e }}</textarea>
         </div>
       </div>
       <div class="uk-width-1-1 uk-width-1-3@m">
@@ -85,4 +89,5 @@
 
 {% block scripts %}
   <script src="{{ basePath }}/js/storage.js"></script>
+  <script type="module" src="{{ basePath }}/js/admin-landing-news.js"></script>
 {% endblock %}
