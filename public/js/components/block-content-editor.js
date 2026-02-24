@@ -1425,15 +1425,21 @@ function buildDefaultBlock(type, variant) {
       id: createId(),
       type: 'stat_strip',
       variant,
-      data: {
-        title: 'Kennzahlen',
-        lede: '',
-        columns: 3,
-        metrics: [
-          { id: createId(), value: '100%', label: 'Zuverlässig', icon: '', asOf: '', tooltip: '', benefit: '' }
-        ],
-        marquee: []
-      }
+      data: variant === 'trust_band'
+        ? {
+            items: [
+              { icon: 'check', label: 'Merkmal' }
+            ]
+          }
+        : {
+            title: 'Kennzahlen',
+            lede: '',
+            columns: 3,
+            metrics: [
+              { id: createId(), value: '100%', label: 'Zuverlässig', icon: '', asOf: '', tooltip: '', benefit: '' }
+            ],
+            marquee: []
+          }
     }),
     audience_spotlight: () => ({
       id: createId(),
@@ -5088,6 +5094,10 @@ export class BlockContentEditor {
     const wrapper = document.createElement('div');
     wrapper.className = 'block-form-fields';
 
+    if (block.variant === 'trust_band') {
+      return this.buildStatStripTrustBandForm(block, wrapper);
+    }
+
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
     wrapper.append(
       this.addLabeledInput('Lead', block.data.lede, value => this.updateBlockData(block.id, ['data', 'lede'], value), {
@@ -5179,6 +5189,75 @@ export class BlockContentEditor {
     wrapper.append(marqueeWrapper);
 
     return wrapper;
+  }
+
+  buildStatStripTrustBandForm(block, wrapper) {
+    const itemsWrapper = document.createElement('div');
+    itemsWrapper.dataset.field = 'items';
+    itemsWrapper.className = 'collection-list';
+
+    (block.data.items || []).forEach((item, index) => {
+      const body = [
+        this.addIconPickerInput('Icon', item.icon, value => this.updateStatStripItem(block.id, index, 'icon', value)),
+        this.addLabeledInput('Label', item.label, value => this.updateStatStripItem(block.id, index, 'label', value))
+      ];
+
+      const card = this.createCollectionCard({
+        id: index,
+        title: (item.label || '').trim() || `Eintrag ${index + 1}`,
+        meta: `Eintrag ${index + 1}`,
+        onRemove: () => this.removeStatStripItem(block.id, index),
+        removeDisabled: (block.data.items || []).length <= 1,
+        body
+      });
+
+      itemsWrapper.append(card);
+    });
+
+    itemsWrapper.append(this.createCollectionAddButton('Eintrag hinzufügen', () => this.addStatStripItem(block.id)));
+    wrapper.append(itemsWrapper);
+
+    return wrapper;
+  }
+
+  addStatStripItem(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) return block;
+      const updated = deepClone(block);
+      if (!isPlainObject(updated.data)) updated.data = {};
+      const items = Array.isArray(updated.data.items) ? [...updated.data.items] : [];
+      items.push({ icon: '', label: 'Neuer Eintrag' });
+      updated.data.items = items;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateStatStripItem(blockId, index, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) return block;
+      const updated = deepClone(block);
+      if (!isPlainObject(updated.data)) updated.data = {};
+      const items = Array.isArray(updated.data.items) ? [...updated.data.items] : [];
+      if (index < 0 || index >= items.length) return block;
+      items[index] = { ...items[index], [field]: value };
+      updated.data.items = items;
+      return updated;
+    });
+  }
+
+  removeStatStripItem(blockId, index) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) return block;
+      const updated = deepClone(block);
+      if (!isPlainObject(updated.data)) updated.data = {};
+      const items = Array.isArray(updated.data.items) ? [...updated.data.items] : [];
+      if (items.length <= 1 || index < 0 || index >= items.length) return block;
+      items.splice(index, 1);
+      updated.data.items = items;
+      return updated;
+    });
+    this.render();
   }
 
   createCollectionActionButton(label, handler, options = {}) {

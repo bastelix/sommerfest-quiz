@@ -257,7 +257,8 @@
             "highlight",
             "three-up",
             "three_up",
-            "trust_bar"
+            "trust_bar",
+            "trust_band"
           ]
         },
         "data": {
