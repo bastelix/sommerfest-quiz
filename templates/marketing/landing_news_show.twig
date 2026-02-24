@@ -60,6 +60,11 @@
           {% if entry.publishedAt %}
             <p class="uk-article-meta">Veröffentlicht am {{ entry.publishedAt|date('d.m.Y') }}</p>
           {% endif %}
+          {% if entry.imageUrl %}
+            <div class="marketing-news-entry__image uk-margin-bottom">
+              <img src="{{ entry.imageUrl }}" alt="{{ entry.title|e }}" loading="lazy" style="max-width: 100%; border-radius: 4px;">
+            </div>
+          {% endif %}
           {% if entry.excerpt %}
             <div class="marketing-news-entry__excerpt uk-text-lead">{{ entry.excerpt|raw }}</div>
           {% endif %}

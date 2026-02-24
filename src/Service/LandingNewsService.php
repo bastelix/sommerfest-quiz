@@ -159,7 +159,8 @@ class LandingNewsService
         ?string $excerpt,
         string $content,
         ?DateTimeImmutable $publishedAt,
-        bool $isPublished
+        bool $isPublished,
+        ?string $imageUrl = null
     ): LandingNews {
         $pageId = $this->normalizePageId($pageId);
         $normalizedSlug = $this->normalizeSlug($slug);
@@ -175,6 +176,7 @@ class LandingNewsService
         }
 
         $normalizedExcerpt = $excerpt !== null ? trim($excerpt) : null;
+        $normalizedImageUrl = $imageUrl !== null && trim($imageUrl) !== '' ? trim($imageUrl) : null;
         $timestamp = $this->normalizePublicationDate($publishedAt, $isPublished);
 
         $query = <<<'SQL'
@@ -183,6 +185,7 @@ class LandingNewsService
                 slug,
                 title,
                 excerpt,
+                image_url,
                 content,
                 published_at,
                 is_published,
@@ -193,6 +196,7 @@ class LandingNewsService
                 :slug,
                 :title,
                 :excerpt,
+                :imageUrl,
                 :content,
                 :publishedAt,
                 :isPublished,
@@ -206,6 +210,7 @@ SQL;
         $stmt->bindValue('slug', $normalizedSlug);
         $stmt->bindValue('title', $normalizedTitle);
         $stmt->bindValue('excerpt', $normalizedExcerpt);
+        $stmt->bindValue('imageUrl', $normalizedImageUrl);
         $stmt->bindValue('content', $html);
         $stmt->bindValue('publishedAt', $timestamp);
         $stmt->bindValue('isPublished', $isPublished, PDO::PARAM_BOOL);
@@ -230,7 +235,8 @@ SQL;
         ?string $excerpt,
         string $content,
         ?DateTimeImmutable $publishedAt,
-        bool $isPublished
+        bool $isPublished,
+        ?string $imageUrl = null
     ): LandingNews {
         $existing = $this->find($id);
         if ($existing === null) {
@@ -251,6 +257,7 @@ SQL;
         }
 
         $normalizedExcerpt = $excerpt !== null ? trim($excerpt) : null;
+        $normalizedImageUrl = $imageUrl !== null && trim($imageUrl) !== '' ? trim($imageUrl) : null;
         $timestamp = $this->normalizePublicationDate($publishedAt, $isPublished);
 
         $query = <<<'SQL'
@@ -259,6 +266,7 @@ SQL;
                 slug = :slug,
                 title = :title,
                 excerpt = :excerpt,
+                image_url = :imageUrl,
                 content = :content,
                 published_at = :publishedAt,
                 is_published = :isPublished,
@@ -271,6 +279,7 @@ SQL;
         $stmt->bindValue('slug', $normalizedSlug);
         $stmt->bindValue('title', $normalizedTitle);
         $stmt->bindValue('excerpt', $normalizedExcerpt);
+        $stmt->bindValue('imageUrl', $normalizedImageUrl);
         $stmt->bindValue('content', $html);
         $stmt->bindValue('publishedAt', $timestamp);
         $stmt->bindValue('isPublished', $isPublished, PDO::PARAM_BOOL);
@@ -342,6 +351,7 @@ SQL;
             (string) $row['slug'],
             (string) $row['title'],
             $row['excerpt'] !== null ? (string) $row['excerpt'] : null,
+            isset($row['image_url']) && $row['image_url'] !== null ? (string) $row['image_url'] : null,
             (string) $row['content'],
             $publishedAt,
             (bool) $row['is_published'],
