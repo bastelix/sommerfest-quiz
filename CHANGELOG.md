@@ -338,6 +338,7 @@
 - *(editor)* Show live preview side-by-side in edit mode
 - *(editor)* Improve side-by-side preview with responsive layout and collapse toggle
 - *(landing-news)* Add slug suggestion and rich text content editor
+- *(news)* Add optional image URL to landing news entries
 
 ### Fix
 
