@@ -97,13 +97,17 @@ export function createCardSummary(...children) {
  *                                   item's id (default: 'blockId')
  */
 export function wireCardSortable(listEl, getItems, setItems, idAttr = 'blockId') {
+  const dataAttr = idAttr.replace(/([A-Z])/g, '-$1').toLowerCase();
   listEl.setAttribute('uk-sortable', 'handle: [data-drag-handle]');
   listEl.addEventListener('moved', () => {
-    const ids = [...listEl.querySelectorAll(`[data-${idAttr}]`)].map(
+    const items = getItems();
+    const ids = [...listEl.querySelectorAll(`[data-${dataAttr}]`)].map(
       el => el.dataset[idAttr]
     );
-    const itemMap = new Map(getItems().map(item => [String(item.id), item]));
+    const itemMap = new Map(items.map(item => [String(item.id), item]));
     const reordered = ids.map(id => itemMap.get(String(id))).filter(Boolean);
-    setItems(reordered);
+    if (reordered.length === items.length) {
+      setItems(reordered);
+    }
   });
 }
