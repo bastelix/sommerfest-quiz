@@ -573,6 +573,7 @@
 - *(admin)* Address codex review – footer handle, wiki sort listener, highlight reorder
 - *(table-manager)* Sync filteredData after paginated reorder
 - *(editor)* Fix block reordering in structure view not persisting
+- *(blocks)* Adapt news block grid columns to configured entry count
 
 ### Merge
 
