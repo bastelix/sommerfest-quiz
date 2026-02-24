@@ -1,6 +1,17 @@
 <article class="marketing-news-card uk-card uk-card-default uk-card-body">
   {% set detailPath = newsBasePath is defined and newsBasePath ? newsBasePath ~ '/' ~ entry.slug : null %}
   {% set linkHref = detailPath ? basePath ~ detailPath : null %}
+  {% if entry.imageUrl %}
+    <div class="marketing-news-card__image">
+      {% if linkHref %}
+        <a href="{{ linkHref }}" tabindex="-1" aria-hidden="true">
+          <img src="{{ entry.imageUrl }}" alt="{{ entry.title|e }}" loading="lazy">
+        </a>
+      {% else %}
+        <img src="{{ entry.imageUrl }}" alt="{{ entry.title|e }}" loading="lazy">
+      {% endif %}
+    </div>
+  {% endif %}
   {% if linkHref %}
     <a class="marketing-news-card__title" href="{{ linkHref }}">
       <h3 class="uk-card-title">{{ entry.title }}</h3>

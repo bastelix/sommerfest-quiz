@@ -11,6 +11,7 @@
 {% set published = formValues.is_published is defined ? formValues.is_published : (isEdit ? entry.isPublished : false) %}
 {% set publishedAt = formValues.published_at|default(isEdit and entry.publishedAt ? entry.publishedAt|date('Y-m-d\\TH:i') : '') %}
 {% set slug = formValues.slug|default(isEdit ? entry.slug : '') %}
+{% set imageUrl = formValues.image_url|default(isEdit ? entry.imageUrl : '') %}
 {% set pageNamespace = pageNamespace|default('') %}
 {% set namespaceQuery = pageNamespace is not empty ? '?namespace=' ~ pageNamespace|url_encode : '' %}
 {% set formAction = (isEdit ? basePath ~ '/admin/landing-news/' ~ entry.id : basePath ~ '/admin/landing-news') ~ namespaceQuery %}
@@ -56,6 +57,22 @@
         <label class="uk-form-label" for="newsExcerpt">{{ t('label_news_excerpt') }}</label>
         <div class="uk-form-controls">
           <textarea id="newsExcerpt" class="uk-textarea" name="excerpt" rows="4">{{ excerptValue|e }}</textarea>
+        </div>
+      </div>
+      <div class="uk-width-1-1">
+        <label class="uk-form-label" for="newsImageUrl">Bild-URL <span class="uk-text-meta">(optional)</span></label>
+        <div class="uk-form-controls">
+          <input id="newsImageUrl" class="uk-input" type="url" name="image_url" value="{{ imageUrl|e }}" placeholder="https://...">
+          <div class="uk-text-meta uk-margin-small-top">
+            URL aus der
+            <a href="{{ basePath }}/admin/media{% if pageNamespace is not empty %}?namespace={{ pageNamespace|url_encode }}{% endif %}" target="_blank">Medienbibliothek ({{ pageNamespace ?: 'Standard' }})</a>
+            oder externen Quelle eintragen.
+          </div>
+          {% if imageUrl %}
+            <div class="uk-margin-small-top">
+              <img src="{{ imageUrl|e }}" alt="Vorschau" style="max-height: 120px; max-width: 100%; border-radius: 4px;">
+            </div>
+          {% endif %}
         </div>
       </div>
       <div class="uk-width-1-1">

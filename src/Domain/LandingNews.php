@@ -26,6 +26,8 @@ class LandingNews implements JsonSerializable
 
     private ?string $excerpt;
 
+    private ?string $imageUrl;
+
     private string $content;
 
     private ?DateTimeImmutable $publishedAt;
@@ -44,6 +46,7 @@ class LandingNews implements JsonSerializable
         string $slug,
         string $title,
         ?string $excerpt,
+        ?string $imageUrl,
         string $content,
         ?DateTimeImmutable $publishedAt,
         bool $isPublished,
@@ -57,6 +60,7 @@ class LandingNews implements JsonSerializable
         $this->slug = $slug;
         $this->title = $title;
         $this->excerpt = $excerpt;
+        $this->imageUrl = $imageUrl;
         $this->content = $content;
         $this->publishedAt = $publishedAt;
         $this->isPublished = $isPublished;
@@ -99,6 +103,11 @@ class LandingNews implements JsonSerializable
         return $this->excerpt;
     }
 
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
     public function getContent(): string
     {
         return $this->content;
@@ -135,6 +144,7 @@ class LandingNews implements JsonSerializable
             'slug' => $this->slug,
             'title' => $this->title,
             'excerpt' => $this->excerpt,
+            'imageUrl' => $this->imageUrl,
             'content' => $this->content,
             'publishedAt' => $this->publishedAt?->format(DATE_ATOM),
             'isPublished' => $this->isPublished,

@@ -106,7 +106,8 @@ class LandingNewsController
                 $data['excerpt'],
                 $data['content'],
                 $publishedAt,
-                $data['is_published']
+                $data['is_published'],
+                $data['image_url']
             );
         } catch (InvalidArgumentException | LogicException $exception) {
             return $this->renderForm($request, $response, null, $data, $exception->getMessage());
@@ -155,7 +156,8 @@ class LandingNewsController
                 $data['excerpt'],
                 $data['content'],
                 $publishedAt,
-                $data['is_published']
+                $data['is_published'],
+                $data['image_url']
             );
         } catch (InvalidArgumentException | LogicException $exception) {
             return $this->renderForm($request, $response, $entry, $data, $exception->getMessage());
@@ -297,6 +299,7 @@ class LandingNewsController
         $content = isset($data['content']) ? (string) $data['content'] : '';
         $isPublished = !empty($data['is_published']);
         $publishedAt = isset($data['published_at']) ? (string) $data['published_at'] : '';
+        $imageUrl = isset($data['image_url']) ? trim((string) $data['image_url']) : null;
 
         return [
             'page_id' => $pageId,
@@ -306,6 +309,7 @@ class LandingNewsController
             'content' => $content,
             'is_published' => $isPublished,
             'published_at' => trim($publishedAt),
+            'image_url' => $imageUrl !== '' ? $imageUrl : null,
         ];
     }
 
