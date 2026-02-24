@@ -572,6 +572,7 @@
 - *(marketing)* Point logo links to root instead of page slug
 - *(admin)* Address codex review – footer handle, wiki sort listener, highlight reorder
 - *(table-manager)* Sync filteredData after paginated reorder
+- *(editor)* Fix block reordering in structure view not persisting
 
 ### Merge
 
