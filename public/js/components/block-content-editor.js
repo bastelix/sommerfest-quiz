@@ -5407,7 +5407,8 @@ export class BlockContentEditor {
   }
 
   getBlockDisplayTitle(block) {
-    const primary = stripHtml(this.getPrimaryText(block)).trim();
+    const raw = stripHtml(this.getPrimaryText(block)).trim();
+    const primary = raw.length > 60 ? `${raw.slice(0, 60)}\u2026` : raw;
     const fallback = getBlockDisplayName(block.type);
     const baseTitle = primary || fallback;
     return DEPRECATED_BLOCK_MAP[block.type] ? `${baseTitle} (alt)` : baseTitle;
