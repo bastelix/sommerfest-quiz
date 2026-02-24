@@ -579,6 +579,7 @@
 - *(stat_strip)* Add trust_band variant support to schema and editor
 - *(news)* Align news page templates with CMS layout pattern
 - *(news)* Remove namespace-specific conditionals from news templates
+- *(editor)* Truncate block display title to prevent layout overflow
 
 ### Merge
 
