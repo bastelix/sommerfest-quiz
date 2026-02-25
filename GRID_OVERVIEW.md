@@ -118,32 +118,59 @@ Betrifft u.a.: `.topbar`, `.uk-navbar-*`, `.drag-handle`, `.logo-frame`, `.js-up
 
 ### 3.2 `marketing.css` (46 Grid, 148 Flex)
 
-Die größte Datei mit ~8900 Zeilen. Die Flex-Stellen verteilen sich auf:
+Die größte Datei mit ~8900 Zeilen. **82 KEEP, 53 MIGRATE** (davon 37 vertikale Stacks, 9 Wrapping-Rows, 7 responsive Axis-Switches).
 
-#### Grobe Verteilung
+#### MIGRIEREN – Vertikale Stacks (37 Selektoren, Prio 1)
 
-| Kategorie | Geschätzte Anzahl | Aktion |
+| Selektor | Zeile | Hinweis |
 |---|---:|---|
-| `inline-flex` Buttons/Badges/Tags | ~55 | BEIBEHALTEN |
-| Horizontale Row-Alignment (CTA-Gruppen, Nav) | ~45 | BEIBEHALTEN |
-| Vertikale Card-Stacks (`flex-direction: column; gap`) | ~25 | MIGRIEREN (Prio 1) |
-| Responsive Wraps → Grid | ~15 | MIGRIEREN (Prio 2) |
-| Komplexe Layouts mit `flex: 1` | ~8 | MIGRIEREN (Prio 3) |
+| `.marketing-chat__dialog` | 541 | Dialog-Stack |
+| `.marketing-chat__context-list` | 665 | Kontext-Liste |
+| `.marketing-cookie-banner` | 779 | Banner-Stack |
+| `.hero-media-card` | 1115 | Video-Card |
+| `.hero-media-card__meta-actions` | 1176 | Meta-Stack (responsive) |
+| `.hero-media-card__consent` | 1229 | Consent-Overlay |
+| `.metcal-hero__bullets` | 1934 | Bullet-Liste |
+| `.metcal-report-card` | 2093 | Report-Karte |
+| `.metcal-package` | 2309 | Paket-Karte |
+| `.metcal-sticky-cta__copy` | 2466 | CTA-Text-Stack |
+| `.fig-hero__stat-label` | 3086 | Stat-Label |
+| `.fig-trust` | 3147 | Trust-Section |
+| `.fig-case-card` | 3395 | Case-Karte |
+| `.fig-technology-card` | 3452 | Technologie-Karte |
+| `.fig-technology-nav__button` | 3518 | Nav-Button |
+| `.fig-technology-panel` | 3569 | Panel-Stack |
+| `.fig-pricing-card` | 3657 | Preis-Karte |
+| `.calserver-hero-video` | 4365 | Hero-Video |
+| `.calserver-hero-video__embed` | 4401 | Embed-Overlay |
+| `.calserver-highlight-card` | 5023 | Highlight-Karte |
+| `.calserver-stats-strip__item` | 5193 | Stat-Item |
+| `.calserver-stats-strip__title-group` | 5207 | Title-Stack |
+| `.calserver-pricing-card` | 5330 | Preis-Karte |
+| `#trust .trust-story` (calserver) | 5380 | Story-Stack (axis-switch) |
+| `#trust .trust-story__marker` (calserver) | 5406 | Marker-Stack |
+| `.feature-card` (calserver) | 5828 | Feature-Karte |
+| `.calserver-modules-nav` | 5876 | Nav-Liste |
+| `.calserver-modules-nav__link` | 5888 | Nav-Button |
+| `.calserver-module-figure` | 5993 | Figure-Stack |
+| `.calserver-module-figure figcaption` | 6096 | Caption-Stack |
+| Duplikate calhelp-theme (Zeilen 6780–8891) | — | 16× identische Patterns für calhelp |
 
-#### Bekannte Migrations-Kandidaten (Prio 1)
+#### MIGRIEREN – Wrapping-Rows (9 Selektoren, Prio 2)
 
-Selektoren mit `flex-direction: column` + `gap` Pattern (exakte Zeilen via `grep` zu verifizieren):
+| Selektor | Zeile | Hinweis |
+|---|---:|---|
+| `.marketing-chat__form-actions` | 718 | `flex-wrap` → `grid auto-fill` |
+| `.calserver-maintenance-hero__actions` | 1413 | CTA-Wrap |
+| `.metcal-hero__actions` | 1953 | CTA-Wrap |
+| `.metcal-sticky-cta__actions` | 2476 | CTA-Wrap |
+| `.fig-hero__actions` | 2988 | CTA-Wrap |
+| `.fig-pill-list` | 3624 | Tag-Cloud |
+| `.calserver-metcal__cta` | 6313 | CTA-Wrap |
 
-- `.hero-*` Card-Interna
-- `.feature-card` / `.feature-card__content`
-- `.testimonial-card` Interna
-- `.team-card`, `.founder-card`
-- `.pricing-card` Interna
-- `.process-step` / `.step-card`
-- `.accordion-*` Content-Stacks
-- `.footer-*` Section-Stacks (soweit nicht bereits grid)
+#### BEIBEHALTEN (82 Selektoren)
 
-> **Empfehlung**: Vor der Migration von `marketing.css` eine vollständige Selector-Liste per `grep` erstellen und mit Visual Regression Tests absichern.
+Alle `inline-flex` Buttons/Badges/Tags, Navbar-Items, Marquee-Tracks, Logo-Centering, horizontale Icon+Text Rows, Scroll-Karusselle.
 
 ---
 
@@ -268,31 +295,36 @@ Checkliste:
 
 ---
 
-### Phase 3: `marketing.css` Card-Stacks (Prio 1 in marketing.css)
+### Phase 3: `marketing.css` Card-Stacks (37 Selektoren)
 
-**Scope**: ~25 Selektoren
+**Scope**: 37 vertikale Stacks (`flex-direction: column; gap` → `display: grid; gap`)
 **Muster**: Identisch zu Phase 1, aber in der größten/komplexesten Datei
-**Risiko**: Mittel – marketing.css hat viele Media-Query-Duplikate
+**Risiko**: Mittel – marketing.css hat viele Media-Query-Duplikate und calhelp/calserver Varianten
 **Aufwand**: ~3h
 
 Checkliste:
-- [ ] Vollständige Selector-Liste via `grep` erstellen
-- [ ] Jeden Selector einzeln umstellen + visuell prüfen
+- [ ] Chat/Cookie-Banner: `.marketing-chat__dialog`, `__context-list`, `.marketing-cookie-banner`
+- [ ] Hero-Media: `.hero-media-card`, `__meta-actions`, `__consent`
+- [ ] Metcal-Theme: `.metcal-hero__bullets`, `.metcal-report-card`, `.metcal-package`, `__sticky-cta__copy`
+- [ ] Future-is-Green: `.fig-*` Cards (7 Selektoren)
+- [ ] calserver-Theme: `.calserver-*` Cards + Nav (11 Selektoren)
+- [ ] calhelp-Theme Duplikate (16 Selektoren – identische Patterns)
 - [ ] Dark-Mode und High-Contrast prüfen
 
 **Test**: Alle Marketing-/Landing-Pages in allen Viewports und Themes prüfen.
 
 ---
 
-### Phase 4: Responsive Wraps → Grid (Prio 2)
+### Phase 4: Responsive Wraps → Grid (12 Selektoren)
 
-**Scope**: ~15 Selektoren in `marketing.css` und `marketing-cards.css`
-**Muster**: `flex-wrap: wrap` mit festen Item-Breiten → `grid-template-columns: repeat(auto-fill, …)`
-**Risiko**: Mittel-Hoch – Wrap-Verhalten ändert sich subtil
-**Aufwand**: ~3h
+**Scope**: 9 Selektoren in `marketing.css` + 3 in `marketing-cards.css` / `footer-blocks.css`
+**Muster**: `flex-wrap: wrap` mit `gap` → `grid-template-columns: repeat(auto-fill, …)`
+**Risiko**: Mittel-Hoch – Wrap-Verhalten ändert sich subtil (Grid füllt Zeilen gleichmäßig)
+**Aufwand**: ~2h
 
 Checkliste:
-- [ ] CTA-Gruppen, Feature-Grids, Team-Grids
+- [ ] `marketing.css`: CTA-Gruppen (`.calserver-maintenance-hero__actions`, `.metcal-hero__actions`, `.fig-hero__actions`, etc.)
+- [ ] `marketing.css`: Tag-Cloud (`.fig-pill-list`)
 - [ ] `marketing-cards.css`: `.news-kpis`
 - [ ] `footer-blocks.css`: `.cms-footer__blocks[data-layout="centered"]`
 
@@ -300,17 +332,17 @@ Checkliste:
 
 ---
 
-### Phase 5: Komplexe Layouts (Prio 3)
+### Phase 5: Komplexe Layouts (7 Selektoren)
 
-**Scope**: ~10 Selektoren
-**Muster**: Layouts mit `flex: 1`, `flex-shrink`, `margin-top: auto`
+**Scope**: Layouts mit `flex: 1`, axis-switching, `margin-top: auto`
 **Risiko**: Hoch – semantisch unterschiedliches Verhalten
 **Aufwand**: ~2h, aber mehr Testaufwand
 
 Checkliste:
-- [ ] `.wrapper` → `grid-template-rows: auto 1fr auto` (optional, gut wie es ist)
-- [ ] `marketing.css` Hero-Layouts, Navigation
-- [ ] Card-Layouts mit `margin-top: auto` → `grid-template-rows: 1fr auto`
+- [ ] `.wrapper` → `grid-template-rows: auto 1fr auto` (optional, funktioniert gut als flex)
+- [ ] `#trust .trust-story` (2× calserver/calhelp) → responsive axis-switch column↔row
+- [ ] `.container-metrics__row`, `.player-ranking-card__header` (responsive column↔row)
+- [ ] Cards mit `margin-top: auto` → `grid-template-rows: 1fr auto`
 
 **Test**: Intensiver manueller Test aller betroffenen Seiten.
 
@@ -321,15 +353,15 @@ Checkliste:
 | | Flex BEIBEHALTEN | Flex → GRID |
 |---|---:|---:|
 | `main.css` | 57 | 36 |
-| `marketing.css` | ~100 | ~48 |
-| Restliche Dateien | 63 | 9 |
-| **Gesamt** | **~220** | **~93** |
+| `marketing.css` | 82 | 53 |
+| Restliche 16 Dateien | 63 | 9 |
+| **Gesamt** | **202** | **98** |
 
 Nach vollständiger Migration:
-- **Grid**: 110 + 93 = **~203 Stellen** (48 %)
-- **Flex**: 315 − 93 = **~222 Stellen** (52 %)
-- **Verhältnis**: Nahezu ausgeglichen – jedes Tool dort wo es passt
+- **Grid**: 110 + 98 = **208 Stellen** (51 %)
+- **Flex**: 315 − 98 = **217 Stellen** (49 %)
+- **Verhältnis**: Nahezu ausgeglichen – jedes Tool dort wo es semantisch passt
 
 ### Empfohlener nächster Schritt
 
-**Phase 1 starten**: Die 55 risikoarmen vertikalen Stacks in `main.css` (27×), `marketing-cards.css` (2×), `sections.css` (1×), `table.css` (1×) und `onboarding.css` (1×) umstellen. Dafür einen eigenen Branch `refactor/grid-phase-1-vertical-stacks` erstellen.
+**Phase 1 starten**: Die risikoarmen vertikalen Stacks in `main.css` (27×), `marketing-cards.css` (2×), `sections.css` (1×), `table.css` (1×) und `onboarding.css` (1×) umstellen. Dafür einen eigenen Branch `refactor/grid-phase-1-vertical-stacks` erstellen.
