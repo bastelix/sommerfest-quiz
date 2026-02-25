@@ -73,6 +73,9 @@ class Migrator
 
             $sql = self::rewritePageSlugConflict($pdo, $sql);
 
+            self::ensurePagesStartpageColumn($pdo, $sql);
+            self::ensureMarketingMenuTables($pdo, $sql);
+
             try {
                 if (trim($sql) !== '') {
                     $pdo->exec($sql);
@@ -220,5 +223,126 @@ class Migrator
         );
 
         return $updated ?? $sql;
+    }
+
+    /**
+     * Ensure the pages.is_startpage column exists before running migrations
+     * that reference it. The column is formally added in 20270505 but referenced
+     * earlier by 20260217.
+     */
+    private static function ensurePagesStartpageColumn(PDO $pdo, string $sql): void
+    {
+        if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
+            return;
+        }
+
+        $normalizedSql = strtolower($sql);
+        if (
+            str_contains($normalizedSql, 'is_startpage') === false ||
+            str_contains($normalizedSql, 'into pages') === false
+        ) {
+            return;
+        }
+
+        try {
+            $stmt = $pdo->query(<<<'SQL'
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_schema = current_schema()
+                  AND table_name = 'pages'
+                  AND column_name = 'is_startpage'
+            SQL);
+        } catch (Throwable) {
+            return;
+        }
+
+        if ($stmt !== false && $stmt->fetchColumn() !== false) {
+            return;
+        }
+
+        $pdo->exec('ALTER TABLE pages ADD COLUMN IF NOT EXISTS is_startpage BOOLEAN NOT NULL DEFAULT FALSE');
+    }
+
+    /**
+     * Ensure the marketing_menus, marketing_menu_items and
+     * marketing_menu_assignments tables exist before migrations that insert
+     * into them. The tables are formally created in 20291213 but referenced
+     * earlier by 20260218.
+     */
+    private static function ensureMarketingMenuTables(PDO $pdo, string $sql): void
+    {
+        if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
+            return;
+        }
+
+        $normalizedSql = strtolower($sql);
+        if (str_contains($normalizedSql, 'marketing_menu_items') === false) {
+            return;
+        }
+
+        // Only act on INSERT/UPDATE statements, not CREATE TABLE itself.
+        if (
+            str_contains($normalizedSql, 'insert into marketing_menu') === false &&
+            str_contains($normalizedSql, 'update marketing_menu') === false
+        ) {
+            return;
+        }
+
+        try {
+            $stmt = $pdo->query(<<<'SQL'
+                SELECT 1
+                FROM information_schema.tables
+                WHERE table_schema = current_schema()
+                  AND table_name = 'marketing_menus'
+            SQL);
+        } catch (Throwable) {
+            return;
+        }
+
+        if ($stmt !== false && $stmt->fetchColumn() !== false) {
+            return;
+        }
+
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE IF NOT EXISTS marketing_menus (
+                id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                namespace TEXT NOT NULL DEFAULT 'default',
+                label TEXT NOT NULL,
+                locale TEXT NOT NULL DEFAULT 'de',
+                is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS marketing_menu_items (
+                id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                menu_id INTEGER NOT NULL REFERENCES marketing_menus(id) ON DELETE CASCADE,
+                parent_id INTEGER REFERENCES marketing_menu_items(id) ON DELETE CASCADE,
+                namespace TEXT NOT NULL DEFAULT 'default',
+                label TEXT NOT NULL,
+                href TEXT NOT NULL,
+                icon TEXT,
+                position INTEGER NOT NULL DEFAULT 0,
+                is_external BOOLEAN NOT NULL DEFAULT FALSE,
+                locale TEXT NOT NULL DEFAULT 'de',
+                is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                layout TEXT NOT NULL DEFAULT 'link',
+                detail_title TEXT,
+                detail_text TEXT,
+                detail_subline TEXT,
+                is_startpage BOOLEAN NOT NULL DEFAULT FALSE,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS marketing_menu_assignments (
+                id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                menu_id INTEGER NOT NULL REFERENCES marketing_menus(id) ON DELETE CASCADE,
+                page_id INTEGER REFERENCES pages(id) ON DELETE CASCADE,
+                namespace TEXT NOT NULL DEFAULT 'default',
+                slot TEXT NOT NULL,
+                locale TEXT NOT NULL DEFAULT 'de',
+                is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+        SQL);
     }
 }
