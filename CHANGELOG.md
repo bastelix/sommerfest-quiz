@@ -588,6 +588,7 @@
 - *(migrations)* Ensure forward-referenced schema exists before use
 - *(ai)* Shorten html-import template to prevent token overflow
 - *(ai)* Strip CSS/scripts from HTML input and sync updated templates
+- *(ai)* Request minified JSON and detect token-limit truncation
 
 ### Merge
 
