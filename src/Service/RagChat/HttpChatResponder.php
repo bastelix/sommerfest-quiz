@@ -112,6 +112,12 @@ class HttpChatResponder implements ChatResponderInterface
 
         $answer = $this->extractAnswer($payload);
         if ($answer === null) {
+            if ($this->isResponseTruncated($payload)) {
+                throw new RuntimeException(
+                    'Chat service response was truncated (token limit reached). '
+                    . 'Increase RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS or use a model that requires fewer reasoning tokens.'
+                );
+            }
             throw new RuntimeException('Chat service did not provide an answer.');
         }
 
@@ -331,6 +337,25 @@ class HttpChatResponder implements ChatResponderInterface
 
         $value = trim((string) $value);
         return $value === '' ? null : $value;
+    }
+
+    /**
+     * @param array<string,mixed> $payload
+     */
+    private function isResponseTruncated(array $payload): bool
+    {
+        $choices = $payload['choices'] ?? [];
+        if (!is_array($choices)) {
+            return false;
+        }
+
+        foreach ($choices as $choice) {
+            if (is_array($choice) && ($choice['finish_reason'] ?? '') === 'length') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function isTimeoutException(Throwable $exception): bool
