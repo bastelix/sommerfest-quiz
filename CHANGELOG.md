@@ -695,6 +695,7 @@
 - *(admin)* Integrate events and users module extractions
 - *(admin)* Extract catalog and help sidebar modules
 - *(admin)* Extract configuration module into admin-config.js
+- *(ai)* Rewrite html-import template for better GPT-4.1 conversion quality
 
 ### Style
 
