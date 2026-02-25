@@ -339,6 +339,7 @@
 - *(editor)* Improve side-by-side preview with responsive layout and collapse toggle
 - *(landing-news)* Add slug suggestion and rich text content editor
 - *(news)* Add optional image URL to landing news entries
+- *(ai)* Add HTML-import prompt template for 1:1 block-contract conversion
 
 ### Fix
 
