@@ -14,6 +14,7 @@ use function preg_replace;
 use function sprintf;
 use function str_replace;
 use function str_starts_with;
+use function stripos;
 use function trim;
 use function ucfirst;
 
@@ -163,6 +164,8 @@ PROMPT;
         $tokens = $this->resolveColorTokens($colorScheme);
         $companyName = trim($namespace) !== '' ? ucfirst(trim($namespace)) : '';
 
+        $cleanProblem = $this->stripHtmlForPrompt(trim($problem));
+
         return str_replace(
             [
                 '{{slug}}',
@@ -185,10 +188,10 @@ PROMPT;
                 $tokens['primary'],
                 $tokens['background'],
                 $tokens['accent'],
-                trim($problem),
+                $cleanProblem,
                 trim($namespace),
                 $companyName,
-                trim($problem),
+                $cleanProblem,
             ],
             $template
         );
@@ -202,6 +205,29 @@ PROMPT;
         }
 
         return trim($this->promptTemplate);
+    }
+
+    private function stripHtmlForPrompt(string $html): string
+    {
+        if ($html === '') {
+            return '';
+        }
+
+        if (stripos($html, '<!DOCTYPE') === false && stripos($html, '<html') === false) {
+            return $html;
+        }
+
+        $html = preg_replace('/<head\b[^>]*>.*?<\/head>/si', '', $html) ?? $html;
+        $html = preg_replace('/<style\b[^>]*>.*?<\/style>/si', '', $html) ?? $html;
+        $html = preg_replace('/<script\b[^>]*>.*?<\/script>/si', '', $html) ?? $html;
+        $html = preg_replace('/<link\b[^>]*>/i', '', $html) ?? $html;
+        $html = preg_replace('/<!--.*?-->/s', '', $html) ?? $html;
+        $html = preg_replace('/\s+class="[^"]*"/i', '', $html) ?? $html;
+        $html = preg_replace('/\s+style="[^"]*"/i', '', $html) ?? $html;
+        $html = preg_replace('/\s+data-[\w-]+="[^"]*"/i', '', $html) ?? $html;
+        $html = preg_replace('/\n{3,}/', "\n\n", $html) ?? $html;
+
+        return trim($html);
     }
 
     /**

@@ -111,25 +111,29 @@ final class PageAiPromptTemplateService
             return $dbTemplates;
         }
 
-        $existingIds = [];
+        $dbByIdMap = [];
         foreach ($dbTemplates as $template) {
-            $existingIds[$template['id']] = true;
+            $dbByIdMap[$template['id']] = $template;
         }
 
-        $missing = [];
-        foreach ($fileTemplates as $template) {
-            if (!isset($existingIds[$template['id']])) {
-                $missing[] = $template;
+        $toSync = [];
+        foreach ($fileTemplates as $fileTemplate) {
+            $dbTemplate = $dbByIdMap[$fileTemplate['id']] ?? null;
+            if (
+                $dbTemplate === null
+                || $dbTemplate['template'] !== $fileTemplate['template']
+                || $dbTemplate['output_format'] !== $fileTemplate['output_format']
+            ) {
+                $toSync[] = $fileTemplate;
+                $dbByIdMap[$fileTemplate['id']] = $fileTemplate;
             }
         }
 
-        if ($missing === []) {
-            return $dbTemplates;
+        if ($toSync !== []) {
+            $this->seedDatabaseTemplates($toSync);
         }
 
-        $this->seedDatabaseTemplates($missing);
-
-        return array_values(array_merge($dbTemplates, $missing));
+        return array_values($dbByIdMap);
     }
 
     /**
