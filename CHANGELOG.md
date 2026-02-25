@@ -584,6 +584,7 @@
 - *(migrator)* Align CTA data structure and block schema extraction
 - *(layout)* Move header before main and enable SSR content for CMS pages
 - *(migrations)* Ensure forward-referenced schema exists before use
+- *(ai)* Shorten html-import template to prevent token overflow
 
 ### Merge
 
