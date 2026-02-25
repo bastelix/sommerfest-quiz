@@ -81,6 +81,8 @@
 - Add UX/UI improvement plan for tenant onboarding
 - Add FEATURES-MARKETING.md with comprehensive feature documentation
 - *(features)* Add namespace-based subscription and quota model
+- Add GRID_OVERVIEW.md with CSS grid migration analysis and roadmap
+- Update GRID_OVERVIEW.md with exact marketing.css selector analysis
 
 ### Feat
 
