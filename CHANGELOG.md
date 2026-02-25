@@ -583,6 +583,7 @@
 - *(editor)* Truncate block display title to prevent layout overflow
 - *(migrator)* Align CTA data structure and block schema extraction
 - *(layout)* Move header before main and enable SSR content for CMS pages
+- *(migrations)* Ensure forward-referenced schema exists before use
 
 ### Merge
 
