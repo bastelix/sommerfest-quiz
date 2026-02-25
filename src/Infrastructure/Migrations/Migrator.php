@@ -75,6 +75,7 @@ class Migrator
 
             self::ensurePagesStartpageColumn($pdo, $sql);
             self::ensureMarketingMenuTables($pdo, $sql);
+            self::ensureConfigFkDropped($pdo, $sql);
 
             try {
                 if (trim($sql) !== '') {
@@ -344,5 +345,44 @@ class Migrator
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
         SQL);
+    }
+
+    /**
+     * Drop the fk_config_event foreign key early when a migration inserts
+     * into the config table with event_uid values that may not exist in
+     * events. The FK is formally dropped in 20290625 but config inserts
+     * with namespace-only event_uid happen earlier (20260217).
+     */
+    private static function ensureConfigFkDropped(PDO $pdo, string $sql): void
+    {
+        if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
+            return;
+        }
+
+        $normalizedSql = strtolower($sql);
+        if (
+            str_contains($normalizedSql, 'insert into config') === false ||
+            str_contains($normalizedSql, 'event_uid') === false
+        ) {
+            return;
+        }
+
+        try {
+            $stmt = $pdo->query(<<<'SQL'
+                SELECT 1
+                FROM information_schema.table_constraints
+                WHERE table_schema = current_schema()
+                  AND table_name = 'config'
+                  AND constraint_name = 'fk_config_event'
+            SQL);
+        } catch (Throwable) {
+            return;
+        }
+
+        if ($stmt === false || $stmt->fetchColumn() === false) {
+            return;
+        }
+
+        $pdo->exec('ALTER TABLE config DROP CONSTRAINT IF EXISTS fk_config_event');
     }
 }
