@@ -589,6 +589,8 @@
 - *(ai)* Shorten html-import template to prevent token overflow
 - *(ai)* Strip CSS/scripts from HTML input and sync updated templates
 - *(ai)* Request minified JSON and detect token-limit truncation
+- *(migrations)* Drop fk_config_event before namespace config inserts
+- *(migrations)* Create marketing_ai_prompts table before ALTER
 
 ### Merge
 
