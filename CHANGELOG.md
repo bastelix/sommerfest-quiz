@@ -580,6 +580,7 @@
 - *(news)* Align news page templates with CMS layout pattern
 - *(news)* Remove namespace-specific conditionals from news templates
 - *(editor)* Truncate block display title to prevent layout overflow
+- *(migrator)* Align CTA data structure and block schema extraction
 
 ### Merge
 
