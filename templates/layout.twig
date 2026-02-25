@@ -199,6 +199,7 @@
   {% if resolvedAdminLayout %}data-admin-layout="{{ resolvedAdminLayout }}"{% endif %}
 >
   <div class="wrapper">
+    {% block site_header %}{% endblock %}
     <main class="content">
       {% block body %}{% endblock %}
     </main>
