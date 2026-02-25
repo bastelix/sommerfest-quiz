@@ -55,8 +55,7 @@
   <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
-{% block body %}
-  {% include 'marketing/partials/design-data.twig' %}
+{% block site_header %}
   {% include 'pages/partials/header.twig' with {
     normalizedNamespace: normalizedNamespace,
     headerTheme: headerTheme,
@@ -68,6 +67,10 @@
     cmsSlug: cmsSlug,
     pageTitle: pageTitle
   } only %}
+{% endblock %}
+
+{% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
 
   <div
     class="cms-page"
@@ -76,9 +79,7 @@
     data-page-namespace="{{ designNamespace }}"
     data-content-namespace="{{ contentNamespace }}"
   >
-    {% if pageBlocks is empty %}
-      {{ content|raw }}
-    {% endif %}
+    {{ content|raw }}
     <script
       type="application/json"
       data-json="page"
