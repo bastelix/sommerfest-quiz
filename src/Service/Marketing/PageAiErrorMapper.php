@@ -75,6 +75,15 @@ final class PageAiErrorMapper
                 ];
             }
 
+            if ($this->isTruncation($exception)) {
+                return [
+                    'error_code' => 'ai_truncated',
+                    'message' => $details !== ''
+                        ? sprintf('The AI response was truncated (token limit). %s', $details)
+                        : 'The AI response was truncated. Increase RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS.',
+                ];
+            }
+
             return [
                 'error_code' => 'ai_failed',
                 'message' => $details !== ''
@@ -99,6 +108,21 @@ final class PageAiErrorMapper
         $previous = $exception->getPrevious();
         if ($previous instanceof Throwable) {
             return $this->isTimeout($previous);
+        }
+
+        return false;
+    }
+
+    private function isTruncation(Throwable $exception): bool
+    {
+        $message = strtolower($exception->getMessage());
+        if (str_contains($message, 'truncated') || str_contains($message, 'token limit')) {
+            return true;
+        }
+
+        $previous = $exception->getPrevious();
+        if ($previous instanceof Throwable) {
+            return $this->isTruncation($previous);
         }
 
         return false;
