@@ -76,6 +76,7 @@ class Migrator
             self::ensurePagesStartpageColumn($pdo, $sql);
             self::ensureMarketingMenuTables($pdo, $sql);
             self::ensureConfigFkDropped($pdo, $sql);
+            self::ensureMarketingAiPromptsTable($pdo, $sql);
 
             try {
                 if (trim($sql) !== '') {
@@ -384,5 +385,49 @@ class Migrator
         }
 
         $pdo->exec('ALTER TABLE config DROP CONSTRAINT IF EXISTS fk_config_event');
+    }
+
+    /**
+     * Ensure the marketing_ai_prompts table exists before migrations that
+     * ALTER it. Both the CREATE and ALTER share the same date prefix
+     * (20270501) and the ALTER sorts first alphabetically.
+     */
+    private static function ensureMarketingAiPromptsTable(PDO $pdo, string $sql): void
+    {
+        if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
+            return;
+        }
+
+        $normalizedSql = strtolower($sql);
+        if (
+            str_contains($normalizedSql, 'alter table marketing_ai_prompts') === false
+        ) {
+            return;
+        }
+
+        try {
+            $stmt = $pdo->query(<<<'SQL'
+                SELECT 1
+                FROM information_schema.tables
+                WHERE table_schema = current_schema()
+                  AND table_name = 'marketing_ai_prompts'
+            SQL);
+        } catch (Throwable) {
+            return;
+        }
+
+        if ($stmt !== false && $stmt->fetchColumn() !== false) {
+            return;
+        }
+
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE IF NOT EXISTS marketing_ai_prompts (
+                id TEXT PRIMARY KEY,
+                label TEXT NOT NULL,
+                template TEXT NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        SQL);
     }
 }
