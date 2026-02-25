@@ -928,6 +928,10 @@ final class PageBlockContractMigrator
                 || (isset($data['quotes']) && is_array($data['quotes']) && count($data['quotes']) > 0)
             ),
             'rich_text' => isset($data['body']) && $this->hasContent($data['body']),
+            'cta' => isset($data['primary']) && is_array($data['primary'])
+                && isset($data['primary']['label'], $data['primary']['href'])
+                && $this->hasContent($data['primary']['label'])
+                && $this->hasContent($data['primary']['href']),
             // Newer block types are validated against the JSON schema via $blockVariants; no extra field checks required here.
             default => true,
         };
@@ -981,6 +985,14 @@ final class PageBlockContractMigrator
         foreach ($blocks as $definition) {
             $type = $definition['properties']['type']['const'] ?? null;
             $variantEnum = $definition['properties']['variant']['enum'] ?? null;
+
+            if ($type === null && isset($definition['allOf']) && is_array($definition['allOf'])) {
+                foreach ($definition['allOf'] as $subSchema) {
+                    $type ??= $subSchema['properties']['type']['const'] ?? null;
+                    $variantEnum ??= $subSchema['properties']['variant']['enum'] ?? null;
+                }
+            }
+
             if (is_string($type) && is_array($variantEnum)) {
                 $variants[$type] = array_values(array_filter(array_map('strval', $variantEnum)));
             }
@@ -1413,7 +1425,7 @@ final class PageBlockContractMigrator
             'id' => $this->normalizeBlockId(null),
             'type' => 'cta',
             'variant' => 'full_width',
-            'data' => $cta,
+            'data' => ['primary' => $cta],
             'tokens' => $tokens,
         ];
     }
