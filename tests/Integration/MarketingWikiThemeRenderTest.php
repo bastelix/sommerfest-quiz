@@ -86,7 +86,7 @@ final class MarketingWikiThemeRenderTest extends TestCase
             ],
         ]);
 
-        self::assertStringContainsString('class="marketing-wiki custom-theme"', $html);
+        self::assertStringContainsString('class="marketing-page marketing-wiki custom-theme"', $html);
         self::assertStringContainsString('href="/css/custom.css"', $html);
         self::assertStringContainsString('href="https://cdn.example.com/theme.css"', $html);
         self::assertStringContainsString('--marketing-wiki-header-from: #101010', $html);
