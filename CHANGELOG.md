@@ -593,6 +593,7 @@
 - *(migrations)* Create marketing_ai_prompts table before ALTER
 - *(cms)* Remove redundant embedded JSON payload from CMS page body
 - *(cms)* Suppress raw JSON flash when CMS content is a blocks payload
+- *(ci)* Scan all commits since last bump for version type detection
 
 ### Merge
 
