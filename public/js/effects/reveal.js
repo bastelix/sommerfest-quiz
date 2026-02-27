@@ -97,14 +97,24 @@ export function initReveal(root, profile, options = {}) {
     });
   }, { threshold: 0.1 });
 
+  const inViewport = [];
+  const offViewport = [];
+
   elements.forEach(el => {
+    applyState(el, preset.idle);
     if (isInViewport(el)) {
-      applyState(el, preset.active);
+      inViewport.push(el);
     } else {
-      applyState(el, preset.idle);
-      observer.observe(el);
+      offViewport.push(el);
     }
   });
+
+  inViewport.forEach((el, index) => {
+    const delay = index * 120;
+    setTimeout(() => applyState(el, preset.active), delay);
+  });
+
+  offViewport.forEach(el => observer.observe(el));
 
   return () => observer.disconnect();
 }
