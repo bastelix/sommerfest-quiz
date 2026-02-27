@@ -592,6 +592,7 @@
 - *(migrations)* Drop fk_config_event before namespace config inserts
 - *(migrations)* Create marketing_ai_prompts table before ALTER
 - *(cms)* Remove redundant embedded JSON payload from CMS page body
+- *(cms)* Suppress raw JSON flash when CMS content is a blocks payload
 
 ### Merge
 
