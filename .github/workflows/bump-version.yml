@@ -44,19 +44,30 @@ jobs:
 
           # Auto-detect from conventional commits
           if [ "$BUMP_TYPE" = "auto" ]; then
-            # Get the latest commit message
-            COMMIT_MSG=$(git log -1 --pretty=%B)
+            # Find the last version-bump commit made by this workflow
+            LAST_BUMP=$(git log --format=%H --grep="^chore: bump version to" -1)
 
-            # Check for breaking changes (major bump)
-            if echo "$COMMIT_MSG" | grep -qiE "^(.*!)|(BREAKING CHANGE:)"; then
-              BUMP_TYPE="major"
-            # Check for features (minor bump)
-            elif echo "$COMMIT_MSG" | grep -qiE "^feat(\(.+\))?:"; then
-              BUMP_TYPE="minor"
-            # Default to patch for fix, chore, docs, etc.
+            if [ -n "$LAST_BUMP" ]; then
+              # Get all non-merge commit messages since the last bump
+              COMMITS=$(git log --no-merges --format=%s "$LAST_BUMP"..HEAD)
             else
-              BUMP_TYPE="patch"
+              # No previous bump found – check only the latest non-merge commit
+              COMMITS=$(git log --no-merges -1 --format=%s)
             fi
+
+            BUMP_TYPE="patch"  # default
+
+            # Scan for the highest-priority bump type
+            while IFS= read -r msg; do
+              [ -z "$msg" ] && continue
+              if echo "$msg" | grep -qE "^[a-z]+(\(.+\))?!:|BREAKING CHANGE:"; then
+                BUMP_TYPE="major"
+                break  # can't go higher
+              elif echo "$msg" | grep -qE "^feat(\(.+\))?:"; then
+                BUMP_TYPE="minor"
+                # don't break – a later commit might be major
+              fi
+            done <<< "$COMMITS"
           fi
 
           echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
