@@ -343,20 +343,6 @@ class PageController
             $menu = $cmsMenuItems;
         }
 
-        $pageJson = [
-            'namespace' => $pageNamespace,
-            'designNamespace' => $designNamespace,
-            'contentNamespace' => $contentNamespace,
-            'slug' => $page->getSlug(),
-            'type' => $pageType,
-            'blocks' => $pageBlocks ?? [],
-            'content' => $html,
-            'features' => $pageFeatures,
-            'featureData' => $marketingPayload['featureData'],
-            'design' => $design,
-            'renderContext' => $renderContext,
-        ];
-
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
                 'namespace' => $pageNamespace,
@@ -380,7 +366,6 @@ class PageController
         $data = [
             'content' => $html,
             'pageBlocks' => $pageBlocks,
-            'pageJson' => $pageJson,
             'pageFavicon' => $config?->getFaviconPath(),
             'metaTitle' => $config?->getMetaTitle(),
             'metaDescription' => $config?->getMetaDescription(),

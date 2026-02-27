@@ -64,10 +64,6 @@ final class MarketingNavigationOverrideRenderTest extends TestCase
                     'appearance' => [],
                 ],
             ],
-            'pageJson' => [
-                'namespace' => 'tenant',
-                'contentNamespace' => 'tenant',
-            ],
         ]);
 
         $this->assertStringContainsString('Header Override', $html);
