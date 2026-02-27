@@ -594,6 +594,7 @@
 - *(cms)* Remove redundant embedded JSON payload from CMS page body
 - *(cms)* Suppress raw JSON flash when CMS content is a blocks payload
 - *(ci)* Scan all commits since last bump for version type detection
+- *(cms)* Prevent header+footer flash and enable staggered section reveals
 
 ### Merge
 
