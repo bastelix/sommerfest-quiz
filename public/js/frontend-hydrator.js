@@ -90,6 +90,7 @@ const showHydrationFallback = (pageRoot, message) => {
   }
 
   if (pageRoot.innerHTML && pageRoot.innerHTML.trim() !== '') {
+    pageRoot.setAttribute('data-hydrated', '');
     return;
   }
 
@@ -98,6 +99,7 @@ const showHydrationFallback = (pageRoot, message) => {
   fallback.setAttribute('role', 'alert');
   fallback.textContent = message;
   pageRoot.appendChild(fallback);
+  pageRoot.setAttribute('data-hydrated', '');
 };
 
 const fetchPagePayload = async (fallbackPayload) => {
@@ -138,6 +140,12 @@ const hydratePage = async () => {
   if (!ctx) return;
 
   const { root, pageRoot, basePath } = ctx;
+
+  const hydrationSafetyTimer = setTimeout(() => {
+    if (!pageRoot.hasAttribute('data-hydrated')) {
+      pageRoot.setAttribute('data-hydrated', '');
+    }
+  }, 4000);
 
   try {
     if (typeof window !== 'undefined') {
@@ -213,6 +221,9 @@ const hydratePage = async () => {
       });
     }
 
+    pageRoot.setAttribute('data-hydrated', '');
+    clearTimeout(hydrationSafetyTimer);
+
     // Activate contact form AJAX handlers
     try {
       const { initContactForms } = await import(`${basePath}/js/contact-form-handler.js`);
@@ -225,6 +236,7 @@ const hydratePage = async () => {
   } catch (error) {
     console.error('[CMS] Failed to hydrate page', error);
     showHydrationFallback(pageRoot, 'Content could not be loaded. Please refresh the page.');
+    clearTimeout(hydrationSafetyTimer);
   }
 };
 

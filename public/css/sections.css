@@ -2248,3 +2248,11 @@ body.page-render .qr-page-renderer table {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ------------------------------------------------------------------ */
+/*  Hydration gate – hide page root until JS hydration completes       */
+/* ------------------------------------------------------------------ */
+
+.cms-page[data-page-root]:not([data-hydrated]) {
+  opacity: 0;
+}
