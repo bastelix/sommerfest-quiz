@@ -198,6 +198,15 @@ class PageController
 
         $pageBlocks = $this->extractPageBlocks($html);
 
+        // When CMS content is stored as a JSON blocks payload rather than
+        // pre-rendered HTML, do not output it as visible text. The frontend
+        // hydrator will render the blocks client-side via the ?format=json
+        // endpoint.
+        $trimmedHtml = trim($html);
+        if ($trimmedHtml !== '' && $trimmedHtml[0] === '{' && json_decode($trimmedHtml, true) !== null) {
+            $html = '';
+        }
+
         // Ensure landingNews is loaded when a latest_news block is present,
         // even if the landingNews feature flag is not enabled for this template.
         if (is_array($pageBlocks) && ($marketingPayload['featureData']['landingNews'] ?? []) === []) {
