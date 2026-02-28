@@ -36,11 +36,11 @@ function softenPreset(preset) {
 
 function applyState(element, state) {
   if (!element || !state) return;
-  element.style.opacity = state.opacity;
-  element.style.transform = state.transform;
   if (!element.style.transition) {
     element.style.transition = defaultTransition;
   }
+  element.style.opacity = state.opacity;
+  element.style.transform = state.transform;
 }
 
 function isInViewport(element) {
@@ -109,9 +109,14 @@ export function initReveal(root, profile, options = {}) {
     }
   });
 
-  inViewport.forEach((el, index) => {
-    const delay = index * 120;
-    setTimeout(() => applyState(el, preset.active), delay);
+  requestAnimationFrame(() => {
+    inViewport.forEach((el, index) => {
+      if (index === 0) {
+        applyState(el, preset.active);
+      } else {
+        setTimeout(() => applyState(el, preset.active), index * 120);
+      }
+    });
   });
 
   offViewport.forEach(el => observer.observe(el));
