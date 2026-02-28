@@ -351,7 +351,7 @@ SQL;
             (string) $row['slug'],
             (string) $row['title'],
             $row['excerpt'] !== null ? (string) $row['excerpt'] : null,
-            isset($row['image_url']) && $row['image_url'] !== null ? (string) $row['image_url'] : null,
+            isset($row['image_url']) ? (string) $row['image_url'] : null,
             (string) $row['content'],
             $publishedAt,
             (bool) $row['is_published'],
