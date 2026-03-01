@@ -10,7 +10,7 @@
         "slim/twig-view": "^3.3",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
-        "intervention/image": "^3.0",
+        "intervention/image": "^3.11",
         "ext-exif": "*",
         "guzzlehttp/guzzle": "^7",
         "symfony/mailer": "^7.3",
