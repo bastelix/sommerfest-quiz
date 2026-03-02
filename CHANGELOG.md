@@ -596,6 +596,7 @@
 - *(ci)* Scan all commits since last bump for version type detection
 - *(cms)* Prevent header+footer flash and enable staggered section reveals
 - Remove redundant null check after isset() in LandingNewsService
+- *(effects)* Use rAF for reveal transitions and add default profile fallback
 
 ### Merge
 
