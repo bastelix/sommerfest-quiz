@@ -3943,3 +3943,17 @@ body.admin-page {
 .news-editor-richtext p {
   margin: 0.25em 0;
 }
+
+.news-editor-richtext a {
+  color: var(--brand-primary, #1e87f0);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.news-editor-richtext img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 0.5em 0;
+  display: block;
+}

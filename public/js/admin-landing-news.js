@@ -1,5 +1,98 @@
-import { Editor } from './vendor/tiptap/core.esm.js';
+import { Editor, Mark, Node as TiptapNode, mergeAttributes, markPasteRule } from './vendor/tiptap/core.esm.js';
 import StarterKit from './vendor/tiptap/starter-kit.esm.js';
+
+// ── Link extension ───────────────────────────────────────────────────────
+
+const LinkMark = Mark.create({
+  name: 'link',
+
+  priority: 1000,
+
+  keepOnSplit: false,
+
+  addOptions() {
+    return {
+      HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer nofollow' },
+    };
+  },
+
+  addAttributes() {
+    return {
+      href: { default: null },
+      target: { default: this.options.HTMLAttributes.target },
+      rel: { default: this.options.HTMLAttributes.rel },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: 'a[href]:not([href *= "javascript:" i])' }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['a', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
+  },
+
+  addCommands() {
+    return {
+      setLink: attributes => ({ chain }) => {
+        return chain().setMark(this.name, attributes).run();
+      },
+      unsetLink: () => ({ chain }) => {
+        return chain().unsetMark(this.name, { extendEmptyMarkRange: true }).run();
+      },
+      toggleLink: attributes => ({ chain, editor }) => {
+        if (editor.isActive(this.name)) {
+          return chain().unsetMark(this.name, { extendEmptyMarkRange: true }).run();
+        }
+        return chain().setMark(this.name, attributes).run();
+      },
+    };
+  },
+
+  addPasteRules() {
+    return [
+      markPasteRule({
+        find: /https?:\/\/[^\s<>]+/g,
+        type: this.type,
+        getAttributes: match => ({ href: match[0] }),
+      }),
+    ];
+  },
+});
+
+// ── Image extension ──────────────────────────────────────────────────────
+
+const ImageNode = TiptapNode.create({
+  name: 'image',
+
+  group: 'block',
+
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: { default: null },
+      alt: { default: null },
+      title: { default: null },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: 'img[src]' }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['img', mergeAttributes(HTMLAttributes)];
+  },
+
+  addCommands() {
+    return {
+      setImage: attributes => ({ commands }) => {
+        return commands.insertContent({ type: this.name, attrs: attributes });
+      },
+    };
+  },
+});
 
 // ── Slug generation ────────────────────────────────────────────────────────
 
@@ -127,6 +220,39 @@ function buildToolbar(editor) {
     () => editor.isActive('orderedList')
   ));
 
+  toolbar.appendChild(sep());
+
+  // Link
+  toolbar.appendChild(makeBtn(
+    '🔗 Link', 'Link einfügen / entfernen',
+    () => {
+      if (editor.isActive('link')) {
+        editor.chain().focus().unsetLink().run();
+        return;
+      }
+      const href = prompt('URL eingeben:');
+      if (href) {
+        editor.chain().focus().setLink({ href }).run();
+      }
+    },
+    () => editor.isActive('link')
+  ));
+
+  toolbar.appendChild(sep());
+
+  // Image
+  toolbar.appendChild(makeBtn(
+    '🖼 Bild', 'Bild einfügen',
+    () => {
+      const src = prompt('Bild-URL eingeben:');
+      if (src) {
+        const alt = prompt('Alternativtext (optional):') || '';
+        editor.chain().focus().setImage({ src, alt }).run();
+      }
+    },
+    () => false
+  ));
+
   // Update active state on editor selection change
   editor.on('selectionUpdate', updateActive);
   editor.on('update', updateActive);
@@ -153,6 +279,8 @@ function initContentEditor() {
       StarterKit.configure({
         heading: { levels: [1, 2, 3, 4, 5] },
       }),
+      LinkMark,
+      ImageNode,
     ],
     editorProps: {
       attributes: {
