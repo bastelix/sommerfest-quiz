@@ -29,6 +29,12 @@ export const EFFECTS_PROFILES = {
     [EFFECT_TYPES.HERO_INTRO]: { enabled: false, preset: 'static' },
     [EFFECT_TYPES.SLIDER]: { enabled: false, preset: 'manual' },
     [EFFECT_TYPES.HOVER]: { enabled: true, preset: 'minimal' }
+  },
+  'default': {
+    [EFFECT_TYPES.REVEAL]: { enabled: true, preset: 'lifted' },
+    [EFFECT_TYPES.HERO_INTRO]: { enabled: true, preset: 'punchy' },
+    [EFFECT_TYPES.SLIDER]: { enabled: false, preset: 'manual' },
+    [EFFECT_TYPES.HOVER]: { enabled: true, preset: 'playful' }
   }
 };
 
@@ -60,21 +66,19 @@ export function resolveProfileName(namespace) {
 
 export function resolveEffectsProfile(namespace) {
   const profileName = resolveProfileName(namespace);
-  if (profileName && EFFECTS_PROFILES[profileName]) {
-    const baseProfile = EFFECTS_PROFILES[profileName];
-    const sliderOverride = resolveSliderOverride(namespace);
-    if (sliderOverride) {
-      return {
-        profileName,
-        profile: {
-          ...baseProfile,
-          [EFFECT_TYPES.SLIDER]: { ...baseProfile[EFFECT_TYPES.SLIDER], preset: sliderOverride }
-        }
-      };
-    }
-    return { profileName, profile: baseProfile };
+  const resolvedName = (profileName && EFFECTS_PROFILES[profileName]) ? profileName : 'default';
+  const baseProfile = EFFECTS_PROFILES[resolvedName];
+  const sliderOverride = resolveSliderOverride(namespace);
+  if (sliderOverride) {
+    return {
+      profileName: resolvedName,
+      profile: {
+        ...baseProfile,
+        [EFFECT_TYPES.SLIDER]: { ...baseProfile[EFFECT_TYPES.SLIDER], preset: sliderOverride }
+      }
+    };
   }
-  return null;
+  return { profileName: resolvedName, profile: baseProfile };
 }
 
 function resolveSliderOverride(namespace) {
