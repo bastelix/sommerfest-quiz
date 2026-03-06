@@ -800,7 +800,9 @@ const buildPagePreviewUrl = slug => {
   if (!safeSlug) {
     return null;
   }
-  const path = withNamespace(`/cms/pages/${encodeURIComponent(safeSlug)}`);
+  let path = withNamespace(`/cms/pages/${encodeURIComponent(safeSlug)}`);
+  // Draft preview: backend allows rendering drafts for logged-in users with ?preview=1
+  path += path.includes('?') ? '&preview=1' : '?preview=1';
   return withBase(path);
 };
 
@@ -4293,6 +4295,19 @@ function buildPageTreeList(nodes, level = 0, availableMenus = [], menuAssignment
         statusLi.appendChild(statusLink);
         nav.appendChild(statusLi);
       }
+
+      // Preview
+      const previewLi = document.createElement('li');
+      const previewLink = document.createElement('a');
+      previewLink.href = '#';
+      previewLink.innerHTML = '<span uk-icon="icon: eye; ratio: 0.8" class="uk-margin-small-right"></span>Vorschau';
+      previewLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        UIkit.dropdown(dropdown).hide(false);
+        openPreviewInNewTab(selectableSlug);
+      });
+      previewLi.appendChild(previewLink);
+      nav.appendChild(previewLi);
 
       // Divider
       const divider = document.createElement('li');

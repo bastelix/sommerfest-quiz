@@ -1073,7 +1073,12 @@ class ProjectPagesController
         }
 
         $path = $this->resolvePreviewPath($slug);
-        $query = http_build_query(['namespace' => $namespace]);
+        $queryParams = ['namespace' => $namespace];
+        $status = $page->getStatus();
+        if ($status !== null && $status !== Page::STATUS_PUBLISHED) {
+            $queryParams['preview'] = '1';
+        }
+        $query = http_build_query($queryParams);
 
         return $basePath . $path . ($query !== '' ? '?' . $query : '');
     }
