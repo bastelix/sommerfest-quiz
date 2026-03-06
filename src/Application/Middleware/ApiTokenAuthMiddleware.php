@@ -49,9 +49,9 @@ final class ApiTokenAuthMiddleware implements MiddlewareInterface
             return $this->jsonError(403, 'invalid_token');
         }
 
-        $namespace = (string) ($verified['namespace'] ?? '');
-        $scopes = $verified['scopes'] ?? [];
-        $tokenId = (int) ($verified['tokenId'] ?? 0);
+        $namespace = (string) $verified['namespace'];
+        $scopes = $verified['scopes'];
+        $tokenId = (int) $verified['tokenId'];
 
         if ($namespace === '') {
             return $this->jsonError(403, 'invalid_token');
@@ -60,7 +60,7 @@ final class ApiTokenAuthMiddleware implements MiddlewareInterface
         if ($this->requiredScope !== null) {
             $has = false;
             foreach ($scopes as $scope) {
-                if (is_string($scope) && $scope === $this->requiredScope) {
+                if ($scope === $this->requiredScope) {
                     $has = true;
                     break;
                 }

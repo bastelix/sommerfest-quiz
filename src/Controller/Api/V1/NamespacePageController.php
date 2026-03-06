@@ -58,13 +58,45 @@ final class NamespacePageController
                 'status' => $page->getStatus(),
                 'type' => $page->getType(),
                 'language' => $page->getLanguage(),
-                'updatedAt' => $page->getUpdatedAt()?->format(DATE_ATOM),
             ];
         }
 
         return $this->json($response, [
             'namespace' => $ns,
             'pages' => $items,
+        ]);
+    }
+
+    /**
+     * GET /api/v1/namespaces/{ns}/pages/tree
+     */
+    public function tree(Request $request, Response $response, array $args): Response
+    {
+        $ns = isset($args['ns']) ? (string) $args['ns'] : '';
+        $tokenNs = (string) $request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_NAMESPACE);
+        if ($tokenNs === '' || $ns === '' || $ns !== $tokenNs) {
+            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        }
+
+        $pdo = $this->pdo;
+        if (!$pdo instanceof PDO) {
+            $pdo = RequestDatabase::resolve($request);
+        }
+
+        $pages = $this->pages ?? new PageService($pdo);
+        $tree = $pages->getTree();
+        foreach ($tree as $entry) {
+            if (is_array($entry) && ($entry['namespace'] ?? null) === $ns) {
+                return $this->json($response, [
+                    'namespace' => $ns,
+                    'tree' => $entry['pages'] ?? [],
+                ]);
+            }
+        }
+
+        return $this->json($response, [
+            'namespace' => $ns,
+            'tree' => [],
         ]);
     }
 
