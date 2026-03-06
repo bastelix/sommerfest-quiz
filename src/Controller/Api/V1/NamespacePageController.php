@@ -86,7 +86,7 @@ final class NamespacePageController
         $pages = $this->pages ?? new PageService($pdo);
         $tree = $pages->getTree();
         foreach ($tree as $entry) {
-            if (is_array($entry) && ($entry['namespace'] ?? null) === $ns) {
+            if (($entry['namespace'] ?? null) === $ns) {
                 return $this->json($response, [
                     'namespace' => $ns,
                     'tree' => $entry['pages'] ?? [],
