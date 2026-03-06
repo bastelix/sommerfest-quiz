@@ -353,6 +353,10 @@
 - *(marketing)* Allow draft preview with ?preview=1 for logged-in users
 - *(api)* Add cms page list endpoint (cms:read)
 - *(api)* Add pages tree endpoint
+- *(admin)* Allow deleting api tokens and improve copy UX
+- *(api)* Menu read/write endpoints for namespace
+- *(api)* Add menu read/write endpoints
+- *(api)* Add menu endpoints (read/write) with hierarchical items
 
 ### Fix
 
