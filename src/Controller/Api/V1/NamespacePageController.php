@@ -80,6 +80,33 @@ final class NamespacePageController
             return $this->json($response, ['error' => 'block_contract_invalid'], 422);
         }
 
+        // Strict editor-level validation against block-contract.schema.json
+        $strictErrors = [];
+        try {
+            $strictValidator = new \App\Service\BlockContractSchemaValidator();
+            $strictErrors = $strictValidator->validatePageContent($content);
+        } catch (\Throwable $e) {
+            // If strict validation infra fails, do not block writes (but do log)
+            error_log('Strict block validation failed to run: ' . $e->getMessage());
+            $strictErrors = [];
+        }
+
+        if ($strictErrors !== []) {
+            // Log details (best-effort)
+            error_log(sprintf(
+                'CMS API block validation failed (ns=%s slug=%s tokenId=%s): %s',
+                $ns,
+                $slug,
+                (string)($request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_ID) ?? ''),
+                json_encode($strictErrors, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            ));
+
+            return $this->json($response, [
+                'error' => 'block_schema_invalid',
+                'details' => $strictErrors,
+            ], 422);
+        }
+
         // Upsert page
         $existing = $pages->findByKey($ns, $slug);
         $contentJson = json_encode($content, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
