@@ -16,6 +16,15 @@ return function (\Slim\App $app): void {
             return $controller->list($request, $response, $args);
         })->add(new ApiTokenAuthMiddleware(null, null, NamespacePageController::SCOPE_CMS_READ));
 
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/pages/tree', function (
+            Request $request,
+            Response $response,
+            array $args
+        ): Response {
+            $controller = new NamespacePageController();
+            return $controller->tree($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespacePageController::SCOPE_CMS_READ));
+
         $group->put('/namespaces/{ns:[a-z0-9\-]+}/pages/{slug:[a-z0-9\-]+}', function (
             Request $request,
             Response $response,
