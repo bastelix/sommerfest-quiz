@@ -7,6 +7,7 @@ namespace App\Controller\Api\V1;
 use App\Application\Middleware\ApiTokenAuthMiddleware;
 use App\Service\CmsMenuDefinitionService;
 use App\Service\CmsPageMenuService;
+use App\Service\PageService;
 use App\Support\RequestDatabase;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -19,56 +20,58 @@ final class NamespaceMenuController
 
     public function __construct(
         private readonly ?PDO $pdo = null,
-        private readonly ?CmsMenuDefinitionService $menus = null,
-        private readonly ?CmsPageMenuService $menuItems = null,
+        private readonly ?CmsMenuDefinitionService $defs = null,
+        private readonly ?CmsPageMenuService $items = null,
     ) {
     }
 
     public function listMenus(Request $request, Response $response, array $args): Response
     {
         $ns = (string) ($args['ns'] ?? '');
-        if (!$this->nsOk($request, $ns)) {
-            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        if ($guard = $this->guardNamespace($request, $response, $ns)) {
+            return $guard;
         }
 
-        $svc = $this->menus ?? new CmsMenuDefinitionService($this->pdoFromRequest($request));
-        $items = [];
-        foreach ($svc->listMenus($ns, false) as $menu) {
-            $items[] = [
-                'id' => $menu->getId(),
-                'namespace' => $menu->getNamespace(),
-                'label' => $menu->getLabel(),
-                'locale' => $menu->getLocale(),
-                'isActive' => $menu->isActive(),
-                'updatedAt' => $menu->getUpdatedAt()?->format(DATE_ATOM),
+        $defs = $this->getDefs($request);
+        $menus = $defs->listMenus($ns, false);
+
+        $out = [];
+        foreach ($menus as $m) {
+            $out[] = [
+                'id' => $m->getId(),
+                'namespace' => $m->getNamespace(),
+                'label' => $m->getLabel(),
+                'locale' => $m->getLocale(),
+                'isActive' => $m->isActive(),
+                'updatedAt' => $m->getUpdatedAt()?->format(DATE_ATOM),
             ];
         }
 
-        return $this->json($response, ['namespace' => $ns, 'menus' => $items]);
+        return $this->json($response, ['namespace' => $ns, 'menus' => $out]);
     }
 
     public function createMenu(Request $request, Response $response, array $args): Response
     {
         $ns = (string) ($args['ns'] ?? '');
-        if (!$this->nsOk($request, $ns)) {
-            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        if ($guard = $this->guardNamespace($request, $response, $ns)) {
+            return $guard;
         }
 
-        $data = json_decode((string) $request->getBody(), true);
-        if (!is_array($data)) {
+        $payload = json_decode((string) $request->getBody(), true);
+        if (!is_array($payload)) {
             return $this->json($response, ['error' => 'invalid_json'], 400);
         }
 
-        $label = isset($data['label']) && is_string($data['label']) ? trim($data['label']) : '';
-        $locale = isset($data['locale']) && is_string($data['locale']) ? trim($data['locale']) : null;
-        $isActive = array_key_exists('isActive', $data) ? (bool) $data['isActive'] : true;
+        $label = is_string($payload['label'] ?? null) ? trim((string) $payload['label']) : '';
+        $locale = is_string($payload['locale'] ?? null) ? trim((string) $payload['locale']) : null;
+        $isActive = array_key_exists('isActive', $payload) ? (bool) $payload['isActive'] : true;
 
         if ($label === '') {
             return $this->json($response, ['error' => 'missing_label'], 422);
         }
 
-        $svc = $this->menus ?? new CmsMenuDefinitionService($this->pdoFromRequest($request));
-        $menu = $svc->createMenu($ns, $label, $locale, $isActive);
+        $defs = $this->getDefs($request);
+        $menu = $defs->createMenu($ns, $label, $locale, $isActive);
 
         return $this->json($response, [
             'status' => 'created',
@@ -86,28 +89,29 @@ final class NamespaceMenuController
     {
         $ns = (string) ($args['ns'] ?? '');
         $menuId = (int) ($args['menuId'] ?? 0);
-        if (!$this->nsOk($request, $ns)) {
-            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        if ($guard = $this->guardNamespace($request, $response, $ns)) {
+            return $guard;
         }
+
         if ($menuId <= 0) {
             return $this->json($response, ['error' => 'invalid_menu_id'], 400);
         }
 
-        $data = json_decode((string) $request->getBody(), true);
-        if (!is_array($data)) {
+        $payload = json_decode((string) $request->getBody(), true);
+        if (!is_array($payload)) {
             return $this->json($response, ['error' => 'invalid_json'], 400);
         }
 
-        $label = isset($data['label']) && is_string($data['label']) ? trim($data['label']) : '';
-        $locale = isset($data['locale']) && is_string($data['locale']) ? trim($data['locale']) : null;
-        $isActive = array_key_exists('isActive', $data) ? (bool) $data['isActive'] : true;
+        $label = is_string($payload['label'] ?? null) ? trim((string) $payload['label']) : '';
+        $locale = is_string($payload['locale'] ?? null) ? trim((string) $payload['locale']) : null;
+        $isActive = array_key_exists('isActive', $payload) ? (bool) $payload['isActive'] : true;
 
         if ($label === '') {
             return $this->json($response, ['error' => 'missing_label'], 422);
         }
 
-        $svc = $this->menus ?? new CmsMenuDefinitionService($this->pdoFromRequest($request));
-        $menu = $svc->updateMenu($ns, $menuId, $label, $locale, $isActive);
+        $defs = $this->getDefs($request);
+        $menu = $defs->updateMenu($ns, $menuId, $label, $locale, $isActive);
 
         return $this->json($response, [
             'status' => 'updated',
@@ -125,99 +129,104 @@ final class NamespaceMenuController
     {
         $ns = (string) ($args['ns'] ?? '');
         $menuId = (int) ($args['menuId'] ?? 0);
-        if (!$this->nsOk($request, $ns)) {
-            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        if ($guard = $this->guardNamespace($request, $response, $ns)) {
+            return $guard;
         }
+
         if ($menuId <= 0) {
             return $this->json($response, ['error' => 'invalid_menu_id'], 400);
         }
 
-        $svc = $this->menus ?? new CmsMenuDefinitionService($this->pdoFromRequest($request));
-        $svc->deleteMenu($ns, $menuId);
+        $defs = $this->getDefs($request);
+        $ok = $defs->deleteMenu($ns, $menuId);
 
-        return $this->json($response, ['status' => 'deleted']);
+        return $this->json($response, ['status' => $ok ? 'deleted' : 'not_found']);
     }
 
     public function listMenuItems(Request $request, Response $response, array $args): Response
     {
         $ns = (string) ($args['ns'] ?? '');
         $menuId = (int) ($args['menuId'] ?? 0);
-        if (!$this->nsOk($request, $ns)) {
-            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        if ($guard = $this->guardNamespace($request, $response, $ns)) {
+            return $guard;
         }
+
         if ($menuId <= 0) {
             return $this->json($response, ['error' => 'invalid_menu_id'], 400);
         }
 
         $params = $request->getQueryParams();
-        $locale = isset($params['locale']) && is_string($params['locale']) ? (string) $params['locale'] : null;
+        $locale = is_string($params['locale'] ?? null) ? (string) $params['locale'] : null;
+        $onlyActive = array_key_exists('onlyActive', $params) ? (bool) $params['onlyActive'] : true;
 
-        $svc = $this->menus ?? new CmsMenuDefinitionService($this->pdoFromRequest($request));
-        $items = [];
-        foreach ($svc->getMenuItemsForMenu($ns, $menuId, $locale, false) as $item) {
-            $items[] = [
-                'id' => $item->getId(),
-                'menuId' => $item->getMenuId(),
-                'namespace' => $item->getNamespace(),
-                'parentId' => $item->getParentId(),
-                'label' => $item->getLabel(),
-                'href' => $item->getHref(),
-                'icon' => $item->getIcon(),
-                'layout' => $item->getLayout(),
-                'position' => $item->getPosition(),
-                'isExternal' => $item->isExternal(),
-                'locale' => $item->getLocale(),
-                'isActive' => $item->isActive(),
-                'isStartpage' => $item->isStartpage(),
+        $defs = $this->getDefs($request);
+        $items = $defs->getMenuItemsForMenu($ns, $menuId, $locale, $onlyActive);
+
+        $out = [];
+        foreach ($items as $it) {
+            $out[] = [
+                'id' => $it->getId(),
+                'menuId' => $it->getMenuId(),
+                'namespace' => $it->getNamespace(),
+                'parentId' => $it->getParentId(),
+                'label' => $it->getLabel(),
+                'href' => $it->getHref(),
+                'icon' => $it->getIcon(),
+                'layout' => $it->getLayout(),
+                'position' => $it->getPosition(),
+                'isExternal' => $it->isExternal(),
+                'locale' => $it->getLocale(),
+                'isActive' => $it->isActive(),
+                'isStartpage' => $it->isStartpage(),
             ];
         }
 
-        return $this->json($response, ['namespace' => $ns, 'menuId' => $menuId, 'items' => $items]);
+        return $this->json($response, ['namespace' => $ns, 'menuId' => $menuId, 'items' => $out]);
     }
 
     public function createMenuItem(Request $request, Response $response, array $args): Response
     {
         $ns = (string) ($args['ns'] ?? '');
         $menuId = (int) ($args['menuId'] ?? 0);
-        if (!$this->nsOk($request, $ns)) {
-            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        if ($guard = $this->guardNamespace($request, $response, $ns)) {
+            return $guard;
         }
+
         if ($menuId <= 0) {
             return $this->json($response, ['error' => 'invalid_menu_id'], 400);
         }
 
-        $data = json_decode((string) $request->getBody(), true);
-        if (!is_array($data)) {
+        $payload = json_decode((string) $request->getBody(), true);
+        if (!is_array($payload)) {
             return $this->json($response, ['error' => 'invalid_json'], 400);
         }
 
-        $label = isset($data['label']) && is_string($data['label']) ? (string) $data['label'] : '';
-        $href = isset($data['href']) && is_string($data['href']) ? (string) $data['href'] : '';
+        $label = is_string($payload['label'] ?? null) ? (string) $payload['label'] : '';
+        $href = is_string($payload['href'] ?? null) ? (string) $payload['href'] : '';
         if (trim($label) === '' || trim($href) === '') {
             return $this->json($response, ['error' => 'missing_label_or_href'], 422);
         }
 
-        $pdo = $this->pdoFromRequest($request);
-        $itemsSvc = $this->menuItems ?? new CmsPageMenuService($pdo);
-        $item = $itemsSvc->createMenuItemForMenu(
+        $svc = $this->getItems($request);
+        $item = $svc->createMenuItemForMenu(
             $menuId,
             $ns,
             $label,
             $href,
-            isset($data['icon']) && is_string($data['icon']) ? $data['icon'] : null,
-            isset($data['parentId']) ? (int) $data['parentId'] : null,
-            isset($data['layout']) && is_string($data['layout']) ? $data['layout'] : CmsPageMenuService::DEFAULT_LAYOUT,
-            isset($data['detailTitle']) && is_string($data['detailTitle']) ? $data['detailTitle'] : null,
-            isset($data['detailText']) && is_string($data['detailText']) ? $data['detailText'] : null,
-            isset($data['detailSubline']) && is_string($data['detailSubline']) ? $data['detailSubline'] : null,
-            isset($data['position']) ? (int) $data['position'] : null,
-            isset($data['isExternal']) ? (bool) $data['isExternal'] : false,
-            isset($data['locale']) && is_string($data['locale']) ? $data['locale'] : null,
-            array_key_exists('isActive', $data) ? (bool) $data['isActive'] : true,
-            isset($data['isStartpage']) ? (bool) $data['isStartpage'] : false
+            is_string($payload['icon'] ?? null) ? (string) $payload['icon'] : null,
+            array_key_exists('parentId', $payload) ? ($payload['parentId'] === null ? null : (int) $payload['parentId']) : null,
+            is_string($payload['layout'] ?? null) ? (string) $payload['layout'] : CmsPageMenuService::DEFAULT_LAYOUT,
+            is_string($payload['detailTitle'] ?? null) ? (string) $payload['detailTitle'] : null,
+            is_string($payload['detailText'] ?? null) ? (string) $payload['detailText'] : null,
+            is_string($payload['detailSubline'] ?? null) ? (string) $payload['detailSubline'] : null,
+            array_key_exists('position', $payload) ? (int) $payload['position'] : null,
+            array_key_exists('isExternal', $payload) ? (bool) $payload['isExternal'] : false,
+            is_string($payload['locale'] ?? null) ? (string) $payload['locale'] : null,
+            array_key_exists('isActive', $payload) ? (bool) $payload['isActive'] : true,
+            array_key_exists('isStartpage', $payload) ? (bool) $payload['isStartpage'] : false,
         );
 
-        return $this->json($response, ['status' => 'created', 'item' => $item], 201);
+        return $this->json($response, ['status' => 'created', 'id' => $item->getId()], 201);
     }
 
     public function updateMenuItem(Request $request, Response $response, array $args): Response
@@ -225,46 +234,49 @@ final class NamespaceMenuController
         $ns = (string) ($args['ns'] ?? '');
         $menuId = (int) ($args['menuId'] ?? 0);
         $itemId = (int) ($args['itemId'] ?? 0);
-        if (!$this->nsOk($request, $ns)) {
-            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        if ($guard = $this->guardNamespace($request, $response, $ns)) {
+            return $guard;
         }
+
         if ($menuId <= 0 || $itemId <= 0) {
             return $this->json($response, ['error' => 'invalid_id'], 400);
         }
 
-        $data = json_decode((string) $request->getBody(), true);
-        if (!is_array($data)) {
+        $payload = json_decode((string) $request->getBody(), true);
+        if (!is_array($payload)) {
             return $this->json($response, ['error' => 'invalid_json'], 400);
         }
 
-        $pdo = $this->pdoFromRequest($request);
-        $itemsSvc = $this->menuItems ?? new CmsPageMenuService($pdo);
-        $existing = $itemsSvc->getMenuItemById($itemId);
-        if ($existing === null || $existing->getNamespace() !== $ns || $existing->getMenuId() !== $menuId) {
-            return $this->json($response, ['error' => 'item_not_found'], 404);
+        $label = is_string($payload['label'] ?? null) ? (string) $payload['label'] : '';
+        $href = is_string($payload['href'] ?? null) ? (string) $payload['href'] : '';
+        if (trim($label) === '' || trim($href) === '') {
+            return $this->json($response, ['error' => 'missing_label_or_href'], 422);
         }
 
-        $label = isset($data['label']) && is_string($data['label']) ? (string) $data['label'] : $existing->getLabel();
-        $href = isset($data['href']) && is_string($data['href']) ? (string) $data['href'] : $existing->getHref();
+        $svc = $this->getItems($request);
+        $item = $svc->getMenuItemById($itemId);
+        if ($item === null || $item->getMenuId() !== $menuId || $item->getNamespace() !== $ns) {
+            return $this->json($response, ['error' => 'not_found'], 404);
+        }
 
-        $item = $itemsSvc->updateMenuItem(
+        $updated = $svc->updateMenuItem(
             $itemId,
             $label,
             $href,
-            isset($data['icon']) && is_string($data['icon']) ? $data['icon'] : $existing->getIcon(),
-            array_key_exists('parentId', $data) ? (is_null($data['parentId']) ? null : (int) $data['parentId']) : $existing->getParentId(),
-            isset($data['layout']) && is_string($data['layout']) ? $data['layout'] : $existing->getLayout(),
-            array_key_exists('detailTitle', $data) ? (is_string($data['detailTitle']) ? $data['detailTitle'] : null) : $existing->getDetailTitle(),
-            array_key_exists('detailText', $data) ? (is_string($data['detailText']) ? $data['detailText'] : null) : $existing->getDetailText(),
-            array_key_exists('detailSubline', $data) ? (is_string($data['detailSubline']) ? $data['detailSubline'] : null) : $existing->getDetailSubline(),
-            array_key_exists('position', $data) ? (is_null($data['position']) ? null : (int) $data['position']) : $existing->getPosition(),
-            array_key_exists('isExternal', $data) ? (bool) $data['isExternal'] : $existing->isExternal(),
-            array_key_exists('locale', $data) ? (is_string($data['locale']) ? $data['locale'] : null) : $existing->getLocale(),
-            array_key_exists('isActive', $data) ? (bool) $data['isActive'] : $existing->isActive(),
-            array_key_exists('isStartpage', $data) ? (bool) $data['isStartpage'] : $existing->isStartpage()
+            is_string($payload['icon'] ?? null) ? (string) $payload['icon'] : null,
+            array_key_exists('parentId', $payload) ? ($payload['parentId'] === null ? null : (int) $payload['parentId']) : null,
+            is_string($payload['layout'] ?? null) ? (string) $payload['layout'] : CmsPageMenuService::DEFAULT_LAYOUT,
+            is_string($payload['detailTitle'] ?? null) ? (string) $payload['detailTitle'] : null,
+            is_string($payload['detailText'] ?? null) ? (string) $payload['detailText'] : null,
+            is_string($payload['detailSubline'] ?? null) ? (string) $payload['detailSubline'] : null,
+            array_key_exists('position', $payload) ? (int) $payload['position'] : null,
+            array_key_exists('isExternal', $payload) ? (bool) $payload['isExternal'] : false,
+            is_string($payload['locale'] ?? null) ? (string) $payload['locale'] : null,
+            array_key_exists('isActive', $payload) ? (bool) $payload['isActive'] : true,
+            array_key_exists('isStartpage', $payload) ? (bool) $payload['isStartpage'] : false,
         );
 
-        return $this->json($response, ['status' => 'updated', 'item' => $item]);
+        return $this->json($response, ['status' => 'updated', 'id' => $updated->getId()]);
     }
 
     public function deleteMenuItem(Request $request, Response $response, array $args): Response
@@ -272,37 +284,112 @@ final class NamespaceMenuController
         $ns = (string) ($args['ns'] ?? '');
         $menuId = (int) ($args['menuId'] ?? 0);
         $itemId = (int) ($args['itemId'] ?? 0);
-        if (!$this->nsOk($request, $ns)) {
-            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        if ($guard = $this->guardNamespace($request, $response, $ns)) {
+            return $guard;
         }
+
         if ($menuId <= 0 || $itemId <= 0) {
             return $this->json($response, ['error' => 'invalid_id'], 400);
         }
 
-        $pdo = $this->pdoFromRequest($request);
-        $itemsSvc = $this->menuItems ?? new CmsPageMenuService($pdo);
-        $existing = $itemsSvc->getMenuItemById($itemId);
-        if ($existing === null || $existing->getNamespace() !== $ns || $existing->getMenuId() !== $menuId) {
-            return $this->json($response, ['error' => 'item_not_found'], 404);
+        $svc = $this->getItems($request);
+        $item = $svc->getMenuItemById($itemId);
+        if ($item === null || $item->getMenuId() !== $menuId || $item->getNamespace() !== $ns) {
+            return $this->json($response, ['error' => 'not_found'], 404);
         }
 
-        $itemsSvc->deleteMenuItem($itemId);
+        $svc->deleteMenuItem($itemId);
         return $this->json($response, ['status' => 'deleted']);
     }
 
-    private function nsOk(Request $request, string $ns): bool
+    public function listAssignments(Request $request, Response $response, array $args): Response
     {
-        $tokenNs = (string) $request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_NAMESPACE);
-        return $tokenNs !== '' && $ns !== '' && $tokenNs === $ns;
+        $ns = (string) ($args['ns'] ?? '');
+        if ($guard = $this->guardNamespace($request, $response, $ns)) {
+            return $guard;
+        }
+
+        $params = $request->getQueryParams();
+        $menuId = isset($params['menuId']) ? (int) $params['menuId'] : null;
+        $pageId = isset($params['pageId']) ? (int) $params['pageId'] : null;
+        $slot = is_string($params['slot'] ?? null) ? (string) $params['slot'] : null;
+        $locale = is_string($params['locale'] ?? null) ? (string) $params['locale'] : null;
+
+        $defs = $this->getDefs($request);
+        $assignments = $defs->listAssignments($ns, $menuId, $pageId, $slot, $locale, false);
+
+        $out = [];
+        foreach ($assignments as $a) {
+            $out[] = [
+                'id' => $a->getId(),
+                'menuId' => $a->getMenuId(),
+                'pageId' => $a->getPageId(),
+                'namespace' => $a->getNamespace(),
+                'slot' => $a->getSlot(),
+                'locale' => $a->getLocale(),
+                'isActive' => $a->isActive(),
+            ];
+        }
+
+        return $this->json($response, ['namespace' => $ns, 'assignments' => $out]);
     }
 
-    private function pdoFromRequest(Request $request): PDO
+    public function createAssignment(Request $request, Response $response, array $args): Response
+    {
+        $ns = (string) ($args['ns'] ?? '');
+        if ($guard = $this->guardNamespace($request, $response, $ns)) {
+            return $guard;
+        }
+
+        $payload = json_decode((string) $request->getBody(), true);
+        if (!is_array($payload)) {
+            return $this->json($response, ['error' => 'invalid_json'], 400);
+        }
+
+        $menuId = (int) ($payload['menuId'] ?? 0);
+        $pageId = array_key_exists('pageId', $payload) ? ($payload['pageId'] === null ? null : (int) $payload['pageId']) : null;
+        $slot = is_string($payload['slot'] ?? null) ? trim((string) $payload['slot']) : '';
+        $locale = is_string($payload['locale'] ?? null) ? (string) $payload['locale'] : null;
+        $isActive = array_key_exists('isActive', $payload) ? (bool) $payload['isActive'] : true;
+
+        if ($menuId <= 0 || $slot === '') {
+            return $this->json($response, ['error' => 'invalid_payload'], 422);
+        }
+
+        $defs = $this->getDefs($request);
+        $assignment = $defs->createAssignment($ns, $menuId, $pageId, $slot, $locale, $isActive);
+
+        return $this->json($response, ['status' => 'created', 'id' => $assignment->getId()], 201);
+    }
+
+    private function guardNamespace(Request $request, Response $response, string $ns): ?Response
+    {
+        $tokenNs = (string) $request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_NAMESPACE);
+        if ($tokenNs === '' || $ns === '' || $tokenNs !== $ns) {
+            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        }
+
+        return null;
+    }
+
+    private function getDefs(Request $request): CmsMenuDefinitionService
     {
         $pdo = $this->pdo;
-        if ($pdo instanceof PDO) {
-            return $pdo;
+        if (!$pdo instanceof PDO) {
+            $pdo = RequestDatabase::resolve($request);
         }
-        return RequestDatabase::resolve($request);
+
+        return $this->defs ?? new CmsMenuDefinitionService($pdo);
+    }
+
+    private function getItems(Request $request): CmsPageMenuService
+    {
+        $pdo = $this->pdo;
+        if (!$pdo instanceof PDO) {
+            $pdo = RequestDatabase::resolve($request);
+        }
+
+        return $this->items ?? new CmsPageMenuService($pdo, new PageService($pdo));
     }
 
     private function json(Response $response, array $payload, int $status = 200): Response
