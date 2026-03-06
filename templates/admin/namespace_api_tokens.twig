@@ -39,8 +39,11 @@
       </form>
 
       <div class="uk-alert uk-alert-warning uk-margin-top" hidden id="tokenRevealBox">
-        <p class="uk-margin-remove"><strong>Token (nur jetzt sichtbar):</strong></p>
-        <pre class="uk-margin-small-top" id="tokenRevealValue"></pre>
+        <div class="uk-flex uk-flex-middle uk-flex-between" style="gap: 8px; flex-wrap: wrap;">
+          <p class="uk-margin-remove"><strong>Token (nur jetzt sichtbar):</strong></p>
+          <button class="uk-button uk-button-default uk-button-small" type="button" id="tokenCopyBtn">Copy</button>
+        </div>
+        <pre class="uk-margin-small-top" id="tokenRevealValue" style="white-space: pre-wrap; word-break: break-all; overflow-wrap: anywhere;"></pre>
       </div>
     </div>
 
@@ -72,6 +75,7 @@
       const nsSelect = document.getElementById('nsSelect');
       const revealBox = document.getElementById('tokenRevealBox');
       const revealValue = document.getElementById('tokenRevealValue');
+      const copyBtn = document.getElementById('tokenCopyBtn');
 
       const apiFetch = window.apiFetch || ((path, opts = {}) => fetch(basePath + path, opts));
 
@@ -92,7 +96,9 @@
             <td>${t.last_used_at || ''}</td>
             <td>${t.revoked_at || ''}</td>
             <td>
-              ${t.revoked_at ? '' : `<button class="uk-button uk-button-danger uk-button-small" data-revoke="${t.id}">Revoke</button>`}
+              ${t.revoked_at
+                ? `<button class="uk-button uk-button-default uk-button-small" data-delete="${t.id}">Delete</button>`
+                : `<button class="uk-button uk-button-danger uk-button-small" data-revoke="${t.id}">Revoke</button>`}
             </td>
           `;
           tokensBody.appendChild(tr);
@@ -133,24 +139,63 @@
         await loadTokens();
       });
 
+      copyBtn && copyBtn.addEventListener('click', async () => {
+        const value = (revealValue.textContent || '').trim();
+        if (!value) return;
+        try {
+          await navigator.clipboard.writeText(value);
+          alert('Copied');
+        } catch (e) {
+          // fallback
+          const ta = document.createElement('textarea');
+          ta.value = value;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          alert('Copied');
+        }
+      });
+
       document.addEventListener('click', async (e) => {
-        const btn = e.target.closest('[data-revoke]');
-        if (!btn) return;
-        const id = btn.getAttribute('data-revoke');
-        if (!confirm('Token wirklich revoke?')) return;
-        const res = await apiFetch(`/admin/api-tokens/${encodeURIComponent(id)}/revoke`, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'fetch',
-            'X-CSRF-Token': '{{ csrf_token|e('js') }}'
+        const revokeBtn = e.target.closest('[data-revoke]');
+        if (revokeBtn) {
+          const id = revokeBtn.getAttribute('data-revoke');
+          if (!confirm('Token wirklich revoke?')) return;
+          const res = await apiFetch(`/admin/api-tokens/${encodeURIComponent(id)}/revoke`, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'fetch',
+              'X-CSRF-Token': '{{ csrf_token|e('js') }}'
+            }
+          });
+          if (!res.ok) {
+            alert('Revoke failed');
+            return;
           }
-        });
-        if (!res.ok) {
-          alert('Revoke failed');
+          await loadTokens();
           return;
         }
-        await loadTokens();
+
+        const deleteBtn = e.target.closest('[data-delete]');
+        if (deleteBtn) {
+          const id = deleteBtn.getAttribute('data-delete');
+          if (!confirm('Token wirklich löschen?')) return;
+          const res = await apiFetch(`/admin/api-tokens/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'fetch',
+              'X-CSRF-Token': '{{ csrf_token|e('js') }}'
+            }
+          });
+          if (!res.ok) {
+            alert('Delete failed');
+            return;
+          }
+          await loadTokens();
+        }
       });
 
       async function loadNamespaces() {

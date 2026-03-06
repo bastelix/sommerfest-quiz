@@ -1136,6 +1136,11 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         return $controller->revoke($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->delete('/admin/api-tokens/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new NamespaceApiTokenController();
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
     $app->get('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->page($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST, Roles::CUSTOMER));
