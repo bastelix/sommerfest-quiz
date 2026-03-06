@@ -345,6 +345,9 @@
 - *(ai)* Add HTML-import prompt template for 1:1 block-contract conversion
 - *(news)* Add link and image insertion to content editor
 - Public CMS API v1 with namespace tokens
+- *(api)* Allow status/title updates in cms upsert
+- *(api)* Strict block schema validation with detailed errors
+- *(marketing)* Allow draft preview with ?preview=1 for logged-in users
 
 ### Fix
 
@@ -768,6 +771,10 @@
 - Generate sticker background during test
 - Use new sticker background route
 - *(onboarding)* Add Playwright E2E tests for onboarding wizard
+
+### Ui
+
+- Namespace + scopes picker for api tokens
 
 ## [0.2.0] - 2025-08-18
 
