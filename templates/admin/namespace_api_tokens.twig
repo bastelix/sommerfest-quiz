@@ -105,7 +105,12 @@
 
         const res = await apiFetch('/admin/api-tokens', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'fetch',
+            'X-CSRF-Token': '{{ csrf_token|e('js') }}'
+          },
           body: JSON.stringify(payload)
         });
 
@@ -125,7 +130,14 @@
         if (!btn) return;
         const id = btn.getAttribute('data-revoke');
         if (!confirm('Token wirklich revoke?')) return;
-        const res = await apiFetch(`/admin/api-tokens/${encodeURIComponent(id)}/revoke`, { method: 'POST', headers: { 'Accept': 'application/json' }});
+        const res = await apiFetch(`/admin/api-tokens/${encodeURIComponent(id)}/revoke`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'fetch',
+            'X-CSRF-Token': '{{ csrf_token|e('js') }}'
+          }
+        });
         if (!res.ok) {
           alert('Revoke failed');
           return;
