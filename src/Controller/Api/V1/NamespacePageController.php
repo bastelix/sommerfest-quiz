@@ -17,6 +17,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class NamespacePageController
 {
+    public const SCOPE_CMS_READ = 'cms:read';
     public const SCOPE_CMS_WRITE = 'cms:write';
     public const SCOPE_SEO_WRITE = 'seo:write';
     public const SCOPE_MENU_WRITE = 'menu:write';
@@ -28,6 +29,43 @@ final class NamespacePageController
         private readonly ?PageSeoConfigService $seo = null,
         private readonly ?CmsMenuDefinitionService $menus = null,
     ) {
+    }
+
+    /**
+     * GET /api/v1/namespaces/{ns}/pages
+     */
+    public function list(Request $request, Response $response, array $args): Response
+    {
+        $ns = isset($args['ns']) ? (string) $args['ns'] : '';
+        $tokenNs = (string) $request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_NAMESPACE);
+        if ($tokenNs === '' || $ns === '' || $ns !== $tokenNs) {
+            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        }
+
+        $pdo = $this->pdo;
+        if (!$pdo instanceof PDO) {
+            $pdo = RequestDatabase::resolve($request);
+        }
+
+        $pages = $this->pages ?? new PageService($pdo);
+        $items = [];
+        foreach ($pages->getAllForNamespace($ns) as $page) {
+            $items[] = [
+                'id' => $page->getId(),
+                'namespace' => $page->getNamespace(),
+                'slug' => $page->getSlug(),
+                'title' => $page->getTitle(),
+                'status' => $page->getStatus(),
+                'type' => $page->getType(),
+                'language' => $page->getLanguage(),
+                'updatedAt' => $page->getUpdatedAt()?->format(DATE_ATOM),
+            ];
+        }
+
+        return $this->json($response, [
+            'namespace' => $ns,
+            'pages' => $items,
+        ]);
     }
 
     /**
