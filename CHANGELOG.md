@@ -41,6 +41,8 @@
 - *(design)* Complete v2.0.0 structure for all design presets
 - Update generated namespace token CSS files
 - Add calhelp blocks demo draft page
+- Add phpstan check script
+- Add cms api contract smoke test script
 
 ### Ci
 
@@ -350,6 +352,7 @@
 - *(api)* Strict block schema validation with detailed errors
 - *(marketing)* Allow draft preview with ?preview=1 for logged-in users
 - *(api)* Add cms page list endpoint (cms:read)
+- *(api)* Add pages tree endpoint
 
 ### Fix
 
@@ -607,6 +610,7 @@
 - *(effects)* Use rAF for reveal transitions and add default profile fallback
 - Add csrf header for api token admin actions
 - *(admin)* Preview links include preview=1 and add preview action to structure tree
+- Phpstan issues in api token auth and page list
 
 ### Merge
 
