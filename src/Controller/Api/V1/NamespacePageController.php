@@ -18,6 +18,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 final class NamespacePageController
 {
     public const SCOPE_CMS_WRITE = 'cms:write';
+    public const SCOPE_SEO_WRITE = 'seo:write';
+    public const SCOPE_MENU_WRITE = 'menu:write';
 
     public function __construct(
         private readonly ?PDO $pdo = null,
@@ -101,6 +103,9 @@ final class NamespacePageController
 
         // Optional: SEO
         if (array_key_exists('seo', $payload) && is_array($payload['seo'])) {
+            if (!$this->hasScope($request, self::SCOPE_SEO_WRITE)) {
+                return $this->json($response, ['error' => 'missing_scope', 'scope' => self::SCOPE_SEO_WRITE], 403);
+            }
             $seoPayload = $payload['seo'];
             $seo = $this->seo ?? new PageSeoConfigService($pdo);
 
@@ -125,6 +130,9 @@ final class NamespacePageController
 
         // Optional: menu assignments (page-scoped by default)
         if (array_key_exists('menuAssignments', $payload) && is_array($payload['menuAssignments'])) {
+            if (!$this->hasScope($request, self::SCOPE_MENU_WRITE)) {
+                return $this->json($response, ['error' => 'missing_scope', 'scope' => self::SCOPE_MENU_WRITE], 403);
+            }
             $menus = $this->menus ?? new CmsMenuDefinitionService($pdo);
             foreach ($payload['menuAssignments'] as $assignment) {
                 if (!is_array($assignment)) {
@@ -165,6 +173,22 @@ final class NamespacePageController
             'slug' => $slug,
             'pageId' => $pageId,
         ], 200);
+    }
+
+    private function hasScope(Request $request, string $scope): bool
+    {
+        $scopes = $request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_SCOPES);
+        if (!is_array($scopes)) {
+            return false;
+        }
+
+        foreach ($scopes as $s) {
+            if (is_string($s) && $s === $scope) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function json(Response $response, array $payload, int $status = 200): Response

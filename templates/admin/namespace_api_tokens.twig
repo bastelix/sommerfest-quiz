@@ -14,7 +14,9 @@
         <div class="uk-margin">
           <label class="uk-form-label">Namespace</label>
           <div class="uk-form-controls">
-            <input class="uk-input" name="namespace" value="{{ pageNamespace }}" />
+            <select class="uk-select" name="namespace" id="nsSelect" data-default-ns="{{ pageNamespace|e('js') }}">
+              <option value="{{ pageNamespace }}">{{ pageNamespace }}</option>
+            </select>
           </div>
         </div>
         <div class="uk-margin">
@@ -24,9 +26,12 @@
           </div>
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label">Scopes (comma separated)</label>
-          <div class="uk-form-controls">
-            <input class="uk-input" name="scopes" value="cms:write" />
+          <label class="uk-form-label">Scopes</label>
+          <div class="uk-form-controls uk-form-controls-text">
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="cms:write" checked> cms:write (Pages)</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="seo:write" checked> seo:write</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="menu:write" checked> menu:write</label>
+            <p class="uk-text-meta uk-margin-small-top">Tip: weniger Scopes = weniger Schaden bei Leaks.</p>
           </div>
         </div>
         <button class="uk-button uk-button-primary" type="submit">Token erstellen</button>
@@ -63,13 +68,15 @@
       const ns = '{{ pageNamespace|e('js') }}';
       const tokensBody = document.getElementById('tokensBody');
       const form = document.getElementById('tokenCreateForm');
+      const nsSelect = document.getElementById('nsSelect');
       const revealBox = document.getElementById('tokenRevealBox');
       const revealValue = document.getElementById('tokenRevealValue');
 
       const apiFetch = window.apiFetch || ((path, opts = {}) => fetch(basePath + path, opts));
 
       async function loadTokens() {
-        const res = await apiFetch(`/admin/api-tokens/data?namespace=${encodeURIComponent(ns)}`, { headers: { 'Accept': 'application/json' }});
+        const activeNs = (nsSelect && nsSelect.value) ? nsSelect.value : ns;
+        const res = await apiFetch(`/admin/api-tokens/data?namespace=${encodeURIComponent(activeNs)}`, { headers: { 'Accept': 'application/json' }});
         const data = await res.json();
         const tokens = data.tokens || [];
         tokensBody.innerHTML = '';
@@ -100,7 +107,7 @@
         const payload = {
           namespace: fd.get('namespace'),
           label: fd.get('label'),
-          scopes: fd.get('scopes')
+          scopes: fd.getAll('scopes[]')
         };
 
         const res = await apiFetch('/admin/api-tokens', {
@@ -145,7 +152,30 @@
         await loadTokens();
       });
 
-      loadTokens();
+      async function loadNamespaces() {
+        if (!nsSelect) return;
+        const res = await apiFetch('/admin/namespaces/data', { headers: { 'Accept': 'application/json' }});
+        const data = await res.json().catch(() => ({}));
+        const namespaces = (data.namespaces || []).map(n => n.namespace).filter(Boolean);
+        const defaultNs = nsSelect.getAttribute('data-default-ns') || ns;
+
+        // rebuild options
+        nsSelect.innerHTML = '';
+        for (const n of namespaces.length ? namespaces : [defaultNs]) {
+          const opt = document.createElement('option');
+          opt.value = n;
+          opt.textContent = n;
+          if (n === defaultNs) opt.selected = true;
+          nsSelect.appendChild(opt);
+        }
+      }
+
+      nsSelect && nsSelect.addEventListener('change', () => loadTokens());
+
+      (async () => {
+        await loadNamespaces();
+        await loadTokens();
+      })();
     })();
   </script>
 {% endblock %}
