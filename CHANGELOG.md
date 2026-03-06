@@ -40,6 +40,7 @@
 - Include pre-existing namespace token and upgrade script changes
 - *(design)* Complete v2.0.0 structure for all design presets
 - Update generated namespace token CSS files
+- Add calhelp blocks demo draft page
 
 ### Ci
 
@@ -599,6 +600,7 @@
 - *(cms)* Prevent header+footer flash and enable staggered section reveals
 - Remove redundant null check after isset() in LandingNewsService
 - *(effects)* Use rAF for reveal transitions and add default profile fallback
+- Add csrf header for api token admin actions
 
 ### Merge
 
