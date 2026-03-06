@@ -149,6 +149,12 @@ final class NamespaceApiTokenRepository
         $stmt->execute([$id]);
     }
 
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM namespace_api_tokens WHERE id = ?');
+        $stmt->execute([$id]);
+    }
+
     private function touchUsage(int $id): void
     {
         if ($id <= 0) {

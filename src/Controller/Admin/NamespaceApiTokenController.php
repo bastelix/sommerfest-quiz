@@ -108,6 +108,19 @@ final class NamespaceApiTokenController
         return $this->json($response, ['status' => 'revoked']);
     }
 
+    public function delete(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        if ($id <= 0) {
+            return $this->json($response, ['error' => 'invalid_id'], 400);
+        }
+
+        $repo = $this->getRepo($request);
+        $repo->delete($id);
+
+        return $this->json($response, ['status' => 'deleted']);
+    }
+
     private function getRepo(Request $request): NamespaceApiTokenRepository
     {
         $pdo = $this->pdo;
