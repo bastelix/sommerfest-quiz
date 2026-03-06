@@ -611,6 +611,7 @@
 - Add csrf header for api token admin actions
 - *(admin)* Preview links include preview=1 and add preview action to structure tree
 - Phpstan issues in api token auth and page list
+- Phpstan false-positive in pages tree endpoint
 
 ### Merge
 
