@@ -101,6 +101,57 @@ final class NamespacePageController
 
         $pageId = $page->getId();
 
+        // Optional: page status/title updates (public renderer hides draft pages)
+        if (array_key_exists('status', $payload) || array_key_exists('title', $payload)) {
+            $allowedStatus = ['draft', 'published'];
+            $newStatus = null;
+            if (array_key_exists('status', $payload)) {
+                $rawStatus = $payload['status'];
+                if (!is_string($rawStatus)) {
+                    return $this->json($response, ['error' => 'invalid_status'], 422);
+                }
+                $rawStatus = trim($rawStatus);
+                if ($rawStatus !== '') {
+                    if (!in_array($rawStatus, $allowedStatus, true)) {
+                        return $this->json($response, ['error' => 'invalid_status'], 422);
+                    }
+                    $newStatus = $rawStatus;
+                }
+            }
+
+            $newTitle = null;
+            if (array_key_exists('title', $payload)) {
+                $rawTitle = $payload['title'];
+                if ($rawTitle !== null && !is_string($rawTitle)) {
+                    return $this->json($response, ['error' => 'invalid_title'], 422);
+                }
+                if (is_string($rawTitle)) {
+                    $rawTitle = trim($rawTitle);
+                    $newTitle = $rawTitle === '' ? null : $rawTitle;
+                }
+            }
+
+            if ($newStatus !== null || $newTitle !== null) {
+                $fields = [];
+                $params = [];
+                if ($newStatus !== null) {
+                    $fields[] = 'status = ?';
+                    $params[] = $newStatus;
+                }
+                if ($newTitle !== null) {
+                    $fields[] = 'title = ?';
+                    $params[] = $newTitle;
+                }
+                $fields[] = 'updated_at = CURRENT_TIMESTAMP';
+
+                $params[] = $ns;
+                $params[] = $slug;
+
+                $stmt = $pdo->prepare('UPDATE pages SET ' . implode(', ', $fields) . ' WHERE namespace = ? AND slug = ?');
+                $stmt->execute($params);
+            }
+        }
+
         // Optional: SEO
         if (array_key_exists('seo', $payload) && is_array($payload['seo'])) {
             if (!$this->hasScope($request, self::SCOPE_SEO_WRITE)) {
