@@ -58,7 +58,6 @@ final class NamespacePageController
                 'status' => $page->getStatus(),
                 'type' => $page->getType(),
                 'language' => $page->getLanguage(),
-                'updatedAt' => $page->getUpdatedAt()?->format(DATE_ATOM),
             ];
         }
 
