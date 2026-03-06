@@ -1,0 +1,139 @@
+{% extends 'admin/base.twig' %}
+
+{% block title %}API Tokens{% endblock %}
+
+{% block content %}
+  <div class="uk-container uk-container-large">
+    <h1 class="uk-heading-small">Namespace API Tokens</h1>
+    <p class="uk-text-muted">Bearer Tokens für die Public API (/api/v1). Klartext wird nur einmal nach dem Erstellen angezeigt.</p>
+
+    <div class="uk-card uk-card-default uk-card-body uk-margin">
+      <h3 class="uk-card-title">Neuen Token erstellen</h3>
+      <form class="uk-form-stacked" id="tokenCreateForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <div class="uk-margin">
+          <label class="uk-form-label">Namespace</label>
+          <div class="uk-form-controls">
+            <input class="uk-input" name="namespace" value="{{ pageNamespace }}" />
+          </div>
+        </div>
+        <div class="uk-margin">
+          <label class="uk-form-label">Label (optional)</label>
+          <div class="uk-form-controls">
+            <input class="uk-input" name="label" placeholder="z.B. iOS-App" />
+          </div>
+        </div>
+        <div class="uk-margin">
+          <label class="uk-form-label">Scopes (comma separated)</label>
+          <div class="uk-form-controls">
+            <input class="uk-input" name="scopes" value="cms:write" />
+          </div>
+        </div>
+        <button class="uk-button uk-button-primary" type="submit">Token erstellen</button>
+      </form>
+
+      <div class="uk-alert uk-alert-warning uk-margin-top" hidden id="tokenRevealBox">
+        <p class="uk-margin-remove"><strong>Token (nur jetzt sichtbar):</strong></p>
+        <pre class="uk-margin-small-top" id="tokenRevealValue"></pre>
+      </div>
+    </div>
+
+    <div class="uk-card uk-card-default uk-card-body">
+      <h3 class="uk-card-title">Tokens</h3>
+      <table class="uk-table uk-table-divider uk-table-small">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Label</th>
+            <th>Scopes</th>
+            <th>Created</th>
+            <th>Last used</th>
+            <th>Revoked</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tokensBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const basePath = '{{ basePath|e('js') }}';
+      const ns = '{{ pageNamespace|e('js') }}';
+      const tokensBody = document.getElementById('tokensBody');
+      const form = document.getElementById('tokenCreateForm');
+      const revealBox = document.getElementById('tokenRevealBox');
+      const revealValue = document.getElementById('tokenRevealValue');
+
+      const apiFetch = window.apiFetch || ((path, opts = {}) => fetch(basePath + path, opts));
+
+      async function loadTokens() {
+        const res = await apiFetch(`/admin/api-tokens/data?namespace=${encodeURIComponent(ns)}`, { headers: { 'Accept': 'application/json' }});
+        const data = await res.json();
+        const tokens = data.tokens || [];
+        tokensBody.innerHTML = '';
+
+        for (const t of tokens) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${t.id}</td>
+            <td>${(t.label || '')}</td>
+            <td>${(t.scopes || []).join(', ')}</td>
+            <td>${t.created_at || ''}</td>
+            <td>${t.last_used_at || ''}</td>
+            <td>${t.revoked_at || ''}</td>
+            <td>
+              ${t.revoked_at ? '' : `<button class="uk-button uk-button-danger uk-button-small" data-revoke="${t.id}">Revoke</button>`}
+            </td>
+          `;
+          tokensBody.appendChild(tr);
+        }
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        revealBox.hidden = true;
+        revealValue.textContent = '';
+
+        const fd = new FormData(form);
+        const payload = {
+          namespace: fd.get('namespace'),
+          label: fd.get('label'),
+          scopes: fd.get('scopes')
+        };
+
+        const res = await apiFetch('/admin/api-tokens', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          alert(data.error || 'Token create failed');
+          return;
+        }
+
+        revealValue.textContent = data.token;
+        revealBox.hidden = false;
+        await loadTokens();
+      });
+
+      document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-revoke]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-revoke');
+        if (!confirm('Token wirklich revoke?')) return;
+        const res = await apiFetch(`/admin/api-tokens/${encodeURIComponent(id)}/revoke`, { method: 'POST', headers: { 'Accept': 'application/json' }});
+        if (!res.ok) {
+          alert('Revoke failed');
+          return;
+        }
+        await loadTokens();
+      });
+
+      loadTokens();
+    })();
+  </script>
+{% endblock %}
