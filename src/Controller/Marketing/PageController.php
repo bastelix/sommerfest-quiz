@@ -151,15 +151,32 @@ class PageController
 
         $pageStatus = $page->getStatus();
         if ($pageStatus !== null && $pageStatus !== Page::STATUS_PUBLISHED) {
-            $view = Twig::fromRequest($request);
-            return $view->render(
-                $response->withStatus(503),
-                'marketing/coming_soon.twig',
-                [
-                    'pageTitle' => $page->getTitle(),
-                    'requestedHost' => $request->getUri()->getHost(),
-                ]
-            );
+            // Preview: allow draft pages when a logged-in user opens them intentionally.
+            $params = $request->getQueryParams();
+            $previewRequested = ($params['preview'] ?? null) === '1' || ($params['preview'] ?? null) === 'true';
+            $role = $_SESSION['user']['role'] ?? null;
+            $previewAllowed = $role !== null && in_array((string) $role, [
+                'admin',
+                'event_manager',
+                'customer',
+                'designer',
+                'redakteur',
+                'catalog_editor',
+            ], true);
+
+            if (!$previewRequested || !$previewAllowed) {
+                $view = Twig::fromRequest($request);
+                return $view->render(
+                    $response->withStatus(503),
+                    'marketing/coming_soon.twig',
+                    [
+                        'pageTitle' => $page->getTitle(),
+                        'requestedHost' => $request->getUri()->getHost(),
+                    ]
+                );
+            }
+
+            $response = $response->withHeader('X-Preview-Mode', '1');
         }
 
         $contentNamespace = $page->getNamespace();
