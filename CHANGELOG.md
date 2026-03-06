@@ -84,6 +84,7 @@
 - *(features)* Add namespace-based subscription and quota model
 - Add GRID_OVERVIEW.md with CSS grid migration analysis and roadmap
 - Update GRID_OVERVIEW.md with exact marketing.css selector analysis
+- Add standard customer chat snippet for cms collaboration
 
 ### Feat
 
@@ -348,6 +349,7 @@
 - *(api)* Allow status/title updates in cms upsert
 - *(api)* Strict block schema validation with detailed errors
 - *(marketing)* Allow draft preview with ?preview=1 for logged-in users
+- *(api)* Add cms page list endpoint (cms:read)
 
 ### Fix
 
@@ -604,6 +606,7 @@
 - Remove redundant null check after isset() in LandingNewsService
 - *(effects)* Use rAF for reveal transitions and add default profile fallback
 - Add csrf header for api token admin actions
+- *(admin)* Preview links include preview=1 and add preview action to structure tree
 
 ### Merge
 
@@ -775,6 +778,7 @@
 ### Ui
 
 - Namespace + scopes picker for api tokens
+- Add cms:read scope option for namespace api tokens
 
 ## [0.2.0] - 2025-08-18
 
