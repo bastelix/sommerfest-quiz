@@ -357,6 +357,7 @@
 - *(api)* Menu read/write endpoints for namespace
 - *(api)* Add menu read/write endpoints
 - *(api)* Add menu endpoints (read/write) with hierarchical items
+- *(api)* Add news CRUD endpoints with read/write scopes
 
 ### Fix
 
