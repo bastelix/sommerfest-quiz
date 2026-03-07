@@ -617,6 +617,7 @@
 - *(admin)* Preview links include preview=1 and add preview action to structure tree
 - Phpstan issues in api token auth and page list
 - Phpstan false-positive in pages tree endpoint
+- *(admin)* Add missing menu:read scope checkbox to API token form
 
 ### Merge
 
