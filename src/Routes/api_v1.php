@@ -5,6 +5,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Application\Middleware\ApiTokenAuthMiddleware;
 use App\Controller\Api\V1\NamespacePageController;
 use App\Controller\Api\V1\NamespaceMenuController;
+use App\Controller\Api\V1\NamespaceNewsController;
 
 return function (\Slim\App $app): void {
     $app->group('/api/v1', function (\Slim\Routing\RouteCollectorProxy $group) {
@@ -67,5 +68,26 @@ return function (\Slim\App $app): void {
         $group->delete('/namespaces/{ns:[a-z0-9\-]+}/menus/{menuId:[0-9]+}/items/{itemId:[0-9]+}', function (Request $request, Response $response, array $args): Response {
             return (new NamespaceMenuController())->deleteMenuItem($request, $response, $args);
         })->add(new ApiTokenAuthMiddleware(null, null, NamespaceMenuController::SCOPE_MENU_WRITE));
+
+        // News
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/news', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceNewsController())->list($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceNewsController::SCOPE_NEWS_READ));
+
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/news/{id:[0-9]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceNewsController())->get($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceNewsController::SCOPE_NEWS_READ));
+
+        $group->post('/namespaces/{ns:[a-z0-9\-]+}/news', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceNewsController())->create($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceNewsController::SCOPE_NEWS_WRITE));
+
+        $group->patch('/namespaces/{ns:[a-z0-9\-]+}/news/{id:[0-9]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceNewsController())->update($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceNewsController::SCOPE_NEWS_WRITE));
+
+        $group->delete('/namespaces/{ns:[a-z0-9\-]+}/news/{id:[0-9]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceNewsController())->delete($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceNewsController::SCOPE_NEWS_WRITE));
     });
 };
