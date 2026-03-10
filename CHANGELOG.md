@@ -88,6 +88,7 @@
 - Update GRID_OVERVIEW.md with exact marketing.css selector analysis
 - Add standard customer chat snippet for cms collaboration
 - *(api)* Add comprehensive API v1 reference and register news endpoints
+- Add API expansion briefing for AI assistant
 
 ### Feat
 
