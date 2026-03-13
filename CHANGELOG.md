@@ -360,6 +360,7 @@
 - *(api)* Add menu read/write endpoints
 - *(api)* Add menu endpoints (read/write) with hierarchical items
 - *(api)* Add news CRUD endpoints with read/write scopes
+- *(mcp)* Add MCP server with OAuth 2.0 authentication
 
 ### Fix
 
