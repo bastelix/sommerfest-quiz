@@ -1093,6 +1093,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     // Public v1 API (headless CMS)
     (require __DIR__ . '/Routes/api_v1.php')($app);
 
+    // MCP server + OAuth 2.0
+    (require __DIR__ . '/Routes/mcp.php')($app);
+
     $app->get('/api/players', function (Request $request, Response $response) {
         $params = $request->getQueryParams();
         $eventUid = trim((string) ($params['event_uid'] ?? ''));
