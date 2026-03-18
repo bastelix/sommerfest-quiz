@@ -87,6 +87,10 @@ use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\AdminAuthMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
 use App\Application\Middleware\RateLimitMiddleware;
+use App\Controller\Marketing\LlmsTxtController;
+use App\Controller\Marketing\RobotsTxtController;
+use App\Controller\Marketing\SitemapController;
+use App\Controller\Marketing\FeedController;
 use App\Application\Middleware\NamespaceQueryMiddleware;
 use App\Application\Middleware\MarketingNamespaceMiddleware;
 use App\Application\Middleware\MarketingAccessResolver;
@@ -756,6 +760,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         return $response->withStatus(404);
     });
+    // AI / SEO discovery endpoints
+    $app->get('/robots.txt', new RobotsTxtController());
+    $app->get('/llms.txt', [new LlmsTxtController(), 'index']);
+    $app->get('/llms-full.txt', [new LlmsTxtController(), 'full']);
+    $app->get('/sitemap.xml', new SitemapController());
+    $app->get('/feed.xml', [new FeedController(), 'rss']);
+    $app->get('/feed.atom', [new FeedController(), 'atom']);
+
     $app->get('/faq', FaqController::class);
     $app->get('/help', HelpController::class);
     $app->get('/events', EventListController::class);
