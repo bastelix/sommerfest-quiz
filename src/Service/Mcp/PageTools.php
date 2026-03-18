@@ -54,6 +54,15 @@ final class PageTools
                 ],
             ],
             [
+                'name' => 'get_block_contract',
+                'method' => 'getBlockContract',
+                'description' => 'Get the block contract JSON schema. Returns all supported block types, their variants, data structures, tokens, and section appearance options. Use this before creating or updating pages to understand the valid block format.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+            ],
+            [
                 'name' => 'upsert_page',
                 'method' => 'upsertPage',
                 'description' => 'Create or update a page. Provide slug and blocks (array of block objects). Optionally set title, status (draft/published), meta, and seo.',
@@ -101,6 +110,19 @@ final class PageTools
             }
         }
         return ['namespace' => $ns, 'tree' => []];
+    }
+
+    public function getBlockContract(array $args): array
+    {
+        $schemaPath = dirname(__DIR__, 3) . '/public/js/components/block-contract.schema.json';
+        $json = @file_get_contents($schemaPath);
+        if ($json === false) {
+            throw new \RuntimeException('Block contract schema file not found');
+        }
+
+        $schema = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+
+        return ['schema' => $schema];
     }
 
     public function upsertPage(array $args): array
