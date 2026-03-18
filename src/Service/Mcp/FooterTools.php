@@ -295,4 +295,3 @@ final class FooterTools
         ];
     }
 }
-// test
