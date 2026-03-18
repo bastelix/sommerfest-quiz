@@ -12,9 +12,17 @@ final class PageTools
 {
     private PageService $pages;
 
-    public function __construct(private readonly PDO $pdo, private readonly string $namespace)
+    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+
+    public function __construct(private readonly PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->pages = new PageService($pdo);
+    }
+
+    private function resolveNamespace(array $args): string
+    {
+        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
+        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**
@@ -26,19 +34,23 @@ final class PageTools
             [
                 'name' => 'list_pages',
                 'method' => 'listPages',
-                'description' => 'List all pages for the namespace. Returns page id, slug, title, status, type, and language.',
+                'description' => 'List all pages for a namespace. Returns page id, slug, title, status, type, and language.',
                 'inputSchema' => [
                     'type' => 'object',
-                    'properties' => new \stdClass(),
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                    ],
                 ],
             ],
             [
                 'name' => 'get_page_tree',
                 'method' => 'getPageTree',
-                'description' => 'Get the page tree (hierarchical structure) for the namespace.',
+                'description' => 'Get the page tree (hierarchical structure) for a namespace.',
                 'inputSchema' => [
                     'type' => 'object',
-                    'properties' => new \stdClass(),
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                    ],
                 ],
             ],
             [
@@ -48,6 +60,7 @@ final class PageTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
+                        'namespace' => self::NS_PROP,
                         'slug' => ['type' => 'string', 'description' => 'Page slug (URL path segment)'],
                         'blocks' => ['type' => 'array', 'description' => 'Array of block objects for the page content'],
                         'meta' => ['type' => 'object', 'description' => 'Optional page metadata'],
@@ -62,8 +75,9 @@ final class PageTools
 
     public function listPages(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
         $items = [];
-        foreach ($this->pages->getAllForNamespace($this->namespace) as $page) {
+        foreach ($this->pages->getAllForNamespace($ns) as $page) {
             $items[] = [
                 'id' => $page->getId(),
                 'namespace' => $page->getNamespace(),
@@ -74,22 +88,25 @@ final class PageTools
                 'language' => $page->getLanguage(),
             ];
         }
-        return ['namespace' => $this->namespace, 'pages' => $items];
+        return ['namespace' => $ns, 'pages' => $items];
     }
 
     public function getPageTree(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
         $tree = $this->pages->getTree();
         foreach ($tree as $entry) {
-            if (($entry['namespace'] ?? null) === $this->namespace) {
-                return ['namespace' => $this->namespace, 'tree' => $entry['pages'] ?? []];
+            if (($entry['namespace'] ?? null) === $ns) {
+                return ['namespace' => $ns, 'tree' => $entry['pages'] ?? []];
             }
         }
-        return ['namespace' => $this->namespace, 'tree' => []];
+        return ['namespace' => $ns, 'tree' => []];
     }
 
     public function upsertPage(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
+
         $slug = isset($args['slug']) && is_string($args['slug']) ? trim($args['slug']) : '';
         if ($slug === '') {
             throw new \InvalidArgumentException('slug is required');
@@ -117,15 +134,15 @@ final class PageTools
             throw new \RuntimeException('Failed to encode content');
         }
 
-        $existing = $this->pages->findByKey($this->namespace, $slug);
+        $existing = $this->pages->findByKey($ns, $slug);
         if ($existing === null) {
             $title = isset($args['title']) && is_string($args['title']) ? trim($args['title']) : $slug;
-            $this->pages->create($this->namespace, $slug, $title, $contentJson, 'mcp');
+            $this->pages->create($ns, $slug, $title, $contentJson, 'mcp');
         } else {
-            $this->pages->save($this->namespace, $slug, $contentJson);
+            $this->pages->save($ns, $slug, $contentJson);
         }
 
-        $page = $this->pages->findByKey($this->namespace, $slug);
+        $page = $this->pages->findByKey($ns, $slug);
         if ($page === null) {
             throw new \RuntimeException('Page not found after upsert');
         }
@@ -151,7 +168,7 @@ final class PageTools
 
             if ($fields !== []) {
                 $fields[] = 'updated_at = CURRENT_TIMESTAMP';
-                $params[] = $this->namespace;
+                $params[] = $ns;
                 $params[] = $slug;
                 $stmt = $this->pdo->prepare('UPDATE pages SET ' . implode(', ', $fields) . ' WHERE namespace = ? AND slug = ?');
                 $stmt->execute($params);
@@ -160,7 +177,7 @@ final class PageTools
 
         return [
             'status' => 'ok',
-            'namespace' => $this->namespace,
+            'namespace' => $ns,
             'slug' => $slug,
             'pageId' => $page->getId(),
         ];

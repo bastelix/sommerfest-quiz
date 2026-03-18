@@ -13,10 +13,18 @@ final class MenuTools
     private CmsMenuDefinitionService $menus;
     private CmsPageMenuService $menuItems;
 
-    public function __construct(PDO $pdo, private readonly string $namespace)
+    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+
+    public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->menus = new CmsMenuDefinitionService($pdo);
         $this->menuItems = new CmsPageMenuService($pdo);
+    }
+
+    private function resolveNamespace(array $args): string
+    {
+        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
+        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**
@@ -28,8 +36,13 @@ final class MenuTools
             [
                 'name' => 'list_menus',
                 'method' => 'listMenus',
-                'description' => 'List all menus for the namespace.',
-                'inputSchema' => ['type' => 'object', 'properties' => new \stdClass()],
+                'description' => 'List all menus for a namespace.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                    ],
+                ],
             ],
             [
                 'name' => 'create_menu',
@@ -38,6 +51,7 @@ final class MenuTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
+                        'namespace' => self::NS_PROP,
                         'label' => ['type' => 'string', 'description' => 'Menu label/name'],
                         'locale' => ['type' => 'string', 'description' => 'Optional locale (e.g. de, en)'],
                         'isActive' => ['type' => 'boolean', 'description' => 'Whether the menu is active (default true)'],
@@ -52,6 +66,7 @@ final class MenuTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
+                        'namespace' => self::NS_PROP,
                         'menuId' => ['type' => 'integer', 'description' => 'ID of the menu to update'],
                         'label' => ['type' => 'string', 'description' => 'New menu label'],
                         'locale' => ['type' => 'string', 'description' => 'Optional locale'],
@@ -67,6 +82,7 @@ final class MenuTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
+                        'namespace' => self::NS_PROP,
                         'menuId' => ['type' => 'integer', 'description' => 'ID of the menu to delete'],
                     ],
                     'required' => ['menuId'],
@@ -79,6 +95,7 @@ final class MenuTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
+                        'namespace' => self::NS_PROP,
                         'menuId' => ['type' => 'integer', 'description' => 'ID of the menu'],
                         'locale' => ['type' => 'string', 'description' => 'Optional locale filter'],
                     ],
@@ -92,6 +109,7 @@ final class MenuTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
+                        'namespace' => self::NS_PROP,
                         'menuId' => ['type' => 'integer', 'description' => 'ID of the parent menu'],
                         'label' => ['type' => 'string', 'description' => 'Display label'],
                         'href' => ['type' => 'string', 'description' => 'Link URL'],
@@ -142,8 +160,9 @@ final class MenuTools
 
     public function listMenus(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
         $out = [];
-        foreach ($this->menus->listMenus($this->namespace, false) as $menu) {
+        foreach ($this->menus->listMenus($ns, false) as $menu) {
             $out[] = [
                 'id' => $menu->getId(),
                 'namespace' => $menu->getNamespace(),
@@ -153,11 +172,13 @@ final class MenuTools
                 'updatedAt' => $menu->getUpdatedAt()?->format(\DATE_ATOM),
             ];
         }
-        return ['namespace' => $this->namespace, 'menus' => $out];
+        return ['namespace' => $ns, 'menus' => $out];
     }
 
     public function createMenu(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
+
         $label = isset($args['label']) && is_string($args['label']) ? trim($args['label']) : '';
         if ($label === '') {
             throw new \InvalidArgumentException('label is required');
@@ -166,7 +187,7 @@ final class MenuTools
         $locale = isset($args['locale']) && is_string($args['locale']) ? trim($args['locale']) : null;
         $isActive = isset($args['isActive']) ? (bool) $args['isActive'] : true;
 
-        $menu = $this->menus->createMenu($this->namespace, $label, $locale, $isActive);
+        $menu = $this->menus->createMenu($ns, $label, $locale, $isActive);
         return [
             'status' => 'created',
             'menu' => [
@@ -181,6 +202,8 @@ final class MenuTools
 
     public function updateMenu(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
+
         $menuId = isset($args['menuId']) ? (int) $args['menuId'] : 0;
         if ($menuId <= 0) {
             throw new \InvalidArgumentException('menuId is required');
@@ -194,7 +217,7 @@ final class MenuTools
         $locale = isset($args['locale']) && is_string($args['locale']) ? trim($args['locale']) : null;
         $isActive = isset($args['isActive']) ? (bool) $args['isActive'] : true;
 
-        $menu = $this->menus->updateMenu($this->namespace, $menuId, $label, $locale, $isActive);
+        $menu = $this->menus->updateMenu($ns, $menuId, $label, $locale, $isActive);
         return [
             'status' => 'updated',
             'menu' => [
@@ -209,24 +232,28 @@ final class MenuTools
 
     public function deleteMenu(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
+
         $menuId = isset($args['menuId']) ? (int) $args['menuId'] : 0;
         if ($menuId <= 0) {
             throw new \InvalidArgumentException('menuId is required');
         }
 
-        $this->menus->deleteMenu($this->namespace, $menuId);
+        $this->menus->deleteMenu($ns, $menuId);
         return ['status' => 'deleted'];
     }
 
     public function listMenuItems(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
+
         $menuId = isset($args['menuId']) ? (int) $args['menuId'] : 0;
         if ($menuId <= 0) {
             throw new \InvalidArgumentException('menuId is required');
         }
 
         $locale = isset($args['locale']) && is_string($args['locale']) ? $args['locale'] : null;
-        $items = $this->menus->getMenuItemsForMenu($this->namespace, $menuId, $locale, false);
+        $items = $this->menus->getMenuItemsForMenu($ns, $menuId, $locale, false);
 
         $nodes = [];
         foreach ($items as $item) {
@@ -256,11 +283,13 @@ final class MenuTools
         }
         unset($node);
 
-        return ['namespace' => $this->namespace, 'menuId' => $menuId, 'items' => array_values($tree)];
+        return ['namespace' => $ns, 'menuId' => $menuId, 'items' => array_values($tree)];
     }
 
     public function createMenuItem(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
+
         $menuId = isset($args['menuId']) ? (int) $args['menuId'] : 0;
         $label = isset($args['label']) && is_string($args['label']) ? $args['label'] : '';
         $href = isset($args['href']) && is_string($args['href']) ? $args['href'] : '';
@@ -271,7 +300,7 @@ final class MenuTools
 
         $item = $this->menuItems->createMenuItemForMenu(
             $menuId,
-            $this->namespace,
+            $ns,
             $label,
             $href,
             isset($args['icon']) && is_string($args['icon']) ? $args['icon'] : null,

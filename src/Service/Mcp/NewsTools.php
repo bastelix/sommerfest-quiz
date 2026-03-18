@@ -13,9 +13,17 @@ final class NewsTools
 {
     private LandingNewsService $news;
 
-    public function __construct(PDO $pdo, private readonly string $namespace)
+    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+
+    public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->news = new LandingNewsService($pdo);
+    }
+
+    private function resolveNamespace(array $args): string
+    {
+        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
+        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**
@@ -27,8 +35,13 @@ final class NewsTools
             [
                 'name' => 'list_news',
                 'method' => 'listNews',
-                'description' => 'List all news articles for the namespace.',
-                'inputSchema' => ['type' => 'object', 'properties' => new \stdClass()],
+                'description' => 'List all news articles for a namespace.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                    ],
+                ],
             ],
             [
                 'name' => 'get_news',
@@ -37,6 +50,7 @@ final class NewsTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
+                        'namespace' => self::NS_PROP,
                         'id' => ['type' => 'integer', 'description' => 'News article ID'],
                     ],
                     'required' => ['id'],
@@ -49,6 +63,7 @@ final class NewsTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
+                        'namespace' => self::NS_PROP,
                         'pageId' => ['type' => 'integer', 'description' => 'Associated page ID'],
                         'slug' => ['type' => 'string', 'description' => 'URL slug for the article'],
                         'title' => ['type' => 'string', 'description' => 'Article title'],
@@ -68,6 +83,7 @@ final class NewsTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
+                        'namespace' => self::NS_PROP,
                         'id' => ['type' => 'integer', 'description' => 'News article ID'],
                         'pageId' => ['type' => 'integer', 'description' => 'Associated page ID'],
                         'slug' => ['type' => 'string', 'description' => 'URL slug'],
@@ -88,6 +104,7 @@ final class NewsTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
+                        'namespace' => self::NS_PROP,
                         'id' => ['type' => 'integer', 'description' => 'News article ID'],
                     ],
                     'required' => ['id'],
@@ -98,15 +115,17 @@ final class NewsTools
 
     public function listNews(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
         $items = [];
-        foreach ($this->news->getAllForNamespace($this->namespace) as $news) {
+        foreach ($this->news->getAllForNamespace($ns) as $news) {
             $items[] = $news->jsonSerialize();
         }
-        return ['namespace' => $this->namespace, 'news' => $items];
+        return ['namespace' => $ns, 'news' => $items];
     }
 
     public function getNews(array $args): array
     {
+        $ns = $this->resolveNamespace($args);
         $id = isset($args['id']) ? (int) $args['id'] : 0;
         if ($id <= 0) {
             throw new \InvalidArgumentException('id is required');
@@ -117,7 +136,7 @@ final class NewsTools
             throw new \RuntimeException('News article not found');
         }
 
-        return ['namespace' => $this->namespace, 'news' => $news->jsonSerialize()];
+        return ['namespace' => $ns, 'news' => $news->jsonSerialize()];
     }
 
     public function createNews(array $args): array

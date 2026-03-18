@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service\Mcp;
 
+use App\Service\NamespaceService;
+use App\Repository\NamespaceRepository;
 use PDO;
 
 final class McpToolRegistry
@@ -55,6 +57,19 @@ final class McpToolRegistry
 
     private function registerAll(): void
     {
+        // Built-in: list_namespaces
+        $this->tools['list_namespaces'] = [
+            'handler' => [$this, 'listNamespaces'],
+            'definition' => [
+                'name' => 'list_namespaces',
+                'description' => 'List all available namespaces. Use this to discover which namespaces exist before querying pages, menus, or news.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+            ],
+        ];
+
         $pageTools = new PageTools($this->pdo, $this->namespace);
         foreach ($pageTools->definitions() as $def) {
             $this->tools[$def['name']] = [
@@ -90,5 +105,22 @@ final class McpToolRegistry
                 ],
             ];
         }
+    }
+
+    public function listNamespaces(array $args): array
+    {
+        $repo = new NamespaceRepository($this->pdo);
+        $service = new NamespaceService($repo);
+        $all = $service->allActive();
+
+        $items = [];
+        foreach ($all as $ns) {
+            $items[] = [
+                'namespace' => $ns['namespace'],
+                'label' => $ns['label'] ?? null,
+            ];
+        }
+
+        return ['tokenNamespace' => $this->namespace, 'namespaces' => $items];
     }
 }
