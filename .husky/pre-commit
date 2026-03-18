@@ -1,0 +1,54 @@
+#!/bin/sh
+
+echo "Running pre-commit checks..."
+
+# 1. PHP CodeSniffer – only staged PHP files
+staged_php=$(git diff --cached --name-only --diff-filter=ACMR -- '*.php')
+if [ -n "$staged_php" ] && [ -f vendor/bin/phpcs ]; then
+    echo "▶ PHP CodeSniffer (staged files)..."
+    echo "$staged_php" | xargs vendor/bin/phpcs || exit 1
+fi
+
+# 2. PHPStan (analyses full src/ as it needs the full context)
+if [ -n "$staged_php" ] && [ -f vendor/bin/phpstan ]; then
+    echo "▶ PHPStan..."
+    vendor/bin/phpstan || exit 1
+fi
+
+# 3. JS unit tests – only if JS files changed
+staged_js=$(git diff --cached --name-only --diff-filter=ACMR -- '*.js' '*.mjs')
+if [ -n "$staged_js" ] && command -v npx >/dev/null 2>&1; then
+    echo "▶ JS unit tests..."
+    npm run test:unit || exit 1
+fi
+
+# 4. Pytest – only if HTML or JSON templates changed
+staged_html=$(git diff --cached --name-only --diff-filter=ACMR -- '*.html' '*.twig' '*.json')
+if [ -n "$staged_html" ] && command -v python3 >/dev/null 2>&1 && python3 -c "import pytest" 2>/dev/null; then
+    echo "▶ Pytest (HTML/JSON validity)..."
+    python3 -m pytest tests/test_html_validity.py tests/test_json_validity.py || exit 1
+fi
+
+# 5. Migration safety checks – only if migrations changed
+if git diff --cached --name-only | grep -q 'migrations/.*\.sql'; then
+    echo "▶ Migration safety checks..."
+
+    changed=$(git diff --cached --name-status -- 'migrations/*.sql' | awk '$1 != "A" {print}')
+    if [ -n "$changed" ]; then
+        echo "ERROR: Existing migrations must not be modified:"
+        echo "$changed"
+        exit 1
+    fi
+
+    new_migrations=$(git diff --cached --name-status -- 'migrations/*.sql' | awk '$1 == "A" {print $2}')
+    if [ -n "$new_migrations" ]; then
+        if ! git diff --cached --name-only -- src/Infrastructure/Migrations/sqlite-schema.sql | grep -q 'sqlite-schema.sql'; then
+            echo "ERROR: sqlite-schema.sql must be updated when adding migrations."
+            echo "New migrations:"
+            echo "$new_migrations"
+            exit 1
+        fi
+    fi
+fi
+
+echo "All pre-commit checks passed!"

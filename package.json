@@ -13,6 +13,10 @@
     "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",
     "test:playwright": "playwright test",
+    "lint": "npm run lint:php && npm run lint:phpstan && npm run test:unit && npm run lint:pytest",
+    "lint:php": "vendor/bin/phpcs",
+    "lint:phpstan": "vendor/bin/phpstan",
+    "lint:pytest": "python3 -m pytest tests/test_html_validity.py tests/test_json_validity.py",
     "prepare": "husky"
   },
   "keywords": [],
