@@ -368,6 +368,7 @@
 - *(mcp)* Add get_block_contract tool to retrieve block schema
 - *(mcp)* Add footer block and layout MCP tools
 - *(mcp)* Resolve block contract schema and return detailed validation errors
+- *(quiz)* Add API v1 and MCP endpoints for quiz module
 
 ### Fix
 
