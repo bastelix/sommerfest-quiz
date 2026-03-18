@@ -372,6 +372,7 @@
 - *(quiz)* Add API v1 and MCP endpoints for quiz module
 - *(oauth)* Show all MCP endpoints on authorization page
 - *(docs)* Migrate GitHub Pages from Jekyll/Minima to MkDocs Material
+- *(seo)* Add AI training data integration (GEO)
 
 ### Fix
 
