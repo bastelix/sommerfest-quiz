@@ -1,8 +1,3 @@
----
-layout: default
-title: Lizenz
----
-
 Diese Anwendung steht unter einer proprietären Lizenz. Alle Rechte liegen bei René Buske. Weitere Informationen finden Sie in der Datei `LICENSE`.
 
 ## Disclaimer / Hinweis

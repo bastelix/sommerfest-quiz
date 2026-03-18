@@ -44,6 +44,7 @@
 - Add calhelp blocks demo draft page
 - Add phpstan check script
 - Add cms api contract smoke test script
+- Remove test comment from FooterTools
 
 ### Ci
 
@@ -369,6 +370,9 @@
 - *(mcp)* Add footer block and layout MCP tools
 - *(mcp)* Resolve block contract schema and return detailed validation errors
 - *(quiz)* Add API v1 and MCP endpoints for quiz module
+- *(oauth)* Show all MCP endpoints on authorization page
+- *(docs)* Migrate GitHub Pages from Jekyll/Minima to MkDocs Material
+- *(seo)* Add AI training data integration (GEO)
 
 ### Fix
 
@@ -634,6 +638,7 @@
 - Resolve pre-existing phpstan errors blocking CI build
 - *(mcp)* Return server info on GET /mcp instead of 405
 - *(mcp)* Remove unused $pdo promoted property in FooterTools
+- *(ssl)* Dispatch wildcard jobs on SSL renewal and replace missing renew script
 
 ### Merge
 
@@ -801,6 +806,7 @@
 - Generate sticker background during test
 - Use new sticker background route
 - *(onboarding)* Add Playwright E2E tests for onboarding wizard
+- Verify pre-commit hook runs
 
 ### Ui
 

@@ -91,6 +91,8 @@
   {% else %}
   <link rel="alternate" href="https://quizrace.app/" hreflang="de">
   {% endif %}
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="{{ basePath }}/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="{{ basePath }}/feed.atom">
   {% if schemaJson is defined and schemaJson %}
   <script type="application/ld+json">
   {{ schemaJson|raw }}

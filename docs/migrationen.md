@@ -1,8 +1,3 @@
----
-layout: default
-title: Migrationen
----
-
 ## Datenbank-Migrationen
 
 Datenbankänderungen werden als SQL-Dateien im Verzeichnis `migrations/` verwaltet.

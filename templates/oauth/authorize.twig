@@ -22,9 +22,25 @@
 
       <div class="uk-margin">
         <h4>Requested permissions:</h4>
-        <ul class="uk-list uk-list-bullet">
-          {% for scope in scopes %}
-            <li><code>{{ scope }}</code></li>
+        <ul class="uk-list uk-list-divider">
+          {% for detail in scopeDetails %}
+            <li>
+              <div>
+                <strong>{{ detail.label }}</strong>
+                <code class="uk-text-small uk-margin-small-left">{{ detail.scope }}</code>
+              </div>
+              {% if detail.description %}
+                <div class="uk-text-muted uk-text-small">{{ detail.description }}</div>
+              {% endif %}
+              {% if detail.tools is not empty %}
+                <div class="uk-text-small uk-margin-small-top">
+                  <span class="uk-text-muted">MCP tools:</span>
+                  {% for tool in detail.tools %}
+                    <code class="uk-text-small">{{ tool }}</code>{% if not loop.last %}, {% endif %}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </li>
           {% endfor %}
         </ul>
       </div>

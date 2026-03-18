@@ -1,8 +1,3 @@
----
-layout: default
-title: Wie läuft das Spiel?
----
-
 ## So funktioniert das Spiel
 
 Es gibt verschiedene Stationen, die auf einer Karte markiert sind. An jeder

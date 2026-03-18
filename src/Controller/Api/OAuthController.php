@@ -20,6 +20,66 @@ final class OAuthController
         'cms:read', 'cms:write', 'seo:write',
         'menu:read', 'menu:write',
         'news:read', 'news:write',
+        'footer:read', 'footer:write',
+        'quiz:read', 'quiz:write',
+    ];
+
+    private const SCOPE_DETAILS = [
+        'cms:read' => [
+            'label' => 'CMS Pages (read)',
+            'description' => 'List pages, view page tree, and read block contract schema',
+            'tools' => ['list_pages', 'get_page_tree', 'get_block_contract'],
+        ],
+        'cms:write' => [
+            'label' => 'CMS Pages (write)',
+            'description' => 'Create and update pages',
+            'tools' => ['upsert_page'],
+        ],
+        'seo:write' => [
+            'label' => 'SEO (write)',
+            'description' => 'Update SEO settings via REST API',
+            'tools' => [],
+        ],
+        'menu:read' => [
+            'label' => 'Menus (read)',
+            'description' => 'List menus and menu items',
+            'tools' => ['list_menus', 'list_menu_items'],
+        ],
+        'menu:write' => [
+            'label' => 'Menus (write)',
+            'description' => 'Create, update, and delete menus and menu items',
+            'tools' => ['create_menu', 'update_menu', 'delete_menu', 'create_menu_item', 'update_menu_item', 'delete_menu_item'],
+        ],
+        'news:read' => [
+            'label' => 'News (read)',
+            'description' => 'List and read news articles',
+            'tools' => ['list_news', 'get_news'],
+        ],
+        'news:write' => [
+            'label' => 'News (write)',
+            'description' => 'Create, update, and delete news articles',
+            'tools' => ['create_news', 'update_news', 'delete_news'],
+        ],
+        'footer:read' => [
+            'label' => 'Footer (read)',
+            'description' => 'List footer blocks and get footer layout',
+            'tools' => ['list_footer_blocks', 'get_footer_layout'],
+        ],
+        'footer:write' => [
+            'label' => 'Footer (write)',
+            'description' => 'Create, update, delete, and reorder footer blocks; update footer layout',
+            'tools' => ['create_footer_block', 'update_footer_block', 'delete_footer_block', 'reorder_footer_blocks', 'update_footer_layout'],
+        ],
+        'quiz:read' => [
+            'label' => 'Quiz (read)',
+            'description' => 'List events, catalogs, results, and teams',
+            'tools' => ['list_events', 'get_event', 'list_catalogs', 'get_catalog', 'list_results', 'list_teams'],
+        ],
+        'quiz:write' => [
+            'label' => 'Quiz (write)',
+            'description' => 'Create/update catalogs and submit quiz results',
+            'tools' => ['upsert_catalog', 'submit_result'],
+        ],
     ];
 
     /**
@@ -168,10 +228,21 @@ final class OAuthController
 
         $csrf = CsrfTokenHelper::ensure();
 
+        $scopeDetails = [];
+        foreach ($requestedScopes as $s) {
+            $scopeDetails[] = [
+                'scope' => $s,
+                'label' => self::SCOPE_DETAILS[$s]['label'] ?? $s,
+                'description' => self::SCOPE_DETAILS[$s]['description'] ?? '',
+                'tools' => self::SCOPE_DETAILS[$s]['tools'] ?? [],
+            ];
+        }
+
         $view = Twig::fromRequest($request);
         return $view->render($response, 'oauth/authorize.twig', [
             'client' => $client,
             'scopes' => $requestedScopes,
+            'scopeDetails' => $scopeDetails,
             'redirect_uri' => $redirectUri,
             'state' => $state,
             'code_challenge' => $codeChallenge,

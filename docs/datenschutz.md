@@ -1,8 +1,3 @@
----
-layout: default
-title: Datenschutzerklärung
----
-
 ## 1. Verantwortlicher
 
 Verantwortlich für die Datenverarbeitung im Rahmen dieser Anwendung ist:
