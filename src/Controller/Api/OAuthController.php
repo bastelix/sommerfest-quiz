@@ -50,7 +50,7 @@ final class OAuthController
             'response_types_supported' => ['code'],
             'grant_types_supported' => ['authorization_code'],
             'code_challenge_methods_supported' => ['S256'],
-            'token_endpoint_auth_methods_supported' => ['client_secret_post'],
+            'token_endpoint_auth_methods_supported' => ['client_secret_post', 'none'],
             'scopes_supported' => self::ALLOWED_SCOPES,
         ];
 
@@ -93,10 +93,7 @@ final class OAuthController
         }
 
         $namespace = isset($payload['namespace']) && is_string($payload['namespace'])
-            ? trim($payload['namespace']) : '';
-        if ($namespace === '') {
-            return $this->json($response, ['error' => 'missing_namespace'], 400);
-        }
+            ? trim($payload['namespace']) : 'default';
 
         $pdo = RequestDatabase::resolve($request);
         $repo = new OAuthClientRepository($pdo);

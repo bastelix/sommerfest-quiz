@@ -31,8 +31,16 @@ return function (\Slim\App $app): void {
         return (new OAuthController())->token($request, $response);
     });
 
-    // MCP Endpoint (Streamable HTTP, OAuth-protected)
+    // MCP Endpoint — Streamable HTTP transport (POST, GET, DELETE)
     $app->post('/mcp', function (Request $request, Response $response): Response {
         return (new McpController())->handle($request, $response);
     })->add(new OAuthTokenAuthMiddleware());
+
+    $app->get('/mcp', function (Request $request, Response $response): Response {
+        return (new McpController())->handleGet($request, $response);
+    });
+
+    $app->delete('/mcp', function (Request $request, Response $response): Response {
+        return (new McpController())->handleDelete($request, $response);
+    });
 };

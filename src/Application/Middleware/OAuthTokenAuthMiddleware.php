@@ -62,6 +62,12 @@ final class OAuthTokenAuthMiddleware implements MiddlewareInterface
     {
         $res = new SlimResponse($status);
         $res->getBody()->write((string) json_encode(['error' => $code]));
-        return $res->withHeader('Content-Type', 'application/json');
+        $res = $res->withHeader('Content-Type', 'application/json');
+
+        if ($status === 401) {
+            $res = $res->withHeader('WWW-Authenticate', 'Bearer');
+        }
+
+        return $res;
     }
 }
