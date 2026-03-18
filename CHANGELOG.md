@@ -6,6 +6,7 @@
 
 - Tag image as sommerfest-quiz
 - Enforce conventional commits via commitlint and husky
+- *(deps-dev)* Bump phpstan/phpstan from 2.1.32 to 2.1.40
 
 ### Chore
 
@@ -625,6 +626,7 @@
 - Phpstan false-positive in pages tree endpoint
 - *(admin)* Add missing menu:read scope checkbox to API token form
 - *(mcp)* Align MCP server with Streamable HTTP transport spec for Claude custom connectors
+- *(auth)* Honor redirect parameter in login flow for OAuth authorization
 
 ### Merge
 
