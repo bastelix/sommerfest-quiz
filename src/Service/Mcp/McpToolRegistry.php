@@ -117,6 +117,18 @@ final class McpToolRegistry
                 ],
             ];
         }
+
+        $quizTools = new QuizTools($this->pdo, $this->namespace);
+        foreach ($quizTools->definitions() as $def) {
+            $this->tools[$def['name']] = [
+                'handler' => [$quizTools, $def['method']],
+                'definition' => [
+                    'name' => $def['name'],
+                    'description' => $def['description'],
+                    'inputSchema' => $def['inputSchema'],
+                ],
+            ];
+        }
     }
 
     public function listNamespaces(array $args): array
