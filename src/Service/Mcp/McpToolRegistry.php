@@ -105,6 +105,18 @@ final class McpToolRegistry
                 ],
             ];
         }
+
+        $footerTools = new FooterTools($this->pdo, $this->namespace);
+        foreach ($footerTools->definitions() as $def) {
+            $this->tools[$def['name']] = [
+                'handler' => [$footerTools, $def['method']],
+                'definition' => [
+                    'name' => $def['name'],
+                    'description' => $def['description'],
+                    'inputSchema' => $def['inputSchema'],
+                ],
+            ];
+        }
     }
 
     public function listNamespaces(array $args): array
