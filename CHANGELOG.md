@@ -89,6 +89,7 @@
 - Add standard customer chat snippet for cms collaboration
 - *(api)* Add comprehensive API v1 reference and register news endpoints
 - Add API expansion briefing for AI assistant
+- Add MCP connector setup guide for Claude.ai
 
 ### Feat
 
@@ -361,6 +362,7 @@
 - *(api)* Add menu endpoints (read/write) with hierarchical items
 - *(api)* Add news CRUD endpoints with read/write scopes
 - *(mcp)* Add MCP server with OAuth 2.0 authentication
+- *(mcp)* Add optional namespace parameter to all tools and list_namespaces discovery
 
 ### Fix
 
