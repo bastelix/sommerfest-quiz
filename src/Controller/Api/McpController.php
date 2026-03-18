@@ -161,6 +161,9 @@ final class McpController
             'create_menu_item', 'update_menu_item', 'delete_menu_item' => 'menu:write',
             'list_news', 'get_news' => 'news:read',
             'create_news', 'update_news', 'delete_news' => 'news:write',
+            'list_footer_blocks', 'get_footer_layout' => 'footer:read',
+            'create_footer_block', 'update_footer_block', 'delete_footer_block',
+            'reorder_footer_blocks', 'update_footer_layout' => 'footer:write',
             default => null,
         };
     }
