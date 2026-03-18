@@ -20,7 +20,7 @@ final class FooterTools
     private const ALLOWED_SLOTS = ['footer_1', 'footer_2', 'footer_3'];
     private const ALLOWED_LAYOUTS = ['equal', 'brand-left', 'cta-right', 'centered'];
 
-    public function __construct(private readonly PDO $pdo, private readonly string $defaultNamespace)
+    public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->footerBlocks = new CmsFooterBlockService($pdo);
         $this->settingsRepo = new ProjectSettingsRepository($pdo);
