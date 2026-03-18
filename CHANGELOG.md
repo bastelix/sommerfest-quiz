@@ -366,6 +366,7 @@
 - *(mcp)* Add MCP server with OAuth 2.0 authentication
 - *(mcp)* Add optional namespace parameter to all tools and list_namespaces discovery
 - *(mcp)* Add get_block_contract tool to retrieve block schema
+- *(mcp)* Add footer block and layout MCP tools
 
 ### Fix
 
