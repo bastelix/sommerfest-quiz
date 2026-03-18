@@ -154,7 +154,7 @@ final class McpController
     private function getRequiredScope(string $toolName): ?string
     {
         return match ($toolName) {
-            'list_pages', 'get_page_tree' => 'cms:read',
+            'list_pages', 'get_page_tree', 'get_block_contract' => 'cms:read',
             'upsert_page' => 'cms:write',
             'list_menus', 'list_menu_items' => 'menu:read',
             'create_menu', 'update_menu', 'delete_menu',
@@ -164,6 +164,9 @@ final class McpController
             'list_footer_blocks', 'get_footer_layout' => 'footer:read',
             'create_footer_block', 'update_footer_block', 'delete_footer_block',
             'reorder_footer_blocks', 'update_footer_layout' => 'footer:write',
+            'list_events', 'get_event', 'list_catalogs', 'get_catalog',
+            'list_results', 'list_teams' => 'quiz:read',
+            'upsert_catalog', 'submit_result' => 'quiz:write',
             default => null,
         };
     }
