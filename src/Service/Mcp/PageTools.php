@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Mcp;
 
+use App\Service\BlockContractSchemaValidator;
 use App\Service\PageBlockContractMigrator;
 use App\Service\PageService;
 use PDO;
@@ -65,7 +66,7 @@ final class PageTools
             [
                 'name' => 'upsert_page',
                 'method' => 'upsertPage',
-                'description' => 'Create or update a page. Provide slug and blocks (array of block objects). Optionally set title, status (draft/published), meta, and seo.',
+                'description' => 'Create or update a page. Provide slug and blocks (array of block objects). Optionally set title, status (draft/published), meta, and seo. IMPORTANT: Call get_block_contract first to learn the required block structure. On validation failure, detailed field-level errors are returned.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -121,8 +122,109 @@ final class PageTools
         }
 
         $schema = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        $definitions = $schema['definitions'] ?? [];
 
-        return ['schema' => $schema];
+        // Build a resolved, flat reference per block type
+        $blockTypes = [];
+        foreach ($schema['oneOf'] ?? [] as $entry) {
+            $props = $entry['properties'] ?? null;
+            $allOf = $entry['allOf'] ?? null;
+
+            $type = null;
+            $variants = null;
+            $dataRef = null;
+            $title = $entry['title'] ?? null;
+            $deprecated = !empty($entry['deprecated']);
+
+            if (is_array($props)) {
+                $type = $props['type']['const'] ?? null;
+                $variants = $props['variant']['enum'] ?? null;
+                $dataRef = $props['data'] ?? null;
+            }
+
+            // Handle allOf (e.g. proof block with variant-dependent data)
+            if ($type === null && is_array($allOf)) {
+                foreach ($allOf as $sub) {
+                    if (!is_array($sub)) {
+                        continue;
+                    }
+                    $sp = $sub['properties'] ?? [];
+                    $type ??= $sp['type']['const'] ?? null;
+                    $variants ??= $sp['variant']['enum'] ?? null;
+                    $dataRef ??= $sp['data'] ?? null;
+                }
+            }
+
+            if (!is_string($type)) {
+                continue;
+            }
+
+            $dataSchema = null;
+            if (is_array($dataRef)) {
+                $dataSchema = $this->resolveSchemaRefs($dataRef, $definitions);
+            }
+
+            $blockTypes[$type] = [
+                'title' => $title,
+                'type' => $type,
+                'variants' => $variants ?? [],
+                'deprecated' => $deprecated,
+                'dataSchema' => $dataSchema,
+            ];
+        }
+
+        // Resolve shared definitions (Tokens, SectionAppearance, BlockMeta)
+        $tokens = isset($definitions['Tokens']) ? $this->resolveSchemaRefs($definitions['Tokens'], $definitions) : null;
+        $blockMeta = isset($definitions['BlockMeta']) ? $this->resolveSchemaRefs($definitions['BlockMeta'], $definitions) : null;
+
+        $sectionAppearance = $schema['properties']['sectionAppearance']['enum'] ?? null;
+
+        // Build a minimal working example
+        $example = [
+            'id' => 'block-1',
+            'type' => 'rich_text',
+            'variant' => 'prose',
+            'data' => ['body' => '<p>Hello world</p>'],
+        ];
+
+        return [
+            'version' => 'block-contract-v1',
+            'requiredFields' => ['id', 'type', 'variant', 'data'],
+            'optionalFields' => ['tokens', 'sectionAppearance', 'backgroundImage', 'meta'],
+            'tokens' => $tokens,
+            'sectionAppearance' => $sectionAppearance,
+            'blockMeta' => $blockMeta,
+            'blockTypes' => $blockTypes,
+            'example' => $example,
+        ];
+    }
+
+    /**
+     * Recursively resolve $ref pointers to inline definitions.
+     *
+     * @param array<string,mixed> $schema
+     * @param array<string,mixed> $definitions
+     * @return array<string,mixed>
+     */
+    private function resolveSchemaRefs(array $schema, array $definitions): array
+    {
+        if (isset($schema['$ref']) && is_string($schema['$ref']) && str_starts_with($schema['$ref'], '#/definitions/')) {
+            $refName = substr($schema['$ref'], strlen('#/definitions/'));
+            if (isset($definitions[$refName]) && is_array($definitions[$refName])) {
+                return $this->resolveSchemaRefs($definitions[$refName], $definitions);
+            }
+        }
+
+        $resolved = [];
+        foreach ($schema as $key => $value) {
+            if (is_array($value)) {
+                $resolved[$key] = $this->resolveSchemaRefs($value, $definitions);
+            } else {
+                $resolved[$key] = $value;
+            }
+        }
+
+        return $resolved;
     }
 
     public function upsertPage(array $args): array
@@ -148,7 +250,23 @@ final class PageTools
 
         $contract = new PageBlockContractMigrator($this->pages);
         if (!$contract->isContractValid($content)) {
-            throw new \InvalidArgumentException('block_contract_invalid');
+            // Run the strict schema validator to collect detailed errors
+            $validator = new BlockContractSchemaValidator();
+            $errors = $validator->validatePageContent($content);
+
+            $message = 'block_contract_invalid';
+            if ($errors !== []) {
+                $details = array_map(
+                    static fn(array $e): string => sprintf('[%s] %s: %s', $e['blockId'], $e['path'], $e['message']),
+                    array_slice($errors, 0, 10)
+                );
+                $message = "block_contract_invalid:\n" . implode("\n", $details);
+                if (count($errors) > 10) {
+                    $message .= sprintf("\n… and %d more errors", count($errors) - 10);
+                }
+            }
+
+            throw new \InvalidArgumentException($message);
         }
 
         $contentJson = json_encode($content, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
