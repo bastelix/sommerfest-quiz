@@ -167,6 +167,8 @@ final class McpController
             'list_events', 'get_event', 'list_catalogs', 'get_catalog',
             'list_results', 'list_teams' => 'quiz:read',
             'upsert_catalog', 'submit_result' => 'quiz:write',
+            'export_namespace' => 'backup:read',
+            'import_namespace' => 'backup:write',
             default => null,
         };
     }

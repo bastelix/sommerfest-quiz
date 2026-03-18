@@ -1991,6 +1991,57 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->delete('/backups/{name}', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('backupController')->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware('admin'));
+
+    // ── Namespace Backup & Restore (complete, DB-based) ─────────────
+    $app->post('/namespace-backup/{namespace}', function (Request $request, Response $response, array $args) {
+        $pdo = $request->getAttribute('pdo');
+        $ns = (string) ($args['namespace'] ?? '');
+        if ($ns === '' || preg_match('/^[a-z0-9][a-z0-9-]*$/', $ns) !== 1) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid namespace']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+        $service = new \App\Service\NamespaceBackupService($pdo);
+        $data = $service->export($ns);
+        $response->getBody()->write(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/namespace-restore/{namespace}', function (Request $request, Response $response, array $args) {
+        $pdo = $request->getAttribute('pdo');
+        $ns = (string) ($args['namespace'] ?? '');
+        if ($ns === '' || preg_match('/^[a-z0-9][a-z0-9-]*$/', $ns) !== 1) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid namespace']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+        $body = (string) $request->getBody();
+        $data = json_decode($body, true);
+        if (!is_array($data) || !isset($data['meta'])) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid backup format: missing meta key']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+        $service = new \App\Service\NamespaceBackupService($pdo);
+        $service->import($ns, $data);
+        return $response->withStatus(204);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/namespace-backup/{namespace}/download', function (Request $request, Response $response, array $args) {
+        $pdo = $request->getAttribute('pdo');
+        $ns = (string) ($args['namespace'] ?? '');
+        if ($ns === '' || preg_match('/^[a-z0-9][a-z0-9-]*$/', $ns) !== 1) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid namespace']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+        $service = new \App\Service\NamespaceBackupService($pdo);
+        $data = $service->export($ns);
+        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $response->getBody()->write($json);
+        $filename = $ns . '_backup_' . date('Y-m-d_His') . '.json';
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->withHeader('Content-Length', (string) strlen($json));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->get('/qr.png', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->image($request, $response);
     });
