@@ -10,4 +10,4 @@ Das QuizRace ist eine leichtgewichtige Web-Applikation zum Durchf\u00fchren von 
 4. Optional kann zu jeder Frage ein Buchstabe f\u00fcr ein R\u00e4tselwort vergeben werden.
 5. Nachdem alle Fragen beantwortet wurden, wird die Gesamtwertung angezeigt. Bei aktivem Wettkampfmodus sind Wiederholungen nicht m\u00f6glich.
 
-Weitere Details zur Einrichtung finden Sie im [Haupt-README](../README.md).
+Weitere Details zur Einrichtung finden Sie im Haupt-README des Repositories.
