@@ -339,7 +339,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                                 return $normalised;
                             }
 
-                            return $path === '' ? '/v1/chat/completions' : $path;
+                            return $path;
                         };
 
                         $rebuilt = $scheme . '://';
