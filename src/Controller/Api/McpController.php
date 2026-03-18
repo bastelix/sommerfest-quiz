@@ -164,6 +164,8 @@ final class McpController
             'list_footer_blocks', 'get_footer_layout' => 'footer:read',
             'create_footer_block', 'update_footer_block', 'delete_footer_block',
             'reorder_footer_blocks', 'update_footer_layout' => 'footer:write',
+            'export_namespace' => 'backup:read',
+            'import_namespace' => 'backup:write',
             default => null,
         };
     }

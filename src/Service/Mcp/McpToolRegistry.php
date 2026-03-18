@@ -129,6 +129,18 @@ final class McpToolRegistry
                 ],
             ];
         }
+
+        $backupTools = new BackupTools($this->pdo, $this->namespace);
+        foreach ($backupTools->definitions() as $def) {
+            $this->tools[$def['name']] = [
+                'handler' => [$backupTools, $def['method']],
+                'definition' => [
+                    'name' => $def['name'],
+                    'description' => $def['description'],
+                    'inputSchema' => $def['inputSchema'],
+                ],
+            ];
+        }
     }
 
     public function listNamespaces(array $args): array
