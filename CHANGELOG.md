@@ -627,6 +627,7 @@
 - *(admin)* Add missing menu:read scope checkbox to API token form
 - *(mcp)* Align MCP server with Streamable HTTP transport spec for Claude custom connectors
 - *(auth)* Honor redirect parameter in login flow for OAuth authorization
+- Resolve pre-existing phpstan errors blocking CI build
 
 ### Merge
 
