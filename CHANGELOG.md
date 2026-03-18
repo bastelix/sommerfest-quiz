@@ -632,6 +632,7 @@
 - *(auth)* Honor redirect parameter in login flow for OAuth authorization
 - Resolve pre-existing phpstan errors blocking CI build
 - *(mcp)* Return server info on GET /mcp instead of 405
+- *(mcp)* Remove unused $pdo promoted property in FooterTools
 
 ### Merge
 
