@@ -2371,30 +2371,35 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
         }
-        $script = realpath(__DIR__ . '/../scripts/renew_ssl.sh');
 
-        if (!is_file($script)) {
-            $response->getBody()->write(json_encode(['error' => 'Renew script not found']));
+        $pdo = $request->getAttribute('pdo');
+        $registry = new CertificateZoneRegistry($pdo);
+        $registry->backfillActiveDomains();
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
+        $zones = $registry->listWildcardEnabled();
+        $now = new \DateTimeImmutable();
+        foreach ($zones as $zone) {
+            $registry->markPending($zone['zone'], null, $now);
         }
 
-        $result = runSyncProcess($script, ['--main']);
-        if (!$result['success']) {
-            $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
-            $response->getBody()->write(json_encode([
-                'error' => 'Failed to renew certificate',
-                'message' => $message,
-            ]));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
+        $script = realpath(__DIR__ . '/../scripts/wildcard_maintenance.sh');
+        if ($script !== false && is_file($script)) {
+            $command = 'bash ' . escapeshellarg($script) . ' >/dev/null 2>&1 &';
+            $process = @proc_open(
+                ['/bin/sh', '-c', $command],
+                [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']],
+                $pipes
+            );
+            if (is_resource($process)) {
+                proc_close($process);
+            }
         }
 
-        $response->getBody()->write(json_encode(['status' => 'success', 'slug' => 'main']));
+        $response->getBody()->write(json_encode([
+            'status' => 'success',
+            'message' => 'Certificate renewal queued for all active zones.',
+            'zones' => count($zones),
+        ]));
 
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware('admin'));
@@ -2409,30 +2414,49 @@ return function (\Slim\App $app, TranslationService $translator) {
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
-        $script = realpath(__DIR__ . '/../scripts/renew_ssl.sh');
 
-        if (!is_file($script)) {
-            $response->getBody()->write(json_encode(['error' => 'Renew script not found']));
+        $pdo = $request->getAttribute('pdo');
+        $registry = new CertificateZoneRegistry($pdo);
+        $domainService = new \App\Service\DomainService($pdo);
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
+        $domains = $domainService->listDomains();
+        $matchingZones = [];
+        foreach ($domains as $domain) {
+            if (($domain['namespace'] ?? '') === $slug && !in_array($domain['zone'], $matchingZones, true)) {
+                $matchingZones[] = $domain['zone'];
+            }
         }
 
-        $result = runSyncProcess($script, [$slug]);
-        if (!$result['success']) {
-            $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
-            $response->getBody()->write(json_encode([
-                'error' => 'Failed to renew certificate',
-                'message' => $message,
-            ]));
+        if (empty($matchingZones)) {
+            $response->getBody()->write(json_encode(['error' => 'No active domains found for this tenant.']));
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
         }
 
-        $response->getBody()->write(json_encode(['status' => 'success', 'slug' => $slug]));
+        $now = new \DateTimeImmutable();
+        foreach ($matchingZones as $zone) {
+            $registry->ensureZone($zone);
+            $registry->markPending($zone, null, $now);
+        }
+
+        $script = realpath(__DIR__ . '/../scripts/wildcard_maintenance.sh');
+        if ($script !== false && is_file($script)) {
+            $command = 'bash ' . escapeshellarg($script) . ' >/dev/null 2>&1 &';
+            $process = @proc_open(
+                ['/bin/sh', '-c', $command],
+                [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']],
+                $pipes
+            );
+            if (is_resource($process)) {
+                proc_close($process);
+            }
+        }
+
+        $response->getBody()->write(json_encode([
+            'status' => 'success',
+            'slug' => $slug,
+            'zones' => count($matchingZones),
+        ]));
 
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware('admin'));

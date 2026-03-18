@@ -60,6 +60,8 @@ class DomainController
             return $this->jsonError($response, 'Failed to queue certificate provisioning.', 500);
         }
 
+        $this->dispatchWildcardJobs();
+
         $payload = [
             'status' => 'started',
             'namespace' => $domain['namespace'] ?? null,
@@ -226,6 +228,8 @@ class DomainController
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, 'Failed to queue certificate renewal.', 500);
         }
+
+        $this->dispatchWildcardJobs();
 
         $response->getBody()->write(json_encode([
             'status' => 'Certificate renewal queued.',
