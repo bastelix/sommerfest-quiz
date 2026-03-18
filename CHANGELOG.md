@@ -44,6 +44,7 @@
 - Add calhelp blocks demo draft page
 - Add phpstan check script
 - Add cms api contract smoke test script
+- Remove test comment from FooterTools
 
 ### Ci
 
@@ -802,6 +803,7 @@
 - Generate sticker background during test
 - Use new sticker background route
 - *(onboarding)* Add Playwright E2E tests for onboarding wizard
+- Verify pre-commit hook runs
 
 ### Ui
 
