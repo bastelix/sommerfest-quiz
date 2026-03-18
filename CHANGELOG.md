@@ -621,6 +621,7 @@
 - Phpstan issues in api token auth and page list
 - Phpstan false-positive in pages tree endpoint
 - *(admin)* Add missing menu:read scope checkbox to API token form
+- *(mcp)* Align MCP server with Streamable HTTP transport spec for Claude custom connectors
 
 ### Merge
 
