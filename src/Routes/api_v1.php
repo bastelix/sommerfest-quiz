@@ -6,6 +6,7 @@ use App\Application\Middleware\ApiTokenAuthMiddleware;
 use App\Controller\Api\V1\NamespacePageController;
 use App\Controller\Api\V1\NamespaceMenuController;
 use App\Controller\Api\V1\NamespaceNewsController;
+use App\Controller\Api\V1\NamespaceQuizController;
 
 return function (\Slim\App $app): void {
     $app->group('/api/v1', function (\Slim\Routing\RouteCollectorProxy $group) {
@@ -89,5 +90,54 @@ return function (\Slim\App $app): void {
         $group->delete('/namespaces/{ns:[a-z0-9\-]+}/news/{id:[0-9]+}', function (Request $request, Response $response, array $args): Response {
             return (new NamespaceNewsController())->delete($request, $response, $args);
         })->add(new ApiTokenAuthMiddleware(null, null, NamespaceNewsController::SCOPE_NEWS_WRITE));
+
+        // Quiz
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/events', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->listEvents($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_READ));
+
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->getEvent($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_READ));
+
+        $group->post('/namespaces/{ns:[a-z0-9\-]+}/events', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->createEvent($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_WRITE));
+
+        $group->patch('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->updateEvent($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_WRITE));
+
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}/catalogs', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->listCatalogs($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_READ));
+
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}/catalogs/{slug:[a-z0-9\-]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->getCatalog($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_READ));
+
+        $group->put('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}/catalogs/{slug:[a-z0-9\-]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->upsertCatalog($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_WRITE));
+
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}/results', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->listResults($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_READ));
+
+        $group->post('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}/results', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->submitResult($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_WRITE));
+
+        $group->delete('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}/results', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->clearResults($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_WRITE));
+
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}/teams', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->listTeams($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_READ));
+
+        $group->put('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}/teams', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceQuizController())->replaceTeams($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_WRITE));
     });
 };
