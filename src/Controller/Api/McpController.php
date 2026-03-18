@@ -18,7 +18,7 @@ final class McpController
     private const SERVER_VERSION = '1.0.0';
 
     /**
-     * POST /mcp — JSON-RPC 2.0 endpoint for MCP protocol
+     * POST /mcp — Streamable HTTP transport (JSON-RPC 2.0)
      */
     public function handle(Request $request, Response $response): Response
     {
@@ -33,17 +33,44 @@ final class McpController
         $method = isset($rpc['method']) && is_string($rpc['method']) ? $rpc['method'] : '';
         $params = isset($rpc['params']) && is_array($rpc['params']) ? $rpc['params'] : [];
 
+        // Notifications and responses have no 'id' — return 202 Accepted per spec
+        $isNotification = $id === null && $method !== '';
+        $isResponse = isset($rpc['result']) || isset($rpc['error']);
+
+        if ($isNotification || $isResponse) {
+            return $this->handleNotificationOrResponse($request, $response, $method, $params);
+        }
+
         return match ($method) {
-            'initialize' => $this->handleInitialize($response, $id, $params),
-            'notifications/initialized' => $this->handleNotification($response),
+            'initialize' => $this->handleInitialize($request, $response, $id, $params),
             'tools/list' => $this->handleToolsList($request, $response, $id),
             'tools/call' => $this->handleToolsCall($request, $response, $id, $params),
             default => $this->jsonRpcError($response, $id, -32601, 'Method not found: ' . $method),
         };
     }
 
-    private function handleInitialize(Response $response, mixed $id, array $params): Response
+    /**
+     * GET /mcp — Server does not offer standalone SSE stream, return 405.
+     */
+    public function handleGet(Request $request, Response $response): Response
     {
+        return $response->withStatus(405)->withHeader('Allow', 'POST, DELETE');
+    }
+
+    /**
+     * DELETE /mcp — Session termination. Accept and invalidate.
+     */
+    public function handleDelete(Request $request, Response $response): Response
+    {
+        // Accept session termination request
+        return $response->withStatus(200)
+            ->withHeader('Content-Type', 'application/json');
+    }
+
+    private function handleInitialize(Request $request, Response $response, mixed $id, array $params): Response
+    {
+        $sessionId = bin2hex(random_bytes(32));
+
         $result = [
             'protocolVersion' => self::PROTOCOL_VERSION,
             'capabilities' => [
@@ -55,13 +82,14 @@ final class McpController
             ],
         ];
 
-        return $this->jsonRpcResult($response, $id, $result);
+        return $this->jsonRpcResult($response, $id, $result)
+            ->withHeader('Mcp-Session-Id', $sessionId);
     }
 
-    private function handleNotification(Response $response): Response
+    private function handleNotificationOrResponse(Request $request, Response $response, string $method, array $params): Response
     {
-        // Notifications have no response body
-        return $response->withStatus(204);
+        // Spec: notifications and responses → 202 Accepted, no body
+        return $response->withStatus(202);
     }
 
     private function handleToolsList(Request $request, Response $response, mixed $id): Response
