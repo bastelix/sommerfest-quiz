@@ -50,11 +50,26 @@ final class McpController
     }
 
     /**
-     * GET /mcp — Server does not offer standalone SSE stream, return 405.
+     * GET /mcp — Return server info for quick connectivity checks.
      */
     public function handleGet(Request $request, Response $response): Response
     {
-        return $response->withStatus(405)->withHeader('Allow', 'POST, DELETE');
+        $accept = $request->getHeaderLine('Accept');
+
+        // SSE stream requests are not supported
+        if (str_contains($accept, 'text/event-stream')) {
+            return $response->withStatus(405)->withHeader('Allow', 'POST, DELETE');
+        }
+
+        // Return server info for browser / health checks
+        $payload = [
+            'name' => self::SERVER_NAME,
+            'version' => self::SERVER_VERSION,
+            'protocolVersion' => self::PROTOCOL_VERSION,
+            'status' => 'ok',
+        ];
+        $response->getBody()->write((string) json_encode($payload, JSON_UNESCAPED_SLASHES));
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     /**
