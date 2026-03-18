@@ -369,6 +369,7 @@
 - *(mcp)* Add footer block and layout MCP tools
 - *(mcp)* Resolve block contract schema and return detailed validation errors
 - *(quiz)* Add API v1 and MCP endpoints for quiz module
+- *(oauth)* Show all MCP endpoints on authorization page
 
 ### Fix
 
