@@ -32,7 +32,7 @@
             {% endif %}
           </div>
           {% endif %}
-          <form method="post" action="{{ basePath }}/login">
+          <form method="post" action="{{ basePath }}/login{% if oauth_redirect %}?redirect={{ oauth_redirect|url_encode }}{% endif %}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <div class="uk-margin">
               <div class="uk-inline uk-width-1-1">
