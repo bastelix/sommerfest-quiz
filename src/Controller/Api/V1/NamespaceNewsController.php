@@ -178,7 +178,7 @@ final class NamespaceNewsController
         $isPublished = isset($payload['isPublished']) ? (bool) $payload['isPublished'] : $existing->isPublished();
 
         $publishedAt = $existing->getPublishedAt();
-        if (isset($payload['publishedAt'])) {
+        if (array_key_exists('publishedAt', $payload)) {
             if ($payload['publishedAt'] === null) {
                 $publishedAt = null;
             } elseif (is_string($payload['publishedAt'])) {

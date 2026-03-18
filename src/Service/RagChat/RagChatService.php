@@ -481,7 +481,7 @@ final class RagChatService implements RagChatServiceInterface
             return $normalized;
         }
 
-        return $path === '' ? '/v1/chat/completions' : $path;
+        return $path;
     }
 
     private function getChatSettingValue(string $key): ?string
