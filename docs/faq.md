@@ -1,8 +1,3 @@
----
-layout: default
-title: FAQ
----
-
 ## Häufige Fragen
 
 ### Wie starte ich das Quiz?
