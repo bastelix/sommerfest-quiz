@@ -55,6 +55,16 @@ jobs:
               COMMITS=$(git log --no-merges -1 --format=%s)
             fi
 
+            # Filter out automated commits (changelog updates, version bumps)
+            COMMITS=$(echo "$COMMITS" | grep -vE "^docs: update changelog$|^chore: bump version to ")
+
+            # If no real commits remain, skip the bump
+            if [ -z "$(echo "$COMMITS" | sed '/^$/d')" ]; then
+              echo "No real commits since last bump – skipping"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+
             BUMP_TYPE="patch"  # default
 
             # Scan for the highest-priority bump type
@@ -74,6 +84,7 @@ jobs:
           echo "Detected bump type: $BUMP_TYPE"
 
       - name: Bump version
+        if: steps.determine_bump.outputs.skip != 'true'
         id: bump
         run: |
           version=$(cat VERSION)
@@ -102,6 +113,7 @@ jobs:
           echo "old_version=$version" >> $GITHUB_OUTPUT
           echo "Bumped version from $version to $new_version ($BUMP_TYPE)"
       - name: Commit and push
+        if: steps.determine_bump.outputs.skip != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
