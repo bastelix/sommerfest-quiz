@@ -641,6 +641,7 @@
 - *(mcp)* Remove unused $pdo promoted property in FooterTools
 - *(ssl)* Dispatch wildcard jobs on SSL renewal and replace missing renew script
 - Resolve merge conflict in MCP scope mapping
+- *(mcp)* Add missing CORS headers and OAuth scopes for Claude.ai connector
 
 ### Merge
 
