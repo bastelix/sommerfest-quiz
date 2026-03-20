@@ -56,9 +56,14 @@ final class McpController
     {
         $accept = $request->getHeaderLine('Accept');
 
-        // SSE stream requests are not supported
+        // Return an empty SSE stream for clients that probe for SSE support.
+        // The spec says GET+SSE is optional; this satisfies clients without errors.
         if (str_contains($accept, 'text/event-stream')) {
-            return $response->withStatus(405)->withHeader('Allow', 'POST, DELETE');
+            $response->getBody()->write(":\n\n");
+            return $response
+                ->withStatus(200)
+                ->withHeader('Content-Type', 'text/event-stream')
+                ->withHeader('Cache-Control', 'no-cache');
         }
 
         // Return server info for browser / health checks

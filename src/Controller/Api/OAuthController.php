@@ -22,6 +22,7 @@ final class OAuthController
         'news:read', 'news:write',
         'footer:read', 'footer:write',
         'quiz:read', 'quiz:write',
+        'backup:read', 'backup:write',
     ];
 
     private const SCOPE_DETAILS = [
@@ -79,6 +80,16 @@ final class OAuthController
             'label' => 'Quiz (write)',
             'description' => 'Create/update catalogs and submit quiz results',
             'tools' => ['upsert_catalog', 'submit_result'],
+        ],
+        'backup:read' => [
+            'label' => 'Backup (read)',
+            'description' => 'Export a full namespace backup as JSON',
+            'tools' => ['export_namespace'],
+        ],
+        'backup:write' => [
+            'label' => 'Backup (write)',
+            'description' => 'Import and restore a namespace from a backup JSON',
+            'tools' => ['import_namespace'],
         ],
     ];
 
