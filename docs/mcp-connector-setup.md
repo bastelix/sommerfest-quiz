@@ -41,15 +41,21 @@
 
 Beim Autorisieren werden folgende Berechtigungen angefragt:
 
-| Scope        | Berechtigung                                  |
-|--------------|-----------------------------------------------|
-| `cms:read`   | Seiten lesen (Liste, Baum)                    |
-| `cms:write`  | Seiten erstellen und aktualisieren            |
-| `seo:write`  | SEO-Konfiguration schreiben                   |
-| `menu:read`  | Menues und Menuepunkte lesen                  |
-| `menu:write` | Menues und Menuepunkte erstellen/aendern/loeschen |
-| `news:read`  | News-Artikel lesen                            |
-| `news:write` | News-Artikel erstellen/aendern/loeschen       |
+| Scope          | Berechtigung                                    |
+|----------------|-------------------------------------------------|
+| `cms:read`     | Seiten lesen (Liste, Baum)                      |
+| `cms:write`    | Seiten erstellen und aktualisieren              |
+| `seo:write`    | SEO-Konfiguration schreiben                     |
+| `menu:read`    | Menues und Menuepunkte lesen                    |
+| `menu:write`   | Menues und Menuepunkte erstellen/aendern/loeschen |
+| `news:read`    | News-Artikel lesen                              |
+| `news:write`   | News-Artikel erstellen/aendern/loeschen         |
+| `footer:read`  | Footer-Bloecke und Layout lesen                 |
+| `footer:write` | Footer-Bloecke erstellen/aendern/loeschen       |
+| `quiz:read`    | Events, Kataloge, Ergebnisse und Teams lesen    |
+| `quiz:write`   | Kataloge erstellen/aktualisieren, Ergebnisse einreichen |
+| `backup:read`  | Namespace-Backup als JSON exportieren           |
+| `backup:write` | Namespace aus Backup-JSON wiederherstellen      |
 
 ---
 
