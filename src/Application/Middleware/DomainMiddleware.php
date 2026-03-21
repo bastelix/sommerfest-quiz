@@ -41,6 +41,12 @@ class DomainMiddleware implements MiddlewareInterface
             return $this->createLightweightHealthResponse($request);
         }
 
+        // MCP and OAuth endpoints bypass domain resolution — they authenticate
+        // via OAuth bearer tokens and resolve the namespace from the token.
+        if ($this->isMcpOrOAuthPath($path)) {
+            return $handler->handle($request);
+        }
+
         $mainDomainRaw = $this->domainProvider->getMainDomain();
         $mainDomainSource = $this->domainProvider->getMainDomainSource();
         $mainDomain = $mainDomainRaw !== null ? $this->normalizeHost($mainDomainRaw) : '';
@@ -209,6 +215,18 @@ class DomainMiddleware implements MiddlewareInterface
         }
 
         return in_array($normalized, ['/healthz-lite', '/healthz/ping'], true);
+    }
+
+    private function isMcpOrOAuthPath(string $path): bool
+    {
+        $normalized = rtrim($path, '/');
+        if ($normalized === '') {
+            $normalized = '/';
+        }
+
+        return $normalized === '/mcp'
+            || str_starts_with($normalized, '/oauth/')
+            || str_starts_with($normalized, '/.well-known/');
     }
 
     private function createLightweightHealthResponse(Request $request): Response
