@@ -16,13 +16,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 final class LlmsTxtController
 {
-    private LlmsTxtService $service;
-
-    public function __construct(?LlmsTxtService $service = null)
-    {
-        $this->service = $service ?? new LlmsTxtService();
-    }
-
     public function index(Request $request, Response $response): Response
     {
         return $this->respond($request, $response, false);

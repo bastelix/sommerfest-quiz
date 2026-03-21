@@ -44,12 +44,12 @@ final class NamespaceQuizController
         foreach ($events->getAll($ns) as $event) {
             $items[] = [
                 'uid' => $event['uid'],
-                'slug' => $event['slug'] ?? $event['uid'],
+                'slug' => $event['slug'],
                 'name' => $event['name'],
                 'start_date' => $event['start_date'] ?? null,
                 'end_date' => $event['end_date'] ?? null,
                 'description' => $event['description'] ?? null,
-                'published' => $event['published'] ?? false,
+                'published' => $event['published'],
             ];
         }
 
