@@ -462,6 +462,154 @@ class DomainControllerTest extends TestCase
         }
     }
 
+    public function testCreateSavesDomainWhenAcmeProviderIsInvalid(): void
+    {
+        putenv('DASHBOARD_TOKEN_SECRET=test-secret');
+
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE domains (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                host TEXT NOT NULL,
+                normalized_host TEXT NOT NULL UNIQUE,
+                zone TEXT NOT NULL,
+                namespace TEXT,
+                label TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1
+            );
+        SQL);
+        $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT, next_renewal_after TEXT)');
+        $pdo->exec('CREATE TABLE namespaces (namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER DEFAULT 1, created_at TEXT, updated_at TEXT)');
+        $pdo->exec("INSERT INTO namespaces (namespace, label) VALUES ('eforms', 'eForms')");
+
+        $this->setDatabase($pdo);
+
+        $service = new DomainService($pdo);
+        $registry = new CertificateZoneRegistry($pdo);
+
+        $previousProvider = getenv('ACME_WILDCARD_PROVIDER');
+        putenv('ACME_WILDCARD_PROVIDER=dns_bogus');
+
+        try {
+            $controller = new \App\Controller\Admin\DomainController($service, $registry);
+
+            $request = $this->createRequest(
+                'POST',
+                '/admin/domains/api',
+                [
+                    'HTTP_ACCEPT' => 'application/json',
+                ]
+            )->withParsedBody([
+                'host' => 'eforms.cloud',
+                'label' => 'eForms',
+                'namespace' => 'eforms',
+                'is_active' => true,
+            ]);
+
+            $response = $controller->create($request, new \Slim\Psr7\Response());
+
+            $this->assertSame(201, $response->getStatusCode());
+
+            $payload = json_decode((string) $response->getBody(), true);
+            $this->assertIsArray($payload);
+            $this->assertSame('ok', $payload['status'] ?? null);
+            $this->assertArrayHasKey('warning', $payload);
+            $this->assertNotNull($payload['domain'] ?? null);
+            $this->assertSame('eforms.cloud', $payload['domain']['host']);
+
+            $saved = $service->getDomainById($payload['domain']['id']);
+            $this->assertNotNull($saved);
+            $this->assertSame('eforms.cloud', $saved['host']);
+        } finally {
+            if ($previousProvider === false) {
+                putenv('ACME_WILDCARD_PROVIDER');
+            } else {
+                putenv('ACME_WILDCARD_PROVIDER=' . $previousProvider);
+            }
+        }
+    }
+
+    public function testUpdateSavesDomainWhenAcmeProviderIsInvalid(): void
+    {
+        putenv('MAIN_DOMAIN=example.com');
+        putenv('DASHBOARD_TOKEN_SECRET=test-secret');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE domains (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                host TEXT NOT NULL,
+                normalized_host TEXT NOT NULL UNIQUE,
+                zone TEXT NOT NULL,
+                namespace TEXT,
+                label TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1
+            );
+        SQL);
+        $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT, next_renewal_after TEXT)');
+        $pdo->exec('CREATE TABLE namespaces (namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER DEFAULT 1, created_at TEXT, updated_at TEXT)');
+        $pdo->exec("INSERT INTO namespaces (namespace, label) VALUES ('default', 'Default')");
+
+        $this->setDatabase($pdo);
+
+        $service = new DomainService($pdo);
+        $registry = new CertificateZoneRegistry($pdo);
+        $domain = $service->createDomain('example.com', 'Example', 'default', true);
+
+        // Deactivate the domain directly so we can test activation with an invalid ACME provider.
+        $pdo->prepare('UPDATE domains SET is_active = 0 WHERE id = ?')->execute([$domain['id']]);
+        $domain['is_active'] = false;
+
+        $previousProvider = getenv('ACME_WILDCARD_PROVIDER');
+        putenv('ACME_WILDCARD_PROVIDER=dns_bogus');
+
+        try {
+            $controller = new \App\Controller\Admin\DomainController($service, $registry);
+
+            $request = $this->createRequest(
+                'PATCH',
+                '/admin/domains/api/' . $domain['id'],
+                [
+                    'Content-Type' => 'application/json',
+                    'HTTP_ACCEPT' => 'application/json',
+                ]
+            );
+
+            $payload = json_encode([
+                'host' => 'example.com',
+                'label' => 'Example',
+                'namespace' => 'default',
+                'is_active' => true,
+            ], JSON_THROW_ON_ERROR);
+            $request->getBody()->write($payload);
+            $request->getBody()->rewind();
+
+            $response = $controller->update($request, new \Slim\Psr7\Response(), ['id' => (string) $domain['id']]);
+
+            $this->assertSame(200, $response->getStatusCode());
+
+            $body = json_decode((string) $response->getBody(), true);
+            $this->assertIsArray($body);
+            $this->assertSame('ok', $body['status'] ?? null);
+            $this->assertArrayHasKey('warning', $body);
+
+            $updated = $service->getDomainById($domain['id']);
+            $this->assertNotNull($updated);
+            $this->assertTrue($updated['is_active']);
+        } finally {
+            if ($previousProvider === false) {
+                putenv('ACME_WILDCARD_PROVIDER');
+            } else {
+                putenv('ACME_WILDCARD_PROVIDER=' . $previousProvider);
+            }
+        }
+    }
+
     /**
      * @param array<string,string|false> $envBackup
      */
