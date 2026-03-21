@@ -130,7 +130,7 @@ final class McpToolRegistry
             ];
         }
 
-        $backupTools = new BackupTools($this->pdo, $this->namespace);
+        $backupTools = new BackupTools($this->namespace, $this->pdo);
         foreach ($backupTools->definitions() as $def) {
             $this->tools[$def['name']] = [
                 'handler' => [$backupTools, $def['method']],

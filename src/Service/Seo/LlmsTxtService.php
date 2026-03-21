@@ -253,9 +253,6 @@ final class LlmsTxtService
     {
         $parts = [];
         foreach ($blocks as $block) {
-            if (!is_array($block)) {
-                continue;
-            }
             $type = (string) ($block['type'] ?? '');
             $data = is_array($block['data'] ?? null) ? $block['data'] : [];
 

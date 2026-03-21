@@ -13,7 +13,7 @@ final class BackupTools
 
     private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
 
-    public function __construct(private readonly PDO $pdo, private readonly string $defaultNamespace)
+    public function __construct(private readonly string $defaultNamespace, PDO $pdo)
     {
         $this->backupService = new NamespaceBackupService($pdo);
     }
