@@ -644,6 +644,7 @@
 - *(mcp)* Add missing CORS headers and OAuth scopes for Claude.ai connector
 - *(domains)* Save domain before validating ACME DNS provider
 - *(mcp)* Bypass domain resolution and service init for MCP/OAuth endpoints
+- Resolve PHPStan errors blocking Docker build
 
 ### Merge
 
