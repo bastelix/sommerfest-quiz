@@ -190,12 +190,21 @@ return function (\Slim\App $app, TranslationService $translator) {
     };
         $cmsPageRouteResolver = new CmsPageRouteResolver();
         $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
-            if ($request->getUri()->getPath() === '/healthz') {
+            $requestPath = $request->getUri()->getPath();
+
+            if ($requestPath === '/healthz') {
                 return $handler->handle($request);
             }
 
             $base = Database::connectFromEnv();
             MigrationRuntime::ensureUpToDate($base, __DIR__ . '/../migrations', 'base');
+
+            // MCP and OAuth endpoints need only DB connection + tenant schema,
+            // not the full service initialisation (events, catalogs, AI, etc.).
+            $normalizedPath = rtrim($requestPath, '/');
+            $isMcpOrOAuth = $normalizedPath === '/mcp'
+                || str_starts_with($normalizedPath, '/oauth/')
+                || str_starts_with($normalizedPath, '/.well-known/');
 
             $host = $request->getUri()->getHost();
             $domainType = $request->getAttribute('domainType');
@@ -207,6 +216,11 @@ return function (\Slim\App $app, TranslationService $translator) {
 
             $pdo = Database::connectWithSchema($schema);
             MigrationRuntime::ensureUpToDate($pdo, __DIR__ . '/../migrations', 'schema:' . $schema);
+
+            if ($isMcpOrOAuth) {
+                $request = $request->withAttribute('pdo', $pdo);
+                return $handler->handle($request);
+            }
 
             $nginxService = new NginxService();
             $tenantService = new TenantService($base, null, $nginxService);
