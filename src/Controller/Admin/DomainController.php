@@ -85,31 +85,32 @@ class DomainController
         $namespace = array_key_exists('namespace', $data) ? (string) $data['namespace'] : null;
         $isActive = $this->normalizeBool($data['is_active'] ?? true);
 
-        $provider = null;
-        if ($isActive) {
-            try {
-                $provider = AcmeDnsProvider::fromEnv();
-            } catch (InvalidArgumentException $exception) {
-                return $this->jsonError($response, $exception->getMessage(), 422);
-            }
-        }
-
         try {
             $domain = $this->domainService->createDomain($host, $label, $namespace, $isActive);
         } catch (InvalidArgumentException $exception) {
             return $this->jsonError($response, $exception->getMessage(), 422);
         }
 
+        $warning = null;
         if ($domain['is_active']) {
-            $this->queueZone($domain['zone'], $provider);
-            $this->dispatchWildcardJobs();
-            $this->clearMarketingDomainCache();
+            try {
+                $provider = AcmeDnsProvider::fromEnv();
+                $this->queueZone($domain['zone'], $provider);
+                $this->dispatchWildcardJobs();
+                $this->clearMarketingDomainCache();
+            } catch (InvalidArgumentException $exception) {
+                $warning = $exception->getMessage();
+            }
         }
 
-        $response->getBody()->write(json_encode([
+        $payload = [
             'status' => 'ok',
             'domain' => $domain,
-        ]));
+        ];
+        if ($warning !== null) {
+            $payload['warning'] = $warning;
+        }
+        $response->getBody()->write(json_encode($payload));
 
         return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
     }
@@ -136,16 +137,6 @@ class DomainController
             return $response->withStatus(404);
         }
 
-        $provider = null;
-        $shouldActivate = !$existing['is_active'] && $isActive;
-        if ($shouldActivate) {
-            try {
-                $provider = AcmeDnsProvider::fromEnv();
-            } catch (InvalidArgumentException $exception) {
-                return $this->jsonError($response, $exception->getMessage(), 422);
-            }
-        }
-
         try {
             $domain = $this->domainService->updateDomain($id, $host, $label, $namespace, $isActive);
         } catch (InvalidArgumentException $exception) {
@@ -156,10 +147,17 @@ class DomainController
             return $response->withStatus(404);
         }
 
+        $warning = null;
+        $shouldActivate = !$existing['is_active'] && $isActive;
         if ($shouldActivate && $domain['is_active']) {
-            $this->queueZone($domain['zone'], $provider);
-            $this->dispatchWildcardJobs();
-            $this->clearMarketingDomainCache();
+            try {
+                $provider = AcmeDnsProvider::fromEnv();
+                $this->queueZone($domain['zone'], $provider);
+                $this->dispatchWildcardJobs();
+                $this->clearMarketingDomainCache();
+            } catch (InvalidArgumentException $exception) {
+                $warning = $exception->getMessage();
+            }
         }
 
         $zoneRemoved = false;
@@ -172,10 +170,14 @@ class DomainController
             $this->clearMarketingDomainCache();
         }
 
-        $response->getBody()->write(json_encode([
+        $payload = [
             'status' => 'ok',
             'domain' => $domain,
-        ]));
+        ];
+        if ($warning !== null) {
+            $payload['warning'] = $warning;
+        }
+        $response->getBody()->write(json_encode($payload));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
