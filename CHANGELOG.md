@@ -643,6 +643,7 @@
 - Resolve merge conflict in MCP scope mapping
 - *(mcp)* Add missing CORS headers and OAuth scopes for Claude.ai connector
 - *(domains)* Save domain before validating ACME DNS provider
+- *(mcp)* Bypass domain resolution and service init for MCP/OAuth endpoints
 
 ### Merge
 
