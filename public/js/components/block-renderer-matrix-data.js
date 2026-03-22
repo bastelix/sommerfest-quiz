@@ -2507,7 +2507,10 @@ function renderStatStripTrustBar(block, options = {}) {
 }
 
 function renderStatStripTrustBand(block, options = {}) {
-  const items = Array.isArray(block.data?.items) ? block.data.items : [];
+  let items = Array.isArray(block.data?.items) ? block.data.items : [];
+  if (!items.length && Array.isArray(block.data?.metrics) && block.data.metrics.length) {
+    items = block.data.metrics.map(m => ({ icon: m.icon || 'check', label: m.label || '' }));
+  }
   if (!items.length) {
     return renderSection({ block, variant: 'trust_band', content: '<!-- trust_band: no items -->' });
   }
