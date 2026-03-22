@@ -23,6 +23,7 @@ final class OAuthController
         'footer:read', 'footer:write',
         'quiz:read', 'quiz:write',
         'backup:read', 'backup:write',
+        'design:read', 'design:write',
     ];
 
     private const SCOPE_DETAILS = [
@@ -90,6 +91,16 @@ final class OAuthController
             'label' => 'Backup (write)',
             'description' => 'Import and restore a namespace from a backup JSON',
             'tools' => ['import_namespace'],
+        ],
+        'design:read' => [
+            'label' => 'Design (read)',
+            'description' => 'Read design tokens, custom CSS, available presets, and design schema',
+            'tools' => ['get_design_tokens', 'get_custom_css', 'list_design_presets', 'get_design_schema'],
+        ],
+        'design:write' => [
+            'label' => 'Design (write)',
+            'description' => 'Update design tokens and custom CSS, import presets, and reset design',
+            'tools' => ['update_design_tokens', 'update_custom_css', 'import_design_preset', 'reset_design'],
         ],
     ];
 
