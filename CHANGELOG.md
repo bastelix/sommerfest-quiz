@@ -663,6 +663,7 @@
 - *(cms)* Link eforms english page variant and remove test page
 - *(stat_strip)* Migrate data when switching to/from trust_band variant
 - *(design)* Increase specificity of hero/highlight button selectors
+- *(ci)* Prune stale remote refs before fetch in deploy script
 
 ### Merge
 
