@@ -47,6 +47,7 @@ final class CmsPageRouteResolver
         if ($namespace === '') {
             $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         }
+        // 1. Try hardcoded slug map
         $contentSlug = MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
 
         $pdo = \App\Support\RequestDatabase::resolve($request);
@@ -57,11 +58,30 @@ final class CmsPageRouteResolver
             $page = $pages->findByKey($namespace, $slug);
         }
 
+        // 2. Try dynamic DB resolution via base_slug column
+        if ($page === null || ($contentSlug === $slug && $locale !== '' && $locale !== 'de')) {
+            $dbSlug = MarketingSlugResolver::resolveFromDatabase($pdo, $namespace, $slug, $locale);
+            if ($dbSlug !== null) {
+                $dbPage = $pages->findByKey($namespace, $dbSlug);
+                if ($dbPage !== null) {
+                    $page = $dbPage;
+                }
+            }
+        }
+
+        // 3. Fallback to default namespace
         if ($page === null && $namespace !== PageService::DEFAULT_NAMESPACE) {
             $fallbackNamespace = PageService::DEFAULT_NAMESPACE;
             $page = $pages->findByKey($fallbackNamespace, $contentSlug);
             if ($page === null && $contentSlug !== $slug) {
                 $page = $pages->findByKey($fallbackNamespace, $slug);
+            }
+            // Also try dynamic DB resolution in default namespace
+            if ($page === null && $locale !== '' && $locale !== 'de') {
+                $dbSlug = MarketingSlugResolver::resolveFromDatabase($pdo, $fallbackNamespace, $slug, $locale);
+                if ($dbSlug !== null) {
+                    $page = $pages->findByKey($fallbackNamespace, $dbSlug);
+                }
             }
         }
 

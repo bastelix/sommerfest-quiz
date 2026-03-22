@@ -58,6 +58,7 @@ final class NamespacePageController
                 'status' => $page->getStatus(),
                 'type' => $page->getType(),
                 'language' => $page->getLanguage(),
+                'base_slug' => $page->getBaseSlug(),
             ];
         }
 
@@ -184,9 +185,12 @@ final class NamespacePageController
             return $this->json($response, ['error' => 'encode_failed'], 500);
         }
 
+        $language = isset($payload['language']) && is_string($payload['language']) ? trim($payload['language']) : null;
+        $payloadBaseSlug = isset($payload['base_slug']) && is_string($payload['base_slug']) ? trim($payload['base_slug']) : null;
+
         if ($existing === null) {
             // Title is required for create(). API is blocks-first: use slug as safe default.
-            $pages->create($ns, $slug, $slug, $contentJson, 'api:v1');
+            $pages->create($ns, $slug, $slug, $contentJson, 'api:v1', $language, $payloadBaseSlug);
         } else {
             $pages->save($ns, $slug, $contentJson);
         }
@@ -198,8 +202,8 @@ final class NamespacePageController
 
         $pageId = $page->getId();
 
-        // Optional: page status/title updates (public renderer hides draft pages)
-        if (array_key_exists('status', $payload) || array_key_exists('title', $payload)) {
+        // Optional: page status/title/language/base_slug updates
+        if (array_key_exists('status', $payload) || array_key_exists('title', $payload) || $language !== null || $payloadBaseSlug !== null) {
             $allowedStatus = ['draft', 'published'];
             $newStatus = null;
             if (array_key_exists('status', $payload)) {
@@ -228,7 +232,7 @@ final class NamespacePageController
                 }
             }
 
-            if ($newStatus !== null || $newTitle !== null) {
+            if ($newStatus !== null || $newTitle !== null || $language !== null || $payloadBaseSlug !== null) {
                 $fields = [];
                 $params = [];
                 if ($newStatus !== null) {
@@ -239,13 +243,21 @@ final class NamespacePageController
                     $fields[] = 'title = ?';
                     $params[] = $newTitle;
                 }
-                $fields[] = 'updated_at = CURRENT_TIMESTAMP';
-
-                $params[] = $ns;
-                $params[] = $slug;
-
-                $stmt = $pdo->prepare('UPDATE pages SET ' . implode(', ', $fields) . ' WHERE namespace = ? AND slug = ?');
-                $stmt->execute($params);
+                if ($language !== null && $language !== '') {
+                    $fields[] = 'language = ?';
+                    $params[] = $language;
+                }
+                if ($payloadBaseSlug !== null && $payloadBaseSlug !== '') {
+                    $fields[] = 'base_slug = ?';
+                    $params[] = $payloadBaseSlug;
+                }
+                if ($fields !== []) {
+                    $fields[] = 'updated_at = CURRENT_TIMESTAMP';
+                    $params[] = $ns;
+                    $params[] = $slug;
+                    $stmt = $pdo->prepare('UPDATE pages SET ' . implode(', ', $fields) . ' WHERE namespace = ? AND slug = ?');
+                    $stmt->execute($params);
+                }
             }
         }
 
