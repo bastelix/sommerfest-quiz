@@ -664,6 +664,7 @@
 - *(stat_strip)* Migrate data when switching to/from trust_band variant
 - *(design)* Increase specificity of hero/highlight button selectors
 - *(ci)* Prune stale remote refs before fetch in deploy script
+- *(editor)* Render custom icons in icon picker via programmatic API
 
 ### Merge
 
