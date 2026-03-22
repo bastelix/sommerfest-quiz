@@ -666,6 +666,7 @@
 - *(design)* Increase specificity of hero/highlight button selectors
 - *(ci)* Prune stale remote refs before fetch in deploy script
 - *(editor)* Render custom icons in icon picker via programmatic API
+- *(mcp)* Decode double-encoded unicode escape sequences in tool arguments
 
 ### Merge
 
