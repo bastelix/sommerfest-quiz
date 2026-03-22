@@ -649,6 +649,7 @@
 - Resolve PHPStan errors blocking Docker build
 - Add missing eforms design tokens based on aurora theme
 - Prevent duplicate nginx server blocks for marketing domains
+- *(mcp)* Remove unused promoted property in StylesheetTools
 
 ### Merge
 
