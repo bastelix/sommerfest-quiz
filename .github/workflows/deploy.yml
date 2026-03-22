@@ -17,6 +17,7 @@ jobs:
           script: |
             set -e
             cd /var/sommerfest-quiz
+            git remote prune origin
             git fetch origin main
             git reset --hard origin/main
             mkdir -p resources/fonts
