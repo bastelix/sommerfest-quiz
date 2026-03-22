@@ -382,6 +382,7 @@
 - *(i18n)* Add translations for cookie admin page
 - *(editor)* Add direct image upload to page editor block fields
 - *(mcp)* Add menu assignment tools for header/footer menu slot management
+- *(hero)* Add configurable media size for hero image area
 
 ### Fix
 
@@ -667,6 +668,7 @@
 - *(ci)* Prune stale remote refs before fetch in deploy script
 - *(editor)* Render custom icons in icon picker via programmatic API
 - *(mcp)* Decode double-encoded unicode escape sequences in tool arguments
+- *(hero)* Resolve image from imageId when media.image is missing
 
 ### Merge
 
