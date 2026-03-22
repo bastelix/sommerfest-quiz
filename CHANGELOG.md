@@ -379,6 +379,7 @@
 - *(mcp)* Register design:read and design:write OAuth scopes
 - *(cms)* Add dynamic language variant resolution via base_slug column
 - *(mcp)* Add seo parameter to upsert_page tool
+- *(i18n)* Add translations for cookie admin page
 
 ### Fix
 
@@ -659,6 +660,7 @@
 - *(mcp)* Clarify upsert_page description — seo lives in meta.seo, not as separate param
 - *(preview)* Load default-theme.css and dark.css in editor preview
 - *(cms)* Link eforms english page variant and remove test page
+- *(stat_strip)* Migrate data when switching to/from trust_band variant
 
 ### Merge
 
