@@ -553,11 +553,16 @@ case "$ssl_bootstrap" in
         ;;
 esac
 
-# Write standalone nginx server blocks for marketing domains so that
-# requests are proxied even before docker-gen processes VIRTUAL_HOST.
-if [ -f scripts/sync_marketing_proxy.php ]; then
-    echo "Synchronising marketing domain proxy configs"
-    php scripts/sync_marketing_proxy.php || true
+# Remove stale marketing proxy configs from previous runs.
+# At startup docker-gen handles all domains via VIRTUAL_HOST so standalone
+# marketing_*.conf files would create duplicate server blocks and break TLS SNI.
+marketing_conf_dir="/etc/nginx/conf.d"
+if [ -d "$marketing_conf_dir" ]; then
+    stale=$(find "$marketing_conf_dir" -name 'marketing_*.conf' 2>/dev/null | wc -l)
+    if [ "$stale" -gt 0 ]; then
+        rm -f "$marketing_conf_dir"/marketing_*.conf
+        echo "Removed $stale stale marketing proxy config(s)"
+    fi
 fi
 
 exec $@
