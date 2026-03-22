@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Mcp;
 
 use App\Service\CmsMenuDefinitionService;
+use App\Service\CmsMenuResolverService;
 use App\Service\CmsPageMenuService;
 use PDO;
 
@@ -153,6 +154,69 @@ final class MenuTools
                         'itemId' => ['type' => 'integer', 'description' => 'ID of the menu item to delete'],
                     ],
                     'required' => ['itemId'],
+                ],
+            ],
+            [
+                'name' => 'list_menu_assignments',
+                'method' => 'listMenuAssignments',
+                'description' => 'List menu-to-slot assignments for a namespace. Slots control where a menu appears: "main" = header navigation, "footer_1"/"footer_2"/"footer_3" = footer columns.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                        'slot' => ['type' => 'string', 'description' => 'Filter by slot (main, footer_1, footer_2, footer_3)'],
+                        'locale' => ['type' => 'string', 'description' => 'Filter by locale (e.g. de, en)'],
+                        'menuId' => ['type' => 'integer', 'description' => 'Filter by menu ID'],
+                        'pageId' => ['type' => 'integer', 'description' => 'Filter by page ID (null = global assignment)'],
+                    ],
+                ],
+            ],
+            [
+                'name' => 'create_menu_assignment',
+                'method' => 'createMenuAssignment',
+                'description' => 'Assign a menu to a slot. Use slot "main" to set the header/navigation menu. Use pageId to override the menu for a specific page, or omit it for a global (namespace-wide) assignment.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                        'menuId' => ['type' => 'integer', 'description' => 'ID of the menu to assign'],
+                        'slot' => ['type' => 'string', 'description' => 'Target slot: main, footer_1, footer_2, or footer_3'],
+                        'locale' => ['type' => 'string', 'description' => 'Locale for this assignment (default: de)'],
+                        'pageId' => ['type' => 'integer', 'description' => 'Optional page ID for page-specific override (omit for global)'],
+                        'isActive' => ['type' => 'boolean', 'description' => 'Whether the assignment is active (default true)'],
+                    ],
+                    'required' => ['menuId', 'slot'],
+                ],
+            ],
+            [
+                'name' => 'update_menu_assignment',
+                'method' => 'updateMenuAssignment',
+                'description' => 'Update an existing menu assignment.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                        'assignmentId' => ['type' => 'integer', 'description' => 'ID of the assignment to update'],
+                        'menuId' => ['type' => 'integer', 'description' => 'New menu ID'],
+                        'slot' => ['type' => 'string', 'description' => 'New slot: main, footer_1, footer_2, or footer_3'],
+                        'locale' => ['type' => 'string', 'description' => 'New locale'],
+                        'pageId' => ['type' => 'integer', 'description' => 'New page ID (null for global)'],
+                        'isActive' => ['type' => 'boolean', 'description' => 'Whether the assignment is active'],
+                    ],
+                    'required' => ['assignmentId', 'menuId', 'slot'],
+                ],
+            ],
+            [
+                'name' => 'delete_menu_assignment',
+                'method' => 'deleteMenuAssignment',
+                'description' => 'Delete a menu assignment by ID.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                        'assignmentId' => ['type' => 'integer', 'description' => 'ID of the assignment to delete'],
+                    ],
+                    'required' => ['assignmentId'],
                 ],
             ],
         ];
@@ -357,6 +421,128 @@ final class MenuTools
         }
 
         $this->menuItems->deleteMenuItem($itemId);
+        return ['status' => 'deleted'];
+    }
+
+    private function allowedSlots(): array
+    {
+        return array_merge([CmsMenuResolverService::SLOT_MAIN], CmsMenuResolverService::FOOTER_SLOTS);
+    }
+
+    private function serializeAssignment(\App\Domain\CmsMenuAssignment $assignment): array
+    {
+        return [
+            'id' => $assignment->getId(),
+            'menuId' => $assignment->getMenuId(),
+            'pageId' => $assignment->getPageId(),
+            'namespace' => $assignment->getNamespace(),
+            'slot' => $assignment->getSlot(),
+            'locale' => $assignment->getLocale(),
+            'isActive' => $assignment->isActive(),
+            'updatedAt' => $assignment->getUpdatedAt()?->format(\DATE_ATOM),
+        ];
+    }
+
+    public function listMenuAssignments(array $args): array
+    {
+        $ns = $this->resolveNamespace($args);
+
+        $menuId = isset($args['menuId']) ? (int) $args['menuId'] : null;
+        $pageId = isset($args['pageId']) ? (int) $args['pageId'] : null;
+        $slot = isset($args['slot']) && is_string($args['slot']) ? strtolower(trim($args['slot'])) : null;
+        $locale = isset($args['locale']) && is_string($args['locale']) ? strtolower(trim($args['locale'])) : null;
+
+        if ($slot !== null && $slot !== '' && !in_array($slot, $this->allowedSlots(), true)) {
+            throw new \InvalidArgumentException('Invalid slot. Allowed: ' . implode(', ', $this->allowedSlots()));
+        }
+
+        $assignments = $this->menus->listAssignments(
+            $ns,
+            $menuId > 0 ? $menuId : null,
+            $pageId > 0 ? $pageId : null,
+            $slot !== '' ? $slot : null,
+            $locale !== '' ? $locale : null,
+            false
+        );
+
+        $out = [];
+        foreach ($assignments as $assignment) {
+            $out[] = $this->serializeAssignment($assignment);
+        }
+
+        return ['namespace' => $ns, 'assignments' => $out];
+    }
+
+    public function createMenuAssignment(array $args): array
+    {
+        $ns = $this->resolveNamespace($args);
+
+        $menuId = isset($args['menuId']) ? (int) $args['menuId'] : 0;
+        if ($menuId <= 0) {
+            throw new \InvalidArgumentException('menuId is required');
+        }
+
+        $slot = isset($args['slot']) && is_string($args['slot']) ? strtolower(trim($args['slot'])) : '';
+        if ($slot === '' || !in_array($slot, $this->allowedSlots(), true)) {
+            throw new \InvalidArgumentException('slot is required. Allowed: ' . implode(', ', $this->allowedSlots()));
+        }
+
+        $locale = isset($args['locale']) && is_string($args['locale']) ? strtolower(trim($args['locale'])) : null;
+        $pageId = isset($args['pageId']) ? (int) $args['pageId'] : null;
+        if ($pageId !== null && $pageId <= 0) {
+            $pageId = null;
+        }
+        $isActive = isset($args['isActive']) ? (bool) $args['isActive'] : true;
+
+        $assignment = $this->menus->createAssignment($ns, $menuId, $pageId, $slot, $locale, $isActive);
+
+        return ['status' => 'created', 'assignment' => $this->serializeAssignment($assignment)];
+    }
+
+    public function updateMenuAssignment(array $args): array
+    {
+        $ns = $this->resolveNamespace($args);
+
+        $assignmentId = isset($args['assignmentId']) ? (int) $args['assignmentId'] : 0;
+        if ($assignmentId <= 0) {
+            throw new \InvalidArgumentException('assignmentId is required');
+        }
+
+        $menuId = isset($args['menuId']) ? (int) $args['menuId'] : 0;
+        if ($menuId <= 0) {
+            throw new \InvalidArgumentException('menuId is required');
+        }
+
+        $slot = isset($args['slot']) && is_string($args['slot']) ? strtolower(trim($args['slot'])) : '';
+        if ($slot === '' || !in_array($slot, $this->allowedSlots(), true)) {
+            throw new \InvalidArgumentException('slot is required. Allowed: ' . implode(', ', $this->allowedSlots()));
+        }
+
+        $locale = isset($args['locale']) && is_string($args['locale']) ? strtolower(trim($args['locale'])) : null;
+        $pageId = isset($args['pageId']) ? (int) $args['pageId'] : null;
+        if ($pageId !== null && $pageId <= 0) {
+            $pageId = null;
+        }
+        $isActive = isset($args['isActive']) ? (bool) $args['isActive'] : true;
+
+        $assignment = $this->menus->updateAssignment($ns, $assignmentId, $menuId, $pageId, $slot, $locale, $isActive);
+
+        return ['status' => 'updated', 'assignment' => $this->serializeAssignment($assignment)];
+    }
+
+    public function deleteMenuAssignment(array $args): array
+    {
+        $ns = $this->resolveNamespace($args);
+
+        $assignmentId = isset($args['assignmentId']) ? (int) $args['assignmentId'] : 0;
+        if ($assignmentId <= 0) {
+            throw new \InvalidArgumentException('assignmentId is required');
+        }
+
+        if (!$this->menus->deleteAssignment($ns, $assignmentId)) {
+            throw new \InvalidArgumentException('Menu assignment not found');
+        }
+
         return ['status' => 'deleted'];
     }
 }
