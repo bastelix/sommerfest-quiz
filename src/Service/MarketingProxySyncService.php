@@ -47,6 +47,15 @@ final class MarketingProxySyncService
     public function sync(): array
     {
         $domains = $this->loadActiveDomains();
+        $virtualHosts = $this->getVirtualHosts();
+
+        // Skip domains that docker-gen already handles via VIRTUAL_HOST to
+        // avoid duplicate server blocks which break TLS SNI resolution.
+        $domains = array_values(array_filter(
+            $domains,
+            static fn (string $h): bool => !isset($virtualHosts[$h])
+        ));
+
         $written = 0;
         $activeFiles = [];
 
@@ -88,6 +97,13 @@ final class MarketingProxySyncService
      */
     public function syncDomain(string $host): bool
     {
+        $normalizedHost = strtolower(trim($host));
+        $virtualHosts = $this->getVirtualHosts();
+        if (isset($virtualHosts[$normalizedHost])) {
+            // docker-gen already handles this domain; skip to avoid duplicates.
+            return true;
+        }
+
         $safeHost = $this->sanitiseHostForFilename($host);
         if ($safeHost === '') {
             return false;
@@ -126,6 +142,30 @@ final class MarketingProxySyncService
         @unlink($file);
 
         return $this->triggerNginxReload();
+    }
+
+    /**
+     * Parse the VIRTUAL_HOST env var to determine which domains docker-gen
+     * already handles.  Regex entries (prefixed with ~) are ignored.
+     *
+     * @return array<string, true>
+     */
+    private function getVirtualHosts(): array
+    {
+        $raw = getenv('VIRTUAL_HOST');
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+
+        $hosts = [];
+        foreach (explode(',', $raw) as $entry) {
+            $entry = strtolower(trim($entry));
+            if ($entry !== '' && !str_starts_with($entry, '~')) {
+                $hosts[$entry] = true;
+            }
+        }
+
+        return $hosts;
     }
 
     /**
