@@ -377,6 +377,7 @@
 - Auto-expose marketing domains to nginx reverse proxy
 - *(mcp)* Add stylesheet API for AI-driven design management
 - *(mcp)* Register design:read and design:write OAuth scopes
+- *(cms)* Add dynamic language variant resolution via base_slug column
 
 ### Fix
 
