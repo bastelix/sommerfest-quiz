@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service\Mcp;
 
+use App\Application\Seo\PageSeoConfigService;
+use App\Domain\PageSeoConfig;
 use App\Service\BlockContractSchemaValidator;
 use App\Service\PageBlockContractMigrator;
 use App\Service\PageService;
@@ -66,16 +68,17 @@ final class PageTools
             [
                 'name' => 'upsert_page',
                 'method' => 'upsertPage',
-                'description' => 'Create or update a page. Provide slug and blocks (array of block objects). Optionally set title, status (draft/published), meta (including seo as meta.seo), language, and base_slug. IMPORTANT: Call get_block_contract first to learn the required block structure. On validation failure, detailed field-level errors are returned.',
+                'description' => 'Create or update a page. Provide slug and blocks (array of block objects). Optionally set title, status (draft/published), meta, seo (separate SEO config with metaTitle, metaDescription, ogTitle, etc.), language, and base_slug. IMPORTANT: Call get_block_contract first to learn the required block structure. On validation failure, detailed field-level errors are returned.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'slug' => ['type' => 'string', 'description' => 'Page slug (URL path segment)'],
                         'blocks' => ['type' => 'array', 'description' => 'Array of block objects for the page content'],
-                        'meta' => ['type' => 'object', 'description' => 'Optional page metadata (e.g. meta.seo for SEO config: {title, description, ogTitle, ogDescription, ogImage})'],
+                        'meta' => ['type' => 'object', 'description' => 'Optional page metadata stored inline in the page content JSON'],
                         'title' => ['type' => 'string', 'description' => 'Optional page title'],
                         'status' => ['type' => 'string', 'enum' => ['draft', 'published'], 'description' => 'Optional page status'],
+                        'seo' => ['type' => 'object', 'description' => 'SEO configuration saved to the dedicated SEO table. Supported fields: metaTitle, metaDescription, canonicalUrl, robotsMeta, ogTitle, ogDescription, ogImage, schemaJson, hreflang, domain, faviconPath'],
                         'language' => ['type' => 'string', 'enum' => ['de', 'en'], 'description' => 'Page language for variant resolution (de or en)'],
                         'base_slug' => ['type' => 'string', 'description' => 'Base slug of the primary (German) page this is a language variant of'],
                     ],
@@ -327,10 +330,32 @@ final class PageTools
             }
         }
 
-        // Re-read page to get updated fields
+        // Re-read page to get updated fields (needed for pageId in SEO)
         $page = $this->pages->findByKey($ns, $slug);
         if ($page === null) {
             throw new \RuntimeException('Page not found after upsert');
+        }
+
+        // Optional: SEO config (stored in dedicated seo table)
+        if (isset($args['seo']) && is_array($args['seo'])) {
+            $s = $args['seo'];
+            $seoService = new PageSeoConfigService($this->pdo);
+            $cfg = new PageSeoConfig(
+                $page->getId(),
+                is_string($s['slug'] ?? null) ? (string) $s['slug'] : $slug,
+                is_string($s['metaTitle'] ?? null) ? $s['metaTitle'] : null,
+                is_string($s['metaDescription'] ?? null) ? $s['metaDescription'] : null,
+                is_string($s['canonicalUrl'] ?? null) ? $s['canonicalUrl'] : null,
+                is_string($s['robotsMeta'] ?? null) ? $s['robotsMeta'] : null,
+                is_string($s['ogTitle'] ?? null) ? $s['ogTitle'] : null,
+                is_string($s['ogDescription'] ?? null) ? $s['ogDescription'] : null,
+                is_string($s['ogImage'] ?? null) ? $s['ogImage'] : null,
+                is_string($s['schemaJson'] ?? null) ? $s['schemaJson'] : null,
+                is_string($s['hreflang'] ?? null) ? $s['hreflang'] : null,
+                is_string($s['domain'] ?? null) ? $s['domain'] : null,
+                is_string($s['faviconPath'] ?? null) ? $s['faviconPath'] : null,
+            );
+            $seoService->save($cfg);
         }
 
         return [
