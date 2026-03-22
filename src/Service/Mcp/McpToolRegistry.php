@@ -43,6 +43,7 @@ final class McpToolRegistry
         }
 
         try {
+            $arguments = $this->decodeArguments($arguments);
             $result = ($this->tools[$name]['handler'])($arguments);
             return [
                 'content' => [['type' => 'text', 'text' => json_encode($result, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)]],
@@ -153,6 +154,36 @@ final class McpToolRegistry
                 ],
             ];
         }
+    }
+
+    /**
+     * Recursively decode JSON Unicode escape sequences in all string values.
+     */
+    private function decodeArguments(mixed $data): mixed
+    {
+        if (is_string($data)) {
+            return $this->decodeUnicodeEscapes($data);
+        }
+
+        if (is_array($data)) {
+            return array_map(fn(mixed $item): mixed => $this->decodeArguments($item), $data);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Decode literal \uXXXX sequences that survived JSON parsing (double-encoded).
+     */
+    private function decodeUnicodeEscapes(string $value): string
+    {
+        if (strpos($value, '\\u') === false) {
+            return $value;
+        }
+
+        return preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function (array $matches): string {
+            return mb_convert_encoding(pack('H*', $matches[1]), 'UTF-8', 'UCS-2BE');
+        }, $value);
     }
 
     public function listNamespaces(array $args): array
