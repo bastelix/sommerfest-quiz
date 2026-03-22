@@ -29,10 +29,14 @@
 /* ── Hero section (gradient, compact padding) ── */
 .default-theme .section[data-section-intent="hero"] {
   background: linear-gradient(170deg, var(--dt-hero-bg-start) 0%, var(--dt-hero-bg-end) 100%) !important;
+  --section-surface: var(--dt-hero-bg-start);
+  --section-bg-color: var(--dt-hero-bg-start);
+  --section-text-color: #ffffff;
   --section-padding-outer: clamp(20px, 3vw, 40px);
   --section-padding-inner: clamp(16px, 2.5vw, 28px);
   padding-top: clamp(20px, 3vw, 40px);
   padding-bottom: clamp(20px, 3vw, 40px);
+  color: #ffffff;
 }
 .default-theme .section[data-section-intent="hero"].section--full .section__inner {
   padding: clamp(16px, 2.5vw, 28px);
@@ -71,8 +75,11 @@
   color: rgba(255, 255, 255, 0.65) !important;
 }
 
-/* Hero CTA buttons */
-.default-theme .section[data-section-intent="hero"] .uk-button-primary {
+/* Hero CTA buttons
+   Specificity must beat sections.css (0,7,0 + !important):
+   .section[hero] > .uk-container > .section__inner:not():not() .uk-button-primary
+   Our selectors use 0,8,0 + !important to win reliably. */
+.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-primary {
   background: var(--dt-cta-color) !important;
   color: #fff !important;
   border-color: var(--dt-cta-color) !important;
@@ -83,12 +90,13 @@
   line-height: 44px;
   height: 44px;
 }
-.default-theme .section[data-section-intent="hero"] .uk-button-primary:hover {
+.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-primary:hover {
   background: var(--dt-cta-hover) !important;
 }
-.default-theme .section[data-section-intent="hero"] .uk-button-default {
-  color: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 255, 255, 0.25);
+.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-default {
+  color: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
   border-radius: 100px;
   padding: 0 2.2rem;
   font-weight: 600;
@@ -96,8 +104,8 @@
   line-height: 44px;
   height: 44px;
 }
-.default-theme .section[data-section-intent="hero"] .uk-button-default:hover {
-  background: rgba(255, 255, 255, 0.1);
+.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-default:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
   color: #fff;
 }
 /* Hero CTA group spacing */
@@ -223,6 +231,10 @@
 /* ── CTA section (highlight intent – gradient) ── */
 .default-theme .section[data-section-intent="highlight"] {
   background: linear-gradient(170deg, var(--dt-hero-bg-start) 0%, var(--dt-hero-bg-end) 100%) !important;
+  --section-surface: var(--dt-hero-bg-start);
+  --section-bg-color: var(--dt-hero-bg-start);
+  --section-text-color: #ffffff;
+  color: #ffffff;
 }
 .default-theme .section[data-section-intent="highlight"] .uk-heading-medium {
   color: #fff;
@@ -231,7 +243,7 @@
 .default-theme .section[data-section-intent="highlight"] .uk-text-lead {
   color: rgba(255, 255, 255, 0.85);
 }
-.default-theme .section[data-section-intent="highlight"] .uk-button-primary {
+.default-theme .section[data-section-intent="highlight"] > .uk-container > .section__inner .uk-button-primary {
   background: var(--dt-cta-color) !important;
   color: #fff !important;
   border-color: var(--dt-cta-color) !important;
@@ -239,18 +251,19 @@
   padding: 0 2rem;
   font-weight: 600;
 }
-.default-theme .section[data-section-intent="highlight"] .uk-button-primary:hover {
+.default-theme .section[data-section-intent="highlight"] > .uk-container > .section__inner .uk-button-primary:hover {
   background: var(--dt-cta-hover) !important;
 }
-.default-theme .section[data-section-intent="highlight"] .uk-button-default {
-  color: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 255, 255, 0.25);
+.default-theme .section[data-section-intent="highlight"] > .uk-container > .section__inner .uk-button-default {
+  color: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
   border-radius: 100px;
   padding: 0 2rem;
   font-weight: 600;
 }
-.default-theme .section[data-section-intent="highlight"] .uk-button-default:hover {
-  background: rgba(255, 255, 255, 0.1);
+.default-theme .section[data-section-intent="highlight"] > .uk-container > .section__inner .uk-button-default:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
   color: #fff;
 }
 
