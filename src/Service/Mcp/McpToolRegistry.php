@@ -141,6 +141,18 @@ final class McpToolRegistry
                 ],
             ];
         }
+
+        $stylesheetTools = new StylesheetTools($this->pdo, $this->namespace);
+        foreach ($stylesheetTools->definitions() as $def) {
+            $this->tools[$def['name']] = [
+                'handler' => [$stylesheetTools, $def['method']],
+                'definition' => [
+                    'name' => $def['name'],
+                    'description' => $def['description'],
+                    'inputSchema' => $def['inputSchema'],
+                ],
+            ];
+        }
     }
 
     public function listNamespaces(array $args): array

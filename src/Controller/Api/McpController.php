@@ -174,6 +174,8 @@ final class McpController
             'upsert_catalog', 'submit_result' => 'quiz:write',
             'export_namespace' => 'backup:read',
             'import_namespace' => 'backup:write',
+            'get_design_tokens', 'get_custom_css', 'list_design_presets', 'get_design_schema' => 'design:read',
+            'update_design_tokens', 'update_custom_css', 'import_design_preset', 'reset_design' => 'design:write',
             default => null,
         };
     }
