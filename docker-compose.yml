@@ -107,9 +107,11 @@ services:
       # Mount custom PHP settings (overrides copy in Dockerfile)
       - ./config/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
       - /var/run/docker.sock:/var/run/docker.sock
-      # Share nginx conf.d so the app can write marketing domain server blocks at runtime
+      # Share nginx volumes so the app can write marketing domain server blocks,
+      # provision SSL certificates via acme.sh, and serve ACME HTTP-01 challenges.
       - confd:/etc/nginx/conf.d
       - certs:/etc/nginx/certs
+      - htmldata:/usr/share/nginx/html
     environment:
       - VIRTUAL_HOST=${SLIM_VIRTUAL_HOST:-${MAIN_DOMAIN:-${DOMAIN}}}
       - LETSENCRYPT_HOST=${SLIM_LETSENCRYPT_HOST:-${SLIM_VIRTUAL_HOST:-${MAIN_DOMAIN:-${DOMAIN}}}}

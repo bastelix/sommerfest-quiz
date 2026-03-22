@@ -516,25 +516,6 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
         echo "Bootstrapping admin user"
         php scripts/bootstrap_admin_user.php
     fi
-    # Expose active marketing domains from the domains table so that
-    # docker-gen creates nginx server blocks and acme-companion provisions
-    # SSL certificates for each custom domain.
-    echo "Loading marketing domains from database..."
-    marketing_hosts=$(psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -tAc \
-        "SELECT host FROM domains WHERE is_active = TRUE AND namespace IS NOT NULL" 2>/dev/null || true)
-    marketing_count=0
-    if [ -n "$marketing_hosts" ]; then
-        for mhost in $marketing_hosts; do
-            mhost=$(printf '%s' "$mhost" | tr -d '[:space:]')
-            if [ -z "$mhost" ]; then
-                continue
-            fi
-            append_proxy_host "$mhost"
-            marketing_count=$((marketing_count + 1))
-        done
-    fi
-    echo "Marketing domains loaded: $marketing_count host(s) added to VIRTUAL_HOST/LETSENCRYPT_HOST"
-
     unset PGPASSWORD
 fi
 
@@ -553,16 +534,13 @@ case "$ssl_bootstrap" in
         ;;
 esac
 
-# Remove stale marketing proxy configs from previous runs.
-# At startup docker-gen handles all domains via VIRTUAL_HOST so standalone
-# marketing_*.conf files would create duplicate server blocks and break TLS SNI.
-marketing_conf_dir="/etc/nginx/conf.d"
-if [ -d "$marketing_conf_dir" ]; then
-    stale=$(find "$marketing_conf_dir" -name 'marketing_*.conf' 2>/dev/null | wc -l)
-    if [ "$stale" -gt 0 ]; then
-        rm -f "$marketing_conf_dir"/marketing_*.conf
-        echo "Removed $stale stale marketing proxy config(s)"
-    fi
+# Write standalone nginx server blocks for marketing domains and provision
+# SSL certificates via acme.sh.  docker-gen only sees env vars from
+# docker-compose.yml (not entrypoint exports), so marketing domains that
+# live in the database need their own nginx configs and certs.
+if [ -f scripts/sync_marketing_proxy.php ]; then
+    echo "Synchronising marketing domain proxy configs and certificates"
+    php scripts/sync_marketing_proxy.php || true
 fi
 
 exec $@
