@@ -884,7 +884,7 @@ function renderHeroMedia(media) {
   }
   const altText = media.alt ? escapeAttribute(media.alt) : '';
   const size = MEDIA_SIZE_MAP[media?.mediaSize] || MEDIA_SIZE_MAP.medium;
-  return `<div class="uk-cover-container ${size.heightClass} uk-border-rounded uk-box-shadow-small"><img src="${escapeAttribute(imageSrc)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div>`;
+  return `<div uk-lightbox><a href="${escapeAttribute(imageSrc)}" data-alt="${altText}"><div class="uk-cover-container ${size.heightClass} uk-border-rounded uk-box-shadow-small" style="cursor:pointer"><img src="${escapeAttribute(imageSrc)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div></a></div>`;
 }
 
 function applyEmbedDefaults(url) {
