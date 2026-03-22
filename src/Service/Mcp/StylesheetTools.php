@@ -13,7 +13,7 @@ final class StylesheetTools
 
     private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
 
-    public function __construct(private readonly PDO $pdo, private readonly string $defaultNamespace)
+    public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->designTokens = new DesignTokenService($pdo);
     }
