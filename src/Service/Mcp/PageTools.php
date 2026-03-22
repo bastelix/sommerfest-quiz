@@ -76,6 +76,8 @@ final class PageTools
                         'meta' => ['type' => 'object', 'description' => 'Optional page metadata'],
                         'title' => ['type' => 'string', 'description' => 'Optional page title'],
                         'status' => ['type' => 'string', 'enum' => ['draft', 'published'], 'description' => 'Optional page status'],
+                        'language' => ['type' => 'string', 'enum' => ['de', 'en'], 'description' => 'Page language for variant resolution (de or en)'],
+                        'base_slug' => ['type' => 'string', 'description' => 'Base slug of the primary (German) page this is a language variant of'],
                     ],
                     'required' => ['slug', 'blocks'],
                 ],
@@ -96,6 +98,7 @@ final class PageTools
                 'status' => $page->getStatus(),
                 'type' => $page->getType(),
                 'language' => $page->getLanguage(),
+                'base_slug' => $page->getBaseSlug(),
             ];
         }
         return ['namespace' => $ns, 'pages' => $items];
@@ -274,21 +277,20 @@ final class PageTools
             throw new \RuntimeException('Failed to encode content');
         }
 
+        $language = isset($args['language']) && is_string($args['language']) ? trim($args['language']) : null;
+        $baseSlug = isset($args['base_slug']) && is_string($args['base_slug']) ? trim($args['base_slug']) : null;
+
         $existing = $this->pages->findByKey($ns, $slug);
         if ($existing === null) {
             $title = isset($args['title']) && is_string($args['title']) ? trim($args['title']) : $slug;
-            $this->pages->create($ns, $slug, $title, $contentJson, 'mcp');
+            $this->pages->create($ns, $slug, $title, $contentJson, 'mcp', $language, $baseSlug);
         } else {
             $this->pages->save($ns, $slug, $contentJson);
         }
 
-        $page = $this->pages->findByKey($ns, $slug);
-        if ($page === null) {
-            throw new \RuntimeException('Page not found after upsert');
-        }
-
-        // Update status/title if provided
-        if (isset($args['status']) || isset($args['title'])) {
+        // Update status/title/language/base_slug if provided
+        $hasUpdatableFields = isset($args['status']) || isset($args['title']) || $language !== null || $baseSlug !== null;
+        if ($hasUpdatableFields) {
             $fields = [];
             $params = [];
 
@@ -306,6 +308,16 @@ final class PageTools
                 $params[] = trim($args['title']);
             }
 
+            if ($language !== null && $language !== '') {
+                $fields[] = 'language = ?';
+                $params[] = $language;
+            }
+
+            if ($baseSlug !== null && $baseSlug !== '') {
+                $fields[] = 'base_slug = ?';
+                $params[] = $baseSlug;
+            }
+
             if ($fields !== []) {
                 $fields[] = 'updated_at = CURRENT_TIMESTAMP';
                 $params[] = $ns;
@@ -315,11 +327,19 @@ final class PageTools
             }
         }
 
+        // Re-read page to get updated fields
+        $page = $this->pages->findByKey($ns, $slug);
+        if ($page === null) {
+            throw new \RuntimeException('Page not found after upsert');
+        }
+
         return [
             'status' => 'ok',
             'namespace' => $ns,
             'slug' => $slug,
             'pageId' => $page->getId(),
+            'language' => $page->getLanguage(),
+            'base_slug' => $page->getBaseSlug(),
         ];
     }
 }

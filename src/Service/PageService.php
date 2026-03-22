@@ -87,7 +87,9 @@ class PageService
         string $slug,
         string $title,
         string $content,
-        ?string $contentSource = null
+        ?string $contentSource = null,
+        ?string $language = null,
+        ?string $baseSlug = null
     ): Page {
         $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
         $this->assertValidNamespace($normalizedNamespace);
@@ -115,11 +117,13 @@ class PageService
         }
 
         $normalizedContentSource = $this->normalizeContentSourceInput($contentSource);
+        $normalizedLanguage = $this->normalizeLocale($language);
+        $normalizedBaseSlug = ($baseSlug !== null && trim($baseSlug) !== '') ? trim($baseSlug) : null;
 
         $sortOrder = $this->getNextSortOrder($normalizedNamespace, null);
         $stmt = $this->pdo->prepare(
-            'INSERT INTO pages (namespace, slug, title, content, sort_order, content_source) '
-            . 'VALUES (?, ?, ?, ?, ?, ?)'
+            'INSERT INTO pages (namespace, slug, title, content, sort_order, content_source, language, base_slug) '
+            . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         try {
@@ -130,6 +134,8 @@ class PageService
                 $html,
                 $sortOrder,
                 $normalizedContentSource,
+                $normalizedLanguage,
+                $normalizedBaseSlug,
             ]);
         } catch (PDOException $exception) {
             throw new RuntimeException('Die Seite konnte nicht angelegt werden.', 0, $exception);
@@ -145,7 +151,7 @@ class PageService
      */
     public function getAll(): array {
         $stmt = $this->pdo->query(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages ORDER BY title'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -175,7 +181,7 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages WHERE namespace = ? ORDER BY title'
         );
         $stmt->execute([$normalized]);
@@ -213,7 +219,7 @@ class PageService
 
         $placeholders = implode(',', array_fill(0, count($normalizedNamespaces), '?'));
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
             . sprintf('FROM pages WHERE namespace IN (%s) ORDER BY title', $placeholders)
         );
         $stmt->execute($normalizedNamespaces);
@@ -238,7 +244,7 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages WHERE id = ?'
         );
         $stmt->execute([$id]);
@@ -262,10 +268,36 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages WHERE namespace = ? AND slug = ?'
         );
         $stmt->execute([$normalizedNamespace, $normalized]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->mapRowToPage($row);
+    }
+
+    /**
+     * Find a language variant of a page by its base slug and target language.
+     */
+    public function findLanguageVariant(string $namespace, string $baseSlug, string $language): ?Page
+    {
+        $normalizedNamespace = trim($namespace);
+        $normalizedBaseSlug = trim($baseSlug);
+        $normalizedLanguage = $this->normalizeLocale($language);
+
+        if ($normalizedNamespace === '' || $normalizedBaseSlug === '' || $normalizedLanguage === null) {
+            return null;
+        }
+
+        $stmt = $this->pdo->prepare(
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
+            . 'FROM pages WHERE namespace = ? AND base_slug = ? AND language = ? LIMIT 1'
+        );
+        $stmt->execute([$normalizedNamespace, $normalizedBaseSlug, $normalizedLanguage]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return null;
@@ -720,7 +752,7 @@ class PageService
      */
     public function getAllForTree(): array {
         $stmt = $this->pdo->query(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages ORDER BY namespace, parent_id, sort_order, title'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -760,6 +792,7 @@ class PageService
         $status = isset($row['status']) ? (string) $row['status'] : null;
         $language = isset($row['language']) ? (string) $row['language'] : null;
         $contentSource = isset($row['content_source']) ? (string) $row['content_source'] : null;
+        $baseSlug = isset($row['base_slug']) ? (string) $row['base_slug'] : null;
         $startpageDomain = isset($row['startpage_domain']) ? (string) $row['startpage_domain'] : null;
         $isStartpage = isset($row['is_startpage']) ? (bool) $row['is_startpage'] : false;
 
@@ -774,6 +807,9 @@ class PageService
         }
         if ($contentSource === '') {
             $contentSource = null;
+        }
+        if ($baseSlug !== null && trim($baseSlug) === '') {
+            $baseSlug = null;
         }
         if ($startpageDomain !== null && trim($startpageDomain) === '') {
             $startpageDomain = null;
@@ -792,6 +828,7 @@ class PageService
             $status,
             $language,
             $contentSource,
+            $baseSlug,
             $startpageDomain,
             $isStartpage
         );
