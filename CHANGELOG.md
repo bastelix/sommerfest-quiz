@@ -651,6 +651,7 @@
 - Prevent duplicate nginx server blocks for marketing domains
 - *(mcp)* Remove unused promoted property in StylesheetTools
 - Remove unused PDO property promotion in StylesheetTools
+- Use standalone nginx configs with acme.sh for custom domains
 
 ### Merge
 
