@@ -871,11 +871,12 @@ function renderSubheadline(block, alignmentClass = '', context = 'frontend') {
 }
 
 function renderHeroMedia(media) {
-  if (!media || !media.image) {
+  const imageSrc = media?.image || resolveBackgroundImage(media?.imageId);
+  if (!imageSrc) {
     return '';
   }
   const altText = media.alt ? escapeAttribute(media.alt) : '';
-  return `<div class="uk-cover-container uk-height-medium uk-border-rounded uk-box-shadow-small"><img src="${escapeAttribute(media.image)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="800" height="600"></canvas></div>`;
+  return `<div class="uk-cover-container uk-height-medium uk-border-rounded uk-box-shadow-small"><img src="${escapeAttribute(imageSrc)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="800" height="600"></canvas></div>`;
 }
 
 function applyEmbedDefaults(url) {
@@ -894,7 +895,8 @@ function applyEmbedDefaults(url) {
 }
 
 function renderHeroMediaVideoCard(media, video, referenceLink) {
-  if (!video?.embedUrl && !media?.image) {
+  const resolvedImage = media?.image || resolveBackgroundImage(media?.imageId) || '';
+  if (!video?.embedUrl && !resolvedImage) {
     return '';
   }
 
@@ -925,8 +927,8 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
     embedContent = `<iframe src="${escapeAttribute(embedUrl)}" title="${escapeAttribute(video?.title || 'Video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`;
   }
 
-  const fallbackImage = media?.image
-    ? `<img src="${escapeAttribute(media.image)}" alt="${escapeAttribute(media?.alt || '')}" loading="lazy">`
+  const fallbackImage = resolvedImage
+    ? `<img src="${escapeAttribute(resolvedImage)}" alt="${escapeAttribute(media?.alt || '')}" loading="lazy">`
     : '';
   const referenceLabel = referenceLink?.label ? escapeHtml(referenceLink.label) : '';
   const referenceHref = referenceLink?.href ? escapeAttribute(referenceLink.href) : '';
