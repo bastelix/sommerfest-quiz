@@ -658,6 +658,7 @@
 - *(cms)* Hide entire page during hydration to prevent header/footer flash
 - *(mcp)* Clarify upsert_page description — seo lives in meta.seo, not as separate param
 - *(preview)* Load default-theme.css and dark.css in editor preview
+- *(cms)* Link eforms english page variant and remove test page
 
 ### Merge
 
