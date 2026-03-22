@@ -5828,7 +5828,28 @@ export class BlockContentEditor {
           return block;
         }
         const allowedVariant = ensureRendererVariant(block.type, variant);
-        return sanitizeBlock({ ...block, variant: allowedVariant });
+        const updated = { ...block, variant: allowedVariant };
+
+        if (block.type === 'stat_strip') {
+          const data = { ...(updated.data || {}) };
+          const toTrustBand = allowedVariant === 'trust_band' || allowedVariant === 'trust_bar';
+          const fromTrustBand = (block.variant === 'trust_band' || block.variant === 'trust_bar') && !toTrustBand;
+
+          if (toTrustBand && !(Array.isArray(data.items) && data.items.length)) {
+            const metrics = Array.isArray(data.metrics) ? data.metrics : [];
+            data.items = metrics.length
+              ? metrics.map(m => ({ icon: m.icon || 'check', label: m.label || '' }))
+              : [{ icon: 'check', label: 'Merkmal' }];
+          } else if (fromTrustBand && !(Array.isArray(data.metrics) && data.metrics.length)) {
+            const items = Array.isArray(data.items) ? data.items : [];
+            data.metrics = items.length
+              ? items.map(item => ({ id: createId(), value: '', label: item.label || '', icon: item.icon || '', asOf: '', tooltip: '', benefit: '' }))
+              : [{ id: createId(), value: '100%', label: 'Zuverlässig', icon: '', asOf: '', tooltip: '', benefit: '' }];
+          }
+          updated.data = data;
+        }
+
+        return sanitizeBlock(updated);
       });
       this.render();
     } catch (error) {
