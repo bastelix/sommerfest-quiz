@@ -380,6 +380,7 @@
 - *(cms)* Add dynamic language variant resolution via base_slug column
 - *(mcp)* Add seo parameter to upsert_page tool
 - *(i18n)* Add translations for cookie admin page
+- *(editor)* Add direct image upload to page editor block fields
 
 ### Fix
 
