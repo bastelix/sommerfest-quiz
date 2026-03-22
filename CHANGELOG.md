@@ -673,6 +673,7 @@
 - *(hero)* Resolve image from imageId when media.image is missing
 - *(editor)* Load custom-icons.js on all admin pages
 - *(media)* Allow public access to project uploads via namespace resolution
+- *(topbar)* Resolve PHPStan type errors for header_topbar_style
 
 ### Merge
 
