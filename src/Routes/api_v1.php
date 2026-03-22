@@ -3,6 +3,7 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Application\Middleware\ApiTokenAuthMiddleware;
+use App\Controller\Api\V1\NamespaceDesignController;
 use App\Controller\Api\V1\NamespacePageController;
 use App\Controller\Api\V1\NamespaceMenuController;
 use App\Controller\Api\V1\NamespaceNewsController;
@@ -139,5 +140,22 @@ return function (\Slim\App $app): void {
         $group->put('/namespaces/{ns:[a-z0-9\-]+}/events/{uid:[a-f0-9]+}/teams', function (Request $request, Response $response, array $args): Response {
             return (new NamespaceQuizController())->replaceTeams($request, $response, $args);
         })->add(new ApiTokenAuthMiddleware(null, null, NamespaceQuizController::SCOPE_QUIZ_WRITE));
+
+        // Design
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/design', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceDesignController())->manifest($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceDesignController::SCOPE_DESIGN_READ));
+
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/design/tokens', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceDesignController())->getTokens($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceDesignController::SCOPE_DESIGN_READ));
+
+        $group->patch('/namespaces/{ns:[a-z0-9\-]+}/design/tokens', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceDesignController())->updateTokens($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceDesignController::SCOPE_DESIGN_WRITE));
+
+        $group->post('/namespaces/{ns:[a-z0-9\-]+}/design/validate/{slug:[a-z0-9\-]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceDesignController())->validate($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceDesignController::SCOPE_DESIGN_READ));
     });
 };
