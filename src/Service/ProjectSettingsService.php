@@ -26,6 +26,7 @@ use RuntimeException;
  *     header_logo_path:string,
  *     header_logo_alt:string,
  *     header_logo_label:string,
+ *     header_topbar_style:string,
  *     updated_at:?string
  * }
  */
