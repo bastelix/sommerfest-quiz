@@ -199,6 +199,7 @@
   data-theme="{{ resolvedTheme }}"
   class="{{ mergedBodyClass }}"
   {% if resolvedAdminLayout %}data-admin-layout="{{ resolvedAdminLayout }}"{% endif %}
+  {% if includeFrontendHydrator|default(false) %}data-cms-hydrating{% endif %}
 >
   <div class="wrapper">
     {% block site_header %}{% endblock %}

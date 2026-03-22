@@ -2250,9 +2250,13 @@ body.page-render .qr-page-renderer table {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Hydration gate – hide page root until JS hydration completes       */
+/*  Hydration gate – hide entire page until JS hydration completes     */
 /* ------------------------------------------------------------------ */
 
-.cms-page[data-page-root]:not([data-hydrated]) {
+body[data-cms-hydrating] > .wrapper {
   opacity: 0;
+}
+
+body:not([data-cms-hydrating]) > .wrapper {
+  transition: opacity 0.2s ease;
 }
