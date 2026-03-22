@@ -378,6 +378,7 @@
 - *(mcp)* Add stylesheet API for AI-driven design management
 - *(mcp)* Register design:read and design:write OAuth scopes
 - *(cms)* Add dynamic language variant resolution via base_slug column
+- *(mcp)* Add seo parameter to upsert_page tool
 
 ### Fix
 
@@ -655,6 +656,7 @@
 - Remove unused PDO property promotion in StylesheetTools
 - Use standalone nginx configs with acme.sh for custom domains
 - *(cms)* Hide entire page during hydration to prevent header/footer flash
+- *(mcp)* Clarify upsert_page description — seo lives in meta.seo, not as separate param
 
 ### Merge
 
