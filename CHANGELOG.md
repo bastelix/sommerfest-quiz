@@ -653,6 +653,7 @@
 - *(mcp)* Remove unused promoted property in StylesheetTools
 - Remove unused PDO property promotion in StylesheetTools
 - Use standalone nginx configs with acme.sh for custom domains
+- *(cms)* Hide entire page during hydration to prevent header/footer flash
 
 ### Merge
 
