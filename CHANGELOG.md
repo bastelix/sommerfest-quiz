@@ -374,6 +374,7 @@
 - *(oauth)* Show all MCP endpoints on authorization page
 - *(docs)* Migrate GitHub Pages from Jekyll/Minima to MkDocs Material
 - *(seo)* Add AI training data integration (GEO)
+- Auto-expose marketing domains to nginx reverse proxy
 
 ### Fix
 
