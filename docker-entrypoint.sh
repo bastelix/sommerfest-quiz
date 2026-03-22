@@ -516,6 +516,25 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
         echo "Bootstrapping admin user"
         php scripts/bootstrap_admin_user.php
     fi
+    # Expose active marketing domains from the domains table so that
+    # docker-gen creates nginx server blocks and acme-companion provisions
+    # SSL certificates for each custom domain.
+    echo "Loading marketing domains from database..."
+    marketing_hosts=$(psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -tAc \
+        "SELECT host FROM domains WHERE is_active = TRUE AND namespace IS NOT NULL" 2>/dev/null || true)
+    marketing_count=0
+    if [ -n "$marketing_hosts" ]; then
+        for mhost in $marketing_hosts; do
+            mhost=$(printf '%s' "$mhost" | tr -d '[:space:]')
+            if [ -z "$mhost" ]; then
+                continue
+            fi
+            append_proxy_host "$mhost"
+            marketing_count=$((marketing_count + 1))
+        done
+    fi
+    echo "Marketing domains loaded: $marketing_count host(s) added to VIRTUAL_HOST/LETSENCRYPT_HOST"
+
     unset PGPASSWORD
 fi
 
@@ -533,5 +552,12 @@ case "$ssl_bootstrap" in
         fi
         ;;
 esac
+
+# Write standalone nginx server blocks for marketing domains so that
+# requests are proxied even before docker-gen processes VIRTUAL_HOST.
+if [ -f scripts/sync_marketing_proxy.php ]; then
+    echo "Synchronising marketing domain proxy configs"
+    php scripts/sync_marketing_proxy.php || true
+fi
 
 exec $@

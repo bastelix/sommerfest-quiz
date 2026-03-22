@@ -6,11 +6,13 @@ namespace App\Controller\Admin;
 
 use App\Service\CertificateZoneRegistry;
 use App\Service\DomainService;
+use App\Service\MarketingProxySyncService;
 use App\Support\AcmeDnsProvider;
 use App\Support\DomainNameHelper;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use RuntimeException;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -21,13 +23,16 @@ class DomainController
 {
     private DomainService $domainService;
     private CertificateZoneRegistry $certificateZoneRegistry;
+    private ?MarketingProxySyncService $proxySync;
 
     public function __construct(
         DomainService $domainService,
-        CertificateZoneRegistry $certificateZoneRegistry
+        CertificateZoneRegistry $certificateZoneRegistry,
+        ?MarketingProxySyncService $proxySync = null
     ) {
         $this->domainService = $domainService;
         $this->certificateZoneRegistry = $certificateZoneRegistry;
+        $this->proxySync = $proxySync;
     }
 
     public function index(Request $request, Response $response): Response
@@ -101,6 +106,8 @@ class DomainController
             } catch (InvalidArgumentException $exception) {
                 $warning = $exception->getMessage();
             }
+
+            $this->syncProxyConfig($domain['host']);
         }
 
         $payload = [
@@ -170,6 +177,14 @@ class DomainController
             $this->clearMarketingDomainCache();
         }
 
+        // Sync nginx proxy config: add the new host or remove the old one.
+        if ($domain['is_active']) {
+            $this->syncProxyConfig($domain['host']);
+        }
+        if (!$domain['is_active'] || $existing['host'] !== $domain['host']) {
+            $this->removeProxyConfig($existing['host']);
+        }
+
         $payload = [
             'status' => 'ok',
             'domain' => $domain,
@@ -199,11 +214,16 @@ class DomainController
             return $response->withStatus(400);
         }
 
+        $existing = $this->domainService->getDomainById($id);
         $result = $this->domainService->deleteDomain($id);
 
         if ($result !== null && $result['zone_removed']) {
             $this->dispatchWildcardJobs();
             $this->clearMarketingDomainCache();
+        }
+
+        if ($existing !== null) {
+            $this->removeProxyConfig($existing['host']);
         }
 
         $response->getBody()->write(json_encode([
@@ -289,6 +309,42 @@ class DomainController
         $value = is_string($value) ? strtolower(trim($value)) : $value;
 
         return $value === true || $value === 1 || $value === '1' || $value === 'true' || $value === 'on';
+    }
+
+    private function syncProxyConfig(string $host): void
+    {
+        $sync = $this->resolveProxySync();
+        if ($sync === null) {
+            return;
+        }
+
+        $sync->syncDomain($host);
+    }
+
+    private function removeProxyConfig(string $host): void
+    {
+        $sync = $this->resolveProxySync();
+        if ($sync === null) {
+            return;
+        }
+
+        $sync->removeDomain($host);
+    }
+
+    private function resolveProxySync(): ?MarketingProxySyncService
+    {
+        if ($this->proxySync !== null) {
+            return $this->proxySync;
+        }
+
+        try {
+            $pdo = \App\Infrastructure\Database::connectFromEnv();
+            $this->proxySync = new MarketingProxySyncService($pdo);
+        } catch (\Throwable $exception) {
+            return null;
+        }
+
+        return $this->proxySync;
     }
 
     private function queueZone(string $zone, ?string $provider = null): void

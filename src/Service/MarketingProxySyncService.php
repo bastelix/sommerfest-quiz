@@ -1,0 +1,281 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Service;
+
+use PDO;
+
+/**
+ * Generates standalone nginx server block configs for marketing domains
+ * and writes them to the shared conf.d volume so nginx can proxy requests
+ * to the application without requiring a container restart.
+ */
+final class MarketingProxySyncService
+{
+    private const CONF_DIR = '/etc/nginx/conf.d';
+    private const CERT_DIR = '/etc/nginx/certs';
+    private const CONF_PREFIX = 'marketing_';
+    private const UPSTREAM = 'http://slim-1:8080';
+
+    private PDO $pdo;
+    private string $confDir;
+    private string $certDir;
+    private string $upstream;
+    private ?string $nginxReloaderUrl;
+    private ?string $nginxReloadToken;
+
+    public function __construct(
+        PDO $pdo,
+        ?string $confDir = null,
+        ?string $certDir = null,
+        ?string $upstream = null
+    ) {
+        $this->pdo = $pdo;
+        $this->confDir = $confDir ?? self::CONF_DIR;
+        $this->certDir = $certDir ?? self::CERT_DIR;
+        $this->upstream = $upstream ?? self::UPSTREAM;
+        $this->nginxReloaderUrl = getenv('NGINX_RELOADER_URL') ?: null;
+        $this->nginxReloadToken = getenv('NGINX_RELOAD_TOKEN') ?: null;
+    }
+
+    /**
+     * Synchronise nginx server block configs for all active marketing domains.
+     *
+     * @return array{written: int, removed: int, reloaded: bool}
+     */
+    public function sync(): array
+    {
+        $domains = $this->loadActiveDomains();
+        $written = 0;
+        $activeFiles = [];
+
+        foreach ($domains as $host) {
+            $safeHost = $this->sanitiseHostForFilename($host);
+            if ($safeHost === '') {
+                continue;
+            }
+
+            $file = $this->confDir . '/' . self::CONF_PREFIX . $safeHost . '.conf';
+            $activeFiles[] = $file;
+            $config = $this->generateServerBlock($host);
+
+            if (is_file($file) && file_get_contents($file) === $config) {
+                continue;
+            }
+
+            if (file_put_contents($file, $config) !== false) {
+                $written++;
+            }
+        }
+
+        $removed = $this->removeStaleConfigs($activeFiles);
+
+        $reloaded = false;
+        if ($written > 0 || $removed > 0) {
+            $reloaded = $this->triggerNginxReload();
+        }
+
+        return [
+            'written' => $written,
+            'removed' => $removed,
+            'reloaded' => $reloaded,
+        ];
+    }
+
+    /**
+     * Synchronise a single domain (used after domain create/update).
+     */
+    public function syncDomain(string $host): bool
+    {
+        $safeHost = $this->sanitiseHostForFilename($host);
+        if ($safeHost === '') {
+            return false;
+        }
+
+        $file = $this->confDir . '/' . self::CONF_PREFIX . $safeHost . '.conf';
+        $config = $this->generateServerBlock($host);
+        $current = is_file($file) ? file_get_contents($file) : null;
+
+        if ($current === $config) {
+            return true;
+        }
+
+        if (file_put_contents($file, $config) === false) {
+            return false;
+        }
+
+        return $this->triggerNginxReload();
+    }
+
+    /**
+     * Remove the nginx config for a domain (used after domain delete/deactivation).
+     */
+    public function removeDomain(string $host): bool
+    {
+        $safeHost = $this->sanitiseHostForFilename($host);
+        if ($safeHost === '') {
+            return false;
+        }
+
+        $file = $this->confDir . '/' . self::CONF_PREFIX . $safeHost . '.conf';
+        if (!is_file($file)) {
+            return true;
+        }
+
+        @unlink($file);
+
+        return $this->triggerNginxReload();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function loadActiveDomains(): array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT host FROM domains WHERE is_active = TRUE AND namespace IS NOT NULL ORDER BY host ASC'
+        );
+
+        if ($stmt === false) {
+            return [];
+        }
+
+        $hosts = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $host) {
+            $normalized = strtolower(trim((string) $host));
+            if ($normalized !== '') {
+                $hosts[] = $normalized;
+            }
+        }
+
+        return $hosts;
+    }
+
+    private function generateServerBlock(string $host): string
+    {
+        $escapedHost = $this->escapeNginxValue($host);
+        $certFile = $this->certDir . '/' . $host . '.crt';
+        $keyFile = $this->certDir . '/' . $host . '.key';
+        $hasCert = is_file($certFile) && is_file($keyFile);
+
+        $proxyBlock = <<<'NGINX'
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+NGINX;
+
+        $config = <<<NGINX
+# Auto-generated by MarketingProxySyncService – do not edit manually.
+server {
+    listen 80;
+    listen [::]:80;
+    server_name {$escapedHost};
+
+NGINX;
+
+        if ($hasCert) {
+            // Redirect HTTP → HTTPS when a certificate is available.
+            $config .= "    return 301 https://\$host\$request_uri;\n}\n\n";
+            $config .= <<<NGINX
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name {$escapedHost};
+
+    ssl_certificate {$certFile};
+    ssl_certificate_key {$keyFile};
+
+    location / {
+{$proxyBlock}
+        proxy_pass {$this->upstream};
+    }
+}
+
+NGINX;
+        } else {
+            // Serve via HTTP and include ACME challenge path for future cert provisioning.
+            $config .= <<<NGINX
+    location /.well-known/acme-challenge/ {
+        root /usr/share/nginx/html;
+    }
+
+    location / {
+{$proxyBlock}
+        proxy_pass {$this->upstream};
+    }
+}
+
+NGINX;
+        }
+
+        return $config;
+    }
+
+    private function sanitiseHostForFilename(string $host): string
+    {
+        $host = strtolower(trim($host));
+
+        return preg_replace('/[^a-z0-9._-]/', '_', $host) ?? '';
+    }
+
+    private function escapeNginxValue(string $value): string
+    {
+        return preg_replace('/[^a-z0-9.*_-]/i', '', $value) ?? '';
+    }
+
+    /**
+     * Remove marketing config files that are no longer active.
+     *
+     * @param list<string> $activeFiles
+     */
+    private function removeStaleConfigs(array $activeFiles): int
+    {
+        $pattern = $this->confDir . '/' . self::CONF_PREFIX . '*.conf';
+        $existing = glob($pattern) ?: [];
+        $removed = 0;
+
+        foreach ($existing as $file) {
+            if (!in_array($file, $activeFiles, true)) {
+                @unlink($file);
+                $removed++;
+            }
+        }
+
+        return $removed;
+    }
+
+    private function triggerNginxReload(): bool
+    {
+        if ($this->nginxReloaderUrl === null || $this->nginxReloaderUrl === '') {
+            return false;
+        }
+
+        $ch = curl_init($this->nginxReloaderUrl);
+        if ($ch === false) {
+            return false;
+        }
+
+        $headers = ['Content-Type: application/json'];
+        if ($this->nginxReloadToken !== null && $this->nginxReloadToken !== '') {
+            $headers[] = 'X-Token: ' . $this->nginxReloadToken;
+        }
+
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 5,
+            CURLOPT_CONNECTTIMEOUT => 3,
+        ]);
+
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return $result !== false && $httpCode >= 200 && $httpCode < 300;
+    }
+}
