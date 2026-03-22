@@ -144,6 +144,7 @@ const hydratePage = async () => {
   const hydrationSafetyTimer = setTimeout(() => {
     if (!pageRoot.hasAttribute('data-hydrated')) {
       pageRoot.setAttribute('data-hydrated', '');
+      document.body.removeAttribute('data-cms-hydrating');
     }
   }, 4000);
 
@@ -222,6 +223,7 @@ const hydratePage = async () => {
     }
 
     pageRoot.setAttribute('data-hydrated', '');
+    document.body.removeAttribute('data-cms-hydrating');
     clearTimeout(hydrationSafetyTimer);
 
     // Activate contact form AJAX handlers
