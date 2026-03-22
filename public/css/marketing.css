@@ -1279,6 +1279,59 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
   max-width: 36ch;
 }
 
+/* ── Hero media lightbox modal ──────────────────────────────────── */
+
+.hero-media-thumb {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.hero-media-thumb:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  transform: translateY(-2px);
+}
+
+.hero-media-lightbox__dialog {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: clamp(24px, 4vw, 48px);
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.hero-media-lightbox__close {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  padding: 10px;
+  transition: background 0.2s ease;
+}
+
+.hero-media-lightbox__close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.hero-media-lightbox__wrap {
+  max-width: 92vw;
+  max-height: 88vh;
+  border-radius: clamp(8px, 1.5vw, 16px);
+  overflow: hidden;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+}
+
+.hero-media-lightbox__img {
+  display: block;
+  max-width: 100%;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: inherit;
+}
+
 /* ── About page (calhelp-about) ─────────────────────────────────── */
 
 .calhelp-about-page {
