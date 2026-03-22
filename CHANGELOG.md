@@ -384,6 +384,7 @@
 - *(mcp)* Add menu assignment tools for header/footer menu slot management
 - *(hero)* Add configurable media size for hero image area
 - *(topbar)* Add configurable topbar style setting for navigation visibility
+- *(hero)* Make hero media image clickable with UIkit lightbox
 
 ### Fix
 
