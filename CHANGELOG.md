@@ -381,6 +381,7 @@
 - *(mcp)* Add seo parameter to upsert_page tool
 - *(i18n)* Add translations for cookie admin page
 - *(editor)* Add direct image upload to page editor block fields
+- *(mcp)* Add menu assignment tools for header/footer menu slot management
 
 ### Fix
 
