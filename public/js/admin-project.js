@@ -963,6 +963,7 @@ const initProjectSettings = () => {
     const logoLabelInput = form.querySelector('#headerLogoLabel');
     const logoPathInput = form.querySelector('input[name="header_logo_path"]');
     const logoFileInput = form.querySelector('#headerLogoFile');
+    const topbarStyleSelect = form.querySelector('#headerTopbarStyle');
 
     if (consentInput) {
       payload.append('cookieConsentEnabled', consentInput.checked ? '1' : '0');
@@ -1011,6 +1012,9 @@ const initProjectSettings = () => {
     }
     if (logoFileInput && logoFileInput.files && logoFileInput.files[0]) {
       payload.append('headerLogoFile', logoFileInput.files[0]);
+    }
+    if (topbarStyleSelect) {
+      payload.append('headerTopbarStyle', topbarStyleSelect.value || 'auto');
     }
 
     setStatus(window.transSaving || 'Saving\u2026', false);
@@ -1107,6 +1111,9 @@ const initProjectSettings = () => {
             input.checked = input.value === modeValue;
           }
         });
+      }
+      if (topbarStyleSelect && typeof settings.header_topbar_style === 'string') {
+        topbarStyleSelect.value = settings.header_topbar_style;
       }
       const updatedAt = result?.settings?.updated_at || result?.settings?.updatedAt;
       if (updatedLabel) {

@@ -476,6 +476,7 @@ CREATE TABLE IF NOT EXISTS project_settings (
     header_logo_path TEXT,
     header_logo_alt TEXT,
     header_logo_label TEXT,
+    header_topbar_style TEXT NOT NULL DEFAULT 'auto',
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
@@ -489,6 +490,7 @@ ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS header_logo_mode TEXT NOT 
 ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS header_logo_path TEXT;
 ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS header_logo_alt TEXT;
 ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS header_logo_label TEXT;
+ALTER TABLE project_settings ADD COLUMN IF NOT EXISTS header_topbar_style TEXT NOT NULL DEFAULT 'auto';
 
 -- Active event
 CREATE TABLE IF NOT EXISTS active_event (
