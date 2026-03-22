@@ -199,7 +199,7 @@ export class PreviewCanvas {
     doc.open();
     doc.write(
       `<!DOCTYPE html><html><head><meta charset="utf-8">\n${linkTags}\n<style>${IFRAME_INLINE_STYLES}</style></head>` +
-      `<body class="marketing-scope cms-page-render marketing-page" data-preview-intent="${escapeAttr(this.intent)}">` +
+      `<body class="marketing-scope cms-page-render marketing-page default-theme" data-preview-intent="${escapeAttr(this.intent)}">` +
       `<div class="page-preview-surface"></div></body></html>`
     );
     doc.close();
@@ -315,6 +315,10 @@ export class PreviewCanvas {
     const namespace = resolvePreviewNamespace(this.root);
     const appearance = resolveNamespaceAppearance(namespace, this.appearance || window.pageAppearance || {});
     applyNamespaceDesign(this.surface, namespace, appearance);
+
+    if (this.iframeDoc?.documentElement) {
+      this.iframeDoc.documentElement.dataset.namespace = namespace;
+    }
 
     const html = renderPage(Array.isArray(this.visibleBlocks) ? this.visibleBlocks : [], {
       rendererMatrix: RENDERER_MATRIX,
