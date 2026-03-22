@@ -5,17 +5,21 @@ declare(strict_types=1);
 namespace App\Service\Mcp;
 
 use App\Service\DesignTokenService;
+use App\Service\PageService;
 use PDO;
 
 final class StylesheetTools
 {
     private DesignTokenService $designTokens;
 
+    private PageService $pageService;
+
     private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
 
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->designTokens = new DesignTokenService($pdo);
+        $this->pageService = new PageService($pdo);
     }
 
     private function resolveNamespace(array $args): string
@@ -151,6 +155,30 @@ final class StylesheetTools
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => new \stdClass(),
+                ],
+            ],
+            [
+                'name' => 'get_design_manifest',
+                'method' => 'getDesignManifest',
+                'description' => 'Get the complete design token manifest for a namespace. Returns all CSS custom properties with their resolved values, the full token hierarchy (semantic → namespace → component), block-level token options, section intents/appearances, and legacy alias mappings. Use this to understand and validate the full design state before making changes.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                    ],
+                ],
+            ],
+            [
+                'name' => 'validate_page_design',
+                'method' => 'validatePageDesign',
+                'description' => 'Validate a page design for consistency. Checks block tokens against valid enum values, verifies section appearances, and flags deprecated block types (system_module, case_showcase). Returns errors (invalid values) and warnings (deprecated types).',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                        'slug' => ['type' => 'string', 'description' => 'Page slug to validate'],
+                    ],
+                    'required' => ['slug'],
                 ],
             ],
         ];
@@ -298,5 +326,29 @@ final class StylesheetTools
                 '--components-button-style',
             ],
         ];
+    }
+
+    public function getDesignManifest(array $args): array
+    {
+        $ns = $this->resolveNamespace($args);
+
+        return $this->designTokens->getDesignManifest($ns);
+    }
+
+    public function validatePageDesign(array $args): array
+    {
+        $ns = $this->resolveNamespace($args);
+
+        $slug = isset($args['slug']) && is_string($args['slug']) ? trim($args['slug']) : '';
+        if ($slug === '') {
+            throw new \InvalidArgumentException('slug is required');
+        }
+
+        $content = $this->pageService->getByKey($ns, $slug);
+        if ($content === null) {
+            throw new \InvalidArgumentException("Page '{$slug}' not found in namespace '{$ns}'");
+        }
+
+        return $this->designTokens->validatePageDesign($ns, $content);
     }
 }
