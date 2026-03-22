@@ -376,6 +376,7 @@
 - *(seo)* Add AI training data integration (GEO)
 - Auto-expose marketing domains to nginx reverse proxy
 - *(mcp)* Add stylesheet API for AI-driven design management
+- *(mcp)* Register design:read and design:write OAuth scopes
 
 ### Fix
 
