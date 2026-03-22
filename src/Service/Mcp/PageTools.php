@@ -66,14 +66,14 @@ final class PageTools
             [
                 'name' => 'upsert_page',
                 'method' => 'upsertPage',
-                'description' => 'Create or update a page. Provide slug and blocks (array of block objects). Optionally set title, status (draft/published), meta, and seo. IMPORTANT: Call get_block_contract first to learn the required block structure. On validation failure, detailed field-level errors are returned.',
+                'description' => 'Create or update a page. Provide slug and blocks (array of block objects). Optionally set title, status (draft/published), meta (including seo as meta.seo), language, and base_slug. IMPORTANT: Call get_block_contract first to learn the required block structure. On validation failure, detailed field-level errors are returned.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'slug' => ['type' => 'string', 'description' => 'Page slug (URL path segment)'],
                         'blocks' => ['type' => 'array', 'description' => 'Array of block objects for the page content'],
-                        'meta' => ['type' => 'object', 'description' => 'Optional page metadata'],
+                        'meta' => ['type' => 'object', 'description' => 'Optional page metadata (e.g. meta.seo for SEO config: {title, description, ogTitle, ogDescription, ogImage})'],
                         'title' => ['type' => 'string', 'description' => 'Optional page title'],
                         'status' => ['type' => 'string', 'enum' => ['draft', 'published'], 'description' => 'Optional page status'],
                         'language' => ['type' => 'string', 'enum' => ['de', 'en'], 'description' => 'Page language for variant resolution (de or en)'],
