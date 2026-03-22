@@ -669,6 +669,7 @@
 - *(editor)* Render custom icons in icon picker via programmatic API
 - *(mcp)* Decode double-encoded unicode escape sequences in tool arguments
 - *(hero)* Resolve image from imageId when media.image is missing
+- *(editor)* Load custom-icons.js on all admin pages
 
 ### Merge
 
