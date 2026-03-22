@@ -375,6 +375,7 @@
 - *(docs)* Migrate GitHub Pages from Jekyll/Minima to MkDocs Material
 - *(seo)* Add AI training data integration (GEO)
 - Auto-expose marketing domains to nginx reverse proxy
+- *(mcp)* Add stylesheet API for AI-driven design management
 
 ### Fix
 
