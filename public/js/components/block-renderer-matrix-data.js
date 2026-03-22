@@ -870,12 +870,21 @@ function renderSubheadline(block, alignmentClass = '', context = 'frontend') {
   return `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom${alignment}"${editable}>${escapeHtml(subheadline)}</p>`;
 }
 
+const MEDIA_SIZE_MAP = {
+  small:  { heightClass: 'uk-height-small',  width: 600, height: 400 },
+  medium: { heightClass: 'uk-height-medium', width: 800, height: 600 },
+  large:  { heightClass: 'uk-height-large',  width: 1000, height: 750 },
+  xlarge: { heightClass: 'uk-height-max-large', width: 1200, height: 900 }
+};
+
 function renderHeroMedia(media) {
-  if (!media || !media.image) {
+  const imageSrc = media?.image || resolveBackgroundImage(media?.imageId);
+  if (!imageSrc) {
     return '';
   }
   const altText = media.alt ? escapeAttribute(media.alt) : '';
-  return `<div class="uk-cover-container uk-height-medium uk-border-rounded uk-box-shadow-small"><img src="${escapeAttribute(media.image)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="800" height="600"></canvas></div>`;
+  const size = MEDIA_SIZE_MAP[media?.mediaSize] || MEDIA_SIZE_MAP.medium;
+  return `<div class="uk-cover-container ${size.heightClass} uk-border-rounded uk-box-shadow-small"><img src="${escapeAttribute(imageSrc)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div>`;
 }
 
 function applyEmbedDefaults(url) {
@@ -894,7 +903,8 @@ function applyEmbedDefaults(url) {
 }
 
 function renderHeroMediaVideoCard(media, video, referenceLink) {
-  if (!video?.embedUrl && !media?.image) {
+  const resolvedImage = media?.image || resolveBackgroundImage(media?.imageId) || '';
+  if (!video?.embedUrl && !resolvedImage) {
     return '';
   }
 
@@ -925,8 +935,8 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
     embedContent = `<iframe src="${escapeAttribute(embedUrl)}" title="${escapeAttribute(video?.title || 'Video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`;
   }
 
-  const fallbackImage = media?.image
-    ? `<img src="${escapeAttribute(media.image)}" alt="${escapeAttribute(media?.alt || '')}" loading="lazy">`
+  const fallbackImage = resolvedImage
+    ? `<img src="${escapeAttribute(resolvedImage)}" alt="${escapeAttribute(media?.alt || '')}" loading="lazy">`
     : '';
   const referenceLabel = referenceLink?.label ? escapeHtml(referenceLink.label) : '';
   const referenceHref = referenceLink?.href ? escapeAttribute(referenceLink.href) : '';

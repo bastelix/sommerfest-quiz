@@ -617,7 +617,8 @@ const schema = {
         "imageId": { "type": "string" },
         "image": { "type": "string" },
         "alt": { "type": "string" },
-        "focalPoint": { "$ref": "#/definitions/FocalPoint" }
+        "focalPoint": { "$ref": "#/definitions/FocalPoint" },
+        "mediaSize": { "enum": ["small", "medium", "large", "xlarge"] }
       }
     },
     "InfoMediaItem": {

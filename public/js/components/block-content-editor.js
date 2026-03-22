@@ -4566,6 +4566,44 @@ export class BlockContentEditor {
       })
     );
 
+    const mediaSizeGroup = document.createElement('div');
+    mediaSizeGroup.className = 'section-config-panel__group';
+    const mediaSizeLabel = document.createElement('div');
+    mediaSizeLabel.className = 'field-label';
+    mediaSizeLabel.textContent = 'Bildgröße';
+    mediaSizeGroup.append(mediaSizeLabel);
+
+    const mediaSizeOptions = document.createElement('div');
+    mediaSizeOptions.className = 'layout-style-picker__options layout-style-picker__options--inline';
+
+    const currentMediaSize = block.data.media?.mediaSize || 'medium';
+    [
+      { value: 'small', label: 'Klein' },
+      { value: 'medium', label: 'Mittel' },
+      { value: 'large', label: 'Groß' },
+      { value: 'xlarge', label: 'Sehr groß' }
+    ].forEach(option => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'layout-style-card layout-style-card--compact';
+      const selected = option.value === currentMediaSize;
+      btn.dataset.selected = String(selected);
+      btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      btn.textContent = option.label;
+      btn.addEventListener('click', () => {
+        this.updateBlockData(block.id, ['data', 'media', 'mediaSize'], option.value);
+        mediaSizeOptions.querySelectorAll('button').forEach(b => {
+          const isSelected = b === btn;
+          b.dataset.selected = String(isSelected);
+          b.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+        });
+      });
+      mediaSizeOptions.append(btn);
+    });
+
+    mediaSizeGroup.append(mediaSizeOptions);
+    mediaSection.append(mediaSizeGroup);
+
     const focalSection = createFieldSection('Optional: Bildfokus', 'Feineinstellung für den Bildausschnitt.', { optional: true });
     focalSection.append(
       this.addLabeledInput('Fokus X', block.data.media?.focalPoint?.x ?? 0.5, value => this.updateBlockData(block.id, ['data', 'media', 'focalPoint', 'x'], Number(value)), {

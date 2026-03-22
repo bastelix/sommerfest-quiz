@@ -748,6 +748,12 @@ final class PageBlockContractMigrator
             $normalized['alt'] = $alt;
         }
 
+        $validMediaSizes = ['small', 'medium', 'large', 'xlarge'];
+        $mediaSize = $media['mediaSize'] ?? null;
+        if (is_string($mediaSize) && in_array($mediaSize, $validMediaSizes, true)) {
+            $normalized['mediaSize'] = $mediaSize;
+        }
+
         if (is_array($media['focalPoint'] ?? null)) {
             $fp = $media['focalPoint'];
             if (isset($fp['x'], $fp['y']) && is_numeric($fp['x']) && is_numeric($fp['y'])) {
