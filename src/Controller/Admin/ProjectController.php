@@ -176,7 +176,7 @@ class ProjectController
             : ((string) ($payload['header_logo_label'] ?? $currentSettings['header_logo_label']));
         $headerTopbarStyle = array_key_exists('headerTopbarStyle', $payload)
             ? (string) $payload['headerTopbarStyle']
-            : ((string) ($payload['header_topbar_style'] ?? ($currentSettings['header_topbar_style'] ?? 'auto')));
+            : (string) ($currentSettings['header_topbar_style'] ?? 'auto');
 
         $headerLogoFile = $uploadedFiles['headerLogoFile'] ?? null;
         if ($headerLogoFile instanceof \Psr\Http\Message\UploadedFileInterface && $headerLogoFile->getError() !== UPLOAD_ERR_NO_FILE) {

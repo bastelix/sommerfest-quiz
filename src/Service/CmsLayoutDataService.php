@@ -90,7 +90,7 @@ final class CmsLayoutDataService
     }
 
     /**
-     * @return array<string, bool>
+     * @return array<string, bool|string>
      */
     public function buildHeaderConfig(array $settings): array
     {

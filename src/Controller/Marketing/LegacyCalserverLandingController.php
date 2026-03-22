@@ -206,7 +206,7 @@ final class LegacyCalserverLandingController
 
     /**
      * @param array<string, mixed> $settings
-     * @return array<string, bool>
+     * @return array<string, bool|string>
      */
     private function buildHeaderConfig(array $settings): array
     {
