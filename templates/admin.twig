@@ -2539,7 +2539,6 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="{{ basePath }}/js/custom-icons.js"></script>
   <script>
     window.quizConfig = {{ config|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.quizSettings = {{ settings|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};

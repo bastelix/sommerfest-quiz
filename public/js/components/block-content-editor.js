@@ -4386,11 +4386,7 @@ export class BlockContentEditor {
           btn.className = 'icon-picker__icon-btn';
           if (name === input.value) btn.classList.add('icon-picker__icon-btn--active');
           btn.title = name;
-          const iconSpan = document.createElement('span');
-          btn.append(iconSpan);
-          if (window.UIkit) {
-            try { UIkit.icon(iconSpan, { icon: name }); } catch (e) { /* unknown icon */ }
-          }
+          btn.innerHTML = `<span data-uk-icon="icon: ${name};"></span>`;
           btn.addEventListener('click', () => {
             input.value = name;
             onChange(name);
@@ -4406,6 +4402,7 @@ export class BlockContentEditor {
         });
         grid.append(row);
       });
+      if (window.UIkit) UIkit.update(grid);
     };
 
     toggle.addEventListener('click', (e) => {
