@@ -2081,4 +2081,23 @@ return [
 
     // ── Admin JS: Domain SSL ─────────────────────────────────────────────
     'error_domain_ssl' => 'SSL error',
+
+    // ── Admin: Cookie settings page ────────────────────────────────────
+    'label_cookies_banner_active' => 'Cookie banner',
+    'label_cookies_show_banner' => 'Show cookie banner',
+    'label_cookies_storage_key' => 'Storage key',
+    'text_cookies_storage_key_hint' => 'Name of the localStorage entry where cookie consent is stored.',
+    'label_cookies_banner_text_de' => 'Banner text (German)',
+    'text_cookies_banner_text_de_hint' => 'Shown to visitors with German language setting.',
+    'label_cookies_banner_text_en' => 'Banner text (English)',
+    'text_cookies_banner_text_en_hint' => 'Shown to visitors with English language setting.',
+    'label_cookies_vendor_flags' => 'Vendor flags',
+    'text_cookies_vendor_flags_hint' => 'JSON object with vendor-specific flags (e.g. YouTube, Analytics).',
+    'label_cookies_privacy_policy' => 'Privacy policy',
+    'text_cookies_privacy_policy_hint' => 'Links to the privacy policy displayed in the cookie banner.',
+    'label_cookies_privacy_url_de' => 'Privacy URL (German)',
+    'text_cookies_privacy_url_de_hint' => 'URL to the German privacy policy.',
+    'label_cookies_privacy_url_en' => 'Privacy URL (English)',
+    'text_cookies_privacy_url_en_hint' => 'URL to the English privacy policy.',
+    'label_cookies_last_saved' => 'Last saved',
 ];
