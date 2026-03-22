@@ -8,52 +8,63 @@ use PDO;
 
 /**
  * Generates standalone nginx server block configs for marketing domains
- * and writes them to the shared conf.d volume so nginx can proxy requests
- * to the application without requiring a container restart.
+ * and provisions SSL certificates via acme.sh.
+ *
+ * docker-gen only sees env vars from docker-compose.yml, not entrypoint
+ * exports, so marketing domains from the database need their own nginx
+ * configs and certificates managed independently.
  */
 final class MarketingProxySyncService
 {
     private const CONF_DIR = '/etc/nginx/conf.d';
     private const CERT_DIR = '/etc/nginx/certs';
+    private const WEBROOT = '/usr/share/nginx/html';
     private const CONF_PREFIX = 'marketing_';
     private const UPSTREAM = 'http://slim-1:8080';
 
     private PDO $pdo;
     private string $confDir;
     private string $certDir;
+    private string $webroot;
     private string $upstream;
     private ?string $nginxReloaderUrl;
     private ?string $nginxReloadToken;
+    private string $acmeBin;
+    private string $acmeEmail;
 
     public function __construct(
         PDO $pdo,
         ?string $confDir = null,
         ?string $certDir = null,
-        ?string $upstream = null
+        ?string $upstream = null,
+        ?string $webroot = null
     ) {
         $this->pdo = $pdo;
         $this->confDir = $confDir ?? self::CONF_DIR;
         $this->certDir = $certDir ?? self::CERT_DIR;
+        $this->webroot = $webroot ?? self::WEBROOT;
         $this->upstream = $upstream ?? self::UPSTREAM;
         $this->nginxReloaderUrl = getenv('NGINX_RELOADER_URL') ?: null;
         $this->nginxReloadToken = getenv('NGINX_RELOAD_TOKEN') ?: null;
+        $this->acmeBin = getenv('ACME_SH_BIN') ?: 'acme.sh';
+        $this->acmeEmail = getenv('LETSENCRYPT_EMAIL') ?: '';
     }
 
     /**
      * Synchronise nginx server block configs for all active marketing domains.
      *
-     * @return array{written: int, removed: int, reloaded: bool}
+     * @return array{written: int, removed: int, reloaded: bool, certs_issued: int}
      */
     public function sync(): array
     {
         $domains = $this->loadActiveDomains();
-        $virtualHosts = $this->getVirtualHosts();
+        $mainDomain = $this->getMainDomain();
 
-        // Skip domains that docker-gen already handles via VIRTUAL_HOST to
-        // avoid duplicate server blocks which break TLS SNI resolution.
+        // Exclude the main domain and its subdomains — docker-gen handles those.
         $domains = array_values(array_filter(
             $domains,
-            static fn (string $h): bool => !isset($virtualHosts[$h])
+            static fn (string $h): bool => $mainDomain === ''
+                || ($h !== $mainDomain && !str_ends_with($h, '.' . $mainDomain))
         ));
 
         $written = 0;
@@ -85,10 +96,36 @@ final class MarketingProxySyncService
             $reloaded = $this->triggerNginxReload();
         }
 
+        // After nginx is serving HTTP for these domains, attempt to
+        // provision SSL certificates for any that don't have one yet.
+        $certsIssued = 0;
+        if ($reloaded || $written === 0) {
+            foreach ($domains as $host) {
+                if ($this->provisionCertificate($host)) {
+                    $certsIssued++;
+                }
+            }
+
+            // Re-generate configs with SSL enabled and reload.
+            if ($certsIssued > 0) {
+                foreach ($domains as $host) {
+                    $safeHost = $this->sanitiseHostForFilename($host);
+                    if ($safeHost === '') {
+                        continue;
+                    }
+                    $file = $this->confDir . '/' . self::CONF_PREFIX . $safeHost . '.conf';
+                    $config = $this->generateServerBlock($host);
+                    file_put_contents($file, $config);
+                }
+                $this->triggerNginxReload();
+            }
+        }
+
         return [
             'written' => $written,
             'removed' => $removed,
             'reloaded' => $reloaded,
+            'certs_issued' => $certsIssued,
         ];
     }
 
@@ -97,13 +134,6 @@ final class MarketingProxySyncService
      */
     public function syncDomain(string $host): bool
     {
-        $normalizedHost = strtolower(trim($host));
-        $virtualHosts = $this->getVirtualHosts();
-        if (isset($virtualHosts[$normalizedHost])) {
-            // docker-gen already handles this domain; skip to avoid duplicates.
-            return true;
-        }
-
         $safeHost = $this->sanitiseHostForFilename($host);
         if ($safeHost === '') {
             return false;
@@ -113,15 +143,21 @@ final class MarketingProxySyncService
         $config = $this->generateServerBlock($host);
         $current = is_file($file) ? file_get_contents($file) : null;
 
-        if ($current === $config) {
-            return true;
+        if ($current !== $config) {
+            if (file_put_contents($file, $config) === false) {
+                return false;
+            }
+            $this->triggerNginxReload();
         }
 
-        if (file_put_contents($file, $config) === false) {
-            return false;
+        // Attempt cert provisioning (non-blocking; may fail if DNS not ready).
+        if ($this->provisionCertificate($host)) {
+            $config = $this->generateServerBlock($host);
+            file_put_contents($file, $config);
+            $this->triggerNginxReload();
         }
 
-        return $this->triggerNginxReload();
+        return true;
     }
 
     /**
@@ -145,27 +181,95 @@ final class MarketingProxySyncService
     }
 
     /**
-     * Parse the VIRTUAL_HOST env var to determine which domains docker-gen
-     * already handles.  Regex entries (prefixed with ~) are ignored.
+     * Provision an SSL certificate via acme.sh using HTTP-01 webroot validation.
      *
-     * @return array<string, true>
+     * Returns true if a NEW certificate was issued (not if one already exists).
      */
-    private function getVirtualHosts(): array
+    private function provisionCertificate(string $host): bool
     {
-        $raw = getenv('VIRTUAL_HOST');
-        if ($raw === false || $raw === '') {
-            return [];
-        }
+        $certFile = $this->certDir . '/' . $host . '.crt';
+        $keyFile = $this->certDir . '/' . $host . '.key';
 
-        $hosts = [];
-        foreach (explode(',', $raw) as $entry) {
-            $entry = strtolower(trim($entry));
-            if ($entry !== '' && !str_starts_with($entry, '~')) {
-                $hosts[$entry] = true;
+        // Skip if a valid certificate already exists.
+        if (is_file($certFile) && is_file($keyFile)) {
+            if (!$this->isCertExpiringSoon($certFile)) {
+                return false;
             }
         }
 
-        return $hosts;
+        if (!is_executable($this->acmeBin) && !$this->commandExists($this->acmeBin)) {
+            error_log('MarketingProxySyncService: acme.sh not found at ' . $this->acmeBin);
+            return false;
+        }
+
+        $issueCommand = [
+            $this->acmeBin,
+            '--issue',
+            '-d', $host,
+            '--webroot', $this->webroot,
+            '--server', 'letsencrypt',
+        ];
+
+        if ($this->acmeEmail !== '') {
+            $issueCommand[] = '--accountemail';
+            $issueCommand[] = $this->acmeEmail;
+        }
+
+        error_log('MarketingProxySyncService: issuing cert for ' . $host);
+        if (!$this->runCommand($issueCommand)) {
+            error_log('MarketingProxySyncService: cert issue failed for ' . $host);
+            return false;
+        }
+
+        $installCommand = [
+            $this->acmeBin,
+            '--install-cert',
+            '-d', $host,
+            '--fullchain-file', $certFile,
+            '--key-file', $keyFile,
+        ];
+
+        if (!$this->runCommand($installCommand)) {
+            error_log('MarketingProxySyncService: cert install failed for ' . $host);
+            return false;
+        }
+
+        error_log('MarketingProxySyncService: cert provisioned for ' . $host);
+        return true;
+    }
+
+    private function isCertExpiringSoon(string $certFile): bool
+    {
+        $content = @file_get_contents($certFile);
+        if ($content === false) {
+            return true;
+        }
+
+        $cert = @openssl_x509_parse($content);
+        if (!is_array($cert) || !isset($cert['validTo_time_t'])) {
+            return true;
+        }
+
+        // Renew 30 days before expiry.
+        return time() > ($cert['validTo_time_t'] - 30 * 86400);
+    }
+
+    /**
+     * Determine the main domain that docker-gen already handles.
+     */
+    private function getMainDomain(): string
+    {
+        $domain = getenv('MAIN_DOMAIN');
+        if ($domain !== false && $domain !== '') {
+            return strtolower(trim($domain));
+        }
+
+        $domain = getenv('DOMAIN');
+        if ($domain !== false && $domain !== '') {
+            return strtolower(trim($domain));
+        }
+
+        return '';
     }
 
     /**
@@ -208,19 +312,24 @@ final class MarketingProxySyncService
         proxy_set_header Connection "";
 NGINX;
 
-        $config = <<<NGINX
-# Auto-generated by MarketingProxySyncService – do not edit manually.
+        $config = "# Auto-generated by MarketingProxySyncService – do not edit manually.\n";
+
+        if ($hasCert) {
+            $config .= <<<NGINX
 server {
     listen 80;
     listen [::]:80;
     server_name {$escapedHost};
 
-NGINX;
+    location /.well-known/acme-challenge/ {
+        root {$this->webroot};
+    }
 
-        if ($hasCert) {
-            // Redirect HTTP → HTTPS when a certificate is available.
-            $config .= "    return 301 https://\$host\$request_uri;\n}\n\n";
-            $config .= <<<NGINX
+    location / {
+        return 301 https://\$host\$request_uri;
+    }
+}
+
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
@@ -237,10 +346,14 @@ server {
 
 NGINX;
         } else {
-            // Serve via HTTP and include ACME challenge path for future cert provisioning.
             $config .= <<<NGINX
+server {
+    listen 80;
+    listen [::]:80;
+    server_name {$escapedHost};
+
     location /.well-known/acme-challenge/ {
-        root /usr/share/nginx/html;
+        root {$this->webroot};
     }
 
     location / {
@@ -317,5 +430,41 @@ NGINX;
         curl_close($ch);
 
         return $result !== false && $httpCode >= 200 && $httpCode < 300;
+    }
+
+    /**
+     * @param list<string> $command
+     */
+    private function runCommand(array $command): bool
+    {
+        $process = proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+        if (!is_resource($process)) {
+            return false;
+        }
+
+        $stdout = stream_get_contents($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]);
+        foreach ($pipes as $pipe) {
+            if (is_resource($pipe)) {
+                fclose($pipe);
+            }
+        }
+
+        $exitCode = proc_close($process);
+        if ($stdout !== '' && $stdout !== false) {
+            error_log($stdout);
+        }
+        if ($stderr !== '' && $stderr !== false) {
+            error_log($stderr);
+        }
+
+        return $exitCode === 0;
+    }
+
+    private function commandExists(string $command): bool
+    {
+        $which = trim((string) shell_exec('which ' . escapeshellarg($command) . ' 2>/dev/null'));
+
+        return $which !== '';
     }
 }
