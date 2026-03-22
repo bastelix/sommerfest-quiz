@@ -877,6 +877,8 @@ const MEDIA_SIZE_MAP = {
   xlarge: { heightClass: 'uk-height-max-large', width: 1200, height: 900 }
 };
 
+let _heroMediaModalCounter = 0;
+
 function renderHeroMedia(media) {
   const imageSrc = media?.image || resolveBackgroundImage(media?.imageId);
   if (!imageSrc) {
@@ -884,7 +886,21 @@ function renderHeroMedia(media) {
   }
   const altText = media.alt ? escapeAttribute(media.alt) : '';
   const size = MEDIA_SIZE_MAP[media?.mediaSize] || MEDIA_SIZE_MAP.medium;
-  return `<div uk-lightbox><a href="${escapeAttribute(imageSrc)}" data-alt="${altText}"><div class="uk-cover-container ${size.heightClass} uk-border-rounded uk-box-shadow-small" style="cursor:pointer"><img src="${escapeAttribute(imageSrc)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div></a></div>`;
+  const modalId = `hero-media-modal-${++_heroMediaModalCounter}`;
+  const escapedSrc = escapeAttribute(imageSrc);
+
+  const thumbnail = `<div class="uk-cover-container ${size.heightClass} uk-border-rounded uk-box-shadow-small hero-media-thumb" style="cursor:pointer" uk-toggle="target: #${modalId}"><img src="${escapedSrc}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div>`;
+
+  const modal = `<div id="${modalId}" class="uk-modal-full hero-media-lightbox" uk-modal>` +
+    '<div class="uk-modal-dialog hero-media-lightbox__dialog">' +
+      '<button class="uk-modal-close-full hero-media-lightbox__close" type="button" uk-close uk-toggle="target: #' + modalId + '"></button>' +
+      '<div class="hero-media-lightbox__wrap">' +
+        `<img src="${escapedSrc}" alt="${altText}" class="hero-media-lightbox__img">` +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  return thumbnail + modal;
 }
 
 function applyEmbedDefaults(url) {
