@@ -3838,6 +3838,39 @@ export class BlockContentEditor {
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
     wrapper.append(this.addLabeledInput('Untertitel', block.data.subtitle, value => this.updateBlockData(block.id, ['data', 'subtitle'], value)));
 
+    const columnsField = document.createElement('label');
+    columnsField.dataset.fieldLabel = 'true';
+    const columnsLabel = document.createElement('div');
+    columnsLabel.className = 'field-label';
+    columnsLabel.textContent = 'Spalten (Desktop)';
+    const columnsHelp = createHelperText('Auf Mobilgeräten wird immer eine Spalte angezeigt.');
+    const columnsSelect = document.createElement('select');
+    columnsSelect.className = 'uk-select';
+    const allowedColumns = [2, 3, 4];
+    const currentColumns = allowedColumns.includes(Number(block.data.columns)) ? Number(block.data.columns) : 0;
+    const autoOption = document.createElement('option');
+    autoOption.value = '';
+    autoOption.textContent = 'Automatisch';
+    autoOption.selected = currentColumns === 0;
+    columnsSelect.append(autoOption);
+    allowedColumns.forEach(value => {
+      const option = document.createElement('option');
+      option.value = String(value);
+      option.textContent = `${value} Spalten`;
+      option.selected = value === currentColumns;
+      columnsSelect.append(option);
+    });
+    columnsSelect.addEventListener('change', event => {
+      const val = event.target.value;
+      this.updateBlockData(block.id, ['data', 'columns'], val ? Number(val) : undefined);
+    });
+    columnsField.append(columnsLabel);
+    if (columnsHelp) {
+      columnsField.append(columnsHelp);
+    }
+    columnsField.append(columnsSelect);
+    wrapper.append(columnsField);
+
     const optionsWrapper = document.createElement('div');
     optionsWrapper.dataset.field = 'options';
     optionsWrapper.className = 'collection-list';

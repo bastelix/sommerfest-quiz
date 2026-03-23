@@ -1043,6 +1043,11 @@
         },
         "disclaimer": {
           "type": "string"
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 4
         }
       }
     },
