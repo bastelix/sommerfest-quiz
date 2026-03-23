@@ -324,20 +324,22 @@ const toggleAllPageTreeNodes = (container, expand) => {
 };
 
 const initPageTreeSearch = (treeContainer) => {
-  const searchInput = treeContainer.closest('.page-tree')?.querySelector('[data-page-tree-search]');
+  // Toolbar lives as a sibling (in project_tree.twig) or inside a shared parent card
+  const card = treeContainer.closest('.uk-card-body') || treeContainer.parentElement;
+  const searchInput = card?.querySelector('[data-page-tree-search]');
   if (!searchInput) {
     return;
   }
   searchInput.addEventListener('input', debouncePageTreeSearch(() => {
     const query = searchInput.value.trim().toLowerCase();
-    filterPageTree(treeContainer.closest('.page-tree') || treeContainer, query);
+    filterPageTree(treeContainer, query);
   }));
 
-  const expandAllBtn = treeContainer.closest('.page-tree')?.querySelector('[data-page-tree-expand-all]');
+  const expandAllBtn = card?.querySelector('[data-page-tree-expand-all]');
   if (expandAllBtn) {
     expandAllBtn.addEventListener('click', () => {
       const isExpand = expandAllBtn.getAttribute('data-page-tree-expand-all') !== 'collapse';
-      toggleAllPageTreeNodes(treeContainer.closest('.page-tree') || treeContainer, isExpand);
+      toggleAllPageTreeNodes(treeContainer, isExpand);
       expandAllBtn.setAttribute('data-page-tree-expand-all', isExpand ? 'collapse' : 'expand');
       expandAllBtn.textContent = isExpand
         ? (window.transCollapseAll || 'Collapse all')

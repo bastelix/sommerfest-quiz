@@ -14,6 +14,19 @@
     <span class="uk-label uk-label-default uk-margin-small-right">{{ t('label_namespace_default') }}</span>
     <span class="uk-label uk-label-danger uk-margin-small-right">{{ t('label_namespace_inactive') }}</span>
   </div>
+  <div class="uk-flex uk-flex-middle uk-flex-wrap uk-margin-small-bottom page-tree-toolbar" data-project-tree-toolbar>
+    <div class="uk-inline uk-width-1-1 uk-width-1-2@m">
+      <span class="uk-form-icon" uk-icon="icon: search"></span>
+      <input class="uk-input uk-form-small" type="text"
+             data-page-tree-search
+             placeholder="{{ t('placeholder_search_pages')|default('Seiten durchsuchen…') }}">
+    </div>
+    <button
+      class="uk-button uk-button-default uk-button-small uk-margin-small-left"
+      type="button"
+      data-page-tree-expand-all="collapse"
+    >{{ t('action_collapse_all')|default('Alle einklappen') }}</button>
+  </div>
   <div
     class="project-tree"
     data-project-tree
