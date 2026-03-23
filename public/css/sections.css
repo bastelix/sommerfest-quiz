@@ -519,16 +519,17 @@
  * with a visible white border so they stand out.
  */
 
-.section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default,
-.section[data-section-intent="hero"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default,
+.section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel),
+.section[data-section-intent="hero"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel),
 .section:is(
   [data-section-background-color-token="primary"],
   [data-section-background-color-token="secondary"],
   [data-section-background-color-token="accent"]
-) > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default {
-  background: rgba(255, 255, 255, 0.18);
-  color: var(--text-on-primary, #ffffff);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+) > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) {
+  --marketing-button-secondary-bg: rgba(255, 255, 255, 0.18);
+  --marketing-button-secondary-text: var(--text-on-primary, #ffffff);
+  --marketing-button-secondary-border-color: rgba(255, 255, 255, 0.6);
+  --marketing-button-secondary-hover-bg: rgba(255, 255, 255, 0.30);
 }
 
 .section[data-section-intent="highlight"] > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default:hover,
@@ -538,7 +539,6 @@
   [data-section-background-color-token="secondary"],
   [data-section-background-color-token="accent"]
 ) > .uk-container > .section__inner:not(.section__inner--card):not(.section__inner--panel) .uk-button-default:hover {
-  background: rgba(255, 255, 255, 0.30);
   border-color: rgba(255, 255, 255, 0.8);
 }
 
