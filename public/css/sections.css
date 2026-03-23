@@ -234,7 +234,7 @@
 
 .section__inner {
   background: var(--section-surface-inner, transparent);
-  border-radius: var(--card-radius-square, 8px);
+  border-radius: 0;
   box-sizing: border-box;
   max-width: 100%;
   padding: var(--section-padding-inner);
