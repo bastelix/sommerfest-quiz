@@ -387,6 +387,7 @@
 - *(hero)* Make hero media image clickable with UIkit lightbox
 - *(packages)* Add configurable columns per row for package summary block
 - *(ui)* Add smooth page transitions with progressive enhancement
+- *(mcp)* Add wiki tools module
 
 ### Fix
 
