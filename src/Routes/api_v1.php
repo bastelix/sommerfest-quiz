@@ -8,8 +8,15 @@ use App\Controller\Api\V1\NamespacePageController;
 use App\Controller\Api\V1\NamespaceMenuController;
 use App\Controller\Api\V1\NamespaceNewsController;
 use App\Controller\Api\V1\NamespaceQuizController;
+use App\Controller\Api\V1\NamespaceTicketController;
+use App\Controller\Api\V1\CustomerController;
 
 return function (\Slim\App $app): void {
+    // Public registration endpoint (no auth required)
+    $app->post('/api/v1/register', function (Request $request, Response $response): Response {
+        return (new CustomerController())->register($request, $response);
+    });
+
     $app->group('/api/v1', function (\Slim\Routing\RouteCollectorProxy $group) {
         $group->get('/namespaces/{ns:[a-z0-9\-]+}/pages', function (
             Request $request,
@@ -157,5 +164,51 @@ return function (\Slim\App $app): void {
         $group->post('/namespaces/{ns:[a-z0-9\-]+}/design/validate/{slug:[a-z0-9\-]+}', function (Request $request, Response $response, array $args): Response {
             return (new NamespaceDesignController())->validate($request, $response, $args);
         })->add(new ApiTokenAuthMiddleware(null, null, NamespaceDesignController::SCOPE_DESIGN_READ));
+
+        // Tickets
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/tickets', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceTicketController())->list($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceTicketController::SCOPE_TICKET_READ));
+
+        $group->post('/namespaces/{ns:[a-z0-9\-]+}/tickets', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceTicketController())->create($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceTicketController::SCOPE_TICKET_WRITE));
+
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/tickets/{id:[0-9]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceTicketController())->get($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceTicketController::SCOPE_TICKET_READ));
+
+        $group->patch('/namespaces/{ns:[a-z0-9\-]+}/tickets/{id:[0-9]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceTicketController())->update($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceTicketController::SCOPE_TICKET_WRITE));
+
+        $group->delete('/namespaces/{ns:[a-z0-9\-]+}/tickets/{id:[0-9]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceTicketController())->delete($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceTicketController::SCOPE_TICKET_WRITE));
+
+        $group->patch('/namespaces/{ns:[a-z0-9\-]+}/tickets/{id:[0-9]+}/status', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceTicketController())->transition($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceTicketController::SCOPE_TICKET_WRITE));
+
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/tickets/{id:[0-9]+}/comments', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceTicketController())->listComments($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceTicketController::SCOPE_TICKET_READ));
+
+        $group->post('/namespaces/{ns:[a-z0-9\-]+}/tickets/{id:[0-9]+}/comments', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceTicketController())->addComment($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceTicketController::SCOPE_TICKET_WRITE));
+
+        $group->delete('/namespaces/{ns:[a-z0-9\-]+}/tickets/{id:[0-9]+}/comments/{commentId:[0-9]+}', function (Request $request, Response $response, array $args): Response {
+            return (new NamespaceTicketController())->deleteComment($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, NamespaceTicketController::SCOPE_TICKET_WRITE));
+
+        // Customer profile
+        $group->get('/namespaces/{ns:[a-z0-9\-]+}/customer/profile', function (Request $request, Response $response, array $args): Response {
+            return (new CustomerController())->getProfile($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, CustomerController::SCOPE_CUSTOMER_READ));
+
+        $group->patch('/namespaces/{ns:[a-z0-9\-]+}/customer/profile', function (Request $request, Response $response, array $args): Response {
+            return (new CustomerController())->updateProfile($request, $response, $args);
+        })->add(new ApiTokenAuthMiddleware(null, null, CustomerController::SCOPE_CUSTOMER_WRITE));
     });
 };
