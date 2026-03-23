@@ -682,6 +682,7 @@
 - *(hero)* Use inline height styles instead of UIkit height classes for media size
 - *(topbar)* Link logo to namespace homepage instead of current page
 - Remove redundant null coalescing on header_topbar_style
+- *(packages)* Add columns property to inline schema in block-contract.js
 
 ### Merge
 
