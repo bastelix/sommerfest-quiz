@@ -7,6 +7,7 @@ namespace App\Service\Mcp;
 use App\Domain\CmsPageWikiArticle;
 use App\Service\CmsPageWikiArticleService;
 use App\Service\CmsPageWikiSettingsService;
+use App\Service\PageService;
 use PDO;
 
 final class WikiTools
@@ -15,18 +16,29 @@ final class WikiTools
 
     private CmsPageWikiSettingsService $settingsService;
 
+    private PageService $pageService;
+
     private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
 
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->articleService = new CmsPageWikiArticleService($pdo);
         $this->settingsService = new CmsPageWikiSettingsService($pdo);
+        $this->pageService = new PageService($pdo);
     }
 
     private function resolveNamespace(array $args): string
     {
         $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
         return $ns !== '' ? $ns : $this->defaultNamespace;
+    }
+
+    private function requirePage(int $pageId): void
+    {
+        $page = $this->pageService->findById($pageId);
+        if ($page === null) {
+            throw new \RuntimeException("Page with ID {$pageId} not found. Use list_pages to find valid page IDs.");
+        }
     }
 
     /**
@@ -303,6 +315,8 @@ final class WikiTools
             throw new \InvalidArgumentException('pageId is required');
         }
 
+        $this->requirePage($pageId);
+
         $isActive = isset($args['isActive']) ? (bool) $args['isActive'] : false;
         $menuLabel = isset($args['menuLabel']) && is_string($args['menuLabel']) ? $args['menuLabel'] : null;
         $menuLabels = isset($args['menuLabels']) && is_array($args['menuLabels']) ? $args['menuLabels'] : null;
@@ -332,6 +346,8 @@ final class WikiTools
         if ($pageId <= 0 || $slug === '' || $title === '' || trim($markdown) === '') {
             throw new \InvalidArgumentException('pageId, slug, title, and markdown are required');
         }
+
+        $this->requirePage($pageId);
 
         $locale = isset($args['locale']) && is_string($args['locale']) ? trim($args['locale']) : 'de';
         $excerpt = isset($args['excerpt']) && is_string($args['excerpt']) ? $args['excerpt'] : null;
@@ -442,6 +458,8 @@ final class WikiTools
         if ($pageId <= 0) {
             throw new \InvalidArgumentException('pageId is required');
         }
+
+        $this->requirePage($pageId);
 
         $orderedIds = isset($args['orderedIds']) && is_array($args['orderedIds']) ? $args['orderedIds'] : [];
         if ($orderedIds === []) {
