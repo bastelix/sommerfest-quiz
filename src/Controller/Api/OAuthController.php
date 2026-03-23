@@ -24,6 +24,7 @@ final class OAuthController
         'quiz:read', 'quiz:write',
         'backup:read', 'backup:write',
         'design:read', 'design:write',
+        'wiki:read', 'wiki:write',
     ];
 
     private const SCOPE_DETAILS = [
@@ -101,6 +102,16 @@ final class OAuthController
             'label' => 'Design (write)',
             'description' => 'Update design tokens and custom CSS, import presets, and reset design',
             'tools' => ['update_design_tokens', 'update_custom_css', 'import_design_preset', 'reset_design'],
+        ],
+        'wiki:read' => [
+            'label' => 'Wiki (read)',
+            'description' => 'Read wiki settings, list and view wiki articles, and browse version history',
+            'tools' => ['get_wiki_settings', 'list_wiki_articles', 'get_wiki_article', 'get_wiki_article_versions'],
+        ],
+        'wiki:write' => [
+            'label' => 'Wiki (write)',
+            'description' => 'Update wiki settings, create, update, delete, and reorder wiki articles',
+            'tools' => ['update_wiki_settings', 'create_wiki_article', 'update_wiki_article', 'delete_wiki_article', 'update_wiki_article_status', 'reorder_wiki_articles'],
         ],
     ];
 
