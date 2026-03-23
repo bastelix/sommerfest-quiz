@@ -140,6 +140,8 @@
   {% endif %}
   <link rel="icon" href="{{ faviconSource }}" type="{{ faviconType }}">
   <style>{% include 'partials/critical-css.twig' %}</style>
+  <meta name="view-transition" content="same-origin">
+  <link rel="stylesheet" href="{{ basePath }}/css/page-transition.css">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://fonts.gstatic.com">
   {% if includeUikitStyles %}

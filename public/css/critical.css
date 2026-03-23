@@ -61,6 +61,16 @@ h1, h2, h3, h4 {
 /* ── Links ── */
 a { color: var(--brand-primary, #1e87f0); }
 
+/* ── Page transition progress bar (critical positioning) ── */
+.page-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  z-index: 10000;
+  pointer-events: none;
+}
+
 /* ── Hide elements that should not flash before full CSS loads ── */
 body[data-cms-hydrating] [data-page-root]:empty {
   visibility: hidden;
