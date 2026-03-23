@@ -391,6 +391,7 @@
 - *(mcp)* Register wiki scopes in OAuth consent screen
 - *(page-tree)* Improve sidebar tree usability
 - *(mcp)* Add delete_page tool
+- *(page-tree)* Apply sidebar tree improvements to /admin/pages/content
 
 ### Fix
 
