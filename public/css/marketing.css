@@ -1136,6 +1136,20 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
   box-shadow: var(--marketing-shadow-hero-mockup);
 }
 
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card--frameless {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card--frameless .hero-media-card__frame {
+  border-radius: 0;
+  overflow: visible;
+  background: none;
+}
+
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__frame {
   position: relative;
   border-radius: clamp(12px, 2.5vw, 18px);

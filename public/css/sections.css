@@ -1213,6 +1213,15 @@ body.page-render .qr-page-renderer table {
   border-radius: clamp(12px, 2.5vw, 18px);
 }
 
+.hero-media-card--frameless {
+  padding: 0;
+  border-radius: 0;
+}
+
+.hero-media-card--frameless .hero-media-card__frame {
+  border-radius: 0;
+}
+
 .hero-media-card__meta-actions {
   flex-direction: column;
 }
