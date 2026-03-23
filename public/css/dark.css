@@ -408,6 +408,29 @@ body[data-theme="dark"].admin-page {
   border: 1px solid var(--border-muted);
 }
 
+/* ---- Page tree: dark mode overrides ---- */
+
+[data-theme="dark"] .page-tree-toggle {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .page-tree-toggle:hover {
+  background-color: var(--surface-subtle);
+}
+
+[data-theme="dark"] .page-tree-row:hover {
+  background-color: var(--surface-subtle);
+}
+
+[data-theme="dark"] .page-tree-node:not(.page-tree-node--root)::before,
+[data-theme="dark"] .page-tree-node:not(.page-tree-node--root)::after {
+  background: var(--border-muted);
+}
+
+[data-theme="dark"] .page-tree-node--search-match > .page-tree-row {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
 [data-theme="dark"] .admin-page .uk-button-primary {
   background-color: var(--accent-primary);
   border-color: var(--accent-primary);
