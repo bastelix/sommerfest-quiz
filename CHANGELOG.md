@@ -680,6 +680,7 @@
 - *(ui)* Improve secondary button visibility on dark backgrounds
 - *(hero)* Use inline height styles instead of UIkit height classes for media size
 - *(topbar)* Link logo to namespace homepage instead of current page
+- Remove redundant null coalescing on header_topbar_style
 
 ### Merge
 
