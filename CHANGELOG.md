@@ -687,6 +687,7 @@
 - *(packages)* Add columns property to inline schema in block-contract.js
 - *(ui)* Override button tokens instead of properties for dark surfaces
 - *(editor)* Align preview stylesheets with actual rendered page
+- *(page-tree)* Move toolbar to project_tree template and fix search wiring
 
 ### Merge
 
