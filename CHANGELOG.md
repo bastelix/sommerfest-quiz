@@ -691,6 +691,7 @@
 - *(editor)* Align preview stylesheets with actual rendered page
 - *(page-tree)* Move toolbar to project_tree template and fix search wiring
 - *(mcp)* Validate pageId exists before creating wiki articles
+- Use correct slot name for header menu resolution
 
 ### Merge
 
