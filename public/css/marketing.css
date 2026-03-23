@@ -1043,6 +1043,16 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
   flex-wrap: nowrap;
   gap: 12px;
 }
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-center {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: center;
+}
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-right {
   flex: 1 1 auto;

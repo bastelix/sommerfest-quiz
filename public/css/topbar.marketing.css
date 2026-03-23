@@ -333,6 +333,16 @@ body.cms-page-render.high-contrast .qr-topbar.qr-topbar--border{
   flex-wrap:nowrap;
   gap:12px;
 }
+.cms-page-render .qr-topbar .uk-navbar-center{
+  position:static;
+  top:auto;
+  left:auto;
+  transform:none;
+  width:auto;
+  flex:1 1 auto;
+  min-width:0;
+  justify-content:center;
+}
 .cms-page-render .qr-topbar .uk-navbar-right{
   flex:1 1 auto;
   min-width:0;
