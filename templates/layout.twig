@@ -51,6 +51,7 @@
   <meta name="description" content="{{ effectiveDescription }}">
   {% set effectiveRobots = robotsMeta|default('index, follow') %}
   <meta name="robots" content="{{ effectiveRobots }}">
+  <meta name="theme-color" content="{{ themeColor|default('#764ba2') }}">
   {% set effectiveCanonical = canonicalUrl|default('') %}
   {% if effectiveCanonical %}
   <link rel="canonical" href="{{ effectiveCanonical }}">
@@ -76,6 +77,9 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="de_DE">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ effectiveOgTitle }}">
+    <meta name="twitter:description" content="{{ effectiveOgDescription }}">
+    <meta name="twitter:image" content="{{ effectiveOgImage }}">
   {% if hreflangLinks is defined and hreflangLinks is not empty %}
     {% for link in hreflangLinks %}
       <link rel="alternate" href="{{ link.href }}" hreflang="{{ link.hreflang }}">
