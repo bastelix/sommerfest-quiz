@@ -85,6 +85,19 @@ final class PageTools
                     'required' => ['slug', 'blocks'],
                 ],
             ],
+            [
+                'name' => 'delete_page',
+                'method' => 'deletePage',
+                'description' => 'Delete a page by its slug. This permanently removes the page and cannot be undone.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                        'slug' => ['type' => 'string', 'description' => 'Page slug to delete'],
+                    ],
+                    'required' => ['slug'],
+                ],
+            ],
         ];
     }
 
@@ -365,6 +378,28 @@ final class PageTools
             'pageId' => $page->getId(),
             'language' => $page->getLanguage(),
             'base_slug' => $page->getBaseSlug(),
+        ];
+    }
+
+    public function deletePage(array $args): array
+    {
+        $ns = $this->resolveNamespace($args);
+        $slug = isset($args['slug']) && is_string($args['slug']) ? trim($args['slug']) : '';
+        if ($slug === '') {
+            throw new \InvalidArgumentException('slug is required');
+        }
+
+        $existing = $this->pages->findByKey($ns, $slug);
+        if ($existing === null) {
+            throw new \RuntimeException('Page not found');
+        }
+
+        $this->pages->delete($ns, $slug);
+
+        return [
+            'status' => 'deleted',
+            'namespace' => $ns,
+            'slug' => $slug,
         ];
     }
 }

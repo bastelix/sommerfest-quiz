@@ -160,7 +160,7 @@ final class McpController
     {
         return match ($toolName) {
             'list_pages', 'get_page_tree', 'get_block_contract' => 'cms:read',
-            'upsert_page' => 'cms:write',
+            'upsert_page', 'delete_page' => 'cms:write',
             'list_menus', 'list_menu_items' => 'menu:read',
             'create_menu', 'update_menu', 'delete_menu',
             'create_menu_item', 'update_menu_item', 'delete_menu_item' => 'menu:write',
