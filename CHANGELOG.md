@@ -790,6 +790,7 @@
 - *(ai)* Rewrite html-import template for better GPT-4.1 conversion quality
 - *(design)* Audit and simplify design system for API integration
 - *(hero)* Replace fullscreen lightbox with framed modal overlay
+- Remove 6 legacy marketing twig templates and dead code
 
 ### Style
 
