@@ -514,7 +514,8 @@ const schema = {
           "items": { "$ref": "#/definitions/PackagePlan" },
           "minItems": 1
         },
-        "disclaimer": { "type": "string" }
+        "disclaimer": { "type": "string" },
+        "columns": { "type": "integer", "minimum": 2, "maximum": 4 }
       }
     },
     "ContactFormField": {
