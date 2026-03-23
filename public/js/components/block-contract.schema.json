@@ -64,7 +64,8 @@
             "media_video",
             "media-video",
             "minimal",
-            "stat_tiles"
+            "stat_tiles",
+            "small"
           ]
         },
         "data": {

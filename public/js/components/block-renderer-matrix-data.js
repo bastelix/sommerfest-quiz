@@ -1080,6 +1080,18 @@ function renderHeroMinimal(block, options = {}) {
   return renderHeroSection({ block, variant: 'minimal', content, sectionModifiers: 'uk-section-small' });
 }
 
+function renderHeroSmall(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const eyebrow = renderEyebrow(block, 'uk-text-center', context);
+  const headline = block?.data?.headline
+    ? `<h1 class="uk-heading-small uk-margin-small-top uk-text-center"${buildEditableAttributes(block, 'data.headline', context)}>${escapeHtml(block.data.headline || '')}</h1>`
+    : '';
+  const subheadline = renderSubheadline(block, 'uk-text-center', context);
+  const ctas = renderHeroCtas(block.data?.cta, 'uk-flex-center');
+  const content = `<div class="uk-width-1-1 uk-width-2-3@m uk-align-center uk-text-center">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  return renderHeroSection({ block, variant: 'small', content, sectionModifiers: 'uk-section-small' });
+}
+
 function renderHeroStatTiles(block, options = {}) {
   const context = options?.context || 'frontend';
   const eyebrow = renderEyebrow(block, '', context);
@@ -3258,7 +3270,8 @@ export const RENDERER_MATRIX = {
     'media-right': renderHeroMediaRight,
     'media-left': renderHeroMediaLeft,
     minimal: renderHeroMinimal,
-    stat_tiles: renderHeroStatTiles
+    stat_tiles: renderHeroStatTiles,
+    small: renderHeroSmall
   },
   feature_list: {
     'detailed-cards': renderFeatureListDetailedCards,
