@@ -176,6 +176,9 @@ final class McpController
             'import_namespace' => 'backup:write',
             'get_design_tokens', 'get_custom_css', 'list_design_presets', 'get_design_schema' => 'design:read',
             'update_design_tokens', 'update_custom_css', 'import_design_preset', 'reset_design' => 'design:write',
+            'get_wiki_settings', 'list_wiki_articles', 'get_wiki_article', 'get_wiki_article_versions' => 'wiki:read',
+            'update_wiki_settings', 'create_wiki_article', 'update_wiki_article', 'delete_wiki_article',
+            'update_wiki_article_status', 'reorder_wiki_articles' => 'wiki:write',
             default => null,
         };
     }

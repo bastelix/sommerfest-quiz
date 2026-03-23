@@ -154,6 +154,18 @@ final class McpToolRegistry
                 ],
             ];
         }
+
+        $wikiTools = new WikiTools($this->pdo, $this->namespace);
+        foreach ($wikiTools->definitions() as $def) {
+            $this->tools[$def['name']] = [
+                'handler' => [$wikiTools, $def['method']],
+                'definition' => [
+                    'name' => $def['name'],
+                    'description' => $def['description'],
+                    'inputSchema' => $def['inputSchema'],
+                ],
+            ];
+        }
     }
 
     /**
