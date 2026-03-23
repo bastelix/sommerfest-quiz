@@ -94,9 +94,9 @@
   background: var(--dt-cta-hover) !important;
 }
 .default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-default {
-  color: rgba(255, 255, 255, 0.9) !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
   border-radius: 100px;
   padding: 0 2.2rem;
   font-weight: 600;
@@ -105,7 +105,8 @@
   height: 44px;
 }
 .default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-default:hover {
-  background: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.30) !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
   color: #fff;
 }
 /* Hero CTA group spacing */
@@ -255,15 +256,16 @@
   background: var(--dt-cta-hover) !important;
 }
 .default-theme .section[data-section-intent="highlight"] > .uk-container > .section__inner .uk-button-default {
-  color: rgba(255, 255, 255, 0.9) !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
   border-radius: 100px;
   padding: 0 2rem;
   font-weight: 600;
 }
 .default-theme .section[data-section-intent="highlight"] > .uk-container > .section__inner .uk-button-default:hover {
-  background: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.30) !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
   color: #fff;
 }
 
