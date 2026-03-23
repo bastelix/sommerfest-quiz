@@ -683,6 +683,7 @@
 - *(topbar)* Link logo to namespace homepage instead of current page
 - Remove redundant null coalescing on header_topbar_style
 - *(packages)* Add columns property to inline schema in block-contract.js
+- *(ui)* Override button tokens instead of properties for dark surfaces
 
 ### Merge
 
