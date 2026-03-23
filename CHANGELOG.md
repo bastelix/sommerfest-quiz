@@ -390,6 +390,7 @@
 - *(mcp)* Add wiki tools module
 - *(mcp)* Register wiki scopes in OAuth consent screen
 - *(page-tree)* Improve sidebar tree usability
+- *(mcp)* Add delete_page tool
 
 ### Fix
 
