@@ -166,6 +166,18 @@ final class McpToolRegistry
                 ],
             ];
         }
+
+        $ticketTools = new TicketTools($this->pdo, $this->namespace);
+        foreach ($ticketTools->definitions() as $def) {
+            $this->tools[$def['name']] = [
+                'handler' => [$ticketTools, $def['method']],
+                'definition' => [
+                    'name' => $def['name'],
+                    'description' => $def['description'],
+                    'inputSchema' => $def['inputSchema'],
+                ],
+            ];
+        }
     }
 
     /**
