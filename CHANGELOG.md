@@ -388,6 +388,7 @@
 - *(packages)* Add configurable columns per row for package summary block
 - *(ui)* Add smooth page transitions with progressive enhancement
 - *(mcp)* Add wiki tools module
+- *(mcp)* Register wiki scopes in OAuth consent screen
 
 ### Fix
 
