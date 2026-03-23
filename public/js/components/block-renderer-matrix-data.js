@@ -871,10 +871,10 @@ function renderSubheadline(block, alignmentClass = '', context = 'frontend') {
 }
 
 const MEDIA_SIZE_MAP = {
-  small:  { heightClass: 'uk-height-small',  width: 600, height: 400 },
-  medium: { heightClass: 'uk-height-medium', width: 800, height: 600 },
-  large:  { heightClass: 'uk-height-large',  width: 1000, height: 750 },
-  xlarge: { heightClass: 'uk-height-max-large', width: 1200, height: 900 }
+  small:  { containerHeight: 150, width: 600, height: 400 },
+  medium: { containerHeight: 300, width: 800, height: 600 },
+  large:  { containerHeight: 450, width: 1000, height: 750 },
+  xlarge: { containerHeight: 600, width: 1200, height: 900 }
 };
 
 let _heroMediaModalCounter = 0;
@@ -889,7 +889,7 @@ function renderHeroMedia(media) {
   const modalId = `hero-media-modal-${++_heroMediaModalCounter}`;
   const escapedSrc = escapeAttribute(imageSrc);
 
-  const thumbnail = `<div class="uk-cover-container ${size.heightClass} uk-border-rounded uk-box-shadow-small hero-media-thumb" style="cursor:pointer" uk-toggle="target: #${modalId}"><img src="${escapedSrc}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div>`;
+  const thumbnail = `<div class="uk-cover-container uk-border-rounded uk-box-shadow-small hero-media-thumb" style="cursor:pointer; height: ${size.containerHeight}px" uk-toggle="target: #${modalId}"><img src="${escapedSrc}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div>`;
 
   const modal = `<div id="${modalId}" class="uk-modal-full hero-media-lightbox" uk-modal>` +
     '<div class="uk-modal-dialog hero-media-lightbox__dialog">' +
