@@ -677,6 +677,7 @@
 - *(topbar)* Resolve PHPStan type errors for header_topbar_style
 - Override UIkit absolute positioning on navbar center for CMS pages
 - *(ui)* Improve secondary button visibility on dark backgrounds
+- *(hero)* Use inline height styles instead of UIkit height classes for media size
 
 ### Merge
 
