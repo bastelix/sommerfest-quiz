@@ -19,11 +19,11 @@ final class CmsMenuResolverServiceTest extends TestCase
         $menuDefinitions = $this->createMock(CmsMenuDefinitionService::class);
         $legacyMenuService = $this->createMock(CmsMenuService::class);
 
-        $assignment = new CmsMenuAssignment(1, 12, 44, 'tenant', 'header', 'en', true, null);
+        $assignment = new CmsMenuAssignment(1, 12, 44, 'tenant', 'main', 'en', true, null);
         $menuDefinitions
             ->expects($this->once())
             ->method('getAssignmentForSlot')
-            ->with('tenant', 'header', 'en', 44, true)
+            ->with('tenant', 'main', 'en', 44, true)
             ->willReturn($assignment);
 
         $menu = new CmsMenu(12, 'tenant', 'Header', 'en', true, null);
@@ -44,7 +44,7 @@ final class CmsMenuResolverServiceTest extends TestCase
 
         $resolver = new CmsMenuResolverService(null, $menuDefinitions, $legacyMenuService, null, false);
 
-        $result = $resolver->resolveMenu('tenant', 'header', 44, 'en');
+        $result = $resolver->resolveMenu('tenant', 'main', 44, 'en');
 
         $this->assertSame('page_locale', $result['source']);
         $this->assertSame('Home', $result['items'][0]['label']);
@@ -55,13 +55,13 @@ final class CmsMenuResolverServiceTest extends TestCase
         $menuDefinitions = $this->createMock(CmsMenuDefinitionService::class);
         $legacyMenuService = $this->createMock(CmsMenuService::class);
 
-        $assignment = new CmsMenuAssignment(2, 22, 99, 'tenant', 'header', 'de', true, null);
+        $assignment = new CmsMenuAssignment(2, 22, 99, 'tenant', 'main', 'de', true, null);
         $menuDefinitions
             ->expects($this->exactly(2))
             ->method('getAssignmentForSlot')
             ->withConsecutive(
-                ['tenant', 'header', 'fr', 99, true],
-                ['tenant', 'header', 'de', 99, true]
+                ['tenant', 'main', 'fr', 99, true],
+                ['tenant', 'main', 'de', 99, true]
             )
             ->willReturnOnConsecutiveCalls(null, $assignment);
 
@@ -83,7 +83,7 @@ final class CmsMenuResolverServiceTest extends TestCase
 
         $resolver = new CmsMenuResolverService(null, $menuDefinitions, $legacyMenuService, null, false);
 
-        $result = $resolver->resolveMenu('tenant', 'header', 99, 'fr');
+        $result = $resolver->resolveMenu('tenant', 'main', 99, 'fr');
 
         $this->assertSame('page_default_locale', $result['source']);
         $this->assertSame('Start', $result['items'][0]['label']);

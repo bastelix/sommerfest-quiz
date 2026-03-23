@@ -7,6 +7,8 @@ namespace App\Service;
 use App\Infrastructure\Database;
 use PDO;
 
+use App\Service\CmsMenuResolverService;
+
 use function is_string;
 use function ltrim;
 use function rtrim;
@@ -60,7 +62,7 @@ final class CmsLayoutDataService
     ): array {
         $menuResolver = new CmsMenuResolverService($this->pdo);
 
-        $headerNavigation = $menuResolver->resolveMenu($namespace, 'header', $pageId, $locale);
+        $headerNavigation = $menuResolver->resolveMenu($namespace, CmsMenuResolverService::SLOT_MAIN, $pageId, $locale);
         $cmsMainNavigation = $headerNavigation['items'];
 
         $footerNavigation = $menuResolver->resolveMenu($namespace, 'footer', $pageId, $locale);
