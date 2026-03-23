@@ -13,7 +13,7 @@ Dieses Dokument beschreibt alle Regeln, die ein Claude-Chat benötigt, um auf Ba
 ### 1.1 Allgemeine Regeln
 
 - Die HTML-Vorschau dient **ausschließlich zur visuellen Abstimmung** mit dem Nutzer. Sie ist kein Produktions-Artefakt.
-- Das HTML wird in den Content-Block von `templates/marketing/default.twig` injiziert – Header und Footer existieren bereits.
+- Das HTML wird in den Content-Block von `templates/pages/render.twig` injiziert – Header und Footer existieren bereits.
 - **Kein** `<html>`, `<head>`, `<body>`, `<script>`, `<style>` – nur der innere Content.
 - **Nur UIkit-Klassen** verwenden (Präfix `uk-`). Keine eigenen CSS-Klassen.
 - Texte: **deutsch**, **nutzenorientiert**, **knapp**.

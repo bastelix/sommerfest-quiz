@@ -59,22 +59,9 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 
 | Datei | Zeile | Eingebundenes CSS | Kat. |
 |-------|-------|------------------|------|
-| `templates/marketing/default.twig` | 10–11 | Google Fonts (Poppins, 9 Gewichte) | ⚠️ EXTERN |
-| | 12–13 | `marketing.css` (preload + link) | ✅ DESIGN |
-| | 14 | `highcontrast.css` | ✅ DESIGN |
-| | 15 | `topbar.marketing.css` | ✅ DESIGN |
-| `templates/marketing/landing.twig` | 12 | Google Fonts (Poppins, 9 Gewichte) | ⚠️ EXTERN |
-| | 13–14 | `marketing.css` (preload + link) | ✅ DESIGN |
-| | 15 | `sections.css` | ✅ DESIGN |
-| | 16 | `highcontrast.css` | ✅ DESIGN |
-| | 17 | `onboarding.css` | ⚠️ LEGACY — nutzt `--color-*` statt `--brand-*` |
-| | 18 | `topbar.marketing.css` | ✅ DESIGN |
-| `templates/marketing/calserver.twig` | 13–14 | Google Fonts (Poppins, 9 Gewichte) | ⚠️ EXTERN |
-| | 15–16 | `marketing.css` (preload + link) | ✅ DESIGN |
-| | 17 | `calserver.css` | ⚠️ LEGACY — eigenes `--calserver-*` / `--cs-*` System |
-| | 18 | `highcontrast.css` | ✅ DESIGN |
-| | 19 | `onboarding.css` | ⚠️ LEGACY |
-| | 20 | `topbar.marketing.css` | ✅ DESIGN |
+| ~~`templates/marketing/default.twig`~~ | — | _(removed)_ | — |
+| ~~`templates/marketing/landing.twig`~~ | — | _(removed)_ | — |
+| ~~`templates/marketing/calserver.twig`~~ | — | _(removed)_ | — |
 | `templates/marketing/calhelp.twig` | 15 | Google Fonts (Poppins, 5 Gewichte) | ⚠️ EXTERN |
 | | 16–17 | `marketing.css` (preload + link) | ✅ DESIGN |
 | | 18 | `calserver.css` | ⚠️ LEGACY |
@@ -82,12 +69,7 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 | | 20 | `onboarding.css` | ⚠️ LEGACY |
 | | 21 | `topbar.marketing.css` | ✅ DESIGN |
 | | 22 | `calhelp.css` | ⚠️ LEGACY — Brand-spezifisch |
-| `templates/marketing/calserver-maintenance.twig` | 12–15 | Google Fonts (12–13) + `marketing.css` (preload 14, link 15) | ✅/⚠️ |
-| | 16 | `calserver.css` | ⚠️ LEGACY |
-| | 17 | `calserver-maintenance.css` | ⚠️ LEGACY — 49 hardcodierte Hex-Werte |
-| | 18 | `highcontrast.css` | ✅ DESIGN |
-| | 19 | `onboarding.css` | ⚠️ LEGACY |
-| | 20 | `topbar.marketing.css` | ✅ DESIGN |
+| ~~`templates/marketing/calserver-maintenance.twig`~~ | — | _(removed)_ | — |
 | `templates/marketing/landing_news_show.twig` | 9–16 | Google Fonts (3 Gewichte) + `marketing.css` + `calserver.css` (conditional) + `highcontrast.css` + `onboarding.css` + `topbar.marketing.css` | ⚠️ Mixed |
 | `templates/marketing/calserver-accessibility.twig` | 6–8 | `marketing.css`, `dark.css`, `highcontrast.css` | ✅ DESIGN |
 | `templates/marketing/event_upcoming.twig` | 8–9 | `marketing.css` (preload + link) | ✅ DESIGN |
@@ -176,7 +158,7 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 
 | Quelle | Geladen in | URL |
 |--------|-----------|-----|
-| Google Fonts (Poppins) | `marketing/default.twig`, `marketing/landing.twig`, `marketing/calserver.twig`, `marketing/calserver-maintenance.twig` | `https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap` |
+| Google Fonts (Poppins) | _(legacy templates removed)_ | `https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap` |
 | Google Fonts (Poppins, reduziert) | `marketing/calhelp.twig` | `https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap` |
 | Google Fonts (Poppins, minimal) | `marketing/landing_news_show.twig` | `https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap` |
 | UIkit (CDN) | `vuequiz/index.html` | `https://cdn.jsdelivr.net/npm/uikit@3.23.9/dist/css/uikit.min.css` |
@@ -210,14 +192,14 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 │ └────────────────────────────────────────────────────────────────┘          │
 │                                                                              │
 │ ┌── B) Marketing ────────────────────────────────────────────────┐          │
-│ │ marketing/default.twig | landing.twig | calserver.twig ...    │          │
+│ │ marketing/calhelp.twig | calhelp-ueber.twig | wiki/ ...       │          │
 │ │ └─ Google Fonts ⚠️, marketing.css ✅, highcontrast.css ✅    │          │
 │ │   └─ topbar.marketing.css ✅                                  │          │
-│ │   └─ calserver.css ⚠️ (calserver/calhelp)                    │          │
+│ │   └─ calserver.css ⚠️ (calhelp)                              │          │
 │ │   └─ calhelp.css ⚠️ (calhelp)                                │          │
-│ │   └─ calserver-maintenance.css ⚠️ (maintenance)              │          │
-│ │   └─ onboarding.css ⚠️ (landing/calserver/calhelp)           │          │
-│ │   └─ sections.css ✅ (landing)                                │          │
+│ │   └─ onboarding.css ⚠️ (calhelp)                             │          │
+│ │ Note: default/landing/calserver/calserver-maintenance/         │          │
+│ │       fluke-metcal templates removed — see pages/render.twig  │          │
 │ └────────────────────────────────────────────────────────────────┘          │
 │                                                                              │
 │ ┌── C) CMS-Pages ───────────────────────────────────────────────┐          │
@@ -278,43 +260,13 @@ Das Base-Layout bindet Stylesheets **bedingt** ein. Jedes Child-Template kann di
 
 **Konflikte:** `calhelp.css` (Pos. 10) kann Marketing-Tokens in `theme-vars.twig` (Pos. 11) überschreiben, da es eigene Variablen definiert. UIkit (Pos. 1) definiert Basis-Styles die durch `main.css` (Pos. 7) und `variables.css` (Pos. 2) überschrieben werden müssen.
 
-### 3.2 Marketing-Default (`marketing/default.twig`)
+### 3.2 ~~Marketing-Default (`marketing/default.twig`)~~ — REMOVED
 
-```
-1. uikit.min.css              ⚠️ LEGACY
-2. variables.css               ✅
-   ── head Block (default.twig) ──
-3. Google Fonts (Poppins)      ⚠️ EXTERN
-4. marketing.css (preload)     (Performance-Hint)
-5. marketing.css               ✅ Marketing-Tokens
-6. highcontrast.css            ✅
-7. topbar.marketing.css        ✅
-   ── head_end Block ──
-8. namespace-tokens.css        ✅ (nach head bei marketing-page)
-9. theme-vars.twig (inline)    ✅ Dynamische Token-Injection
-```
+Template deleted. Marketing pages now render through `templates/pages/render.twig` (see §3.4).
 
-**Hinweis:** Bei Marketing-Pages wird `namespace-tokens.css` bewusst NACH den Marketing-Stylesheets geladen (Zeile 182–184 in layout.twig), damit die Namespace-Tokens die Marketing-Defaults korrekt überschreiben.
+### 3.3 ~~CalServer-Marketing (`marketing/calserver.twig`)~~ — REMOVED
 
-### 3.3 CalServer-Marketing (`marketing/calserver.twig`)
-
-```
-1. uikit.min.css              ⚠️ LEGACY
-2. variables.css               ✅
-   ── head Block (calserver.twig) ──
-3. Google Fonts (Poppins)      ⚠️ EXTERN
-4. marketing.css (preload)     (Performance-Hint)
-5. marketing.css               ✅
-6. calserver.css               ⚠️ LEGACY — eigenes --calserver-*/--cs-* System
-7. highcontrast.css            ✅
-8. onboarding.css              ⚠️ LEGACY — nutzt --color-* statt --brand-*
-9. topbar.marketing.css        ✅
-   ── head_end Block ──
-10. namespace-tokens.css       ✅
-11. theme-vars.twig (inline)   ✅
-```
-
-**Konflikte:** `calserver.css` (Pos. 6) definiert `--calserver-primary: var(--qr-landing-primary)` — ein eigenes Variablen-System das parallel zum Namespace-Token-System existiert. Die CalServer-Hero-Backgrounds, Logo-Styles und Section-Layouts sind komplett in `calserver.css` hardcodiert und werden nicht durch Namespace-Tokens gesteuert.
+Template deleted. CalServer pages now render through the block-based CMS system.
 
 ### 3.4 CMS-Page (`pages/render.twig`)
 
