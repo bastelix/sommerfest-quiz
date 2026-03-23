@@ -675,6 +675,7 @@
 - *(media)* Allow public access to project uploads via namespace resolution
 - *(topbar)* Resolve PHPStan type errors for header_topbar_style
 - Override UIkit absolute positioning on navbar center for CMS pages
+- *(ui)* Improve secondary button visibility on dark backgrounds
 
 ### Merge
 
