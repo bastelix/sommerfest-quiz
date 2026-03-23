@@ -389,9 +389,26 @@ class PageController
             ]);
         }
 
+        // Embed the hydration payload in the HTML so the frontend-hydrator
+        // can read it from a <script data-json="page"> tag instead of making
+        // an extra fetch() round-trip to ?format=json.
+        $embeddedPayload = null;
+        if (is_array($pageBlocks) && $pageBlocks !== []) {
+            $embeddedPayload = [
+                'namespace' => $pageNamespace,
+                'slug' => $page->getSlug(),
+                'blocks' => $pageBlocks,
+                'design' => $design,
+                'content' => $html,
+                'pageType' => $pageType,
+                'featureData' => $marketingPayload['featureData'],
+            ];
+        }
+
         $data = [
             'content' => $html,
             'pageBlocks' => $pageBlocks,
+            'embeddedPayload' => $embeddedPayload,
             'pageFavicon' => $config?->getFaviconPath(),
             'metaTitle' => $config?->getMetaTitle(),
             'metaDescription' => $config?->getMetaDescription(),

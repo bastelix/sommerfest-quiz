@@ -139,6 +139,9 @@
     {% set faviconType = 'image/svg+xml' %}
   {% endif %}
   <link rel="icon" href="{{ faviconSource }}" type="{{ faviconType }}">
+  <style>{% include 'partials/critical-css.twig' %}</style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
   {% if includeUikitStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   {% endif %}
@@ -148,7 +151,8 @@
   {% set includeDarkStyles = includeDarkStyles is same as(false) ? false : includeDarkStyles|default(true) %}
   {% set shouldIncludeDarkStyles = includeMainStyles and includeVariablesStyles and includeDarkStyles %}
   {% if shouldIncludeDarkStyles %}
-    <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
+    <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all"></noscript>
   {% endif %}
   {% set namespaceTokensVersionsMap = namespaceTokensVersions|default({}) %}
   {% set namespaceTokensQuery = namespaceTokensVersionsMap[activeNamespace]|default(namespaceTokensVersion|default('now'|date('U'))) %}
