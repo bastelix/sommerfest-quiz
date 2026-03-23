@@ -689,6 +689,7 @@
 - *(ui)* Override button tokens instead of properties for dark surfaces
 - *(editor)* Align preview stylesheets with actual rendered page
 - *(page-tree)* Move toolbar to project_tree template and fix search wiring
+- *(mcp)* Validate pageId exists before creating wiki articles
 
 ### Merge
 
