@@ -685,6 +685,7 @@
 - Remove redundant null coalescing on header_topbar_style
 - *(packages)* Add columns property to inline schema in block-contract.js
 - *(ui)* Override button tokens instead of properties for dark surfaces
+- *(editor)* Align preview stylesheets with actual rendered page
 
 ### Merge
 
