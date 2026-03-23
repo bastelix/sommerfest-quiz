@@ -386,6 +386,7 @@
 - *(topbar)* Add configurable topbar style setting for navigation visibility
 - *(hero)* Make hero media image clickable with UIkit lightbox
 - *(packages)* Add configurable columns per row for package summary block
+- *(ui)* Add smooth page transitions with progressive enhancement
 
 ### Fix
 
