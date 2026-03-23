@@ -1,4 +1,4 @@
-import { resolveSectionIntentInfo, deriveSectionIntent } from './section-intents.js';
+import { resolveSectionIntentInfo, deriveSectionIntent, DEFAULT_CONTAINER_BY_TYPE } from './section-intents.js';
 
 export function escapeHtml(value) {
   if (value === null || value === undefined) {
@@ -416,8 +416,9 @@ const CONTAINER_SPACING_TO_CLASS = {
 };
 
 function resolveContainerPreset(block) {
-  const container = block?.meta?.sectionStyle?.container;
-  if (!container) return null;
+  const container = block?.meta?.sectionStyle?.container
+    || DEFAULT_CONTAINER_BY_TYPE[block?.type]
+    || { width: 'normal', frame: 'none', spacing: 'normal' };
 
   const background = block?.meta?.sectionStyle?.background || {};
   const intent = deriveSectionIntent(container, background);
