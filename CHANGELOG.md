@@ -693,6 +693,7 @@
 
 - *(admin)* Optimize table loading for events and logins
 - Lazy-load non-critical CSS and embed hydration payload
+- *(seo)* Improve global seo with twitter tags, theme-color, font optimization and https redirect
 
 ### Refactor
 
