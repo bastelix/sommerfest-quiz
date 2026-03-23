@@ -35,8 +35,8 @@ final class OAuthController
         ],
         'cms:write' => [
             'label' => 'CMS Pages (write)',
-            'description' => 'Create and update pages',
-            'tools' => ['upsert_page'],
+            'description' => 'Create, update, and delete pages',
+            'tools' => ['upsert_page', 'delete_page'],
         ],
         'seo:write' => [
             'label' => 'SEO (write)',
