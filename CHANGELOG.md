@@ -389,6 +389,7 @@
 - *(ui)* Add smooth page transitions with progressive enhancement
 - *(mcp)* Add wiki tools module
 - *(mcp)* Register wiki scopes in OAuth consent screen
+- *(page-tree)* Improve sidebar tree usability
 
 ### Fix
 
