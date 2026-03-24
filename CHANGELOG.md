@@ -393,6 +393,7 @@
 - *(mcp)* Add delete_page tool
 - *(page-tree)* Apply sidebar tree improvements to /admin/pages/content
 - *(tickets)* Add ticket system API with customer registration and profiles
+- *(hero)* Add frameless option for hero media images
 
 ### Fix
 
