@@ -105,7 +105,11 @@ class PageService
 
         if ($this->findByKey($normalizedNamespace, $normalizedSlug) !== null) {
             throw new LogicException(
-                sprintf('Eine Seite mit dem Namespace "%s" und dem Slug "%s" existiert bereits.', $normalizedNamespace, $normalizedSlug)
+                sprintf(
+                    'Eine Seite mit dem Namespace "%s" und dem Slug "%s" existiert bereits.',
+                    $normalizedNamespace,
+                    $normalizedSlug
+                )
             );
         }
 

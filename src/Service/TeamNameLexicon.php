@@ -42,7 +42,12 @@ class TeamNameLexicon
     /**
      * Cache of computed name combinations per filter set.
      *
-     * @var array<string, array{adjectives: array<int, string>, nouns: array<int, string>, names: array<int, string>, total: int}>
+     * @var array<string, array{
+     *     adjectives: array<int, string>,
+     *     nouns: array<int, string>,
+     *     names: array<int, string>,
+     *     total: int
+     * }>
      */
     private array $nameCache = [];
 

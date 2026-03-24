@@ -252,7 +252,15 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Delta', 'AI Echo'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $first = $service->reserveWithBuffer('event-ai', [], [], 2, null, 'ai');
             self::assertSame('AI Alpha', $first['name']);
@@ -333,7 +341,15 @@ final class TeamNameServiceTest extends TestCase
             $responder = new HttpChatResponder('https://rag.example/api/chat', $client, null);
             $aiClient = new TeamNameAiClient($responder);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $preview = $service->previewAiSuggestions('event-ai-segmented', [], [], 'de', 2);
             self::assertSame(['AI Stern', 'AI Funk'], $preview);
@@ -377,7 +393,15 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Français', 'AI Deux'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $german = $service->reserveWithBuffer('event-locale', [], [], 0, 'de', 'ai');
             self::assertSame('AI Deutsch', $german['name']);
@@ -409,7 +433,15 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Cascade'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $preview = $service->previewAiSuggestions('event-preview', ['nature'], ['playful'], 'de-DE', 2);
             self::assertSame(['AI Aurora', 'AI Borealis'], $preview);
@@ -438,9 +470,20 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Sonnenstrahl', 'AI Mondlicht'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
-            $stmt = $pdo->prepare('INSERT INTO team_names(event_id, name, lexicon_version, reservation_token) VALUES (?,?,?,?)');
+            $stmt = $pdo->prepare(
+                'INSERT INTO team_names(event_id, name, lexicon_version, reservation_token)'
+                . ' VALUES (?,?,?,?)'
+            );
             $total = TeamNameAiClient::EXISTING_NAMES_LIMIT + 30;
             for ($index = 1; $index <= $total; $index++) {
                 $stmt->execute(['event-history', sprintf('History %03d', $index), 2, 'token-' . $index]);
@@ -472,7 +515,15 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Five'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $service->warmUpAiSuggestions('event-warm', ['science'], ['serious'], 'en-US', 4);
 
@@ -514,7 +565,10 @@ final class TeamNameServiceTest extends TestCase
                 $dispatcher
             );
 
-            $stmt = $pdo->prepare('INSERT INTO team_names(event_id, name, lexicon_version, reservation_token) VALUES (?,?,?,?)');
+            $stmt = $pdo->prepare(
+                'INSERT INTO team_names(event_id, name, lexicon_version, reservation_token)'
+                . ' VALUES (?,?,?,?)'
+            );
             $stmt->execute(['event-fallback', 'Taken Crew', 2, 'existing-token']);
 
             $reservation = $service->reserveWithBuffer('event-fallback', [], [], 0, null, 'ai');
@@ -587,7 +641,15 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Four', 'AI Five'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $batch = $service->reserveBatchWithBuffer('event-batch-ai', 3, ['nature'], ['playful'], 2, 'fr', 'ai');
             self::assertCount(3, $batch);
@@ -642,7 +704,15 @@ final class TeamNameServiceTest extends TestCase
             };
 
             $aiClient = new TeamNameAiClient($responder);
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $reservation = $service->reserveWithBuffer('event-ai-context', ['nature'], ['playful'], 0, 'fr', 'ai');
 
@@ -677,7 +747,15 @@ final class TeamNameServiceTest extends TestCase
                 [],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $initial = $service->getAiDiagnostics();
             self::assertTrue($initial['enabled']);
@@ -711,7 +789,15 @@ final class TeamNameServiceTest extends TestCase
                 [],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $result = $service->warmUpAiSuggestionsWithLog('event-log', [], [], 'de-DE', 6);
 
@@ -739,12 +825,21 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Reset', 'AI Spare'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $service->previewAiSuggestions('event-reset', [], [], 'de-DE', 2);
 
             $insert = $pdo->prepare(
-                'INSERT INTO team_names(event_id, name, lexicon_version, reservation_token, fallback) VALUES (?,?,?,?,0)'
+                'INSERT INTO team_names(event_id, name, lexicon_version, reservation_token, fallback)'
+                . ' VALUES (?,?,?,?,0)'
             );
             $insert->execute(['event-reset', 'AI Reset', 2, 'tok-reset']);
 
@@ -781,7 +876,15 @@ final class TeamNameServiceTest extends TestCase
                 ['Cached Alpha', 'Cached Beta'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+            );
 
             $service->previewAiSuggestions('event-cache', ['science'], ['quirky'], 'de-DE', 2);
 
@@ -883,7 +986,15 @@ final class TeamNameServiceTest extends TestCase
         $lexiconPath = $this->createLexicon(['Alpha'], ['Beta']);
 
         try {
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 300, null, false, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                300,
+                null,
+                false,
+                null,
+            );
 
             $insert = $pdo->prepare(
                 'INSERT INTO team_names(event_id, name, lexicon_version, reservation_token, reserved_at, assigned_at, released_at, fallback) '

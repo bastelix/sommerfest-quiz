@@ -104,7 +104,10 @@ class DesignTokenServiceTest extends TestCase
         $this->assertStringContainsString(':root {', (string) $stylesheet);
         $this->assertStringContainsString('--brand-primary: #111111', (string) $stylesheet);
         $this->assertStringContainsString('[data-namespace="calserver"]', (string) $stylesheet);
-        $this->assertStringContainsString("[data-namespace=\"calserver\"] {\n  --brand-primary: #111111", (string) $stylesheet);
+        $this->assertStringContainsString(
+            "[data-namespace=\"calserver\"] {\n  --brand-primary: #111111",
+            (string) $stylesheet
+        );
         $this->assertStringContainsString('--brand-accent: #222222', (string) $stylesheet);
         $this->assertStringContainsString('--components-button-style: ghost', (string) $stylesheet);
 
@@ -231,7 +234,12 @@ class DesignTokenServiceTest extends TestCase
 
         $designFiles = new NamespaceDesignFileRepository($designRoot);
         $configService = new ConfigService($pdo, designFiles: $designFiles);
-        $service = new DesignTokenService($pdo, $configService, tempnam(sys_get_temp_dir(), 'namespace-tokens-'), $designFiles);
+        $service = new DesignTokenService(
+            $pdo,
+            $configService,
+            tempnam(sys_get_temp_dir(), 'namespace-tokens-'),
+            $designFiles
+        );
 
         $tokens = $service->getTokensForNamespace('tenant');
 

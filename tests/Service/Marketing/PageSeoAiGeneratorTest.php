@@ -39,7 +39,10 @@ final class PageSeoAiGeneratorTest extends TestCase
 
     public function testNormalisesResponseAndBuildsCanonicalFallback(): void
     {
-        $response = "```json\n{\n  \"metaTitle\": \"Sehr langer Titel, der gekürzt werden sollte weil er eigentlich zu lang ist\",\n  \"metaDescription\": \"Beschreibung für die Seite, die möglicherweise länger als erlaubt ist und deshalb gekürzt werden muss.\",\n  \"robots\": \"index, follow\"\n}\n```";
+        $response = "```json\n{\n  \"metaTitle\": \"Sehr langer Titel, der gekürzt werden"
+            . " sollte weil er eigentlich zu lang ist\",\n  \"metaDescription\": \"Beschreibung"
+            . " für die Seite, die möglicherweise länger als erlaubt ist und deshalb gekürzt"
+            . " werden muss.\",\n  \"robots\": \"index, follow\"\n}\n```";
 
         $generator = new PageSeoAiGenerator(null, new StaticChatResponder($response), '{{slug}}');
         $page = $this->createPage('default', 'ziel', '<p>Beschreibung des Inhalts</p>');
@@ -201,6 +204,9 @@ final class PageSeoAiGeneratorTest extends TestCase
 
     private function createPage(string $namespace, string $slug, string $content): Page
     {
-        return new Page(7, $namespace, $slug, ucfirst($slug), $content, null, null, 0, null, 'de', null, null, null, false);
+        return new Page(
+            7, $namespace, $slug, ucfirst($slug), $content,
+            null, null, 0, null, 'de', null, null, null, false
+        );
     }
 }

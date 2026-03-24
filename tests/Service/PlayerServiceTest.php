@@ -82,8 +82,14 @@ class PlayerServiceTest extends TestCase
             . 'PRIMARY KEY (event_uid, player_uid)'
             . ');'
         );
-        $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT, player_uid TEXT, name TEXT NOT NULL);');
-        $pdo->exec('CREATE TABLE question_results(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT, player_uid TEXT, name TEXT NOT NULL);');
+        $pdo->exec(
+            'CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . ' event_uid TEXT, player_uid TEXT, name TEXT NOT NULL);'
+        );
+        $pdo->exec(
+            'CREATE TABLE question_results(id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . ' event_uid TEXT, player_uid TEXT, name TEXT NOT NULL);'
+        );
 
         $guard = new UsernameGuard(['usernames' => ['verboten']]);
         $service = new PlayerService($pdo, $guard);

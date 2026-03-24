@@ -164,17 +164,23 @@ final class NamespaceNewsController
             return $this->json($response, ['error' => 'not_found'], 404);
         }
 
-        $pageId = isset($payload['pageId']) && is_numeric($payload['pageId']) ? (int) $payload['pageId'] : $existing->getPageId();
-        $slug = isset($payload['slug']) && is_string($payload['slug']) ? trim($payload['slug']) : $existing->getSlug();
-        $title = isset($payload['title']) && is_string($payload['title']) ? trim($payload['title']) : $existing->getTitle();
-        $content = isset($payload['content']) && is_string($payload['content']) ? $payload['content'] : $existing->getContent();
+        $pageId = isset($payload['pageId']) && is_numeric($payload['pageId'])
+            ? (int) $payload['pageId'] : $existing->getPageId();
+        $slug = isset($payload['slug']) && is_string($payload['slug'])
+            ? trim($payload['slug']) : $existing->getSlug();
+        $title = isset($payload['title']) && is_string($payload['title'])
+            ? trim($payload['title']) : $existing->getTitle();
+        $content = isset($payload['content']) && is_string($payload['content'])
+            ? $payload['content'] : $existing->getContent();
 
         if (trim($content) === '') {
             return $this->json($response, ['error' => 'content_cannot_be_empty'], 422);
         }
 
-        $excerpt = array_key_exists('excerpt', $payload) && is_string($payload['excerpt']) ? $payload['excerpt'] : $existing->getExcerpt();
-        $imageUrl = array_key_exists('imageUrl', $payload) && is_string($payload['imageUrl']) ? $payload['imageUrl'] : $existing->getImageUrl();
+        $excerpt = array_key_exists('excerpt', $payload) && is_string($payload['excerpt'])
+            ? $payload['excerpt'] : $existing->getExcerpt();
+        $imageUrl = array_key_exists('imageUrl', $payload) && is_string($payload['imageUrl'])
+            ? $payload['imageUrl'] : $existing->getImageUrl();
         $isPublished = isset($payload['isPublished']) ? (bool) $payload['isPublished'] : $existing->isPublished();
 
         $publishedAt = $existing->getPublishedAt();

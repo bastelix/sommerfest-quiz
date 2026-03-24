@@ -712,8 +712,10 @@ class CatalogService
         $del->execute([$cat['uid']]);
         $qStmt = $this->pdo->prepare(
             'INSERT INTO questions(' .
-            'catalog_uid,type,prompt,points,options,answers,terms,items,cards,right_label,left_label,sort_order,countdown)' .
-            ' VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
+            'catalog_uid,type,prompt,points,options,answers,'
+            . 'terms,items,cards,right_label,left_label,'
+            . 'sort_order,countdown'
+            . ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
         );
         foreach ($data as $i => $q) {
             $answers = null;

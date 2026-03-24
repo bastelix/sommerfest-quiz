@@ -434,9 +434,16 @@ final class OAuthController
                     'error_description' => 'code_verifier required',
                 ], 400);
             }
-            $expected = rtrim(strtr(base64_encode(hash('sha256', $codeVerifier, true)), '+/', '-_'), '=');
+            $expected = rtrim(strtr(
+                base64_encode(hash('sha256', $codeVerifier, true)),
+                '+/',
+                '-_'
+            ), '=');
             if (!hash_equals($authCode['code_challenge'], $expected)) {
-                return $this->json($response, ['error' => 'invalid_grant', 'error_description' => 'PKCE verification failed'], 400);
+                return $this->json($response, [
+                    'error' => 'invalid_grant',
+                    'error_description' => 'PKCE verification failed',
+                ], 400);
             }
         }
 

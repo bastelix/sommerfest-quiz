@@ -272,7 +272,11 @@ final class PageTools
      */
     private function resolveSchemaRefs(array $schema, array $definitions): array
     {
-        if (isset($schema['$ref']) && is_string($schema['$ref']) && str_starts_with($schema['$ref'], '#/definitions/')) {
+        if (
+            isset($schema['$ref'])
+            && is_string($schema['$ref'])
+            && str_starts_with($schema['$ref'], '#/definitions/')
+        ) {
             $refName = substr($schema['$ref'], strlen('#/definitions/'));
             if (isset($definitions[$refName]) && is_array($definitions[$refName])) {
                 return $this->resolveSchemaRefs($definitions[$refName], $definitions);
@@ -351,7 +355,11 @@ final class PageTools
 
         // Update status/title/language/base_slug/type if provided
         $type = isset($args['type']) && is_string($args['type']) ? trim($args['type']) : null;
-        $hasUpdatableFields = isset($args['status']) || isset($args['title']) || $language !== null || $baseSlug !== null || $type !== null;
+        $hasUpdatableFields = isset($args['status'])
+            || isset($args['title'])
+            || $language !== null
+            || $baseSlug !== null
+            || $type !== null;
         if ($hasUpdatableFields) {
             $fields = [];
             $params = [];
@@ -392,7 +400,10 @@ final class PageTools
                 $fields[] = 'updated_at = CURRENT_TIMESTAMP';
                 $params[] = $ns;
                 $params[] = $slug;
-                $stmt = $this->pdo->prepare('UPDATE pages SET ' . implode(', ', $fields) . ' WHERE namespace = ? AND slug = ?');
+                $sql = 'UPDATE pages SET '
+                    . implode(', ', $fields)
+                    . ' WHERE namespace = ? AND slug = ?';
+                $stmt = $this->pdo->prepare($sql);
                 $stmt->execute($params);
             }
         }

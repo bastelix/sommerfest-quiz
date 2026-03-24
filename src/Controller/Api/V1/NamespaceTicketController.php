@@ -97,11 +97,16 @@ final class NamespaceTicketController
             return $this->json($response, ['error' => 'missing_required_fields'], 422);
         }
 
-        $description = isset($payload['description']) && is_string($payload['description']) ? $payload['description'] : '';
-        $type = isset($payload['type']) && is_string($payload['type']) ? $payload['type'] : 'task';
-        $priority = isset($payload['priority']) && is_string($payload['priority']) ? $payload['priority'] : 'normal';
-        $referenceType = isset($payload['referenceType']) && is_string($payload['referenceType']) ? $payload['referenceType'] : null;
-        $referenceId = isset($payload['referenceId']) && is_numeric($payload['referenceId']) ? (int) $payload['referenceId'] : null;
+        $description = isset($payload['description']) && is_string($payload['description'])
+            ? $payload['description'] : '';
+        $type = isset($payload['type']) && is_string($payload['type'])
+            ? $payload['type'] : 'task';
+        $priority = isset($payload['priority']) && is_string($payload['priority'])
+            ? $payload['priority'] : 'normal';
+        $referenceType = isset($payload['referenceType']) && is_string($payload['referenceType'])
+            ? $payload['referenceType'] : null;
+        $referenceId = isset($payload['referenceId']) && is_numeric($payload['referenceId'])
+            ? (int) $payload['referenceId'] : null;
         $assignee = isset($payload['assignee']) && is_string($payload['assignee']) ? $payload['assignee'] : null;
         $labels = isset($payload['labels']) && is_array($payload['labels']) ? $payload['labels'] : [];
         $dueDate = isset($payload['dueDate']) && is_string($payload['dueDate']) ? $payload['dueDate'] : null;

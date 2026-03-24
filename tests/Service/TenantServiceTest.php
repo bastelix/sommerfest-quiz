@@ -183,13 +183,62 @@ SQL;
         );
 
         $rows = [
-            ['uid' => 'pending', 'subdomain' => 'pending', 'state' => TenantService::ONBOARDING_PENDING, 'plan' => null, 'stripe_status' => null, 'created_at' => '2024-02-01T00:00:00Z'],
-            ['uid' => 'provisioning', 'subdomain' => 'provisioning', 'state' => TenantService::ONBOARDING_PROVISIONING, 'plan' => null, 'stripe_status' => null, 'created_at' => '2024-02-02T00:00:00Z'],
-            ['uid' => 'provisioned', 'subdomain' => 'provisioned', 'state' => TenantService::ONBOARDING_PROVISIONED, 'plan' => null, 'stripe_status' => null, 'created_at' => '2024-02-03T00:00:00Z'],
-            ['uid' => 'failed', 'subdomain' => 'failed', 'state' => TenantService::ONBOARDING_FAILED, 'plan' => null, 'stripe_status' => null, 'created_at' => '2024-02-04T00:00:00Z'],
-            ['uid' => 'active', 'subdomain' => 'active', 'state' => TenantService::ONBOARDING_COMPLETED, 'plan' => Plan::STARTER->value, 'stripe_status' => null, 'created_at' => '2024-02-05T00:00:00Z'],
-            ['uid' => 'canceled', 'subdomain' => 'canceled', 'state' => TenantService::ONBOARDING_COMPLETED, 'plan' => Plan::STARTER->value, 'stripe_status' => 'canceled', 'created_at' => '2024-02-06T00:00:00Z'],
-            ['uid' => 'simulated', 'subdomain' => 'simulated', 'state' => TenantService::ONBOARDING_COMPLETED, 'plan' => null, 'stripe_status' => null, 'created_at' => '2024-02-07T00:00:00Z'],
+            [
+                'uid' => 'pending',
+                'subdomain' => 'pending',
+                'state' => TenantService::ONBOARDING_PENDING,
+                'plan' => null,
+                'stripe_status' => null,
+                'created_at' => '2024-02-01T00:00:00Z',
+            ],
+            [
+                'uid' => 'provisioning',
+                'subdomain' => 'provisioning',
+                'state' => TenantService::ONBOARDING_PROVISIONING,
+                'plan' => null,
+                'stripe_status' => null,
+                'created_at' => '2024-02-02T00:00:00Z',
+            ],
+            [
+                'uid' => 'provisioned',
+                'subdomain' => 'provisioned',
+                'state' => TenantService::ONBOARDING_PROVISIONED,
+                'plan' => null,
+                'stripe_status' => null,
+                'created_at' => '2024-02-03T00:00:00Z',
+            ],
+            [
+                'uid' => 'failed',
+                'subdomain' => 'failed',
+                'state' => TenantService::ONBOARDING_FAILED,
+                'plan' => null,
+                'stripe_status' => null,
+                'created_at' => '2024-02-04T00:00:00Z',
+            ],
+            [
+                'uid' => 'active',
+                'subdomain' => 'active',
+                'state' => TenantService::ONBOARDING_COMPLETED,
+                'plan' => Plan::STARTER->value,
+                'stripe_status' => null,
+                'created_at' => '2024-02-05T00:00:00Z',
+            ],
+            [
+                'uid' => 'canceled',
+                'subdomain' => 'canceled',
+                'state' => TenantService::ONBOARDING_COMPLETED,
+                'plan' => Plan::STARTER->value,
+                'stripe_status' => 'canceled',
+                'created_at' => '2024-02-06T00:00:00Z',
+            ],
+            [
+                'uid' => 'simulated',
+                'subdomain' => 'simulated',
+                'state' => TenantService::ONBOARDING_COMPLETED,
+                'plan' => null,
+                'stripe_status' => null,
+                'created_at' => '2024-02-07T00:00:00Z',
+            ],
         ];
 
         foreach ($rows as $row) {
@@ -435,7 +484,10 @@ SQL;
         };
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec("ATTACH DATABASE ':memory:' AS information_schema");
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, onboarding_state TEXT DEFAULT "pending")');
+        $pdo->exec(
+            'CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT,'
+            . ' onboarding_state TEXT DEFAULT "pending")'
+        );
         $pdo->exec('CREATE TABLE information_schema.schemata(schema_name TEXT)');
         $pdo->exec("INSERT INTO information_schema.schemata(schema_name) VALUES('orphan')");
         $service = new TenantService($pdo);
@@ -458,7 +510,10 @@ SQL;
         };
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec("ATTACH DATABASE ':memory:' AS information_schema");
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, onboarding_state TEXT DEFAULT "pending")');
+        $pdo->exec(
+            'CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT,'
+            . ' onboarding_state TEXT DEFAULT "pending")'
+        );
         $pdo->exec('CREATE TABLE information_schema.tables(table_schema TEXT)');
         $pdo->exec("INSERT INTO information_schema.tables(table_schema) VALUES('busy')");
         $service = new TenantService($pdo);

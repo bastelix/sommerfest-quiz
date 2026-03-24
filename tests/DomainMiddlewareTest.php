@@ -408,8 +408,9 @@ class DomainMiddlewareTest extends TestCase
 
         foreach ($marketingDomains as $domain) {
             $pdo->prepare(
-                'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active) VALUES (?, ?, ?, ?, ?, ?) '
-                    . 'ON CONFLICT(normalized_host) DO UPDATE SET namespace = EXCLUDED.namespace'
+                'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active)'
+                    . ' VALUES (?, ?, ?, ?, ?, ?)'
+                    . ' ON CONFLICT(normalized_host) DO UPDATE SET namespace = EXCLUDED.namespace'
             )->execute([
                 $domain,
                 DomainNameHelper::normalize($domain),

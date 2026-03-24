@@ -46,7 +46,13 @@ final class McpToolRegistry
             $arguments = $this->decodeArguments($arguments);
             $result = ($this->tools[$name]['handler'])($arguments);
             return [
-                'content' => [['type' => 'text', 'text' => json_encode($result, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)]],
+                'content' => [[
+                    'type' => 'text',
+                    'text' => json_encode(
+                        $result,
+                        JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+                    ),
+                ]],
             ];
         } catch (\Throwable $e) {
             return [
@@ -63,7 +69,8 @@ final class McpToolRegistry
             'handler' => [$this, 'listNamespaces'],
             'definition' => [
                 'name' => 'list_namespaces',
-                'description' => 'List all available namespaces. Use this to discover which namespaces exist before querying pages, menus, or news.',
+                'description' => 'List all available namespaces. Use this to discover '
+                    . 'which namespaces exist before querying pages, menus, or news.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => new \stdClass(),

@@ -181,7 +181,10 @@ BASH;
 
         try {
             $pdo->exec("INSERT INTO tenants(uid, subdomain) VALUES('t-single-missing', 'singleslug')");
-            $pdo->exec("INSERT INTO domains(host, normalized_host, zone, namespace, is_active) VALUES('quiz.example.test', 'quiz.example.test', 'quiz.example.test', 'public', 1)");
+            $pdo->exec(
+                "INSERT INTO domains(host, normalized_host, zone, namespace, is_active)"
+                . " VALUES('quiz.example.test', 'quiz.example.test', 'quiz.example.test', 'public', 1)"
+            );
             $pdo->exec("INSERT OR IGNORE INTO namespaces(namespace, is_active) VALUES('public', 1)");
 
             $app = $this->getAppInstance();
@@ -308,7 +311,10 @@ BASH;
 
         try {
             $pdo->exec("INSERT INTO tenants(uid, subdomain) VALUES('t-single', 'singleslug')");
-            $pdo->exec("INSERT INTO domains(host, normalized_host, zone, namespace, is_active) VALUES('quiz.example.test', 'quiz.example.test', 'quiz.example.test', 'public', 1)");
+            $pdo->exec(
+                "INSERT INTO domains(host, normalized_host, zone, namespace, is_active)"
+                . " VALUES('quiz.example.test', 'quiz.example.test', 'quiz.example.test', 'public', 1)"
+            );
             $pdo->exec("INSERT OR IGNORE INTO namespaces(namespace, is_active) VALUES('public', 1)");
 
             $app = $this->getAppInstance();

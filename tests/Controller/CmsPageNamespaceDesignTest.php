@@ -56,7 +56,11 @@ class CmsPageNamespaceDesignTest extends TestCase
     public function testJsonPayloadUsesResolvedNamespaceForDesign(): void
     {
         $controller = $this->createController('tenant-space', 'default');
-        [$app, $request] = $this->buildAppWithController($controller, '/styled?format=json', ['HTTP_ACCEPT' => 'application/json']);
+        [$app, $request] = $this->buildAppWithController(
+            $controller,
+            '/styled?format=json',
+            ['HTTP_ACCEPT' => 'application/json']
+        );
 
         $response = $app->handle($request->withAttribute('lang', 'de'));
 
@@ -121,7 +125,11 @@ class CmsPageNamespaceDesignTest extends TestCase
             $contentNamespace,
             cmsMenuOverride: $cmsMenu
         );
-        [$app, $request] = $this->buildAppWithController($controller, '/styled?format=json', ['HTTP_ACCEPT' => 'application/json']);
+        [$app, $request] = $this->buildAppWithController(
+            $controller,
+            '/styled?format=json',
+            ['HTTP_ACCEPT' => 'application/json']
+        );
 
         $response = $app->handle($request->withAttribute('lang', 'de'));
 

@@ -1365,7 +1365,11 @@ class PageController
 
         $newsletterMarkup = <<<HTML
           <div class="uk-margin">
-            <label><input class="uk-checkbox" type="checkbox" name="newsletter_subscribe" value="1"> {$escapedLabel}</label>
+            <label>
+              <input class="uk-checkbox" type="checkbox"
+                name="newsletter_subscribe" value="1">
+              {$escapedLabel}
+            </label>
           </div>
         HTML;
 
@@ -1596,7 +1600,12 @@ class PageController
     }
 
     /**
-     * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
+     * @return array{
+     *     config: array<string,mixed>,
+     *     appearance: array<string,mixed>,
+     *     effects: array{effectsProfile: string, sliderProfile: string},
+     *     namespace: string
+     * }
      */
     private function loadDesign(string $namespace): array
     {

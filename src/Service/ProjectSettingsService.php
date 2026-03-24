@@ -33,7 +33,8 @@ use RuntimeException;
 final class ProjectSettingsService
 {
     private const DEFAULT_STORAGE_KEY = 'calserverCookieChoices';
-    private const DEFAULT_BANNER_TEXT_DE = 'Wir verwenden notwendige Cookies und laden Inhalte von YouTube erst, wenn du zustimmst. '
+    private const DEFAULT_BANNER_TEXT_DE =
+        'Wir verwenden notwendige Cookies und laden Inhalte von YouTube erst, wenn du zustimmst. '
         . 'Du kannst deine Auswahl jederzeit in deinem Browser anpassen.';
     private const DEFAULT_BANNER_TEXT_EN = 'We use essential cookies and only load YouTube content after you consent. '
         . 'You can adjust your selection in your browser at any time.';
