@@ -10,7 +10,9 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class NginxReloadRouteTest extends TestCase
 {
     public function testRequestSentWhenUrlConfigured(): void {

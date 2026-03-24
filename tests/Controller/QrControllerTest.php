@@ -9,7 +9,9 @@ use Slim\Psr7\Response;
 use Slim\Psr7\UploadedFile;
 use App\Service\QrCodeService;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class QrControllerTest extends TestCase
 {
     protected function setUp(): void {

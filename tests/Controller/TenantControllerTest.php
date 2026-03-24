@@ -10,7 +10,9 @@ use PDO;
 use Tests\TestCase;
 use Slim\Psr7\Response;
 use Slim\Psr7\Factory\StreamFactory;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class TenantControllerTest extends TestCase
 {
     private function setupDb(): string {

@@ -42,7 +42,9 @@ use Slim\Views\TwigMiddleware;
 use Tests\TestCase;
 use PDO;
 use ReflectionProperty;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class CmsPageNamespaceDesignTest extends TestCase
 {
     protected function tearDown(): void

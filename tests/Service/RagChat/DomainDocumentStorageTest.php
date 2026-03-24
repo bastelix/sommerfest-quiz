@@ -11,7 +11,9 @@ use App\Service\RagChat\DomainDocumentStorage;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\UploadedFile;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class DomainDocumentStorageTest extends TestCase
 {
     private string $basePath;

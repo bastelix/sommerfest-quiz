@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use App\Service\DomainService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class DomainAccessTest extends TestCase
 {
     public function testMarketingRoutesOnMainDomain(): void {

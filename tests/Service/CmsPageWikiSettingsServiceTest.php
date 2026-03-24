@@ -7,7 +7,9 @@ namespace Tests\Service;
 use App\Service\CmsPageWikiSettingsService;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class CmsPageWikiSettingsServiceTest extends TestCase
 {
     public function testDefaultsAndUpdatesSettings(): void

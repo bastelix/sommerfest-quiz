@@ -10,7 +10,9 @@ use App\Service\EventService;
 use Psr\Http\Message\ResponseInterface;
 use Tests\TestCase;
 use PDO;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class AdminEventConfigRouteTest extends TestCase
 {
     protected function setUp(): void

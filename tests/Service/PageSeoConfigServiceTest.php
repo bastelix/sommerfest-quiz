@@ -10,7 +10,9 @@ use App\Domain\PageSeoConfig;
 use App\Infrastructure\Cache\PageSeoCache;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class PageSeoConfigServiceTest extends TestCase
 {
     public function testValidateLimitsAndUrl(): void {

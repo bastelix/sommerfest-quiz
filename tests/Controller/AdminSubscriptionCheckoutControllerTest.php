@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use Slim\Psr7\Factory\StreamFactory;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class AdminSubscriptionCheckoutControllerTest extends TestCase
 {
     public function testCheckoutUsesProfileOnMainDomain(): void {

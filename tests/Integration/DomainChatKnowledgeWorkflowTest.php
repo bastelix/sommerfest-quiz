@@ -46,7 +46,9 @@ use function tempnam;
 use function unlink;
 
 use const JSON_THROW_ON_ERROR;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class DomainChatKnowledgeWorkflowTest extends TestCase
 {
     private ?MarketingDomainProvider $marketingProviderBackup = null;

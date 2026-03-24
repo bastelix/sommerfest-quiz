@@ -6,7 +6,9 @@ namespace Tests\Infrastructure\Migrations;
 
 use PDO;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class MarketingMenuMigrationSanityTest extends TestCase
 {
     public function testMigrationKeepsMenuCountsAndTreeStructure(): void

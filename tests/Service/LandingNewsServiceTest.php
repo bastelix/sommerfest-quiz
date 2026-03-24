@@ -7,7 +7,9 @@ namespace Tests\Service;
 use App\Service\LandingNewsService;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class LandingNewsServiceTest extends TestCase
 {
     private PDO $pdo;

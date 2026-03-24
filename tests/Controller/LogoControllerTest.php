@@ -11,7 +11,9 @@ use Tests\TestCase;
 use Slim\Psr7\Response;
 use Slim\Psr7\UploadedFile;
 use Slim\Psr7\Stream;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class LogoControllerTest extends TestCase
 {
     public function testGetFallbackLogo(): void {

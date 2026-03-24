@@ -8,7 +8,9 @@ use Tests\TestCase;
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class StripeWebhookControllerTest extends TestCase
 {
     /**

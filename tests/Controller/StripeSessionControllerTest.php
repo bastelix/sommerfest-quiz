@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use App\Service\StripeService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class StripeSessionControllerTest extends TestCase
 {
     public function testUsesSessionIdFromRoute(): void {

@@ -11,7 +11,9 @@ use App\Support\TokenCipher;
 use PDO;
 use Tests\TestCase;
 use Throwable;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class ConfigServiceTest extends TestCase
 {
     protected function setUp(): void

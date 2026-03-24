@@ -9,7 +9,9 @@ use App\Service\CatalogService;
 use App\Service\ConfigService;
 use Tests\TestCase;
 use Slim\Psr7\Response;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class CatalogControllerTest extends TestCase
 {
     public function testGetNotFound(): void {

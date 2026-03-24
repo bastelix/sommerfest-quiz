@@ -9,7 +9,9 @@ use App\Domain\Page;
 use ReflectionClass;
 use ReflectionMethod;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class CmsPageMarketingFeaturesTest extends TestCase
 {
     public function testResolvePageFeaturesMergesDefaultsAndConfig(): void

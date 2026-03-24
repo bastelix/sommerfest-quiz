@@ -19,8 +19,10 @@ use App\Application\Seo\PageSeoConfigService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use ReflectionMethod;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
 #[CoversClass(PageController::class)]
+#[Group('integration')]
 class CmsPageControllerExtractBlocksTest extends TestCase
 {
     public function testExtractPageBlocksHandlesFlexibleScriptAttributes(): void

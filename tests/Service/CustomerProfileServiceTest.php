@@ -7,7 +7,9 @@ namespace Tests\Service;
 use App\Service\CustomerProfileService;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class CustomerProfileServiceTest extends TestCase
 {
     public function testUpsertAndRetrieveProfile(): void

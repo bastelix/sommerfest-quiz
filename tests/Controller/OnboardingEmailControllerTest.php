@@ -7,7 +7,9 @@ namespace Tests\Controller;
 use App\Infrastructure\Database;
 use App\Service\MailService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class OnboardingEmailControllerTest extends TestCase
 {
     public function testPostRequiresCsrfToken(): void {

@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use DateTimeImmutable;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class PlayerProfileTest extends TestCase
 {
     public function testProfilePageAndApiPlayers(): void {

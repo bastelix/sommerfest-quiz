@@ -9,7 +9,9 @@ use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class OnboardTenantEndpointTest extends TestCase
 {
     public function testEntrypointExportsWildcardHostWhenEnabled(): void

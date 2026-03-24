@@ -9,7 +9,9 @@ use App\Service\MarketingDomainProvider;
 use PDO;
 use PDOException;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class MarketingDomainProviderTest extends TestCase
 {
     public function testFetchesOnlyActiveDomainsWithBooleanFlag(): void

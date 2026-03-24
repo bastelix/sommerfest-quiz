@@ -7,7 +7,9 @@ namespace Tests\Integration;
 use App\Service\UserService;
 use App\Domain\Roles;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class LoginRedirectMainDomainTest extends TestCase
 {
     public function testLoginRedirectsToMainDomainOnWrongHost(): void {

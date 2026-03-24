@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use App\Service\ConfigService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class EvidenceControllerTest extends TestCase
 {
     protected function setUp(): void

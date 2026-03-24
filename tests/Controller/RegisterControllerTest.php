@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use App\Service\SettingsService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class RegisterControllerTest extends TestCase
 {
     public function testRegistrationSucceedsWithAllowedUsername(): void

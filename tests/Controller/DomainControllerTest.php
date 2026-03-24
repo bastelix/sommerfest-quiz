@@ -9,7 +9,9 @@ use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
 use App\Support\DomainNameHelper;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class DomainControllerTest extends TestCase
 {
     public function testUpdateAcceptsJsonWithCharset(): void

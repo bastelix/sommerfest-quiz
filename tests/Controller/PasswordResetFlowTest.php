@@ -10,7 +10,9 @@ use App\Infrastructure\Migrations\Migrator;
 use App\Service\UserService;
 use App\Service\MailService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class PasswordResetFlowTest extends TestCase
 {
     public function testFullResetFlow(): void {

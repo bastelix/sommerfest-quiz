@@ -7,7 +7,9 @@ namespace Tests\Service;
 use App\Service\AuditLogger;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class AuditLoggerTest extends TestCase
 {
     public function testLogInsertsRow(): void {

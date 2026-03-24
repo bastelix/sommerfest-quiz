@@ -11,7 +11,9 @@ use PDO;
 use PDOException;
 use Slim\Psr7\Response;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class AdminCatalogControllerTest extends TestCase
 {
     public function testCatalogsEndpointReturnsPagedJson(): void {

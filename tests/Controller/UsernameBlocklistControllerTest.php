@@ -14,7 +14,9 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Response;
 use Slim\Views\Twig;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class UsernameBlocklistControllerTest extends TestCase
 {
     public function testIndexRendersWithTenantConfig(): void

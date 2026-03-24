@@ -9,7 +9,9 @@ use App\Service\ConfigService;
 use App\Service\TenantService;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class TeamServiceTest extends TestCase
 {
     public function testSaveAllStoresUid(): void {
