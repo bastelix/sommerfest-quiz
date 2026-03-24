@@ -53,7 +53,9 @@
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/wiki.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/wiki-material.css">
   <script type="module" src="{{ basePath }}/js/marketing-design.js"></script>
+  <script defer src="{{ basePath }}/js/wiki-material.js"></script>
   {% for stylesheet in stylesheets %}
     {% set href = stylesheet matches '/^https?:\\/\\//i' or stylesheet starts with('//') ? stylesheet : (stylesheet starts with('/') ? stylesheet : basePath ~ '/css/' ~ stylesheet) %}
     <link rel="stylesheet" href="{{ href }}">
@@ -68,6 +70,12 @@
 {% block body %}
   {% include 'marketing/partials/design-data.twig' %}
   <div class="wiki-layout">
+    {# ── Mobile sidebar overlay + toggle ── #}
+    <div class="wiki-sidebar-overlay"></div>
+    <button class="wiki-sidebar-toggle" aria-label="Navigation öffnen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+
     {# ── Sidebar with article navigation ── #}
     <aside class="wiki-sidebar">
       {% if logoUrl %}
