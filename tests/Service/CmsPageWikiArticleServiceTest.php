@@ -238,7 +238,8 @@ final class CmsPageWikiArticleServiceTest extends TestCase
 
         $pageId = $this->createPage($pdo, 'guide', 'Guide');
         $markdown = <<<MD
-Intro with a [Quiz link](https://quizrace.example/guide) that mixes *emphasis*, **importance**, ~~legacy~~ notes, and `inline code`.
+Intro with a [Quiz link](https://quizrace.example/guide) that mixes *emphasis*, **importance**,
+~~legacy~~ notes, and `inline code`.
 
 - Bullet with [Docs](https://quizrace.example/docs)
 MD;
@@ -288,7 +289,10 @@ MD;
         $items = $listBlock['data']['items'] ?? [];
         $this->assertIsArray($items);
         $this->assertNotSame([], $items);
-        $this->assertStringContainsString('<a href="https://quizrace.example/docs">Docs</a>', (string) ($items[0] ?? ''));
+        $this->assertStringContainsString(
+            '<a href="https://quizrace.example/docs">Docs</a>',
+            (string) ($items[0] ?? '')
+        );
 
         $html = $article->getContentHtml();
         $this->assertStringContainsString('<a href="https://quizrace.example/guide">Quiz link</a>', $html);
@@ -467,7 +471,11 @@ MD;
             updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(page_id, locale, slug)
         )');
-        $pdo->exec('CREATE UNIQUE INDEX marketing_page_wiki_articles_start_doc_idx ON marketing_page_wiki_articles(page_id, locale) WHERE is_start_document');
+        $pdo->exec(
+            'CREATE UNIQUE INDEX marketing_page_wiki_articles_start_doc_idx'
+            . ' ON marketing_page_wiki_articles(page_id, locale)'
+            . ' WHERE is_start_document'
+        );
         $pdo->exec('CREATE TABLE marketing_page_wiki_versions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             article_id INTEGER NOT NULL,

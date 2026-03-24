@@ -116,7 +116,8 @@ class DomainService
         }
 
         $stmt = $this->pdo->prepare(
-            'UPDATE domains SET host = ?, normalized_host = ?, zone = ?, namespace = ?, label = ?, is_active = ? WHERE id = ?'
+            'UPDATE domains SET host = ?, normalized_host = ?, zone = ?, '
+            . 'namespace = ?, label = ?, is_active = ? WHERE id = ?'
         );
         $stmt->execute([$displayHost, $normalizedHost, $zone, $namespaceValue, $labelValue, $isActive, $id]);
 
@@ -246,7 +247,8 @@ class DomainService
             return null;
         }
 
-        $sql = 'SELECT id, host, normalized_host, zone, namespace, label, is_active FROM domains WHERE normalized_host = ?';
+        $sql = 'SELECT id, host, normalized_host, zone, namespace, label, is_active '
+            . 'FROM domains WHERE normalized_host = ?';
         if (!$includeInactive) {
             $sql .= ' AND is_active = TRUE';
         }

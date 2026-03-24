@@ -33,7 +33,8 @@ class DateTimeFormatExtension extends AbstractExtension
         if (!$value instanceof DateTimeInterface) {
             try {
                 if (is_int($value)) {
-                    $value = (new DateTimeImmutable('@' . $value))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+                    $value = (new DateTimeImmutable('@' . $value))
+                        ->setTimezone(new \DateTimeZone(date_default_timezone_get()));
                 } else {
                     $value = new DateTimeImmutable((string) $value);
                 }
@@ -52,7 +53,14 @@ class DateTimeFormatExtension extends AbstractExtension
         $calendar = $options['calendar'] ?? IntlDateFormatter::GREGORIAN;
 
         /** @var IntlDateFormatter|false $formatter */
-        $formatter = IntlDateFormatter::create($locale, IntlDateFormatter::NONE, IntlDateFormatter::NONE, $timezone, $calendar, $pattern);
+        $formatter = IntlDateFormatter::create(
+            $locale,
+            IntlDateFormatter::NONE,
+            IntlDateFormatter::NONE,
+            $timezone,
+            $calendar,
+            $pattern,
+        );
         if ($formatter === false) {
             return $value->format('Y-m-d H:i');
         }

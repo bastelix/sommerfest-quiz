@@ -55,9 +55,45 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $service->create('ns-a', 'Ticket A', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
-        $service->create('ns-b', 'Ticket B', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
-        $service->create('ns-a', 'Ticket C', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $service->create(
+            'ns-a',
+            'Ticket A',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL,
+            null,
+            null,
+            null,
+            [],
+            null,
+            null
+        );
+        $service->create(
+            'ns-b',
+            'Ticket B',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL,
+            null,
+            null,
+            null,
+            [],
+            null,
+            null
+        );
+        $service->create(
+            'ns-a',
+            'Ticket C',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL,
+            null,
+            null,
+            null,
+            [],
+            null,
+            null
+        );
 
         $nsA = $service->listByNamespace('ns-a');
         $this->assertCount(2, $nsA);
@@ -72,9 +108,45 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $service->create('ns', 'Bug ticket', '', Ticket::TYPE_BUG, Ticket::PRIORITY_HIGH, null, null, 'alice', [], null, null);
-        $service->create('ns', 'Task ticket', '', Ticket::TYPE_TASK, Ticket::PRIORITY_LOW, null, null, 'bob', [], null, null);
-        $service->create('ns', 'Review ticket', '', Ticket::TYPE_REVIEW, Ticket::PRIORITY_NORMAL, null, null, 'alice', [], null, null);
+        $service->create(
+            'ns',
+            'Bug ticket',
+            '',
+            Ticket::TYPE_BUG,
+            Ticket::PRIORITY_HIGH,
+            null,
+            null,
+            'alice',
+            [],
+            null,
+            null
+        );
+        $service->create(
+            'ns',
+            'Task ticket',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_LOW,
+            null,
+            null,
+            'bob',
+            [],
+            null,
+            null
+        );
+        $service->create(
+            'ns',
+            'Review ticket',
+            '',
+            Ticket::TYPE_REVIEW,
+            Ticket::PRIORITY_NORMAL,
+            null,
+            null,
+            'alice',
+            [],
+            null,
+            null
+        );
 
         $bugs = $service->listByNamespace('ns', ['type' => Ticket::TYPE_BUG]);
         $this->assertCount(1, $bugs);
@@ -92,7 +164,19 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Workflow test', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns',
+            'Workflow test',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL,
+            null,
+            null,
+            null,
+            [],
+            null,
+            null
+        );
         $this->assertSame(Ticket::STATUS_OPEN, $ticket->getStatus());
 
         $ticket = $service->transition($ticket->getId(), Ticket::STATUS_IN_PROGRESS);
@@ -110,7 +194,19 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Invalid transition', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns',
+            'Invalid transition',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL,
+            null,
+            null,
+            null,
+            [],
+            null,
+            null
+        );
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Cannot transition from "open" to "resolved"');
@@ -122,7 +218,19 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Original title', '', Ticket::TYPE_TASK, Ticket::PRIORITY_LOW, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns',
+            'Original title',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_LOW,
+            null,
+            null,
+            null,
+            [],
+            null,
+            null
+        );
 
         $updated = $service->update($ticket->getId(), [
             'title' => 'Updated title',
@@ -140,7 +248,19 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'To delete', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns',
+            'To delete',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL,
+            null,
+            null,
+            null,
+            [],
+            null,
+            null
+        );
         $service->delete($ticket->getId());
 
         $this->assertNull($service->getById($ticket->getId()));
@@ -151,7 +271,19 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'With comments', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns',
+            'With comments',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL,
+            null,
+            null,
+            null,
+            [],
+            null,
+            null
+        );
 
         $c1 = $service->addComment($ticket->getId(), 'alice', 'First comment');
         $c2 = $service->addComment($ticket->getId(), 'bob', 'Second comment');
@@ -169,7 +301,19 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Comment delete test', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns',
+            'Comment delete test',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL,
+            null,
+            null,
+            null,
+            [],
+            null,
+            null
+        );
         $comment = $service->addComment($ticket->getId(), 'alice', 'To be deleted');
 
         $service->deleteComment($comment->getId());
@@ -183,7 +327,19 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Review article', '', Ticket::TYPE_REVIEW, Ticket::PRIORITY_NORMAL, Ticket::REFERENCE_PAGE, 99, null, [], null, null);
+        $ticket = $service->create(
+            'ns',
+            'Review article',
+            '',
+            Ticket::TYPE_REVIEW,
+            Ticket::PRIORITY_NORMAL,
+            Ticket::REFERENCE_PAGE,
+            99,
+            null,
+            [],
+            null,
+            null
+        );
 
         $this->assertSame(Ticket::REFERENCE_PAGE, $ticket->getReferenceType());
         $this->assertSame(99, $ticket->getReferenceId());
@@ -224,7 +380,19 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Reopen test', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns',
+            'Reopen test',
+            '',
+            Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL,
+            null,
+            null,
+            null,
+            [],
+            null,
+            null
+        );
         $ticket = $service->transition($ticket->getId(), Ticket::STATUS_IN_PROGRESS);
         $ticket = $service->transition($ticket->getId(), Ticket::STATUS_RESOLVED);
         $ticket = $service->transition($ticket->getId(), Ticket::STATUS_CLOSED);

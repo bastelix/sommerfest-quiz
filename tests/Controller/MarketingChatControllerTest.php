@@ -91,7 +91,10 @@ final class MarketingChatControllerTest extends TestCase
                 'Accept' => 'application/json',
             ]
         );
-        $request->getBody()->write(json_encode(['question' => 'Legacy?', 'company' => 'Acme Inc.'], JSON_THROW_ON_ERROR));
+        $request->getBody()->write(json_encode(
+            ['question' => 'Legacy?', 'company' => 'Acme Inc.'],
+            JSON_THROW_ON_ERROR
+        ));
         $request->getBody()->rewind();
 
         $responseFactory = new ResponseFactory();

@@ -224,7 +224,10 @@ class DesignImportTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE config(event_uid TEXT PRIMARY KEY, design_tokens TEXT, colors TEXT, effects_profile TEXT, slider_profile TEXT)');
+        $pdo->exec(
+            'CREATE TABLE config(event_uid TEXT PRIMARY KEY, design_tokens TEXT,'
+            . ' colors TEXT, effects_profile TEXT, slider_profile TEXT)'
+        );
         $pdo->exec(
             <<<'SQL'
             CREATE TABLE namespaces(

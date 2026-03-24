@@ -56,7 +56,8 @@ final class NamespaceRepository
         $this->assertTableExists();
 
         $stmt = $this->pdo->query(
-            'SELECT namespace, label, is_active, created_at, updated_at FROM namespaces WHERE is_active = TRUE ORDER BY namespace'
+            'SELECT namespace, label, is_active, created_at, updated_at '
+            . 'FROM namespaces WHERE is_active = TRUE ORDER BY namespace'
         );
 
         $rows = [];

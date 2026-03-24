@@ -11,12 +11,12 @@ use InvalidArgumentException;
 use PDOException;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
+use PHPUnit\Framework\Attributes\Group;
 use Slim\Psr7\Response;
 
 use function json_encode;
 
 use const JSON_THROW_ON_ERROR;
-use PHPUnit\Framework\Attributes\Group;
 
 #[Group('integration')]
 final class TeamNameControllerTest extends TestCase
@@ -391,7 +391,11 @@ final class TeamNameControllerTest extends TestCase
                     'meta' => [],
                     'entries' => [
                         ['code' => 'target', 'level' => 'info', 'context' => ['count' => 6]],
-                        ['code' => 'status', 'level' => 'success', 'context' => ['status' => 'completed', 'count' => 2]],
+                        [
+                            'code' => 'status',
+                            'level' => 'success',
+                            'context' => ['status' => 'completed', 'count' => 2],
+                        ],
                     ],
                     'status' => 'completed',
                     'error' => null,

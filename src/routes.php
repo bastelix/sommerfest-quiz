@@ -262,7 +262,14 @@ return function (\Slim\App $app, TranslationService $translator) {
             }
         // Set validated event UID as request attribute for controllers
             $request = $request->withAttribute('resolvedEventUid', $eventUid);
-            $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid, $resolvedEventNamespace ?? '');
+            $catalogService = new CatalogService(
+                $pdo,
+                $configService,
+                $tenantService,
+                $sub,
+                $eventUid,
+                $resolvedEventNamespace ?? ''
+            );
             $resultService = new ResultService($pdo);
             $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
 
@@ -316,7 +323,11 @@ return function (\Slim\App $app, TranslationService $translator) {
                         if (!$shouldUseOpenAi) {
                             $pathValue = $parts['path'] ?? null;
                             $path = is_string($pathValue) ? rtrim($pathValue, '/') : '';
-                            if ($path === '/v1' || $path === '/v1/models' || str_ends_with($path, '/v1/chat/completions')) {
+                            if (
+                                $path === '/v1'
+                                || $path === '/v1/models'
+                                || str_ends_with($path, '/v1/chat/completions')
+                            ) {
                                 $shouldUseOpenAi = true;
                             }
                         }
@@ -522,7 +533,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             try {
                 $namespaceResolver = new NamespaceResolver();
                 $mailNamespace = $namespaceResolver->resolve($request)->getNamespace();
-                $mailProviderManager = new MailProviderManager($settingsService, [], $mailProviderRepository, $mailNamespace);
+                $mailProviderManager = new MailProviderManager(
+                    $settingsService,
+                    [],
+                    $mailProviderRepository,
+                    $mailNamespace
+                );
             } catch (\RuntimeException $exception) {
                 // Namespace could not be resolved at this point in the middleware stack.
                 // This can happen when:
@@ -556,8 +572,17 @@ return function (\Slim\App $app, TranslationService $translator) {
                 __DIR__ . '/../data/photos',
                 $eventService
             ))
-            ->withAttribute('teamController', new TeamController($teamService, $configService, $resultService, $eventService))
-            ->withAttribute('teamNameController', new TeamNameController($teamNameService, $configService, $eventService))
+            ->withAttribute('teamController', new TeamController(
+                $teamService,
+                $configService,
+                $resultService,
+                $eventService
+            ))
+            ->withAttribute('teamNameController', new TeamNameController(
+                $teamNameService,
+                $configService,
+                $eventService
+            ))
             ->withAttribute('eventController', new EventController($eventService))
             ->withAttribute(
                 'eventConfigController',
@@ -901,7 +926,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
+    ) use (
+        $resolveMarketingAccess,
+        $wikiRedirectIfDirect
+    ) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -920,7 +948,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
+    ) use (
+        $resolveMarketingAccess,
+        $wikiRedirectIfDirect
+    ) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -1024,7 +1055,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
+    ) use (
+        $resolveMarketingAccess,
+        $wikiRedirectIfDirect
+    ) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -1043,7 +1077,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
+    ) use (
+        $resolveMarketingAccess,
+        $wikiRedirectIfDirect
+    ) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -1274,7 +1311,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             $namespace = $request->getAttribute('eventNamespace');
             if (is_string($namespace) && $namespace !== '') {
                 $eventService = $request->getAttribute('eventService');
-                if ($eventService instanceof EventService && !$eventService->belongsToNamespace($eventUid, $namespace)) {
+                if (
+                    $eventService instanceof EventService
+                    && !$eventService->belongsToNamespace($eventUid, $namespace)
+                ) {
                     return $response->withStatus(403);
                 }
             }
@@ -1318,7 +1358,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             $namespace = $request->getAttribute('eventNamespace');
             if (is_string($namespace) && $namespace !== '') {
                 $eventService = $request->getAttribute('eventService');
-                if ($eventService instanceof EventService && !$eventService->belongsToNamespace($eventUid, $namespace)) {
+                if (
+                    $eventService instanceof EventService
+                    && !$eventService->belongsToNamespace($eventUid, $namespace)
+                ) {
                     return $response->withStatus(403);
                 }
             }
@@ -1425,7 +1468,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             $namespace = $request->getAttribute('eventNamespace');
             if (is_string($namespace) && $namespace !== '') {
                 $eventService = $request->getAttribute('eventService');
-                if ($eventService instanceof EventService && !$eventService->belongsToNamespace($eventUid, $namespace)) {
+                if (
+                    $eventService instanceof EventService
+                    && !$eventService->belongsToNamespace($eventUid, $namespace)
+                ) {
                     return $response->withStatus(403);
                 }
             }
@@ -2151,7 +2197,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $service = new \App\Service\NamespaceBackupService($pdo);
         $data = $service->export($ns);
-        $response->getBody()->write(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        $jsonFlags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+        $response->getBody()->write(json_encode($data, $jsonFlags));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 

@@ -62,8 +62,13 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
      *
      * @return list<string>
      */
-    public function fetchSuggestions(int $count, array $domains, array $tones, string $locale, array $existingNames): array
-    {
+    public function fetchSuggestions(
+        int $count,
+        array $domains,
+        array $tones,
+        string $locale,
+        array $existingNames
+    ): array {
         $count = max(1, min(self::MAX_FETCH_COUNT, $count));
         $normalizedExisting = [];
         foreach ($existingNames as $name) {

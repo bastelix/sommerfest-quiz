@@ -1045,7 +1045,9 @@ class ProjectPagesController
     }
 
     /**
-     * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string, usedDefaults: bool}
+     * @return array{config: array<string,mixed>, appearance: array<string,mixed>,
+     *     effects: array{effectsProfile: string, sliderProfile: string},
+     *     namespace: string, usedDefaults: bool}
      */
     private function loadDesign(string $namespace): array
     {
@@ -1269,7 +1271,8 @@ class ProjectPagesController
         foreach ($nodes as $node) {
             $slug = isset($node['slug']) ? (string) $node['slug'] : '';
             $editUrl = $slug !== ''
-                ? $basePath . '/admin/pages/content?' . http_build_query(['namespace' => $namespace, 'pageSlug' => $slug])
+                ? $basePath . '/admin/pages/content?'
+                    . http_build_query(['namespace' => $namespace, 'pageSlug' => $slug])
                 : null;
             $children = [];
             if (isset($node['children'])) {

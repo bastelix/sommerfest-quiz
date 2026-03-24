@@ -56,7 +56,11 @@ class CmsPageNamespaceDesignTest extends TestCase
     public function testJsonPayloadUsesResolvedNamespaceForDesign(): void
     {
         $controller = $this->createController('tenant-space', 'default');
-        [$app, $request] = $this->buildAppWithController($controller, '/styled?format=json', ['HTTP_ACCEPT' => 'application/json']);
+        [$app, $request] = $this->buildAppWithController(
+            $controller,
+            '/styled?format=json',
+            ['HTTP_ACCEPT' => 'application/json']
+        );
 
         $response = $app->handle($request->withAttribute('lang', 'de'));
 
@@ -91,7 +95,12 @@ class CmsPageNamespaceDesignTest extends TestCase
         $cmsMenuNamespaces = [];
         $cmsMenu = $this->createMock(CmsPageMenuService::class);
         $cmsMenu->method('getMenuTreeForSlug')->willReturnCallback(
-            static function (string $namespace, string $slug, ?string $locale = null, bool $onlyActive = true) use (&$cmsMenuNamespaces): array {
+            static function (
+                string $namespace,
+                string $slug,
+                ?string $locale = null,
+                bool $onlyActive = true
+            ) use (&$cmsMenuNamespaces): array {
                 $cmsMenuNamespaces[] = $namespace;
 
                 return [
@@ -104,7 +113,11 @@ class CmsPageNamespaceDesignTest extends TestCase
             }
         );
         $cmsMenu->method('resolveStartpageSlug')->willReturnCallback(
-            static fn (string $namespace, ?string $locale = null, ?string $domain = null): string => 'home-' . $namespace
+            static fn (
+                string $namespace,
+                ?string $locale = null,
+                ?string $domain = null
+            ): string => 'home-' . $namespace
         );
 
         $controller = $this->createController(
@@ -112,7 +125,11 @@ class CmsPageNamespaceDesignTest extends TestCase
             $contentNamespace,
             cmsMenuOverride: $cmsMenu
         );
-        [$app, $request] = $this->buildAppWithController($controller, '/styled?format=json', ['HTTP_ACCEPT' => 'application/json']);
+        [$app, $request] = $this->buildAppWithController(
+            $controller,
+            '/styled?format=json',
+            ['HTTP_ACCEPT' => 'application/json']
+        );
 
         $response = $app->handle($request->withAttribute('lang', 'de'));
 
@@ -163,7 +180,12 @@ class CmsPageNamespaceDesignTest extends TestCase
         $this->assertSame('#docs', $payload['navigation']['main'][1]['href'] ?? null);
         $this->assertSame('/docs/api', $payload['navigation']['main'][1]['children'][0]['href'] ?? null);
 
-        [$htmlApp, $htmlRequest] = $this->buildAppWithController($controller, '/navtest', ['HTTP_ACCEPT' => 'text/html'], 'navtest');
+        [$htmlApp, $htmlRequest] = $this->buildAppWithController(
+            $controller,
+            '/navtest',
+            ['HTTP_ACCEPT' => 'text/html'],
+            'navtest'
+        );
         $htmlResponse = $htmlApp->handle($htmlRequest->withAttribute('lang', 'de'));
         $this->assertSame(200, $htmlResponse->getStatusCode());
 
@@ -206,19 +228,40 @@ class CmsPageNamespaceDesignTest extends TestCase
         ?PageService $pageServiceOverride = null,
         string $slug = 'styled'
     ): PageController {
-        $page = new Page(1, $contentNamespace, $slug, 'Styled', '<p>Styled</p>', null, null, 0, null, null, null, null, null, false);
+        $page = new Page(
+            1,
+            $contentNamespace,
+            $slug,
+            'Styled',
+            '<p>Styled</p>',
+            null,
+            null,
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            false
+        );
 
         $pageService = $pageServiceOverride ?? $this->createMock(PageService::class);
         $pageService->method('findByKey')->willReturn($page);
 
         $configService = $this->createMock(ConfigService::class);
-        $configService->method('getConfigForEvent')->willReturnCallback(static fn (string $namespace): array => ['namespace' => $namespace]);
+        $configService->method('getConfigForEvent')->willReturnCallback(
+            static fn (string $namespace): array => ['namespace' => $namespace]
+        );
         $configService->method('ensureConfigForEvent')->willReturnCallback(static function (): void {
         });
 
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE namespaces (namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER, created_at TEXT, updated_at TEXT)');
+        $pdo->exec(
+            'CREATE TABLE namespaces ('
+            . 'namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER, '
+            . 'created_at TEXT, updated_at TEXT)'
+        );
         $stmt = $pdo->prepare('INSERT INTO namespaces (namespace, is_active) VALUES (?, 1)');
         $stmt->execute([$resolvedNamespace]);
 
@@ -239,7 +282,8 @@ class CmsPageNamespaceDesignTest extends TestCase
 
         $pdo->exec(
             'CREATE TABLE project_settings ('
-            . 'namespace TEXT PRIMARY KEY, cookie_consent_enabled INTEGER, cookie_storage_key TEXT, cookie_banner_text TEXT, '
+            . 'namespace TEXT PRIMARY KEY, cookie_consent_enabled INTEGER, '
+            . 'cookie_storage_key TEXT, cookie_banner_text TEXT, '
             . 'cookie_banner_text_de TEXT, cookie_banner_text_en TEXT, cookie_vendor_flags TEXT, privacy_url TEXT, '
             . 'privacy_url_de TEXT, privacy_url_en TEXT, marketing_wiki_themes TEXT, show_language_toggle INTEGER, '
             . 'show_theme_toggle INTEGER, show_contrast_toggle INTEGER, header_logo_mode TEXT, header_logo_path TEXT, '
@@ -248,10 +292,12 @@ class CmsPageNamespaceDesignTest extends TestCase
         $settingsInsert = $pdo->prepare(
             'INSERT INTO project_settings ('
             . 'namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, cookie_banner_text_de, '
-            . 'cookie_banner_text_en, cookie_vendor_flags, privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, '
+            . 'cookie_banner_text_en, cookie_vendor_flags, privacy_url, '
+            . 'privacy_url_de, privacy_url_en, marketing_wiki_themes, '
             . 'show_language_toggle, show_theme_toggle, show_contrast_toggle, header_logo_mode, header_logo_path, '
             . 'header_logo_alt, header_logo_label, updated_at'
-            . ') VALUES (?, 0, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, "light", NULL, NULL, NULL, NULL)'
+            . ') VALUES (?, 0, ?, NULL, NULL, NULL, NULL, NULL, '
+            . 'NULL, NULL, NULL, 1, 1, 1, "light", NULL, NULL, NULL, NULL)'
         );
         $settingsInsert->execute([$resolvedNamespace, 'testStorageKey']);
 
@@ -284,7 +330,9 @@ class CmsPageNamespaceDesignTest extends TestCase
         $pageContentLoader->method('load')->willReturn($page->getContent());
 
         $namespaceAppearance = $this->createMock(NamespaceAppearanceService::class);
-        $namespaceAppearance->method('load')->willReturnCallback(static fn (string $namespace): array => ['namespace' => $namespace]);
+        $namespaceAppearance->method('load')->willReturnCallback(
+            static fn (string $namespace): array => ['namespace' => $namespace]
+        );
 
         $pageModules = $this->createMock(PageModuleService::class);
         $pageModules->method('getModulesByPosition')->willReturn([]);

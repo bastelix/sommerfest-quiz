@@ -185,8 +185,10 @@ final class NamespacePageController
             return $this->json($response, ['error' => 'encode_failed'], 500);
         }
 
-        $language = isset($payload['language']) && is_string($payload['language']) ? trim($payload['language']) : null;
-        $payloadBaseSlug = isset($payload['base_slug']) && is_string($payload['base_slug']) ? trim($payload['base_slug']) : null;
+        $language = isset($payload['language']) && is_string($payload['language'])
+            ? trim($payload['language']) : null;
+        $payloadBaseSlug = isset($payload['base_slug']) && is_string($payload['base_slug'])
+            ? trim($payload['base_slug']) : null;
 
         if ($existing === null) {
             // Title is required for create(). API is blocks-first: use slug as safe default.
@@ -203,7 +205,12 @@ final class NamespacePageController
         $pageId = $page->getId();
 
         // Optional: page status/title/language/base_slug updates
-        if (array_key_exists('status', $payload) || array_key_exists('title', $payload) || $language !== null || $payloadBaseSlug !== null) {
+        if (
+            array_key_exists('status', $payload)
+            || array_key_exists('title', $payload)
+            || $language !== null
+            || $payloadBaseSlug !== null
+        ) {
             $allowedStatus = ['draft', 'published'];
             $newStatus = null;
             if (array_key_exists('status', $payload)) {
@@ -255,7 +262,10 @@ final class NamespacePageController
                     $fields[] = 'updated_at = CURRENT_TIMESTAMP';
                     $params[] = $ns;
                     $params[] = $slug;
-                    $stmt = $pdo->prepare('UPDATE pages SET ' . implode(', ', $fields) . ' WHERE namespace = ? AND slug = ?');
+                    $stmt = $pdo->prepare(
+                        'UPDATE pages SET ' . implode(', ', $fields)
+                        . ' WHERE namespace = ? AND slug = ?'
+                    );
                     $stmt->execute($params);
                 }
             }
@@ -272,17 +282,28 @@ final class NamespacePageController
             $cfg = new PageSeoConfig(
                 $pageId,
                 is_string($seoPayload['slug'] ?? null) ? (string) $seoPayload['slug'] : $slug,
-                isset($seoPayload['metaTitle']) && is_string($seoPayload['metaTitle']) ? $seoPayload['metaTitle'] : null,
-                isset($seoPayload['metaDescription']) && is_string($seoPayload['metaDescription']) ? $seoPayload['metaDescription'] : null,
-                isset($seoPayload['canonicalUrl']) && is_string($seoPayload['canonicalUrl']) ? $seoPayload['canonicalUrl'] : null,
-                isset($seoPayload['robotsMeta']) && is_string($seoPayload['robotsMeta']) ? $seoPayload['robotsMeta'] : null,
-                isset($seoPayload['ogTitle']) && is_string($seoPayload['ogTitle']) ? $seoPayload['ogTitle'] : null,
-                isset($seoPayload['ogDescription']) && is_string($seoPayload['ogDescription']) ? $seoPayload['ogDescription'] : null,
-                isset($seoPayload['ogImage']) && is_string($seoPayload['ogImage']) ? $seoPayload['ogImage'] : null,
-                isset($seoPayload['schemaJson']) && is_string($seoPayload['schemaJson']) ? $seoPayload['schemaJson'] : null,
-                isset($seoPayload['hreflang']) && is_string($seoPayload['hreflang']) ? $seoPayload['hreflang'] : null,
-                isset($seoPayload['domain']) && is_string($seoPayload['domain']) ? $seoPayload['domain'] : null,
-                isset($seoPayload['faviconPath']) && is_string($seoPayload['faviconPath']) ? $seoPayload['faviconPath'] : null,
+                isset($seoPayload['metaTitle']) && is_string($seoPayload['metaTitle'])
+                    ? $seoPayload['metaTitle'] : null,
+                isset($seoPayload['metaDescription']) && is_string($seoPayload['metaDescription'])
+                    ? $seoPayload['metaDescription'] : null,
+                isset($seoPayload['canonicalUrl']) && is_string($seoPayload['canonicalUrl'])
+                    ? $seoPayload['canonicalUrl'] : null,
+                isset($seoPayload['robotsMeta']) && is_string($seoPayload['robotsMeta'])
+                    ? $seoPayload['robotsMeta'] : null,
+                isset($seoPayload['ogTitle']) && is_string($seoPayload['ogTitle'])
+                    ? $seoPayload['ogTitle'] : null,
+                isset($seoPayload['ogDescription']) && is_string($seoPayload['ogDescription'])
+                    ? $seoPayload['ogDescription'] : null,
+                isset($seoPayload['ogImage']) && is_string($seoPayload['ogImage'])
+                    ? $seoPayload['ogImage'] : null,
+                isset($seoPayload['schemaJson']) && is_string($seoPayload['schemaJson'])
+                    ? $seoPayload['schemaJson'] : null,
+                isset($seoPayload['hreflang']) && is_string($seoPayload['hreflang'])
+                    ? $seoPayload['hreflang'] : null,
+                isset($seoPayload['domain']) && is_string($seoPayload['domain'])
+                    ? $seoPayload['domain'] : null,
+                isset($seoPayload['faviconPath']) && is_string($seoPayload['faviconPath'])
+                    ? $seoPayload['faviconPath'] : null,
             );
 
             $seo->save($cfg);

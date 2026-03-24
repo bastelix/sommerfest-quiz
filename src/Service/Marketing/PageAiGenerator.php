@@ -27,7 +27,8 @@ final class PageAiGenerator
     public const ERROR_INVALID_HTML = 'invalid-html';
     public const ERROR_INVALID_JSON = 'invalid-json';
 
-    private const SYSTEM_PROMPT = 'You are a CMS content architect. You generate block-contract-v1 JSON for marketing landing pages. Return only valid JSON, no Markdown or code fences.';
+    private const SYSTEM_PROMPT = 'You are a CMS content architect. You generate block-contract-v1 JSON'
+        . ' for marketing landing pages. Return only valid JSON, no Markdown or code fences.';
 
     private const PROMPT_TEMPLATE = <<<'PROMPT'
 Create German UIkit HTML for a marketing landing page. The HTML is injected into the content block of
@@ -289,7 +290,10 @@ PROMPT;
             return $tokens;
         }
 
-        $tokens['primary'] = $this->extractColorToken($normalized, ['primary', 'primär', 'primaer']) ?? $tokens['primary'];
+        $tokens['primary'] = $this->extractColorToken(
+            $normalized,
+            ['primary', 'primär', 'primaer']
+        ) ?? $tokens['primary'];
         $tokens['background'] = $this->extractColorToken(
             $normalized,
             ['background', 'hintergrund', 'bg']

@@ -95,7 +95,11 @@ class LandingNewsService
             . 'CASE WHEN ln.published_at IS NULL THEN 1 ELSE 0 END, '
             . 'ln.published_at DESC, ln.id DESC'
         ));
-        $stmt->execute(['namespace' => trim($namespace) !== '' ? strtolower($namespace) : PageService::DEFAULT_NAMESPACE]);
+        $stmt->execute([
+            'namespace' => trim($namespace) !== ''
+                ? strtolower($namespace)
+                : PageService::DEFAULT_NAMESPACE,
+        ]);
 
         return array_map([$this, 'hydrate'], $stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
     }
@@ -132,7 +136,10 @@ class LandingNewsService
      */
     public function getByIds(array $ids): array
     {
-        $normalized = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
+        $normalized = array_values(array_unique(array_filter(
+            array_map('intval', $ids),
+            static fn (int $id): bool => $id > 0
+        )));
         if ($normalized === []) {
             return [];
         }

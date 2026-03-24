@@ -137,8 +137,11 @@ class MailProviderRepository
         try {
             $stmt = $this->pdo->prepare(
                 'INSERT INTO mail_providers '
-                . '(provider_name, namespace, api_key, list_id, smtp_host, smtp_user, smtp_pass, smtp_port, smtp_encryption, active, settings) '
-                . 'VALUES (:provider_name, :namespace, :api_key, :list_id, :smtp_host, :smtp_user, :smtp_pass, :smtp_port, :smtp_encryption, :active, :settings) '
+                . '(provider_name, namespace, api_key, list_id, smtp_host, '
+                . 'smtp_user, smtp_pass, smtp_port, smtp_encryption, active, settings) '
+                . 'VALUES (:provider_name, :namespace, :api_key, :list_id, '
+                . ':smtp_host, :smtp_user, :smtp_pass, :smtp_port, '
+                . ':smtp_encryption, :active, :settings) '
                 . 'ON CONFLICT (namespace, provider_name) DO UPDATE SET '
                 . 'api_key = EXCLUDED.api_key, '
                 . 'list_id = EXCLUDED.list_id, '

@@ -204,7 +204,8 @@ final class TenantAwarePDO extends PDO
 
     private function extractInformationSchemaValue(string $statement, string $field): ?string
     {
-        if (preg_match(sprintf("/%s\s*=\s*'?([a-zA-Z0-9_]+)'?/i", preg_quote($field, '/')), $statement, $matches) === 1) {
+        $pattern = sprintf("/%s\s*=\s*'?([a-zA-Z0-9_]+)'?/i", preg_quote($field, '/'));
+        if (preg_match($pattern, $statement, $matches) === 1) {
             return $matches[1];
         }
 

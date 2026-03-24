@@ -18,6 +18,7 @@ use App\Service\MarketingDomainProvider;
 use PDO;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Psr7\UploadedFile;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 use function basename;
@@ -46,7 +47,6 @@ use function tempnam;
 use function unlink;
 
 use const JSON_THROW_ON_ERROR;
-use PHPUnit\Framework\Attributes\Group;
 
 #[Group('integration')]
 final class DomainChatKnowledgeWorkflowTest extends TestCase
@@ -231,7 +231,13 @@ PHP_SCRIPT;
         $indexManager = new DomainIndexManager($storage, dirname(__DIR__, 2), 'php');
         $wikiSelection = new DomainWikiSelectionService($pdo);
         $wikiArticles = new CmsPageWikiArticleService($pdo);
-        $controller = new DomainChatKnowledgeController($storage, $indexManager, $wikiSelection, $wikiArticles, $pageService);
+        $controller = new DomainChatKnowledgeController(
+            $storage,
+            $indexManager,
+            $wikiSelection,
+            $wikiArticles,
+            $pageService
+        );
 
         $responseFactory = new ResponseFactory();
         $request = $this->createRequest('POST', '/admin/domain-chat/wiki-selection', [
@@ -276,7 +282,13 @@ PHP_SCRIPT;
         $indexManager = new DomainIndexManager($storage, dirname(__DIR__, 2), 'php');
         $wikiSelection = new DomainWikiSelectionService($pdo);
         $wikiArticles = new CmsPageWikiArticleService($pdo);
-        $controller = new DomainChatKnowledgeController($storage, $indexManager, $wikiSelection, $wikiArticles, $pageService);
+        $controller = new DomainChatKnowledgeController(
+            $storage,
+            $indexManager,
+            $wikiSelection,
+            $wikiArticles,
+            $pageService
+        );
 
         $responseFactory = new ResponseFactory();
         $request = $this->createRequest('POST', '/admin/domain-chat/wiki-selection', [

@@ -63,12 +63,14 @@ class EventService
         try {
             if ($filterNamespace !== null) {
                 $stmt = $this->pdo->prepare(
-                    'SELECT uid,slug,name,start_date,end_date,description,published,sort_order,namespace FROM events WHERE namespace = ? ORDER BY sort_order'
+                    'SELECT uid,slug,name,start_date,end_date,description,published,sort_order,namespace '
+                    . 'FROM events WHERE namespace = ? ORDER BY sort_order'
                 );
                 $stmt->execute([$filterNamespace]);
             } else {
                 $stmt = $this->pdo->query(
-                    'SELECT uid,slug,name,start_date,end_date,description,published,sort_order,namespace FROM events ORDER BY sort_order'
+                    'SELECT uid,slug,name,start_date,end_date,description,published,sort_order,namespace '
+                    . 'FROM events ORDER BY sort_order'
                 );
             }
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -78,7 +80,8 @@ class EventService
             try {
                 if ($filterNamespace !== null) {
                     $stmt = $this->pdo->prepare(
-                        'SELECT uid,slug,name,start_date,end_date,description,published FROM events WHERE namespace = ? ORDER BY name'
+                        'SELECT uid,slug,name,start_date,end_date,description,published '
+                        . 'FROM events WHERE namespace = ? ORDER BY name'
                     );
                     $stmt->execute([$filterNamespace]);
                 } else {
@@ -274,10 +277,16 @@ class EventService
     public function getFirst(?string $namespace = null): ?array {
         if ($namespace !== null) {
             $filterNamespace = $this->normalizeNamespace($namespace);
-            $stmt = $this->pdo->prepare('SELECT uid,name,start_date,end_date,description,namespace FROM events WHERE namespace = ? ORDER BY name LIMIT 1');
+            $stmt = $this->pdo->prepare(
+                'SELECT uid,name,start_date,end_date,description,namespace '
+                . 'FROM events WHERE namespace = ? ORDER BY name LIMIT 1'
+            );
             $stmt->execute([$filterNamespace]);
         } else {
-            $stmt = $this->pdo->query('SELECT uid,name,start_date,end_date,description,namespace FROM events ORDER BY name LIMIT 1');
+            $stmt = $this->pdo->query(
+                'SELECT uid,name,start_date,end_date,description,namespace '
+                . 'FROM events ORDER BY name LIMIT 1'
+            );
         }
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
@@ -295,7 +304,10 @@ class EventService
      * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string,published:bool,namespace:string}|null
      */
     public function getByUid(string $uid): ?array {
-        $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,published,namespace FROM events WHERE uid = ?');
+        $stmt = $this->pdo->prepare(
+            'SELECT uid,slug,name,start_date,end_date,description,published,namespace '
+            . 'FROM events WHERE uid = ?'
+        );
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row !== false) {
@@ -338,10 +350,16 @@ class EventService
     public function getBySlug(string $slug, ?string $namespace = null): ?array {
         if ($namespace !== null) {
             $filterNamespace = $this->normalizeNamespace($namespace);
-            $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,namespace FROM events WHERE slug = ? AND namespace = ?');
+            $stmt = $this->pdo->prepare(
+                'SELECT uid,slug,name,start_date,end_date,description,namespace '
+                . 'FROM events WHERE slug = ? AND namespace = ?'
+            );
             $stmt->execute([$slug, $filterNamespace]);
         } else {
-            $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,namespace FROM events WHERE slug = ?');
+            $stmt = $this->pdo->prepare(
+                'SELECT uid,slug,name,start_date,end_date,description,namespace '
+                . 'FROM events WHERE slug = ?'
+            );
             $stmt->execute([$slug]);
         }
         $row = $stmt->fetch(PDO::FETCH_ASSOC);

@@ -46,7 +46,9 @@ final class CertificateZoneRegistry
                 'status' => (string) ($row['status'] ?? self::STATUS_PENDING),
                 'last_issued_at' => $row['last_issued_at'] !== null ? (string) $row['last_issued_at'] : null,
                 'last_error' => $row['last_error'] !== null ? (string) $row['last_error'] : null,
-                'next_renewal_after' => $row['next_renewal_after'] !== null ? (string) $row['next_renewal_after'] : null,
+                'next_renewal_after' => $row['next_renewal_after'] !== null
+                    ? (string) $row['next_renewal_after']
+                    : null,
             ];
         }
 
@@ -56,8 +58,11 @@ final class CertificateZoneRegistry
     /**
      * Ensure a certificate zone entry exists.
      */
-    public function ensureZone(string $zone, string $provider = AcmeDnsProvider::DEFAULT_PROVIDER, bool $wildcardEnabled = true): void
-    {
+    public function ensureZone(
+        string $zone,
+        string $provider = AcmeDnsProvider::DEFAULT_PROVIDER,
+        bool $wildcardEnabled = true
+    ): void {
         $normalized = strtolower(trim($zone));
         if ($normalized === '') {
             throw new RuntimeException('Zone cannot be empty.');
@@ -89,16 +94,21 @@ final class CertificateZoneRegistry
         $this->updateStatus($zone, self::STATUS_ERROR, $message, null);
     }
 
-    public function markPending(string $zone, ?string $message = null, ?DateTimeImmutable $nextRenewalAfter = null): void
-    {
+    public function markPending(
+        string $zone,
+        ?string $message = null,
+        ?DateTimeImmutable $nextRenewalAfter = null
+    ): void {
         $this->updateStatus($zone, self::STATUS_PENDING, $message, null, $nextRenewalAfter);
     }
 
     /**
      * Ensure certificate zones exist for all active domains.
      */
-    public function backfillActiveDomains(string $provider = AcmeDnsProvider::DEFAULT_PROVIDER, bool $wildcardEnabled = true): void
-    {
+    public function backfillActiveDomains(
+        string $provider = AcmeDnsProvider::DEFAULT_PROVIDER,
+        bool $wildcardEnabled = true
+    ): void {
         $stmt = $this->pdo->query('SELECT DISTINCT zone FROM domains WHERE is_active = TRUE');
         if ($stmt === false) {
             return;

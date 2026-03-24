@@ -79,7 +79,10 @@ final class RagChatServiceTest extends TestCase
         self::assertNotSame([], $responder->lastMessages);
         self::assertSame('system', $responder->lastMessages[0]['role']);
         self::assertSame('user', $responder->lastMessages[array_key_last($responder->lastMessages)]['role']);
-        self::assertSame('calserver inventar', $responder->lastMessages[array_key_last($responder->lastMessages)]['content']);
+        self::assertSame(
+            'calserver inventar',
+            $responder->lastMessages[array_key_last($responder->lastMessages)]['content']
+        );
         self::assertSame('chunk-1', $responder->lastContext[0]['id']);
     }
 

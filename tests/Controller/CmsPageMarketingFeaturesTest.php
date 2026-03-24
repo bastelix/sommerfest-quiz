@@ -17,7 +17,22 @@ class CmsPageMarketingFeaturesTest extends TestCase
     public function testResolvePageFeaturesMergesDefaultsAndConfig(): void
     {
         $controller = $this->createController();
-        $page = new Page(1, 'default', 'landing', 'Landing', '{}', 'marketing', null, 0, null, null, null, null, null, false);
+        $page = new Page(
+            1,
+            'default',
+            'landing',
+            'Landing',
+            '{}',
+            'marketing',
+            null,
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            false
+        );
 
         $design = [
             'config' => [
@@ -63,8 +78,12 @@ class CmsPageMarketingFeaturesTest extends TestCase
      * @param array<string, mixed> $design
      * @return array<string, bool>
      */
-    private function invokeResolvePageFeatures(PageController $controller, Page $page, string $slug, array $design): array
-    {
+    private function invokeResolvePageFeatures(
+        PageController $controller,
+        Page $page,
+        string $slug,
+        array $design
+    ): array {
         $method = new ReflectionMethod(PageController::class, 'resolvePageFeatures');
         $method->setAccessible(true);
 

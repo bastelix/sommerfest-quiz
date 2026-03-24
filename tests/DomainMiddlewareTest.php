@@ -108,7 +108,8 @@ class DomainMiddlewareTest extends TestCase
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
         $this->assertJsonStringEqualsJsonString(
             json_encode([
-                'error' => 'Main domain is not configured. Please set MAIN_DOMAIN (preferred) or DOMAIN to the canonical host.',
+                'error' => 'Main domain is not configured.'
+                    . ' Please set MAIN_DOMAIN (preferred) or DOMAIN to the canonical host.',
                 'expectedEnv' => ['MAIN_DOMAIN', 'DOMAIN'],
                 'requestHost' => 'foo.test',
             ]),
@@ -393,7 +394,8 @@ class DomainMiddlewareTest extends TestCase
         if ($mainDomain !== null) {
             $normalizedMain = DomainNameHelper::normalize($mainDomain, stripAdmin: false);
             $pdo->prepare(
-                'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active) VALUES (?, ?, ?, ?, ?, ?)'
+                'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active)'
+                . ' VALUES (?, ?, ?, ?, ?, ?)'
             )->execute([
                 $mainDomain,
                 DomainNameHelper::normalize($mainDomain),
@@ -406,8 +408,9 @@ class DomainMiddlewareTest extends TestCase
 
         foreach ($marketingDomains as $domain) {
             $pdo->prepare(
-                'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active) VALUES (?, ?, ?, ?, ?, ?) '
-                    . 'ON CONFLICT(normalized_host) DO UPDATE SET namespace = EXCLUDED.namespace'
+                'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active)'
+                    . ' VALUES (?, ?, ?, ?, ?, ?)'
+                    . ' ON CONFLICT(normalized_host) DO UPDATE SET namespace = EXCLUDED.namespace'
             )->execute([
                 $domain,
                 DomainNameHelper::normalize($domain),

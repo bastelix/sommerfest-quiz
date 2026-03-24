@@ -40,7 +40,10 @@ final class DomainZoneResolver
 
         $ascii = idn_to_ascii($normalized, IDNA_DEFAULT | IDNA_NONTRANSITIONAL_TO_ASCII);
         $candidate = is_string($ascii) && $ascii !== '' ? strtolower($ascii) : strtolower($normalized);
-        $labels = array_values(array_filter(explode('.', $candidate), static fn (string $value): bool => $value !== ''));
+        $labels = array_values(array_filter(
+            explode('.', $candidate),
+            static fn (string $value): bool => $value !== '',
+        ));
 
         if ($labels === [] || count($labels) === 1) {
             return $candidate;

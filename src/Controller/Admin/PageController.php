@@ -558,7 +558,11 @@ class PageController
 
             $block['id'] = $this->normalizeImportedBlockId($block['id'] ?? null);
 
-            if ($type === null || $variant === null || !$this->blockMigrator->isBlockVariantSupported($type, $variant)) {
+            if (
+                $type === null
+                || $variant === null
+                || !$this->blockMigrator->isBlockVariantSupported($type, $variant)
+            ) {
                 $normalized[] = $this->buildImportErrorBlock($type, $variant);
 
                 continue;
@@ -795,7 +799,8 @@ class PageController
     }
 
     /**
-     * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
+     * @return array{config: array<string,mixed>, appearance: array<string,mixed>,
+     *     effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
      */
     private function loadDesign(string $namespace): array
     {

@@ -96,8 +96,12 @@ final class PageModuleController
         }
 
         $type = isset($payload['type']) && is_string($payload['type']) ? $payload['type'] : $existing->getType();
-        $config = isset($payload['config']) && is_array($payload['config']) ? $payload['config'] : $existing->getConfig();
-        $position = isset($payload['position']) && is_string($payload['position']) ? $payload['position'] : $existing->getPosition();
+        $config = isset($payload['config']) && is_array($payload['config'])
+            ? $payload['config']
+            : $existing->getConfig();
+        $position = isset($payload['position']) && is_string($payload['position'])
+            ? $payload['position']
+            : $existing->getPosition();
 
         try {
             $module = $this->modules->update($id, $type, $config, $position);

@@ -44,7 +44,8 @@ final class MarketingMenuAiErrorMapper
         if ($message === MarketingMenuAiGenerator::ERROR_RESPONDER_MISSING) {
             return [
                 'error_code' => 'ai_unavailable',
-                'message' => 'The AI responder is not configured. Check RAG_CHAT_SERVICE_* variables in your environment.',
+                'message' => 'The AI responder is not configured.'
+                    . ' Check RAG_CHAT_SERVICE_* variables in your environment.',
                 'status' => 500,
             ];
         }
@@ -139,7 +140,11 @@ final class MarketingMenuAiErrorMapper
     private function isRateLimit(Throwable $exception): bool
     {
         $message = strtolower($exception->getMessage());
-        if (str_contains($message, '429') || str_contains($message, 'too many requests') || str_contains($message, 'rate limit')) {
+        if (
+            str_contains($message, '429')
+            || str_contains($message, 'too many requests')
+            || str_contains($message, 'rate limit')
+        ) {
             return true;
         }
 

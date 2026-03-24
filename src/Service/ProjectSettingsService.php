@@ -33,7 +33,8 @@ use RuntimeException;
 final class ProjectSettingsService
 {
     private const DEFAULT_STORAGE_KEY = 'calserverCookieChoices';
-    private const DEFAULT_BANNER_TEXT_DE = 'Wir verwenden notwendige Cookies und laden Inhalte von YouTube erst, wenn du zustimmst. '
+    private const DEFAULT_BANNER_TEXT_DE =
+        'Wir verwenden notwendige Cookies und laden Inhalte von YouTube erst, wenn du zustimmst. '
         . 'Du kannst deine Auswahl jederzeit in deinem Browser anpassen.';
     private const DEFAULT_BANNER_TEXT_EN = 'We use essential cookies and only load YouTube content after you consent. '
         . 'You can adjust your selection in your browser at any time.';
@@ -99,25 +100,46 @@ final class ProjectSettingsService
         $privacyUrl = isset($row['privacy_url']) ? trim((string) $row['privacy_url']) : '';
         $privacyUrlDe = isset($row['privacy_url_de']) ? trim((string) $row['privacy_url_de']) : '';
         $privacyUrlEn = isset($row['privacy_url_en']) ? trim((string) $row['privacy_url_en']) : '';
-        $showLanguageToggle = $this->normalizeBoolean($row['show_language_toggle'] ?? null, $defaults['show_language_toggle']);
-        $showThemeToggle = $this->normalizeBoolean($row['show_theme_toggle'] ?? null, $defaults['show_theme_toggle']);
-        $showContrastToggle = $this->normalizeBoolean($row['show_contrast_toggle'] ?? null, $defaults['show_contrast_toggle']);
+        $showLanguageToggle = $this->normalizeBoolean(
+            $row['show_language_toggle'] ?? null,
+            $defaults['show_language_toggle']
+        );
+        $showThemeToggle = $this->normalizeBoolean(
+            $row['show_theme_toggle'] ?? null,
+            $defaults['show_theme_toggle']
+        );
+        $showContrastToggle = $this->normalizeBoolean(
+            $row['show_contrast_toggle'] ?? null,
+            $defaults['show_contrast_toggle']
+        );
         $headerLogoMode = $this->normalizeLogoMode($row['header_logo_mode'] ?? null, $defaults['header_logo_mode']);
         $headerLogoPath = isset($row['header_logo_path']) ? trim((string) $row['header_logo_path']) : '';
         $headerLogoAlt = isset($row['header_logo_alt']) ? trim((string) $row['header_logo_alt']) : '';
         $headerLogoLabel = isset($row['header_logo_label']) ? trim((string) $row['header_logo_label']) : '';
-        $headerTopbarStyle = $this->normalizeTopbarStyle($row['header_topbar_style'] ?? null, $defaults['header_topbar_style']);
+        $headerTopbarStyle = $this->normalizeTopbarStyle(
+            $row['header_topbar_style'] ?? null,
+            $defaults['header_topbar_style']
+        );
 
         return [
             'namespace' => $normalized,
-            'cookie_consent_enabled' => $this->normalizeBoolean($row['cookie_consent_enabled'] ?? null, $defaults['cookie_consent_enabled']),
+            'cookie_consent_enabled' => $this->normalizeBoolean(
+                $row['cookie_consent_enabled'] ?? null,
+                $defaults['cookie_consent_enabled']
+            ),
             'cookie_storage_key' => $storageKey !== '' ? $storageKey : $defaults['cookie_storage_key'],
-            'cookie_banner_text_de' => $bannerTextDe !== '' ? $bannerTextDe : ($legacyBannerText !== '' ? $legacyBannerText : $defaults['cookie_banner_text_de']),
+            'cookie_banner_text_de' => $bannerTextDe !== ''
+                ? $bannerTextDe
+                : ($legacyBannerText !== '' ? $legacyBannerText : $defaults['cookie_banner_text_de']),
             'cookie_banner_text_en' => $bannerTextEn !== '' ? $bannerTextEn : $defaults['cookie_banner_text_en'],
             'cookie_vendor_flags' => $vendorFlags,
             'privacy_url' => $privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url'],
-            'privacy_url_de' => $privacyUrlDe !== '' ? $privacyUrlDe : ($privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url_de']),
-            'privacy_url_en' => $privacyUrlEn !== '' ? $privacyUrlEn : ($privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url_en']),
+            'privacy_url_de' => $privacyUrlDe !== ''
+                ? $privacyUrlDe
+                : ($privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url_de']),
+            'privacy_url_en' => $privacyUrlEn !== ''
+                ? $privacyUrlEn
+                : ($privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url_en']),
             'show_language_toggle' => $showLanguageToggle,
             'show_theme_toggle' => $showThemeToggle,
             'show_contrast_toggle' => $showContrastToggle,

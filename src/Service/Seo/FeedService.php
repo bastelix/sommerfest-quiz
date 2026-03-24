@@ -41,7 +41,8 @@ final class FeedService
         $xml .= '  <link>' . $this->esc($baseUrl) . '</link>' . "\n";
         $xml .= '  <description>' . $this->esc($siteName . ' – Neuigkeiten und Artikel') . '</description>' . "\n";
         $xml .= '  <language>de-de</language>' . "\n";
-        $xml .= '  <atom:link href="' . $this->esc($baseUrl . '/feed.xml') . '" rel="self" type="application/rss+xml" />' . "\n";
+        $xml .= '  <atom:link href="' . $this->esc($baseUrl . '/feed.xml') . '"'
+            . ' rel="self" type="application/rss+xml" />' . "\n";
 
         foreach ($items as $item) {
             $xml .= '  <item>' . "\n";

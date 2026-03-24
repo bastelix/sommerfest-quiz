@@ -273,7 +273,9 @@ final class LlmsTxtService
                 case 'list':
                     $items = is_array($data['items'] ?? null) ? $data['items'] : [];
                     foreach ($items as $i => $item) {
-                        $text = $this->sanitizeHtmlToText(is_array($item) ? (string) ($item['text'] ?? '') : (string) $item);
+                        $text = $this->sanitizeHtmlToText(
+                            is_array($item) ? (string) ($item['text'] ?? '') : (string) $item
+                        );
                         if ($text !== '') {
                             $parts[] = '- ' . $text;
                         }

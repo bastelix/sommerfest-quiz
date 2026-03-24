@@ -255,7 +255,10 @@ class PageController
 
                 if ($blockNews !== []) {
                     $marketingPayload['featureData']['landingNews'] = $blockNews;
-                    $marketingPayload['featureData']['landingNewsBasePath'] = $this->buildNewsBasePath($request, $newsOwnerSlug);
+                    $marketingPayload['featureData']['landingNewsBasePath'] = $this->buildNewsBasePath(
+                        $request,
+                        $newsOwnerSlug
+                    );
                 }
             }
         }
@@ -264,7 +267,8 @@ class PageController
         if (is_array($pageBlocks)) {
             $eventHighlightSlugs = [];
             foreach ($pageBlocks as $block) {
-                if (isset($block['type']) && $block['type'] === 'event_highlight'
+                if (
+                    isset($block['type']) && $block['type'] === 'event_highlight'
                     && isset($block['data']['eventSlug']) && is_string($block['data']['eventSlug'])
                 ) {
                     $eventHighlightSlugs[] = $block['data']['eventSlug'];
@@ -490,7 +494,22 @@ class PageController
     /**
      * Render a CMS page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, mainNavigation?: array<int, mixed>, pageType?: ?string, renderContext?: array<string, mixed>, featureFlags?: array<string, bool>, featureData?: array<string, mixed>, designNamespace?: string} $data
+     * @param array{
+     *     namespace: string,
+     *     contentNamespace: string,
+     *     slug: string,
+     *     blocks: array<int, mixed>,
+     *     design: array<string,mixed>,
+     *     content: string,
+     *     menu?: array<int, mixed>,
+     *     navigation?: array<string, mixed>,
+     *     mainNavigation?: array<int, mixed>,
+     *     pageType?: ?string,
+     *     renderContext?: array<string, mixed>,
+     *     featureFlags?: array<string, bool>,
+     *     featureData?: array<string, mixed>,
+     *     designNamespace?: string
+     * } $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
@@ -509,7 +528,16 @@ class PageController
             'renderContext' => $renderContext,
             'featureFlags' => $featureFlags,
             'featureData' => $featureData,
-        ] = $data + ['menu' => [], 'navigation' => [], 'mainNavigation' => [], 'pageType' => null, 'renderContext' => [], 'featureFlags' => [], 'featureData' => [], 'designNamespace' => null];
+        ] = $data + [
+            'menu' => [],
+            'navigation' => [],
+            'mainNavigation' => [],
+            'pageType' => null,
+            'renderContext' => [],
+            'featureFlags' => [],
+            'featureData' => [],
+            'designNamespace' => null,
+        ];
 
         $payload = [
             'namespace' => $namespace,
@@ -688,8 +716,11 @@ class PageController
             if ($this->turnstileConfig->isEnabled()) {
                 $siteKey = $this->turnstileConfig->getSiteKey() ?? '';
                 $widgetMarkup = sprintf(
-                    '<div class="cf-turnstile" data-sitekey="%s" data-callback="contactTurnstileSuccess" '
-                    . 'data-error-callback="contactTurnstileError" data-expired-callback="contactTurnstileExpired"></div>',
+                    '<div class="cf-turnstile" data-sitekey="%s" '
+                    . 'data-callback="contactTurnstileSuccess" '
+                    . 'data-error-callback="contactTurnstileError" '
+                    . 'data-expired-callback="contactTurnstileExpired">'
+                    . '</div>',
                     htmlspecialchars($siteKey, ENT_QUOTES)
                 );
                 $data['turnstileEnabled'] = true;
@@ -754,7 +785,12 @@ class PageController
     }
 
     /**
-     * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     * @return array{
+     *     main: array<int, array<string, mixed>>,
+     *     footer: array<int, array<string, mixed>>,
+     *     legal: array<int, array<string, mixed>>,
+     *     sidebar: array<int, array<string, mixed>>
+     * }
      */
     private function loadNavigationSections(
         string $namespace,
@@ -838,7 +874,12 @@ class PageController
     }
 
     /**
-     * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     * @return array{
+     *     main: array<int, array<string, mixed>>,
+     *     footer: array<int, array<string, mixed>>,
+     *     legal: array<int, array<string, mixed>>,
+     *     sidebar: array<int, array<string, mixed>>
+     * }
      */
     private function loadNavigationFromContent(
         string $namespace,
@@ -885,7 +926,12 @@ class PageController
 
     /**
      * @param array<string, mixed> $payload
-     * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     * @return array{
+     *     main: array<int, array<string, mixed>>,
+     *     footer: array<int, array<string, mixed>>,
+     *     legal: array<int, array<string, mixed>>,
+     *     sidebar: array<int, array<string, mixed>>
+     * }
      */
     private function normalizeNavigationPayload(array $payload, string $basePath): array
     {
@@ -948,7 +994,13 @@ class PageController
     }
 
     /**
-     * @param array{cookie_consent_enabled?:bool,cookie_storage_key?:string,cookie_banner_text_de?:string,cookie_banner_text_en?:string,cookie_vendor_flags?:array<array-key, mixed>} $settings
+     * @param array{
+     *     cookie_consent_enabled?: bool,
+     *     cookie_storage_key?: string,
+     *     cookie_banner_text_de?: string,
+     *     cookie_banner_text_en?: string,
+     *     cookie_vendor_flags?: array<array-key, mixed>
+     * } $settings
      * @return array<string, mixed>
      */
     private function buildCookieConsentConfig(array $settings, string $locale): array
@@ -1170,7 +1222,9 @@ class PageController
 
         $data = [
             'headline' => isset($decoded['headline']) && is_array($decoded['headline']) ? $decoded['headline'] : [],
-            'subheadline' => isset($decoded['subheadline']) && is_array($decoded['subheadline']) ? $decoded['subheadline'] : [],
+            'subheadline' => isset($decoded['subheadline']) && is_array($decoded['subheadline'])
+                ? $decoded['subheadline']
+                : [],
             'modules' => $modules,
         ];
 
@@ -1228,7 +1282,8 @@ class PageController
      */
     private function replaceNewsSection(string $html, string $placeholder): array
     {
-        $pattern = '/<section id="news" class="uk-section calhelp-section" aria-labelledby="news-title">[\s\S]*?<\/section>/i';
+        $pattern = '/<section id="news" class="uk-section calhelp-section" '
+            . 'aria-labelledby="news-title">[\s\S]*?<\/section>/i';
 
         $result = preg_replace($pattern, $placeholder, $html, 1, $count);
 
@@ -1310,7 +1365,11 @@ class PageController
 
         $newsletterMarkup = <<<HTML
           <div class="uk-margin">
-            <label><input class="uk-checkbox" type="checkbox" name="newsletter_subscribe" value="1"> {$escapedLabel}</label>
+            <label>
+              <input class="uk-checkbox" type="checkbox"
+                name="newsletter_subscribe" value="1">
+              {$escapedLabel}
+            </label>
           </div>
         HTML;
 
@@ -1541,7 +1600,12 @@ class PageController
     }
 
     /**
-     * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
+     * @return array{
+     *     config: array<string,mixed>,
+     *     appearance: array<string,mixed>,
+     *     effects: array{effectsProfile: string, sliderProfile: string},
+     *     namespace: string
+     * }
      */
     private function loadDesign(string $namespace): array
     {

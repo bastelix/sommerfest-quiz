@@ -656,12 +656,18 @@ class DesignTokenService
             '  --brand-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
             '  --brand-accent: ' . $this->escapeCssValue($brandAccent) . ';',
             '  --brand-secondary: ' . $this->escapeCssValue($brandSecondary) . ';',
-            '  --contrast-text-on-primary: ' . $this->escapeCssValue($contrastTokens['textOnPrimary'] ?? '#ffffff') . ';',
-            '  --contrast-text-on-secondary: ' . $this->escapeCssValue($contrastTokens['textOnSecondary'] ?? '#ffffff') . ';',
-            '  --contrast-text-on-accent: ' . $this->escapeCssValue($contrastTokens['textOnAccent'] ?? '#ffffff') . ';',
-            '  --contrast-text-on-surface: ' . $this->escapeCssValue($contrastTokens['textOnSurface'] ?? '#000000') . ';',
-            '  --contrast-text-on-surface-muted: ' . $this->escapeCssValue($contrastTokens['textOnSurfaceMuted'] ?? '#000000') . ';',
-            '  --contrast-text-on-page: ' . $this->escapeCssValue($contrastTokens['textOnPage'] ?? '#000000') . ';',
+            '  --contrast-text-on-primary: '
+                . $this->escapeCssValue($contrastTokens['textOnPrimary'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-secondary: '
+                . $this->escapeCssValue($contrastTokens['textOnSecondary'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-accent: '
+                . $this->escapeCssValue($contrastTokens['textOnAccent'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-surface: '
+                . $this->escapeCssValue($contrastTokens['textOnSurface'] ?? '#000000') . ';',
+            '  --contrast-text-on-surface-muted: '
+                . $this->escapeCssValue($contrastTokens['textOnSurfaceMuted'] ?? '#000000') . ';',
+            '  --contrast-text-on-page: '
+                . $this->escapeCssValue($contrastTokens['textOnPage'] ?? '#000000') . ';',
             '  --marketing-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
             '  --marketing-accent: ' . $this->escapeCssValue($brandAccent) . ';',
             '  --marketing-secondary: ' . $this->escapeCssValue($brandSecondary) . ';',
@@ -671,10 +677,22 @@ class DesignTokenService
             '  --marketing-black: #000000;',
             '  --marketing-black-rgb: 0 0 0;',
             '  --marketing-ink: #0f172a;',
-            '  --layout-profile: ' . $this->escapeCssValue($tokens['layout']['profile'] ?? self::DEFAULT_TOKENS['layout']['profile']) . ';',
-            '  --typography-preset: ' . $this->escapeCssValue($tokens['typography']['preset'] ?? self::DEFAULT_TOKENS['typography']['preset']) . ';',
-            '  --components-card-style: ' . $this->escapeCssValue($tokens['components']['cardStyle'] ?? self::DEFAULT_TOKENS['components']['cardStyle']) . ';',
-            '  --components-button-style: ' . $this->escapeCssValue($tokens['components']['buttonStyle'] ?? self::DEFAULT_TOKENS['components']['buttonStyle']) . ';',
+            '  --layout-profile: '
+                . $this->escapeCssValue(
+                    $tokens['layout']['profile'] ?? self::DEFAULT_TOKENS['layout']['profile']
+                ) . ';',
+            '  --typography-preset: '
+                . $this->escapeCssValue(
+                    $tokens['typography']['preset'] ?? self::DEFAULT_TOKENS['typography']['preset']
+                ) . ';',
+            '  --components-card-style: '
+                . $this->escapeCssValue(
+                    $tokens['components']['cardStyle'] ?? self::DEFAULT_TOKENS['components']['cardStyle']
+                ) . ';',
+            '  --components-button-style: '
+                . $this->escapeCssValue(
+                    $tokens['components']['buttonStyle'] ?? self::DEFAULT_TOKENS['components']['buttonStyle']
+                ) . ';',
         ];
         if ($extraLines !== []) {
             $lines = array_merge($lines, $extraLines);
@@ -716,11 +734,16 @@ class DesignTokenService
             '  --brand-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
             '  --brand-accent: ' . $this->escapeCssValue($brandAccent) . ';',
             '  --brand-secondary: ' . $this->escapeCssValue($brandSecondary) . ';',
-            '  --contrast-text-on-primary: ' . $this->escapeCssValue($contrastTokens['textOnPrimary'] ?? '#ffffff') . ';',
-            '  --contrast-text-on-secondary: ' . $this->escapeCssValue($contrastTokens['textOnSecondary'] ?? '#ffffff') . ';',
-            '  --contrast-text-on-accent: ' . $this->escapeCssValue($contrastTokens['textOnAccent'] ?? '#ffffff') . ';',
-            '  --contrast-text-on-surface: ' . $this->escapeCssValue($contrastTokens['textOnSurface'] ?? '#f2f5fa') . ';',
-            '  --contrast-text-on-surface-muted: ' . $this->escapeCssValue($contrastTokens['textOnSurfaceMuted'] ?? '#f2f5fa') . ';',
+            '  --contrast-text-on-primary: '
+                . $this->escapeCssValue($contrastTokens['textOnPrimary'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-secondary: '
+                . $this->escapeCssValue($contrastTokens['textOnSecondary'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-accent: '
+                . $this->escapeCssValue($contrastTokens['textOnAccent'] ?? '#ffffff') . ';',
+            '  --contrast-text-on-surface: '
+                . $this->escapeCssValue($contrastTokens['textOnSurface'] ?? '#f2f5fa') . ';',
+            '  --contrast-text-on-surface-muted: '
+                . $this->escapeCssValue($contrastTokens['textOnSurfaceMuted'] ?? '#f2f5fa') . ';',
             '  --contrast-text-on-page: ' . $this->escapeCssValue($contrastTokens['textOnPage'] ?? '#f2f5fa') . ';',
             '  --marketing-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
             '  --marketing-accent: ' . $this->escapeCssValue($brandAccent) . ';',
@@ -795,7 +818,11 @@ class DesignTokenService
             }
 
             $namespaceDirectory = $baseDirectory . '/' . $namespace;
-            if (!is_dir($namespaceDirectory) && !mkdir($namespaceDirectory, 0777, true) && !is_dir($namespaceDirectory)) {
+            if (
+                !is_dir($namespaceDirectory)
+                && !mkdir($namespaceDirectory, 0777, true)
+                && !is_dir($namespaceDirectory)
+            ) {
                 throw new RuntimeException('Unable to create namespace directory for tokens');
             }
 
@@ -953,13 +980,45 @@ class DesignTokenService
                 ],
             ],
             'resolvedValues' => [
-                '--brand-primary' => ['value' => $brandPrimary, 'category' => 'brand', 'description' => 'Primary brand color'],
-                '--brand-accent' => ['value' => $brandAccent, 'category' => 'brand', 'description' => 'Accent color for highlights and CTAs'],
-                '--brand-secondary' => ['value' => $brandSecondary, 'category' => 'brand', 'description' => 'Secondary brand color'],
-                '--layout-profile' => ['value' => $tokens['layout']['profile'] ?? 'standard', 'category' => 'layout', 'description' => 'Layout width profile', 'options' => self::LAYOUT_PROFILES],
-                '--typography-preset' => ['value' => $tokens['typography']['preset'] ?? 'modern', 'category' => 'typography', 'description' => 'Typography font family preset', 'options' => self::TYPOGRAPHY_PRESETS],
-                '--components-card-style' => ['value' => $tokens['components']['cardStyle'] ?? 'rounded', 'category' => 'components', 'description' => 'Card border-radius style', 'options' => self::CARD_STYLES],
-                '--components-button-style' => ['value' => $tokens['components']['buttonStyle'] ?? 'filled', 'category' => 'components', 'description' => 'Button visual style', 'options' => self::BUTTON_STYLES],
+                '--brand-primary' => [
+                    'value' => $brandPrimary,
+                    'category' => 'brand',
+                    'description' => 'Primary brand color',
+                ],
+                '--brand-accent' => [
+                    'value' => $brandAccent,
+                    'category' => 'brand',
+                    'description' => 'Accent color for highlights and CTAs',
+                ],
+                '--brand-secondary' => [
+                    'value' => $brandSecondary,
+                    'category' => 'brand',
+                    'description' => 'Secondary brand color',
+                ],
+                '--layout-profile' => [
+                    'value' => $tokens['layout']['profile'] ?? 'standard',
+                    'category' => 'layout',
+                    'description' => 'Layout width profile',
+                    'options' => self::LAYOUT_PROFILES,
+                ],
+                '--typography-preset' => [
+                    'value' => $tokens['typography']['preset'] ?? 'modern',
+                    'category' => 'typography',
+                    'description' => 'Typography font family preset',
+                    'options' => self::TYPOGRAPHY_PRESETS,
+                ],
+                '--components-card-style' => [
+                    'value' => $tokens['components']['cardStyle'] ?? 'rounded',
+                    'category' => 'components',
+                    'description' => 'Card border-radius style',
+                    'options' => self::CARD_STYLES,
+                ],
+                '--components-button-style' => [
+                    'value' => $tokens['components']['buttonStyle'] ?? 'filled',
+                    'category' => 'components',
+                    'description' => 'Button visual style',
+                    'options' => self::BUTTON_STYLES,
+                ],
             ],
             'tokens' => $tokens,
             'importMeta' => $importMeta,
@@ -970,7 +1029,10 @@ class DesignTokenService
                 'columns' => ['single', 'two', 'three', 'four'],
                 'accent' => ['brandA', 'brandB', 'brandC'],
             ],
-            'sectionAppearances' => ['contained', 'full', 'card', 'default', 'surface', 'contrast', 'image', 'image-fixed'],
+            'sectionAppearances' => [
+                'contained', 'full', 'card', 'default',
+                'surface', 'contrast', 'image', 'image-fixed',
+            ],
             'sectionIntents' => ['plain', 'content', 'feature', 'highlight', 'hero'],
             'legacyAliases' => [
                 '--bg-page' => '--surface-page',
@@ -997,7 +1059,10 @@ class DesignTokenService
      * Checks block tokens against valid values, verifies section intents and
      * appearances, and flags deprecated block types.
      *
-     * @return array{valid: bool, errors: list<array{block: string, field: string, message: string}>, warnings: list<array{block: string, field: string, message: string}>}
+     * @return array{valid: bool,
+     *     errors: list<array{block: string, field: string, message: string}>,
+     *     warnings: list<array{block: string, field: string, message: string}>
+     * }
      */
     public function validatePageDesign(string $namespace, string $pageContent): array
     {
@@ -1036,11 +1101,19 @@ class DesignTokenService
             }
 
             if (in_array($blockType, $deprecatedTypes, true)) {
-                $warnings[] = ['block' => (string) $blockId, 'field' => 'type', 'message' => "Block type '{$blockType}' is deprecated"];
+                $warnings[] = [
+                    'block' => (string) $blockId,
+                    'field' => 'type',
+                    'message' => "Block type '{$blockType}' is deprecated",
+                ];
             }
 
             if (!isset($block['variant']) || !is_string($block['variant'])) {
-                $errors[] = ['block' => (string) $blockId, 'field' => 'variant', 'message' => 'Block variant is missing or not a string'];
+                $errors[] = [
+                    'block' => (string) $blockId,
+                    'field' => 'variant',
+                    'message' => 'Block variant is missing or not a string',
+                ];
             }
 
             $tokens = $block['tokens'] ?? null;
@@ -1054,7 +1127,12 @@ class DesignTokenService
 
             $appearance = $block['sectionAppearance'] ?? null;
             if ($appearance !== null && !in_array($appearance, $validAppearances, true)) {
-                $errors[] = ['block' => (string) $blockId, 'field' => 'sectionAppearance', 'message' => "Invalid sectionAppearance '{$appearance}'. Valid: " . implode(', ', $validAppearances)];
+                $errors[] = [
+                    'block' => (string) $blockId,
+                    'field' => 'sectionAppearance',
+                    'message' => "Invalid sectionAppearance '{$appearance}'. Valid: "
+                        . implode(', ', $validAppearances),
+                ];
             }
         }
 
@@ -1070,8 +1148,13 @@ class DesignTokenService
      * @param list<string> $validValues
      * @param list<array{block: string, field: string, message: string}> &$errors
      */
-    private function validateTokenField(array $tokens, string $field, array $validValues, string $blockId, array &$errors): void
-    {
+    private function validateTokenField(
+        array $tokens,
+        string $field,
+        array $validValues,
+        string $blockId,
+        array &$errors
+    ): void {
         if (!isset($tokens[$field])) {
             return;
         }

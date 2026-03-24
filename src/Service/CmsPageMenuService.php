@@ -232,7 +232,12 @@ final class CmsPageMenuService
             ? (bool) $payload['allowMenuMismatch']
             : false;
 
-        if ($payloadMenuId !== null && $payloadMenuId > 0 && $payloadMenuId !== $menuContext['menuId'] && !$allowMenuMismatch) {
+        if (
+            $payloadMenuId !== null
+            && $payloadMenuId > 0
+            && $payloadMenuId !== $menuContext['menuId']
+            && !$allowMenuMismatch
+        ) {
             throw new RuntimeException('Menu-ID des Exports stimmt nicht mit dem Zielmenü überein.');
         }
 
@@ -308,7 +313,12 @@ final class CmsPageMenuService
         }
 
         if ($menuId !== null) {
-            return $this->fetchItemsForMenuId($menuContext['menuId'], $menuContext['namespace'], $normalizedLocale, false);
+            return $this->fetchItemsForMenuId(
+                $menuContext['menuId'],
+                $menuContext['namespace'],
+                $normalizedLocale,
+                false
+            );
         }
 
         return $this->getMenuItemsForPage($page->getId(), $normalizedLocale, false);
@@ -1401,12 +1411,18 @@ final class CmsPageMenuService
 
             $childrenFields = array_intersect(array_keys($item), ['children', 'submenu']);
             if (count($childrenFields) > 1) {
-                throw new RuntimeException(sprintf('Mischschema für Children/Submenu in %s nicht erlaubt.', $currentPath));
+                throw new RuntimeException(sprintf(
+                    'Mischschema für Children/Submenu in %s nicht erlaubt.',
+                    $currentPath
+                ));
             }
 
             $positionFields = array_intersect(array_keys($item), ['position', 'order']);
             if (count($positionFields) > 1) {
-                throw new RuntimeException(sprintf('Mischschema für Position/Order in %s nicht erlaubt.', $currentPath));
+                throw new RuntimeException(sprintf(
+                    'Mischschema für Position/Order in %s nicht erlaubt.',
+                    $currentPath
+                ));
             }
 
             $position = isset($item['position']) && is_numeric($item['position'])

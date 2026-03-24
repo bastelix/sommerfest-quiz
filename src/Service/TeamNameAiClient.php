@@ -103,8 +103,13 @@ class TeamNameAiClient
      *
      * @return list<string>
      */
-    public function fetchSuggestions(int $count, array $domains, array $tones, string $locale, array $existingNames): array
-    {
+    public function fetchSuggestions(
+        int $count,
+        array $domains,
+        array $tones,
+        string $locale,
+        array $existingNames
+    ): array {
         $count = max(1, min(self::MAX_FETCH_COUNT, $count));
         $locale = trim($locale) ?: 'de';
         $existingNames = $this->prepareExistingNames($existingNames);
@@ -198,8 +203,13 @@ class TeamNameAiClient
      */
     private const PROMPT_NAME_MAX_LENGTH = 30;
 
-    private function buildUserPrompt(int $count, array $domains, array $tones, string $locale, array $existingNames): string
-    {
+    private function buildUserPrompt(
+        int $count,
+        array $domains,
+        array $tones,
+        string $locale,
+        array $existingNames
+    ): string {
         $domainText = $this->formatHintList($domains);
         $toneText = $this->formatHintList($tones);
         $theme = $this->buildThemeText($domainText, $toneText);
@@ -209,7 +219,11 @@ class TeamNameAiClient
             sprintf('Erfinde %d einzigartige, familienfreundliche Spielernamen zum Thema %s', $count, $theme),
             'Stil: humorvoll, cleveres Wortspiel, kurze Alliteration ok.',
             'Sprache: Deutsch.',
-            sprintf('Vermeide reale Personen/Marken, politische/sexuelle Inhalte, Gewalt, Beleidigungen und alles aus dieser Blacklist: %s.', $blacklist),
+            sprintf(
+                'Vermeide reale Personen/Marken, politische/sexuelle Inhalte,'
+                . ' Gewalt, Beleidigungen und alles aus dieser Blacklist: %s.',
+                $blacklist
+            ),
             'Formate: nur JSON-Array aus Strings, keine Erklärungen.',
             sprintf('Länge pro Name: max. %d Zeichen.', self::PROMPT_NAME_MAX_LENGTH),
         ];
@@ -225,7 +239,10 @@ class TeamNameAiClient
         if ($existingNames !== []) {
             $lines[] = 'Bereits vorhandene oder verwendete Namen (nicht wiederverwenden):';
             $lines[] = $this->formatExistingNames($existingNames);
-            $lines[] = sprintf('Liefere genau %d komplett neue Namen, die keinen der oben genannten Namen wiederholen.', $count);
+            $lines[] = sprintf(
+                'Liefere genau %d komplett neue Namen, die keinen der oben genannten Namen wiederholen.',
+                $count
+            );
         } else {
             $lines[] = sprintf('Liefere genau %d komplett neue Namen, alle voneinander verschieden.', $count);
         }

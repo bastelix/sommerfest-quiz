@@ -42,10 +42,18 @@ final class MarketingMenuAiGenerator
     private const PROMPT_TEMPLATE = <<<'PROMPT'
 Nutze den folgenden HTML-Inhalt einer Marketing-Seite, um Navigationspunkte zu erzeugen.
 
-- Nutze ausschließlich die Felder label, href, layout, isActive, isExternal, icon, detailTitle, detailText, detailSubline, children. Optional: locale, isStartpage, position. Aliasse link→href, submenu→children und order→position sind erlaubt, dürfen aber niemals parallel zu den Hauptfeldern verwendet werden. Keine weiteren Felder.
-- Ziehe H1/H2-Überschriften, Abschnittstitel und Anker-IDs (#id) heran, um Labels und Links zu bauen.
-- Hauptbereiche werden zu Haupteinträgen. Unterüberschriften oder Listenpunkte innerhalb eines Bereichs werden zu children des jeweiligen Haupteintrags.
-- Links müssen existierende Anchors/IDs aus dem gelieferten HTML, vorhandene Dokument-Hrefs oder slug-basierte Pfade (/{{slug}}#anchor) nutzen. Alle anderen Links verwerfen oder durch passende Anchors/Slug-Pfade ersetzen. Platzhalter-Hrefs wie "#" sind verboten.
+- Nutze ausschließlich die Felder label, href, layout, isActive, isExternal, icon, detailTitle,
+  detailText, detailSubline, children. Optional: locale, isStartpage, position.
+  Aliasse link→href, submenu→children und order→position sind erlaubt,
+  dürfen aber niemals parallel zu den Hauptfeldern verwendet werden. Keine weiteren Felder.
+- Ziehe H1/H2-Überschriften, Abschnittstitel und Anker-IDs (#id) heran,
+  um Labels und Links zu bauen.
+- Hauptbereiche werden zu Haupteinträgen. Unterüberschriften oder Listenpunkte
+  innerhalb eines Bereichs werden zu children des jeweiligen Haupteintrags.
+- Links müssen existierende Anchors/IDs aus dem gelieferten HTML, vorhandene
+  Dokument-Hrefs oder slug-basierte Pfade (/{{slug}}#anchor) nutzen.
+  Alle anderen Links verwerfen oder durch passende Anchors/Slug-Pfade ersetzen.
+  Platzhalter-Hrefs wie "#" sind verboten.
 - layout: "dropdown" wenn children existieren, sonst "link". Weitere Layouts nicht nutzen.
 - isActive: true, außer der Abschnitt ist explizit als ausgeblendet gekennzeichnet.
 - Antwort nur als JSON-Objekt mit Schlüssel "items", keine Markdown-Fences.
@@ -330,7 +338,12 @@ PROMPT;
         $this->knownAnchorIds = array_values(array_unique($anchorIds));
         $this->knownHrefs = array_values(array_unique($hrefs));
 
-        return ['summary' => trim(implode("\n", $lines)), 'anchors' => $this->knownAnchors, 'anchorIds' => $this->knownAnchorIds, 'hrefs' => $this->knownHrefs];
+        return [
+            'summary' => trim(implode("\n", $lines)),
+            'anchors' => $this->knownAnchors,
+            'anchorIds' => $this->knownAnchorIds,
+            'hrefs' => $this->knownHrefs,
+        ];
     }
 
     private function truncate(string $content, int $maxLength): string

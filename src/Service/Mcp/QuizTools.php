@@ -15,7 +15,10 @@ final class QuizTools
 {
     private EventService $events;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(private readonly PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -37,7 +40,8 @@ final class QuizTools
             [
                 'name' => 'list_events',
                 'method' => 'listEvents',
-                'description' => 'List all quiz events for a namespace. Returns uid, slug, name, dates, published status.',
+                'description' => 'List all quiz events for a namespace. Returns uid, '
+                    . 'slug, name, dates, published status.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -61,7 +65,8 @@ final class QuizTools
             [
                 'name' => 'list_catalogs',
                 'method' => 'listCatalogs',
-                'description' => 'List all question catalogs for a quiz event. Returns uid, slug, name, description, and sort order.',
+                'description' => 'List all question catalogs for a quiz event. Returns '
+                    . 'uid, slug, name, description, and sort order.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -74,7 +79,8 @@ final class QuizTools
             [
                 'name' => 'get_catalog',
                 'method' => 'getCatalog',
-                'description' => 'Get a question catalog with all its questions. Each question has type, prompt, options, answers, and more.',
+                'description' => 'Get a question catalog with all its questions. Each '
+                    . 'question has type, prompt, options, answers, and more.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -88,7 +94,9 @@ final class QuizTools
             [
                 'name' => 'upsert_catalog',
                 'method' => 'upsertCatalog',
-                'description' => 'Create or update a question catalog with its questions. Provide slug and an array of question objects. Each question needs at least type and prompt.',
+                'description' => 'Create or update a question catalog with its questions. '
+                    . 'Provide slug and an array of question objects. Each question '
+                    . 'needs at least type and prompt.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -97,7 +105,11 @@ final class QuizTools
                         'slug' => ['type' => 'string', 'description' => 'Catalog slug'],
                         'name' => ['type' => 'string', 'description' => 'Optional catalog display name'],
                         'description' => ['type' => 'string', 'description' => 'Optional catalog description'],
-                        'questions' => ['type' => 'array', 'description' => 'Array of question objects with type, prompt, options, answers, etc.'],
+                        'questions' => [
+                            'type' => 'array',
+                            'description' => 'Array of question objects with type, prompt, '
+                                . 'options, answers, etc.',
+                        ],
                     ],
                     'required' => ['event_uid', 'slug', 'questions'],
                 ],
@@ -105,7 +117,8 @@ final class QuizTools
             [
                 'name' => 'list_results',
                 'method' => 'listResults',
-                'description' => 'Get all quiz results for an event. Returns player name, catalog, score, points, and timing data.',
+                'description' => 'Get all quiz results for an event. Returns player name, '
+                    . 'catalog, score, points, and timing data.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -118,7 +131,8 @@ final class QuizTools
             [
                 'name' => 'submit_result',
                 'method' => 'submitResult',
-                'description' => 'Submit a quiz result for a player. Requires player name, catalog identifier, correct count, and total questions.',
+                'description' => 'Submit a quiz result for a player. Requires player name, '
+                    . 'catalog identifier, correct count, and total questions.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -128,8 +142,14 @@ final class QuizTools
                         'catalog' => ['type' => 'string', 'description' => 'Catalog UID or slug'],
                         'correct' => ['type' => 'integer', 'description' => 'Number of correct answers'],
                         'total' => ['type' => 'integer', 'description' => 'Total number of questions answered'],
-                        'wrong' => ['type' => 'array', 'description' => 'Optional array of 1-based indices of wrong answers'],
-                        'answers' => ['type' => 'array', 'description' => 'Optional per-question answer details'],
+                        'wrong' => [
+                            'type' => 'array',
+                            'description' => 'Optional array of 1-based indices of wrong answers',
+                        ],
+                        'answers' => [
+                            'type' => 'array',
+                            'description' => 'Optional per-question answer details',
+                        ],
                     ],
                     'required' => ['event_uid', 'name', 'catalog', 'correct', 'total'],
                 ],
@@ -150,7 +170,7 @@ final class QuizTools
         ];
     }
 
-    // ── Tool Handlers ────────────────────────────────────────────────
+    // ── Tool Handlers ──────────────────────────
 
     public function listEvents(array $args): array
     {
@@ -303,7 +323,7 @@ final class QuizTools
         return ['namespace' => $ns, 'event_uid' => $uid, 'teams' => $teams->getAllForEvent($uid)];
     }
 
-    // ── Private Helpers ──────────────────────────────────────────────
+    // ── Private Helpers ─────────────────────────
 
     private function requireString(array $args, string $key): string
     {

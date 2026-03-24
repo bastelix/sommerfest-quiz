@@ -133,7 +133,9 @@ class EventsRouteTest extends TestCase
                     ?int $fetchMode = null,
                     mixed ...$fetchModeArgs
                 ): \PDOStatement|false {
-                    if (trim($query) === 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order') {
+                    $eventsQuery = 'SELECT uid,name,start_date,end_date,'
+                        . 'description,published,sort_order FROM events ORDER BY sort_order';
+                    if (trim($query) === $eventsQuery) {
                         throw new \PDOException('Simulated database failure');
                     }
 

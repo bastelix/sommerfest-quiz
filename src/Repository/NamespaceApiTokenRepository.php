@@ -29,7 +29,8 @@ final class NamespaceApiTokenRepository
         $hash = password_hash($token, PASSWORD_DEFAULT);
 
         $stmt = $this->pdo->prepare(
-            'INSERT INTO namespace_api_tokens (namespace, label, token_hash, scopes) VALUES (?, ?, ?, ?::jsonb) RETURNING id'
+            'INSERT INTO namespace_api_tokens (namespace, label, token_hash, scopes) '
+            . 'VALUES (?, ?, ?, ?::jsonb) RETURNING id'
         );
         $stmt->execute([
             $namespace,
@@ -97,7 +98,15 @@ final class NamespaceApiTokenRepository
     }
 
     /**
-     * @return list<array{id:int,namespace:string,label:string,scopes:list<string>,created_at:?string,revoked_at:?string,last_used_at:?string}>
+     * @return list<array{
+     *     id: int,
+     *     namespace: string,
+     *     label: string,
+     *     scopes: list<string>,
+     *     created_at: ?string,
+     *     revoked_at: ?string,
+     *     last_used_at: ?string,
+     * }>
      */
     public function listForNamespace(string $namespace): array
     {

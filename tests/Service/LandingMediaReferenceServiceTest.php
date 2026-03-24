@@ -195,10 +195,13 @@ class LandingMediaReferenceServiceTest extends TestCase
             . ')'
         );
         $pdo->exec(
-            'CREATE TABLE landing_news (' .
-            'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER NOT NULL, slug TEXT NOT NULL, title TEXT NOT NULL, ' .
-            'excerpt TEXT, content TEXT NOT NULL, published_at TEXT, is_published INTEGER NOT NULL DEFAULT 0, ' .
-            'created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
+            'CREATE TABLE landing_news ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER NOT NULL, '
+            . 'slug TEXT NOT NULL, title TEXT NOT NULL, '
+            . 'excerpt TEXT, content TEXT NOT NULL, published_at TEXT, '
+            . 'is_published INTEGER NOT NULL DEFAULT 0, '
+            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
+            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
         );
         $pdo->exec(
             'CREATE TABLE page_seo_config (' .

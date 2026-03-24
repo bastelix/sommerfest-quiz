@@ -120,7 +120,11 @@ class BlockNewsletterController
             $newsletterService->subscribe($email, $metadata, $attributes);
         } catch (\Throwable $e) {
             error_log('Block newsletter subscription failed: ' . $e->getMessage());
-            return $this->json($response, ['error' => 'Anmeldung fehlgeschlagen. Bitte versuchen Sie es später erneut.'], 500);
+            return $this->json(
+                $response,
+                ['error' => 'Anmeldung fehlgeschlagen. Bitte versuchen Sie es später erneut.'],
+                500
+            );
         }
 
         return $this->json($response, ['status' => 'ok']);

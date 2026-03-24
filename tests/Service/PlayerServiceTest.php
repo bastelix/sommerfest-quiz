@@ -55,8 +55,9 @@ class PlayerServiceTest extends TestCase
         $service = new PlayerService($pdo);
         $service->save('event-1', 'Alice', 'player-1');
 
-        $playerName = $pdo->query('SELECT player_name FROM players WHERE event_uid = "event-1" AND player_uid = "player-1"')
-            ->fetchColumn();
+        $playerName = $pdo->query(
+            'SELECT player_name FROM players WHERE event_uid = "event-1" AND player_uid = "player-1"'
+        )->fetchColumn();
         $resultName = $pdo->query('SELECT name FROM results WHERE event_uid = "event-1"')
             ->fetchColumn();
         $questionResultName = $pdo->query('SELECT name FROM question_results WHERE event_uid = "event-1"')
@@ -81,8 +82,14 @@ class PlayerServiceTest extends TestCase
             . 'PRIMARY KEY (event_uid, player_uid)'
             . ');'
         );
-        $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT, player_uid TEXT, name TEXT NOT NULL);');
-        $pdo->exec('CREATE TABLE question_results(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT, player_uid TEXT, name TEXT NOT NULL);');
+        $pdo->exec(
+            'CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . ' event_uid TEXT, player_uid TEXT, name TEXT NOT NULL);'
+        );
+        $pdo->exec(
+            'CREATE TABLE question_results(id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . ' event_uid TEXT, player_uid TEXT, name TEXT NOT NULL);'
+        );
 
         $guard = new UsernameGuard(['usernames' => ['verboten']]);
         $service = new PlayerService($pdo, $guard);

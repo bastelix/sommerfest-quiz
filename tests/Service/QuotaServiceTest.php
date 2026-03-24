@@ -393,10 +393,22 @@ class QuotaServiceTest extends TestCase
         $pdo->exec("INSERT INTO events (uid, slug, namespace, name) VALUES ('e1', 'event-1', 'test-ns-1', 'Event 1')");
         $pdo->exec("INSERT INTO events (uid, slug, namespace, name) VALUES ('e2', 'event-2', 'test-ns-1', 'Event 2')");
         $pdo->exec("INSERT INTO events (uid, slug, namespace, name) VALUES ('e3', 'event-3', 'other', 'Event 3')");
-        $pdo->exec("INSERT INTO teams (uid, sort_order, name, namespace, event_uid) VALUES ('t1', 1, 'Team 1', 'test-ns-1', 'e1')");
-        $pdo->exec("INSERT INTO catalogs (uid, sort_order, slug, name, namespace) VALUES ('c1', 1, 'cat-1', 'Catalog 1', 'test-ns-1')");
-        $pdo->exec("INSERT INTO questions (catalog_uid, sort_order, question) VALUES ('c1', 1, 'What?')");
-        $pdo->exec("INSERT INTO pages (namespace, slug, title, content) VALUES ('test-ns-1', 'page-1', 'Page 1', 'content')");
+        $pdo->exec(
+            "INSERT INTO teams (uid, sort_order, name, namespace, event_uid)"
+            . " VALUES ('t1', 1, 'Team 1', 'test-ns-1', 'e1')"
+        );
+        $pdo->exec(
+            "INSERT INTO catalogs (uid, sort_order, slug, name, namespace)"
+            . " VALUES ('c1', 1, 'cat-1', 'Catalog 1', 'test-ns-1')"
+        );
+        $pdo->exec(
+            "INSERT INTO questions (catalog_uid, sort_order, question)"
+            . " VALUES ('c1', 1, 'What?')"
+        );
+        $pdo->exec(
+            "INSERT INTO pages (namespace, slug, title, content)"
+            . " VALUES ('test-ns-1', 'page-1', 'Page 1', 'content')"
+        );
 
         $service = new QuotaService($pdo);
         $counts = $service->recountBySlug('test-ns-1');

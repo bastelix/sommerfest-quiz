@@ -179,7 +179,8 @@ final class LegacyMarketingMenuDefinition
                             'href' => '#benefits',
                             'label' => 'KPIs im Quartier',
                             'detail_title' => 'Wirkung verstehen',
-                            'detail_text' => 'Sechs Kennzahlen zeigen, wie Klimaschutz, Lebensqualität und Tempo zusammengehen.',
+                            'detail_text' => 'Sechs Kennzahlen zeigen, wie Klimaschutz, '
+                                . 'Lebensqualität und Tempo zusammengehen.',
                             'detail_subline' => '0 Emissionen, −60% Fahrten, +24% Tempo',
                         ],
                         [
@@ -207,7 +208,8 @@ final class LegacyMarketingMenuDefinition
                             'href' => '#how-it-works',
                             'label' => 'So funktioniert’s',
                             'detail_title' => 'Vom Mikrohub zur Haustür',
-                            'detail_text' => 'KI-Routen, gebündelte Stopps und Off-Peak-Lieferungen sorgen für Tempo ohne Lärm.',
+                            'detail_text' => 'KI-Routen, gebündelte Stopps und '
+                                . 'Off-Peak-Lieferungen sorgen für Tempo ohne Lärm.',
                             'detail_subline' => 'KI-Routen, gebündelte Stopps, Off-Peak-Lieferungen',
                         ],
                         [
@@ -221,7 +223,8 @@ final class LegacyMarketingMenuDefinition
                             'href' => '#technology',
                             'label' => 'Technologie & Integrationen',
                             'detail_title' => 'API-first',
-                            'detail_text' => 'ERP- & Shop-Integrationen, Live-Dashboards und auditierbare CO₂-Bilanzen.',
+                            'detail_text' => 'ERP- & Shop-Integrationen, Live-Dashboards '
+                                . 'und auditierbare CO₂-Bilanzen.',
                             'detail_subline' => 'ERP/Shop-Anbindung, Dashboards, CO₂-Bilanz',
                         ],
                     ],

@@ -103,7 +103,10 @@ final class ProvisionWildcardCertificatesTest extends TestCase
 
         $logContents = trim((string) file_get_contents($logFile));
         $this->assertStringContainsString('Renewing forced.example.com (queued)', $output);
-        $this->assertStringContainsString('--issue --dns dns_hetzner -d forced.example.com -d *.forced.example.com', $logContents);
+        $this->assertStringContainsString(
+            '--issue --dns dns_hetzner -d forced.example.com -d *.forced.example.com',
+            $logContents
+        );
     }
 
     /**
@@ -143,7 +146,11 @@ final class ProvisionWildcardCertificatesTest extends TestCase
         SQL);
 
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
-        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT, next_renewal_after TEXT)');
+        $pdo->exec(
+            'CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT,'
+            . ' wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT,'
+            . ' last_error TEXT, next_renewal_after TEXT)'
+        );
 
         return $pdo;
     }
@@ -153,8 +160,15 @@ final class ProvisionWildcardCertificatesTest extends TestCase
      */
     private function seedData(PDO $pdo, array $zones): void
     {
-        $domainStmt = $pdo->prepare('INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active) VALUES (?, ?, ?, NULL, NULL, 1)');
-        $zoneStmt = $pdo->prepare('INSERT INTO certificate_zones (zone, provider, wildcard_enabled, status, last_issued_at, last_error, next_renewal_after) VALUES (?, ?, 1, ?, ?, NULL, NULL)');
+        $domainStmt = $pdo->prepare(
+            'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active)'
+            . ' VALUES (?, ?, ?, NULL, NULL, 1)'
+        );
+        $zoneStmt = $pdo->prepare(
+            'INSERT INTO certificate_zones (zone, provider, wildcard_enabled, status,'
+            . ' last_issued_at, last_error, next_renewal_after)'
+            . ' VALUES (?, ?, 1, ?, ?, NULL, NULL)'
+        );
 
         foreach ($zones as $zone) {
             $normalized = strtolower($zone['zone']);

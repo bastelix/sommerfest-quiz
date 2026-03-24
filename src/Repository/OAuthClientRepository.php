@@ -27,7 +27,8 @@ final class OAuthClientRepository
         $hash = password_hash($clientSecret, PASSWORD_DEFAULT);
 
         $stmt = $this->pdo->prepare(
-            'INSERT INTO oauth_clients (id, secret_hash, name, redirect_uris, scope, namespace) VALUES (?, ?, ?, ?::jsonb, ?, ?)'
+            'INSERT INTO oauth_clients (id, secret_hash, name, redirect_uris, scope, namespace) '
+            . 'VALUES (?, ?, ?, ?::jsonb, ?, ?)'
         );
         $stmt->execute([
             $clientId,
@@ -42,11 +43,21 @@ final class OAuthClientRepository
     }
 
     /**
-     * @return array{id: string, name: string, secret_hash: string, redirect_uris: list<string>, scope: string, namespace: string}|null
+     * @return array{
+     *     id: string,
+     *     name: string,
+     *     secret_hash: string,
+     *     redirect_uris: list<string>,
+     *     scope: string,
+     *     namespace: string,
+     * }|null
      */
     public function findById(string $clientId): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT id, name, secret_hash, redirect_uris, scope, namespace FROM oauth_clients WHERE id = ?');
+        $stmt = $this->pdo->prepare(
+            'SELECT id, name, secret_hash, redirect_uris, scope, namespace '
+            . 'FROM oauth_clients WHERE id = ?'
+        );
         $stmt->execute([$clientId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {

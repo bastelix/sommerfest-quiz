@@ -61,7 +61,10 @@ final class WikiPublisher
         $frontMatterLines[] = '---';
 
         $markdownPath = sprintf('%s/%s.md', $directory, $article->getSlug());
-        file_put_contents($markdownPath, implode("\n", $frontMatterLines) . "\n" . $article->getContentMarkdown() . "\n");
+        file_put_contents(
+            $markdownPath,
+            implode("\n", $frontMatterLines) . "\n" . $article->getContentMarkdown() . "\n"
+        );
     }
 
     public function remove(string $pageSlug, string $locale, string $articleSlug): void

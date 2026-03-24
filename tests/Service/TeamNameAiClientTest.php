@@ -58,16 +58,29 @@ final class TeamNameAiClientTest extends TestCase
         self::assertCount(2, $messages);
 
         $userPrompt = $messages[1]['content'] ?? '';
-        self::assertStringContainsString('Erfinde 2 einzigartige, familienfreundliche Spielernamen zum Thema nature und science (Stimmung: Playful)', $userPrompt);
+        self::assertStringContainsString(
+            'Erfinde 2 einzigartige, familienfreundliche Spielernamen'
+            . ' zum Thema nature und science (Stimmung: Playful)',
+            $userPrompt
+        );
         self::assertStringContainsString('Stil: humorvoll, cleveres Wortspiel, kurze Alliteration ok.', $userPrompt);
         self::assertStringContainsString('Sprache: Deutsch.', $userPrompt);
         self::assertStringContainsString('Formate: nur JSON-Array aus Strings, keine Erklärungen.', $userPrompt);
-        self::assertStringContainsString('Optional: Beziehe folgende Sportarten/Begriffe ein: nature und science.', $userPrompt);
+        self::assertStringContainsString(
+            'Optional: Beziehe folgende Sportarten/Begriffe ein: nature und science.',
+            $userPrompt
+        );
         self::assertStringContainsString('Nutze ausschließlich die Sprache "fr".', $userPrompt);
-        self::assertStringContainsString('Bereits vorhandene oder verwendete Namen (nicht wiederverwenden):', $userPrompt);
+        self::assertStringContainsString(
+            'Bereits vorhandene oder verwendete Namen (nicht wiederverwenden):',
+            $userPrompt
+        );
         self::assertStringContainsString('1. Zimtzwerge', $userPrompt);
         self::assertStringContainsString('2. Berg Bären', $userPrompt);
-        self::assertStringContainsString('Liefere genau 2 komplett neue Namen, die keinen der oben genannten Namen wiederholen.', $userPrompt);
+        self::assertStringContainsString(
+            'Liefere genau 2 komplett neue Namen, die keinen der oben genannten Namen wiederholen.',
+            $userPrompt
+        );
         self::assertStringContainsString('Keine Duplikate, keine Zahlenkolonnen.', $userPrompt);
         self::assertStringContainsString('Beispiele für den gewünschten Ton (nicht wiederverwenden):', $userPrompt);
 
@@ -194,7 +207,10 @@ final class TeamNameAiClientTest extends TestCase
         for ($index = 1; $index < count($result); $index++) {
             $previous = self::normalizePrefix($result[$index - 1]);
             $current = self::normalizePrefix($result[$index]);
-            self::assertTrue($previous === null || $current === null || $previous !== $current, 'Similar prefixes should be separated.');
+            self::assertTrue(
+                $previous === null || $current === null || $previous !== $current,
+                'Similar prefixes should be separated.'
+            );
         }
     }
 

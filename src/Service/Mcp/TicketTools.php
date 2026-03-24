@@ -12,7 +12,10 @@ final class TicketTools
 {
     private TicketService $ticketService;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -34,16 +37,33 @@ final class TicketTools
             [
                 'name' => 'list_tickets',
                 'method' => 'listTickets',
-                'description' => 'List tickets for a namespace. Optionally filter by status, priority, type, assignee, or reference.',
+                'description' => 'List tickets for a namespace. Optionally filter '
+                    . 'by status, priority, type, assignee, or reference.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
-                        'status' => ['type' => 'string', 'description' => 'Filter by status', 'enum' => ['open', 'in_progress', 'resolved', 'closed']],
-                        'priority' => ['type' => 'string', 'description' => 'Filter by priority', 'enum' => ['low', 'normal', 'high', 'critical']],
-                        'type' => ['type' => 'string', 'description' => 'Filter by type', 'enum' => ['bug', 'task', 'review', 'improvement']],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'Filter by status',
+                            'enum' => ['open', 'in_progress', 'resolved', 'closed'],
+                        ],
+                        'priority' => [
+                            'type' => 'string',
+                            'description' => 'Filter by priority',
+                            'enum' => ['low', 'normal', 'high', 'critical'],
+                        ],
+                        'type' => [
+                            'type' => 'string',
+                            'description' => 'Filter by type',
+                            'enum' => ['bug', 'task', 'review', 'improvement'],
+                        ],
                         'assignee' => ['type' => 'string', 'description' => 'Filter by assignee username'],
-                        'referenceType' => ['type' => 'string', 'description' => 'Filter by reference type', 'enum' => ['wiki_article', 'page']],
+                        'referenceType' => [
+                            'type' => 'string',
+                            'description' => 'Filter by reference type',
+                            'enum' => ['wiki_article', 'page'],
+                        ],
                         'referenceId' => ['type' => 'integer', 'description' => 'Filter by reference ID'],
                     ],
                 ],
@@ -70,13 +90,32 @@ final class TicketTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'title' => ['type' => 'string', 'description' => 'Ticket title'],
-                        'description' => ['type' => 'string', 'description' => 'Ticket description (supports markdown)'],
-                        'type' => ['type' => 'string', 'description' => 'Ticket type', 'enum' => ['bug', 'task', 'review', 'improvement']],
-                        'priority' => ['type' => 'string', 'description' => 'Priority level', 'enum' => ['low', 'normal', 'high', 'critical']],
-                        'referenceType' => ['type' => 'string', 'description' => 'Type of linked entity', 'enum' => ['wiki_article', 'page']],
+                        'description' => [
+                            'type' => 'string',
+                            'description' => 'Ticket description (supports markdown)',
+                        ],
+                        'type' => [
+                            'type' => 'string',
+                            'description' => 'Ticket type',
+                            'enum' => ['bug', 'task', 'review', 'improvement'],
+                        ],
+                        'priority' => [
+                            'type' => 'string',
+                            'description' => 'Priority level',
+                            'enum' => ['low', 'normal', 'high', 'critical'],
+                        ],
+                        'referenceType' => [
+                            'type' => 'string',
+                            'description' => 'Type of linked entity',
+                            'enum' => ['wiki_article', 'page'],
+                        ],
                         'referenceId' => ['type' => 'integer', 'description' => 'ID of the linked entity'],
                         'assignee' => ['type' => 'string', 'description' => 'Username to assign the ticket to'],
-                        'labels' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'List of labels/tags'],
+                        'labels' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                            'description' => 'List of labels/tags',
+                        ],
                         'dueDate' => ['type' => 'string', 'description' => 'Due date in ISO 8601 format'],
                         'createdBy' => ['type' => 'string', 'description' => 'Username of the ticket creator'],
                     ],
@@ -94,12 +133,31 @@ final class TicketTools
                         'id' => ['type' => 'integer', 'description' => 'Ticket ID'],
                         'title' => ['type' => 'string', 'description' => 'New title'],
                         'description' => ['type' => 'string', 'description' => 'New description'],
-                        'priority' => ['type' => 'string', 'description' => 'New priority', 'enum' => ['low', 'normal', 'high', 'critical']],
-                        'type' => ['type' => 'string', 'description' => 'New type', 'enum' => ['bug', 'task', 'review', 'improvement']],
-                        'assignee' => ['type' => 'string', 'description' => 'New assignee username (or null to unassign)'],
-                        'labels' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'New labels'],
+                        'priority' => [
+                            'type' => 'string',
+                            'description' => 'New priority',
+                            'enum' => ['low', 'normal', 'high', 'critical'],
+                        ],
+                        'type' => [
+                            'type' => 'string',
+                            'description' => 'New type',
+                            'enum' => ['bug', 'task', 'review', 'improvement'],
+                        ],
+                        'assignee' => [
+                            'type' => 'string',
+                            'description' => 'New assignee username (or null to unassign)',
+                        ],
+                        'labels' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                            'description' => 'New labels',
+                        ],
                         'dueDate' => ['type' => 'string', 'description' => 'New due date (or null to remove)'],
-                        'referenceType' => ['type' => 'string', 'description' => 'Reference type', 'enum' => ['wiki_article', 'page']],
+                        'referenceType' => [
+                            'type' => 'string',
+                            'description' => 'Reference type',
+                            'enum' => ['wiki_article', 'page'],
+                        ],
                         'referenceId' => ['type' => 'integer', 'description' => 'Reference ID'],
                     ],
                     'required' => ['id'],
@@ -108,13 +166,19 @@ final class TicketTools
             [
                 'name' => 'transition_ticket',
                 'method' => 'transitionTicket',
-                'description' => 'Change ticket status. Allowed: open→in_progress|closed, in_progress→resolved|open, resolved→closed|in_progress, closed→open.',
+                'description' => 'Change ticket status. Allowed: '
+                    . 'open->in_progress|closed, in_progress->resolved|open, '
+                    . 'resolved->closed|in_progress, closed->open.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'id' => ['type' => 'integer', 'description' => 'Ticket ID'],
-                        'status' => ['type' => 'string', 'description' => 'Target status', 'enum' => ['open', 'in_progress', 'resolved', 'closed']],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'Target status',
+                            'enum' => ['open', 'in_progress', 'resolved', 'closed'],
+                        ],
                     ],
                     'required' => ['id', 'status'],
                 ],
@@ -218,8 +282,12 @@ final class TicketTools
         $title = isset($args['title']) && is_string($args['title']) ? $args['title'] : '';
         $description = isset($args['description']) && is_string($args['description']) ? $args['description'] : '';
         $type = isset($args['type']) && is_string($args['type']) ? $args['type'] : Ticket::TYPE_TASK;
-        $priority = isset($args['priority']) && is_string($args['priority']) ? $args['priority'] : Ticket::PRIORITY_NORMAL;
-        $referenceType = isset($args['referenceType']) && is_string($args['referenceType']) ? $args['referenceType'] : null;
+        $priority = isset($args['priority']) && is_string($args['priority'])
+            ? $args['priority']
+            : Ticket::PRIORITY_NORMAL;
+        $referenceType = isset($args['referenceType']) && is_string($args['referenceType'])
+            ? $args['referenceType']
+            : null;
         $referenceId = isset($args['referenceId']) ? (int) $args['referenceId'] : null;
         $assignee = isset($args['assignee']) && is_string($args['assignee']) ? $args['assignee'] : null;
         $labels = isset($args['labels']) && is_array($args['labels']) ? $args['labels'] : [];
@@ -231,8 +299,17 @@ final class TicketTools
         }
 
         $ticket = $this->ticketService->create(
-            $ns, $title, $description, $type, $priority,
-            $referenceType, $referenceId, $assignee, $labels, $dueDate, $createdBy
+            $ns,
+            $title,
+            $description,
+            $type,
+            $priority,
+            $referenceType,
+            $referenceId,
+            $assignee,
+            $labels,
+            $dueDate,
+            $createdBy
         );
 
         return [
@@ -249,7 +326,11 @@ final class TicketTools
         }
 
         $fields = [];
-        foreach (['title', 'description', 'priority', 'type', 'assignee', 'labels', 'dueDate', 'referenceType', 'referenceId'] as $key) {
+        $updatableKeys = [
+            'title', 'description', 'priority', 'type',
+            'assignee', 'labels', 'dueDate', 'referenceType', 'referenceId',
+        ];
+        foreach ($updatableKeys as $key) {
             if (array_key_exists($key, $args)) {
                 $fields[$key] = $args[$key];
             }

@@ -14,7 +14,10 @@ final class FooterTools
     private CmsFooterBlockService $footerBlocks;
     private ProjectSettingsRepository $settingsRepo;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     private const ALLOWED_TYPES = ['menu', 'text', 'social', 'contact', 'newsletter', 'html'];
     private const ALLOWED_SLOTS = ['footer_1', 'footer_2', 'footer_3'];
@@ -41,40 +44,81 @@ final class FooterTools
             [
                 'name' => 'list_footer_blocks',
                 'method' => 'listFooterBlocks',
-                'description' => 'List footer blocks for a namespace and slot. Slots: footer_1, footer_2, footer_3. Block types: menu, text, social, contact, newsletter, html.',
+                'description' => 'List footer blocks for a namespace and slot. '
+                    . 'Slots: footer_1, footer_2, footer_3. Block types: '
+                    . 'menu, text, social, contact, newsletter, html.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
-                        'slot' => ['type' => 'string', 'enum' => self::ALLOWED_SLOTS, 'description' => 'Footer slot (footer_1, footer_2, footer_3). If omitted, returns blocks for all slots.'],
-                        'locale' => ['type' => 'string', 'description' => 'Optional locale filter (e.g. de, en)'],
-                        'includeInactive' => ['type' => 'boolean', 'description' => 'Include inactive blocks (default false)'],
+                        'slot' => [
+                            'type' => 'string',
+                            'enum' => self::ALLOWED_SLOTS,
+                            'description' => 'Footer slot (footer_1, footer_2, footer_3). '
+                                . 'If omitted, returns blocks for all slots.',
+                        ],
+                        'locale' => [
+                            'type' => 'string',
+                            'description' => 'Optional locale filter (e.g. de, en)',
+                        ],
+                        'includeInactive' => [
+                            'type' => 'boolean',
+                            'description' => 'Include inactive blocks (default false)',
+                        ],
                     ],
                 ],
             ],
             [
                 'name' => 'create_footer_block',
                 'method' => 'createFooterBlock',
-                'description' => 'Create a new footer block. Types: menu, text, social, contact, newsletter, html. Slots: footer_1, footer_2, footer_3.',
+                'description' => 'Create a new footer block. Types: menu, text, social, '
+                    . 'contact, newsletter, html. Slots: footer_1, footer_2, footer_3.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
-                        'slot' => ['type' => 'string', 'enum' => self::ALLOWED_SLOTS, 'description' => 'Footer slot (footer_1, footer_2, footer_3)'],
-                        'type' => ['type' => 'string', 'enum' => self::ALLOWED_TYPES, 'description' => 'Block type (menu, text, social, contact, newsletter, html)'],
+                        'slot' => [
+                            'type' => 'string',
+                            'enum' => self::ALLOWED_SLOTS,
+                            'description' => 'Footer slot (footer_1, footer_2, footer_3)',
+                        ],
+                        'type' => [
+                            'type' => 'string',
+                            'enum' => self::ALLOWED_TYPES,
+                            'description' => 'Block type (menu, text, social, contact, '
+                                . 'newsletter, html)',
+                        ],
                         'content' => [
                             'type' => 'object',
                             'description' => 'Block content (structure depends on type). '
-                                . 'menu: {"title": "string (optional)", "menuId": integer} – references a menu definition; items are resolved at render time. '
-                                . 'text: {"title": "string (optional)", "text": "HTML string"}. '
-                                . 'social: {"title": "string (optional)", "links": {"facebook": "url", "twitter": "url", "linkedin": "url", "instagram": "url"}} – all link fields optional. '
-                                . 'contact: {"title": "string (optional)", "email": "string", "phone": "string", "address": "string (newlines allowed)"} – all fields optional. '
-                                . 'newsletter: {"title": "string (optional)", "description": "string", "buttonText": "string (default: Subscribe)", "actionUrl": "string (default: /newsletter/subscribe)"} – all optional. '
-                                . 'html: {"title": "string (optional, internal only)", "html": "raw HTML string"}.',
+                                . 'menu: {"title": "string (optional)", "menuId": '
+                                . 'integer} – references a menu definition; items are '
+                                . 'resolved at render time. '
+                                . 'text: {"title": "string (optional)", "text": '
+                                . '"HTML string"}. '
+                                . 'social: {"title": "string (optional)", "links": '
+                                . '{"facebook": "url", "twitter": "url", "linkedin": '
+                                . '"url", "instagram": "url"}} – all link fields '
+                                . 'optional. '
+                                . 'contact: {"title": "string (optional)", "email": '
+                                . '"string", "phone": "string", "address": "string '
+                                . '(newlines allowed)"} – all fields optional. '
+                                . 'newsletter: {"title": "string (optional)", '
+                                . '"description": "string", "buttonText": "string '
+                                . '(default: Subscribe)", "actionUrl": "string '
+                                . '(default: /newsletter/subscribe)"} – all optional. '
+                                . 'html: {"title": "string (optional, internal only)",'
+                                . ' "html": "raw HTML string"}.',
                         ],
-                        'position' => ['type' => 'integer', 'description' => 'Sort position within the slot (default 0)'],
+                        'position' => [
+                            'type' => 'integer',
+                            'description' => 'Sort position within the slot (default 0)',
+                        ],
                         'locale' => ['type' => 'string', 'description' => 'Locale (default de)'],
-                        'isActive' => ['type' => 'boolean', 'description' => 'Whether the block is active (default true)'],
+                        'isActive' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether the block is active (default true)',
+                        ],
                     ],
                     'required' => ['slot', 'type', 'content'],
                 ],
@@ -91,15 +135,34 @@ final class FooterTools
                         'content' => [
                             'type' => 'object',
                             'description' => 'Block content (structure depends on type). '
-                                . 'menu: {"title": "string (optional)", "menuId": integer} – references a menu definition; items are resolved at render time. '
-                                . 'text: {"title": "string (optional)", "text": "HTML string"}. '
-                                . 'social: {"title": "string (optional)", "links": {"facebook": "url", "twitter": "url", "linkedin": "url", "instagram": "url"}} – all link fields optional. '
-                                . 'contact: {"title": "string (optional)", "email": "string", "phone": "string", "address": "string (newlines allowed)"} – all fields optional. '
-                                . 'newsletter: {"title": "string (optional)", "description": "string", "buttonText": "string (default: Subscribe)", "actionUrl": "string (default: /newsletter/subscribe)"} – all optional. '
-                                . 'html: {"title": "string (optional, internal only)", "html": "raw HTML string"}.',
+                                . 'menu: {"title": "string (optional)", "menuId": '
+                                . 'integer} – references a menu definition; items are '
+                                . 'resolved at render time. '
+                                . 'text: {"title": "string (optional)", "text": '
+                                . '"HTML string"}. '
+                                . 'social: {"title": "string (optional)", "links": '
+                                . '{"facebook": "url", "twitter": "url", "linkedin": '
+                                . '"url", "instagram": "url"}} – all link fields '
+                                . 'optional. '
+                                . 'contact: {"title": "string (optional)", "email": '
+                                . '"string", "phone": "string", "address": "string '
+                                . '(newlines allowed)"} – all fields optional. '
+                                . 'newsletter: {"title": "string (optional)", '
+                                . '"description": "string", "buttonText": "string '
+                                . '(default: Subscribe)", "actionUrl": "string '
+                                . '(default: /newsletter/subscribe)"} – all optional. '
+                                . 'html: {"title": "string (optional, internal only)",'
+                                . ' "html": "raw HTML string"}.',
                         ],
-                        'position' => ['type' => 'integer', 'description' => 'Sort position within the slot'],
-                        'slot' => ['type' => 'string', 'enum' => self::ALLOWED_SLOTS, 'description' => 'Move block to a different slot'],
+                        'position' => [
+                            'type' => 'integer',
+                            'description' => 'Sort position within the slot',
+                        ],
+                        'slot' => [
+                            'type' => 'string',
+                            'enum' => self::ALLOWED_SLOTS,
+                            'description' => 'Move block to a different slot',
+                        ],
                         'isActive' => ['type' => 'boolean', 'description' => 'Whether the block is active'],
                     ],
                     'required' => ['blockId', 'type', 'content'],
@@ -125,9 +188,17 @@ final class FooterTools
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
-                        'slot' => ['type' => 'string', 'enum' => self::ALLOWED_SLOTS, 'description' => 'Footer slot to reorder'],
+                        'slot' => [
+                            'type' => 'string',
+                            'enum' => self::ALLOWED_SLOTS,
+                            'description' => 'Footer slot to reorder',
+                        ],
                         'locale' => ['type' => 'string', 'description' => 'Locale (default de)'],
-                        'orderedIds' => ['type' => 'array', 'items' => ['type' => 'integer'], 'description' => 'Ordered list of block IDs'],
+                        'orderedIds' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'integer'],
+                            'description' => 'Ordered list of block IDs',
+                        ],
                     ],
                     'required' => ['slot', 'orderedIds'],
                 ],
@@ -135,7 +206,8 @@ final class FooterTools
             [
                 'name' => 'get_footer_layout',
                 'method' => 'getFooterLayout',
-                'description' => 'Get the footer layout preference for a namespace. Possible layouts: equal, brand-left, cta-right, centered.',
+                'description' => 'Get the footer layout preference for a namespace. '
+                    . 'Possible layouts: equal, brand-left, cta-right, centered.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -146,12 +218,17 @@ final class FooterTools
             [
                 'name' => 'update_footer_layout',
                 'method' => 'updateFooterLayout',
-                'description' => 'Update the footer layout preference for a namespace. Layouts: equal, brand-left, cta-right, centered.',
+                'description' => 'Update the footer layout preference for a namespace. '
+                    . 'Layouts: equal, brand-left, cta-right, centered.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
-                        'layout' => ['type' => 'string', 'enum' => self::ALLOWED_LAYOUTS, 'description' => 'Footer layout (equal, brand-left, cta-right, centered)'],
+                        'layout' => [
+                            'type' => 'string',
+                            'enum' => self::ALLOWED_LAYOUTS,
+                            'description' => 'Footer layout (equal, brand-left, cta-right, centered)',
+                        ],
                     ],
                     'required' => ['layout'],
                 ],
@@ -227,7 +304,9 @@ final class FooterTools
             throw new \InvalidArgumentException('content must be an object');
         }
 
-        $position = isset($args['position']) && is_int($args['position']) ? $args['position'] : $existing->getPosition();
+        $position = isset($args['position']) && is_int($args['position'])
+            ? $args['position']
+            : $existing->getPosition();
         $isActive = isset($args['isActive']) ? (bool) $args['isActive'] : $existing->isActive();
         $slot = isset($args['slot']) && is_string($args['slot']) ? trim($args['slot']) : null;
 

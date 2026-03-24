@@ -155,7 +155,10 @@ class TenantService
                 }
             } catch (PDOException $e) {
                 if ($this->isDuplicateColumnError($e)) {
-                    error_log('Duplicate column detected during migration for schema ' . $schema . ': ' . $e->getMessage());
+                    error_log(
+                        'Duplicate column detected during migration for schema '
+                        . $schema . ': ' . $e->getMessage()
+                    );
                 } else {
                     throw new \RuntimeException('migration-failed: ' . $e->getMessage(), 0, $e);
                 }
@@ -355,7 +358,8 @@ class TenantService
         $stmt = $this->pdo->prepare(
             'INSERT INTO tenants('
             . 'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, '
-            . 'imprint_zip, imprint_city, imprint_email, custom_limits, onboarding_state, plan_started_at, plan_expires_at'
+            . 'imprint_zip, imprint_city, imprint_email, custom_limits, '
+            . 'onboarding_state, plan_started_at, plan_expires_at'
             . ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
@@ -438,8 +442,14 @@ class TenantService
             $hasNamespace = $this->hasColumn('events', 'namespace');
             $namespaceValidator = new NamespaceValidator();
             $sql = $hasSlug
-                ? 'INSERT INTO events(uid,slug,name,start_date,end_date,description' . ($hasNamespace ? ',namespace' : '') . ') VALUES(?,?,?,?,?,?' . ($hasNamespace ? ',?' : '') . ')'
-                : 'INSERT INTO events(uid,name,start_date,end_date,description' . ($hasNamespace ? ',namespace' : '') . ') VALUES(?,?,?,?,?' . ($hasNamespace ? ',?' : '') . ')';
+                ? 'INSERT INTO events(uid,slug,name,start_date,end_date,description'
+                    . ($hasNamespace ? ',namespace' : '')
+                    . ') VALUES(?,?,?,?,?,?'
+                    . ($hasNamespace ? ',?' : '') . ')'
+                : 'INSERT INTO events(uid,name,start_date,end_date,description'
+                    . ($hasNamespace ? ',namespace' : '')
+                    . ') VALUES(?,?,?,?,?'
+                    . ($hasNamespace ? ',?' : '') . ')';
             $stmt = $this->pdo->prepare($sql);
             foreach ($events as $e) {
                 $uid = $e['uid'] ?? bin2hex(random_bytes(16));

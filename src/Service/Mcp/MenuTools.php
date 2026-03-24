@@ -14,7 +14,10 @@ final class MenuTools
     private CmsMenuDefinitionService $menus;
     private CmsPageMenuService $menuItems;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -55,7 +58,10 @@ final class MenuTools
                         'namespace' => self::NS_PROP,
                         'label' => ['type' => 'string', 'description' => 'Menu label/name'],
                         'locale' => ['type' => 'string', 'description' => 'Optional locale (e.g. de, en)'],
-                        'isActive' => ['type' => 'boolean', 'description' => 'Whether the menu is active (default true)'],
+                        'isActive' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether the menu is active (default true)',
+                        ],
                     ],
                     'required' => ['label'],
                 ],
@@ -159,31 +165,58 @@ final class MenuTools
             [
                 'name' => 'list_menu_assignments',
                 'method' => 'listMenuAssignments',
-                'description' => 'List menu-to-slot assignments for a namespace. Slots control where a menu appears: "main" = header navigation, "footer_1"/"footer_2"/"footer_3" = footer columns.',
+                'description' => 'List menu-to-slot assignments for a namespace. '
+                    . 'Slots control where a menu appears: "main" = header '
+                    . 'navigation, "footer_1"/"footer_2"/"footer_3" = footer columns.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
-                        'slot' => ['type' => 'string', 'description' => 'Filter by slot (main, footer_1, footer_2, footer_3)'],
-                        'locale' => ['type' => 'string', 'description' => 'Filter by locale (e.g. de, en)'],
+                        'slot' => [
+                            'type' => 'string',
+                            'description' => 'Filter by slot (main, footer_1, footer_2, footer_3)',
+                        ],
+                        'locale' => [
+                            'type' => 'string',
+                            'description' => 'Filter by locale (e.g. de, en)',
+                        ],
                         'menuId' => ['type' => 'integer', 'description' => 'Filter by menu ID'],
-                        'pageId' => ['type' => 'integer', 'description' => 'Filter by page ID (null = global assignment)'],
+                        'pageId' => [
+                            'type' => 'integer',
+                            'description' => 'Filter by page ID (null = global assignment)',
+                        ],
                     ],
                 ],
             ],
             [
                 'name' => 'create_menu_assignment',
                 'method' => 'createMenuAssignment',
-                'description' => 'Assign a menu to a slot. Use slot "main" to set the header/navigation menu. Use pageId to override the menu for a specific page, or omit it for a global (namespace-wide) assignment.',
+                'description' => 'Assign a menu to a slot. Use slot "main" to set the '
+                    . 'header/navigation menu. Use pageId to override the menu for '
+                    . 'a specific page, or omit it for a global (namespace-wide) '
+                    . 'assignment.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'menuId' => ['type' => 'integer', 'description' => 'ID of the menu to assign'],
-                        'slot' => ['type' => 'string', 'description' => 'Target slot: main, footer_1, footer_2, or footer_3'],
-                        'locale' => ['type' => 'string', 'description' => 'Locale for this assignment (default: de)'],
-                        'pageId' => ['type' => 'integer', 'description' => 'Optional page ID for page-specific override (omit for global)'],
-                        'isActive' => ['type' => 'boolean', 'description' => 'Whether the assignment is active (default true)'],
+                        'slot' => [
+                            'type' => 'string',
+                            'description' => 'Target slot: main, footer_1, footer_2, or footer_3',
+                        ],
+                        'locale' => [
+                            'type' => 'string',
+                            'description' => 'Locale for this assignment (default: de)',
+                        ],
+                        'pageId' => [
+                            'type' => 'integer',
+                            'description' => 'Optional page ID for page-specific '
+                                . 'override (omit for global)',
+                        ],
+                        'isActive' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether the assignment is active (default true)',
+                        ],
                     ],
                     'required' => ['menuId', 'slot'],
                 ],
@@ -198,7 +231,10 @@ final class MenuTools
                         'namespace' => self::NS_PROP,
                         'assignmentId' => ['type' => 'integer', 'description' => 'ID of the assignment to update'],
                         'menuId' => ['type' => 'integer', 'description' => 'New menu ID'],
-                        'slot' => ['type' => 'string', 'description' => 'New slot: main, footer_1, footer_2, or footer_3'],
+                        'slot' => [
+                            'type' => 'string',
+                            'description' => 'New slot: main, footer_1, footer_2, or footer_3',
+                        ],
                         'locale' => ['type' => 'string', 'description' => 'New locale'],
                         'pageId' => ['type' => 'integer', 'description' => 'New page ID (null for global)'],
                         'isActive' => ['type' => 'boolean', 'description' => 'Whether the assignment is active'],

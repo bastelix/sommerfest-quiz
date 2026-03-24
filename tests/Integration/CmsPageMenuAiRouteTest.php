@@ -235,8 +235,10 @@ final class CmsPageMenuAiRouteTest extends TestCase
     private function seedPage(PDO $pdo, PageService $pageService, string $slug)
     {
         $stmt = $pdo->prepare(
-            'INSERT INTO pages (namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, '
-            . 'startpage_domain, is_startpage) VALUES (?, ?, ?, ?, NULL, NULL, 0, NULL, ?, NULL, NULL, 0)'
+            'INSERT INTO pages (namespace, slug, title, content, type, '
+            . 'parent_id, sort_order, status, language, content_source, '
+            . 'startpage_domain, is_startpage) '
+            . 'VALUES (?, ?, ?, ?, NULL, NULL, 0, NULL, ?, NULL, NULL, 0)'
         );
         $content = '<h1 id="' . $slug . '">' . ucfirst($slug) . '</h1><section id="neu">Neu</section>';
         $stmt->execute(['default', $slug, ucfirst($slug), $content, 'de']);
@@ -263,8 +265,14 @@ final class CmsPageMenuAiRouteTest extends TestCase
         $stmt->execute([$menuId, $pageId, $namespace]);
     }
 
-    private function insertMenuItem(PDO $pdo, int $menuId, string $namespace, string $label, string $href, int $position): void
-    {
+    private function insertMenuItem(
+        PDO $pdo,
+        int $menuId,
+        string $namespace,
+        string $label,
+        string $href,
+        int $position
+    ): void {
         $stmt = $pdo->prepare(
             'INSERT INTO marketing_menu_items (menu_id, namespace, parent_id, label, href, icon, layout, detail_title, '
             . 'detail_text, detail_subline, position, is_external, locale, is_active, is_startpage) '

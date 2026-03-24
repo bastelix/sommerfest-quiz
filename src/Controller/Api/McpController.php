@@ -106,8 +106,12 @@ final class McpController
             ->withHeader('Mcp-Session-Id', $sessionId);
     }
 
-    private function handleNotificationOrResponse(Request $request, Response $response, string $method, array $params): Response
-    {
+    private function handleNotificationOrResponse(
+        Request $request,
+        Response $response,
+        string $method,
+        array $params
+    ): Response {
         // Spec: notifications and responses → 202 Accepted, no body
         return $response->withStatus(202);
     }
@@ -138,7 +142,13 @@ final class McpController
         $requiredScope = $this->getRequiredScope($name);
         if ($requiredScope !== null && !in_array($requiredScope, $scopes, true)) {
             return $this->jsonRpcResult($response, $id, [
-                'content' => [['type' => 'text', 'text' => json_encode(['error' => 'missing_scope', 'required' => $requiredScope])]],
+                'content' => [[
+                    'type' => 'text',
+                    'text' => json_encode([
+                        'error' => 'missing_scope',
+                        'required' => $requiredScope,
+                    ]),
+                ]],
                 'isError' => true,
             ]);
         }

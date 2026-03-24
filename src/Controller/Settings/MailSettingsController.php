@@ -141,10 +141,19 @@ class MailSettingsController
             $smtpPort = trim((string) ($data['smtp_port'] ?? ''));
             $smtpEncryption = trim((string) ($data['smtp_encryption'] ?? 'tls'));
 
-            $required = ['smtp_host' => $smtpHost, 'smtp_user' => $smtpUser, 'smtp_pass' => $smtpPass, 'smtp_port' => $smtpPort];
+            $required = [
+                'smtp_host' => $smtpHost,
+                'smtp_user' => $smtpUser,
+                'smtp_pass' => $smtpPass,
+                'smtp_port' => $smtpPort,
+            ];
             foreach ($required as $field => $value) {
                 if ($value === '') {
-                    return $this->jsonError($response, sprintf('Field %s is required when using custom SMTP.', $field), 422);
+                    return $this->jsonError(
+                        $response,
+                        sprintf('Field %s is required when using custom SMTP.', $field),
+                        422
+                    );
                 }
             }
         }

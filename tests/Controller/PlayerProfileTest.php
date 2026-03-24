@@ -193,7 +193,8 @@ class PlayerProfileTest extends TestCase
             . " VALUES(?,?,?,?,?,?,?,?,?)"
         )->execute(['Old Name', 'cat-1', 1, 3, 3, 5, 5, 1700000000, 'ev5']);
         $pdo->prepare(
-            "INSERT INTO question_results(name, catalog, question_id, attempt, correct, points, event_uid, final_points, efficiency, is_correct, scoring_version)"
+            "INSERT INTO question_results(name, catalog, question_id, attempt, "
+            . "correct, points, event_uid, final_points, efficiency, is_correct, scoring_version)"
             . " VALUES(?,?,?,?,?,?,?,?,?,?,?)"
         )->execute(['Old Name', 'cat-1', 10, 1, 1, 3, 'ev5', 3, 1.0, 1, 1]);
 

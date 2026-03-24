@@ -234,7 +234,11 @@ final class MarketingFooterBlockController
 
         // Required for create only
         if (!$isUpdate) {
-            if (!isset($payload['namespace']) || !is_string($payload['namespace']) || trim($payload['namespace']) === '') {
+            if (
+                !isset($payload['namespace'])
+                || !is_string($payload['namespace'])
+                || trim($payload['namespace']) === ''
+            ) {
                 $errors['namespace'] = 'Namespace is required.';
             } else {
                 $data['namespace'] = trim($payload['namespace']);

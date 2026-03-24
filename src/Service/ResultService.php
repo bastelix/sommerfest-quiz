@@ -291,9 +291,10 @@ class ResultService
      * @return array<int, array<string, mixed>>
      */
     public function getQuestionRows(string $eventUid = ''): array {
-        $sql = 'SELECT name,catalog,question_id,attempt,correct,points,time_left_sec,final_points,efficiency,is_correct,scoring_version,' .
-            'answer_text,photo,consent,player_uid,event_uid '
-            . 'FROM question_results';
+        $sql = 'SELECT name,catalog,question_id,attempt,correct,points,'
+            . 'time_left_sec,final_points,efficiency,is_correct,'
+            . 'scoring_version,answer_text,photo,consent,player_uid,'
+            . 'event_uid FROM question_results';
         $params = [];
         if ($eventUid !== '') {
             $sql .= ' WHERE event_uid=?';
@@ -359,13 +360,25 @@ class ResultService
             'duration_ratio' => null,
         ];
         $stmt = $this->pdo->prepare(
-            'INSERT INTO results(' .
-            'name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,player_uid,event_uid,started_at,duration_sec,' .
-            'expected_duration_sec,duration_ratio' .
-            ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+            'INSERT INTO results('
+            . 'name,catalog,attempt,correct,points,total,max_points,'
+            . 'time,puzzleTime,photo,player_uid,event_uid,started_at,'
+            . 'duration_sec,expected_duration_sec,duration_ratio'
+            . ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
         );
-        $answers = isset($data['answers']) && is_array($data['answers']) ? $data['answers'] : [];
-        $summary = $this->addQuestionResults($name, $catalog, $attempt, $wrong, $entry['total'], $answers, $playerUid, $eventUid);
+        $answers = isset($data['answers']) && is_array($data['answers'])
+            ? $data['answers']
+            : [];
+        $summary = $this->addQuestionResults(
+            $name,
+            $catalog,
+            $attempt,
+            $wrong,
+            $entry['total'],
+            $answers,
+            $playerUid,
+            $eventUid
+        );
         $entry['points'] = $summary['points'];
         $entry['max_points'] = $summary['max'];
         $expectedDuration = $summary['expectedTime'] > 0 ? (int) round($summary['expectedTime']) : null;
@@ -783,9 +796,13 @@ class ResultService
 
         if ($eventUid !== '') {
             $params = array_merge([$eventUid], $names);
-            $stmt = $this->pdo->prepare(sprintf('DELETE FROM results WHERE event_uid=? AND name IN (%s)', $placeholders));
+            $stmt = $this->pdo->prepare(
+                sprintf('DELETE FROM results WHERE event_uid=? AND name IN (%s)', $placeholders)
+            );
             $stmt->execute($params);
-            $stmt = $this->pdo->prepare(sprintf('DELETE FROM question_results WHERE event_uid=? AND name IN (%s)', $placeholders));
+            $stmt = $this->pdo->prepare(
+                sprintf('DELETE FROM question_results WHERE event_uid=? AND name IN (%s)', $placeholders)
+            );
             $stmt->execute($params);
 
             return;
@@ -860,18 +877,22 @@ class ResultService
             $del = $this->pdo->prepare('DELETE FROM results WHERE event_uid=?');
             $del->execute([$eventUid]);
             $stmt = $this->pdo->prepare(
-                'INSERT INTO results(' .
-                'name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,player_uid,event_uid,started_at,duration_sec,' .
-                'expected_duration_sec,duration_ratio' .
-                ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                'INSERT INTO results('
+                . 'name,catalog,attempt,correct,points,total,'
+                . 'max_points,time,puzzleTime,photo,player_uid,'
+                . 'event_uid,started_at,duration_sec,'
+                . 'expected_duration_sec,duration_ratio'
+                . ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
             );
         } else {
             $this->pdo->exec('DELETE FROM results');
             $stmt = $this->pdo->prepare(
-                'INSERT INTO results(' .
-                'name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,player_uid,event_uid,started_at,duration_sec,' .
-                'expected_duration_sec,duration_ratio' .
-                ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                'INSERT INTO results('
+                . 'name,catalog,attempt,correct,points,total,'
+                . 'max_points,time,puzzleTime,photo,player_uid,'
+                . 'event_uid,started_at,duration_sec,'
+                . 'expected_duration_sec,duration_ratio'
+                . ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
             );
         }
         foreach ($results as $row) {
@@ -923,16 +944,22 @@ class ResultService
             $del = $this->pdo->prepare('DELETE FROM question_results WHERE event_uid=?');
             $del->execute([$eventUid]);
             $stmt = $this->pdo->prepare(
-                'INSERT INTO question_results(' .
-                'name,catalog,question_id,attempt,correct,points,time_left_sec,final_points,efficiency,' .
-                'is_correct,scoring_version,answer_text,photo,consent,player_uid,event_uid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                'INSERT INTO question_results('
+                . 'name,catalog,question_id,attempt,correct,points,'
+                . 'time_left_sec,final_points,efficiency,is_correct,'
+                . 'scoring_version,answer_text,photo,consent,'
+                . 'player_uid,event_uid'
+                . ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
             );
         } else {
             $this->pdo->exec('DELETE FROM question_results');
             $stmt = $this->pdo->prepare(
-                'INSERT INTO question_results(' .
-                'name,catalog,question_id,attempt,correct,points,time_left_sec,final_points,efficiency,' .
-                'is_correct,scoring_version,answer_text,photo,consent,player_uid,event_uid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                'INSERT INTO question_results('
+                . 'name,catalog,question_id,attempt,correct,points,'
+                . 'time_left_sec,final_points,efficiency,is_correct,'
+                . 'scoring_version,answer_text,photo,consent,'
+                . 'player_uid,event_uid'
+                . ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
             );
         }
         foreach ($rows as $row) {
@@ -944,7 +971,9 @@ class ResultService
             }
             $finalPoints = (int) ($row['final_points'] ?? $row['finalPoints'] ?? $row['points'] ?? 0);
             $efficiencyRaw = $row['efficiency'] ?? null;
-            $efficiency = $efficiencyRaw !== null ? (float) $efficiencyRaw : ((int)($row['correct'] ?? 0) === 1 ? 1.0 : 0.0);
+            $efficiency = $efficiencyRaw !== null
+                ? (float) $efficiencyRaw
+                : ((int)($row['correct'] ?? 0) === 1 ? 1.0 : 0.0);
             $isCorrectRaw = $row['is_correct'] ?? $row['isCorrect'] ?? null;
             $isCorrect = $isCorrectRaw === null ? (int)($row['correct'] ?? 0) === 1 : (bool) $isCorrectRaw;
             $scoringVersion = (int) ($row['scoring_version'] ?? $row['scoringVersion'] ?? self::SCORING_VERSION);

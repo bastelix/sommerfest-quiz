@@ -148,5 +148,4 @@ class StripeWebhookController
 
         return $response->withStatus(200);
     }
-
 }

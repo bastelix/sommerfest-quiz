@@ -96,26 +96,80 @@ class AwardServiceTest extends TestCase
     public function testComputeRankingsCalculatesTopTeams(): void {
         $svc = new AwardService();
         $results = [
-            ['name' => 'TeamA', 'catalog' => 'cat1', 'time' => 10, 'duration_sec' => 310, 'correct' => 5, 'puzzleTime' => 30, 'attempt' => 1],
-            ['name' => 'TeamA', 'catalog' => 'cat2', 'time' => 21, 'duration_sec' => 390, 'correct' => 4, 'attempt' => 1],
-            ['name' => 'TeamB', 'catalog' => 'cat1', 'time' => 9, 'duration_sec' => 330, 'correct' => 4, 'puzzleTime' => 35, 'attempt' => 1],
-            ['name' => 'TeamB', 'catalog' => 'cat2', 'time' => 19, 'duration_sec' => 410, 'correct' => 3, 'attempt' => 1],
-            ['name' => 'TeamC', 'catalog' => 'cat1', 'time' => 14, 'duration_sec' => 360, 'correct' => 3, 'puzzleTime' => 40, 'attempt' => 1],
-            ['name' => 'TeamC', 'catalog' => 'cat2', 'time' => 25, 'duration_sec' => 440, 'correct' => 2, 'attempt' => 1],
-            ['name' => 'TeamD', 'catalog' => 'cat1', 'time' => 11, 'duration_sec' => 305, 'correct' => 6, 'puzzleTime' => 50, 'attempt' => 1],
+            [
+                'name' => 'TeamA', 'catalog' => 'cat1', 'time' => 10,
+                'duration_sec' => 310, 'correct' => 5, 'puzzleTime' => 30, 'attempt' => 1,
+            ],
+            [
+                'name' => 'TeamA', 'catalog' => 'cat2', 'time' => 21,
+                'duration_sec' => 390, 'correct' => 4, 'attempt' => 1,
+            ],
+            [
+                'name' => 'TeamB', 'catalog' => 'cat1', 'time' => 9,
+                'duration_sec' => 330, 'correct' => 4, 'puzzleTime' => 35, 'attempt' => 1,
+            ],
+            [
+                'name' => 'TeamB', 'catalog' => 'cat2', 'time' => 19,
+                'duration_sec' => 410, 'correct' => 3, 'attempt' => 1,
+            ],
+            [
+                'name' => 'TeamC', 'catalog' => 'cat1', 'time' => 14,
+                'duration_sec' => 360, 'correct' => 3, 'puzzleTime' => 40, 'attempt' => 1,
+            ],
+            [
+                'name' => 'TeamC', 'catalog' => 'cat2', 'time' => 25,
+                'duration_sec' => 440, 'correct' => 2, 'attempt' => 1,
+            ],
+            [
+                'name' => 'TeamD', 'catalog' => 'cat1', 'time' => 11,
+                'duration_sec' => 305, 'correct' => 6, 'puzzleTime' => 50, 'attempt' => 1,
+            ],
         ];
         $questionResults = [
-            ['name' => 'TeamA', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 80, 'efficiency' => 0.9, 'correct' => 1],
-            ['name' => 'TeamA', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 70, 'efficiency' => 0.8, 'correct' => 1],
-            ['name' => 'TeamA', 'catalog' => 'cat2', 'attempt' => 1, 'final_points' => 30, 'efficiency' => 0.6, 'correct' => 1],
-            ['name' => 'TeamA', 'catalog' => 'cat2', 'attempt' => 1, 'final_points' => 20, 'efficiency' => 0.5, 'correct' => 1],
-            ['name' => 'TeamB', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 90, 'efficiency' => 0.4, 'correct' => 1],
-            ['name' => 'TeamB', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 60, 'efficiency' => 0.4, 'correct' => 1],
-            ['name' => 'TeamB', 'catalog' => 'cat2', 'attempt' => 1, 'final_points' => 30, 'efficiency' => 0.5, 'correct' => 1],
-            ['name' => 'TeamB', 'catalog' => 'cat2', 'attempt' => 1, 'final_points' => 20, 'efficiency' => 0.5, 'correct' => 1],
-            ['name' => 'TeamC', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 70, 'efficiency' => 0.7, 'correct' => 1],
-            ['name' => 'TeamC', 'catalog' => 'cat2', 'attempt' => 1, 'final_points' => 40, 'efficiency' => 0.6, 'correct' => 1],
-            ['name' => 'TeamD', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 60, 'efficiency' => 0.9, 'correct' => 1],
+            [
+                'name' => 'TeamA', 'catalog' => 'cat1', 'attempt' => 1,
+                'final_points' => 80, 'efficiency' => 0.9, 'correct' => 1,
+            ],
+            [
+                'name' => 'TeamA', 'catalog' => 'cat1', 'attempt' => 1,
+                'final_points' => 70, 'efficiency' => 0.8, 'correct' => 1,
+            ],
+            [
+                'name' => 'TeamA', 'catalog' => 'cat2', 'attempt' => 1,
+                'final_points' => 30, 'efficiency' => 0.6, 'correct' => 1,
+            ],
+            [
+                'name' => 'TeamA', 'catalog' => 'cat2', 'attempt' => 1,
+                'final_points' => 20, 'efficiency' => 0.5, 'correct' => 1,
+            ],
+            [
+                'name' => 'TeamB', 'catalog' => 'cat1', 'attempt' => 1,
+                'final_points' => 90, 'efficiency' => 0.4, 'correct' => 1,
+            ],
+            [
+                'name' => 'TeamB', 'catalog' => 'cat1', 'attempt' => 1,
+                'final_points' => 60, 'efficiency' => 0.4, 'correct' => 1,
+            ],
+            [
+                'name' => 'TeamB', 'catalog' => 'cat2', 'attempt' => 1,
+                'final_points' => 30, 'efficiency' => 0.5, 'correct' => 1,
+            ],
+            [
+                'name' => 'TeamB', 'catalog' => 'cat2', 'attempt' => 1,
+                'final_points' => 20, 'efficiency' => 0.5, 'correct' => 1,
+            ],
+            [
+                'name' => 'TeamC', 'catalog' => 'cat1', 'attempt' => 1,
+                'final_points' => 70, 'efficiency' => 0.7, 'correct' => 1,
+            ],
+            [
+                'name' => 'TeamC', 'catalog' => 'cat2', 'attempt' => 1,
+                'final_points' => 40, 'efficiency' => 0.6, 'correct' => 1,
+            ],
+            [
+                'name' => 'TeamD', 'catalog' => 'cat1', 'attempt' => 1,
+                'final_points' => 60, 'efficiency' => 0.9, 'correct' => 1,
+            ],
         ];
         $rankings = $svc->computeRankings($results, null, $questionResults);
 
@@ -165,14 +219,38 @@ class AwardServiceTest extends TestCase
             ['name' => 'Slow', 'catalog' => 'cat2', 'time' => 22, 'duration_sec' => 380, 'attempt' => 1],
         ];
         $questionResults = [
-            ['name' => 'Fast', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 50, 'efficiency' => 0.9, 'correct' => 1],
-            ['name' => 'Fast', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 50, 'efficiency' => 0.9, 'correct' => 1],
-            ['name' => 'Fast', 'catalog' => 'cat2', 'attempt' => 1, 'final_points' => 50, 'efficiency' => 0.8, 'correct' => 1],
-            ['name' => 'Fast', 'catalog' => 'cat2', 'attempt' => 1, 'final_points' => 50, 'efficiency' => 0.8, 'correct' => 1],
-            ['name' => 'Slow', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 60, 'efficiency' => 0.5, 'correct' => 1],
-            ['name' => 'Slow', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 60, 'efficiency' => 0.5, 'correct' => 1],
-            ['name' => 'Slow', 'catalog' => 'cat2', 'attempt' => 1, 'final_points' => 40, 'efficiency' => 0.4, 'correct' => 1],
-            ['name' => 'Slow', 'catalog' => 'cat2', 'attempt' => 1, 'final_points' => 40, 'efficiency' => 0.4, 'correct' => 1],
+            [
+                'name' => 'Fast', 'catalog' => 'cat1', 'attempt' => 1,
+                'final_points' => 50, 'efficiency' => 0.9, 'correct' => 1,
+            ],
+            [
+                'name' => 'Fast', 'catalog' => 'cat1', 'attempt' => 1,
+                'final_points' => 50, 'efficiency' => 0.9, 'correct' => 1,
+            ],
+            [
+                'name' => 'Fast', 'catalog' => 'cat2', 'attempt' => 1,
+                'final_points' => 50, 'efficiency' => 0.8, 'correct' => 1,
+            ],
+            [
+                'name' => 'Fast', 'catalog' => 'cat2', 'attempt' => 1,
+                'final_points' => 50, 'efficiency' => 0.8, 'correct' => 1,
+            ],
+            [
+                'name' => 'Slow', 'catalog' => 'cat1', 'attempt' => 1,
+                'final_points' => 60, 'efficiency' => 0.5, 'correct' => 1,
+            ],
+            [
+                'name' => 'Slow', 'catalog' => 'cat1', 'attempt' => 1,
+                'final_points' => 60, 'efficiency' => 0.5, 'correct' => 1,
+            ],
+            [
+                'name' => 'Slow', 'catalog' => 'cat2', 'attempt' => 1,
+                'final_points' => 40, 'efficiency' => 0.4, 'correct' => 1,
+            ],
+            [
+                'name' => 'Slow', 'catalog' => 'cat2', 'attempt' => 1,
+                'final_points' => 40, 'efficiency' => 0.4, 'correct' => 1,
+            ],
         ];
 
         $rankings = $svc->computeRankings($results, null, $questionResults);
@@ -197,17 +275,44 @@ class AwardServiceTest extends TestCase
     public function testNegativeFinalPointsReduceTotalsAndClampEfficiency(): void {
         $svc = new AwardService();
         $results = [
-            ['name' => 'Neutral', 'catalog' => 'main', 'time' => 15, 'duration_sec' => 320, 'correct' => 4, 'attempt' => 1],
-            ['name' => 'Penalty', 'catalog' => 'main', 'time' => 18, 'duration_sec' => 340, 'correct' => 3, 'attempt' => 1],
-            ['name' => 'Bonus', 'catalog' => 'main', 'time' => 16, 'duration_sec' => 330, 'correct' => 3, 'attempt' => 1],
+            [
+                'name' => 'Neutral', 'catalog' => 'main', 'time' => 15,
+                'duration_sec' => 320, 'correct' => 4, 'attempt' => 1,
+            ],
+            [
+                'name' => 'Penalty', 'catalog' => 'main', 'time' => 18,
+                'duration_sec' => 340, 'correct' => 3, 'attempt' => 1,
+            ],
+            [
+                'name' => 'Bonus', 'catalog' => 'main', 'time' => 16,
+                'duration_sec' => 330, 'correct' => 3, 'attempt' => 1,
+            ],
         ];
         $questionResults = [
-            ['name' => 'Neutral', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 40, 'efficiency' => 0.8, 'correct' => 1],
-            ['name' => 'Neutral', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 30, 'efficiency' => 1.3, 'correct' => 1],
-            ['name' => 'Penalty', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 60, 'efficiency' => 0.7, 'correct' => 1],
-            ['name' => 'Penalty', 'catalog' => 'main', 'attempt' => 1, 'final_points' => -120, 'efficiency' => -0.4, 'correct' => 0],
-            ['name' => 'Bonus', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 25, 'efficiency' => 0.5, 'correct' => 1],
-            ['name' => 'Bonus', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 15, 'efficiency' => 0.6, 'correct' => 1],
+            [
+                'name' => 'Neutral', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 40, 'efficiency' => 0.8, 'correct' => 1,
+            ],
+            [
+                'name' => 'Neutral', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 30, 'efficiency' => 1.3, 'correct' => 1,
+            ],
+            [
+                'name' => 'Penalty', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 60, 'efficiency' => 0.7, 'correct' => 1,
+            ],
+            [
+                'name' => 'Penalty', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => -120, 'efficiency' => -0.4, 'correct' => 0,
+            ],
+            [
+                'name' => 'Bonus', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 25, 'efficiency' => 0.5, 'correct' => 1,
+            ],
+            [
+                'name' => 'Bonus', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 15, 'efficiency' => 0.6, 'correct' => 1,
+            ],
         ];
 
         $rankings = $svc->computeRankings($results, null, $questionResults);
@@ -234,16 +339,40 @@ class AwardServiceTest extends TestCase
     public function testCatalogRankingCountsSolvedQuestionsFromQuestionResults(): void {
         $svc = new AwardService();
         $results = [
-            ['name' => 'Binary', 'catalog' => 'main', 'time' => 20, 'duration_sec' => 180, 'correct' => 0, 'total' => 3, 'attempt' => 1],
-            ['name' => 'Perfect', 'catalog' => 'main', 'time' => 25, 'duration_sec' => 150, 'correct' => 1, 'total' => 3, 'attempt' => 1],
+            [
+                'name' => 'Binary', 'catalog' => 'main', 'time' => 20,
+                'duration_sec' => 180, 'correct' => 0, 'total' => 3, 'attempt' => 1,
+            ],
+            [
+                'name' => 'Perfect', 'catalog' => 'main', 'time' => 25,
+                'duration_sec' => 150, 'correct' => 1, 'total' => 3, 'attempt' => 1,
+            ],
         ];
         $questionResults = [
-            ['name' => 'Binary', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 10, 'efficiency' => 0.9, 'correct' => 1],
-            ['name' => 'Binary', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 10, 'efficiency' => 0.9, 'correct' => 1],
-            ['name' => 'Binary', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 0, 'efficiency' => 0.0, 'correct' => 0],
-            ['name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1],
-            ['name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1],
-            ['name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1],
+            [
+                'name' => 'Binary', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 10, 'efficiency' => 0.9, 'correct' => 1,
+            ],
+            [
+                'name' => 'Binary', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 10, 'efficiency' => 0.9, 'correct' => 1,
+            ],
+            [
+                'name' => 'Binary', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 0, 'efficiency' => 0.0, 'correct' => 0,
+            ],
+            [
+                'name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1,
+            ],
+            [
+                'name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1,
+            ],
+            [
+                'name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1,
+            ],
         ];
 
         $rankings = $svc->computeRankings($results, null, $questionResults);

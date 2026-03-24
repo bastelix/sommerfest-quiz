@@ -48,7 +48,9 @@ final class CustomerProfileService
             $stmt->execute([$userId, $displayName, $company, $phone, $avatarUrl]);
         } else {
             $stmt = $this->pdo->prepare(
-                'UPDATE customer_profiles SET display_name = ?, company = ?, phone = ?, avatar_url = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?'
+                'UPDATE customer_profiles SET display_name = ?, company = ?, '
+                . 'phone = ?, avatar_url = ?, updated_at = CURRENT_TIMESTAMP '
+                . 'WHERE user_id = ?'
             );
             $stmt->execute([$displayName, $company, $phone, $avatarUrl, $userId]);
         }

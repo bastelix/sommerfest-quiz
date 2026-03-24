@@ -93,13 +93,25 @@ class NewsletterCampaignController
         if ($id === null) {
             $this->campaigns->create($namespace, $name, $newsIds, $templateId, $audienceId, $status, $scheduledFor);
         } else {
-            $this->campaigns->update($id, $namespace, $name, $newsIds, $templateId, $audienceId, $status, $scheduledFor);
+            $this->campaigns->update(
+                $id,
+                $namespace,
+                $name,
+                $newsIds,
+                $templateId,
+                $audienceId,
+                $status,
+                $scheduledFor
+            );
         }
 
         $query = $namespace !== '' ? '?namespace=' . rawurlencode($namespace) : '';
         $tabSeparator = $query !== '' ? '&' : '?';
 
-        return $response->withHeader('Location', $request->getAttribute('basePath') . '/admin/newsletter' . $query . $tabSeparator . 'tab=campaigns')
+        $location = $request->getAttribute('basePath')
+            . '/admin/newsletter' . $query . $tabSeparator . 'tab=campaigns';
+
+        return $response->withHeader('Location', $location)
             ->withStatus(302);
     }
 
@@ -122,7 +134,8 @@ class NewsletterCampaignController
         $basePath = (string) ($request->getAttribute('basePath') ?? '');
         $query = $namespace !== '' ? '?namespace=' . rawurlencode($namespace) : '';
         $tabSeparator = $query !== '' ? '&' : '?';
-        $baseLocation = (string) $request->getAttribute('basePath') . '/admin/newsletter' . $query . $tabSeparator . 'tab=campaigns';
+        $baseLocation = (string) $request->getAttribute('basePath')
+            . '/admin/newsletter' . $query . $tabSeparator . 'tab=campaigns';
 
         try {
             $sender->send($campaign, $basePath);

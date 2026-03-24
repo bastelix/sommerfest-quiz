@@ -135,11 +135,19 @@ class ConfigServiceTest extends TestCase
         ]);
 
         $row = $pdo->query(
-            "SELECT random_name_domains, random_name_tones, random_name_buffer, random_name_locale, random_name_strategy FROM config WHERE event_uid = 'ev-random'"
+            "SELECT random_name_domains, random_name_tones, random_name_buffer,"
+            . " random_name_locale, random_name_strategy"
+            . " FROM config WHERE event_uid = 'ev-random'"
         )->fetch(PDO::FETCH_ASSOC);
         $this->assertIsArray($row);
-        $this->assertSame(['nature', 'science'], json_decode((string) $row['random_name_domains'], true, 512, JSON_THROW_ON_ERROR));
-        $this->assertSame(['playful', 'bold'], json_decode((string) $row['random_name_tones'], true, 512, JSON_THROW_ON_ERROR));
+        $this->assertSame(
+            ['nature', 'science'],
+            json_decode((string) $row['random_name_domains'], true, 512, JSON_THROW_ON_ERROR),
+        );
+        $this->assertSame(
+            ['playful', 'bold'],
+            json_decode((string) $row['random_name_tones'], true, 512, JSON_THROW_ON_ERROR),
+        );
         $this->assertSame(7, (int) $row['random_name_buffer']);
         $this->assertSame('de-DE', $row['random_name_locale']);
         $this->assertSame('lexicon', strtolower((string) $row['random_name_strategy']));
@@ -315,8 +323,11 @@ class ConfigServiceTest extends TestCase
         ]);
 
         $stored = $pdo->query(
-            "SELECT dashboard_modules, dashboard_sponsor_modules, dashboard_theme, dashboard_refresh_interval, dashboard_fixed_height, " .
-            "dashboard_share_enabled, dashboard_sponsor_enabled, dashboard_visibility_start, dashboard_visibility_end " .
+            "SELECT dashboard_modules, dashboard_sponsor_modules,"
+            . " dashboard_theme, dashboard_refresh_interval,"
+            . " dashboard_fixed_height, dashboard_share_enabled,"
+            . " dashboard_sponsor_enabled,"
+            . " dashboard_visibility_start, dashboard_visibility_end "
             "FROM config WHERE event_uid = 'dash-event'"
         )->fetch(PDO::FETCH_ASSOC);
         $this->assertIsArray($stored);

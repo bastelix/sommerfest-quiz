@@ -18,7 +18,10 @@ final class WikiTools
 
     private PageService $pageService;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -96,7 +99,10 @@ final class WikiTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'id' => ['type' => 'integer', 'description' => 'Wiki article ID'],
-                        'limit' => ['type' => 'integer', 'description' => 'Maximum number of versions to return (default 10)'],
+                        'limit' => [
+                            'type' => 'integer',
+                            'description' => 'Maximum number of versions to return (default 10)',
+                        ],
                     ],
                     'required' => ['id'],
                 ],
@@ -110,8 +116,14 @@ final class WikiTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'pageId' => ['type' => 'integer', 'description' => 'The page ID to update wiki settings for'],
-                        'isActive' => ['type' => 'boolean', 'description' => 'Whether the wiki is active for this page'],
-                        'menuLabel' => ['type' => 'string', 'description' => 'Optional default menu label (max 64 characters)'],
+                        'isActive' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether the wiki is active for this page',
+                        ],
+                        'menuLabel' => [
+                            'type' => 'string',
+                            'description' => 'Optional default menu label (max 64 characters)',
+                        ],
                         'menuLabels' => [
                             'type' => 'object',
                             'description' => 'Optional per-locale menu labels, e.g. {"de": "Wiki", "en": "Wiki"}',
@@ -130,13 +142,31 @@ final class WikiTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'pageId' => ['type' => 'integer', 'description' => 'The page ID this article belongs to'],
-                        'locale' => ['type' => 'string', 'description' => 'Article locale (e.g. "de", "en"). Defaults to "de"'],
-                        'slug' => ['type' => 'string', 'description' => 'URL-friendly slug (lowercase, alphanumeric with hyphens)'],
+                        'locale' => [
+                            'type' => 'string',
+                            'description' => 'Article locale (e.g. "de", "en"). Defaults to "de"',
+                        ],
+                        'slug' => [
+                            'type' => 'string',
+                            'description' => 'URL-friendly slug (lowercase, alphanumeric with hyphens)',
+                        ],
                         'title' => ['type' => 'string', 'description' => 'Article title'],
                         'markdown' => ['type' => 'string', 'description' => 'Article content in markdown format'],
-                        'excerpt' => ['type' => 'string', 'description' => 'Optional short excerpt (max 300 characters)'],
-                        'status' => ['type' => 'string', 'description' => 'Article status: "draft", "published", or "archived" (default "draft")', 'enum' => ['draft', 'published', 'archived']],
-                        'isStartDocument' => ['type' => 'boolean', 'description' => 'Whether this is the start/home document for the wiki (default false)'],
+                        'excerpt' => [
+                            'type' => 'string',
+                            'description' => 'Optional short excerpt (max 300 characters)',
+                        ],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'Article status: "draft", "published", '
+                                . 'or "archived" (default "draft")',
+                            'enum' => ['draft', 'published', 'archived'],
+                        ],
+                        'isStartDocument' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether this is the start/home document '
+                                . 'for the wiki (default false)',
+                        ],
                     ],
                     'required' => ['pageId', 'slug', 'title', 'markdown'],
                 ],
@@ -144,7 +174,8 @@ final class WikiTools
             [
                 'name' => 'update_wiki_article',
                 'method' => 'updateWikiArticle',
-                'description' => 'Update an existing wiki article. Only provided fields are updated. Content is provided as markdown.',
+                'description' => 'Update an existing wiki article. Only provided fields '
+                    . 'are updated. Content is provided as markdown.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -155,8 +186,15 @@ final class WikiTools
                         'title' => ['type' => 'string', 'description' => 'Article title'],
                         'markdown' => ['type' => 'string', 'description' => 'Article content in markdown format'],
                         'excerpt' => ['type' => 'string', 'description' => 'Short excerpt (max 300 characters)'],
-                        'status' => ['type' => 'string', 'description' => 'Article status', 'enum' => ['draft', 'published', 'archived']],
-                        'isStartDocument' => ['type' => 'boolean', 'description' => 'Whether this is the start document'],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'Article status',
+                            'enum' => ['draft', 'published', 'archived'],
+                        ],
+                        'isStartDocument' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether this is the start document',
+                        ],
                     ],
                     'required' => ['id'],
                 ],
@@ -183,7 +221,11 @@ final class WikiTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'id' => ['type' => 'integer', 'description' => 'Wiki article ID'],
-                        'status' => ['type' => 'string', 'description' => 'New status', 'enum' => ['draft', 'published', 'archived']],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'New status',
+                            'enum' => ['draft', 'published', 'archived'],
+                        ],
                     ],
                     'required' => ['id', 'status'],
                 ],
@@ -351,7 +393,9 @@ final class WikiTools
 
         $locale = isset($args['locale']) && is_string($args['locale']) ? trim($args['locale']) : 'de';
         $excerpt = isset($args['excerpt']) && is_string($args['excerpt']) ? $args['excerpt'] : null;
-        $status = isset($args['status']) && is_string($args['status']) ? $args['status'] : CmsPageWikiArticle::STATUS_DRAFT;
+        $status = isset($args['status']) && is_string($args['status'])
+            ? $args['status']
+            : CmsPageWikiArticle::STATUS_DRAFT;
         $isStartDocument = isset($args['isStartDocument']) ? (bool) $args['isStartDocument'] : false;
 
         $article = $this->articleService->saveArticleFromMarkdown(
@@ -389,10 +433,18 @@ final class WikiTools
         $locale = isset($args['locale']) && is_string($args['locale']) ? trim($args['locale']) : $existing->getLocale();
         $slug = isset($args['slug']) && is_string($args['slug']) ? trim($args['slug']) : $existing->getSlug();
         $title = isset($args['title']) && is_string($args['title']) ? trim($args['title']) : $existing->getTitle();
-        $markdown = isset($args['markdown']) && is_string($args['markdown']) ? $args['markdown'] : $existing->getContentMarkdown();
-        $excerpt = array_key_exists('excerpt', $args) && is_string($args['excerpt']) ? $args['excerpt'] : $existing->getExcerpt();
-        $status = isset($args['status']) && is_string($args['status']) ? $args['status'] : $existing->getStatus();
-        $isStartDocument = isset($args['isStartDocument']) ? (bool) $args['isStartDocument'] : $existing->isStartDocument();
+        $markdown = isset($args['markdown']) && is_string($args['markdown'])
+            ? $args['markdown']
+            : $existing->getContentMarkdown();
+        $excerpt = array_key_exists('excerpt', $args) && is_string($args['excerpt'])
+            ? $args['excerpt']
+            : $existing->getExcerpt();
+        $status = isset($args['status']) && is_string($args['status'])
+            ? $args['status']
+            : $existing->getStatus();
+        $isStartDocument = isset($args['isStartDocument'])
+            ? (bool) $args['isStartDocument']
+            : $existing->isStartDocument();
 
         $article = $this->articleService->saveArticleFromMarkdown(
             $existing->getPageId(),

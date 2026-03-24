@@ -31,7 +31,9 @@ final class DomainWikiSelectionService
     {
         $normalized = $this->normalizeDomain($domain);
 
-        $stmt = $this->pdo->prepare('SELECT article_id FROM domain_chat_wiki_articles WHERE domain = ? ORDER BY article_id');
+        $stmt = $this->pdo->prepare(
+            'SELECT article_id FROM domain_chat_wiki_articles WHERE domain = ? ORDER BY article_id'
+        );
         $stmt->execute([$normalized]);
         $rows = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
 
@@ -65,7 +67,9 @@ final class DomainWikiSelectionService
             $delete->execute([$normalized]);
 
             if ($unique !== []) {
-                $insert = $this->pdo->prepare('INSERT INTO domain_chat_wiki_articles (domain, article_id) VALUES (?, ?)');
+                $insert = $this->pdo->prepare(
+                    'INSERT INTO domain_chat_wiki_articles (domain, article_id) VALUES (?, ?)'
+                );
                 foreach ($unique as $articleId) {
                     $insert->execute([$normalized, $articleId]);
                 }
@@ -77,7 +81,9 @@ final class DomainWikiSelectionService
                 $this->pdo->rollBack();
             }
 
-            $message = $exception instanceof PDOException ? 'Failed to update wiki selection.' : $exception->getMessage();
+            $message = $exception instanceof PDOException
+                ? 'Failed to update wiki selection.'
+                : $exception->getMessage();
             throw new RuntimeException($message, 0, $exception);
         }
     }
