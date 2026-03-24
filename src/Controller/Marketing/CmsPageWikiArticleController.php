@@ -108,6 +108,8 @@ final class CmsPageWikiArticleController
             return $response->withStatus(404);
         }
 
+        $articles = $this->articleService->getPublishedArticles($settingsPage->getId(), $locale);
+
         $menuLabel = $settings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
         $view = Twig::fromRequest($request);
         $basePath = RouteContext::fromRequest($request)->getBasePath();
@@ -118,6 +120,7 @@ final class CmsPageWikiArticleController
         return $view->render($response, 'marketing/wiki/show.twig', [
             'page' => $page,
             'article' => $article,
+            'articles' => $articles,
             'menuLabel' => $menuLabel,
             'wikiTheme' => $theme,
             'namespace' => $pageNamespace,
