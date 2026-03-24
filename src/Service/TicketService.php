@@ -21,7 +21,7 @@ final class TicketService
     }
 
     /**
-     * @param array{status?: string, priority?: string, type?: string, assignee?: string, referenceType?: string, referenceId?: int} $filters
+     * @param array<string, mixed> $filters
      * @return Ticket[]
      */
     public function listByNamespace(string $namespace, array $filters = []): array
@@ -327,10 +327,10 @@ final class TicketService
             (string) $row['priority'],
             (string) $row['type'],
             isset($row['reference_type']) && $row['reference_type'] !== '' ? (string) $row['reference_type'] : null,
-            isset($row['reference_id']) && $row['reference_id'] !== null ? (int) $row['reference_id'] : null,
+            isset($row['reference_id']) ? (int) $row['reference_id'] : null,
             isset($row['assignee']) && $row['assignee'] !== '' ? (string) $row['assignee'] : null,
             $labels,
-            isset($row['due_date']) && $row['due_date'] !== null ? new DateTimeImmutable($row['due_date']) : null,
+            isset($row['due_date']) ? new DateTimeImmutable($row['due_date']) : null,
             isset($row['created_by']) && $row['created_by'] !== '' ? (string) $row['created_by'] : null,
             new DateTimeImmutable($row['created_at']),
             new DateTimeImmutable($row['updated_at']),
