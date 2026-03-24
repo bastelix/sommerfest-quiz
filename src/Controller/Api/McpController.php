@@ -106,7 +106,12 @@ final class McpController
             ->withHeader('Mcp-Session-Id', $sessionId);
     }
 
-    private function handleNotificationOrResponse(Request $request, Response $response, string $method, array $params): Response
+    private function handleNotificationOrResponse(
+        Request $request,
+        Response $response,
+        string $method,
+        array $params
+    ): Response
     {
         // Spec: notifications and responses → 202 Accepted, no body
         return $response->withStatus(202);

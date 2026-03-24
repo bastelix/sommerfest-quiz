@@ -55,9 +55,18 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $service->create('ns-a', 'Ticket A', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
-        $service->create('ns-b', 'Ticket B', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
-        $service->create('ns-a', 'Ticket C', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $service->create(
+            'ns-a', 'Ticket A', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL, null, null, null, [], null, null
+        );
+        $service->create(
+            'ns-b', 'Ticket B', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL, null, null, null, [], null, null
+        );
+        $service->create(
+            'ns-a', 'Ticket C', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL, null, null, null, [], null, null
+        );
 
         $nsA = $service->listByNamespace('ns-a');
         $this->assertCount(2, $nsA);
@@ -72,9 +81,18 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $service->create('ns', 'Bug ticket', '', Ticket::TYPE_BUG, Ticket::PRIORITY_HIGH, null, null, 'alice', [], null, null);
-        $service->create('ns', 'Task ticket', '', Ticket::TYPE_TASK, Ticket::PRIORITY_LOW, null, null, 'bob', [], null, null);
-        $service->create('ns', 'Review ticket', '', Ticket::TYPE_REVIEW, Ticket::PRIORITY_NORMAL, null, null, 'alice', [], null, null);
+        $service->create(
+            'ns', 'Bug ticket', '', Ticket::TYPE_BUG,
+            Ticket::PRIORITY_HIGH, null, null, 'alice', [], null, null
+        );
+        $service->create(
+            'ns', 'Task ticket', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_LOW, null, null, 'bob', [], null, null
+        );
+        $service->create(
+            'ns', 'Review ticket', '', Ticket::TYPE_REVIEW,
+            Ticket::PRIORITY_NORMAL, null, null, 'alice', [], null, null
+        );
 
         $bugs = $service->listByNamespace('ns', ['type' => Ticket::TYPE_BUG]);
         $this->assertCount(1, $bugs);

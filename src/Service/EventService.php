@@ -63,7 +63,8 @@ class EventService
         try {
             if ($filterNamespace !== null) {
                 $stmt = $this->pdo->prepare(
-                    'SELECT uid,slug,name,start_date,end_date,description,published,sort_order,namespace FROM events WHERE namespace = ? ORDER BY sort_order'
+                    'SELECT uid,slug,name,start_date,end_date,description,published,sort_order,namespace '
+                    . 'FROM events WHERE namespace = ? ORDER BY sort_order'
                 );
                 $stmt->execute([$filterNamespace]);
             } else {

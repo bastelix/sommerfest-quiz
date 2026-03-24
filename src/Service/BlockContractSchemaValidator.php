@@ -293,7 +293,11 @@ final class BlockContractSchemaValidator
 
             if ($type === null && isset($definition['allOf']) && is_array($definition['allOf'])) {
                 foreach ($definition['allOf'] as $subSchema) {
-                    if (!is_array($subSchema) || !isset($subSchema['properties']) || !is_array($subSchema['properties'])) {
+                    if (
+                        !is_array($subSchema)
+                        || !isset($subSchema['properties'])
+                        || !is_array($subSchema['properties'])
+                    ) {
                         continue;
                     }
                     $type ??= $subSchema['properties']['type']['const'] ?? null;
@@ -328,7 +332,11 @@ final class BlockContractSchemaValidator
 
             if ($type === null && isset($definition['allOf']) && is_array($definition['allOf'])) {
                 foreach ($definition['allOf'] as $subSchema) {
-                    if (!is_array($subSchema) || !isset($subSchema['properties']) || !is_array($subSchema['properties'])) {
+                    if (
+                        !is_array($subSchema)
+                        || !isset($subSchema['properties'])
+                        || !is_array($subSchema['properties'])
+                    ) {
                         continue;
                     }
                     $type ??= $subSchema['properties']['type']['const'] ?? null;

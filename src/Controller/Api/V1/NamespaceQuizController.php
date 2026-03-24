@@ -105,9 +105,12 @@ final class NamespaceQuizController
             'uid' => $uid,
             'slug' => isset($payload['slug']) && is_string($payload['slug']) ? trim($payload['slug']) : $uid,
             'name' => $name,
-            'start_date' => isset($payload['start_date']) && is_string($payload['start_date']) ? $payload['start_date'] : date('Y-m-d\TH:i'),
-            'end_date' => isset($payload['end_date']) && is_string($payload['end_date']) ? $payload['end_date'] : date('Y-m-d\TH:i'),
-            'description' => isset($payload['description']) && is_string($payload['description']) ? $payload['description'] : null,
+            'start_date' => isset($payload['start_date']) && is_string($payload['start_date'])
+                ? $payload['start_date'] : date('Y-m-d\TH:i'),
+            'end_date' => isset($payload['end_date']) && is_string($payload['end_date'])
+                ? $payload['end_date'] : date('Y-m-d\TH:i'),
+            'description' => isset($payload['description']) && is_string($payload['description'])
+                ? $payload['description'] : null,
             'published' => isset($payload['published']) ? (bool) $payload['published'] : false,
             'namespace' => $ns,
         ];

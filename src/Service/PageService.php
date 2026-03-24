@@ -764,7 +764,8 @@ class PageService
      */
     public function getAllForTree(): array {
         $stmt = $this->pdo->query(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, '
+            . 'status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages ORDER BY namespace, parent_id, sort_order, title'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -877,8 +878,9 @@ class PageService
 
     private function fetchStartpageForDomain(string $namespace, ?string $locale, ?string $domain): ?Page
     {
-        $sql = 'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source,'
-            . ' startpage_domain, is_startpage FROM pages WHERE namespace = ? AND is_startpage = TRUE';
+        $sql = 'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, '
+            . 'status, language, content_source, startpage_domain, is_startpage '
+            . 'FROM pages WHERE namespace = ? AND is_startpage = TRUE';
         $params = [$namespace];
 
         if ($domain === null) {

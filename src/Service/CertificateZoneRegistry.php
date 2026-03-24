@@ -107,7 +107,10 @@ final class CertificateZoneRegistry
     /**
      * Ensure certificate zones exist for all active domains.
      */
-    public function backfillActiveDomains(string $provider = AcmeDnsProvider::DEFAULT_PROVIDER, bool $wildcardEnabled = true): void
+    public function backfillActiveDomains(
+        string $provider = AcmeDnsProvider::DEFAULT_PROVIDER,
+        bool $wildcardEnabled = true
+    ): void
     {
         $stmt = $this->pdo->query('SELECT DISTINCT zone FROM domains WHERE is_active = TRUE');
         if ($stmt === false) {

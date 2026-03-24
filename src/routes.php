@@ -1311,7 +1311,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             $namespace = $request->getAttribute('eventNamespace');
             if (is_string($namespace) && $namespace !== '') {
                 $eventService = $request->getAttribute('eventService');
-                if ($eventService instanceof EventService && !$eventService->belongsToNamespace($eventUid, $namespace)) {
+                if (
+                    $eventService instanceof EventService
+                    && !$eventService->belongsToNamespace($eventUid, $namespace)
+                ) {
                     return $response->withStatus(403);
                 }
             }
@@ -1355,7 +1358,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             $namespace = $request->getAttribute('eventNamespace');
             if (is_string($namespace) && $namespace !== '') {
                 $eventService = $request->getAttribute('eventService');
-                if ($eventService instanceof EventService && !$eventService->belongsToNamespace($eventUid, $namespace)) {
+                if (
+                    $eventService instanceof EventService
+                    && !$eventService->belongsToNamespace($eventUid, $namespace)
+                ) {
                     return $response->withStatus(403);
                 }
             }
@@ -1462,7 +1468,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             $namespace = $request->getAttribute('eventNamespace');
             if (is_string($namespace) && $namespace !== '') {
                 $eventService = $request->getAttribute('eventService');
-                if ($eventService instanceof EventService && !$eventService->belongsToNamespace($eventUid, $namespace)) {
+                if (
+                    $eventService instanceof EventService
+                    && !$eventService->belongsToNamespace($eventUid, $namespace)
+                ) {
                     return $response->withStatus(403);
                 }
             }
@@ -2188,7 +2197,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $service = new \App\Service\NamespaceBackupService($pdo);
         $data = $service->export($ns);
-        $response->getBody()->write(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        $jsonFlags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+        $response->getBody()->write(json_encode($data, $jsonFlags));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 

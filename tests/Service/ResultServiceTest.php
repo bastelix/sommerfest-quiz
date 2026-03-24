@@ -589,8 +589,13 @@ class ResultServiceTest extends TestCase
             );
             SQL
         );
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('cat-1',1,'cat1','c.json','C1')");
-        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt,points,countdown) VALUES('cat-1',1,'text','Q1',3,10)");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('cat-1',1,'cat1','c.json','C1')"
+        );
+        $pdo->exec(
+            "INSERT INTO questions(catalog_uid,sort_order,type,prompt,points,countdown)"
+            . " VALUES('cat-1',1,'text','Q1',3,10)"
+        );
 
         $service = new ResultService($pdo);
         $service->add([
@@ -696,9 +701,18 @@ class ResultServiceTest extends TestCase
             );
             SQL
         );
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('upper-1',1,'MAIN-SLUG','c.json','Main');");
-        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt,points) VALUES('upper-1',1,'text','Q1',4);");
-        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt,points) VALUES('upper-1',2,'text','Q2',3);");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name)"
+            . " VALUES('upper-1',1,'MAIN-SLUG','c.json','Main');"
+        );
+        $pdo->exec(
+            "INSERT INTO questions(catalog_uid,sort_order,type,prompt,points)"
+            . " VALUES('upper-1',1,'text','Q1',4);"
+        );
+        $pdo->exec(
+            "INSERT INTO questions(catalog_uid,sort_order,type,prompt,points)"
+            . " VALUES('upper-1',2,'text','Q2',3);"
+        );
 
         $service = new ResultService($pdo);
         $entry = $service->add([
@@ -709,7 +723,9 @@ class ResultServiceTest extends TestCase
             'wrong' => [],
         ]);
 
-        $rows = $pdo->query('SELECT catalog, question_id, final_points FROM question_results ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $pdo->query(
+            'SELECT catalog, question_id, final_points FROM question_results ORDER BY id'
+        )->fetchAll(PDO::FETCH_ASSOC);
         $this->assertCount(2, $rows);
         $this->assertSame('MAIN-SLUG', $rows[0]['catalog']);
         $this->assertSame('MAIN-SLUG', $rows[1]['catalog']);

@@ -221,7 +221,11 @@ final class WikiTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'id' => ['type' => 'integer', 'description' => 'Wiki article ID'],
-                        'status' => ['type' => 'string', 'description' => 'New status', 'enum' => ['draft', 'published', 'archived']],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'New status',
+                            'enum' => ['draft', 'published', 'archived'],
+                        ],
                     ],
                     'required' => ['id', 'status'],
                 ],
@@ -389,7 +393,9 @@ final class WikiTools
 
         $locale = isset($args['locale']) && is_string($args['locale']) ? trim($args['locale']) : 'de';
         $excerpt = isset($args['excerpt']) && is_string($args['excerpt']) ? $args['excerpt'] : null;
-        $status = isset($args['status']) && is_string($args['status']) ? $args['status'] : CmsPageWikiArticle::STATUS_DRAFT;
+        $status = isset($args['status']) && is_string($args['status'])
+            ? $args['status']
+            : CmsPageWikiArticle::STATUS_DRAFT;
         $isStartDocument = isset($args['isStartDocument']) ? (bool) $args['isStartDocument'] : false;
 
         $article = $this->articleService->saveArticleFromMarkdown(
