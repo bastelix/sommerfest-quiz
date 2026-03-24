@@ -8,7 +8,9 @@ use App\Service\PhotoConsentService;
 use App\Service\ConfigService;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class PhotoConsentServiceTest extends TestCase
 {
     public function testAddConsentAppendsEntry(): void {

@@ -15,7 +15,9 @@ use Tests\TestCase;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\FilesystemLoader;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class MailServiceTest extends TestCase
 {
     protected function setUp(): void

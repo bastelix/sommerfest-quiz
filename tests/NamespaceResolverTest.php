@@ -10,7 +10,9 @@ use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use ReflectionProperty;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class NamespaceResolverTest extends TestCase
 {
     public function testResolvesExplicitNamespaceWhenItExists(): void

@@ -11,7 +11,9 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class MigratorTest extends TestCase
 {
     public function testAddsQrrememberColumnAndMigratesLegacyValues(): void

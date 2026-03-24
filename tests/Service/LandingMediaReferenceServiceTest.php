@@ -15,7 +15,9 @@ use App\Service\LandingMediaReferenceService;
 use App\Service\PageService;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class LandingMediaReferenceServiceTest extends TestCase
 {
     public function testCollectAggregatesLandingReferences(): void {

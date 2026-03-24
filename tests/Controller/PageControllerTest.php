@@ -8,7 +8,9 @@ use App\Service\PageBlockContractMigrator;
 use PDO;
 use Slim\Psr7\Factory\StreamFactory;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class PageControllerTest extends TestCase
 {
     /**

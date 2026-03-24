@@ -7,7 +7,9 @@ namespace Tests;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class DeleteTenantScriptTest extends TestCase
 {
     public function testDeleteTenantRemovesSslArtifacts(): void {

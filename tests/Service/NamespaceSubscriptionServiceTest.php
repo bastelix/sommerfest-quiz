@@ -8,7 +8,9 @@ use App\Domain\Plan;
 use App\Service\NamespaceSubscriptionService;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class NamespaceSubscriptionServiceTest extends TestCase
 {
     private function createPdo(): PDO

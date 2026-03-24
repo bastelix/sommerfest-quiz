@@ -11,7 +11,9 @@ use App\Support\DomainNameHelper;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class DomainNameHelperTest extends TestCase
 {
     protected function setUp(): void

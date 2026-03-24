@@ -6,7 +6,9 @@ namespace Tests\Service;
 
 use App\Service\DomainContactTemplateService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class DomainContactTemplateServiceTest extends TestCase
 {
     public function testSaveAndRetrieveTemplates(): void {

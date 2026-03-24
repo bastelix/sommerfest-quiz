@@ -15,21 +15,27 @@ if [ -n "$staged_php" ] && [ -f vendor/bin/phpstan ]; then
     vendor/bin/phpstan || exit 1
 fi
 
-# 3. JS unit tests – only if JS files changed
+# 3. PHPUnit – unit tests only (no database required)
+if [ -n "$staged_php" ] && [ -f vendor/bin/phpunit ]; then
+    echo "▶ PHPUnit (unit tests)..."
+    vendor/bin/phpunit --exclude-group integration --no-coverage || exit 1
+fi
+
+# 4. JS unit tests – only if JS files changed
 staged_js=$(git diff --cached --name-only --diff-filter=ACMR -- '*.js' '*.mjs')
 if [ -n "$staged_js" ] && command -v npx >/dev/null 2>&1; then
     echo "▶ JS unit tests..."
     npm run test:unit || exit 1
 fi
 
-# 4. Pytest – only if HTML or JSON templates changed
+# 5. Pytest – only if HTML or JSON templates changed
 staged_html=$(git diff --cached --name-only --diff-filter=ACMR -- '*.html' '*.twig' '*.json')
 if [ -n "$staged_html" ] && command -v python3 >/dev/null 2>&1 && python3 -c "import pytest" 2>/dev/null; then
     echo "▶ Pytest (HTML/JSON validity)..."
     python3 -m pytest tests/test_html_validity.py tests/test_json_validity.py || exit 1
 fi
 
-# 5. Migration safety checks – only if migrations changed
+# 6. Migration safety checks – only if migrations changed
 if git diff --cached --name-only | grep -q 'migrations/.*\.sql'; then
     echo "▶ Migration safety checks..."
 

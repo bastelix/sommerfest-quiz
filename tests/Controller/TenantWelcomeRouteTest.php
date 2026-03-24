@@ -10,7 +10,9 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use App\Service\MailService;
 use PDO;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class TenantWelcomeRouteTest extends TestCase
 {
     public function testSendWelcomeMail(): void {

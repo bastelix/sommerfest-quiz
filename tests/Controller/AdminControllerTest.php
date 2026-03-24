@@ -12,7 +12,9 @@ use App\Infrastructure\Migrations\Migrator;
 use App\Infrastructure\Migrations\MigrationRuntime;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class AdminControllerTest extends TestCase
 {
     private function setupDb(): string {

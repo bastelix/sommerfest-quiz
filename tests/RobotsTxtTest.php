@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class RobotsTxtTest extends TestCase
 {
     public function testRouterServesRobotsTxt(): void {

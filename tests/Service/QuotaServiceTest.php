@@ -9,7 +9,9 @@ use App\Exception\QuotaExceededException;
 use App\Service\QuotaService;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class QuotaServiceTest extends TestCase
 {
     private function createPdo(): PDO

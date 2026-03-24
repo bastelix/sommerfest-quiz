@@ -8,7 +8,9 @@ use App\Service\EventService;
 use App\Service\TenantService;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class EventServiceTest extends TestCase
 {
     private function createPdo(): PDO {

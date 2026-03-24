@@ -9,7 +9,9 @@ use App\Service\TicketService;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class TicketServiceTest extends TestCase
 {
     public function testCreateAndRetrieveTicket(): void

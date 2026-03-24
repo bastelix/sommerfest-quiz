@@ -13,7 +13,9 @@ use App\Service\RagChat\ChatResponderInterface;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Tests\Stubs\StaticChatResponder;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class CmsPageMenuAiRouteTest extends TestCase
 {
     public function testRouteOverwritesMenuItems(): void

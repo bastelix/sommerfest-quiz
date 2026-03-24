@@ -7,7 +7,9 @@ namespace Tests\Service;
 use App\Service\PasswordResetService;
 use App\Service\UserService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class PasswordResetServiceTest extends TestCase
 {
     public function testCreateAndConsumeToken(): void {

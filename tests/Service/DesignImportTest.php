@@ -10,7 +10,9 @@ use App\Service\NamespaceDesignFileRepository;
 use InvalidArgumentException;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class DesignImportTest extends TestCase
 {
     private string $designRoot;

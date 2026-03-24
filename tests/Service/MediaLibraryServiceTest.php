@@ -18,7 +18,9 @@ use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\UploadedFile;
 
 use function json_encode;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class MediaLibraryServiceTest extends TestCase
 {
     private string $tempDir;

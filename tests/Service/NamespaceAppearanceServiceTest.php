@@ -15,7 +15,9 @@ use ReflectionClass;
 use ReflectionProperty;
 use RuntimeException;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class NamespaceAppearanceServiceTest extends TestCase
 {
     protected function tearDown(): void

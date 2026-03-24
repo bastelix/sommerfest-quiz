@@ -13,7 +13,9 @@ use App\Service\TenantService;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Response;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class TeamControllerTest extends TestCase
 {
     public function testPostExceedingTeamLimitReturns402(): void {

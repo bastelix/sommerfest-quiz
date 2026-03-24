@@ -32,10 +32,12 @@ use function preg_match;
 use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/../Stubs/FakeTeamNameAiClient.php';
 require_once __DIR__ . '/../Stubs/FakeTeamNameWarmupDispatcher.php';
 
+#[Group('integration')]
 final class TeamNameServiceTest extends TestCase
 {
     public function testReserveTraversesNamesFromRandomOffset(): void

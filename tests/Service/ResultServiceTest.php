@@ -8,7 +8,9 @@ use App\Service\ResultService;
 use App\Service\ConfigService;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class ResultServiceTest extends TestCase
 {
     public function testAddIncrementsAttemptForSameCatalog(): void {

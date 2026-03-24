@@ -10,7 +10,9 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use App\Service\MailService;
 use PDO;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class ProfileWelcomeControllerTest extends TestCase
 {
     public function testResendWelcomeMail(): void {

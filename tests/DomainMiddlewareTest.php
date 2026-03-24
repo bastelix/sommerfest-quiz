@@ -17,7 +17,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Response;
 use PDO;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class DomainMiddlewareTest extends TestCase
 {
     /** @var array<string,mixed> */

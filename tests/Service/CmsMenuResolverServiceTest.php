@@ -11,7 +11,9 @@ use App\Service\CmsMenuDefinitionService;
 use App\Service\CmsMenuResolverService;
 use App\Service\CmsMenuService;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class CmsMenuResolverServiceTest extends TestCase
 {
     public function testPrefersPageSpecificLocaleAssignment(): void

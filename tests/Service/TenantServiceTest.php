@@ -9,7 +9,9 @@ use Tests\TestCase;
 use PDO;
 use App\Domain\Plan;
 use App\Infrastructure\Migrations\Migrator;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class TenantServiceTest extends TestCase
 {
     private function createService(

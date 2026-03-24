@@ -8,7 +8,9 @@ use Slim\Psr7\Uri;
 use Slim\Psr7\Factory\StreamFactory;
 use Tests\TestCase;
 use PDO;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class ProfileControllerTest extends TestCase
 {
     private function setupDb(): string {

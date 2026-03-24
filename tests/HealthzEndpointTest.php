@@ -9,7 +9,9 @@ use Slim\Factory\AppFactory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use App\Service\VersionService;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class HealthzEndpointTest extends TestCase
 {
     protected function getAppInstance(): \Slim\App {

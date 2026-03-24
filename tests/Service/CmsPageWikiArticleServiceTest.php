@@ -11,7 +11,9 @@ use App\Service\Marketing\Wiki\WikiPublisher;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class CmsPageWikiArticleServiceTest extends TestCase
 {
     private string $exportDir;

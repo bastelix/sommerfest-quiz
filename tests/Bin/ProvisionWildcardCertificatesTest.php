@@ -9,7 +9,9 @@ use DateTimeImmutable;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class ProvisionWildcardCertificatesTest extends TestCase
 {
     private string $workspace;

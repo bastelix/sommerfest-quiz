@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class HomeControllerTest extends TestCase
 {
     private function setupDb(): string {

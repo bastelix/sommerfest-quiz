@@ -11,7 +11,9 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class UsernameBlocklistServiceTest extends TestCase
 {
     private PDO $pdo;

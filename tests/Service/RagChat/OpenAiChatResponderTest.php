@@ -31,7 +31,9 @@ use function unlink;
 
 use const JSON_PRETTY_PRINT;
 use const JSON_UNESCAPED_UNICODE;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class OpenAiChatResponderTest extends TestCase
 {
     private string $indexPath;
