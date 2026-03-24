@@ -31,10 +31,28 @@
 
 {% block body_class %}marketing-page {{ bodyClasses|join(' ') }}{% endblock %}
 
+{% block site_header %}
+  {% if cmsMainNavigation is defined and cmsMainNavigation is not empty %}
+    {% include 'pages/partials/header.twig' with {
+      normalizedNamespace: designNamespace|default('default'),
+      headerTheme: 'light',
+      headerLogo: headerLogo|default({}),
+      cmsMenuItems: [],
+      cmsMainNavigation: cmsMainNavigation|default([]),
+      headerConfig: headerConfig|default({}),
+      basePath: basePath,
+      cmsSlug: cmsSlug|default(''),
+      pageTitle: pageTitle|default('QuizRace')
+    } only %}
+  {% endif %}
+{% endblock %}
+
 {% block head %}
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/wiki.css">
   <script type="module" src="{{ basePath }}/js/marketing-design.js"></script>
   {% for stylesheet in stylesheets %}
     {% set href = stylesheet matches '/^https?:\\/\\//i' or stylesheet starts with('//') ? stylesheet : (stylesheet starts with('/') ? stylesheet : basePath ~ '/css/' ~ stylesheet) %}
@@ -45,317 +63,6 @@
     design: design|default({}),
     normalizedNamespace: designNamespace|default('default')
   } only %}
-  <style>
-    /* ── Notion-inspired wiki layout ── */
-    .wiki-layout {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      min-height: calc(100vh - 120px);
-      background: var(--marketing-background, var(--surface-page, #f7f9fb));
-    }
-
-    @media (max-width: 959px) {
-      .wiki-layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* ── Sidebar ── */
-    .wiki-sidebar {
-      background: var(--marketing-surface-muted, var(--surface-muted, #eef2f7));
-      border-right: 1px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
-      padding: 24px 16px;
-      overflow-y: auto;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-    }
-
-    @media (max-width: 959px) {
-      .wiki-sidebar {
-        position: static;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
-        padding: 16px;
-      }
-    }
-
-    .wiki-sidebar__title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--marketing-text-muted-on-surface, var(--text-muted, #4b5563));
-      padding: 0 8px;
-      margin: 0 0 8px;
-    }
-
-    .wiki-sidebar__back {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 8px;
-      border-radius: 6px;
-      color: var(--marketing-text-muted-on-surface, var(--text-muted, #6b7280));
-      font-size: 0.8125rem;
-      text-decoration: none;
-      transition: background 0.12s ease, color 0.12s ease;
-      margin-bottom: 12px;
-    }
-
-    .wiki-sidebar__back:hover {
-      background: color-mix(in srgb, var(--marketing-primary, var(--brand-primary, #1e87f0)) 8%, transparent);
-      color: var(--marketing-text-on-surface, var(--text-body, #111827));
-      text-decoration: none;
-    }
-
-    .wiki-sidebar__nav {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .wiki-sidebar__nav-item {
-      margin: 0;
-    }
-
-    .wiki-sidebar__nav-link {
-      display: block;
-      padding: 6px 8px;
-      border-radius: 6px;
-      color: var(--marketing-text-on-surface, var(--text-body, #111827));
-      font-size: 0.875rem;
-      line-height: 1.4;
-      text-decoration: none;
-      transition: background 0.12s ease;
-    }
-
-    .wiki-sidebar__nav-link:hover {
-      background: color-mix(in srgb, var(--marketing-primary, var(--brand-primary, #1e87f0)) 8%, transparent);
-      text-decoration: none;
-      color: var(--marketing-text-on-surface, var(--text-body, #111827));
-    }
-
-    .wiki-sidebar__nav-link--active {
-      background: color-mix(in srgb, var(--marketing-primary, var(--brand-primary, #1e87f0)) 12%, transparent);
-      color: var(--marketing-primary, var(--brand-primary, #1e87f0));
-      font-weight: 500;
-    }
-
-    /* ── Main content area ── */
-    .wiki-main {
-      padding: 40px 48px;
-      max-width: 800px;
-    }
-
-    @media (max-width: 959px) {
-      .wiki-main {
-        padding: 24px 16px;
-      }
-    }
-
-    .wiki-main__breadcrumb {
-      margin-bottom: 24px;
-    }
-
-    .wiki-main__breadcrumb .uk-breadcrumb > li:nth-child(n+2)::before {
-      color: var(--marketing-text-muted-on-surface, var(--text-muted, #9ca3af));
-    }
-
-    .wiki-main__breadcrumb .uk-breadcrumb > li > a {
-      color: var(--marketing-text-muted-on-surface, var(--text-muted, #6b7280));
-      font-size: 0.875rem;
-    }
-
-    .wiki-main__breadcrumb .uk-breadcrumb > li.uk-active > span {
-      color: var(--marketing-text-on-surface, var(--text-body, #111827));
-      font-size: 0.875rem;
-    }
-
-    .wiki-main__logo {
-      margin-bottom: 16px;
-    }
-
-    .wiki-main__logo img {
-      max-height: 48px;
-      width: auto;
-    }
-
-    /* ── Article header ── */
-    .wiki-article-header {
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
-    }
-
-    .wiki-article-header__title {
-      font-size: 1.35rem;
-      font-weight: 600;
-      color: var(--marketing-text-on-surface, var(--text-heading, #0b1728));
-      margin: 0 0 6px;
-      line-height: 1.3;
-    }
-
-    .wiki-article-header__meta {
-      font-size: 0.8125rem;
-      color: var(--marketing-text-muted-on-surface, var(--text-muted, #6b7280));
-      margin: 0;
-    }
-
-    /* ── Article content (technical-reference typography) ── */
-    .wiki-article-content {
-      color: var(--marketing-text-on-surface, var(--text-body, #111827));
-      font-size: 0.9rem;
-      line-height: 1.55;
-    }
-
-    .wiki-article-content h2 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--marketing-text-on-surface, var(--text-heading, #0b1728));
-      margin: 1.5rem 0 0.5rem;
-      padding-bottom: 0.25rem;
-      border-bottom: 1px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
-    }
-
-    .wiki-article-content h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--marketing-text-on-surface, var(--text-heading, #0b1728));
-      margin: 1.25rem 0 0.4rem;
-    }
-
-    .wiki-article-content h4 {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--marketing-text-muted-on-surface, var(--text-muted, #4b5563));
-      margin: 1rem 0 0.3rem;
-    }
-
-    .wiki-article-content p {
-      margin: 0 0 0.75rem;
-    }
-
-    .wiki-article-content img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 6px;
-      margin: 1rem 0;
-    }
-
-    .wiki-article-content table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-      font-size: 0.85rem;
-      font-family: inherit;
-    }
-
-    .wiki-article-content table th {
-      text-align: left;
-      font-weight: 600;
-      border-bottom: 2px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
-      padding: 0.5rem 0.75rem;
-    }
-
-    .wiki-article-content table td {
-      padding: 0.4rem 0.75rem;
-      border-bottom: 1px solid color-mix(in srgb, var(--marketing-border-light, var(--border-muted, #dfe3eb)) 60%, transparent);
-      vertical-align: top;
-    }
-
-    .wiki-article-content table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .wiki-article-content table code {
-      font-family: var(--font-mono, ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace);
-      font-size: 0.85em;
-      background: var(--marketing-surface-muted, var(--surface-muted, #f1f5f9));
-      padding: 0.1em 0.3em;
-      border-radius: 3px;
-    }
-
-    .wiki-article-content blockquote,
-    .wiki-article-content .wiki-callout {
-      border-left: 3px solid var(--marketing-primary, var(--brand-primary, #1e87f0));
-      padding: 10px 14px;
-      background: color-mix(in srgb, var(--marketing-primary, var(--brand-primary, #1e87f0)) 5%, var(--marketing-surface, var(--surface-card, #ffffff)));
-      color: var(--marketing-text-on-surface, var(--text-body, #111827));
-      font-size: 0.875rem;
-      margin: 1rem 0;
-      border-radius: 0 4px 4px 0;
-    }
-
-    .wiki-article-content blockquote strong,
-    .wiki-article-content .wiki-callout strong {
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .wiki-article-content code {
-      background: var(--marketing-surface-muted, var(--surface-muted, #f1f5f9));
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.875em;
-    }
-
-    .wiki-article-content pre {
-      background: var(--marketing-surface-muted, var(--surface-muted, #f1f5f9));
-      padding: 12px 14px;
-      border-radius: 4px;
-      overflow-x: auto;
-      font-size: 0.85rem;
-      margin: 1rem 0;
-    }
-
-    .wiki-article-content pre code {
-      background: none;
-      padding: 0;
-    }
-
-    .wiki-article-content ul,
-    .wiki-article-content ol {
-      padding-left: 1.5em;
-      margin: 0 0 0.75rem;
-    }
-
-    .wiki-article-content li {
-      margin-bottom: 0.15rem;
-    }
-
-    /* ── Footer navigation ── */
-    .wiki-article-footer {
-      margin-top: 48px;
-      padding-top: 24px;
-      border-top: 1px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .wiki-article-footer__link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      text-decoration: none;
-      color: var(--marketing-text-on-surface, var(--text-body, #111827));
-      border: 1px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
-      transition: background 0.12s ease, border-color 0.12s ease;
-    }
-
-    .wiki-article-footer__link:hover {
-      background: var(--marketing-surface-muted, var(--surface-muted, #f1f5f9));
-      border-color: var(--marketing-primary, var(--brand-primary, #1e87f0));
-      text-decoration: none;
-      color: var(--marketing-text-on-surface, var(--text-body, #111827));
-    }
-  </style>
 {% endblock %}
 
 {% block body %}
@@ -364,15 +71,15 @@
     {# ── Sidebar with article navigation ── #}
     <aside class="wiki-sidebar">
       {% if logoUrl %}
-        <div class="wiki-main__logo uk-margin-small">
+        <div class="wiki-sidebar__logo">
           <img src="{{ logoUrl }}" alt="{{ page.getTitle() }} Logo" loading="lazy">
         </div>
       {% endif %}
-      <a class="wiki-sidebar__back" href="{{ wikiBasePath }}">
-        <span uk-icon="icon: arrow-left; ratio: 0.75"></span>
-        {{ menuLabel }}
+      <a class="wiki-sidebar__back" href="{{ pageUrl|default(basePath ~ '/pages/' ~ page.getSlug()) }}">
+        <span uk-icon="icon: arrow-left; ratio: 0.7"></span>
+        {{ page.getTitle() }}
       </a>
-      <p class="wiki-sidebar__title">Artikel</p>
+      <p class="wiki-sidebar__label">{{ menuLabel }}</p>
       <ul class="wiki-sidebar__nav">
         {% for sidebarArticle in articles|default([]) %}
           <li class="wiki-sidebar__nav-item">
@@ -415,13 +122,22 @@
 
       <div class="wiki-article-footer">
         <a class="wiki-article-footer__link" href="{{ wikiBasePath }}">
-          <span uk-icon="icon: arrow-left; ratio: 0.75"></span>
+          <span uk-icon="icon: arrow-left; ratio: 0.7"></span>
           Zur&uuml;ck zur &Uuml;bersicht
         </a>
-        <a class="wiki-article-footer__link" href="{{ basePath }}/pages/{{ page.getSlug() }}">
+        <a class="wiki-article-footer__link" href="{{ pageUrl|default(basePath ~ '/pages/' ~ page.getSlug()) }}">
           Zur Marketing-Seite
         </a>
       </div>
     </main>
+
+    {# ── Footer ── #}
+    <footer class="wiki-page-footer">
+      <span>&copy; {{ page.getTitle() }}</span>
+      {% set displayDate = article.getUpdatedAt() ?? article.getPublishedAt() %}
+      {% if displayDate %}
+        <span>Zuletzt aktualisiert: {{ displayDate|date('d.m.Y') }}</span>
+      {% endif %}
+    </footer>
   </div>
 {% endblock %}
