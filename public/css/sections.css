@@ -1203,6 +1203,25 @@ body.page-render .qr-page-renderer table {
   }
 }
 
+/* Hero media thumbnail: scale image on mobile instead of cropping */
+@media (max-width: 959px) {
+  .hero-media-thumb {
+    height: auto !important;
+    overflow: hidden;
+  }
+
+  .hero-media-thumb > img[data-uk-cover] {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+
+  .hero-media-thumb > canvas {
+    display: none;
+  }
+}
+
 /* Hero media video card: compact padding on mobile */
 .hero-media-card {
   padding: clamp(16px, 4vw, 24px);
