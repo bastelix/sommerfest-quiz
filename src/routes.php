@@ -323,7 +323,11 @@ return function (\Slim\App $app, TranslationService $translator) {
                         if (!$shouldUseOpenAi) {
                             $pathValue = $parts['path'] ?? null;
                             $path = is_string($pathValue) ? rtrim($pathValue, '/') : '';
-                            if ($path === '/v1' || $path === '/v1/models' || str_ends_with($path, '/v1/chat/completions')) {
+                            if (
+                                $path === '/v1'
+                                || $path === '/v1/models'
+                                || str_ends_with($path, '/v1/chat/completions')
+                            ) {
                                 $shouldUseOpenAi = true;
                             }
                         }
@@ -529,7 +533,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             try {
                 $namespaceResolver = new NamespaceResolver();
                 $mailNamespace = $namespaceResolver->resolve($request)->getNamespace();
-                $mailProviderManager = new MailProviderManager($settingsService, [], $mailProviderRepository, $mailNamespace);
+                $mailProviderManager = new MailProviderManager(
+                    $settingsService,
+                    [],
+                    $mailProviderRepository,
+                    $mailNamespace
+                );
             } catch (\RuntimeException $exception) {
                 // Namespace could not be resolved at this point in the middleware stack.
                 // This can happen when:

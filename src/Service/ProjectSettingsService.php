@@ -128,12 +128,18 @@ final class ProjectSettingsService
                 $defaults['cookie_consent_enabled']
             ),
             'cookie_storage_key' => $storageKey !== '' ? $storageKey : $defaults['cookie_storage_key'],
-            'cookie_banner_text_de' => $bannerTextDe !== '' ? $bannerTextDe : ($legacyBannerText !== '' ? $legacyBannerText : $defaults['cookie_banner_text_de']),
+            'cookie_banner_text_de' => $bannerTextDe !== ''
+                ? $bannerTextDe
+                : ($legacyBannerText !== '' ? $legacyBannerText : $defaults['cookie_banner_text_de']),
             'cookie_banner_text_en' => $bannerTextEn !== '' ? $bannerTextEn : $defaults['cookie_banner_text_en'],
             'cookie_vendor_flags' => $vendorFlags,
             'privacy_url' => $privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url'],
-            'privacy_url_de' => $privacyUrlDe !== '' ? $privacyUrlDe : ($privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url_de']),
-            'privacy_url_en' => $privacyUrlEn !== '' ? $privacyUrlEn : ($privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url_en']),
+            'privacy_url_de' => $privacyUrlDe !== ''
+                ? $privacyUrlDe
+                : ($privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url_de']),
+            'privacy_url_en' => $privacyUrlEn !== ''
+                ? $privacyUrlEn
+                : ($privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url_en']),
             'show_language_toggle' => $showLanguageToggle,
             'show_theme_toggle' => $showThemeToggle,
             'show_contrast_toggle' => $showContrastToggle,

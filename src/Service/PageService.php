@@ -186,7 +186,8 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, '
+            . 'status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages WHERE namespace = ? ORDER BY title'
         );
         $stmt->execute([$normalized]);
@@ -224,7 +225,8 @@ class PageService
 
         $placeholders = implode(',', array_fill(0, count($normalizedNamespaces), '?'));
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, '
+            . 'status, language, content_source, base_slug, startpage_domain, is_startpage '
             . sprintf('FROM pages WHERE namespace IN (%s) ORDER BY title', $placeholders)
         );
         $stmt->execute($normalizedNamespaces);
@@ -249,7 +251,8 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, '
+            . 'status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages WHERE id = ?'
         );
         $stmt->execute([$id]);

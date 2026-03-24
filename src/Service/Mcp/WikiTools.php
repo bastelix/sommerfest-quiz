@@ -142,13 +142,31 @@ final class WikiTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'pageId' => ['type' => 'integer', 'description' => 'The page ID this article belongs to'],
-                        'locale' => ['type' => 'string', 'description' => 'Article locale (e.g. "de", "en"). Defaults to "de"'],
-                        'slug' => ['type' => 'string', 'description' => 'URL-friendly slug (lowercase, alphanumeric with hyphens)'],
+                        'locale' => [
+                            'type' => 'string',
+                            'description' => 'Article locale (e.g. "de", "en"). Defaults to "de"',
+                        ],
+                        'slug' => [
+                            'type' => 'string',
+                            'description' => 'URL-friendly slug (lowercase, alphanumeric with hyphens)',
+                        ],
                         'title' => ['type' => 'string', 'description' => 'Article title'],
                         'markdown' => ['type' => 'string', 'description' => 'Article content in markdown format'],
-                        'excerpt' => ['type' => 'string', 'description' => 'Optional short excerpt (max 300 characters)'],
-                        'status' => ['type' => 'string', 'description' => 'Article status: "draft", "published", or "archived" (default "draft")', 'enum' => ['draft', 'published', 'archived']],
-                        'isStartDocument' => ['type' => 'boolean', 'description' => 'Whether this is the start/home document for the wiki (default false)'],
+                        'excerpt' => [
+                            'type' => 'string',
+                            'description' => 'Optional short excerpt (max 300 characters)',
+                        ],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'Article status: "draft", "published", '
+                                . 'or "archived" (default "draft")',
+                            'enum' => ['draft', 'published', 'archived'],
+                        ],
+                        'isStartDocument' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether this is the start/home document '
+                                . 'for the wiki (default false)',
+                        ],
                     ],
                     'required' => ['pageId', 'slug', 'title', 'markdown'],
                 ],

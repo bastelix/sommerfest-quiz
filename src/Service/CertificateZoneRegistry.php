@@ -46,7 +46,9 @@ final class CertificateZoneRegistry
                 'status' => (string) ($row['status'] ?? self::STATUS_PENDING),
                 'last_issued_at' => $row['last_issued_at'] !== null ? (string) $row['last_issued_at'] : null,
                 'last_error' => $row['last_error'] !== null ? (string) $row['last_error'] : null,
-                'next_renewal_after' => $row['next_renewal_after'] !== null ? (string) $row['next_renewal_after'] : null,
+                'next_renewal_after' => $row['next_renewal_after'] !== null
+                    ? (string) $row['next_renewal_after']
+                    : null,
             ];
         }
 

@@ -185,8 +185,10 @@ final class NamespacePageController
             return $this->json($response, ['error' => 'encode_failed'], 500);
         }
 
-        $language = isset($payload['language']) && is_string($payload['language']) ? trim($payload['language']) : null;
-        $payloadBaseSlug = isset($payload['base_slug']) && is_string($payload['base_slug']) ? trim($payload['base_slug']) : null;
+        $language = isset($payload['language']) && is_string($payload['language'])
+            ? trim($payload['language']) : null;
+        $payloadBaseSlug = isset($payload['base_slug']) && is_string($payload['base_slug'])
+            ? trim($payload['base_slug']) : null;
 
         if ($existing === null) {
             // Title is required for create(). API is blocks-first: use slug as safe default.
@@ -203,7 +205,12 @@ final class NamespacePageController
         $pageId = $page->getId();
 
         // Optional: page status/title/language/base_slug updates
-        if (array_key_exists('status', $payload) || array_key_exists('title', $payload) || $language !== null || $payloadBaseSlug !== null) {
+        if (
+            array_key_exists('status', $payload)
+            || array_key_exists('title', $payload)
+            || $language !== null
+            || $payloadBaseSlug !== null
+        ) {
             $allowedStatus = ['draft', 'published'];
             $newStatus = null;
             if (array_key_exists('status', $payload)) {

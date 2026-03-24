@@ -65,8 +65,10 @@ class DashboardJsonTest extends TestCase
     private function insertPage(PDO $pdo, string $namespace, string $slug, ?int $parentId, string $content): int
     {
         $stmt = $pdo->prepare(
-            'INSERT INTO pages (namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage) '
-            . 'VALUES (:namespace, :slug, :title, :content, :type, :parent_id, 0, "published", "de", "manual", 0)'
+            'INSERT INTO pages (namespace, slug, title, content, type, parent_id,'
+            . ' sort_order, status, language, content_source, is_startpage) '
+            . 'VALUES (:namespace, :slug, :title, :content, :type, :parent_id,'
+            . ' 0, "published", "de", "manual", 0)'
         );
         $stmt->execute([
             'namespace' => $namespace,
@@ -84,8 +86,12 @@ class DashboardJsonTest extends TestCase
     {
         $stmt = $pdo->prepare(
             'INSERT INTO marketing_page_wiki_articles '
-            . '(page_id, slug, locale, title, excerpt, editor_json, content_md, content_html, status, sort_index, published_at, is_start_document) '
-            . 'VALUES (:page_id, :slug, :locale, :title, :excerpt, :editor_json, :content_md, :content_html, :status, :sort_index, :published_at, :is_start_document)'
+            . '(page_id, slug, locale, title, excerpt, editor_json,'
+            . ' content_md, content_html, status, sort_index,'
+            . ' published_at, is_start_document) '
+            . 'VALUES (:page_id, :slug, :locale, :title, :excerpt,'
+            . ' :editor_json, :content_md, :content_html, :status,'
+            . ' :sort_index, :published_at, :is_start_document)'
         );
         $stmt->execute([
             'page_id' => $pageId,
@@ -106,8 +112,10 @@ class DashboardJsonTest extends TestCase
     private function insertLandingNews(PDO $pdo, int $pageId, string $slug, string $content): void
     {
         $stmt = $pdo->prepare(
-            'INSERT INTO landing_news (page_id, slug, title, excerpt, content, published_at, is_published, created_at, updated_at) '
-            . 'VALUES (:page_id, :slug, :title, :excerpt, :content, :published_at, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
+            'INSERT INTO landing_news (page_id, slug, title, excerpt, content,'
+            . ' published_at, is_published, created_at, updated_at) '
+            . 'VALUES (:page_id, :slug, :title, :excerpt, :content,'
+            . ' :published_at, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
         );
         $stmt->execute([
             'page_id' => $pageId,

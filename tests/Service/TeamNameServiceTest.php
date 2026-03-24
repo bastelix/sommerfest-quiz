@@ -1087,7 +1087,10 @@ final class TeamNameServiceTest extends TestCase
             'updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP' .
             ')'
         );
-        $pdo->exec('CREATE UNIQUE INDEX ux_team_name_ai_cache_event_key_name ON team_name_ai_cache(event_id, cache_key, name)');
+        $pdo->exec(
+            'CREATE UNIQUE INDEX ux_team_name_ai_cache_event_key_name'
+            . ' ON team_name_ai_cache(event_id, cache_key, name)'
+        );
         $pdo->exec('CREATE INDEX ix_team_name_ai_cache_event ON team_name_ai_cache(event_id)');
 
         return $pdo;

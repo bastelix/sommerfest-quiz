@@ -216,8 +216,14 @@ class ResultControllerTest extends TestCase
 
         $pdo->exec("INSERT INTO config(event_uid, collectPlayerUid) VALUES('ev-1', 1)");
         $pdo->exec("INSERT INTO events(uid, slug, name) VALUES('ev-1', 'ev-1', 'Event 1')");
-        $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, event_uid) VALUES('cat-1', 1, 'cat1', 'file.json', 'Catalog', 'ev-1')");
-        $pdo->exec("INSERT INTO questions(catalog_uid, sort_order, type, prompt, points) VALUES('cat-1', 1, 'text', 'Prompt', 1)");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid, sort_order, slug, file, name, event_uid) "
+            . "VALUES('cat-1', 1, 'cat1', 'file.json', 'Catalog', 'ev-1')"
+        );
+        $pdo->exec(
+            "INSERT INTO questions(catalog_uid, sort_order, type, prompt, points) "
+            . "VALUES('cat-1', 1, 'text', 'Prompt', 1)"
+        );
 
         $config = new \App\Service\ConfigService($pdo);
         $config->setActiveEventUid('ev-1');
