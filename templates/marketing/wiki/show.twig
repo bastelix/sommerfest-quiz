@@ -239,19 +239,33 @@
       width: 100%;
       border-collapse: collapse;
       margin: 1.5rem 0;
-      font-size: 0.9375rem;
-    }
-
-    .wiki-article-content table th,
-    .wiki-article-content table td {
-      border: 1px solid var(--marketing-border-light, var(--border-muted, #e5e7eb));
-      padding: 10px 14px;
-      text-align: left;
+      font-size: 0.9rem;
+      font-family: inherit;
     }
 
     .wiki-article-content table th {
-      background: var(--marketing-surface-muted, var(--surface-muted, #f8fafc));
+      text-align: left;
       font-weight: 600;
+      border-bottom: 2px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
+      padding: 0.5rem 0.75rem;
+    }
+
+    .wiki-article-content table td {
+      padding: 0.4rem 0.75rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--marketing-border-light, var(--border-muted, #dfe3eb)) 60%, transparent);
+      vertical-align: top;
+    }
+
+    .wiki-article-content table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .wiki-article-content table code {
+      font-family: var(--font-mono, ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace);
+      font-size: 0.85em;
+      background: var(--marketing-surface-muted, var(--surface-muted, #f1f5f9));
+      padding: 0.1em 0.3em;
+      border-radius: 3px;
     }
 
     .wiki-article-content blockquote,

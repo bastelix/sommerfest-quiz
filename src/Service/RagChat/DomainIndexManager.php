@@ -6,6 +6,7 @@ namespace App\Service\RagChat;
 
 use App\Domain\CmsPageWikiArticle;
 use App\Service\CmsPageWikiArticleService;
+use App\Service\Marketing\Wiki\EditorJsToMarkdown;
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -38,18 +39,22 @@ final class DomainIndexManager
 
     private ?CmsPageWikiArticleService $wikiArticles;
 
+    private EditorJsToMarkdown $converter;
+
     public function __construct(
         DomainDocumentStorage $storage,
         ?string $projectRoot = null,
         string $pythonBinary = 'python3',
         ?DomainWikiSelectionService $wikiSelection = null,
-        ?CmsPageWikiArticleService $wikiArticles = null
+        ?CmsPageWikiArticleService $wikiArticles = null,
+        ?EditorJsToMarkdown $converter = null
     ) {
         $this->storage = $storage;
         $this->projectRoot = $projectRoot ?? dirname(__DIR__, 3);
         $this->pythonBinary = $pythonBinary;
         $this->wikiSelection = $wikiSelection;
         $this->wikiArticles = $wikiArticles;
+        $this->converter = $converter ?? new EditorJsToMarkdown();
     }
 
     /**
@@ -269,7 +274,11 @@ final class DomainIndexManager
         $title = trim($article->getTitle());
         $excerpt = $article->getExcerpt();
         $excerptText = $excerpt !== null ? trim($excerpt) : '';
-        $content = trim($article->getContentMarkdown());
+
+        $editorState = $article->getEditorState();
+        $content = ($editorState !== null && isset($editorState['blocks']))
+            ? trim($this->converter->toSearchText($editorState))
+            : trim($article->getContentMarkdown());
 
         if ($title === '' && $excerptText === '' && $content === '') {
             return '';
