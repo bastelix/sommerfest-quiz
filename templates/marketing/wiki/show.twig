@@ -184,17 +184,17 @@
 
     /* ── Article header ── */
     .wiki-article-header {
-      margin-bottom: 32px;
-      padding-bottom: 24px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
       border-bottom: 1px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
     }
 
     .wiki-article-header__title {
-      font-size: clamp(1.75rem, 3vw, 2.5rem);
-      font-weight: 700;
+      font-size: 1.35rem;
+      font-weight: 600;
       color: var(--marketing-text-on-surface, var(--text-heading, #0b1728));
-      margin: 0 0 8px;
-      line-height: 1.2;
+      margin: 0 0 6px;
+      line-height: 1.3;
     }
 
     .wiki-article-header__meta {
@@ -203,29 +203,38 @@
       margin: 0;
     }
 
-    /* ── Article content (Notion-style typography) ── */
+    /* ── Article content (technical-reference typography) ── */
     .wiki-article-content {
       color: var(--marketing-text-on-surface, var(--text-body, #111827));
-      font-size: 1rem;
-      line-height: 1.7;
+      font-size: 0.9rem;
+      line-height: 1.55;
     }
 
     .wiki-article-content h2 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--marketing-text-on-surface, var(--text-heading, #0b1728));
-      margin: 2rem 0 0.75rem;
-    }
-
-    .wiki-article-content h3 {
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       font-weight: 600;
       color: var(--marketing-text-on-surface, var(--text-heading, #0b1728));
       margin: 1.5rem 0 0.5rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
+    }
+
+    .wiki-article-content h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--marketing-text-on-surface, var(--text-heading, #0b1728));
+      margin: 1.25rem 0 0.4rem;
+    }
+
+    .wiki-article-content h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--marketing-text-muted-on-surface, var(--text-muted, #4b5563));
+      margin: 1rem 0 0.3rem;
     }
 
     .wiki-article-content p {
-      margin: 0 0 1rem;
+      margin: 0 0 0.75rem;
     }
 
     .wiki-article-content img {
@@ -238,30 +247,45 @@
     .wiki-article-content table {
       width: 100%;
       border-collapse: collapse;
-      margin: 1.5rem 0;
-      font-size: 0.9375rem;
-    }
-
-    .wiki-article-content table th,
-    .wiki-article-content table td {
-      border: 1px solid var(--marketing-border-light, var(--border-muted, #e5e7eb));
-      padding: 10px 14px;
-      text-align: left;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+      font-family: inherit;
     }
 
     .wiki-article-content table th {
-      background: var(--marketing-surface-muted, var(--surface-muted, #f8fafc));
+      text-align: left;
       font-weight: 600;
+      border-bottom: 2px solid var(--marketing-border-light, var(--border-muted, #dfe3eb));
+      padding: 0.5rem 0.75rem;
+    }
+
+    .wiki-article-content table td {
+      padding: 0.4rem 0.75rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--marketing-border-light, var(--border-muted, #dfe3eb)) 60%, transparent);
+      vertical-align: top;
+    }
+
+    .wiki-article-content table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .wiki-article-content table code {
+      font-family: var(--font-mono, ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace);
+      font-size: 0.85em;
+      background: var(--marketing-surface-muted, var(--surface-muted, #f1f5f9));
+      padding: 0.1em 0.3em;
+      border-radius: 3px;
     }
 
     .wiki-article-content blockquote,
     .wiki-article-content .wiki-callout {
       border-left: 3px solid var(--marketing-primary, var(--brand-primary, #1e87f0));
-      padding: 12px 16px;
+      padding: 10px 14px;
       background: color-mix(in srgb, var(--marketing-primary, var(--brand-primary, #1e87f0)) 5%, var(--marketing-surface, var(--surface-card, #ffffff)));
       color: var(--marketing-text-on-surface, var(--text-body, #111827));
-      margin: 1.5rem 0;
-      border-radius: 0 6px 6px 0;
+      font-size: 0.875rem;
+      margin: 1rem 0;
+      border-radius: 0 4px 4px 0;
     }
 
     .wiki-article-content blockquote strong,
@@ -279,10 +303,11 @@
 
     .wiki-article-content pre {
       background: var(--marketing-surface-muted, var(--surface-muted, #f1f5f9));
-      padding: 16px;
-      border-radius: 6px;
+      padding: 12px 14px;
+      border-radius: 4px;
       overflow-x: auto;
-      margin: 1.5rem 0;
+      font-size: 0.85rem;
+      margin: 1rem 0;
     }
 
     .wiki-article-content pre code {
@@ -293,11 +318,11 @@
     .wiki-article-content ul,
     .wiki-article-content ol {
       padding-left: 1.5em;
-      margin: 0 0 1rem;
+      margin: 0 0 0.75rem;
     }
 
     .wiki-article-content li {
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.15rem;
     }
 
     /* ── Footer navigation ── */

@@ -698,6 +698,8 @@ final class CmsPageWikiArticleService
         $quoteLines = [];
         /** @var list<string> $codeLines */
         $codeLines = [];
+        /** @var list<string> $tableLines */
+        $tableLines = [];
         $inCode = false;
 
         foreach ($lines as $line) {
@@ -731,7 +733,20 @@ final class CmsPageWikiArticleService
                 $this->flushParagraphLines($paragraphLines, $blocks);
                 $this->flushListItems($listItems, $listType, $blocks);
                 $this->flushQuoteLines($quoteLines, $blocks);
+                $this->flushTableLines($tableLines, $blocks);
                 continue;
+            }
+
+            if (preg_match('/^\|.*\|$/', $trimmed)) {
+                $this->flushParagraphLines($paragraphLines, $blocks);
+                $this->flushListItems($listItems, $listType, $blocks);
+                $this->flushQuoteLines($quoteLines, $blocks);
+                $tableLines[] = $trimmed;
+                continue;
+            }
+
+            if ($tableLines !== []) {
+                $this->flushTableLines($tableLines, $blocks);
             }
 
             if (preg_match('/^(#{1,6})\s+(.*)$/', $trimmed, $matches)) {
@@ -794,6 +809,7 @@ final class CmsPageWikiArticleService
         $this->flushParagraphLines($paragraphLines, $blocks);
         $this->flushListItems($listItems, $listType, $blocks);
         $this->flushQuoteLines($quoteLines, $blocks);
+        $this->flushTableLines($tableLines, $blocks);
 
         if ($blocks === []) {
             $text = htmlspecialchars(trim($normalized), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
@@ -864,6 +880,64 @@ final class CmsPageWikiArticleService
             'data' => ['text' => $text],
         ];
         $quoteLines = [];
+    }
+
+    /**
+     * @param list<string> $tableLines
+     * @param list<array<string,mixed>> $blocks
+     */
+    private function flushTableLines(array &$tableLines, array &$blocks): void
+    {
+        if ($tableLines === []) {
+            return;
+        }
+
+        $withHeadings = false;
+        $contentRows = [];
+
+        // Check if second line is a separator row (|---|---|)
+        if (count($tableLines) >= 2 && preg_match('/^\|[\s:]*-{3,}[\s:]*(\|[\s:]*-{3,}[\s:]*)*\|$/', $tableLines[1])) {
+            $withHeadings = true;
+            $headerCells = $this->parseTableRow($tableLines[0]);
+            $contentRows[] = $headerCells;
+
+            for ($i = 2, $count = count($tableLines); $i < $count; $i++) {
+                $contentRows[] = $this->parseTableRow($tableLines[$i]);
+            }
+        } else {
+            foreach ($tableLines as $tableLine) {
+                if (preg_match('/^\|[\s:]*-{3,}[\s:]*(\|[\s:]*-{3,}[\s:]*)*\|$/', $tableLine)) {
+                    continue;
+                }
+                $contentRows[] = $this->parseTableRow($tableLine);
+            }
+        }
+
+        if ($contentRows !== []) {
+            $blocks[] = [
+                'type' => 'table',
+                'data' => [
+                    'withHeadings' => $withHeadings,
+                    'content' => $contentRows,
+                ],
+            ];
+        }
+
+        $tableLines = [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function parseTableRow(string $line): array
+    {
+        $trimmed = trim($line, '|');
+        $cells = explode('|', $trimmed);
+
+        return array_map(
+            fn (string $cell): string => $this->renderInlineContent(trim($cell)),
+            $cells
+        );
     }
 
     private function renderInlineContent(

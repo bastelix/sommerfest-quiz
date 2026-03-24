@@ -78,8 +78,9 @@ final class EditorJsToMarkdown
                     if ($rows === []) {
                         break;
                     }
-                    $markdownParts[] = $this->renderTableMarkdown($rows);
-                    $htmlParts[] = $this->renderTableHtml($rows);
+                    $withHeadings = isset($data['withHeadings']) && $data['withHeadings'] === true;
+                    $markdownParts[] = $this->renderTableMarkdown($rows, $withHeadings);
+                    $htmlParts[] = $this->renderTableHtml($rows, $withHeadings);
                     break;
                 case 'warning':
                     $title = $this->sanitizeInlineText($data['title'] ?? '');
@@ -169,14 +170,17 @@ final class EditorJsToMarkdown
     /**
      * @param list<mixed> $rows
      */
-    private function renderTableMarkdown(array $rows): string
+    private function renderTableMarkdown(array $rows, bool $withHeadings = true): string
     {
         $markdownRows = [];
-        $header = array_shift($rows);
-        if (is_array($header)) {
-            $headerText = array_map(fn ($cell): string => $this->sanitizeInlineText($cell), $header);
-            $markdownRows[] = '| ' . implode(' | ', $headerText) . ' |';
-            $markdownRows[] = '| ' . implode(' | ', array_fill(0, count($headerText), '---')) . ' |';
+
+        if ($withHeadings && $rows !== []) {
+            $header = array_shift($rows);
+            if (is_array($header)) {
+                $headerText = array_map(fn ($cell): string => $this->sanitizeInlineText($cell), $header);
+                $markdownRows[] = '| ' . implode(' | ', $headerText) . ' |';
+                $markdownRows[] = '| ' . implode(' | ', array_fill(0, count($headerText), '---')) . ' |';
+            }
         }
 
         foreach ($rows as $row) {
@@ -192,20 +196,22 @@ final class EditorJsToMarkdown
     /**
      * @param list<mixed> $rows
      */
-    private function renderTableHtml(array $rows): string
+    private function renderTableHtml(array $rows, bool $withHeadings = true): string
     {
         if ($rows === []) {
             return '';
         }
 
-        $header = array_shift($rows);
         $thead = '';
-        if (is_array($header)) {
-            $cells = array_map(
-                fn ($cell): string => sprintf('<th scope="col">%s</th>', $this->sanitizeInlineHtml($cell)),
-                $header
-            );
-            $thead = '<thead><tr>' . implode('', $cells) . '</tr></thead>';
+        if ($withHeadings) {
+            $header = array_shift($rows);
+            if (is_array($header)) {
+                $cells = array_map(
+                    fn ($cell): string => sprintf('<th>%s</th>', $this->sanitizeInlineHtml($cell)),
+                    $header
+                );
+                $thead = '<thead><tr>' . implode('', $cells) . '</tr></thead>';
+            }
         }
 
         $bodyRows = [];
@@ -223,6 +229,117 @@ final class EditorJsToMarkdown
         $tbody = $bodyRows === [] ? '' : '<tbody>' . implode('', $bodyRows) . '</tbody>';
 
         return sprintf('<table>%s%s</table>', $thead, $tbody);
+    }
+
+    /**
+     * Convert the Editor.js payload into plaintext suitable for search indexing and RAG.
+     *
+     * Tables are serialized as "Header: Value – Header: Value." per row so that
+     * semantic context is preserved even when a RAG chunk splits mid-table.
+     *
+     * @param array<string,mixed> $payload
+     */
+    public function toSearchText(array $payload): string
+    {
+        if (!isset($payload['blocks']) || !is_array($payload['blocks'])) {
+            return '';
+        }
+
+        $parts = [];
+
+        foreach ($payload['blocks'] as $block) {
+            if (!is_array($block)) {
+                continue;
+            }
+
+            $type = isset($block['type']) ? (string) $block['type'] : '';
+            $data = isset($block['data']) && is_array($block['data']) ? $block['data'] : [];
+
+            switch ($type) {
+                case 'table':
+                    $rows = isset($data['content']) && is_array($data['content']) ? $data['content'] : [];
+                    if ($rows === []) {
+                        break;
+                    }
+                    $withHeadings = isset($data['withHeadings']) && $data['withHeadings'] === true;
+                    $parts[] = $this->renderTableSearchText($rows, $withHeadings);
+                    break;
+                default:
+                    $text = $this->sanitizeInlineText($data['text'] ?? '');
+                    if ($text === '' && isset($data['items']) && is_array($data['items'])) {
+                        $itemTexts = [];
+                        foreach ($data['items'] as $item) {
+                            $itemText = $this->sanitizeInlineText(is_array($item) ? ($item['text'] ?? '') : $item);
+                            if ($itemText !== '') {
+                                $itemTexts[] = $itemText;
+                            }
+                        }
+                        $text = implode('. ', $itemTexts);
+                    }
+                    if ($text === '' && isset($data['code'])) {
+                        $text = (string) $data['code'];
+                    }
+                    if ($text !== '') {
+                        $parts[] = $text;
+                    }
+            }
+        }
+
+        return implode("\n", $parts);
+    }
+
+    /**
+     * @param list<mixed> $rows
+     */
+    private function renderTableSearchText(array $rows, bool $withHeadings): string
+    {
+        if ($rows === []) {
+            return '';
+        }
+
+        if (!$withHeadings) {
+            $lines = [];
+            foreach ($rows as $row) {
+                if (!is_array($row)) {
+                    continue;
+                }
+                $cells = array_map(fn ($cell): string => $this->sanitizeInlineText($cell), $row);
+                $lines[] = implode(' – ', array_filter($cells, static fn (string $c): bool => $c !== '')) . '.';
+            }
+
+            return implode("\n", $lines);
+        }
+
+        $headers = array_shift($rows);
+        if (!is_array($headers)) {
+            return '';
+        }
+
+        $headerTexts = array_map(fn ($cell): string => $this->sanitizeInlineText($cell), $headers);
+        $lines = [];
+
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $pairs = [];
+            foreach ($row as $colIndex => $cell) {
+                $cellText = $this->sanitizeInlineText($cell);
+                $headerText = $headerTexts[$colIndex] ?? '';
+                if ($headerText !== '' && $cellText !== '') {
+                    $pairs[] = $headerText . ': ' . $cellText;
+                } elseif ($cellText !== '') {
+                    $pairs[] = $cellText;
+                }
+            }
+
+            if ($pairs !== []) {
+                $lines[] = implode(' – ', $pairs) . '.';
+            }
+        }
+
+        return implode("\n", $lines);
     }
 
     private function sanitizeInlineText(mixed $value): string
