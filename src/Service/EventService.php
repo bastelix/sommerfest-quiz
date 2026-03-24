@@ -304,7 +304,10 @@ class EventService
      * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string,published:bool,namespace:string}|null
      */
     public function getByUid(string $uid): ?array {
-        $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,published,namespace FROM events WHERE uid = ?');
+        $stmt = $this->pdo->prepare(
+            'SELECT uid,slug,name,start_date,end_date,description,published,namespace '
+            . 'FROM events WHERE uid = ?'
+        );
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row !== false) {

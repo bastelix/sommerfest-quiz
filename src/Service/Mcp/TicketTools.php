@@ -90,13 +90,32 @@ final class TicketTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'title' => ['type' => 'string', 'description' => 'Ticket title'],
-                        'description' => ['type' => 'string', 'description' => 'Ticket description (supports markdown)'],
-                        'type' => ['type' => 'string', 'description' => 'Ticket type', 'enum' => ['bug', 'task', 'review', 'improvement']],
-                        'priority' => ['type' => 'string', 'description' => 'Priority level', 'enum' => ['low', 'normal', 'high', 'critical']],
-                        'referenceType' => ['type' => 'string', 'description' => 'Type of linked entity', 'enum' => ['wiki_article', 'page']],
+                        'description' => [
+                            'type' => 'string',
+                            'description' => 'Ticket description (supports markdown)',
+                        ],
+                        'type' => [
+                            'type' => 'string',
+                            'description' => 'Ticket type',
+                            'enum' => ['bug', 'task', 'review', 'improvement'],
+                        ],
+                        'priority' => [
+                            'type' => 'string',
+                            'description' => 'Priority level',
+                            'enum' => ['low', 'normal', 'high', 'critical'],
+                        ],
+                        'referenceType' => [
+                            'type' => 'string',
+                            'description' => 'Type of linked entity',
+                            'enum' => ['wiki_article', 'page'],
+                        ],
                         'referenceId' => ['type' => 'integer', 'description' => 'ID of the linked entity'],
                         'assignee' => ['type' => 'string', 'description' => 'Username to assign the ticket to'],
-                        'labels' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'List of labels/tags'],
+                        'labels' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                            'description' => 'List of labels/tags',
+                        ],
                         'dueDate' => ['type' => 'string', 'description' => 'Due date in ISO 8601 format'],
                         'createdBy' => ['type' => 'string', 'description' => 'Username of the ticket creator'],
                     ],

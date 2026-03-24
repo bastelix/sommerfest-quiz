@@ -133,7 +133,10 @@ class ResultController
         }
         $data = $this->service->getAll($eventUid);
         $rows = array_map([$this, 'mapResultRow'], $data);
-        array_unshift($rows, ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Punkte', 'Max Punkte', 'Zeit', 'Rätselwort', 'Beweisfoto']);
+        array_unshift($rows, [
+            'Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt',
+            'Punkte', 'Max Punkte', 'Zeit', 'Rätselwort', 'Beweisfoto',
+        ]);
         // prepend UTF-8 BOM for better compatibility with spreadsheet tools
         $content = "\xEF\xBB\xBF" . $this->buildCsv($rows);
         $response->getBody()->write($content);
@@ -351,7 +354,11 @@ class ResultController
         // Validate team-derived event UID against namespace
         if ($eventUid !== '') {
             $namespace = $request->getAttribute('eventNamespace');
-            if (is_string($namespace) && $namespace !== '' && !$this->events->belongsToNamespace($eventUid, $namespace)) {
+            if (
+                is_string($namespace)
+                && $namespace !== ''
+                && !$this->events->belongsToNamespace($eventUid, $namespace)
+            ) {
                 return $response->withStatus(403);
             }
         }

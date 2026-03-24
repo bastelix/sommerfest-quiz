@@ -68,7 +68,11 @@ final class MarketingMenuAiGeneratorTest extends TestCase
         $generator = new MarketingMenuAiGenerator(null, $capturingResponder, '{{html}}');
         $image = '<img src="data:image/png;base64,' . str_repeat('A', 5000) . '">';
         $script = '<script>console.log("should be removed");</script>';
-        $page = $this->createPage('default', 'hero', '<h1 id="hero">Hero</h1>' . $image . $script . '<h2 id="faq">FAQ</h2>');
+        $page = $this->createPage(
+            'default',
+            'hero',
+            '<h1 id="hero">Hero</h1>' . $image . $script . '<h2 id="faq">FAQ</h2>',
+        );
 
         $generator->generate($page, 'de');
 
@@ -139,6 +143,21 @@ final class MarketingMenuAiGeneratorTest extends TestCase
 
     private function createPage(string $namespace, string $slug, string $content): Page
     {
-        return new Page(1, $namespace, $slug, ucfirst($slug), $content, null, null, 0, null, 'de', null, null, null, false);
+        return new Page(
+            1,
+            $namespace,
+            $slug,
+            ucfirst($slug),
+            $content,
+            null,
+            null,
+            0,
+            null,
+            'de',
+            null,
+            null,
+            null,
+            false,
+        );
     }
 }

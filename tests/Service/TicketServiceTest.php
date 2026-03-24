@@ -219,7 +219,11 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Review article', '', Ticket::TYPE_REVIEW, Ticket::PRIORITY_NORMAL, Ticket::REFERENCE_PAGE, 99, null, [], null, null);
+        $ticket = $service->create(
+            'ns', 'Review article', '', Ticket::TYPE_REVIEW,
+            Ticket::PRIORITY_NORMAL, Ticket::REFERENCE_PAGE, 99,
+            null, [], null, null
+        );
 
         $this->assertSame(Ticket::REFERENCE_PAGE, $ticket->getReferenceType());
         $this->assertSame(99, $ticket->getReferenceId());
@@ -260,7 +264,10 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Reopen test', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns', 'Reopen test', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL, null, null, null, [], null, null
+        );
         $ticket = $service->transition($ticket->getId(), Ticket::STATUS_IN_PROGRESS);
         $ticket = $service->transition($ticket->getId(), Ticket::STATUS_RESOLVED);
         $ticket = $service->transition($ticket->getId(), Ticket::STATUS_CLOSED);
