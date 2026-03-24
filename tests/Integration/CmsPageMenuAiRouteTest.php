@@ -265,7 +265,14 @@ final class CmsPageMenuAiRouteTest extends TestCase
         $stmt->execute([$menuId, $pageId, $namespace]);
     }
 
-    private function insertMenuItem(PDO $pdo, int $menuId, string $namespace, string $label, string $href, int $position): void
+    private function insertMenuItem(
+        PDO $pdo,
+        int $menuId,
+        string $namespace,
+        string $label,
+        string $href,
+        int $position
+    ): void
     {
         $stmt = $pdo->prepare(
             'INSERT INTO marketing_menu_items (menu_id, namespace, parent_id, label, href, icon, layout, detail_title, '

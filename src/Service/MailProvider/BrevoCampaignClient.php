@@ -81,7 +81,11 @@ class BrevoCampaignClient
 
             return (string) $response->getBody();
         } catch (GuzzleException $exception) {
-            throw new RuntimeException('Failed to communicate with Brevo API: ' . $exception->getMessage(), 0, $exception);
+            throw new RuntimeException(
+                'Failed to communicate with Brevo API: ' . $exception->getMessage(),
+                0,
+                $exception
+            );
         }
     }
 

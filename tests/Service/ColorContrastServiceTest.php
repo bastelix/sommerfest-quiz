@@ -329,7 +329,12 @@ class ColorContrastServiceTest extends TestCase
 
         // Light theme: text on brand colors (textOnSecondary uses hero background)
         $heroBg = $this->service->colorMixSrgb($brand['secondary'], '#0b1728', 0.85);
-        foreach (['textOnPrimary' => $brand['primary'], 'textOnSecondary' => $heroBg, 'textOnAccent' => $brand['accent']] as $key => $bg) {
+        $textOnBrandMap = [
+            'textOnPrimary' => $brand['primary'],
+            'textOnSecondary' => $heroBg,
+            'textOnAccent' => $brand['accent'],
+        ];
+        foreach ($textOnBrandMap as $key => $bg) {
             $ratio = $this->service->contrastRatioHex($result['light'][$key], $bg);
             $this->assertNotNull($ratio);
             $this->assertTrue($this->service->meetsAA($ratio), "Light $key fails AA: ratio $ratio");

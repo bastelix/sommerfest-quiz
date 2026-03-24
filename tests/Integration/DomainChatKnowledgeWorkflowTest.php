@@ -231,7 +231,9 @@ PHP_SCRIPT;
         $indexManager = new DomainIndexManager($storage, dirname(__DIR__, 2), 'php');
         $wikiSelection = new DomainWikiSelectionService($pdo);
         $wikiArticles = new CmsPageWikiArticleService($pdo);
-        $controller = new DomainChatKnowledgeController($storage, $indexManager, $wikiSelection, $wikiArticles, $pageService);
+        $controller = new DomainChatKnowledgeController(
+            $storage, $indexManager, $wikiSelection, $wikiArticles, $pageService
+        );
 
         $responseFactory = new ResponseFactory();
         $request = $this->createRequest('POST', '/admin/domain-chat/wiki-selection', [
@@ -276,7 +278,9 @@ PHP_SCRIPT;
         $indexManager = new DomainIndexManager($storage, dirname(__DIR__, 2), 'php');
         $wikiSelection = new DomainWikiSelectionService($pdo);
         $wikiArticles = new CmsPageWikiArticleService($pdo);
-        $controller = new DomainChatKnowledgeController($storage, $indexManager, $wikiSelection, $wikiArticles, $pageService);
+        $controller = new DomainChatKnowledgeController(
+            $storage, $indexManager, $wikiSelection, $wikiArticles, $pageService
+        );
 
         $responseFactory = new ResponseFactory();
         $request = $this->createRequest('POST', '/admin/domain-chat/wiki-selection', [

@@ -174,7 +174,11 @@ final class TicketTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'id' => ['type' => 'integer', 'description' => 'Ticket ID'],
-                        'status' => ['type' => 'string', 'description' => 'Target status', 'enum' => ['open', 'in_progress', 'resolved', 'closed']],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'Target status',
+                            'enum' => ['open', 'in_progress', 'resolved', 'closed'],
+                        ],
                     ],
                     'required' => ['id', 'status'],
                 ],
@@ -279,7 +283,9 @@ final class TicketTools
         $description = isset($args['description']) && is_string($args['description']) ? $args['description'] : '';
         $type = isset($args['type']) && is_string($args['type']) ? $args['type'] : Ticket::TYPE_TASK;
         $priority = isset($args['priority']) && is_string($args['priority']) ? $args['priority'] : Ticket::PRIORITY_NORMAL;
-        $referenceType = isset($args['referenceType']) && is_string($args['referenceType']) ? $args['referenceType'] : null;
+        $referenceType = isset($args['referenceType']) && is_string($args['referenceType'])
+            ? $args['referenceType']
+            : null;
         $referenceId = isset($args['referenceId']) ? (int) $args['referenceId'] : null;
         $assignee = isset($args['assignee']) && is_string($args['assignee']) ? $args['assignee'] : null;
         $labels = isset($args['labels']) && is_array($args['labels']) ? $args['labels'] : [];
@@ -318,7 +324,11 @@ final class TicketTools
         }
 
         $fields = [];
-        foreach (['title', 'description', 'priority', 'type', 'assignee', 'labels', 'dueDate', 'referenceType', 'referenceId'] as $key) {
+        $updatableKeys = [
+            'title', 'description', 'priority', 'type',
+            'assignee', 'labels', 'dueDate', 'referenceType', 'referenceId',
+        ];
+        foreach ($updatableKeys as $key) {
             if (array_key_exists($key, $args)) {
                 $fields[$key] = $args[$key];
             }
