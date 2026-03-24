@@ -77,6 +77,12 @@ final class CmsPageWikiArticleController
             return $response->withStatus(404);
         }
 
+        // In direct mode, only wiki-type pages are served
+        $directMode = (bool) $request->getAttribute('wikiDirectMode', false);
+        if ($directMode && $page->getType() !== 'wiki') {
+            return $response->withStatus(404);
+        }
+
         $pageNamespace = $page->getNamespace();
         if ($pageNamespace === '') {
             $pageNamespace = $namespace !== '' ? $namespace : PageService::DEFAULT_NAMESPACE;
@@ -114,6 +120,11 @@ final class CmsPageWikiArticleController
         $view = Twig::fromRequest($request);
         $basePath = RouteContext::fromRequest($request)->getBasePath();
 
+        $directMode = (bool) $request->getAttribute('wikiDirectMode', false);
+        $wikiBasePath = $directMode
+            ? $basePath . '/pages/' . $wikiSlug
+            : $basePath . '/pages/' . $wikiSlug . '/wiki';
+
         $themeOverrides = $this->themeConfigService->getThemeForSlug($namespace, $settingsPage->getSlug());
         $theme = MarketingWikiThemeResolver::resolve($themeOverrides);
 
@@ -123,6 +134,7 @@ final class CmsPageWikiArticleController
             'articles' => $articles,
             'menuLabel' => $menuLabel,
             'wikiTheme' => $theme,
+            'wikiBasePath' => $wikiBasePath,
             'namespace' => $pageNamespace,
             'pageNamespace' => $pageNamespace,
             'designNamespace' => $designNamespace,
@@ -135,11 +147,11 @@ final class CmsPageWikiArticleController
                     'label' => $page->getTitle(),
                 ],
                 [
-                    'url' => $basePath . '/pages/' . $wikiSlug . '/wiki',
+                    'url' => $wikiBasePath,
                     'label' => $menuLabel,
                 ],
                 [
-                    'url' => $basePath . '/pages/' . $wikiSlug . '/wiki/' . $article->getSlug(),
+                    'url' => $wikiBasePath . '/' . $article->getSlug(),
                     'label' => $article->getTitle(),
                 ],
             ],

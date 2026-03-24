@@ -121,6 +121,11 @@ final class CmsPageWikiListController
         $basePath = RouteContext::fromRequest($request)->getBasePath();
         $menuLabel = $settings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
 
+        $directMode = (bool) $request->getAttribute('wikiDirectMode', false);
+        $wikiBasePath = $directMode
+            ? $basePath . '/pages/' . $wikiSlug
+            : $basePath . '/pages/' . $wikiSlug . '/wiki';
+
         $themeOverrides = $this->themeConfigService->getThemeForSlug($namespace, $settingsPage->getSlug());
         $theme = MarketingWikiThemeResolver::resolve($themeOverrides);
 
@@ -130,6 +135,7 @@ final class CmsPageWikiListController
             'searchTerm' => $search,
             'menuLabel' => $menuLabel,
             'wikiTheme' => $theme,
+            'wikiBasePath' => $wikiBasePath,
             'namespace' => $pageNamespace,
             'pageNamespace' => $pageNamespace,
             'designNamespace' => $designNamespace,
@@ -142,7 +148,7 @@ final class CmsPageWikiListController
                     'label' => $page->getTitle(),
                 ],
                 [
-                    'url' => $basePath . '/pages/' . $wikiSlug . '/wiki',
+                    'url' => $wikiBasePath,
                     'label' => $menuLabel,
                 ],
             ],

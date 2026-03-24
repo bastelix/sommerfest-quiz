@@ -81,6 +81,7 @@ final class PageTools
                         'seo' => ['type' => 'object', 'description' => 'SEO configuration saved to the dedicated SEO table. Supported fields: metaTitle, metaDescription, canonicalUrl, robotsMeta, ogTitle, ogDescription, ogImage, schemaJson, hreflang, domain, faviconPath'],
                         'language' => ['type' => 'string', 'enum' => ['de', 'en'], 'description' => 'Page language for variant resolution (de or en)'],
                         'base_slug' => ['type' => 'string', 'description' => 'Base slug of the primary (German) page this is a language variant of'],
+                        'type' => ['type' => 'string', 'enum' => ['wiki', 'mcp', ''], 'description' => 'Page type. Set to "wiki" to enable direct wiki mode (articles served at /pages/{slug}/{articleSlug} without /wiki prefix). Use empty string to clear.'],
                     ],
                     'required' => ['slug', 'blocks'],
                 ],
@@ -304,8 +305,9 @@ final class PageTools
             $this->pages->save($ns, $slug, $contentJson);
         }
 
-        // Update status/title/language/base_slug if provided
-        $hasUpdatableFields = isset($args['status']) || isset($args['title']) || $language !== null || $baseSlug !== null;
+        // Update status/title/language/base_slug/type if provided
+        $type = isset($args['type']) && is_string($args['type']) ? trim($args['type']) : null;
+        $hasUpdatableFields = isset($args['status']) || isset($args['title']) || $language !== null || $baseSlug !== null || $type !== null;
         if ($hasUpdatableFields) {
             $fields = [];
             $params = [];
@@ -332,6 +334,14 @@ final class PageTools
             if ($baseSlug !== null && $baseSlug !== '') {
                 $fields[] = 'base_slug = ?';
                 $params[] = $baseSlug;
+            }
+
+            if ($type !== null) {
+                if (!in_array($type, ['wiki', 'mcp', ''], true)) {
+                    throw new \InvalidArgumentException('type must be wiki, mcp, or empty string to clear');
+                }
+                $fields[] = 'type = ?';
+                $params[] = $type === '' ? null : $type;
             }
 
             if ($fields !== []) {
