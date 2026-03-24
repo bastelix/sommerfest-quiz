@@ -165,13 +165,21 @@ final class MenuTools
             [
                 'name' => 'list_menu_assignments',
                 'method' => 'listMenuAssignments',
-                'description' => 'List menu-to-slot assignments for a namespace. Slots control where a menu appears: "main" = header navigation, "footer_1"/"footer_2"/"footer_3" = footer columns.',
+                'description' => 'List menu-to-slot assignments for a namespace. '
+                    . 'Slots control where a menu appears: "main" = header '
+                    . 'navigation, "footer_1"/"footer_2"/"footer_3" = footer columns.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
-                        'slot' => ['type' => 'string', 'description' => 'Filter by slot (main, footer_1, footer_2, footer_3)'],
-                        'locale' => ['type' => 'string', 'description' => 'Filter by locale (e.g. de, en)'],
+                        'slot' => [
+                            'type' => 'string',
+                            'description' => 'Filter by slot (main, footer_1, footer_2, footer_3)',
+                        ],
+                        'locale' => [
+                            'type' => 'string',
+                            'description' => 'Filter by locale (e.g. de, en)',
+                        ],
                         'menuId' => ['type' => 'integer', 'description' => 'Filter by menu ID'],
                         'pageId' => ['type' => 'integer', 'description' => 'Filter by page ID (null = global assignment)'],
                     ],
