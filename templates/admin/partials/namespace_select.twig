@@ -46,3 +46,20 @@
 {% if _showHint %}
 <div class="uk-text-meta uk-margin-small-top">{{ t('text_project_namespace_hint') }}</div>
 {% endif %}
+{% if not _lock %}
+<script>
+(function() {
+  var s = document.getElementById('{{ _selectorId|e('js') }}');
+  if (!s || s.dataset.namespaceListenerAttached === '1') return;
+  if (s.id === 'subscriptionNamespaceSelect') return;
+  s.dataset.namespaceListenerAttached = '1';
+  s.addEventListener('change', function() {
+    var ns = s.value || '';
+    if (!ns) return;
+    var url = new URL(window.location.href);
+    url.searchParams.set('namespace', ns);
+    window.location.assign(url.toString());
+  });
+})();
+</script>
+{% endif %}
