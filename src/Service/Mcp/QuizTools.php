@@ -142,8 +142,14 @@ final class QuizTools
                         'catalog' => ['type' => 'string', 'description' => 'Catalog UID or slug'],
                         'correct' => ['type' => 'integer', 'description' => 'Number of correct answers'],
                         'total' => ['type' => 'integer', 'description' => 'Total number of questions answered'],
-                        'wrong' => ['type' => 'array', 'description' => 'Optional array of 1-based indices of wrong answers'],
-                        'answers' => ['type' => 'array', 'description' => 'Optional per-question answer details'],
+                        'wrong' => [
+                            'type' => 'array',
+                            'description' => 'Optional array of 1-based indices of wrong answers',
+                        ],
+                        'answers' => [
+                            'type' => 'array',
+                            'description' => 'Optional per-question answer details',
+                        ],
                     ],
                     'required' => ['event_uid', 'name', 'catalog', 'correct', 'total'],
                 ],

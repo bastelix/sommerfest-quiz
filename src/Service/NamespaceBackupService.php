@@ -219,7 +219,10 @@ final class NamespaceBackupService
             }
             file_put_contents(
                 $designFile,
-                json_encode($data['design_file'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n"
+                json_encode(
+                    $data['design_file'],
+                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                ) . "\n"
             );
         }
     }

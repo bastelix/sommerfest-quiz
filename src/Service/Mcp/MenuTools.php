@@ -14,7 +14,10 @@ final class MenuTools
     private CmsMenuDefinitionService $menus;
     private CmsPageMenuService $menuItems;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -55,7 +58,10 @@ final class MenuTools
                         'namespace' => self::NS_PROP,
                         'label' => ['type' => 'string', 'description' => 'Menu label/name'],
                         'locale' => ['type' => 'string', 'description' => 'Optional locale (e.g. de, en)'],
-                        'isActive' => ['type' => 'boolean', 'description' => 'Whether the menu is active (default true)'],
+                        'isActive' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether the menu is active (default true)',
+                        ],
                     ],
                     'required' => ['label'],
                 ],
