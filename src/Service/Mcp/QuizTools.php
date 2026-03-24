@@ -79,7 +79,8 @@ final class QuizTools
             [
                 'name' => 'get_catalog',
                 'method' => 'getCatalog',
-                'description' => 'Get a question catalog with all its questions. Each question has type, prompt, options, answers, and more.',
+                'description' => 'Get a question catalog with all its questions. Each '
+                    . 'question has type, prompt, options, answers, and more.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -93,7 +94,9 @@ final class QuizTools
             [
                 'name' => 'upsert_catalog',
                 'method' => 'upsertCatalog',
-                'description' => 'Create or update a question catalog with its questions. Provide slug and an array of question objects. Each question needs at least type and prompt.',
+                'description' => 'Create or update a question catalog with its questions. '
+                    . 'Provide slug and an array of question objects. Each question '
+                    . 'needs at least type and prompt.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [

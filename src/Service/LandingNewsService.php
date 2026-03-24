@@ -95,7 +95,11 @@ class LandingNewsService
             . 'CASE WHEN ln.published_at IS NULL THEN 1 ELSE 0 END, '
             . 'ln.published_at DESC, ln.id DESC'
         ));
-        $stmt->execute(['namespace' => trim($namespace) !== '' ? strtolower($namespace) : PageService::DEFAULT_NAMESPACE]);
+        $stmt->execute([
+            'namespace' => trim($namespace) !== ''
+                ? strtolower($namespace)
+                : PageService::DEFAULT_NAMESPACE,
+        ]);
 
         return array_map([$this, 'hydrate'], $stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
     }

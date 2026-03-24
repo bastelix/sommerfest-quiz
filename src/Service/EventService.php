@@ -356,7 +356,10 @@ class EventService
             );
             $stmt->execute([$slug, $filterNamespace]);
         } else {
-            $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,namespace FROM events WHERE slug = ?');
+            $stmt = $this->pdo->prepare(
+                'SELECT uid,slug,name,start_date,end_date,description,namespace '
+                . 'FROM events WHERE slug = ?'
+            );
             $stmt->execute([$slug]);
         }
         $row = $stmt->fetch(PDO::FETCH_ASSOC);

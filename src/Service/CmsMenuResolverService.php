@@ -118,7 +118,10 @@ final class CmsMenuResolverService
             }
         }
 
-        if ($this->allowLegacyFallback && !$this->menuDefinitions->hasAssignmentsForSlot($normalizedNamespace, $normalizedSlot)) {
+        if (
+            $this->allowLegacyFallback
+            && !$this->menuDefinitions->hasAssignmentsForSlot($normalizedNamespace, $normalizedSlot)
+        ) {
             $legacyItems = $this->legacyMenuService->getMenuForNamespace($normalizedNamespace, $normalizedLocale);
             if ($legacyItems !== []) {
                 return [
