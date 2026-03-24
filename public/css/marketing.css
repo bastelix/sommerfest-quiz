@@ -963,7 +963,7 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
 
 :is(body.dark-mode, body[data-theme="dark"], html[data-theme="dark"] body, .marketing-scope.dark-mode, .marketing-scope[data-theme="dark"]):is(.marketing-page, .cms-page-render):not(.high-contrast)
   .marketing-cookie-banner {
-  background-color: var(--marketing-surface, #0b0b0b);
+  background-color: var(--marketing-surface, #0b0b0b) !important;
   border-color: var(--marketing-border, #222);
   background: linear-gradient(
     160deg,

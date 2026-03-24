@@ -243,6 +243,13 @@ body[data-theme="dark"] .uk-modal-dialog {
   color: var(--text-body);
 }
 
+/* Hintergrund fuer Cookie-Banner im Dunkelmodus */
+body[data-theme="dark"] .marketing-cookie-banner {
+  background-color: var(--surface-card, #0b0b0b);
+  color: var(--text-body);
+  border-color: var(--border-muted);
+}
+
 /* Hoverfarbe für Katalogkarten im Dunkelmodus */
 body[data-theme="dark"] .qr-card.uk-card-hover:hover {
   background-color: var(--text-heading);
