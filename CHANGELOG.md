@@ -708,6 +708,7 @@
 - *(ci)* Clean up stale containers before docker compose up
 - *(wiki)* Add main navigation header and fix backlink in wiki pages
 - Unify namespace switching and fix reset bug
+- *(wiki)* Generate direct wiki URL in menu for type=wiki pages
 
 ### Merge
 
