@@ -391,7 +391,11 @@ final class TeamNameControllerTest extends TestCase
                     'meta' => [],
                     'entries' => [
                         ['code' => 'target', 'level' => 'info', 'context' => ['count' => 6]],
-                        ['code' => 'status', 'level' => 'success', 'context' => ['status' => 'completed', 'count' => 2]],
+                        [
+                            'code' => 'status',
+                            'level' => 'success',
+                            'context' => ['status' => 'completed', 'count' => 2],
+                        ],
                     ],
                     'status' => 'completed',
                     'error' => null,

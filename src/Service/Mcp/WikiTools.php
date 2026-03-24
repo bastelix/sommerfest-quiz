@@ -433,10 +433,18 @@ final class WikiTools
         $locale = isset($args['locale']) && is_string($args['locale']) ? trim($args['locale']) : $existing->getLocale();
         $slug = isset($args['slug']) && is_string($args['slug']) ? trim($args['slug']) : $existing->getSlug();
         $title = isset($args['title']) && is_string($args['title']) ? trim($args['title']) : $existing->getTitle();
-        $markdown = isset($args['markdown']) && is_string($args['markdown']) ? $args['markdown'] : $existing->getContentMarkdown();
-        $excerpt = array_key_exists('excerpt', $args) && is_string($args['excerpt']) ? $args['excerpt'] : $existing->getExcerpt();
-        $status = isset($args['status']) && is_string($args['status']) ? $args['status'] : $existing->getStatus();
-        $isStartDocument = isset($args['isStartDocument']) ? (bool) $args['isStartDocument'] : $existing->isStartDocument();
+        $markdown = isset($args['markdown']) && is_string($args['markdown'])
+            ? $args['markdown']
+            : $existing->getContentMarkdown();
+        $excerpt = array_key_exists('excerpt', $args) && is_string($args['excerpt'])
+            ? $args['excerpt']
+            : $existing->getExcerpt();
+        $status = isset($args['status']) && is_string($args['status'])
+            ? $args['status']
+            : $existing->getStatus();
+        $isStartDocument = isset($args['isStartDocument'])
+            ? (bool) $args['isStartDocument']
+            : $existing->isStartDocument();
 
         $article = $this->articleService->saveArticleFromMarkdown(
             $existing->getPageId(),

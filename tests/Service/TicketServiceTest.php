@@ -110,7 +110,10 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Workflow test', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns', 'Workflow test', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL, null, null, null, [], null, null
+        );
         $this->assertSame(Ticket::STATUS_OPEN, $ticket->getStatus());
 
         $ticket = $service->transition($ticket->getId(), Ticket::STATUS_IN_PROGRESS);
@@ -128,7 +131,10 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Invalid transition', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns', 'Invalid transition', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL, null, null, null, [], null, null
+        );
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Cannot transition from "open" to "resolved"');
@@ -140,7 +146,10 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Original title', '', Ticket::TYPE_TASK, Ticket::PRIORITY_LOW, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns', 'Original title', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_LOW, null, null, null, [], null, null
+        );
 
         $updated = $service->update($ticket->getId(), [
             'title' => 'Updated title',

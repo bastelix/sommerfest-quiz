@@ -81,7 +81,8 @@ class BackupController
 
         if (!class_exists(\ZipArchive::class)) {
             $response->getBody()->write(json_encode([
-                'error' => 'PHP zip extension (ZipArchive) is required to create backup archives. Please enable it in your PHP configuration.',
+                'error' => 'PHP zip extension (ZipArchive) is required to create backup archives.'
+                    . ' Please enable it in your PHP configuration.',
             ]));
 
             return $response

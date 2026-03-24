@@ -51,8 +51,16 @@ class NamespaceAppearanceServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE namespaces (namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER, created_at TEXT, updated_at TEXT)');
-        $pdo->exec('CREATE TABLE config (event_uid TEXT PRIMARY KEY, design_tokens TEXT, colors TEXT, backgroundColor TEXT, buttonColor TEXT)');
+        $pdo->exec(
+            'CREATE TABLE namespaces ('
+            . 'namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER,'
+            . ' created_at TEXT, updated_at TEXT)'
+        );
+        $pdo->exec(
+            'CREATE TABLE config ('
+            . 'event_uid TEXT PRIMARY KEY, design_tokens TEXT, colors TEXT,'
+            . ' backgroundColor TEXT, buttonColor TEXT)'
+        );
 
         Database::setFactory(static fn (): PDO => $pdo);
 
@@ -91,8 +99,16 @@ class NamespaceAppearanceServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE namespaces (namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER, created_at TEXT, updated_at TEXT)');
-        $pdo->exec('CREATE TABLE config (event_uid TEXT PRIMARY KEY, design_tokens TEXT, colors TEXT, backgroundColor TEXT, buttonColor TEXT)');
+        $pdo->exec(
+            'CREATE TABLE namespaces ('
+            . 'namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER,'
+            . ' created_at TEXT, updated_at TEXT)'
+        );
+        $pdo->exec(
+            'CREATE TABLE config ('
+            . 'event_uid TEXT PRIMARY KEY, design_tokens TEXT, colors TEXT,'
+            . ' backgroundColor TEXT, buttonColor TEXT)'
+        );
 
         $designRoot = sys_get_temp_dir() . '/namespace-design-' . uniqid();
         mkdir($designRoot . '/content/design', 0777, true);

@@ -821,9 +821,18 @@ class ResultServiceTest extends TestCase
             );
             SQL
         );
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('mixed-1',1,'main-slug','c.json','Main');");
-        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt,points,countdown) VALUES('mixed-1',1,'text','Q1',5,30);");
-        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt,points,countdown) VALUES('mixed-1',2,'text','Q2',7,20);");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name)"
+            . " VALUES('mixed-1',1,'main-slug','c.json','Main');"
+        );
+        $pdo->exec(
+            "INSERT INTO questions(catalog_uid,sort_order,type,prompt,points,countdown)"
+            . " VALUES('mixed-1',1,'text','Q1',5,30);"
+        );
+        $pdo->exec(
+            "INSERT INTO questions(catalog_uid,sort_order,type,prompt,points,countdown)"
+            . " VALUES('mixed-1',2,'text','Q2',7,20);"
+        );
 
         $service = new ResultService($pdo);
         $entry = $service->add([
@@ -838,8 +847,10 @@ class ResultServiceTest extends TestCase
             ],
         ]);
 
-        $rows = $pdo->query('SELECT catalog, question_id, time_left_sec, final_points FROM question_results ORDER BY id')
-            ->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $pdo->query(
+            'SELECT catalog, question_id, time_left_sec, final_points'
+            . ' FROM question_results ORDER BY id'
+        )->fetchAll(PDO::FETCH_ASSOC);
         $this->assertCount(2, $rows);
         $this->assertSame('MAIN-SLUG', $rows[0]['catalog']);
         $this->assertSame('MAIN-SLUG', $rows[1]['catalog']);
@@ -854,8 +865,9 @@ class ResultServiceTest extends TestCase
         $this->assertSame(34, $entry['durationSec']);
         $this->assertEqualsWithDelta(0.68, $entry['durationRatio'], 0.0001);
 
-        $stored = $pdo->query('SELECT points, max_points, expected_duration_sec, duration_sec, duration_ratio FROM results')
-            ->fetch(PDO::FETCH_ASSOC);
+        $stored = $pdo->query(
+            'SELECT points, max_points, expected_duration_sec, duration_sec, duration_ratio FROM results'
+        )->fetch(PDO::FETCH_ASSOC);
         $this->assertSame(3, (int) $stored['points']);
         $this->assertSame(12, (int) $stored['max_points']);
         $this->assertSame(50, (int) $stored['expected_duration_sec']);

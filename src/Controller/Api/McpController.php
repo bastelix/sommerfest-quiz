@@ -143,7 +143,13 @@ final class McpController
         $requiredScope = $this->getRequiredScope($name);
         if ($requiredScope !== null && !in_array($requiredScope, $scopes, true)) {
             return $this->jsonRpcResult($response, $id, [
-                'content' => [['type' => 'text', 'text' => json_encode(['error' => 'missing_scope', 'required' => $requiredScope])]],
+                'content' => [[
+                    'type' => 'text',
+                    'text' => json_encode([
+                        'error' => 'missing_scope',
+                        'required' => $requiredScope,
+                    ]),
+                ]],
                 'isError' => true,
             ]);
         }

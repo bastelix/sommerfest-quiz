@@ -12,7 +12,10 @@ final class TicketTools
 {
     private TicketService $ticketService;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -34,7 +37,8 @@ final class TicketTools
             [
                 'name' => 'list_tickets',
                 'method' => 'listTickets',
-                'description' => 'List tickets for a namespace. Optionally filter by status, priority, type, assignee, or reference.',
+                'description' => 'List tickets for a namespace. Optionally filter '
+                    . 'by status, priority, type, assignee, or reference.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
