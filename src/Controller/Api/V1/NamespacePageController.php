@@ -262,7 +262,10 @@ final class NamespacePageController
                     $fields[] = 'updated_at = CURRENT_TIMESTAMP';
                     $params[] = $ns;
                     $params[] = $slug;
-                    $stmt = $pdo->prepare('UPDATE pages SET ' . implode(', ', $fields) . ' WHERE namespace = ? AND slug = ?');
+                    $stmt = $pdo->prepare(
+                        'UPDATE pages SET ' . implode(', ', $fields)
+                        . ' WHERE namespace = ? AND slug = ?'
+                    );
                     $stmt->execute($params);
                 }
             }

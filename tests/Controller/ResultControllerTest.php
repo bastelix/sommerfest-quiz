@@ -397,7 +397,8 @@ class ResultControllerTest extends TestCase
         $pdo->exec(
             'CREATE TABLE questions(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER,' .
-            ' type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT, countdown INTEGER,' .
+            ' type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT,' .
+            ' terms TEXT, items TEXT, countdown INTEGER,' .
             ' cards TEXT, right_label TEXT, left_label TEXT' .
             ');'
         );
@@ -532,7 +533,8 @@ class ResultControllerTest extends TestCase
         $pdo->exec(
             'CREATE TABLE questions(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER,' .
-            ' type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT, countdown INTEGER,' .
+            ' type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT,' .
+            ' terms TEXT, items TEXT, countdown INTEGER,' .
             ' cards TEXT, right_label TEXT, left_label TEXT' .
             ');'
         );
@@ -541,7 +543,8 @@ class ResultControllerTest extends TestCase
             'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, ' .
             'attempt INTEGER NOT NULL, correct INTEGER NOT NULL, points INTEGER NOT NULL DEFAULT 0, ' .
             'total INTEGER NOT NULL, max_points INTEGER NOT NULL DEFAULT 0, ' .
-            'time INTEGER NOT NULL, started_at INTEGER, duration_sec INTEGER, expected_duration_sec INTEGER, duration_ratio REAL, ' .
+            'time INTEGER NOT NULL, started_at INTEGER, duration_sec INTEGER, ' .
+            'expected_duration_sec INTEGER, duration_ratio REAL, ' .
             'puzzleTime INTEGER, photo TEXT, player_uid TEXT, event_uid TEXT' .
             ');'
         );
@@ -698,7 +701,14 @@ class ResultControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $config);
         $catalogs = new \App\Service\CatalogService($pdo, $config);
         $events = new \App\Service\EventService($pdo);
-        $controller = new \App\Controller\ResultController($results, $config, $teams, $catalogs, sys_get_temp_dir(), $events);
+        $controller = new \App\Controller\ResultController(
+            $results,
+            $config,
+            $teams,
+            $catalogs,
+            sys_get_temp_dir(),
+            $events
+        );
 
         $request = $this->createRequest('GET', '/results.pdf?team=Team2');
         $response = $controller->pdf($request, new \Slim\Psr7\Response());

@@ -165,8 +165,12 @@ class ResultServiceTest extends TestCase
             );
             SQL
         );
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('cat-1',1,'cat1','catalog.json','Catalog')");
-        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt,points) VALUES('cat-1',1,'text','Q1',2)");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('cat-1',1,'cat1','catalog.json','Catalog')"
+        );
+        $pdo->exec(
+            "INSERT INTO questions(catalog_uid,sort_order,type,prompt,points) VALUES('cat-1',1,'text','Q1',2)"
+        );
 
         $service = new ResultService($pdo);
         $entry = $service->add([

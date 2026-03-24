@@ -276,7 +276,8 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, '
+            . 'status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages WHERE namespace = ? AND slug = ?'
         );
         $stmt->execute([$normalizedNamespace, $normalized]);
@@ -302,7 +303,8 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, '
+            . 'status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages WHERE namespace = ? AND base_slug = ? AND language = ? LIMIT 1'
         );
         $stmt->execute([$normalizedNamespace, $normalizedBaseSlug, $normalizedLanguage]);

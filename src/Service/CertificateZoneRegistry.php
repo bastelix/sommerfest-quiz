@@ -58,7 +58,11 @@ final class CertificateZoneRegistry
     /**
      * Ensure a certificate zone entry exists.
      */
-    public function ensureZone(string $zone, string $provider = AcmeDnsProvider::DEFAULT_PROVIDER, bool $wildcardEnabled = true): void
+    public function ensureZone(
+        string $zone,
+        string $provider = AcmeDnsProvider::DEFAULT_PROVIDER,
+        bool $wildcardEnabled = true
+    ): void
     {
         $normalized = strtolower(trim($zone));
         if ($normalized === '') {
@@ -91,7 +95,11 @@ final class CertificateZoneRegistry
         $this->updateStatus($zone, self::STATUS_ERROR, $message, null);
     }
 
-    public function markPending(string $zone, ?string $message = null, ?DateTimeImmutable $nextRenewalAfter = null): void
+    public function markPending(
+        string $zone,
+        ?string $message = null,
+        ?DateTimeImmutable $nextRenewalAfter = null
+    ): void
     {
         $this->updateStatus($zone, self::STATUS_PENDING, $message, null, $nextRenewalAfter);
     }

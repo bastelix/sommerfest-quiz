@@ -339,16 +339,40 @@ class AwardServiceTest extends TestCase
     public function testCatalogRankingCountsSolvedQuestionsFromQuestionResults(): void {
         $svc = new AwardService();
         $results = [
-            ['name' => 'Binary', 'catalog' => 'main', 'time' => 20, 'duration_sec' => 180, 'correct' => 0, 'total' => 3, 'attempt' => 1],
-            ['name' => 'Perfect', 'catalog' => 'main', 'time' => 25, 'duration_sec' => 150, 'correct' => 1, 'total' => 3, 'attempt' => 1],
+            [
+                'name' => 'Binary', 'catalog' => 'main', 'time' => 20,
+                'duration_sec' => 180, 'correct' => 0, 'total' => 3, 'attempt' => 1,
+            ],
+            [
+                'name' => 'Perfect', 'catalog' => 'main', 'time' => 25,
+                'duration_sec' => 150, 'correct' => 1, 'total' => 3, 'attempt' => 1,
+            ],
         ];
         $questionResults = [
-            ['name' => 'Binary', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 10, 'efficiency' => 0.9, 'correct' => 1],
-            ['name' => 'Binary', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 10, 'efficiency' => 0.9, 'correct' => 1],
-            ['name' => 'Binary', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 0, 'efficiency' => 0.0, 'correct' => 0],
-            ['name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1],
-            ['name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1],
-            ['name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1],
+            [
+                'name' => 'Binary', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 10, 'efficiency' => 0.9, 'correct' => 1,
+            ],
+            [
+                'name' => 'Binary', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 10, 'efficiency' => 0.9, 'correct' => 1,
+            ],
+            [
+                'name' => 'Binary', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 0, 'efficiency' => 0.0, 'correct' => 0,
+            ],
+            [
+                'name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1,
+            ],
+            [
+                'name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1,
+            ],
+            [
+                'name' => 'Perfect', 'catalog' => 'main', 'attempt' => 1,
+                'final_points' => 10, 'efficiency' => 1.0, 'correct' => 1,
+            ],
         ];
 
         $rankings = $svc->computeRankings($results, null, $questionResults);

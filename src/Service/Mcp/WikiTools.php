@@ -174,7 +174,8 @@ final class WikiTools
             [
                 'name' => 'update_wiki_article',
                 'method' => 'updateWikiArticle',
-                'description' => 'Update an existing wiki article. Only provided fields are updated. Content is provided as markdown.',
+                'description' => 'Update an existing wiki article. Only provided fields '
+                    . 'are updated. Content is provided as markdown.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -185,8 +186,15 @@ final class WikiTools
                         'title' => ['type' => 'string', 'description' => 'Article title'],
                         'markdown' => ['type' => 'string', 'description' => 'Article content in markdown format'],
                         'excerpt' => ['type' => 'string', 'description' => 'Short excerpt (max 300 characters)'],
-                        'status' => ['type' => 'string', 'description' => 'Article status', 'enum' => ['draft', 'published', 'archived']],
-                        'isStartDocument' => ['type' => 'boolean', 'description' => 'Whether this is the start document'],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'Article status',
+                            'enum' => ['draft', 'published', 'archived'],
+                        ],
+                        'isStartDocument' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether this is the start document',
+                        ],
                     ],
                     'required' => ['id'],
                 ],
