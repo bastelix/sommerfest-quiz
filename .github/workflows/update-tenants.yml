@@ -1,13 +1,11 @@
 name: Update tenants
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
   update:
+    if: false # disabled – not needed at the moment
     runs-on: ubuntu-latest
     steps:
       - name: Build image and update tenants
