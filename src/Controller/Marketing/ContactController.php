@@ -154,7 +154,9 @@ class ContactController
             $serverParams = $request->getServerParams();
             $metadata = [
                 'ip' => isset($serverParams['REMOTE_ADDR']) ? (string) $serverParams['REMOTE_ADDR'] : null,
-                'user_agent' => isset($serverParams['HTTP_USER_AGENT']) ? (string) $serverParams['HTTP_USER_AGENT'] : null,
+                'user_agent' => isset($serverParams['HTTP_USER_AGENT'])
+                    ? (string) $serverParams['HTTP_USER_AGENT']
+                    : null,
                 'referer' => $request->getHeaderLine('Referer') ?: null,
                 'landing' => $host,
             ];

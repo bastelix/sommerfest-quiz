@@ -108,7 +108,8 @@ class DomainMiddleware implements MiddlewareInterface
             && $effectiveMainDomain === ''
             && !$allowLocalHost
         ) {
-            $message = 'Main domain is not configured. Please set MAIN_DOMAIN (preferred) or DOMAIN to the canonical host.';
+            $message = 'Main domain is not configured. '
+                . 'Please set MAIN_DOMAIN (preferred) or DOMAIN to the canonical host.';
             error_log(sprintf(
                 'MAIN_DOMAIN misconfiguration: "%s" (request host: "%s")',
                 $mainDomain,
@@ -257,7 +258,10 @@ class DomainMiddleware implements MiddlewareInterface
 
         $status = $isRedirectCandidate ? 302 : 404;
         $response = new SlimResponse($status);
-        $message = sprintf('Requested domain "%s" is not registered.', $requestedHost !== '' ? $requestedHost : '(unknown)');
+        $message = sprintf(
+            'Requested domain "%s" is not registered.',
+            $requestedHost !== '' ? $requestedHost : '(unknown)'
+        );
 
         if ($isRedirectCandidate) {
             $target = $request->getUri()->withHost($mainDomain)->withPort(null);

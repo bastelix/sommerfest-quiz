@@ -76,7 +76,10 @@ final class CmsPageWikiController
             ],
             'theme' => $theme,
             'themeDefaults' => $themeDefaults,
-            'articles' => array_map(fn (CmsPageWikiArticle $article): array => $this->serializeArticle($article, false), $articles),
+            'articles' => array_map(
+                fn (CmsPageWikiArticle $article): array => $this->serializeArticle($article, false),
+                $articles
+            ),
         ];
 
         $response->getBody()->write(json_encode($payload));
@@ -487,7 +490,9 @@ final class CmsPageWikiController
         if ($locale === '') {
             $locale = 'de';
         }
-        $status = isset($body['status']) && is_string($body['status']) ? trim($body['status']) : CmsPageWikiArticle::STATUS_DRAFT;
+        $status = isset($body['status']) && is_string($body['status'])
+            ? trim($body['status'])
+            : CmsPageWikiArticle::STATUS_DRAFT;
         if (
             !in_array($status, [
             CmsPageWikiArticle::STATUS_DRAFT,

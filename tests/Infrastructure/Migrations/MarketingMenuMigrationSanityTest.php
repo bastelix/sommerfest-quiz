@@ -31,10 +31,14 @@ final class MarketingMenuMigrationSanityTest extends TestCase
 
         $this->assertCount(count($legacyItems), $newItems);
 
-        $legacyTree = $this->buildTreeSignatures($legacyItems, static fn (array $row): string => $row['page_id'] . '|' . $row['locale']);
+        $legacyTree = $this->buildTreeSignatures(
+            $legacyItems,
+            static fn (array $row): string => $row['page_id'] . '|' . $row['locale']
+        );
         $menuMap = [];
         foreach ($menuAssignments as $assignment) {
-            $menuMap[(int) $assignment['menu_id']] = (string) $assignment['page_id'] . '|' . (string) $assignment['locale'];
+            $menuMap[(int) $assignment['menu_id']] =
+                (string) $assignment['page_id'] . '|' . (string) $assignment['locale'];
         }
         $newTree = $this->buildTreeSignatures($newItems, static function (array $row) use ($menuMap): string {
             return $menuMap[(int) $row['menu_id']] ?? 'unknown';
@@ -161,7 +165,13 @@ final class MarketingMenuMigrationSanityTest extends TestCase
                 'INSERT INTO marketing_menu_assignments (menu_id, page_id, namespace, slot, locale, is_active) '
                 . 'VALUES (?, ?, ?, ?, ?, 1)'
             );
-            $assignmentStmt->execute([$menuId, (int) $map['page_id'], (string) $map['namespace'], 'main', (string) $map['locale']]);
+            $assignmentStmt->execute([
+                $menuId,
+                (int) $map['page_id'],
+                (string) $map['namespace'],
+                'main',
+                (string) $map['locale'],
+            ]);
         }
 
         $offset = (int) ($pdo->query('SELECT COALESCE(MAX(id), 0) FROM marketing_menu_items')->fetchColumn() ?: 0);

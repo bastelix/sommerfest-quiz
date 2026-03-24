@@ -45,7 +45,11 @@ final class TicketService
             $where[] = 'assignee = ?';
             $params[] = $filters['assignee'];
         }
-        if (isset($filters['referenceType']) && is_string($filters['referenceType']) && $filters['referenceType'] !== '') {
+        if (
+            isset($filters['referenceType'])
+            && is_string($filters['referenceType'])
+            && $filters['referenceType'] !== ''
+        ) {
             $where[] = 'reference_type = ?';
             $params[] = $filters['referenceType'];
         }
@@ -121,7 +125,8 @@ final class TicketService
         $labelsJson = json_encode(array_values($labels), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         $stmt = $this->pdo->prepare(
-            'INSERT INTO tickets (namespace, title, description, status, priority, type, reference_type, reference_id, assignee, labels, due_date, created_by) '
+            'INSERT INTO tickets (namespace, title, description, status, priority, '
+            . 'type, reference_type, reference_id, assignee, labels, due_date, created_by) '
             . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([

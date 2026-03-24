@@ -179,7 +179,10 @@ class ProjectController
             : $currentSettings['header_topbar_style'];
 
         $headerLogoFile = $uploadedFiles['headerLogoFile'] ?? null;
-        if ($headerLogoFile instanceof \Psr\Http\Message\UploadedFileInterface && $headerLogoFile->getError() !== UPLOAD_ERR_NO_FILE) {
+        if (
+            $headerLogoFile instanceof \Psr\Http\Message\UploadedFileInterface
+            && $headerLogoFile->getError() !== UPLOAD_ERR_NO_FILE
+        ) {
             try {
                 $this->imageUploadService->validate(
                     $headerLogoFile,

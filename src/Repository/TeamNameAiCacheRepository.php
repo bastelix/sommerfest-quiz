@@ -29,7 +29,10 @@ final class TeamNameAiCacheRepository
     }
 
     /**
-     * @return array<string, array{names: list<string>, metadata: array{domains: list<string>, tones: list<string>, locale: string}}>
+     * @return array<string, array{
+     *     names: list<string>,
+     *     metadata: array{domains: list<string>, tones: list<string>, locale: string},
+     * }>
      */
     public function loadForEvent(string $eventId): array
     {
@@ -76,7 +79,13 @@ final class TeamNameAiCacheRepository
      * @param list<string> $names
      * @param array{domains?: array<int, string>, tones?: array<int, string>, locale?: string} $filters
      */
-    public function persistNames(string $eventId, string $cacheKey, array $names, array $filters = [], ?string $namespace = null): void
+    public function persistNames(
+        string $eventId,
+        string $cacheKey,
+        array $names,
+        array $filters = [],
+        ?string $namespace = null
+    ): void
     {
         $unique = [];
         foreach ($names as $name) {

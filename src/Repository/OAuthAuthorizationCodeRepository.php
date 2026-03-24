@@ -28,7 +28,8 @@ final class OAuthAuthorizationCodeRepository
         ?string $codeChallenge
     ): void {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO oauth_authorization_codes (code, client_id, namespace, scopes, redirect_uri, code_challenge, expires_at) '
+            'INSERT INTO oauth_authorization_codes '
+            . '(code, client_id, namespace, scopes, redirect_uri, code_challenge, expires_at) '
             . "VALUES (?, ?, ?, ?::jsonb, ?, ?, CURRENT_TIMESTAMP + INTERVAL '10 minutes')"
         );
         $stmt->execute([
@@ -44,7 +45,13 @@ final class OAuthAuthorizationCodeRepository
     /**
      * Consume an authorization code (single-use). Returns null if invalid, expired, or already used.
      *
-     * @return array{client_id: string, namespace: string, scopes: list<string>, redirect_uri: string, code_challenge: ?string}|null
+     * @return array{
+     *     client_id: string,
+     *     namespace: string,
+     *     scopes: list<string>,
+     *     redirect_uri: string,
+     *     code_challenge: ?string,
+     * }|null
      */
     public function consume(string $code): ?array
     {

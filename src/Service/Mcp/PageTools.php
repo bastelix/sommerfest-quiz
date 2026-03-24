@@ -15,7 +15,10 @@ final class PageTools
 {
     private PageService $pages;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(private readonly PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -37,7 +40,8 @@ final class PageTools
             [
                 'name' => 'list_pages',
                 'method' => 'listPages',
-                'description' => 'List all pages for a namespace. Returns page id, slug, title, status, type, and language.',
+                'description' => 'List all pages for a namespace. Returns page id, slug, '
+                    . 'title, status, type, and language.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -59,7 +63,10 @@ final class PageTools
             [
                 'name' => 'get_block_contract',
                 'method' => 'getBlockContract',
-                'description' => 'Get the block contract JSON schema. Returns all supported block types, their variants, data structures, tokens, and section appearance options. Use this before creating or updating pages to understand the valid block format.',
+                'description' => 'Get the block contract JSON schema. Returns all supported '
+                    . 'block types, their variants, data structures, tokens, and section '
+                    . 'appearance options. Use this before creating or updating pages to '
+                    . 'understand the valid block format.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => new \stdClass(),
@@ -68,20 +75,55 @@ final class PageTools
             [
                 'name' => 'upsert_page',
                 'method' => 'upsertPage',
-                'description' => 'Create or update a page. Provide slug and blocks (array of block objects). Optionally set title, status (draft/published), meta, seo (separate SEO config with metaTitle, metaDescription, ogTitle, etc.), language, and base_slug. IMPORTANT: Call get_block_contract first to learn the required block structure. On validation failure, detailed field-level errors are returned.',
+                'description' => 'Create or update a page. Provide slug and blocks '
+                    . '(array of block objects). Optionally set title, status '
+                    . '(draft/published), meta, seo (separate SEO config with '
+                    . 'metaTitle, metaDescription, ogTitle, etc.), language, and '
+                    . 'base_slug. IMPORTANT: Call get_block_contract first to learn '
+                    . 'the required block structure. On validation failure, detailed '
+                    . 'field-level errors are returned.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'slug' => ['type' => 'string', 'description' => 'Page slug (URL path segment)'],
                         'blocks' => ['type' => 'array', 'description' => 'Array of block objects for the page content'],
-                        'meta' => ['type' => 'object', 'description' => 'Optional page metadata stored inline in the page content JSON'],
+                        'meta' => [
+                            'type' => 'object',
+                            'description' => 'Optional page metadata stored inline in the page content JSON',
+                        ],
                         'title' => ['type' => 'string', 'description' => 'Optional page title'],
-                        'status' => ['type' => 'string', 'enum' => ['draft', 'published'], 'description' => 'Optional page status'],
-                        'seo' => ['type' => 'object', 'description' => 'SEO configuration saved to the dedicated SEO table. Supported fields: metaTitle, metaDescription, canonicalUrl, robotsMeta, ogTitle, ogDescription, ogImage, schemaJson, hreflang, domain, faviconPath'],
-                        'language' => ['type' => 'string', 'enum' => ['de', 'en'], 'description' => 'Page language for variant resolution (de or en)'],
-                        'base_slug' => ['type' => 'string', 'description' => 'Base slug of the primary (German) page this is a language variant of'],
-                        'type' => ['type' => 'string', 'enum' => ['wiki', 'mcp', ''], 'description' => 'Page type. Set to "wiki" to enable direct wiki mode (articles served at /pages/{slug}/{articleSlug} without /wiki prefix). Use empty string to clear.'],
+                        'status' => [
+                            'type' => 'string',
+                            'enum' => ['draft', 'published'],
+                            'description' => 'Optional page status',
+                        ],
+                        'seo' => [
+                            'type' => 'object',
+                            'description' => 'SEO configuration saved to the dedicated '
+                                . 'SEO table. Supported fields: metaTitle, '
+                                . 'metaDescription, canonicalUrl, robotsMeta, ogTitle, '
+                                . 'ogDescription, ogImage, schemaJson, hreflang, '
+                                . 'domain, faviconPath',
+                        ],
+                        'language' => [
+                            'type' => 'string',
+                            'enum' => ['de', 'en'],
+                            'description' => 'Page language for variant resolution (de or en)',
+                        ],
+                        'base_slug' => [
+                            'type' => 'string',
+                            'description' => 'Base slug of the primary (German) page '
+                                . 'this is a language variant of',
+                        ],
+                        'type' => [
+                            'type' => 'string',
+                            'enum' => ['wiki', 'mcp', ''],
+                            'description' => 'Page type. Set to "wiki" to enable direct '
+                                . 'wiki mode (articles served at '
+                                . '/pages/{slug}/{articleSlug} without /wiki prefix). '
+                                . 'Use empty string to clear.',
+                        ],
                     ],
                     'required' => ['slug', 'blocks'],
                 ],
@@ -195,7 +237,9 @@ final class PageTools
 
         // Resolve shared definitions (Tokens, SectionAppearance, BlockMeta)
         $tokens = isset($definitions['Tokens']) ? $this->resolveSchemaRefs($definitions['Tokens'], $definitions) : null;
-        $blockMeta = isset($definitions['BlockMeta']) ? $this->resolveSchemaRefs($definitions['BlockMeta'], $definitions) : null;
+        $blockMeta = isset($definitions['BlockMeta'])
+            ? $this->resolveSchemaRefs($definitions['BlockMeta'], $definitions)
+            : null;
 
         $sectionAppearance = $schema['properties']['sectionAppearance']['enum'] ?? null;
 

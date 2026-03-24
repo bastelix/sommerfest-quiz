@@ -276,7 +276,10 @@ class AdminControllerTest extends TestCase
         $this->assertStringContainsString('"rag_chat_service_driver":"openai"', $body);
         $this->assertStringContainsString('"rag_chat_service_model":"gpt-4o-mini"', $body);
         $this->assertStringContainsString('"rag_chat_service_temperature":"0.2"', $body);
-        $this->assertMatchesRegularExpression('~id="ragChatUrl"[\s\S]*value="https://chat\\.example\\.com/v1/chat"~', $body);
+        $this->assertMatchesRegularExpression(
+            '~id="ragChatUrl"[\s\S]*value="https://chat\\.example\\.com/v1/chat"~',
+            $body
+        );
         $this->assertMatchesRegularExpression('~<option\s+value="openai"[\s\S]*selected~', $body);
         $this->assertMatchesRegularExpression('~id="ragChatForceOpenAi"[\s\S]*checked~', $body);
         $this->assertMatchesRegularExpression('~id="ragChatModel"[\s\S]*value="gpt-4o-mini"~', $body);
@@ -506,7 +509,10 @@ class AdminControllerTest extends TestCase
         putenv('STRIPE_PRICE_FREE=price_free');
         $app = $this->getAppInstance();
         $pdo = new PDO($_ENV['POSTGRES_DSN']);
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, stripe_customer_id, plan) VALUES('t1','main','cus_123','starter')");
+        $pdo->exec(
+            "INSERT INTO tenants(uid, subdomain, stripe_customer_id, plan)"
+            . " VALUES('t1','main','cus_123','starter')"
+        );
 
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];

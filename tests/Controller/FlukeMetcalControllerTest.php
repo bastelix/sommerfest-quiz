@@ -14,7 +14,10 @@ class FlukeMetcalControllerTest extends TestCase
         parent::setUp();
         $pdo = $this->getDatabase();
         try {
-            $pdo->exec("INSERT INTO pages(slug, title, content) VALUES ('fluke-metcal', 'FLUKE MET/CAL', '<p>Hybridbetrieb</p>')");
+            $pdo->exec(
+                "INSERT INTO pages(slug, title, content)"
+                . " VALUES ('fluke-metcal', 'FLUKE MET/CAL', '<p>Hybridbetrieb</p>')"
+            );
         } catch (\PDOException $exception) {
             // Ignore duplicates when tests share a database state.
         }

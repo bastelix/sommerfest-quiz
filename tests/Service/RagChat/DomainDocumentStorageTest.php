@@ -74,7 +74,8 @@ final class DomainDocumentStorageTest extends TestCase
         $storage = new DomainDocumentStorage($this->basePath);
 
         $indexPath = $storage->getIndexPath('https://www.CalServer.de/path');
-        $expectedIndexPath = $this->basePath . DIRECTORY_SEPARATOR . 'calserver.de' . DIRECTORY_SEPARATOR . 'index.json';
+        $expectedIndexPath = $this->basePath . DIRECTORY_SEPARATOR
+            . 'calserver.de' . DIRECTORY_SEPARATOR . 'index.json';
 
         self::assertSame($expectedIndexPath, $indexPath);
         self::assertDirectoryExists(dirname($indexPath));
@@ -172,7 +173,9 @@ final class DomainDocumentStorageTest extends TestCase
 
         self::assertCount(1, $documents);
         self::assertDirectoryExists($domainsDir . DIRECTORY_SEPARATOR . 'legacy.example');
-        self::assertFileExists($domainsDir . DIRECTORY_SEPARATOR . 'legacy.example' . DIRECTORY_SEPARATOR . 'documents.json');
+        self::assertFileExists(
+            $domainsDir . DIRECTORY_SEPARATOR . 'legacy.example' . DIRECTORY_SEPARATOR . 'documents.json'
+        );
     }
 
     public function testSlugLookupMigratesLegacyMarketingDirectory(): void

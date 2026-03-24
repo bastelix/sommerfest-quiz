@@ -34,7 +34,10 @@ final class PageAiErrorMapper
         if ($message === PageAiGenerator::ERROR_RESPONDER_MISSING) {
             return [
                 'error_code' => 'ai_unavailable',
-                'message' => 'The AI responder is not configured. Check RAG_CHAT_SERVICE_URL (and RAG_CHAT_SERVICE_TOKEN, RAG_CHAT_SERVICE_MODEL, RAG_CHAT_SERVICE_TIMEOUT) in your environment configuration.',
+                'message' => 'The AI responder is not configured.'
+                    . ' Check RAG_CHAT_SERVICE_URL (and RAG_CHAT_SERVICE_TOKEN,'
+                    . ' RAG_CHAT_SERVICE_MODEL, RAG_CHAT_SERVICE_TIMEOUT)'
+                    . ' in your environment configuration.',
             ];
         }
 

@@ -245,7 +245,11 @@ final class DomainIndexManager
 
         $content = $this->renderWikiMarkdown($domain, $article);
         if (file_put_contents($path, $content) === false) {
-            throw new RuntimeException(sprintf('Failed to export wiki article %d for domain %s.', $article->getId(), $domain));
+            throw new RuntimeException(sprintf(
+                'Failed to export wiki article %d for domain %s.',
+                $article->getId(),
+                $domain
+            ));
         }
 
         return $path;

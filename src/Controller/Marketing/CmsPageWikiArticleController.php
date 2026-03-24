@@ -133,7 +133,12 @@ final class CmsPageWikiArticleController
         $themeOverrides = $this->themeConfigService->getThemeForSlug($namespace, $settingsPage->getSlug());
         $theme = MarketingWikiThemeResolver::resolve($themeOverrides);
 
-        $layoutChromeData = $this->layoutData->loadLayoutData($pageNamespace, $settingsPage->getId(), $locale, $basePath);
+        $layoutChromeData = $this->layoutData->loadLayoutData(
+            $pageNamespace,
+            $settingsPage->getId(),
+            $locale,
+            $basePath
+        );
 
         $pageUrl = $directMode
             ? $basePath . '/cms/pages/' . $page->getSlug()

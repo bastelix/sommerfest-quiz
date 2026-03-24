@@ -141,7 +141,9 @@ class AdminSubscriptionCheckoutController
 
             $uri = $request->getUri();
             $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
-            $successUrl = $baseUrl . '/admin/subscription?session_id={CHECKOUT_SESSION_ID}&namespace=' . urlencode($namespaceSlug);
+            $successUrl = $baseUrl
+                . '/admin/subscription?session_id={CHECKOUT_SESSION_ID}&namespace='
+                . urlencode($namespaceSlug);
             $cancelUrl = $baseUrl . '/admin/subscription?namespace=' . urlencode($namespaceSlug);
 
             // Use namespace slug as client reference ID

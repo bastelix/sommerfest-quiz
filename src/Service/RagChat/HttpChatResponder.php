@@ -88,7 +88,11 @@ class HttpChatResponder implements ChatResponderInterface
             } catch (GuzzleException $exception) {
                 $attempt++;
                 if ($attempt >= self::MAX_RETRIES || !$this->isTimeoutException($exception)) {
-                    throw new RuntimeException('Failed to contact chat service: ' . $exception->getMessage(), 0, $exception);
+                    throw new RuntimeException(
+                        'Failed to contact chat service: ' . $exception->getMessage(),
+                        0,
+                        $exception
+                    );
                 }
 
                 usleep((int) (self::RETRY_BACKOFF_SECONDS * 1_000_000 * $attempt));
@@ -115,7 +119,8 @@ class HttpChatResponder implements ChatResponderInterface
             if ($this->isResponseTruncated($payload)) {
                 throw new RuntimeException(
                     'Chat service response was truncated (token limit reached). '
-                    . 'Increase RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS or use a model that requires fewer reasoning tokens.'
+                    . 'Increase RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS or use a model '
+                    . 'that requires fewer reasoning tokens.'
                 );
             }
             throw new RuntimeException('Chat service did not provide an answer.');
@@ -207,13 +212,18 @@ class HttpChatResponder implements ChatResponderInterface
      */
     private function extractAnswer(array $payload): ?string
     {
-        // The default RAG chat relay returns {"answer": "..."} while OpenAI-compatible gateways use choices/message.content.
+        // The default RAG chat relay returns {"answer": "..."} while
+        // OpenAI-compatible gateways use choices/message.content.
         if (array_key_exists('answer', $payload) && is_string($payload['answer']) && trim($payload['answer']) !== '') {
             return $payload['answer'];
         }
 
         foreach (['response', 'result'] as $customKey) {
-            if (array_key_exists($customKey, $payload) && is_string($payload[$customKey]) && trim($payload[$customKey]) !== '') {
+            if (
+                array_key_exists($customKey, $payload)
+                && is_string($payload[$customKey])
+                && trim($payload[$customKey]) !== ''
+            ) {
                 return $payload[$customKey];
             }
         }
@@ -252,7 +262,11 @@ class HttpChatResponder implements ChatResponderInterface
             }
         }
 
-        if (array_key_exists('output_text', $payload) && is_string($payload['output_text']) && trim($payload['output_text']) !== '') {
+        if (
+            array_key_exists('output_text', $payload)
+            && is_string($payload['output_text'])
+            && trim($payload['output_text']) !== ''
+        ) {
             return $payload['output_text'];
         }
 
@@ -361,7 +375,11 @@ class HttpChatResponder implements ChatResponderInterface
     private function isTimeoutException(Throwable $exception): bool
     {
         $message = strtolower($exception->getMessage());
-        if (str_contains($message, 'timeout') || str_contains($message, 'timed out') || str_contains($message, 'curl error 28')) {
+        if (
+            str_contains($message, 'timeout')
+            || str_contains($message, 'timed out')
+            || str_contains($message, 'curl error 28')
+        ) {
             return true;
         }
 

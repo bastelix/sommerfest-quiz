@@ -105,7 +105,9 @@ class MarketingNewsletterController
             $provider = $this->providers->findActive($namespace);
             if ($provider !== null) {
                 $settings = $provider['settings'] ?? [];
-                $defaults['template_id'] = isset($settings['default_template_id']) ? (string) $settings['default_template_id'] : null;
+                $defaults['template_id'] = isset($settings['default_template_id'])
+                    ? (string) $settings['default_template_id']
+                    : null;
                 $defaults['audience_id'] = $provider['list_id'] ?? null;
             }
         } catch (\Throwable $e) {

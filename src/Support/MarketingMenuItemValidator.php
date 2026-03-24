@@ -112,7 +112,9 @@ final class MarketingMenuItemValidator
             'parentId' => $parentId,
             'layout' => $layout,
             'position' => $position,
-            'isExternal' => $this->normalizeBoolean($payload['isExternal'] ?? $payload['is_external'] ?? $payload['external'] ?? false),
+            'isExternal' => $this->normalizeBoolean(
+                $payload['isExternal'] ?? $payload['is_external'] ?? $payload['external'] ?? false
+            ),
             'locale' => $locale !== '' ? $locale : null,
             'isActive' => $this->normalizeBoolean($payload['isActive'] ?? $payload['is_active'] ?? true),
             'isStartpage' => $this->normalizeBoolean($payload['isStartpage'] ?? $payload['is_startpage'] ?? false),

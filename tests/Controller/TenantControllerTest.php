@@ -62,7 +62,10 @@ class TenantControllerTest extends TestCase
 
     public function testCreateStoresEmail(): void {
         $pdo = new PDO('sqlite::memory:');
-        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, imprint_email TEXT, onboarding_state TEXT DEFAULT "pending")');
+        $pdo->exec(
+            'CREATE TABLE tenants(uid TEXT, subdomain TEXT, imprint_email TEXT,'
+            . ' onboarding_state TEXT DEFAULT "pending")'
+        );
         $service = new class ($pdo) extends TenantService {
             private PDO $pdo;
             public function __construct(PDO $pdo) {
@@ -81,7 +84,10 @@ class TenantControllerTest extends TestCase
                 ?string $imprintCity = null,
                 ?array $customLimits = null
             ): void {
-                $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain, imprint_email, onboarding_state) VALUES(?, ?, ?, ?)');
+                $stmt = $this->pdo->prepare(
+                    'INSERT INTO tenants(uid, subdomain, imprint_email, onboarding_state)'
+                    . ' VALUES(?, ?, ?, ?)'
+                );
                 $stmt->execute([$uid, $schema, $email, 'pending']);
             }
 

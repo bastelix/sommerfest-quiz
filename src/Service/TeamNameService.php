@@ -405,7 +405,9 @@ class TeamNameService
 
         try {
             $stmt = $this->pdo->prepare(
-                'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token, namespace) VALUES (?,?,?,?,?)'
+                'INSERT INTO team_names '
+                . '(event_id, name, lexicon_version, reservation_token, namespace) '
+                . 'VALUES (?,?,?,?,?)'
             );
 
             foreach ($candidates as $name) {
@@ -417,7 +419,13 @@ class TeamNameService
 
                 try {
                     $stmt->execute([$eventId, $name, $this->lexicon->getLexiconVersion(), $token, $namespace]);
-                    $reservations[] = $this->formatReservationResponse($eventId, $name, $token, false, $totalCombinations);
+                    $reservations[] = $this->formatReservationResponse(
+                        $eventId,
+                        $name,
+                        $token,
+                        false,
+                        $totalCombinations
+                    );
                 } catch (PDOException $exception) {
                     if ($this->isUniqueViolation($exception)) {
                         continue;
@@ -486,7 +494,15 @@ class TeamNameService
         $available = $this->aiNameCache[$cacheKey] ?? [];
         if ($available === []) {
             if ($this->teamNameWarmupDispatcher !== null) {
-                if ($this->dispatchAiWarmup($eventId, $promptDomains, $promptTones, $locale, $resolvedLocale, $warmupTarget)) {
+                $dispatched = $this->dispatchAiWarmup(
+                    $eventId,
+                    $promptDomains,
+                    $promptTones,
+                    $locale,
+                    $resolvedLocale,
+                    $warmupTarget
+                );
+                if ($dispatched) {
                     $scheduledWarmup = true;
                 }
 
@@ -500,7 +516,15 @@ class TeamNameService
             }
         } elseif ($this->teamNameWarmupDispatcher !== null) {
             if (count($available) < $minimumAvailable) {
-                if ($this->dispatchAiWarmup($eventId, $promptDomains, $promptTones, $locale, $resolvedLocale, $warmupTarget)) {
+                $dispatched = $this->dispatchAiWarmup(
+                    $eventId,
+                    $promptDomains,
+                    $promptTones,
+                    $locale,
+                    $resolvedLocale,
+                    $warmupTarget
+                );
+                if ($dispatched) {
                     $scheduledWarmup = true;
                 }
             }
@@ -520,7 +544,15 @@ class TeamNameService
 
         if ($buffer > 0) {
             if ($this->teamNameWarmupDispatcher !== null) {
-                if (!$scheduledWarmup && $this->dispatchAiWarmup($eventId, $promptDomains, $promptTones, $locale, $resolvedLocale, $warmupTarget)) {
+                $dispatched = $this->dispatchAiWarmup(
+                    $eventId,
+                    $promptDomains,
+                    $promptTones,
+                    $locale,
+                    $resolvedLocale,
+                    $warmupTarget
+                );
+                if (!$scheduledWarmup && $dispatched) {
                     $scheduledWarmup = true;
                 }
             } else {
@@ -1138,7 +1170,12 @@ class TeamNameService
         $normalizedEventId = $this->normalize($eventId);
         $normalizedLocale = $this->normalize($locale);
 
-        return sha1($normalizedEventId . '#' . implode('|', $domains) . '#' . implode('|', $tones) . '#' . $normalizedLocale);
+        return sha1(
+            $normalizedEventId . '#'
+            . implode('|', $domains) . '#'
+            . implode('|', $tones) . '#'
+            . $normalizedLocale
+        );
     }
 
     /**

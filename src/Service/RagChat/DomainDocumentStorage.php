@@ -419,7 +419,10 @@ final class DomainDocumentStorage
     }
 
     /**
-     * @param array<string,array{name:string,filename:string,mime_type:string,size:int,uploaded_at:string,updated_at:string}> $metadata
+     * @param array<string,array{
+     *     name:string,filename:string,mime_type:string,
+     *     size:int,uploaded_at:string,updated_at:string
+     * }> $metadata
      */
     private function writeMetadata(string $normalizedDomain, array $metadata): void
     {

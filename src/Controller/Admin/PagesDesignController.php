@@ -148,7 +148,9 @@ class PagesDesignController
             if ($preset === null) {
                 $_SESSION['page_design_flash'] = [
                     'type' => 'danger',
-                    'message' => $translator instanceof \App\Service\TranslationService ? $translator->translate('error_design_no_preset_selected') : 'No design preset selected.',
+                    'message' => $translator instanceof \App\Service\TranslationService
+                        ? $translator->translate('error_design_no_preset_selected')
+                        : 'No design preset selected.',
                 ];
 
                 return $response
@@ -158,15 +160,19 @@ class PagesDesignController
 
             try {
                 $designService->importDesign($namespace, $preset);
+                $escapedPreset = htmlspecialchars($preset, ENT_QUOTES, 'UTF-8');
                 $message = $translator instanceof \App\Service\TranslationService
-                    ? sprintf($translator->translate('notify_design_preset_imported'), htmlspecialchars($preset, ENT_QUOTES, 'UTF-8'))
-                    : 'Design preset "' . htmlspecialchars($preset, ENT_QUOTES, 'UTF-8') . '" imported successfully.';
+                    ? sprintf($translator->translate('notify_design_preset_imported'), $escapedPreset)
+                    : 'Design preset "' . $escapedPreset . '" imported successfully.';
             } catch (\InvalidArgumentException $e) {
                 $_SESSION['page_design_flash'] = [
                     'type' => 'danger',
                     'message' => $translator instanceof \App\Service\TranslationService
-                        ? sprintf($translator->translate('error_design_preset_not_found'), htmlspecialchars($preset, ENT_QUOTES, 'UTF-8'))
-                        : 'Design preset "' . htmlspecialchars($preset, ENT_QUOTES, 'UTF-8') . '" not found.',
+                        ? sprintf(
+                            $translator->translate('error_design_preset_not_found'),
+                            $escapedPreset
+                        )
+                        : 'Design preset "' . $escapedPreset . '" not found.',
                 ];
 
                 return $response
@@ -175,19 +181,28 @@ class PagesDesignController
             }
         } elseif ($action === 'reset_all') {
             $designService->resetToDefaults($namespace);
-            $message = $translator instanceof \App\Service\TranslationService ? $translator->translate('notify_design_reset') : 'Design reset to defaults.';
+            $message = $translator instanceof \App\Service\TranslationService
+                ? $translator->translate('notify_design_reset')
+                : 'Design reset to defaults.';
         } elseif ($action === 'save_effects') {
             $effects = $this->extractEffects($parsedBody);
             $effectsService->persist($namespace, $effects);
-            $message = $translator instanceof \App\Service\TranslationService ? $translator->translate('notify_design_behavior_saved') : 'Behavior settings saved.';
+            $message = $translator instanceof \App\Service\TranslationService
+                ? $translator->translate('notify_design_behavior_saved')
+                : 'Behavior settings saved.';
         } elseif ($action === 'save_css') {
             $customCss = (string) ($parsedBody['custom_css'] ?? '');
             $designService->persistCustomCss($namespace, $customCss);
-            $message = $translator instanceof \App\Service\TranslationService ? $translator->translate('notify_design_css_saved') : 'Custom CSS saved.';
+            $message = $translator instanceof \App\Service\TranslationService
+                ? $translator->translate('notify_design_css_saved')
+                : 'Custom CSS saved.';
         } else {
             $incoming = $this->extractTokens($parsedBody);
             [$hasAppearanceVariables, $appearanceVariables] = $this->extractAppearanceVariables($parsedBody);
-            /** @var array{marketingScheme?: ?string, textOnSurface?: ?string, textOnBackground?: ?string, textOnPrimary?: ?string} $appearanceVariables */
+            /**
+             * @var array{marketingScheme?: ?string, textOnSurface?: ?string,
+             *     textOnBackground?: ?string, textOnPrimary?: ?string} $appearanceVariables
+             */
             $tokensToPersist = $currentTokens;
             foreach ($incoming as $group => $values) {
                 if (!array_key_exists($group, $tokensToPersist)) {
@@ -270,7 +285,14 @@ class PagesDesignController
                         unset($colors['marketing_scheme']);
                     }
                 }
-                foreach (['textOnSurface', 'textOnBackground', 'textOnPrimary', 'textOnSecondary', 'textOnAccent'] as $key) {
+                $appearanceKeys = [
+                    'textOnSurface',
+                    'textOnBackground',
+                    'textOnPrimary',
+                    'textOnSecondary',
+                    'textOnAccent',
+                ];
+        foreach ($appearanceKeys as $key) {
                     if (!array_key_exists($key, $appearanceVariables)) {
                         continue;
                     }
@@ -475,7 +497,8 @@ class PagesDesignController
 
     /**
      * @param array<string, mixed> $parsedBody
-     * @return array{0: bool, 1: array{marketingScheme?: ?string, textOnSurface?: ?string, textOnBackground?: ?string, textOnPrimary?: ?string}}
+     * @return array{0: bool, 1: array{marketingScheme?: ?string,
+     *     textOnSurface?: ?string, textOnBackground?: ?string, textOnPrimary?: ?string}}
      */
     private function extractAppearanceVariables(array $parsedBody): array
     {
@@ -488,7 +511,14 @@ class PagesDesignController
             return [false, []];
         }
 
-        $allowedKeys = ['marketingScheme', 'textOnSurface', 'textOnBackground', 'textOnPrimary', 'textOnSecondary', 'textOnAccent'];
+        $allowedKeys = [
+            'marketingScheme',
+            'textOnSurface',
+            'textOnBackground',
+            'textOnPrimary',
+            'textOnSecondary',
+            'textOnAccent',
+        ];
         $result = [];
         foreach ($allowedKeys as $key) {
             if (!array_key_exists($key, $variables)) {

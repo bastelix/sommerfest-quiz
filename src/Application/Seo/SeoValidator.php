@@ -35,7 +35,8 @@ class SeoValidator
         if ($slug === '') {
             $errors['slug'] = self::FIELD_LABELS['slug'] . ': Pflichtfeld – bitte einen Slug eingeben.';
         } elseif (!preg_match('/^[a-z0-9\/_-]+$/', $slug)) {
-            $errors['slug'] = self::FIELD_LABELS['slug'] . ': Nur Kleinbuchstaben, Ziffern, Bindestriche, Unterstriche und Schrägstriche erlaubt.';
+            $errors['slug'] = self::FIELD_LABELS['slug']
+                . ': Nur Kleinbuchstaben, Ziffern, Bindestriche, Unterstriche und Schrägstriche erlaubt.';
         }
 
         $title = $data['metaTitle'] ?? null;
@@ -45,7 +46,8 @@ class SeoValidator
             && mb_strlen((string) $title) > self::TITLE_MAX_LENGTH
         ) {
             $len = mb_strlen((string) $title);
-            $errors['metaTitle'] = self::FIELD_LABELS['metaTitle'] . ': Text zu lang – ' . $len . '/' . self::TITLE_MAX_LENGTH . ' Zeichen.';
+            $errors['metaTitle'] = self::FIELD_LABELS['metaTitle']
+                . ': Text zu lang – ' . $len . '/' . self::TITLE_MAX_LENGTH . ' Zeichen.';
         }
 
         $description = $data['metaDescription'] ?? null;
@@ -55,7 +57,8 @@ class SeoValidator
             && mb_strlen((string) $description) > self::DESCRIPTION_MAX_LENGTH
         ) {
             $len = mb_strlen((string) $description);
-            $errors['metaDescription'] = self::FIELD_LABELS['metaDescription'] . ': Text zu lang – ' . $len . '/' . self::DESCRIPTION_MAX_LENGTH . ' Zeichen.';
+            $errors['metaDescription'] = self::FIELD_LABELS['metaDescription']
+                . ': Text zu lang – ' . $len . '/' . self::DESCRIPTION_MAX_LENGTH . ' Zeichen.';
         }
 
         $canonical = $data['canonicalUrl'] ?? null;

@@ -51,7 +51,10 @@ final class OAuthController
         'menu:write' => [
             'label' => 'Menus (write)',
             'description' => 'Create, update, and delete menus and menu items',
-            'tools' => ['create_menu', 'update_menu', 'delete_menu', 'create_menu_item', 'update_menu_item', 'delete_menu_item'],
+            'tools' => [
+                'create_menu', 'update_menu', 'delete_menu',
+                'create_menu_item', 'update_menu_item', 'delete_menu_item',
+            ],
         ],
         'news:read' => [
             'label' => 'News (read)',
@@ -71,7 +74,10 @@ final class OAuthController
         'footer:write' => [
             'label' => 'Footer (write)',
             'description' => 'Create, update, delete, and reorder footer blocks; update footer layout',
-            'tools' => ['create_footer_block', 'update_footer_block', 'delete_footer_block', 'reorder_footer_blocks', 'update_footer_layout'],
+            'tools' => [
+                'create_footer_block', 'update_footer_block', 'delete_footer_block',
+                'reorder_footer_blocks', 'update_footer_layout',
+            ],
         ],
         'quiz:read' => [
             'label' => 'Quiz (read)',
@@ -106,12 +112,18 @@ final class OAuthController
         'wiki:read' => [
             'label' => 'Wiki (read)',
             'description' => 'Read wiki settings, list and view wiki articles, and browse version history',
-            'tools' => ['get_wiki_settings', 'list_wiki_articles', 'get_wiki_article', 'get_wiki_article_versions'],
+            'tools' => [
+                'get_wiki_settings', 'list_wiki_articles',
+                'get_wiki_article', 'get_wiki_article_versions',
+            ],
         ],
         'wiki:write' => [
             'label' => 'Wiki (write)',
             'description' => 'Update wiki settings, create, update, delete, and reorder wiki articles',
-            'tools' => ['update_wiki_settings', 'create_wiki_article', 'update_wiki_article', 'delete_wiki_article', 'update_wiki_article_status', 'reorder_wiki_articles'],
+            'tools' => [
+                'update_wiki_settings', 'create_wiki_article', 'update_wiki_article',
+                'delete_wiki_article', 'update_wiki_article_status', 'reorder_wiki_articles',
+            ],
         ],
     ];
 
@@ -208,20 +220,30 @@ final class OAuthController
     {
         $params = $request->getQueryParams();
 
-        $clientId = isset($params['client_id']) && is_string($params['client_id']) ? trim($params['client_id']) : '';
-        $redirectUri = isset($params['redirect_uri']) && is_string($params['redirect_uri']) ? trim($params['redirect_uri']) : '';
-        $responseType = isset($params['response_type']) && is_string($params['response_type']) ? trim($params['response_type']) : '';
-        $scope = isset($params['scope']) && is_string($params['scope']) ? trim($params['scope']) : '';
-        $state = isset($params['state']) && is_string($params['state']) ? $params['state'] : '';
-        $codeChallenge = isset($params['code_challenge']) && is_string($params['code_challenge']) ? trim($params['code_challenge']) : '';
-        $codeChallengeMethod = isset($params['code_challenge_method']) && is_string($params['code_challenge_method']) ? trim($params['code_challenge_method']) : '';
+        $clientId = isset($params['client_id']) && is_string($params['client_id'])
+            ? trim($params['client_id']) : '';
+        $redirectUri = isset($params['redirect_uri']) && is_string($params['redirect_uri'])
+            ? trim($params['redirect_uri']) : '';
+        $responseType = isset($params['response_type']) && is_string($params['response_type'])
+            ? trim($params['response_type']) : '';
+        $scope = isset($params['scope']) && is_string($params['scope'])
+            ? trim($params['scope']) : '';
+        $state = isset($params['state']) && is_string($params['state'])
+            ? $params['state'] : '';
+        $codeChallenge = isset($params['code_challenge']) && is_string($params['code_challenge'])
+            ? trim($params['code_challenge']) : '';
+        $codeChallengeMethod = isset($params['code_challenge_method']) && is_string($params['code_challenge_method'])
+            ? trim($params['code_challenge_method']) : '';
 
         if ($responseType !== 'code') {
             return $this->json($response, ['error' => 'unsupported_response_type'], 400);
         }
 
         if ($codeChallenge !== '' && $codeChallengeMethod !== 'S256') {
-            return $this->json($response, ['error' => 'invalid_request', 'error_description' => 'Only S256 code_challenge_method is supported'], 400);
+            return $this->json($response, [
+                'error' => 'invalid_request',
+                'error_description' => 'Only S256 code_challenge_method is supported',
+            ], 400);
         }
 
         $pdo = RequestDatabase::resolve($request);
@@ -238,7 +260,9 @@ final class OAuthController
             return $this->json($response, ['error' => 'invalid_redirect_uri'], 400);
         }
 
-        $requestedScopes = $scope !== '' ? array_filter(explode(' ', $scope), static fn(string $s) => $s !== '') : explode(' ', $client['scope']);
+        $requestedScopes = $scope !== ''
+            ? array_filter(explode(' ', $scope), static fn(string $s) => $s !== '')
+            : explode(' ', $client['scope']);
         foreach ($requestedScopes as $s) {
             if (!in_array($s, self::ALLOWED_SCOPES, true)) {
                 return $this->redirectWithError($response, $redirectUri, 'invalid_scope', $state);
@@ -255,7 +279,11 @@ final class OAuthController
                 $basePath = '';
             }
             return $response
-                ->withHeader('Location', $basePath . '/login?redirect=' . urlencode($basePath . '/oauth/authorize?' . http_build_query($params)))
+                ->withHeader(
+                    'Location',
+                    $basePath . '/login?redirect='
+                        . urlencode($basePath . '/oauth/authorize?' . http_build_query($params))
+                )
                 ->withStatus(302);
         }
 
@@ -297,11 +325,16 @@ final class OAuthController
             return $this->json($response, ['error' => 'unauthorized'], 401);
         }
 
-        $clientId = isset($data['client_id']) && is_string($data['client_id']) ? trim($data['client_id']) : '';
-        $redirectUri = isset($data['redirect_uri']) && is_string($data['redirect_uri']) ? trim($data['redirect_uri']) : '';
-        $scope = isset($data['scope']) && is_string($data['scope']) ? trim($data['scope']) : '';
-        $state = isset($data['state']) && is_string($data['state']) ? $data['state'] : '';
-        $codeChallenge = isset($data['code_challenge']) && is_string($data['code_challenge']) ? trim($data['code_challenge']) : '';
+        $clientId = isset($data['client_id']) && is_string($data['client_id'])
+            ? trim($data['client_id']) : '';
+        $redirectUri = isset($data['redirect_uri']) && is_string($data['redirect_uri'])
+            ? trim($data['redirect_uri']) : '';
+        $scope = isset($data['scope']) && is_string($data['scope'])
+            ? trim($data['scope']) : '';
+        $state = isset($data['state']) && is_string($data['state'])
+            ? $data['state'] : '';
+        $codeChallenge = isset($data['code_challenge']) && is_string($data['code_challenge'])
+            ? trim($data['code_challenge']) : '';
         $approved = isset($data['approve']);
 
         if (!$approved) {
@@ -323,7 +356,14 @@ final class OAuthController
 
         $code = OAuthAuthorizationCodeRepository::generateCode();
         $codeRepo = new OAuthAuthorizationCodeRepository($pdo);
-        $codeRepo->create($code, $clientId, $client['namespace'], $scopes, $redirectUri, $codeChallenge !== '' ? $codeChallenge : null);
+        $codeRepo->create(
+            $code,
+            $clientId,
+            $client['namespace'],
+            $scopes,
+            $redirectUri,
+            $codeChallenge !== '' ? $codeChallenge : null
+        );
 
         $query = ['code' => $code];
         if ($state !== '') {
@@ -356,8 +396,10 @@ final class OAuthController
 
         $code = isset($data['code']) && is_string($data['code']) ? trim($data['code']) : '';
         $clientId = isset($data['client_id']) && is_string($data['client_id']) ? trim($data['client_id']) : '';
-        $clientSecret = isset($data['client_secret']) && is_string($data['client_secret']) ? trim($data['client_secret']) : '';
-        $codeVerifier = isset($data['code_verifier']) && is_string($data['code_verifier']) ? trim($data['code_verifier']) : '';
+        $clientSecret = isset($data['client_secret']) && is_string($data['client_secret'])
+            ? trim($data['client_secret']) : '';
+        $codeVerifier = isset($data['code_verifier']) && is_string($data['code_verifier'])
+            ? trim($data['code_verifier']) : '';
 
         if ($code === '' || $clientId === '') {
             return $this->json($response, ['error' => 'invalid_request'], 400);
@@ -387,7 +429,10 @@ final class OAuthController
         // Verify PKCE
         if ($authCode['code_challenge'] !== null) {
             if ($codeVerifier === '') {
-                return $this->json($response, ['error' => 'invalid_grant', 'error_description' => 'code_verifier required'], 400);
+                return $this->json($response, [
+                    'error' => 'invalid_grant',
+                    'error_description' => 'code_verifier required',
+                ], 400);
             }
             $expected = rtrim(strtr(base64_encode(hash('sha256', $codeVerifier, true)), '+/', '-_'), '=');
             if (!hash_equals($authCode['code_challenge'], $expected)) {

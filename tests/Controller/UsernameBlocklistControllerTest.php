@@ -41,7 +41,10 @@ final class UsernameBlocklistControllerTest extends TestCase
 
         $eventUid = '1234567890abcdef1234567890abcdef';
         $pdo->exec("INSERT INTO events (uid) VALUES ('$eventUid')");
-        $pdo->exec("INSERT INTO config (event_uid, backgroundColor, buttonColor, colors) VALUES ('$eventUid', '#112233', '#445566', NULL)");
+        $pdo->exec(
+            "INSERT INTO config (event_uid, backgroundColor, buttonColor, colors)"
+            . " VALUES ('$eventUid', '#112233', '#445566', NULL)"
+        );
 
         putenv('DASHBOARD_TOKEN_SECRET=test-secret');
         $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
@@ -101,7 +104,10 @@ final class UsernameBlocklistControllerTest extends TestCase
                     CHECK (category IN ('NSFW', '§86a/NS-Bezug', 'Beleidigung/Slur', 'Allgemein', 'Admin'))
             )
         SQL);
-        $pdo->exec('CREATE UNIQUE INDEX idx_username_blocklist_term_category ON username_blocklist (LOWER(term), category)');
+        $pdo->exec(
+            'CREATE UNIQUE INDEX idx_username_blocklist_term_category'
+            . ' ON username_blocklist (LOWER(term), category)'
+        );
 
         putenv('DASHBOARD_TOKEN_SECRET=test-secret');
         $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
@@ -161,7 +167,11 @@ final class UsernameBlocklistControllerTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE username_blocklist (id INTEGER PRIMARY KEY AUTOINCREMENT, term TEXT, category TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)');
+        $pdo->exec(
+            'CREATE TABLE username_blocklist'
+            . ' (id INTEGER PRIMARY KEY AUTOINCREMENT, term TEXT, category TEXT,'
+            . ' created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)'
+        );
 
         putenv('DASHBOARD_TOKEN_SECRET=test-secret');
         $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';

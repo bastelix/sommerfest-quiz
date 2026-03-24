@@ -142,7 +142,9 @@ final class PageAiPromptTemplateService
     private function loadTemplatesFromDatabase(): ?array
     {
         try {
-            $stmt = $this->pdo->query('SELECT id, label, template, output_format FROM marketing_ai_prompts ORDER BY id');
+            $stmt = $this->pdo->query(
+                'SELECT id, label, template, output_format FROM marketing_ai_prompts ORDER BY id'
+            );
             $rows = $stmt !== false ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
         } catch (PDOException) {
             return null;
@@ -190,7 +192,8 @@ final class PageAiPromptTemplateService
                     . 'ON CONFLICT (id) DO UPDATE SET label = EXCLUDED.label, template = EXCLUDED.template, '
                     . 'output_format = EXCLUDED.output_format, updated_at = CURRENT_TIMESTAMP';
             } else {
-                $sql = 'INSERT OR REPLACE INTO marketing_ai_prompts (id, label, template, output_format) VALUES (?, ?, ?, ?)';
+                $sql = 'INSERT OR REPLACE INTO marketing_ai_prompts'
+                    . ' (id, label, template, output_format) VALUES (?, ?, ?, ?)';
             }
 
             $stmt = $this->pdo->prepare($sql);

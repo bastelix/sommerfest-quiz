@@ -481,7 +481,10 @@ PROMPT;
             $payload['metaDescription'] ?? $payload['meta_description'] ?? '',
             self::MAX_DESCRIPTION_LENGTH
         );
-        $ogTitle = $this->sanitizeText($payload['ogTitle'] ?? $payload['og_title'] ?? $metaTitle, self::MAX_TITLE_LENGTH);
+        $ogTitle = $this->sanitizeText(
+            $payload['ogTitle'] ?? $payload['og_title'] ?? $metaTitle,
+            self::MAX_TITLE_LENGTH
+        );
         $ogDescription = $this->sanitizeText(
             $payload['ogDescription'] ?? $payload['og_description'] ?? $metaDescription,
             self::MAX_DESCRIPTION_LENGTH

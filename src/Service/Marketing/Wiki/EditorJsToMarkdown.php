@@ -37,7 +37,12 @@ final class EditorJsToMarkdown
                     $level = max(1, min(6, $level));
                     $text = $this->sanitizeInlineText($data['text'] ?? '');
                     $markdownParts[] = str_repeat('#', $level) . ' ' . $text;
-                    $htmlParts[] = sprintf('<h%d>%s</h%d>', $level, $this->sanitizeInlineHtml($data['text'] ?? ''), $level);
+                    $htmlParts[] = sprintf(
+                        '<h%d>%s</h%d>',
+                        $level,
+                        $this->sanitizeInlineHtml($data['text'] ?? ''),
+                        $level
+                    );
                     break;
                 case 'paragraph':
                     $text = $this->sanitizeInlineText($data['text'] ?? '');
@@ -104,7 +109,9 @@ final class EditorJsToMarkdown
                         '<figure><img src="%s" alt="%s" loading="lazy">%s</figure>',
                         htmlspecialchars($url, ENT_QUOTES),
                         htmlspecialchars($caption, ENT_QUOTES),
-                        $caption !== '' ? sprintf('<figcaption>%s</figcaption>', htmlspecialchars($caption, ENT_QUOTES)) : ''
+                        $caption !== ''
+                            ? sprintf('<figcaption>%s</figcaption>', htmlspecialchars($caption, ENT_QUOTES))
+                            : ''
                     );
                     break;
                 default:
@@ -116,8 +123,14 @@ final class EditorJsToMarkdown
             }
         }
 
-        $markdown = trim(implode("\n\n", array_filter($markdownParts, static fn (string $part): bool => trim($part) !== '')));
-        $html = trim(implode("\n", array_filter($htmlParts, static fn (string $part): bool => trim($part) !== '')));
+        $markdown = trim(implode(
+            "\n\n",
+            array_filter($markdownParts, static fn (string $part): bool => trim($part) !== '')
+        ));
+        $html = trim(implode(
+            "\n",
+            array_filter($htmlParts, static fn (string $part): bool => trim($part) !== '')
+        ));
 
         return ['markdown' => $markdown, 'html' => $html];
     }
@@ -187,7 +200,10 @@ final class EditorJsToMarkdown
             if (!is_array($row)) {
                 continue;
             }
-            $markdownRows[] = '| ' . implode(' | ', array_map(fn ($cell): string => $this->sanitizeInlineText($cell), $row)) . ' |';
+            $markdownRows[] = '| ' . implode(
+                ' | ',
+                array_map(fn ($cell): string => $this->sanitizeInlineText($cell), $row)
+            ) . ' |';
         }
 
         return implode("\n", $markdownRows);

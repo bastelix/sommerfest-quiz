@@ -91,7 +91,12 @@ class CmsPageNamespaceDesignTest extends TestCase
         $cmsMenuNamespaces = [];
         $cmsMenu = $this->createMock(CmsPageMenuService::class);
         $cmsMenu->method('getMenuTreeForSlug')->willReturnCallback(
-            static function (string $namespace, string $slug, ?string $locale = null, bool $onlyActive = true) use (&$cmsMenuNamespaces): array {
+            static function (
+                string $namespace,
+                string $slug,
+                ?string $locale = null,
+                bool $onlyActive = true
+            ) use (&$cmsMenuNamespaces): array {
                 $cmsMenuNamespaces[] = $namespace;
 
                 return [
@@ -104,7 +109,11 @@ class CmsPageNamespaceDesignTest extends TestCase
             }
         );
         $cmsMenu->method('resolveStartpageSlug')->willReturnCallback(
-            static fn (string $namespace, ?string $locale = null, ?string $domain = null): string => 'home-' . $namespace
+            static fn (
+                string $namespace,
+                ?string $locale = null,
+                ?string $domain = null
+            ): string => 'home-' . $namespace
         );
 
         $controller = $this->createController(
@@ -163,7 +172,12 @@ class CmsPageNamespaceDesignTest extends TestCase
         $this->assertSame('#docs', $payload['navigation']['main'][1]['href'] ?? null);
         $this->assertSame('/docs/api', $payload['navigation']['main'][1]['children'][0]['href'] ?? null);
 
-        [$htmlApp, $htmlRequest] = $this->buildAppWithController($controller, '/navtest', ['HTTP_ACCEPT' => 'text/html'], 'navtest');
+        [$htmlApp, $htmlRequest] = $this->buildAppWithController(
+            $controller,
+            '/navtest',
+            ['HTTP_ACCEPT' => 'text/html'],
+            'navtest'
+        );
         $htmlResponse = $htmlApp->handle($htmlRequest->withAttribute('lang', 'de'));
         $this->assertSame(200, $htmlResponse->getStatusCode());
 
@@ -206,19 +220,40 @@ class CmsPageNamespaceDesignTest extends TestCase
         ?PageService $pageServiceOverride = null,
         string $slug = 'styled'
     ): PageController {
-        $page = new Page(1, $contentNamespace, $slug, 'Styled', '<p>Styled</p>', null, null, 0, null, null, null, null, null, false);
+        $page = new Page(
+            1,
+            $contentNamespace,
+            $slug,
+            'Styled',
+            '<p>Styled</p>',
+            null,
+            null,
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            false
+        );
 
         $pageService = $pageServiceOverride ?? $this->createMock(PageService::class);
         $pageService->method('findByKey')->willReturn($page);
 
         $configService = $this->createMock(ConfigService::class);
-        $configService->method('getConfigForEvent')->willReturnCallback(static fn (string $namespace): array => ['namespace' => $namespace]);
+        $configService->method('getConfigForEvent')->willReturnCallback(
+            static fn (string $namespace): array => ['namespace' => $namespace]
+        );
         $configService->method('ensureConfigForEvent')->willReturnCallback(static function (): void {
         });
 
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE namespaces (namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER, created_at TEXT, updated_at TEXT)');
+        $pdo->exec(
+            'CREATE TABLE namespaces ('
+            . 'namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER, '
+            . 'created_at TEXT, updated_at TEXT)'
+        );
         $stmt = $pdo->prepare('INSERT INTO namespaces (namespace, is_active) VALUES (?, 1)');
         $stmt->execute([$resolvedNamespace]);
 

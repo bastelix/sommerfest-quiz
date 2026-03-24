@@ -307,7 +307,13 @@ class PageControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertSame(200, $response->getStatusCode());
 
-        $stored = json_decode((string) $pdo->query("SELECT content FROM pages WHERE namespace = 'calserver' AND slug = 'calserver'")->fetchColumn(), true, 512, JSON_THROW_ON_ERROR);
+        $query = "SELECT content FROM pages WHERE namespace = 'calserver' AND slug = 'calserver'";
+        $stored = json_decode(
+            (string) $pdo->query($query)->fetchColumn(),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
 
         $this->assertCount(3, $stored['blocks']);
         $this->assertSame('rich_text', $stored['blocks'][0]['type']);
@@ -335,7 +341,13 @@ class PageControllerTest extends TestCase
         ];
     }
 
-    private function seedPage(PDO $pdo, string $slug, string $title, string $content, string $namespace = 'default'): void {
+    private function seedPage(
+        PDO $pdo,
+        string $slug,
+        string $title,
+        string $content,
+        string $namespace = 'default'
+    ): void {
         $stmt = $pdo->prepare('DELETE FROM pages WHERE namespace = ? AND slug = ?');
         $stmt->execute([$namespace, $slug]);
 

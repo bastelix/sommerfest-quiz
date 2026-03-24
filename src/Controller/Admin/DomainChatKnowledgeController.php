@@ -369,7 +369,11 @@ final class DomainChatKnowledgeController
         return [];
     }
 
-    private function extractDomain(Request $request, ?array $body = null, ?NamespaceContext $namespaceContext = null): string
+    private function extractDomain(
+        Request $request,
+        ?array $body = null,
+        ?NamespaceContext $namespaceContext = null
+    ): string
     {
         $domain = '';
         $params = $request->getQueryParams();

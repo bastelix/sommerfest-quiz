@@ -33,10 +33,14 @@ class MailService
         return MailProviderManager::isConfiguredStatic();
     }
 
-    public function __construct(Environment $twig, ?MailProviderManager $providerManager = null, ?AuditLogger $audit = null)
-    {
+    public function __construct(
+        Environment $twig,
+        ?MailProviderManager $providerManager = null,
+        ?AuditLogger $audit = null
+    ) {
         $this->twig = $twig;
-        $this->providerManager = $providerManager ?? new MailProviderManager(new SettingsService(Database::connectFromEnv()));
+        $this->providerManager = $providerManager
+            ?? new MailProviderManager(new SettingsService(Database::connectFromEnv()));
         $this->audit = $audit;
 
         $status = $this->providerManager->getStatus();

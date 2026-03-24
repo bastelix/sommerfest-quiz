@@ -342,7 +342,10 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
     $app->post('/admin/pages/page-types', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->savePageTypes($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+    })
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))
+        ->add(new CsrfMiddleware())
+        ->add($namespaceQueryMiddleware);
     $app->get('/admin/pages/cookies', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->cookies($request, $response);

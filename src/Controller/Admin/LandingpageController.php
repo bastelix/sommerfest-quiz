@@ -186,12 +186,22 @@ class LandingpageController
 
         $payload = $this->parseJsonBody($request);
         if ($payload === null) {
-            return $this->jsonError($response, 'invalid_request', $t('error_invalid_json_request', 'Invalid request: JSON body is missing or invalid.'), 400);
+            return $this->jsonError(
+                $response,
+                'invalid_request',
+                $t('error_invalid_json_request', 'Invalid request: JSON body is missing or invalid.'),
+                400
+            );
         }
 
         $pageId = (int) ($payload['pageId'] ?? $payload['page_id'] ?? 0);
         if ($pageId <= 0) {
-            return $this->jsonError($response, 'missing_page', $t('error_no_page_selected', 'No page selected. Please select a page and try again.'), 422);
+            return $this->jsonError(
+                $response,
+                'missing_page',
+                $t('error_no_page_selected', 'No page selected. Please select a page and try again.'),
+                422
+            );
         }
 
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
@@ -201,7 +211,12 @@ class LandingpageController
             || $page->getNamespace() !== $namespace
             || in_array($page->getSlug(), self::EXCLUDED_SLUGS, true)
         ) {
-            return $this->jsonError($response, 'page_not_found', $t('error_page_not_found_or_locked', 'The selected page was not found or is locked for SEO import.'), 404);
+            return $this->jsonError(
+                $response,
+                'page_not_found',
+                $t('error_page_not_found_or_locked', 'The selected page was not found or is locked for SEO import.'),
+                404
+            );
         }
 
         $domain = $this->domainService->normalizeDomain(isset($payload['domain']) ? (string) $payload['domain'] : '');

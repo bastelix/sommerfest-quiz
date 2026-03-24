@@ -180,7 +180,10 @@ class AdminController
 
         if ($namespaceAllowed && $requestedNamespace !== '') {
             $normalized = (new NamespaceValidator())->normalizeCandidate($requestedNamespace);
-            if ($normalized !== null && $namespaceAccess->shouldExposeNamespace($normalized, $allowedNamespaces, $role)) {
+            if (
+                $normalized !== null
+                && $namespaceAccess->shouldExposeNamespace($normalized, $allowedNamespaces, $role)
+            ) {
                 $namespace = $normalized;
             }
         }
@@ -349,7 +352,11 @@ class AdminController
             $availableNamespaces[$index] = $entry;
         }
 
-        $availableNamespaces = $namespaceAccess->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
+        $availableNamespaces = $namespaceAccess->filterNamespaceEntries(
+            $availableNamespaces,
+            $allowedNamespaces,
+            $role
+        );
 
         $domainType = $request->getAttribute('domainType');
         if ($domainType === 'main') {

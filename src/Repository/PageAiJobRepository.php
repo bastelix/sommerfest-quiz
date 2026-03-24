@@ -38,7 +38,8 @@ final class PageAiJobRepository
         $jobId = bin2hex(random_bytes(16));
 
         $stmt = $this->pdo->prepare(
-            'INSERT INTO page_ai_jobs (job_id, namespace, slug, title, theme, color_scheme, problem, prompt_template, status) '
+            'INSERT INTO page_ai_jobs '
+            . '(job_id, namespace, slug, title, theme, color_scheme, problem, prompt_template, status) '
             . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
@@ -76,7 +77,8 @@ final class PageAiJobRepository
     public function getJob(string $jobId): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT job_id, namespace, slug, title, theme, color_scheme, problem, prompt_template, status, html, error_code, error_message '
+            'SELECT job_id, namespace, slug, title, theme, color_scheme, problem, '
+            . 'prompt_template, status, html, error_code, error_message '
             . 'FROM page_ai_jobs WHERE job_id = ? LIMIT 1'
         );
         $stmt->execute([trim($jobId)]);
@@ -136,7 +138,8 @@ final class PageAiJobRepository
     public function markDone(string $jobId, string $html): void
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE page_ai_jobs SET status = ?, html = ?, error_code = NULL, error_message = NULL, updated_at = CURRENT_TIMESTAMP '
+            'UPDATE page_ai_jobs SET status = ?, html = ?, error_code = NULL, '
+            . 'error_message = NULL, updated_at = CURRENT_TIMESTAMP '
             . 'WHERE job_id = ?'
         );
         $stmt->execute([self::STATUS_DONE, $html, trim($jobId)]);
@@ -149,7 +152,8 @@ final class PageAiJobRepository
     public function markFailed(string $jobId, string $errorCode, string $errorMessage): void
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE page_ai_jobs SET status = ?, error_code = ?, error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE job_id = ?'
+            'UPDATE page_ai_jobs SET status = ?, error_code = ?, error_message = ?, '
+            . 'updated_at = CURRENT_TIMESTAMP WHERE job_id = ?'
         );
         $stmt->execute([self::STATUS_FAILED, trim($errorCode), trim($errorMessage), trim($jobId)]);
 

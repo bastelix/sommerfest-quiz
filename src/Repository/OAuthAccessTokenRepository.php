@@ -22,7 +22,12 @@ final class OAuthAccessTokenRepository
      * @param list<string> $scopes
      * @return array{token: string, id: int, expiresIn: int}
      */
-    public function create(string $clientId, string $namespace, array $scopes, int $expiresInSeconds = self::DEFAULT_EXPIRES_IN): array
+    public function create(
+        string $clientId,
+        string $namespace,
+        array $scopes,
+        int $expiresInSeconds = self::DEFAULT_EXPIRES_IN
+    ): array
     {
         $token = $this->generateToken();
         $hash = password_hash($token, PASSWORD_DEFAULT);

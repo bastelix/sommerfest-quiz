@@ -42,7 +42,13 @@ class DashboardJsonTest extends TestCase
     {
         $pdo->exec("INSERT OR IGNORE INTO namespaces (namespace, label, is_active) VALUES ('landing', 'Landing', 1)");
 
-        $pageId = $this->insertPage($pdo, 'landing', 'welcome', null, '<p><img src="/uploads/hero.jpg" alt="Hero"></p>');
+        $pageId = $this->insertPage(
+            $pdo,
+            'landing',
+            'welcome',
+            null,
+            '<p><img src="/uploads/hero.jpg" alt="Hero"></p>'
+        );
         $this->insertPage($pdo, 'landing', 'about', $pageId, '<p>About us</p>');
         $this->insertPage($pdo, 'landing', 'contact', $pageId, '<p>Contact</p>');
 

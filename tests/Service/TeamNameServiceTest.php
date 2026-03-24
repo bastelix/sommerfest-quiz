@@ -54,7 +54,12 @@ final class TeamNameServiceTest extends TestCase
                 /**
                  * @param array<int, int> $offsets
                  */
-                public function __construct(PDO $pdo, string $lexiconPath, array $offsets, TeamNameAiCacheRepository $repository)
+                public function __construct(
+                PDO $pdo,
+                string $lexiconPath,
+                array $offsets,
+                TeamNameAiCacheRepository $repository,
+            )
                 {
                     $this->offsets = $offsets;
                     parent::__construct($pdo, $lexiconPath, $repository, 120, null, true, null);

@@ -41,7 +41,9 @@ class AwardService
             $finalPointsRaw = $row['final_points'] ?? $row['finalPoints'] ?? $row['points'] ?? 0;
             $finalPoints = (int) $finalPointsRaw;
             $efficiencyRaw = $row['efficiency'] ?? null;
-            $efficiency = $efficiencyRaw !== null ? (float) $efficiencyRaw : ((int)($row['correct'] ?? 0) === 1 ? 1.0 : 0.0);
+            $efficiency = $efficiencyRaw !== null
+                ? (float) $efficiencyRaw
+                : ((int)($row['correct'] ?? 0) === 1 ? 1.0 : 0.0);
             $correctRaw = $row['is_correct'] ?? $row['isCorrect'] ?? $row['correct'] ?? 0;
             $correctValue = 0;
             if (is_bool($correctRaw)) {

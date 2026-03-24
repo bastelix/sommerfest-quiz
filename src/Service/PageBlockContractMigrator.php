@@ -367,7 +367,10 @@ final class PageBlockContractMigrator
         $variant = isset($block['variant']) && is_string($block['variant']) ? trim($block['variant']) : null;
         $determinedVariant = $this->determineVariant($normalizedType, $variant, $block);
         if ($determinedVariant === null) {
-            throw new PageBlockMigrationException('invalid_variant', sprintf('Variant missing for %s', $normalizedType));
+            throw new PageBlockMigrationException(
+                'invalid_variant',
+                sprintf('Variant missing for %s', $normalizedType)
+            );
         }
 
         $data = is_array($block['data'] ?? null) ? $block['data'] : [];
@@ -541,7 +544,10 @@ final class PageBlockContractMigrator
         }
 
         if (count($normalizedSteps) < 2) {
-            throw new PageBlockMigrationException('missing_required_data', 'Process steps require at least two entries');
+            throw new PageBlockMigrationException(
+                'missing_required_data',
+                'Process steps require at least two entries'
+            );
         }
 
         $normalized = [
@@ -889,7 +895,10 @@ final class PageBlockContractMigrator
                     return false;
                 }
                 foreach ($tokens as $tokenKey => $tokenValue) {
-                    if (!isset($this->tokenEnums[$tokenKey]) || !in_array($tokenValue, $this->tokenEnums[$tokenKey], true)) {
+                    if (
+                        !isset($this->tokenEnums[$tokenKey])
+                        || !in_array($tokenValue, $this->tokenEnums[$tokenKey], true)
+                    ) {
                         return false;
                     }
                 }
@@ -938,7 +947,8 @@ final class PageBlockContractMigrator
                 && isset($data['primary']['label'], $data['primary']['href'])
                 && $this->hasContent($data['primary']['label'])
                 && $this->hasContent($data['primary']['href']),
-            // Newer block types are validated against the JSON schema via $blockVariants; no extra field checks required here.
+            // Newer block types are validated against the JSON schema
+            // via $blockVariants; no extra field checks required here.
             default => true,
         };
     }
@@ -1082,12 +1092,18 @@ final class PageBlockContractMigrator
     private function requireString($value, string $field): string
     {
         if (!is_string($value)) {
-            throw new PageBlockMigrationException('missing_required_data', sprintf('Missing required field: %s', $field));
+            throw new PageBlockMigrationException(
+                'missing_required_data',
+                sprintf('Missing required field: %s', $field)
+            );
         }
 
         $normalized = trim($value);
         if ($normalized === '') {
-            throw new PageBlockMigrationException('missing_required_data', sprintf('Missing required field: %s', $field));
+            throw new PageBlockMigrationException(
+                'missing_required_data',
+                sprintf('Missing required field: %s', $field)
+            );
         }
 
         return $normalized;

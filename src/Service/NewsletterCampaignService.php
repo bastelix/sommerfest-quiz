@@ -115,7 +115,8 @@ class NewsletterCampaignService
 
         $stmt = $this->pdo->prepare(
             'UPDATE newsletter_campaigns SET namespace = :namespace, name = :name, news_ids = :news_ids, '
-            . 'template_id = :template_id, audience_id = :audience_id, status = :status, scheduled_for = :scheduled_for, '
+            . 'template_id = :template_id, audience_id = :audience_id, '
+            . 'status = :status, scheduled_for = :scheduled_for, '
             . 'updated_at = CURRENT_TIMESTAMP WHERE id = :id'
         );
 
