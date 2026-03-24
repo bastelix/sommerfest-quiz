@@ -711,6 +711,7 @@
 - *(wiki)* Generate direct wiki URL in menu for type=wiki pages
 - *(mcp)* Add content schema documentation to footer block tools
 - *(ci)* Resolve migration failure due to missing dashboard token secret
+- *(ci)* Prevent spurious patch bumps triggered by changelog push
 
 ### Merge
 
