@@ -866,6 +866,28 @@
 - *(admin)* Remove bullet dots from page block list
 - *(wiki)* Tighten typography for technical-reference look
 - *(wiki)* Redesign wiki layout inspired by MkDocs Material theme
+- Fix phpcs errors across codebase
+- Fix remaining header block errors in test files
+- Fix phpcs line-length warnings across codebase
+- Fix additional phpcs line-length warnings
+- Fix phpcs line-length warnings in remaining files
+- Fix phpcs line-length warnings in repository and service files
+- Fix phpcs line-length warnings in service files
+- Fix phpcs line-length warnings in admin controllers
+- Fix phpcs line-length warnings in marketing and seo services
+- Fix phpcs line-length warnings in marketing page controller
+- Fix phpcs line-length warnings in test files
+- Fix phpcs line-length warnings in controller test files
+- Fix phpcs line-length warnings in route files
+- Fix phpcs line-length warnings in service and integration tests
+- Fix phpcs line-length warnings in controller test files group 2
+- Fix phpcs line-length warnings in api and misc controllers
+- Fix phpcs line-length warnings in service files group 3
+- Fix phpcs line-length warnings in test files group 6
+- Fix phpcs line-length warnings in test files group 4
+- Fix phpcs line-length warnings in service files group 4
+- Fix phpcs line-length warnings in mcp tool files
+- Fix remaining phpcs errors
 
 ### Test
 
