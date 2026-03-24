@@ -350,7 +350,10 @@ class EventService
     public function getBySlug(string $slug, ?string $namespace = null): ?array {
         if ($namespace !== null) {
             $filterNamespace = $this->normalizeNamespace($namespace);
-            $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,namespace FROM events WHERE slug = ? AND namespace = ?');
+            $stmt = $this->pdo->prepare(
+                'SELECT uid,slug,name,start_date,end_date,description,namespace '
+                . 'FROM events WHERE slug = ? AND namespace = ?'
+            );
             $stmt->execute([$slug, $filterNamespace]);
         } else {
             $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,namespace FROM events WHERE slug = ?');

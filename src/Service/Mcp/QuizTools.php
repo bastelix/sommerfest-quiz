@@ -15,7 +15,10 @@ final class QuizTools
 {
     private EventService $events;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(private readonly PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -37,7 +40,8 @@ final class QuizTools
             [
                 'name' => 'list_events',
                 'method' => 'listEvents',
-                'description' => 'List all quiz events for a namespace. Returns uid, slug, name, dates, published status.',
+                'description' => 'List all quiz events for a namespace. Returns uid, '
+                    . 'slug, name, dates, published status.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -61,7 +65,8 @@ final class QuizTools
             [
                 'name' => 'list_catalogs',
                 'method' => 'listCatalogs',
-                'description' => 'List all question catalogs for a quiz event. Returns uid, slug, name, description, and sort order.',
+                'description' => 'List all question catalogs for a quiz event. Returns '
+                    . 'uid, slug, name, description, and sort order.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
