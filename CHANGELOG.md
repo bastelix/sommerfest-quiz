@@ -717,6 +717,7 @@
 - *(ci)* Prevent spurious patch bumps triggered by changelog push
 - Add /news routes to prevent empty news page
 - *(wiki)* Correct grid layout and reduce heading sizes
+- *(admin)* Restore namespace switch handler on pages without admin.js
 
 ### Merge
 
