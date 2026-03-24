@@ -855,6 +855,26 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $response->withHeader('Location', $target)->withStatus($status);
     };
+    $app->get('/news', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->index($request, $response, ['landingSlug' => 'landing']);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
+    $app->get('/news/{newsSlug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->show($request, $response, array_merge($args, ['landingSlug' => 'landing']));
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/landing/news', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
