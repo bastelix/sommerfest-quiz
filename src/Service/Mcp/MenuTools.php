@@ -231,7 +231,10 @@ final class MenuTools
                         'namespace' => self::NS_PROP,
                         'assignmentId' => ['type' => 'integer', 'description' => 'ID of the assignment to update'],
                         'menuId' => ['type' => 'integer', 'description' => 'New menu ID'],
-                        'slot' => ['type' => 'string', 'description' => 'New slot: main, footer_1, footer_2, or footer_3'],
+                        'slot' => [
+                            'type' => 'string',
+                            'description' => 'New slot: main, footer_1, footer_2, or footer_3',
+                        ],
                         'locale' => ['type' => 'string', 'description' => 'New locale'],
                         'pageId' => ['type' => 'integer', 'description' => 'New page ID (null for global)'],
                         'isActive' => ['type' => 'boolean', 'description' => 'Whether the assignment is active'],
