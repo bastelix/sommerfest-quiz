@@ -396,6 +396,7 @@
 - *(hero)* Add frameless option for hero media images
 - *(wiki)* Integrate namespace design and apply Notion-inspired layout
 - *(wiki)* Add GFM markdown table support for wiki article parser
+- *(wiki)* Add direct wiki mode for pages with type=wiki
 
 ### Fix
 
