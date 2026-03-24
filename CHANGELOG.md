@@ -706,6 +706,8 @@
 - *(hero)* Scale media image on mobile instead of cropping
 - Add dark mode background to cookie consent banner
 - *(ci)* Clean up stale containers before docker compose up
+- *(wiki)* Add main navigation header and fix backlink in wiki pages
+- Unify namespace switching and fix reset bug
 
 ### Merge
 
@@ -857,6 +859,7 @@
 - *(editor)* Strengthen input field contrast and add rich-text borders
 - *(admin)* Remove bullet dots from page block list
 - *(wiki)* Tighten typography for technical-reference look
+- *(wiki)* Redesign wiki layout inspired by MkDocs Material theme
 
 ### Test
 
