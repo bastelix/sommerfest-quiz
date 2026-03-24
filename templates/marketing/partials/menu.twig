@@ -13,6 +13,10 @@
   {% set children = item.children|default([]) %}
   {% set layout = item.layout|default('link') %}
   {% set hasChildren = children|length > 0 %}
+  {# Auto-promote link items with children to dropdown so sub-items render #}
+  {% if hasChildren and layout == 'link' %}
+    {% set layout = 'dropdown' %}
+  {% endif %}
   {% set href = item.href|default('#') %}
   {% set isExternal = item.isExternal|default(false) %}
   {% set icon = item.icon|default(null) %}
