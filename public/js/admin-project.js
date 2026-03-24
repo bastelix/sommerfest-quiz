@@ -954,21 +954,11 @@ const resolveNamespaceQuery = () => {
   return (params.get('namespace') || '').trim();
 };
 
-const getNamespaceSelects = () => {
-  const elements = Array.from(document.querySelectorAll('[data-namespace-select]'));
-  if (elements.length) {
-    return elements;
-  }
-  const legacy = document.getElementById('namespaceSelect');
-  return legacy ? [legacy] : [];
-};
+const getNamespaceSelects = () =>
+  Array.from(document.querySelectorAll('[data-namespace-select]'));
 
-const getPrimaryNamespaceSelect = () => {
-  const [firstNamespaceSelect] = getNamespaceSelects();
-  return firstNamespaceSelect
-    || document.getElementById('projectNamespaceSelect')
-    || document.getElementById('pageNamespaceSelect');
-};
+const getPrimaryNamespaceSelect = () =>
+  document.querySelector('[data-namespace-select]');
 
 const withProjectNamespace = (endpoint, namespace) => {
   if (!namespace) {

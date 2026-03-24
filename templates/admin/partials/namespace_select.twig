@@ -1,31 +1,39 @@
-{# Compact namespace selector for admin pages.
-   Requires: activePageNamespace, pageNamespaceOptions (or available_namespaces) #}
-{% set _activePageNamespace = activePageNamespace|default(pageNamespace|default('default')) %}
-{% set _pageNamespaceOptions = pageNamespaceOptions|default(available_namespaces|default([])) %}
-{% if _pageNamespaceOptions is empty %}
-  {% set _pageNamespaceOptions = [{
-    namespace: _activePageNamespace,
+{# Unified namespace selector for admin pages.
+   Accepts: activeNamespace (or activePageNamespace/pageNamespace fallback),
+            namespaceOptions (or pageNamespaceOptions/available_namespaces fallback),
+            selectorId (default: 'namespaceSelect'), lockNamespaceSelect (default: false),
+            showHint (default: false) #}
+{% set _selectorId = selectorId|default('pageNamespaceSelect') %}
+{% set _activeNs = activeNamespace|default(activePageNamespace|default(pageNamespace|default('default'))) %}
+{% set _options = namespaceOptions|default(pageNamespaceOptions|default(available_namespaces|default([]))) %}
+{% set _lock = lockNamespaceSelect|default(false) %}
+{% set _showHint = showHint|default(false) %}
+{% if _options is empty %}
+  {% set _options = [{
+    namespace: _activeNs,
     label: null,
     is_active: true
   }] %}
 {% endif %}
 <div class="uk-grid-small uk-flex-middle uk-margin-small" uk-grid>
   <div class="uk-width-auto">
-    <label class="uk-form-label uk-margin-remove" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
+    <label class="uk-form-label uk-margin-remove" for="{{ _selectorId }}">{{ t('label_project_namespace') }}</label>
   </div>
   <div class="uk-width-1-1 uk-width-medium@m">
     <select
-      id="pageNamespaceSelect"
+      id="{{ _selectorId }}"
       class="uk-select uk-form-small"
-      data-page-namespace="{{ _activePageNamespace|e('html_attr') }}"
+      data-namespace-select
+      data-namespace="{{ _activeNs|e('html_attr') }}"
+      {% if _lock %}disabled{% endif %}
     >
-      {% for entry in _pageNamespaceOptions %}
+      {% for entry in _options %}
         {% set entryNamespace = entry.namespace|default('') %}
         {% set entryLabel = entry.label|default('') %}
         {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
         <option
           value="{{ entryNamespace|e('html_attr') }}"
-          {% if entryNamespace == _activePageNamespace %}selected{% endif %}
+          {% if entryNamespace == _activeNs %}selected{% endif %}
         >
           {{ entryNamespace }}
           {% if entryLabel is not empty %} – {{ t(entryLabel) }}{% endif %}
@@ -35,3 +43,6 @@
     </select>
   </div>
 </div>
+{% if _showHint %}
+<div class="uk-text-meta uk-margin-small-top">{{ t('text_project_namespace_hint') }}</div>
+{% endif %}
