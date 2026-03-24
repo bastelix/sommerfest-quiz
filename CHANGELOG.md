@@ -696,6 +696,7 @@
 - Use correct slot name for header menu resolution
 - Prevent frame from showing when no frame is configured
 - Resolve phpstan errors in TicketService
+- *(hero)* Reset viewport height when switching back to auto
 
 ### Merge
 
