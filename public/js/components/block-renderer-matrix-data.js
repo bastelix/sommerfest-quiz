@@ -890,7 +890,8 @@ function renderHeroMedia(media) {
   const modalId = `hero-media-modal-${++_heroMediaModalCounter}`;
   const escapedSrc = escapeAttribute(imageSrc);
 
-  const thumbnail = `<div class="uk-cover-container uk-border-rounded uk-box-shadow-small hero-media-thumb" style="cursor:pointer; height: ${size.containerHeight}px" uk-toggle="target: #${modalId}"><img src="${escapedSrc}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div>`;
+  const frameClasses = media.frameless ? '' : ' uk-border-rounded uk-box-shadow-small';
+  const thumbnail = `<div class="uk-cover-container${frameClasses} hero-media-thumb" style="cursor:pointer; height: ${size.containerHeight}px" uk-toggle="target: #${modalId}"><img src="${escapedSrc}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div>`;
 
   const modal = `<div id="${modalId}" class="uk-modal-full hero-media-lightbox" uk-modal>` +
     '<div class="uk-modal-dialog hero-media-lightbox__dialog">' +
@@ -981,8 +982,9 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
     ? ` data-hero-video-consent data-embed-url="${escapeAttribute(embedUrl)}" data-embed-title="${escapeAttribute(video?.title || 'Video')}"`
     : '';
 
+  const framelessClass = media?.frameless ? ' hero-media-card--frameless' : '';
   return `
-    <div class="hero-media-card"${consentAttrs}>
+    <div class="hero-media-card${framelessClass}"${consentAttrs}>
       <div class="hero-media-card__frame">
         <div class="hero-media-card__embed">
           ${embedContent || fallbackImage}

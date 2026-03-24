@@ -4634,6 +4634,22 @@ export class BlockContentEditor {
     mediaSizeGroup.append(mediaSizeOptions);
     mediaSection.append(mediaSizeGroup);
 
+    const framelessToggle = document.createElement('label');
+    framelessToggle.className = 'field-toggle';
+    const framelessCheckbox = document.createElement('input');
+    framelessCheckbox.type = 'checkbox';
+    framelessCheckbox.checked = Boolean(block.data.media?.frameless);
+    framelessCheckbox.addEventListener('change', () => {
+      this.updateBlockData(block.id, ['data', 'media', 'frameless'], framelessCheckbox.checked);
+    });
+    const framelessLabel = document.createElement('span');
+    framelessLabel.textContent = 'Rahmenlos';
+    framelessLabel.className = 'field-toggle__label';
+    framelessToggle.append(framelessCheckbox, framelessLabel);
+    const framelessHelper = createHelperText('Bild ohne Rahmen, Schatten und abgerundete Ecken anzeigen.');
+    mediaSection.append(framelessToggle);
+    if (framelessHelper) { mediaSection.append(framelessHelper); }
+
     const focalSection = createFieldSection('Optional: Bildfokus', 'Feineinstellung für den Bildausschnitt.', { optional: true });
     focalSection.append(
       this.addLabeledInput('Fokus X', block.data.media?.focalPoint?.x ?? 0.5, value => this.updateBlockData(block.id, ['data', 'media', 'focalPoint', 'x'], Number(value)), {
