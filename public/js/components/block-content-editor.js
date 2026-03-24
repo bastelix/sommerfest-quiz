@@ -72,7 +72,8 @@ const VARIANT_LABELS = {
     media_right: 'Bild rechts',
     media_left: 'Bild links',
     media_video: 'Video rechts',
-    minimal: 'Minimal'
+    minimal: 'Minimal',
+    small: 'Kompakt'
   },
   feature_list: {
     'detailed-cards': 'Detailkarten',
@@ -528,17 +529,25 @@ const applySectionStyle = (block, sectionStyle) => {
     || normalizeSectionIntent(baseSectionStyle.intent)
     || resolveSectionIntent(block);
 
+  const mergedSectionStyle = {
+    ...baseSectionStyle,
+    ...sectionStyle,
+    intent,
+    layout: rawLayout
+  };
+
+  // When sectionStyle omits viewportHeight it means 'auto' —
+  // remove any inherited value so the default applies.
+  if (!('viewportHeight' in sectionStyle)) {
+    delete mergedSectionStyle.viewportHeight;
+  }
+
   return sanitizeBlock({
     ...block,
     sectionAppearance: LAYOUT_TO_APPEARANCE[normalizedLayout],
     meta: {
       ...(block.meta || {}),
-      sectionStyle: {
-        ...baseSectionStyle,
-        ...sectionStyle,
-        intent,
-        layout: rawLayout
-      }
+      sectionStyle: mergedSectionStyle
     }
   });
 };
@@ -941,7 +950,8 @@ const LAYOUT_PREVIEWS = {
     media_right: () => createHeroPreview('right'),
     media_left: () => createHeroPreview('left'),
     media_video: () => createHeroPreview('right'),
-    minimal: () => createColumnsPreview(1)
+    minimal: () => createColumnsPreview(1),
+    small: createCenteredCtaPreview
   },
   feature_list: {
     'detailed-cards': () => createColumnsPreview(3),
