@@ -45,6 +45,7 @@
 - Add phpstan check script
 - Add cms api contract smoke test script
 - Remove test comment from FooterTools
+- Modernize CI and Docker setup
 
 ### Ci
 
