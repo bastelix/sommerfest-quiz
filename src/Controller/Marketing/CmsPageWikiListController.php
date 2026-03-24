@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
+use App\Service\CmsLayoutDataService;
 use App\Service\CmsPageWikiArticleService;
 use App\Service\CmsPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
@@ -35,6 +36,8 @@ final class CmsPageWikiListController
 
     private NamespaceRenderContextService $namespaceRenderContext;
 
+    private CmsLayoutDataService $layoutData;
+
     public function __construct(
         ?PageService $pageService = null,
         ?CmsPageWikiSettingsService $settingsService = null,
@@ -42,7 +45,8 @@ final class CmsPageWikiListController
         ?NamespaceResolver $namespaceResolver = null,
         ?MarketingWikiThemeConfigService $themeConfigService = null,
         ?NamespaceAppearanceService $namespaceAppearance = null,
-        ?NamespaceRenderContextService $namespaceRenderContext = null
+        ?NamespaceRenderContextService $namespaceRenderContext = null,
+        ?CmsLayoutDataService $layoutData = null
     ) {
         $this->pageService = $pageService ?? new PageService();
         $this->settingsService = $settingsService ?? new CmsPageWikiSettingsService();
@@ -51,6 +55,7 @@ final class CmsPageWikiListController
         $this->themeConfigService = $themeConfigService ?? new MarketingWikiThemeConfigService();
         $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
         $this->namespaceRenderContext = $namespaceRenderContext ?? new NamespaceRenderContextService();
+        $this->layoutData = $layoutData ?? new CmsLayoutDataService();
     }
 
     public function __invoke(Request $request, Response $response, array $args): Response
@@ -129,6 +134,12 @@ final class CmsPageWikiListController
         $themeOverrides = $this->themeConfigService->getThemeForSlug($namespace, $settingsPage->getSlug());
         $theme = MarketingWikiThemeResolver::resolve($themeOverrides);
 
+        $layoutChromeData = $this->layoutData->loadLayoutData($pageNamespace, $settingsPage->getId(), $locale, $basePath);
+
+        $pageUrl = $directMode
+            ? $basePath . '/cms/pages/' . $page->getSlug()
+            : $basePath . '/' . $page->getSlug();
+
         return $view->render($response, 'marketing/wiki/index.twig', [
             'page' => $page,
             'articles' => $articles,
@@ -136,6 +147,12 @@ final class CmsPageWikiListController
             'menuLabel' => $menuLabel,
             'wikiTheme' => $theme,
             'wikiBasePath' => $wikiBasePath,
+            'pageUrl' => $pageUrl,
+            'cmsMainNavigation' => $layoutChromeData['cmsMainNavigation'],
+            'headerConfig' => $layoutChromeData['headerConfig'],
+            'headerLogo' => $layoutChromeData['headerLogo'],
+            'cmsSlug' => $page->getSlug(),
+            'pageTitle' => $page->getTitle(),
             'namespace' => $pageNamespace,
             'pageNamespace' => $pageNamespace,
             'designNamespace' => $designNamespace,
@@ -144,7 +161,7 @@ final class CmsPageWikiListController
             'renderContext' => $renderContext,
             'breadcrumbs' => [
                 [
-                    'url' => $basePath . '/' . $page->getSlug(),
+                    'url' => $pageUrl,
                     'label' => $page->getTitle(),
                 ],
                 [

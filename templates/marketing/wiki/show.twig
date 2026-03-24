@@ -31,10 +31,27 @@
 
 {% block body_class %}marketing-page {{ bodyClasses|join(' ') }}{% endblock %}
 
+{% block site_header %}
+  {% if cmsMainNavigation is defined and cmsMainNavigation is not empty %}
+    {% include 'pages/partials/header.twig' with {
+      normalizedNamespace: designNamespace|default('default'),
+      headerTheme: 'light',
+      headerLogo: headerLogo|default({}),
+      cmsMenuItems: [],
+      cmsMainNavigation: cmsMainNavigation|default([]),
+      headerConfig: headerConfig|default({}),
+      basePath: basePath,
+      cmsSlug: cmsSlug|default(''),
+      pageTitle: pageTitle|default('QuizRace')
+    } only %}
+  {% endif %}
+{% endblock %}
+
 {% block head %}
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
   <script type="module" src="{{ basePath }}/js/marketing-design.js"></script>
   {% for stylesheet in stylesheets %}
     {% set href = stylesheet matches '/^https?:\\/\\//i' or stylesheet starts with('//') ? stylesheet : (stylesheet starts with('/') ? stylesheet : basePath ~ '/css/' ~ stylesheet) %}
@@ -418,7 +435,7 @@
           <span uk-icon="icon: arrow-left; ratio: 0.75"></span>
           Zur&uuml;ck zur &Uuml;bersicht
         </a>
-        <a class="wiki-article-footer__link" href="{{ basePath }}/pages/{{ page.getSlug() }}">
+        <a class="wiki-article-footer__link" href="{{ pageUrl|default(basePath ~ '/pages/' ~ page.getSlug()) }}">
           Zur Marketing-Seite
         </a>
       </div>
