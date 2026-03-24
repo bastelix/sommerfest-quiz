@@ -85,8 +85,7 @@ final class TeamNameAiCacheRepository
         array $names,
         array $filters = [],
         ?string $namespace = null
-    ): void
-    {
+    ): void {
         $unique = [];
         foreach ($names as $name) {
             $candidate = trim((string) $name);

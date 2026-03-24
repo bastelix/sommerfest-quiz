@@ -232,7 +232,11 @@ PHP_SCRIPT;
         $wikiSelection = new DomainWikiSelectionService($pdo);
         $wikiArticles = new CmsPageWikiArticleService($pdo);
         $controller = new DomainChatKnowledgeController(
-            $storage, $indexManager, $wikiSelection, $wikiArticles, $pageService
+            $storage,
+            $indexManager,
+            $wikiSelection,
+            $wikiArticles,
+            $pageService
         );
 
         $responseFactory = new ResponseFactory();
@@ -279,7 +283,11 @@ PHP_SCRIPT;
         $wikiSelection = new DomainWikiSelectionService($pdo);
         $wikiArticles = new CmsPageWikiArticleService($pdo);
         $controller = new DomainChatKnowledgeController(
-            $storage, $indexManager, $wikiSelection, $wikiArticles, $pageService
+            $storage,
+            $indexManager,
+            $wikiSelection,
+            $wikiArticles,
+            $pageService
         );
 
         $responseFactory = new ResponseFactory();

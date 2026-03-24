@@ -83,8 +83,7 @@ class CmsPageMarketingFeaturesTest extends TestCase
         Page $page,
         string $slug,
         array $design
-    ): array
-    {
+    ): array {
         $method = new ReflectionMethod(PageController::class, 'resolvePageFeatures');
         $method->setAccessible(true);
 

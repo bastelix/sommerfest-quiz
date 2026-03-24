@@ -292,7 +292,7 @@ class PagesDesignController
                     'textOnSecondary',
                     'textOnAccent',
                 ];
-        foreach ($appearanceKeys as $key) {
+                foreach ($appearanceKeys as $key) {
                     if (!array_key_exists($key, $appearanceVariables)) {
                         continue;
                     }

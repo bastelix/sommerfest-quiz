@@ -1154,8 +1154,7 @@ class DesignTokenService
         array $validValues,
         string $blockId,
         array &$errors
-    ): void
-    {
+    ): void {
         if (!isset($tokens[$field])) {
             return;
         }

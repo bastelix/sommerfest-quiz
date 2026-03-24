@@ -628,8 +628,7 @@ final class CmsPageWikiControllerTest extends TestCase
         string $method,
         string $path,
         array $payload
-    ): \Psr\Http\Message\ServerRequestInterface
-    {
+    ): \Psr\Http\Message\ServerRequestInterface {
         $request = $this->createRequest($method, $path, [
             'HTTP_CONTENT_TYPE' => 'application/json; charset=utf-8',
         ]);

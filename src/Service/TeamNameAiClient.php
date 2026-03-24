@@ -109,8 +109,7 @@ class TeamNameAiClient
         array $tones,
         string $locale,
         array $existingNames
-    ): array
-    {
+    ): array {
         $count = max(1, min(self::MAX_FETCH_COUNT, $count));
         $locale = trim($locale) ?: 'de';
         $existingNames = $this->prepareExistingNames($existingNames);
@@ -210,8 +209,7 @@ class TeamNameAiClient
         array $tones,
         string $locale,
         array $existingNames
-    ): string
-    {
+    ): string {
         $domainText = $this->formatHintList($domains);
         $toneText = $this->formatHintList($tones);
         $theme = $this->buildThemeText($domainText, $toneText);

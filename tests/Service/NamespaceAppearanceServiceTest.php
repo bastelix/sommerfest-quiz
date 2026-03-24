@@ -75,7 +75,13 @@ class NamespaceAppearanceServiceTest extends TestCase
             'INSERT INTO config (event_uid, design_tokens, colors, backgroundColor, buttonColor)'
             . ' VALUES (?, ?, ?, ?, ?)'
         );
-        $insert->execute([PageService::DEFAULT_NAMESPACE, json_encode($defaults), json_encode([]), '#ffffff', '#1e87f0']);
+        $insert->execute([
+            PageService::DEFAULT_NAMESPACE,
+            json_encode($defaults),
+            json_encode([]),
+            '#ffffff',
+            '#1e87f0',
+        ]);
 
         $customColors = [
             'surface' => '#123456',

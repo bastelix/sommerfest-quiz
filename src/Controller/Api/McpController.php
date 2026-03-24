@@ -111,8 +111,7 @@ final class McpController
         Response $response,
         string $method,
         array $params
-    ): Response
-    {
+    ): Response {
         // Spec: notifications and responses → 202 Accepted, no body
         return $response->withStatus(202);
     }

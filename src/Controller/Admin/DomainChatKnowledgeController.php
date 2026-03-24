@@ -373,8 +373,7 @@ final class DomainChatKnowledgeController
         Request $request,
         ?array $body = null,
         ?NamespaceContext $namespaceContext = null
-    ): string
-    {
+    ): string {
         $domain = '';
         $params = $request->getQueryParams();
         if (isset($params['domain'])) {

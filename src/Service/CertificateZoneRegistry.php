@@ -62,8 +62,7 @@ final class CertificateZoneRegistry
         string $zone,
         string $provider = AcmeDnsProvider::DEFAULT_PROVIDER,
         bool $wildcardEnabled = true
-    ): void
-    {
+    ): void {
         $normalized = strtolower(trim($zone));
         if ($normalized === '') {
             throw new RuntimeException('Zone cannot be empty.');
@@ -99,8 +98,7 @@ final class CertificateZoneRegistry
         string $zone,
         ?string $message = null,
         ?DateTimeImmutable $nextRenewalAfter = null
-    ): void
-    {
+    ): void {
         $this->updateStatus($zone, self::STATUS_PENDING, $message, null, $nextRenewalAfter);
     }
 
@@ -110,8 +108,7 @@ final class CertificateZoneRegistry
     public function backfillActiveDomains(
         string $provider = AcmeDnsProvider::DEFAULT_PROVIDER,
         bool $wildcardEnabled = true
-    ): void
-    {
+    ): void {
         $stmt = $this->pdo->query('SELECT DISTINCT zone FROM domains WHERE is_active = TRUE');
         if ($stmt === false) {
             return;

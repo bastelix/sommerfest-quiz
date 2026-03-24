@@ -272,8 +272,7 @@ final class CmsPageMenuAiRouteTest extends TestCase
         string $label,
         string $href,
         int $position
-    ): void
-    {
+    ): void {
         $stmt = $pdo->prepare(
             'INSERT INTO marketing_menu_items (menu_id, namespace, parent_id, label, href, icon, layout, detail_title, '
             . 'detail_text, detail_subline, position, is_external, locale, is_active, is_startpage) '

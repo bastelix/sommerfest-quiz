@@ -68,8 +68,7 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
         array $tones,
         string $locale,
         array $existingNames
-    ): array
-    {
+    ): array {
         $count = max(1, min(self::MAX_FETCH_COUNT, $count));
         $normalizedExisting = [];
         foreach ($existingNames as $name) {

@@ -27,8 +27,7 @@ final class OAuthAccessTokenRepository
         string $namespace,
         array $scopes,
         int $expiresInSeconds = self::DEFAULT_EXPIRES_IN
-    ): array
-    {
+    ): array {
         $token = $this->generateToken();
         $hash = password_hash($token, PASSWORD_DEFAULT);
 
