@@ -283,7 +283,10 @@ class EventService
             );
             $stmt->execute([$filterNamespace]);
         } else {
-            $stmt = $this->pdo->query('SELECT uid,name,start_date,end_date,description,namespace FROM events ORDER BY name LIMIT 1');
+            $stmt = $this->pdo->query(
+                'SELECT uid,name,start_date,end_date,description,namespace '
+                . 'FROM events ORDER BY name LIMIT 1'
+            );
         }
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {

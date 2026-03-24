@@ -179,7 +179,8 @@ final class LegacyMarketingMenuDefinition
                             'href' => '#benefits',
                             'label' => 'KPIs im Quartier',
                             'detail_title' => 'Wirkung verstehen',
-                            'detail_text' => 'Sechs Kennzahlen zeigen, wie Klimaschutz, Lebensqualität und Tempo zusammengehen.',
+                            'detail_text' => 'Sechs Kennzahlen zeigen, wie Klimaschutz, '
+                                . 'Lebensqualität und Tempo zusammengehen.',
                             'detail_subline' => '0 Emissionen, −60% Fahrten, +24% Tempo',
                         ],
                         [

@@ -33,7 +33,10 @@ final class UsernameBlocklistServiceTest extends TestCase
                     CHECK (category IN ('NSFW', '§86a/NS-Bezug', 'Beleidigung/Slur', 'Allgemein', 'Admin'))
             )
         SQL);
-        $this->pdo->exec('CREATE UNIQUE INDEX idx_username_blocklist_term_category ON username_blocklist (LOWER(term), category)');
+        $this->pdo->exec(
+            'CREATE UNIQUE INDEX idx_username_blocklist_term_category'
+            . ' ON username_blocklist (LOWER(term), category)'
+        );
     }
 
     public function testAddNormalizesAndReturnsEntry(): void
@@ -139,7 +142,10 @@ final class UsernameBlocklistServiceTest extends TestCase
             ['term' => 'gamma', 'category' => 'admin'],
         ]);
 
-        $stmtAdmin = $this->pdo->query('SELECT term, category FROM username_blocklist WHERE category = "Admin" ORDER BY term');
+        $stmtAdmin = $this->pdo->query(
+            'SELECT term, category FROM username_blocklist'
+            . ' WHERE category = "Admin" ORDER BY term'
+        );
         $adminRows = $stmtAdmin !== false ? $stmtAdmin->fetchAll(PDO::FETCH_ASSOC) : [];
 
         self::assertSame([

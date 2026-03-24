@@ -153,7 +153,13 @@ final class CmsPageWikiControllerTest extends TestCase
         $resource = fopen('php://temp', 'wb+');
         fwrite($resource, $markdown);
         rewind($resource);
-        $uploaded = new UploadedFile(new Stream($resource), 'quickstart.md', 'text/markdown', strlen($markdown), UPLOAD_ERR_OK);
+        $uploaded = new UploadedFile(
+            new Stream($resource),
+            'quickstart.md',
+            'text/markdown',
+            strlen($markdown),
+            UPLOAD_ERR_OK
+        );
 
         $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles', [
             'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=test'
@@ -534,7 +540,11 @@ final class CmsPageWikiControllerTest extends TestCase
             published_at TEXT NULL,
             updated_at TEXT NULL
         )');
-        $pdo->exec('CREATE UNIQUE INDEX marketing_page_wiki_start_doc_idx ON marketing_page_wiki_articles(page_id, locale) WHERE is_start_document');
+        $pdo->exec(
+            'CREATE UNIQUE INDEX marketing_page_wiki_start_doc_idx '
+            . 'ON marketing_page_wiki_articles(page_id, locale) '
+            . 'WHERE is_start_document'
+        );
         $pdo->exec('CREATE TABLE marketing_page_wiki_versions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             article_id INTEGER NOT NULL,
@@ -572,8 +582,12 @@ final class CmsPageWikiControllerTest extends TestCase
             marketing_wiki_themes TEXT NULL,
             updated_at TEXT NULL
         )');
-        $pdo->exec("INSERT INTO pages (id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source) "
-            . "VALUES (1, 'default', 'page', 'Page', '', 'custom', NULL, 0, 'published', 'de', NULL)");
+        $pdo->exec(
+            "INSERT INTO pages (id, namespace, slug, title, content, type, "
+            . "parent_id, sort_order, status, language, content_source) "
+            . "VALUES (1, 'default', 'page', 'Page', '', 'custom', "
+            . "NULL, 0, 'published', 'de', NULL)"
+        );
 
         return $pdo;
     }
@@ -589,10 +603,20 @@ final class CmsPageWikiControllerTest extends TestCase
             new WikiPublisher($contentRoot)
         );
         $pageService = new PageService($pdo);
-        $themeConfig = new MarketingWikiThemeConfigService($pdo, new ProjectSettingsRepository($pdo), new NamespaceValidator());
+        $themeConfig = new MarketingWikiThemeConfigService(
+            $pdo,
+            new ProjectSettingsRepository($pdo),
+            new NamespaceValidator()
+        );
         $namespaceResolver = new NamespaceResolver();
 
-        return new CmsPageWikiController($settingsService, $articleService, $pageService, $namespaceResolver, $themeConfig);
+        return new CmsPageWikiController(
+            $settingsService,
+            $articleService,
+            $pageService,
+            $namespaceResolver,
+            $themeConfig
+        );
     }
 
     private function createJsonRequest(array $payload): \Psr\Http\Message\ServerRequestInterface
@@ -600,7 +624,11 @@ final class CmsPageWikiControllerTest extends TestCase
         return $this->createJsonRequestWithPayload('POST', '/admin/pages/1/wiki/articles', $payload);
     }
 
-    private function createJsonRequestWithPayload(string $method, string $path, array $payload): \Psr\Http\Message\ServerRequestInterface
+    private function createJsonRequestWithPayload(
+        string $method,
+        string $path,
+        array $payload
+    ): \Psr\Http\Message\ServerRequestInterface
     {
         $request = $this->createRequest($method, $path, [
             'HTTP_CONTENT_TYPE' => 'application/json; charset=utf-8',

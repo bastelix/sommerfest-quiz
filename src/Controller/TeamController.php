@@ -24,7 +24,12 @@ class TeamController
     /**
      * Inject team service dependency.
      */
-    public function __construct(TeamService $service, ConfigService $config, ResultService $results, EventService $events) {
+    public function __construct(
+        TeamService $service,
+        ConfigService $config,
+        ResultService $results,
+        EventService $events
+    ) {
         $this->service = $service;
         $this->config = $config;
         $this->results = $results;

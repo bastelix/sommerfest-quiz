@@ -43,11 +43,27 @@ final class TicketTools
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
-                        'status' => ['type' => 'string', 'description' => 'Filter by status', 'enum' => ['open', 'in_progress', 'resolved', 'closed']],
-                        'priority' => ['type' => 'string', 'description' => 'Filter by priority', 'enum' => ['low', 'normal', 'high', 'critical']],
-                        'type' => ['type' => 'string', 'description' => 'Filter by type', 'enum' => ['bug', 'task', 'review', 'improvement']],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'Filter by status',
+                            'enum' => ['open', 'in_progress', 'resolved', 'closed'],
+                        ],
+                        'priority' => [
+                            'type' => 'string',
+                            'description' => 'Filter by priority',
+                            'enum' => ['low', 'normal', 'high', 'critical'],
+                        ],
+                        'type' => [
+                            'type' => 'string',
+                            'description' => 'Filter by type',
+                            'enum' => ['bug', 'task', 'review', 'improvement'],
+                        ],
                         'assignee' => ['type' => 'string', 'description' => 'Filter by assignee username'],
-                        'referenceType' => ['type' => 'string', 'description' => 'Filter by reference type', 'enum' => ['wiki_article', 'page']],
+                        'referenceType' => [
+                            'type' => 'string',
+                            'description' => 'Filter by reference type',
+                            'enum' => ['wiki_article', 'page'],
+                        ],
                         'referenceId' => ['type' => 'integer', 'description' => 'Filter by reference ID'],
                     ],
                 ],

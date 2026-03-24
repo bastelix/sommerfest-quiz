@@ -167,7 +167,10 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'To delete', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns', 'To delete', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL, null, null, null, [], null, null
+        );
         $service->delete($ticket->getId());
 
         $this->assertNull($service->getById($ticket->getId()));
@@ -178,7 +181,10 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'With comments', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns', 'With comments', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL, null, null, null, [], null, null
+        );
 
         $c1 = $service->addComment($ticket->getId(), 'alice', 'First comment');
         $c2 = $service->addComment($ticket->getId(), 'bob', 'Second comment');
@@ -196,7 +202,10 @@ final class TicketServiceTest extends TestCase
         $pdo = $this->createDatabase();
         $service = new TicketService($pdo);
 
-        $ticket = $service->create('ns', 'Comment delete test', '', Ticket::TYPE_TASK, Ticket::PRIORITY_NORMAL, null, null, null, [], null, null);
+        $ticket = $service->create(
+            'ns', 'Comment delete test', '', Ticket::TYPE_TASK,
+            Ticket::PRIORITY_NORMAL, null, null, null, [], null, null
+        );
         $comment = $service->addComment($ticket->getId(), 'alice', 'To be deleted');
 
         $service->deleteComment($comment->getId());

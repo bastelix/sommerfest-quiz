@@ -208,8 +208,10 @@ final class CmsPageMenuServiceGenerationTest extends TestCase
     private function seedPage(string $slug): Page
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO pages (namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, '
-            . 'startpage_domain, is_startpage) VALUES (?, ?, ?, ?, NULL, NULL, 0, NULL, ?, NULL, NULL, 0)'
+            'INSERT INTO pages (namespace, slug, title, content, type, parent_id,'
+            . ' sort_order, status, language, content_source,'
+            . ' startpage_domain, is_startpage)'
+            . ' VALUES (?, ?, ?, ?, NULL, NULL, 0, NULL, ?, NULL, NULL, 0)'
         );
         $content = '<h1 id="' . $slug . '">' . ucfirst($slug) . '</h1><section id="neu">Neu</section>';
         $stmt->execute(['default', $slug, ucfirst($slug), $content, 'de']);
