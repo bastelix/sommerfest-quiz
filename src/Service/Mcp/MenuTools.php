@@ -181,23 +181,42 @@ final class MenuTools
                             'description' => 'Filter by locale (e.g. de, en)',
                         ],
                         'menuId' => ['type' => 'integer', 'description' => 'Filter by menu ID'],
-                        'pageId' => ['type' => 'integer', 'description' => 'Filter by page ID (null = global assignment)'],
+                        'pageId' => [
+                            'type' => 'integer',
+                            'description' => 'Filter by page ID (null = global assignment)',
+                        ],
                     ],
                 ],
             ],
             [
                 'name' => 'create_menu_assignment',
                 'method' => 'createMenuAssignment',
-                'description' => 'Assign a menu to a slot. Use slot "main" to set the header/navigation menu. Use pageId to override the menu for a specific page, or omit it for a global (namespace-wide) assignment.',
+                'description' => 'Assign a menu to a slot. Use slot "main" to set the '
+                    . 'header/navigation menu. Use pageId to override the menu for '
+                    . 'a specific page, or omit it for a global (namespace-wide) '
+                    . 'assignment.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'menuId' => ['type' => 'integer', 'description' => 'ID of the menu to assign'],
-                        'slot' => ['type' => 'string', 'description' => 'Target slot: main, footer_1, footer_2, or footer_3'],
-                        'locale' => ['type' => 'string', 'description' => 'Locale for this assignment (default: de)'],
-                        'pageId' => ['type' => 'integer', 'description' => 'Optional page ID for page-specific override (omit for global)'],
-                        'isActive' => ['type' => 'boolean', 'description' => 'Whether the assignment is active (default true)'],
+                        'slot' => [
+                            'type' => 'string',
+                            'description' => 'Target slot: main, footer_1, footer_2, or footer_3',
+                        ],
+                        'locale' => [
+                            'type' => 'string',
+                            'description' => 'Locale for this assignment (default: de)',
+                        ],
+                        'pageId' => [
+                            'type' => 'integer',
+                            'description' => 'Optional page ID for page-specific '
+                                . 'override (omit for global)',
+                        ],
+                        'isActive' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether the assignment is active (default true)',
+                        ],
                     ],
                     'required' => ['menuId', 'slot'],
                 ],
