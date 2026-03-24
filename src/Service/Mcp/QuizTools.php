@@ -170,7 +170,7 @@ final class QuizTools
         ];
     }
 
-    // ── Tool Handlers ────────────────────────────────────────────────
+    // ── Tool Handlers ──────────────────────────
 
     public function listEvents(array $args): array
     {
@@ -323,7 +323,7 @@ final class QuizTools
         return ['namespace' => $ns, 'event_uid' => $uid, 'teams' => $teams->getAllForEvent($uid)];
     }
 
-    // ── Private Helpers ──────────────────────────────────────────────
+    // ── Private Helpers ─────────────────────────
 
     private function requireString(array $args, string $key): string
     {

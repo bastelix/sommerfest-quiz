@@ -11,7 +11,10 @@ final class BackupTools
 {
     private NamespaceBackupService $backupService;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(private readonly string $defaultNamespace, PDO $pdo)
     {
@@ -33,7 +36,10 @@ final class BackupTools
             [
                 'name' => 'export_namespace',
                 'method' => 'exportNamespace',
-                'description' => 'Export a complete backup of all namespace data (pages, menus, footer blocks, events, catalogs, teams, results, design tokens, settings, and more) as JSON. Returns a full snapshot that can be used with import_namespace to restore.',
+                'description' => 'Export a complete backup of all namespace data (pages, '
+                    . 'menus, footer blocks, events, catalogs, teams, results, '
+                    . 'design tokens, settings, and more) as JSON. Returns a full '
+                    . 'snapshot that can be used with import_namespace to restore.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -44,12 +50,19 @@ final class BackupTools
             [
                 'name' => 'import_namespace',
                 'method' => 'importNamespace',
-                'description' => 'Restore a namespace from a complete backup JSON. This performs a CLEAN RESTORE: all existing data in the target namespace is deleted before importing from the backup. The backup must be a JSON object as returned by export_namespace.',
+                'description' => 'Restore a namespace from a complete backup JSON. This '
+                    . 'performs a CLEAN RESTORE: all existing data in the target '
+                    . 'namespace is deleted before importing from the backup. The '
+                    . 'backup must be a JSON object as returned by export_namespace.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
                         'namespace' => self::NS_PROP,
-                        'backup' => ['type' => 'object', 'description' => 'The full backup JSON object as returned by export_namespace'],
+                        'backup' => [
+                            'type' => 'object',
+                            'description' => 'The full backup JSON object as returned '
+                                . 'by export_namespace',
+                        ],
                     ],
                     'required' => ['backup'],
                 ],
@@ -57,7 +70,7 @@ final class BackupTools
         ];
     }
 
-    // ── Tool Handlers ────────────────────────────────────────────────
+    // ── Tool Handlers ──────────────────────────
 
     public function exportNamespace(array $args): array
     {

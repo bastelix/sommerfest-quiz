@@ -14,7 +14,10 @@ final class StylesheetTools
 
     private PageService $pageService;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -37,7 +40,9 @@ final class StylesheetTools
             [
                 'name' => 'get_design_tokens',
                 'method' => 'getDesignTokens',
-                'description' => 'Get the current design tokens for a namespace. Returns brand colors, layout profile, typography preset, and component styles.',
+                'description' => 'Get the current design tokens for a namespace. Returns '
+                    . 'brand colors, layout profile, typography preset, and '
+                    . 'component styles.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -48,7 +53,9 @@ final class StylesheetTools
             [
                 'name' => 'update_design_tokens',
                 'method' => 'updateDesignTokens',
-                'description' => 'Update design tokens for a namespace. Accepts partial updates — only provided fields are changed. Triggers a CSS rebuild. Call get_design_schema first to learn valid values.',
+                'description' => 'Update design tokens for a namespace. Accepts partial '
+                    . 'updates — only provided fields are changed. Triggers a CSS '
+                    . 'rebuild. Call get_design_schema first to learn valid values.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -94,7 +101,8 @@ final class StylesheetTools
             [
                 'name' => 'get_custom_css',
                 'method' => 'getCustomCss',
-                'description' => 'Get the custom CSS overrides for a namespace. Returns the raw CSS string that is applied on top of design tokens.',
+                'description' => 'Get the custom CSS overrides for a namespace. Returns '
+                    . 'the raw CSS string that is applied on top of design tokens.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -105,7 +113,10 @@ final class StylesheetTools
             [
                 'name' => 'update_custom_css',
                 'method' => 'updateCustomCss',
-                'description' => 'Set custom CSS overrides for a namespace. The CSS is sanitized and auto-scoped to the namespace. Triggers a CSS rebuild. Use CSS custom properties (e.g. --brand-primary) to reference design tokens.',
+                'description' => 'Set custom CSS overrides for a namespace. The CSS is '
+                    . 'sanitized and auto-scoped to the namespace. Triggers a CSS '
+                    . 'rebuild. Use CSS custom properties (e.g. --brand-primary) to '
+                    . 'reference design tokens.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -127,7 +138,9 @@ final class StylesheetTools
             [
                 'name' => 'import_design_preset',
                 'method' => 'importDesignPreset',
-                'description' => 'Import a design preset into a namespace. Replaces the current design tokens, colors, and effects with the preset values. Call list_design_presets first to see available presets.',
+                'description' => 'Import a design preset into a namespace. Replaces the '
+                    . 'current design tokens, colors, and effects with the preset '
+                    . 'values. Call list_design_presets first to see available presets.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -140,7 +153,8 @@ final class StylesheetTools
             [
                 'name' => 'reset_design',
                 'method' => 'resetDesign',
-                'description' => 'Reset the design tokens for a namespace to the default values. Triggers a CSS rebuild.',
+                'description' => 'Reset the design tokens for a namespace to the default '
+                    . 'values. Triggers a CSS rebuild.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -151,7 +165,9 @@ final class StylesheetTools
             [
                 'name' => 'get_design_schema',
                 'method' => 'getDesignSchema',
-                'description' => 'Get the design token schema with all valid options, default values, and available CSS custom properties. Use this before updating tokens to understand what values are accepted.',
+                'description' => 'Get the design token schema with all valid options, '
+                    . 'default values, and available CSS custom properties. Use this '
+                    . 'before updating tokens to understand what values are accepted.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => new \stdClass(),
@@ -160,7 +176,12 @@ final class StylesheetTools
             [
                 'name' => 'get_design_manifest',
                 'method' => 'getDesignManifest',
-                'description' => 'Get the complete design token manifest for a namespace. Returns all CSS custom properties with their resolved values, the full token hierarchy (semantic → namespace → component), block-level token options, section intents/appearances, and legacy alias mappings. Use this to understand and validate the full design state before making changes.',
+                'description' => 'Get the complete design token manifest for a namespace. '
+                    . 'Returns all CSS custom properties with their resolved values, '
+                    . 'the full token hierarchy (semantic -> namespace -> component), '
+                    . 'block-level token options, section intents/appearances, and '
+                    . 'legacy alias mappings. Use this to understand and validate the '
+                    . 'full design state before making changes.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -171,7 +192,10 @@ final class StylesheetTools
             [
                 'name' => 'validate_page_design',
                 'method' => 'validatePageDesign',
-                'description' => 'Validate a page design for consistency. Checks block tokens against valid enum values, verifies section appearances, and flags deprecated block types (system_module, case_showcase). Returns errors (invalid values) and warnings (deprecated types).',
+                'description' => 'Validate a page design for consistency. Checks block '
+                    . 'tokens against valid enum values, verifies section appearances, '
+                    . 'and flags deprecated block types (system_module, case_showcase). '
+                    . 'Returns errors (invalid values) and warnings (deprecated types).',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [

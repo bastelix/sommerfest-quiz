@@ -13,7 +13,10 @@ final class NewsTools
 {
     private LandingNewsService $news;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -175,12 +178,18 @@ final class NewsTools
             throw new \RuntimeException('News article not found');
         }
 
-        $pageId = isset($args['pageId']) && is_numeric($args['pageId']) ? (int) $args['pageId'] : $existing->getPageId();
+        $pageId = isset($args['pageId']) && is_numeric($args['pageId'])
+            ? (int) $args['pageId']
+            : $existing->getPageId();
         $slug = isset($args['slug']) && is_string($args['slug']) ? trim($args['slug']) : $existing->getSlug();
         $title = isset($args['title']) && is_string($args['title']) ? trim($args['title']) : $existing->getTitle();
         $content = isset($args['content']) && is_string($args['content']) ? $args['content'] : $existing->getContent();
-        $excerpt = array_key_exists('excerpt', $args) && is_string($args['excerpt']) ? $args['excerpt'] : $existing->getExcerpt();
-        $imageUrl = array_key_exists('imageUrl', $args) && is_string($args['imageUrl']) ? $args['imageUrl'] : $existing->getImageUrl();
+        $excerpt = array_key_exists('excerpt', $args) && is_string($args['excerpt'])
+            ? $args['excerpt']
+            : $existing->getExcerpt();
+        $imageUrl = array_key_exists('imageUrl', $args) && is_string($args['imageUrl'])
+            ? $args['imageUrl']
+            : $existing->getImageUrl();
         $isPublished = isset($args['isPublished']) ? (bool) $args['isPublished'] : $existing->isPublished();
 
         $publishedAt = $existing->getPublishedAt();
@@ -192,7 +201,17 @@ final class NewsTools
             }
         }
 
-        $news = $this->news->update($id, $pageId, $slug, $title, $excerpt, $content, $publishedAt, $isPublished, $imageUrl);
+        $news = $this->news->update(
+            $id,
+            $pageId,
+            $slug,
+            $title,
+            $excerpt,
+            $content,
+            $publishedAt,
+            $isPublished,
+            $imageUrl
+        );
         return ['status' => 'updated', 'news' => $news->jsonSerialize()];
     }
 

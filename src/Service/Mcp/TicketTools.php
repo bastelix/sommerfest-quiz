@@ -282,7 +282,9 @@ final class TicketTools
         $title = isset($args['title']) && is_string($args['title']) ? $args['title'] : '';
         $description = isset($args['description']) && is_string($args['description']) ? $args['description'] : '';
         $type = isset($args['type']) && is_string($args['type']) ? $args['type'] : Ticket::TYPE_TASK;
-        $priority = isset($args['priority']) && is_string($args['priority']) ? $args['priority'] : Ticket::PRIORITY_NORMAL;
+        $priority = isset($args['priority']) && is_string($args['priority'])
+            ? $args['priority']
+            : Ticket::PRIORITY_NORMAL;
         $referenceType = isset($args['referenceType']) && is_string($args['referenceType'])
             ? $args['referenceType']
             : null;
