@@ -136,7 +136,10 @@ class LandingNewsService
      */
     public function getByIds(array $ids): array
     {
-        $normalized = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
+        $normalized = array_values(array_unique(array_filter(
+            array_map('intval', $ids),
+            static fn (int $id): bool => $id > 0
+        )));
         if ($normalized === []) {
             return [];
         }

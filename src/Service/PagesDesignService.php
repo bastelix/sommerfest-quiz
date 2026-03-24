@@ -32,7 +32,12 @@ class PagesDesignService
     }
 
     /**
-     * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
+     * @return array{
+     *     config: array<string,mixed>,
+     *     appearance: array<string,mixed>,
+     *     effects: array{effectsProfile: string, sliderProfile: string},
+     *     namespace: string
+     * }
      */
     public function getDesignForNamespace(string $namespace): array
     {

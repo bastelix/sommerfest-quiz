@@ -105,7 +105,11 @@ final class QuizTools
                         'slug' => ['type' => 'string', 'description' => 'Catalog slug'],
                         'name' => ['type' => 'string', 'description' => 'Optional catalog display name'],
                         'description' => ['type' => 'string', 'description' => 'Optional catalog description'],
-                        'questions' => ['type' => 'array', 'description' => 'Array of question objects with type, prompt, options, answers, etc.'],
+                        'questions' => [
+                            'type' => 'array',
+                            'description' => 'Array of question objects with type, prompt, '
+                                . 'options, answers, etc.',
+                        ],
                     ],
                     'required' => ['event_uid', 'slug', 'questions'],
                 ],
@@ -113,7 +117,8 @@ final class QuizTools
             [
                 'name' => 'list_results',
                 'method' => 'listResults',
-                'description' => 'Get all quiz results for an event. Returns player name, catalog, score, points, and timing data.',
+                'description' => 'Get all quiz results for an event. Returns player name, '
+                    . 'catalog, score, points, and timing data.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
@@ -126,7 +131,8 @@ final class QuizTools
             [
                 'name' => 'submit_result',
                 'method' => 'submitResult',
-                'description' => 'Submit a quiz result for a player. Requires player name, catalog identifier, correct count, and total questions.',
+                'description' => 'Submit a quiz result for a player. Requires player name, '
+                    . 'catalog identifier, correct count, and total questions.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
