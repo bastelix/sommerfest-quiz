@@ -810,6 +810,7 @@
 - *(design)* Audit and simplify design system for API integration
 - *(hero)* Replace fullscreen lightbox with framed modal overlay
 - Remove 6 legacy marketing twig templates and dead code
+- *(wiki)* Move page namespace selector into accordion
 
 ### Style
 
