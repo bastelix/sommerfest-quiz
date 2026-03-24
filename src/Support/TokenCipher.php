@@ -13,13 +13,23 @@ class TokenCipher
 {
     private const CIPHER = 'aes-256-gcm';
 
+    private string $secret;
     private string $key;
     private int $ivLength;
+    private bool $initialized = false;
 
     public function __construct(?string $secret = null)
     {
-        $secret = $secret ?? (getenv('DASHBOARD_TOKEN_SECRET') ?: getenv('PASSWORD_RESET_SECRET') ?: '');
-        if ($secret === '') {
+        $this->secret = $secret ?? (getenv('DASHBOARD_TOKEN_SECRET') ?: getenv('PASSWORD_RESET_SECRET') ?: '');
+    }
+
+    private function ensureInitialized(): void
+    {
+        if ($this->initialized) {
+            return;
+        }
+
+        if ($this->secret === '') {
             throw new RuntimeException('Dashboard token secret is not configured.');
         }
 
@@ -29,7 +39,8 @@ class TokenCipher
         }
 
         $this->ivLength = $ivLength;
-        $this->key = hash('sha256', $secret, true);
+        $this->key = hash('sha256', $this->secret, true);
+        $this->initialized = true;
     }
 
     public function encrypt(?string $value): ?string
@@ -37,6 +48,8 @@ class TokenCipher
         if ($value === null || $value === '') {
             return null;
         }
+
+        $this->ensureInitialized();
 
         $iv = random_bytes($this->ivLength);
         $tag = '';
@@ -53,6 +66,8 @@ class TokenCipher
         if ($payload === null || $payload === '') {
             return null;
         }
+
+        $this->ensureInitialized();
 
         $data = base64_decode($payload, true);
         if ($data === false) {
