@@ -282,7 +282,8 @@ class CmsPageNamespaceDesignTest extends TestCase
 
         $pdo->exec(
             'CREATE TABLE project_settings ('
-            . 'namespace TEXT PRIMARY KEY, cookie_consent_enabled INTEGER, cookie_storage_key TEXT, cookie_banner_text TEXT, '
+            . 'namespace TEXT PRIMARY KEY, cookie_consent_enabled INTEGER, '
+            . 'cookie_storage_key TEXT, cookie_banner_text TEXT, '
             . 'cookie_banner_text_de TEXT, cookie_banner_text_en TEXT, cookie_vendor_flags TEXT, privacy_url TEXT, '
             . 'privacy_url_de TEXT, privacy_url_en TEXT, marketing_wiki_themes TEXT, show_language_toggle INTEGER, '
             . 'show_theme_toggle INTEGER, show_contrast_toggle INTEGER, header_logo_mode TEXT, header_logo_path TEXT, '
@@ -291,10 +292,12 @@ class CmsPageNamespaceDesignTest extends TestCase
         $settingsInsert = $pdo->prepare(
             'INSERT INTO project_settings ('
             . 'namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, cookie_banner_text_de, '
-            . 'cookie_banner_text_en, cookie_vendor_flags, privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, '
+            . 'cookie_banner_text_en, cookie_vendor_flags, privacy_url, '
+            . 'privacy_url_de, privacy_url_en, marketing_wiki_themes, '
             . 'show_language_toggle, show_theme_toggle, show_contrast_toggle, header_logo_mode, header_logo_path, '
             . 'header_logo_alt, header_logo_label, updated_at'
-            . ') VALUES (?, 0, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, "light", NULL, NULL, NULL, NULL)'
+            . ') VALUES (?, 0, ?, NULL, NULL, NULL, NULL, NULL, '
+            . 'NULL, NULL, NULL, 1, 1, 1, "light", NULL, NULL, NULL, NULL)'
         );
         $settingsInsert->execute([$resolvedNamespace, 'testStorageKey']);
 
@@ -327,7 +330,9 @@ class CmsPageNamespaceDesignTest extends TestCase
         $pageContentLoader->method('load')->willReturn($page->getContent());
 
         $namespaceAppearance = $this->createMock(NamespaceAppearanceService::class);
-        $namespaceAppearance->method('load')->willReturnCallback(static fn (string $namespace): array => ['namespace' => $namespace]);
+        $namespaceAppearance->method('load')->willReturnCallback(
+            static fn (string $namespace): array => ['namespace' => $namespace]
+        );
 
         $pageModules = $this->createMock(PageModuleService::class);
         $pageModules->method('getModulesByPosition')->willReturn([]);

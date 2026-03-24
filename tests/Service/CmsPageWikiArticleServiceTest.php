@@ -238,7 +238,8 @@ final class CmsPageWikiArticleServiceTest extends TestCase
 
         $pageId = $this->createPage($pdo, 'guide', 'Guide');
         $markdown = <<<MD
-Intro with a [Quiz link](https://quizrace.example/guide) that mixes *emphasis*, **importance**, ~~legacy~~ notes, and `inline code`.
+Intro with a [Quiz link](https://quizrace.example/guide) that mixes *emphasis*, **importance**,
+~~legacy~~ notes, and `inline code`.
 
 - Bullet with [Docs](https://quizrace.example/docs)
 MD;

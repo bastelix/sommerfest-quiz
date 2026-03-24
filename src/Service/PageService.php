@@ -155,7 +155,8 @@ class PageService
      */
     public function getAll(): array {
         $stmt = $this->pdo->query(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, base_slug, startpage_domain, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, '
+            . 'status, language, content_source, base_slug, startpage_domain, is_startpage '
             . 'FROM pages ORDER BY title'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];

@@ -262,7 +262,14 @@ return function (\Slim\App $app, TranslationService $translator) {
             }
         // Set validated event UID as request attribute for controllers
             $request = $request->withAttribute('resolvedEventUid', $eventUid);
-            $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid, $resolvedEventNamespace ?? '');
+            $catalogService = new CatalogService(
+                $pdo,
+                $configService,
+                $tenantService,
+                $sub,
+                $eventUid,
+                $resolvedEventNamespace ?? ''
+            );
             $resultService = new ResultService($pdo);
             $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
 

@@ -840,7 +840,11 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         ->add(new CsrfMiddleware())
         ->add($namespaceQueryMiddleware);
 
-    $app->post('/admin/pages/{pageId:[0-9]+}/menu/import', function (Request $request, Response $response, array $args) {
+    $app->post('/admin/pages/{pageId:[0-9]+}/menu/import', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
         $controller = new MarketingMenuController();
 
         return $controller->import($request, $response, $args);

@@ -18,7 +18,10 @@ final class WikiTools
 
     private PageService $pageService;
 
-    private const NS_PROP = ['type' => 'string', 'description' => 'Optional namespace (defaults to the token namespace)'];
+    private const NS_PROP = [
+        'type' => 'string',
+        'description' => 'Optional namespace (defaults to the token namespace)',
+    ];
 
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
@@ -96,7 +99,10 @@ final class WikiTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'id' => ['type' => 'integer', 'description' => 'Wiki article ID'],
-                        'limit' => ['type' => 'integer', 'description' => 'Maximum number of versions to return (default 10)'],
+                        'limit' => [
+                            'type' => 'integer',
+                            'description' => 'Maximum number of versions to return (default 10)',
+                        ],
                     ],
                     'required' => ['id'],
                 ],
@@ -110,8 +116,14 @@ final class WikiTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'pageId' => ['type' => 'integer', 'description' => 'The page ID to update wiki settings for'],
-                        'isActive' => ['type' => 'boolean', 'description' => 'Whether the wiki is active for this page'],
-                        'menuLabel' => ['type' => 'string', 'description' => 'Optional default menu label (max 64 characters)'],
+                        'isActive' => [
+                            'type' => 'boolean',
+                            'description' => 'Whether the wiki is active for this page',
+                        ],
+                        'menuLabel' => [
+                            'type' => 'string',
+                            'description' => 'Optional default menu label (max 64 characters)',
+                        ],
                         'menuLabels' => [
                             'type' => 'object',
                             'description' => 'Optional per-locale menu labels, e.g. {"de": "Wiki", "en": "Wiki"}',

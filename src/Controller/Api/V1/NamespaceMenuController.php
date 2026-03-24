@@ -250,12 +250,19 @@ final class NamespaceMenuController
                 $ns,
                 $label,
                 $href,
-                isset($payload['icon']) && is_string($payload['icon']) ? $payload['icon'] : null,
-                isset($payload['parentId']) ? (is_numeric($payload['parentId']) ? (int) $payload['parentId'] : null) : null,
-                isset($payload['layout']) && is_string($payload['layout']) ? $payload['layout'] : 'link',
-                isset($payload['detailTitle']) && is_string($payload['detailTitle']) ? $payload['detailTitle'] : null,
-                isset($payload['detailText']) && is_string($payload['detailText']) ? $payload['detailText'] : null,
-                isset($payload['detailSubline']) && is_string($payload['detailSubline']) ? $payload['detailSubline'] : null,
+                isset($payload['icon']) && is_string($payload['icon'])
+                    ? $payload['icon'] : null,
+                isset($payload['parentId'])
+                    ? (is_numeric($payload['parentId']) ? (int) $payload['parentId'] : null)
+                    : null,
+                isset($payload['layout']) && is_string($payload['layout'])
+                    ? $payload['layout'] : 'link',
+                isset($payload['detailTitle']) && is_string($payload['detailTitle'])
+                    ? $payload['detailTitle'] : null,
+                isset($payload['detailText']) && is_string($payload['detailText'])
+                    ? $payload['detailText'] : null,
+                isset($payload['detailSubline']) && is_string($payload['detailSubline'])
+                    ? $payload['detailSubline'] : null,
                 isset($payload['position']) && is_numeric($payload['position']) ? (int) $payload['position'] : null,
                 isset($payload['isExternal']) ? (bool) $payload['isExternal'] : false,
                 isset($payload['locale']) && is_string($payload['locale']) ? $payload['locale'] : null,

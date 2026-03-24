@@ -997,7 +997,8 @@ final class TeamNameServiceTest extends TestCase
             );
 
             $insert = $pdo->prepare(
-                'INSERT INTO team_names(event_id, name, lexicon_version, reservation_token, reserved_at, assigned_at, released_at, fallback) '
+                'INSERT INTO team_names(event_id, name, lexicon_version, reservation_token,'
+                . ' reserved_at, assigned_at, released_at, fallback) '
                 . 'VALUES (?,?,?,?,?,?,?,?)'
             );
             $utc = new DateTimeZone('UTC');
