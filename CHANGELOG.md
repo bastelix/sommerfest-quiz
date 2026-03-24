@@ -695,6 +695,7 @@
 - *(mcp)* Validate pageId exists before creating wiki articles
 - Use correct slot name for header menu resolution
 - Prevent frame from showing when no frame is configured
+- Resolve phpstan errors in TicketService
 
 ### Merge
 
