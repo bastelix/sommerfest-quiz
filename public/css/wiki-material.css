@@ -1,0 +1,798 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Wiki Material – MkDocs Material-inspired theme layer
+   ═══════════════════════════════════════════════════════════════════════════
+   Scoped to .wiki-layout so nothing leaks into the rest of the UIkit site.
+   Requires wiki.css (base layout) to be loaded first.
+
+   Color customisation:
+   Override the --wm-* custom properties on .wiki-layout to change the palette.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Design tokens ── */
+.wiki-layout {
+  --wm-primary: var(--marketing-primary, var(--brand-primary, #3f51b5));
+  --wm-primary-light: color-mix(in srgb, var(--wm-primary) 12%, transparent);
+  --wm-primary-lighter: color-mix(in srgb, var(--wm-primary) 6%, transparent);
+  --wm-accent: var(--marketing-accent, #009688);
+
+  --wm-bg: var(--marketing-background, var(--surface-page, #ffffff));
+  --wm-surface: var(--marketing-surface, var(--surface-card, #ffffff));
+  --wm-surface-muted: var(--marketing-surface-muted, var(--surface-muted, #f5f5f6));
+  --wm-border: var(--marketing-border-light, var(--border-muted, #e0e0e0));
+
+  --wm-text: var(--marketing-text-on-surface, var(--text-body, #1a1a1a));
+  --wm-text-muted: var(--marketing-text-muted-on-surface, var(--text-muted, #757575));
+  --wm-text-heading: var(--marketing-text-on-surface, var(--text-heading, #1a1a1a));
+
+  --wm-code-bg: #263238;
+  --wm-code-fg: #eeffff;
+  --wm-code-header: #1e272c;
+  --wm-code-inline-bg: color-mix(in srgb, var(--wm-primary) 8%, var(--wm-surface-muted));
+
+  --wm-shadow-1: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --wm-shadow-2: 0 2px 4px rgba(0,0,0,0.12);
+  --wm-shadow-3: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+
+  --wm-radius: 4px;
+  --wm-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Admonition palette */
+  --wm-adm-note: #448aff;
+  --wm-adm-tip: #00bfa5;
+  --wm-adm-info: #00b8d4;
+  --wm-adm-warning: #ff9100;
+  --wm-adm-danger: #ff5252;
+  --wm-adm-example: #7c4dff;
+
+  /* Typography */
+  --wm-font: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --wm-font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+
+/* ═══════════════════════════════════════════
+   1. TYPOGRAPHY (Roboto + Material hierarchy)
+   ═══════════════════════════════════════════ */
+
+.wiki-layout {
+  font-family: var(--wm-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Article headings – Material-style hierarchy */
+.wiki-article-content h1 {
+  font-size: 1.75rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--wm-text-heading);
+  margin: 2.5rem 0 1rem;
+  line-height: 1.3;
+}
+
+.wiki-article-content h2 {
+  font-size: 1.375rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--wm-text-heading);
+  margin: 2rem 0 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--wm-border);
+}
+
+.wiki-article-content h3 {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--wm-text-heading);
+  margin: 1.75rem 0 0.5rem;
+}
+
+.wiki-article-content h4 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--wm-text-muted);
+  margin: 1.5rem 0 0.4rem;
+  text-transform: none;
+}
+
+.wiki-article-content h5 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--wm-text-muted);
+  margin: 1.25rem 0 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wiki-article-content h6 {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--wm-text-muted);
+  margin: 1.25rem 0 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Fix first heading margin */
+.wiki-article-content > h1:first-child,
+.wiki-article-content > h2:first-child,
+.wiki-article-content > h3:first-child {
+  margin-top: 0;
+}
+
+
+/* ═══════════════════════════════════════════
+   2. SIDEBAR – Tree structure & expand/collapse
+   ═══════════════════════════════════════════ */
+
+/* Sidebar search — Material floating-label style */
+.wiki-sidebar__search-input {
+  font-family: var(--wm-font);
+  font-size: 0.8125rem;
+  transition: border-color var(--wm-transition), box-shadow var(--wm-transition);
+}
+
+.wiki-sidebar__search-input:focus {
+  border-color: var(--wm-primary);
+  box-shadow: 0 0 0 3px var(--wm-primary-light);
+}
+
+/* Nav tree structure */
+.wiki-sidebar__nav {
+  font-family: var(--wm-font);
+}
+
+/* Nested nav list (child sections) */
+.wiki-sidebar__nav .wiki-sidebar__nav {
+  margin: 0;
+  padding-left: 0;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease;
+  opacity: 0;
+}
+
+.wiki-sidebar__nav .wiki-sidebar__nav.is-expanded {
+  max-height: 1500px;
+  opacity: 1;
+}
+
+/* Section toggle */
+.wiki-sidebar__section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  border-radius: var(--wm-radius);
+  background: transparent;
+  color: var(--wm-text);
+  font-family: var(--wm-font);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background var(--wm-transition);
+  text-align: left;
+}
+
+.wiki-sidebar__section-toggle:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.wiki-sidebar__section-toggle::after {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.5;
+  transition: transform var(--wm-transition);
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.wiki-sidebar__section-toggle.is-expanded::after {
+  transform: rotate(180deg);
+}
+
+/* Indented children */
+.wiki-sidebar__nav--depth-1 {
+  padding-left: 12px !important;
+}
+
+.wiki-sidebar__nav--depth-2 {
+  padding-left: 24px !important;
+}
+
+/* Active section indicator */
+.wiki-sidebar__section-toggle.has-active-child {
+  color: var(--wm-primary);
+}
+
+/* Smoother active link */
+.wiki-sidebar__nav-link {
+  font-family: var(--wm-font);
+  transition: background var(--wm-transition), color var(--wm-transition),
+              border-left-color var(--wm-transition);
+}
+
+.wiki-sidebar__nav-link--active {
+  border-left-color: var(--wm-primary);
+  color: var(--wm-primary);
+  background: var(--wm-primary-lighter);
+}
+
+
+/* ═══════════════════════════════════════════
+   3. CODE BLOCKS – Dark header, lang label, copy
+   ═══════════════════════════════════════════ */
+
+/* Inline code — Material style */
+.wiki-article-content code {
+  font-family: var(--wm-font-mono);
+  font-size: 0.85em;
+  background: var(--wm-code-inline-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  word-break: break-word;
+  color: var(--wm-text);
+}
+
+/* Code block wrapper */
+.wiki-article-content .code-block {
+  position: relative;
+  margin: 1.25rem 0;
+  border-radius: var(--wm-radius);
+  overflow: hidden;
+  box-shadow: var(--wm-shadow-1);
+}
+
+/* Code block header with language label */
+.wiki-article-content .code-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  background: var(--wm-code-header);
+  font-family: var(--wm-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.wiki-article-content .code-block__lang {
+  user-select: none;
+}
+
+/* Copy button */
+.wiki-article-content .code-block__copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: var(--wm-font);
+  font-size: 0.6875rem;
+  cursor: pointer;
+  transition: color var(--wm-transition), border-color var(--wm-transition),
+              background var(--wm-transition);
+}
+
+.wiki-article-content .code-block__copy:hover {
+  color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.wiki-article-content .code-block__copy.is-copied {
+  color: var(--wm-adm-tip);
+  border-color: var(--wm-adm-tip);
+}
+
+.wiki-article-content .code-block__copy-icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* Code block pre (inside .code-block wrapper) */
+.wiki-article-content .code-block pre {
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Standalone pre (without wrapper) — keep existing style */
+.wiki-article-content pre {
+  font-family: var(--wm-font-mono);
+  background: var(--wm-code-bg);
+  color: var(--wm-code-fg);
+  padding: 16px 20px;
+  border-radius: var(--wm-radius);
+  overflow-x: auto;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  margin: 1.25rem 0;
+}
+
+.wiki-article-content pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+  word-break: normal;
+  border-radius: 0;
+}
+
+
+/* ═══════════════════════════════════════════
+   4. TABLES – Clean with hover
+   ═══════════════════════════════════════════ */
+
+.wiki-article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-family: var(--wm-font);
+  font-size: 0.8125rem;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius);
+  overflow: hidden;
+  box-shadow: var(--wm-shadow-1);
+}
+
+.wiki-article-content table th {
+  text-align: left;
+  font-weight: 700;
+  background: var(--wm-surface-muted);
+  border-bottom: 2px solid var(--wm-border);
+  padding: 10px 16px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--wm-text-muted);
+}
+
+.wiki-article-content table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--wm-border);
+  vertical-align: top;
+}
+
+.wiki-article-content table tr:last-child td {
+  border-bottom: none;
+}
+
+.wiki-article-content table tbody tr {
+  transition: background var(--wm-transition);
+}
+
+.wiki-article-content table tbody tr:hover {
+  background: var(--wm-primary-lighter);
+}
+
+/* Striped variant (optional class) */
+.wiki-article-content table.table--striped tbody tr:nth-child(even) {
+  background: var(--wm-surface-muted);
+}
+
+.wiki-article-content table.table--striped tbody tr:nth-child(even):hover {
+  background: var(--wm-primary-lighter);
+}
+
+
+/* ═══════════════════════════════════════════
+   5. ADMONITIONS – Material MkDocs style
+   ═══════════════════════════════════════════
+   Expected HTML:
+   <div class="admonition admonition--note">
+     <div class="admonition__header">
+       <svg class="admonition__icon">...</svg>
+       <span class="admonition__title">Note</span>
+     </div>
+     <div class="admonition__body">
+       <p>Content here...</p>
+     </div>
+   </div>
+
+   Collapsible variant – add class "admonition--collapsible":
+   <div class="admonition admonition--tip admonition--collapsible">
+     <button class="admonition__header" aria-expanded="true">
+       ...
+       <svg class="admonition__chevron">...</svg>
+     </button>
+     <div class="admonition__body">...</div>
+   </div>
+   ═══════════════════════════════════════════ */
+
+.wiki-article-content .admonition {
+  margin: 1.25rem 0;
+  border-radius: var(--wm-radius);
+  border: none;
+  border-left: 4px solid var(--wm-adm-note);
+  background: var(--wm-surface);
+  box-shadow: var(--wm-shadow-1);
+  overflow: hidden;
+  font-family: var(--wm-font);
+}
+
+.wiki-article-content .admonition__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: color-mix(in srgb, var(--wm-adm-note) 10%, var(--wm-surface));
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--wm-text);
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: default;
+  font-family: var(--wm-font);
+}
+
+.wiki-article-content .admonition__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: var(--wm-adm-note);
+}
+
+.wiki-article-content .admonition__title {
+  flex: 1;
+}
+
+.wiki-article-content .admonition__body {
+  padding: 12px 16px;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: var(--wm-text);
+}
+
+.wiki-article-content .admonition__body > *:first-child {
+  margin-top: 0;
+}
+
+.wiki-article-content .admonition__body > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Collapsible variant */
+.wiki-article-content .admonition--collapsible .admonition__header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.wiki-article-content .admonition--collapsible .admonition__header:hover {
+  filter: brightness(0.97);
+}
+
+.wiki-article-content .admonition__chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform var(--wm-transition);
+  opacity: 0.5;
+}
+
+.wiki-article-content .admonition--collapsible .admonition__header[aria-expanded="false"] .admonition__chevron {
+  transform: rotate(-90deg);
+}
+
+.wiki-article-content .admonition--collapsible .admonition__body {
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease;
+}
+
+.wiki-article-content .admonition--collapsible .admonition__header[aria-expanded="false"] + .admonition__body {
+  max-height: 0 !important;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+}
+
+.wiki-article-content .admonition--collapsible .admonition__header[aria-expanded="true"] + .admonition__body {
+  max-height: 2000px;
+  opacity: 1;
+}
+
+/* ── Note (blue) ── */
+.wiki-article-content .admonition--note {
+  border-left-color: var(--wm-adm-note);
+}
+.wiki-article-content .admonition--note .admonition__header {
+  background: color-mix(in srgb, var(--wm-adm-note) 10%, var(--wm-surface));
+}
+.wiki-article-content .admonition--note .admonition__icon {
+  fill: var(--wm-adm-note);
+}
+
+/* ── Tip (teal) ── */
+.wiki-article-content .admonition--tip {
+  border-left-color: var(--wm-adm-tip);
+}
+.wiki-article-content .admonition--tip .admonition__header {
+  background: color-mix(in srgb, var(--wm-adm-tip) 10%, var(--wm-surface));
+}
+.wiki-article-content .admonition--tip .admonition__icon {
+  fill: var(--wm-adm-tip);
+}
+
+/* ── Info (cyan) ── */
+.wiki-article-content .admonition--info {
+  border-left-color: var(--wm-adm-info);
+}
+.wiki-article-content .admonition--info .admonition__header {
+  background: color-mix(in srgb, var(--wm-adm-info) 10%, var(--wm-surface));
+}
+.wiki-article-content .admonition--info .admonition__icon {
+  fill: var(--wm-adm-info);
+}
+
+/* ── Warning (orange) ── */
+.wiki-article-content .admonition--warning {
+  border-left-color: var(--wm-adm-warning);
+}
+.wiki-article-content .admonition--warning .admonition__header {
+  background: color-mix(in srgb, var(--wm-adm-warning) 10%, var(--wm-surface));
+}
+.wiki-article-content .admonition--warning .admonition__icon {
+  fill: var(--wm-adm-warning);
+}
+
+/* ── Danger (red) ── */
+.wiki-article-content .admonition--danger {
+  border-left-color: var(--wm-adm-danger);
+}
+.wiki-article-content .admonition--danger .admonition__header {
+  background: color-mix(in srgb, var(--wm-adm-danger) 10%, var(--wm-surface));
+}
+.wiki-article-content .admonition--danger .admonition__icon {
+  fill: var(--wm-adm-danger);
+}
+
+/* ── Example (purple) ── */
+.wiki-article-content .admonition--example {
+  border-left-color: var(--wm-adm-example);
+}
+.wiki-article-content .admonition--example .admonition__header {
+  background: color-mix(in srgb, var(--wm-adm-example) 10%, var(--wm-surface));
+}
+.wiki-article-content .admonition--example .admonition__icon {
+  fill: var(--wm-adm-example);
+}
+
+
+/* ═══════════════════════════════════════════
+   6. SEARCH – Material Design input
+   ═══════════════════════════════════════════ */
+
+/* Enhanced search (header variant) */
+.wiki-sidebar__search {
+  position: relative;
+  margin: 0 4px 16px;
+}
+
+.wiki-sidebar__search-input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius);
+  background: var(--wm-surface);
+  color: var(--wm-text);
+  font-family: var(--wm-font);
+  font-size: 0.8125rem;
+  outline: none;
+  transition: border-color var(--wm-transition), box-shadow var(--wm-transition),
+              background var(--wm-transition);
+  box-sizing: border-box;
+  box-shadow: var(--wm-shadow-1);
+}
+
+.wiki-sidebar__search-input:focus {
+  border-color: var(--wm-primary);
+  box-shadow: 0 0 0 3px var(--wm-primary-light);
+  background: var(--wm-surface);
+}
+
+.wiki-sidebar__search-icon {
+  color: var(--wm-text-muted);
+}
+
+
+/* ═══════════════════════════════════════════
+   7. LINKS – Material accent underline
+   ═══════════════════════════════════════════ */
+
+.wiki-article-content a {
+  color: var(--wm-primary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--wm-transition);
+}
+
+.wiki-article-content a:hover {
+  border-bottom-color: var(--wm-primary);
+  text-decoration: none;
+}
+
+
+/* ═══════════════════════════════════════════
+   8. BLOCKQUOTES – Material accent bar
+   ═══════════════════════════════════════════ */
+
+.wiki-article-content blockquote {
+  border-left: 4px solid var(--wm-primary);
+  padding: 12px 16px;
+  background: var(--wm-primary-lighter);
+  color: var(--wm-text);
+  margin: 1.25rem 0;
+  border-radius: 0 var(--wm-radius) var(--wm-radius) 0;
+  font-size: 0.875rem;
+}
+
+.wiki-article-content blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+
+/* ═══════════════════════════════════════════
+   9. LISTS – Tighter Material spacing
+   ═══════════════════════════════════════════ */
+
+.wiki-article-content ul,
+.wiki-article-content ol {
+  padding-left: 1.5em;
+  margin: 0 0 1rem;
+}
+
+.wiki-article-content li {
+  margin-bottom: 0.25rem;
+  line-height: 1.65;
+}
+
+/* Nested lists */
+.wiki-article-content li > ul,
+.wiki-article-content li > ol {
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+
+/* ═══════════════════════════════════════════
+   10. MOBILE SIDEBAR TOGGLE
+   ═══════════════════════════════════════════ */
+
+.wiki-sidebar-toggle {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 100;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--wm-primary);
+  color: #fff;
+  box-shadow: var(--wm-shadow-3);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--wm-transition), box-shadow var(--wm-transition);
+}
+
+.wiki-sidebar-toggle:hover {
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.wiki-sidebar-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 959px) {
+  .wiki-sidebar-toggle {
+    display: flex;
+  }
+
+  .wiki-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99;
+    width: 280px;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    border-right: 1px solid var(--wm-border);
+    border-bottom: none;
+  }
+
+  .wiki-sidebar.is-open {
+    transform: translateX(0);
+    box-shadow: var(--wm-shadow-3);
+  }
+
+  /* Overlay behind sidebar */
+  .wiki-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 98;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .wiki-sidebar-overlay.is-visible {
+    display: block;
+  }
+}
+
+
+/* ═══════════════════════════════════════════
+   11. ELEVATION UTILITIES
+   ═══════════════════════════════════════════ */
+
+.wiki-article-content .elevation-1 { box-shadow: var(--wm-shadow-1); }
+.wiki-article-content .elevation-2 { box-shadow: var(--wm-shadow-2); }
+.wiki-article-content .elevation-3 { box-shadow: var(--wm-shadow-3); }
+
+
+/* ═══════════════════════════════════════════
+   12. HORIZONTAL RULES
+   ═══════════════════════════════════════════ */
+
+.wiki-article-content hr {
+  border: none;
+  border-top: 1px solid var(--wm-border);
+  margin: 2rem 0;
+}
+
+
+/* ═══════════════════════════════════════════
+   13. IMAGES
+   ═══════════════════════════════════════════ */
+
+.wiki-article-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--wm-radius);
+  margin: 1.25rem 0;
+  box-shadow: var(--wm-shadow-1);
+}
+
+
+/* ═══════════════════════════════════════════
+   14. PRINT – Clean output
+   ═══════════════════════════════════════════ */
+
+@media print {
+  .wiki-sidebar,
+  .wiki-sidebar-toggle,
+  .wiki-sidebar-overlay,
+  .code-block__copy,
+  .code-block__header {
+    display: none !important;
+  }
+
+  .wiki-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wiki-article-content .admonition {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}

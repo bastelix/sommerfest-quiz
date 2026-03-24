@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<!--
+  Wiki Material – Example snippet
+  ────────────────────────────────
+  Shows how a wiki article looks with Material Design styling.
+  Include wiki.css + wiki-material.css + wiki-material.js in your page.
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wiki Material – Beispiel</title>
+  <!-- In production these are loaded by the Twig templates -->
+  <link rel="stylesheet" href="../public/css/wiki.css">
+  <link rel="stylesheet" href="../public/css/wiki-material.css">
+  <style>
+    /* Minimal reset for standalone preview */
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Roboto', sans-serif; background: #fafafa; }
+    .uk-breadcrumb { list-style: none; display: flex; gap: 8px; padding: 0; margin: 0; font-size: 0.8125rem; }
+    .uk-breadcrumb li + li::before { content: '/'; color: #bdbdbd; margin-right: 8px; }
+    .uk-breadcrumb a { color: #757575; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<div class="wiki-layout">
+
+  <!-- ── Mobile overlay + toggle ── -->
+  <div class="wiki-sidebar-overlay"></div>
+  <button class="wiki-sidebar-toggle" aria-label="Navigation öffnen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 12h18M3 6h18M3 18h18"/>
+    </svg>
+  </button>
+
+  <!-- ════════════════════════════════
+       SIDEBAR
+       ════════════════════════════════ -->
+  <aside class="wiki-sidebar">
+    <div class="wiki-sidebar__search">
+      <svg class="wiki-sidebar__search-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd"/>
+      </svg>
+      <input class="wiki-sidebar__search-input" type="search" placeholder="Suchen…">
+    </div>
+
+    <p class="wiki-sidebar__label">MET/CAL Wiki</p>
+
+    <ul class="wiki-sidebar__nav">
+      <!-- Flat link -->
+      <li class="wiki-sidebar__nav-item">
+        <a class="wiki-sidebar__nav-link" href="#">Einführung</a>
+      </li>
+
+      <!-- Expandable section -->
+      <li class="wiki-sidebar__nav-item">
+        <button class="wiki-sidebar__section-toggle">Kalibrierung</button>
+        <ul class="wiki-sidebar__nav wiki-sidebar__nav--depth-1">
+          <li class="wiki-sidebar__nav-item">
+            <a class="wiki-sidebar__nav-link wiki-sidebar__nav-link--active" href="#">Grundlagen</a>
+          </li>
+          <li class="wiki-sidebar__nav-item">
+            <a class="wiki-sidebar__nav-link" href="#">Verfahrensanweisungen</a>
+          </li>
+          <li class="wiki-sidebar__nav-item">
+            <a class="wiki-sidebar__nav-link" href="#">Unsicherheitsberechnung</a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- Another section -->
+      <li class="wiki-sidebar__nav-item">
+        <button class="wiki-sidebar__section-toggle">Prozeduren</button>
+        <ul class="wiki-sidebar__nav wiki-sidebar__nav--depth-1">
+          <li class="wiki-sidebar__nav-item">
+            <a class="wiki-sidebar__nav-link" href="#">FSC-Befehle</a>
+          </li>
+          <li class="wiki-sidebar__nav-item">
+            <a class="wiki-sidebar__nav-link" href="#">IEEE-488 Kommunikation</a>
+          </li>
+        </ul>
+      </li>
+
+      <li class="wiki-sidebar__nav-item">
+        <a class="wiki-sidebar__nav-link" href="#">FAQ</a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- ════════════════════════════════
+       MAIN CONTENT
+       ════════════════════════════════ -->
+  <main class="wiki-main">
+    <nav aria-label="Breadcrumb" class="wiki-main__breadcrumb">
+      <ul class="uk-breadcrumb">
+        <li><a href="#">MET/CAL Wiki</a></li>
+        <li><a href="#">Kalibrierung</a></li>
+        <li class="uk-active"><span>Grundlagen</span></li>
+      </ul>
+    </nav>
+
+    <div class="wiki-article-header">
+      <h1 class="wiki-article-header__title">Kalibrierungsgrundlagen</h1>
+      <p class="wiki-article-header__meta">Zuletzt aktualisiert am 24.03.2026</p>
+    </div>
+
+    <article class="wiki-article-content">
+
+      <h2>Einleitung</h2>
+      <p>
+        Die Kalibrierung ist ein wesentlicher Bestandteil der Qualitätssicherung.
+        In diesem Artikel erfahren Sie, wie Sie mit <code>MET/CAL</code> präzise
+        Kalibrierungen durchführen.
+      </p>
+
+      <h3>Voraussetzungen</h3>
+      <ul>
+        <li>MET/CAL Version 12 oder höher</li>
+        <li>Gültige Lizenz für das <code>FSC</code>-Modul</li>
+        <li>Konfigurierter IEEE-488 Bus</li>
+      </ul>
+
+      <!-- ── Admonition: Note ── -->
+      <div class="admonition admonition--note">
+        <div class="admonition__header">
+          <svg class="admonition__icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <span class="admonition__title">Hinweis</span>
+        </div>
+        <div class="admonition__body">
+          <p>Stellen Sie sicher, dass alle Referenznormale vor Beginn der Kalibrierung akklimatisiert sind (min. 4 Stunden im Kalibrierraum).</p>
+        </div>
+      </div>
+
+      <!-- ── Admonition: Tip ── -->
+      <div class="admonition admonition--tip">
+        <div class="admonition__header">
+          <svg class="admonition__icon" viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+          <span class="admonition__title">Tipp</span>
+        </div>
+        <div class="admonition__body">
+          <p>Verwenden Sie <code>VSET</code> anstelle von <code>MATH</code> für einfache Zuweisungen – das verbessert die Lesbarkeit Ihrer Prozeduren erheblich.</p>
+        </div>
+      </div>
+
+      <!-- ── Admonition: Warning ── -->
+      <div class="admonition admonition--warning">
+        <div class="admonition__header">
+          <svg class="admonition__icon" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <span class="admonition__title">Warnung</span>
+        </div>
+        <div class="admonition__body">
+          <p>Überschreiben Sie niemals die System-Prozeduren ohne vorheriges Backup. Änderungen an <code>SYS_PROC</code> können die gesamte Kalibrierumgebung beeinflussen.</p>
+        </div>
+      </div>
+
+      <!-- ── Admonition: Danger ── -->
+      <div class="admonition admonition--danger">
+        <div class="admonition__header">
+          <svg class="admonition__icon" viewBox="0 0 24 24"><path d="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3s.58-1.3 1.3-1.3 1.3.58 1.3 1.3-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z"/></svg>
+          <span class="admonition__title">Gefahr</span>
+        </div>
+        <div class="admonition__body">
+          <p>Bei Hochspannungskalibrierungen (> 1kV) müssen die Sicherheitsvorschriften nach DIN EN 50191 eingehalten werden!</p>
+        </div>
+      </div>
+
+      <!-- ── Admonition: Info ── -->
+      <div class="admonition admonition--info">
+        <div class="admonition__header">
+          <svg class="admonition__icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          <span class="admonition__title">Info</span>
+        </div>
+        <div class="admonition__body">
+          <p>Die aktuelle Norm ISO/IEC 17025:2017 fordert eine dokumentierte Messunsicherheitsanalyse für alle Kalibrierungen.</p>
+        </div>
+      </div>
+
+      <!-- ── Admonition: Example ── -->
+      <div class="admonition admonition--example">
+        <div class="admonition__header">
+          <svg class="admonition__icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+          <span class="admonition__title">Beispiel</span>
+        </div>
+        <div class="admonition__body">
+          <p>Eine einfache Spannungsmessung mit dem Keithley 2000:</p>
+          <pre><code class="language-metcal">1.001  RSLT  DCV
+1.002  VSET  NOMINAL = 10 V
+1.003  IEEE  WRITE "CONF:VOLT:DC 10"
+1.004  IEEE  READ? RESULT
+1.005  MATH  MEM = RESULT</code></pre>
+        </div>
+      </div>
+
+      <!-- ── Collapsible admonition ── -->
+      <div class="admonition admonition--tip admonition--collapsible">
+        <button class="admonition__header" aria-expanded="true">
+          <svg class="admonition__icon" viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+          <span class="admonition__title">Erweiterte Optionen (aufklappbar)</span>
+          <svg class="admonition__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="admonition__body">
+          <p>Sie können die Messzeit mit dem Parameter <code>NPLC</code> anpassen. Höhere Werte ergeben genauere, aber langsamere Messungen:</p>
+          <ul>
+            <li><code>NPLC 0.1</code> – Schnell (4.5 Digit)</li>
+            <li><code>NPLC 1</code> – Standard (5.5 Digit)</li>
+            <li><code>NPLC 10</code> – Hochpräzise (6.5 Digit)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>Code-Beispiele</h2>
+      <p>Hier ein vollständiges Kalibrierungsbeispiel in Python:</p>
+
+      <pre><code class="language-python">import pyvisa
+
+rm = pyvisa.ResourceManager()
+dmm = rm.open_resource("GPIB0::22::INSTR")
+
+# Configure for DC voltage measurement
+dmm.write("CONF:VOLT:DC 10")
+dmm.write("VOLT:DC:NPLC 10")
+
+# Read measurement
+result = float(dmm.query("READ?"))
+print(f"Measured voltage: {result:.6f} V")</code></pre>
+
+      <p>Und dasselbe als MET/CAL FSC-Prozedur:</p>
+
+      <pre><code class="language-metcal">1.001  TARGET  Keithley 2000 DC Voltage
+1.002  RSLT    DCV 10V
+1.003  IEEE    WRITE "CONF:VOLT:DC 10"
+1.004  IEEE    WRITE "VOLT:DC:NPLC 10"
+1.005  IEEE    READ? RESULT
+1.006  MATH    MEM = RESULT
+1.007  DISP    Measured: [MEM] V</code></pre>
+
+      <h2>Referenztabelle</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Bereich</th>
+            <th>Auflösung</th>
+            <th>Genauigkeit (1 Jahr)</th>
+            <th>Temperaturkoeffizient</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>100 mV</td>
+            <td>0.1 µV</td>
+            <td>±(30 ppm + 6 counts)</td>
+            <td>±(5 ppm + 1 µV)</td>
+          </tr>
+          <tr>
+            <td>1 V</td>
+            <td>1 µV</td>
+            <td>±(15 ppm + 4 counts)</td>
+            <td>±(2 ppm + 0.5 µV)</td>
+          </tr>
+          <tr>
+            <td>10 V</td>
+            <td>10 µV</td>
+            <td>±(12 ppm + 4 counts)</td>
+            <td>±(1 ppm + 3 µV)</td>
+          </tr>
+          <tr>
+            <td>100 V</td>
+            <td>100 µV</td>
+            <td>±(18 ppm + 4 counts)</td>
+            <td>±(3 ppm + 30 µV)</td>
+          </tr>
+          <tr>
+            <td>1000 V</td>
+            <td>1 mV</td>
+            <td>±(20 ppm + 4 counts)</td>
+            <td>±(5 ppm + 300 µV)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Weiterführende Links</h3>
+      <p>Weitere Informationen finden Sie in der <a href="#">MET/CAL Referenzdokumentation</a> oder im <a href="#">Kalibrierhandbuch</a>.</p>
+
+    </article>
+  </main>
+
+</div>
+
+<script src="../public/js/wiki-material.js"></script>
+</body>
+</html>
