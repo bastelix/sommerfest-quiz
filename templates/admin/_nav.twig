@@ -86,6 +86,13 @@
         noNamespace: true
       },
       {
+        href: basePath ~ '/admin/api-tokens',
+        icon: 'lock',
+        text: 'API Tokens',
+        admin: true,
+        noEvent: true
+      },
+      {
         href: basePath ~ '/admin/mail-providers',
         icon: 'mail',
         text: t('tab_mail_providers'),
@@ -228,62 +235,14 @@
 
   <div class="qr-sidebar-nav">
     <div class="uk-margin-small">
-      <label class="uk-form-label" for="{{ namespaceSelectId }}">{{ t('label_project_namespace') }}</label>
-      <div class="uk-form-controls">
-        <select
-        id="{{ namespaceSelectId }}"
-        class="uk-select"
-        data-namespace="{{ activeNamespace|e('html_attr') }}"
-        data-namespace-select
-        {% if lockNamespaceSelect %}disabled{% endif %}
-      >
-        {% for entry in projectNamespaceOptions %}
-          {% set entryNamespace = entry.namespace|default('') %}
-          {% set entryLabel = entry.label|default('') %}
-          {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-          <option
-            value="{{ entryNamespace|e('html_attr') }}"
-            {% if entryNamespace == activeNamespace %}selected{% endif %}
-          >
-            {{ entryNamespace }}
-            {% if entryLabel is not empty %}· {{ entryLabel }}{% endif %}
-            {% if entryIsInactive %}· inaktiv{% endif %}
-          </option>
-        {% endfor %}
-      </select>
+      {% include 'admin/partials/namespace_select.twig' with {
+        activeNamespace: activeNamespace,
+        namespaceOptions: projectNamespaceOptions,
+        selectorId: namespaceSelectId,
+        lockNamespaceSelect: lockNamespaceSelect,
+        showHint: true
+      } only %}
     </div>
-    <div class="uk-text-meta uk-margin-small-top">{{ t('text_project_namespace_hint') }}</div>
-    <script>
-      (function () {
-        const attachNamespaceHandlers = () => {
-          const selects = document.querySelectorAll('[data-namespace-select]');
-          selects.forEach(select => {
-            if (select.dataset.namespaceListenerAttached === '1') {
-              return;
-            }
-
-            select.dataset.namespaceListenerAttached = '1';
-
-            select.addEventListener('change', () => {
-              const namespace = select.value || '';
-              if (!namespace) {
-                return;
-              }
-
-              const url = new URL(window.location.href);
-              url.searchParams.set('namespace', namespace);
-              window.location.assign(url.toString());
-            });
-          });
-        };
-
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', attachNamespaceHandlers);
-        } else {
-          attachNamespaceHandlers();
-        }
-      })();
-    </script>
   </div>
   <ul class="uk-nav uk-nav-default uk-margin-remove-bottom">
     {% for it in startGroup.items %}

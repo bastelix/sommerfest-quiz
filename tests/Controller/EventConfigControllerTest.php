@@ -12,7 +12,9 @@ use App\Infrastructure\Migrations\Migrator;
 use Slim\Psr7\Response;
 use Tests\TestCase;
 use PDO;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class EventConfigControllerTest extends TestCase
 {
     protected function setUp(): void

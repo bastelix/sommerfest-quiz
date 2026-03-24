@@ -8,7 +8,8 @@ export const EFFECT_TYPES = {
   REVEAL: 'reveal',
   HERO_INTRO: 'heroIntro',
   SLIDER: 'slider',
-  HOVER: 'hoverMicroInteractions'
+  HOVER: 'hoverMicroInteractions',
+  PAGE_TRANSITION: 'pageTransition'
 };
 
 export const EFFECTS_PROFILES = {
@@ -16,19 +17,29 @@ export const EFFECTS_PROFILES = {
     [EFFECT_TYPES.REVEAL]: { enabled: true, preset: 'lifted' },
     [EFFECT_TYPES.HERO_INTRO]: { enabled: true, preset: 'punchy' },
     [EFFECT_TYPES.SLIDER]: { enabled: true, preset: 'momentum' },
-    [EFFECT_TYPES.HOVER]: { enabled: true, preset: 'playful' }
+    [EFFECT_TYPES.HOVER]: { enabled: true, preset: 'playful' },
+    [EFFECT_TYPES.PAGE_TRANSITION]: { enabled: true, preset: 'smooth' }
   },
   'quizrace.calm': {
     [EFFECT_TYPES.REVEAL]: { enabled: true, preset: 'gentle' },
     [EFFECT_TYPES.HERO_INTRO]: { enabled: false, preset: 'static' },
     [EFFECT_TYPES.SLIDER]: { enabled: true, preset: 'steady' },
-    [EFFECT_TYPES.HOVER]: { enabled: true, preset: 'soft' }
+    [EFFECT_TYPES.HOVER]: { enabled: true, preset: 'soft' },
+    [EFFECT_TYPES.PAGE_TRANSITION]: { enabled: true, preset: 'minimal' }
   },
   'calserver.professional': {
     [EFFECT_TYPES.REVEAL]: { enabled: true, preset: 'polished' },
     [EFFECT_TYPES.HERO_INTRO]: { enabled: false, preset: 'static' },
     [EFFECT_TYPES.SLIDER]: { enabled: false, preset: 'manual' },
-    [EFFECT_TYPES.HOVER]: { enabled: true, preset: 'minimal' }
+    [EFFECT_TYPES.HOVER]: { enabled: true, preset: 'minimal' },
+    [EFFECT_TYPES.PAGE_TRANSITION]: { enabled: true, preset: 'minimal' }
+  },
+  'default': {
+    [EFFECT_TYPES.REVEAL]: { enabled: true, preset: 'lifted' },
+    [EFFECT_TYPES.HERO_INTRO]: { enabled: true, preset: 'punchy' },
+    [EFFECT_TYPES.SLIDER]: { enabled: false, preset: 'manual' },
+    [EFFECT_TYPES.HOVER]: { enabled: true, preset: 'playful' },
+    [EFFECT_TYPES.PAGE_TRANSITION]: { enabled: true, preset: 'smooth' }
   }
 };
 
@@ -60,21 +71,19 @@ export function resolveProfileName(namespace) {
 
 export function resolveEffectsProfile(namespace) {
   const profileName = resolveProfileName(namespace);
-  if (profileName && EFFECTS_PROFILES[profileName]) {
-    const baseProfile = EFFECTS_PROFILES[profileName];
-    const sliderOverride = resolveSliderOverride(namespace);
-    if (sliderOverride) {
-      return {
-        profileName,
-        profile: {
-          ...baseProfile,
-          [EFFECT_TYPES.SLIDER]: { ...baseProfile[EFFECT_TYPES.SLIDER], preset: sliderOverride }
-        }
-      };
-    }
-    return { profileName, profile: baseProfile };
+  const resolvedName = (profileName && EFFECTS_PROFILES[profileName]) ? profileName : 'default';
+  const baseProfile = EFFECTS_PROFILES[resolvedName];
+  const sliderOverride = resolveSliderOverride(namespace);
+  if (sliderOverride) {
+    return {
+      profileName: resolvedName,
+      profile: {
+        ...baseProfile,
+        [EFFECT_TYPES.SLIDER]: { ...baseProfile[EFFECT_TYPES.SLIDER], preset: sliderOverride }
+      }
+    };
   }
-  return null;
+  return { profileName: resolvedName, profile: baseProfile };
 }
 
 function resolveSliderOverride(namespace) {

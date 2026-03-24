@@ -16,7 +16,9 @@ use Slim\Factory\AppFactory;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Uri;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class EventsRouteTest extends TestCase
 {
     public function testEventsListAccessibleForCatalogEditor(): void {

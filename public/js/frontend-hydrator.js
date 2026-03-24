@@ -144,6 +144,7 @@ const hydratePage = async () => {
   const hydrationSafetyTimer = setTimeout(() => {
     if (!pageRoot.hasAttribute('data-hydrated')) {
       pageRoot.setAttribute('data-hydrated', '');
+      document.body.removeAttribute('data-cms-hydrating');
     }
   }, 4000);
 
@@ -152,15 +153,30 @@ const hydratePage = async () => {
       window.basePath = basePath;
     }
 
+    // Prefer the embedded payload (inline <script data-json="page">) to
+    // avoid an extra fetch() round-trip.  Only fall back to a remote fetch
+    // when no embedded data is available.
     const embeddedPayload = parseEmbeddedPayload();
-    const [designModule, matrixModule, effectsModule, remotePayload] = await Promise.all([
-      import(`${basePath}/js/components/namespace-design.js`),
-      import(`${basePath}/js/components/block-renderer-matrix.js`),
-      import(`${basePath}/js/effects/initEffects.js`),
-      fetchPagePayload(embeddedPayload)
-    ]);
 
-    const payload = remotePayload || embeddedPayload;
+    let designModule, matrixModule, effectsModule, payload;
+
+    if (embeddedPayload) {
+      [designModule, matrixModule, effectsModule] = await Promise.all([
+        import(`${basePath}/js/components/namespace-design.js`),
+        import(`${basePath}/js/components/block-renderer-matrix.js`),
+        import(`${basePath}/js/effects/initEffects.js`),
+      ]);
+      payload = embeddedPayload;
+    } else {
+      let remotePayload;
+      [designModule, matrixModule, effectsModule, remotePayload] = await Promise.all([
+        import(`${basePath}/js/components/namespace-design.js`),
+        import(`${basePath}/js/components/block-renderer-matrix.js`),
+        import(`${basePath}/js/effects/initEffects.js`),
+        fetchPagePayload(null)
+      ]);
+      payload = remotePayload;
+    }
     if (!payload) {
       console.error('[CMS] Missing payload – cannot render page');
       showHydrationFallback(pageRoot, 'Content could not be loaded. Please refresh the page.');
@@ -222,6 +238,7 @@ const hydratePage = async () => {
     }
 
     pageRoot.setAttribute('data-hydrated', '');
+    document.body.removeAttribute('data-cms-hydrating');
     clearTimeout(hydrationSafetyTimer);
 
     // Activate contact form AJAX handlers

@@ -17,7 +17,9 @@ use Slim\Psr7\Headers;
 use Slim\Psr7\Request as SlimRequest;
 use Slim\Psr7\Response as SlimResponse;
 use Slim\Psr7\Uri;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class DomainMiddlewareTest extends TestCase
 {
     protected function tearDown(): void

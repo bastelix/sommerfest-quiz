@@ -9,7 +9,9 @@ use App\Service\ContainerMetricsService;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Response;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class SystemMetricsControllerTest extends TestCase
 {
     private function resetCpuSample(): void

@@ -6,11 +6,13 @@ namespace App\Controller\Admin;
 
 use App\Service\CertificateZoneRegistry;
 use App\Service\DomainService;
+use App\Service\MarketingProxySyncService;
 use App\Support\AcmeDnsProvider;
 use App\Support\DomainNameHelper;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use RuntimeException;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -21,13 +23,16 @@ class DomainController
 {
     private DomainService $domainService;
     private CertificateZoneRegistry $certificateZoneRegistry;
+    private ?MarketingProxySyncService $proxySync;
 
     public function __construct(
         DomainService $domainService,
-        CertificateZoneRegistry $certificateZoneRegistry
+        CertificateZoneRegistry $certificateZoneRegistry,
+        ?MarketingProxySyncService $proxySync = null
     ) {
         $this->domainService = $domainService;
         $this->certificateZoneRegistry = $certificateZoneRegistry;
+        $this->proxySync = $proxySync;
     }
 
     public function index(Request $request, Response $response): Response
@@ -60,6 +65,8 @@ class DomainController
             return $this->jsonError($response, 'Failed to queue certificate provisioning.', 500);
         }
 
+        $this->dispatchWildcardJobs();
+
         $payload = [
             'status' => 'started',
             'namespace' => $domain['namespace'] ?? null,
@@ -83,31 +90,34 @@ class DomainController
         $namespace = array_key_exists('namespace', $data) ? (string) $data['namespace'] : null;
         $isActive = $this->normalizeBool($data['is_active'] ?? true);
 
-        $provider = null;
-        if ($isActive) {
-            try {
-                $provider = AcmeDnsProvider::fromEnv();
-            } catch (InvalidArgumentException $exception) {
-                return $this->jsonError($response, $exception->getMessage(), 422);
-            }
-        }
-
         try {
             $domain = $this->domainService->createDomain($host, $label, $namespace, $isActive);
         } catch (InvalidArgumentException $exception) {
             return $this->jsonError($response, $exception->getMessage(), 422);
         }
 
+        $warning = null;
         if ($domain['is_active']) {
-            $this->queueZone($domain['zone'], $provider);
-            $this->dispatchWildcardJobs();
-            $this->clearMarketingDomainCache();
+            try {
+                $provider = AcmeDnsProvider::fromEnv();
+                $this->queueZone($domain['zone'], $provider);
+                $this->dispatchWildcardJobs();
+                $this->clearMarketingDomainCache();
+            } catch (InvalidArgumentException $exception) {
+                $warning = $exception->getMessage();
+            }
+
+            $this->syncProxyConfig($domain['host']);
         }
 
-        $response->getBody()->write(json_encode([
+        $payload = [
             'status' => 'ok',
             'domain' => $domain,
-        ]));
+        ];
+        if ($warning !== null) {
+            $payload['warning'] = $warning;
+        }
+        $response->getBody()->write(json_encode($payload));
 
         return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
     }
@@ -134,16 +144,6 @@ class DomainController
             return $response->withStatus(404);
         }
 
-        $provider = null;
-        $shouldActivate = !$existing['is_active'] && $isActive;
-        if ($shouldActivate) {
-            try {
-                $provider = AcmeDnsProvider::fromEnv();
-            } catch (InvalidArgumentException $exception) {
-                return $this->jsonError($response, $exception->getMessage(), 422);
-            }
-        }
-
         try {
             $domain = $this->domainService->updateDomain($id, $host, $label, $namespace, $isActive);
         } catch (InvalidArgumentException $exception) {
@@ -154,10 +154,17 @@ class DomainController
             return $response->withStatus(404);
         }
 
+        $warning = null;
+        $shouldActivate = !$existing['is_active'] && $isActive;
         if ($shouldActivate && $domain['is_active']) {
-            $this->queueZone($domain['zone'], $provider);
-            $this->dispatchWildcardJobs();
-            $this->clearMarketingDomainCache();
+            try {
+                $provider = AcmeDnsProvider::fromEnv();
+                $this->queueZone($domain['zone'], $provider);
+                $this->dispatchWildcardJobs();
+                $this->clearMarketingDomainCache();
+            } catch (InvalidArgumentException $exception) {
+                $warning = $exception->getMessage();
+            }
         }
 
         $zoneRemoved = false;
@@ -170,10 +177,22 @@ class DomainController
             $this->clearMarketingDomainCache();
         }
 
-        $response->getBody()->write(json_encode([
+        // Sync nginx proxy config: add the new host or remove the old one.
+        if ($domain['is_active']) {
+            $this->syncProxyConfig($domain['host']);
+        }
+        if (!$domain['is_active'] || $existing['host'] !== $domain['host']) {
+            $this->removeProxyConfig($existing['host']);
+        }
+
+        $payload = [
             'status' => 'ok',
             'domain' => $domain,
-        ]));
+        ];
+        if ($warning !== null) {
+            $payload['warning'] = $warning;
+        }
+        $response->getBody()->write(json_encode($payload));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -195,11 +214,16 @@ class DomainController
             return $response->withStatus(400);
         }
 
+        $existing = $this->domainService->getDomainById($id);
         $result = $this->domainService->deleteDomain($id);
 
         if ($result !== null && $result['zone_removed']) {
             $this->dispatchWildcardJobs();
             $this->clearMarketingDomainCache();
+        }
+
+        if ($existing !== null) {
+            $this->removeProxyConfig($existing['host']);
         }
 
         $response->getBody()->write(json_encode([
@@ -226,6 +250,8 @@ class DomainController
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, 'Failed to queue certificate renewal.', 500);
         }
+
+        $this->dispatchWildcardJobs();
 
         $response->getBody()->write(json_encode([
             'status' => 'Certificate renewal queued.',
@@ -283,6 +309,42 @@ class DomainController
         $value = is_string($value) ? strtolower(trim($value)) : $value;
 
         return $value === true || $value === 1 || $value === '1' || $value === 'true' || $value === 'on';
+    }
+
+    private function syncProxyConfig(string $host): void
+    {
+        $sync = $this->resolveProxySync();
+        if ($sync === null) {
+            return;
+        }
+
+        $sync->syncDomain($host);
+    }
+
+    private function removeProxyConfig(string $host): void
+    {
+        $sync = $this->resolveProxySync();
+        if ($sync === null) {
+            return;
+        }
+
+        $sync->removeDomain($host);
+    }
+
+    private function resolveProxySync(): ?MarketingProxySyncService
+    {
+        if ($this->proxySync !== null) {
+            return $this->proxySync;
+        }
+
+        try {
+            $pdo = \App\Infrastructure\Database::connectFromEnv();
+            $this->proxySync = new MarketingProxySyncService($pdo);
+        } catch (\Throwable $exception) {
+            return null;
+        }
+
+        return $this->proxySync;
     }
 
     private function queueZone(string $zone, ?string $provider = null): void

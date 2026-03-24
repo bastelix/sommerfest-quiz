@@ -6,6 +6,7 @@
 
 - Tag image as sommerfest-quiz
 - Enforce conventional commits via commitlint and husky
+- *(deps-dev)* Bump phpstan/phpstan from 2.1.32 to 2.1.40
 
 ### Chore
 
@@ -40,12 +41,19 @@
 - Include pre-existing namespace token and upgrade script changes
 - *(design)* Complete v2.0.0 structure for all design presets
 - Update generated namespace token CSS files
+- Add calhelp blocks demo draft page
+- Add phpstan check script
+- Add cms api contract smoke test script
+- Remove test comment from FooterTools
+- Modernize CI and Docker setup
 
 ### Ci
 
 - Rebase changelog updates before push
 - Add GitHub Pages workflow
 - Add JS unit tests job to PR workflow
+- Add pre-commit hook for local CI checks
+- Disable update-tenants workflow
 
 ### Docs
 
@@ -83,6 +91,10 @@
 - *(features)* Add namespace-based subscription and quota model
 - Add GRID_OVERVIEW.md with CSS grid migration analysis and roadmap
 - Update GRID_OVERVIEW.md with exact marketing.css selector analysis
+- Add standard customer chat snippet for cms collaboration
+- *(api)* Add comprehensive API v1 reference and register news endpoints
+- Add API expansion briefing for AI assistant
+- Add MCP connector setup guide for Claude.ai
 
 ### Feat
 
@@ -342,6 +354,51 @@
 - *(landing-news)* Add slug suggestion and rich text content editor
 - *(news)* Add optional image URL to landing news entries
 - *(ai)* Add HTML-import prompt template for 1:1 block-contract conversion
+- *(news)* Add link and image insertion to content editor
+- Public CMS API v1 with namespace tokens
+- *(api)* Allow status/title updates in cms upsert
+- *(api)* Strict block schema validation with detailed errors
+- *(marketing)* Allow draft preview with ?preview=1 for logged-in users
+- *(api)* Add cms page list endpoint (cms:read)
+- *(api)* Add pages tree endpoint
+- *(admin)* Allow deleting api tokens and improve copy UX
+- *(api)* Menu read/write endpoints for namespace
+- *(api)* Add menu read/write endpoints
+- *(api)* Add menu endpoints (read/write) with hierarchical items
+- *(api)* Add news CRUD endpoints with read/write scopes
+- *(mcp)* Add MCP server with OAuth 2.0 authentication
+- *(mcp)* Add optional namespace parameter to all tools and list_namespaces discovery
+- *(mcp)* Add get_block_contract tool to retrieve block schema
+- *(mcp)* Add footer block and layout MCP tools
+- *(mcp)* Resolve block contract schema and return detailed validation errors
+- *(quiz)* Add API v1 and MCP endpoints for quiz module
+- *(backup)* Add complete namespace backup & restore
+- *(oauth)* Show all MCP endpoints on authorization page
+- *(docs)* Migrate GitHub Pages from Jekyll/Minima to MkDocs Material
+- *(seo)* Add AI training data integration (GEO)
+- Auto-expose marketing domains to nginx reverse proxy
+- *(mcp)* Add stylesheet API for AI-driven design management
+- *(mcp)* Register design:read and design:write OAuth scopes
+- *(cms)* Add dynamic language variant resolution via base_slug column
+- *(mcp)* Add seo parameter to upsert_page tool
+- *(i18n)* Add translations for cookie admin page
+- *(editor)* Add direct image upload to page editor block fields
+- *(mcp)* Add menu assignment tools for header/footer menu slot management
+- *(hero)* Add configurable media size for hero image area
+- *(topbar)* Add configurable topbar style setting for navigation visibility
+- *(hero)* Make hero media image clickable with UIkit lightbox
+- *(packages)* Add configurable columns per row for package summary block
+- *(ui)* Add smooth page transitions with progressive enhancement
+- *(mcp)* Add wiki tools module
+- *(mcp)* Register wiki scopes in OAuth consent screen
+- *(page-tree)* Improve sidebar tree usability
+- *(mcp)* Add delete_page tool
+- *(page-tree)* Apply sidebar tree improvements to /admin/pages/content
+- *(tickets)* Add ticket system API with customer registration and profiles
+- *(hero)* Add frameless option for hero media images
+- *(wiki)* Integrate namespace design and apply Notion-inspired layout
+- *(wiki)* Add GFM markdown table support for wiki article parser
+- *(wiki)* Add direct wiki mode for pages with type=wiki
 
 ### Fix
 
@@ -596,6 +653,65 @@
 - *(ci)* Scan all commits since last bump for version type detection
 - *(cms)* Prevent header+footer flash and enable staggered section reveals
 - Remove redundant null check after isset() in LandingNewsService
+- *(effects)* Use rAF for reveal transitions and add default profile fallback
+- Add csrf header for api token admin actions
+- *(admin)* Preview links include preview=1 and add preview action to structure tree
+- Phpstan issues in api token auth and page list
+- Phpstan false-positive in pages tree endpoint
+- *(admin)* Add missing menu:read scope checkbox to API token form
+- *(mcp)* Align MCP server with Streamable HTTP transport spec for Claude custom connectors
+- *(auth)* Honor redirect parameter in login flow for OAuth authorization
+- Resolve pre-existing phpstan errors blocking CI build
+- *(mcp)* Return server info on GET /mcp instead of 405
+- *(mcp)* Remove unused $pdo promoted property in FooterTools
+- *(ssl)* Dispatch wildcard jobs on SSL renewal and replace missing renew script
+- Resolve merge conflict in MCP scope mapping
+- *(mcp)* Add missing CORS headers and OAuth scopes for Claude.ai connector
+- *(domains)* Save domain before validating ACME DNS provider
+- *(mcp)* Bypass domain resolution and service init for MCP/OAuth endpoints
+- Resolve PHPStan errors blocking Docker build
+- Add missing eforms design tokens based on aurora theme
+- Prevent duplicate nginx server blocks for marketing domains
+- *(mcp)* Remove unused promoted property in StylesheetTools
+- Remove unused PDO property promotion in StylesheetTools
+- Use standalone nginx configs with acme.sh for custom domains
+- *(cms)* Hide entire page during hydration to prevent header/footer flash
+- *(mcp)* Clarify upsert_page description — seo lives in meta.seo, not as separate param
+- *(preview)* Load default-theme.css and dark.css in editor preview
+- *(cms)* Link eforms english page variant and remove test page
+- *(stat_strip)* Migrate data when switching to/from trust_band variant
+- *(design)* Increase specificity of hero/highlight button selectors
+- *(ci)* Prune stale remote refs before fetch in deploy script
+- *(editor)* Render custom icons in icon picker via programmatic API
+- *(mcp)* Decode double-encoded unicode escape sequences in tool arguments
+- *(hero)* Resolve image from imageId when media.image is missing
+- *(editor)* Load custom-icons.js on all admin pages
+- *(media)* Allow public access to project uploads via namespace resolution
+- *(topbar)* Resolve PHPStan type errors for header_topbar_style
+- Override UIkit absolute positioning on navbar center for CMS pages
+- *(ui)* Improve secondary button visibility on dark backgrounds
+- *(hero)* Use inline height styles instead of UIkit height classes for media size
+- *(topbar)* Link logo to namespace homepage instead of current page
+- Remove redundant null coalescing on header_topbar_style
+- *(packages)* Add columns property to inline schema in block-contract.js
+- *(ui)* Override button tokens instead of properties for dark surfaces
+- *(editor)* Align preview stylesheets with actual rendered page
+- *(page-tree)* Move toolbar to project_tree template and fix search wiring
+- *(mcp)* Validate pageId exists before creating wiki articles
+- Use correct slot name for header menu resolution
+- Prevent frame from showing when no frame is configured
+- Resolve phpstan errors in TicketService
+- *(hero)* Reset viewport height when switching back to auto
+- *(menu)* Auto-promote link items with children to dropdown
+- *(hero)* Scale media image on mobile instead of cropping
+- Add dark mode background to cookie consent banner
+- *(ci)* Clean up stale containers before docker compose up
+- *(wiki)* Add main navigation header and fix backlink in wiki pages
+- Unify namespace switching and fix reset bug
+- *(wiki)* Generate direct wiki URL in menu for type=wiki pages
+- *(mcp)* Add content schema documentation to footer block tools
+- *(ci)* Resolve migration failure due to missing dashboard token secret
+- *(ci)* Prevent spurious patch bumps triggered by changelog push
 
 ### Merge
 
@@ -608,6 +724,8 @@
 ### Perf
 
 - *(admin)* Optimize table loading for events and logins
+- Lazy-load non-critical CSS and embed hydration payload
+- *(seo)* Improve global seo with twitter tags, theme-color, font optimization and https redirect
 
 ### Refactor
 
@@ -701,6 +819,10 @@
 - *(admin)* Extract catalog and help sidebar modules
 - *(admin)* Extract configuration module into admin-config.js
 - *(ai)* Rewrite html-import template for better GPT-4.1 conversion quality
+- *(design)* Audit and simplify design system for API integration
+- *(hero)* Replace fullscreen lightbox with framed modal overlay
+- Remove 6 legacy marketing twig templates and dead code
+- *(wiki)* Move page namespace selector into accordion
 
 ### Style
 
@@ -739,6 +861,9 @@
 - *(editor)* Improve block configuration form UI hierarchy and spacing
 - *(ui)* Modernize customer portal page layout
 - *(editor)* Strengthen input field contrast and add rich-text borders
+- *(admin)* Remove bullet dots from page block list
+- *(wiki)* Tighten typography for technical-reference look
+- *(wiki)* Redesign wiki layout inspired by MkDocs Material theme
 
 ### Test
 
@@ -763,6 +888,13 @@
 - Generate sticker background during test
 - Use new sticker background route
 - *(onboarding)* Add Playwright E2E tests for onboarding wizard
+- Verify pre-commit hook runs
+- Add phpunit unit tests to pre-commit hook
+
+### Ui
+
+- Namespace + scopes picker for api tokens
+- Add cms:read scope option for namespace api tokens
 
 ## [0.2.0] - 2025-08-18
 

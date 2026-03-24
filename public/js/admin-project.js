@@ -36,23 +36,46 @@ const apiFetch = (...args) => window.apiFetch(...args);
 
 const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAssignmentMap = {}) => {
   const list = document.createElement('ul');
-  list.className = 'uk-list uk-list-collapse';
-  if (level > 0) {
-    list.classList.add('uk-margin-small-left');
-  }
+  list.className = 'uk-list uk-list-collapse page-tree-list';
   if (level > MAX_TREE_DEPTH) {
     return list;
   }
 
   nodes.forEach(node => {
+    const hasChildren = Array.isArray(node.children) && node.children.length > 0;
     const item = document.createElement('li');
+    item.className = 'page-tree-node';
+    item.style.setProperty('--tree-depth', String(level));
+    if (level === 0) {
+      item.classList.add('page-tree-node--root');
+    }
+    item.setAttribute('data-page-title', (node.title || '').toLowerCase());
+    item.setAttribute('data-page-slug', (node.slug || '').toLowerCase());
+
     const row = document.createElement('div');
-    row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
+    row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap page-tree-row';
     if (node.id) {
       row.setAttribute('data-page-row', node.id);
     }
 
+    // -- Collapse/expand toggle or leaf icon --
+    const collapseBtn = document.createElement('button');
+    collapseBtn.type = 'button';
+    if (hasChildren) {
+      collapseBtn.className = 'page-tree-toggle';
+      collapseBtn.setAttribute('uk-icon', 'icon: chevron-down; ratio: 0.7');
+      collapseBtn.setAttribute('aria-expanded', 'true');
+      collapseBtn.setAttribute('aria-label', window.transToggleChildren || 'Toggle children');
+    } else {
+      collapseBtn.className = 'page-tree-toggle page-tree-toggle--leaf';
+      collapseBtn.setAttribute('uk-icon', 'icon: file-text; ratio: 0.7');
+      collapseBtn.disabled = true;
+      collapseBtn.setAttribute('aria-hidden', 'true');
+    }
+    row.appendChild(collapseBtn);
+
     const info = document.createElement('div');
+    info.className = 'page-tree-info';
     const label = node.title || node.slug || 'Ohne Titel';
     const title = node.editUrl
       ? createProjectLink(label, node.editUrl, 'uk-text-bold')
@@ -65,7 +88,7 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
 
     if (node.slug) {
       const slug = document.createElement('span');
-      slug.className = 'uk-text-meta uk-margin-small-left';
+      slug.className = 'uk-text-meta uk-margin-small-left page-tree-slug';
       slug.textContent = `/${node.slug}`;
       info.appendChild(slug);
     }
@@ -73,10 +96,10 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
     row.appendChild(info);
 
     const meta = document.createElement('div');
-    meta.className = 'uk-flex uk-flex-middle uk-flex-wrap';
+    meta.className = 'uk-flex uk-flex-middle uk-flex-wrap page-tree-meta';
     if (node.type) {
       const typeLabel = document.createElement('span');
-      typeLabel.className = 'uk-label uk-label-default';
+      typeLabel.className = 'uk-label uk-label-default page-tree-badge';
       typeLabel.textContent = node.type;
       meta.appendChild(typeLabel);
     }
@@ -89,20 +112,18 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
     const menuAssignment = node.id ? menuAssignmentMap[node.id] : null;
     if (menuAssignment && menuAssignment.menuLabel) {
       const menuBadge = document.createElement('span');
-      menuBadge.className = 'uk-label uk-label-success uk-margin-small-left';
+      menuBadge.className = 'uk-label uk-label-default uk-margin-small-left page-tree-badge';
       menuBadge.textContent = menuAssignment.menuLabel;
       menuBadge.setAttribute('data-menu-badge', node.id);
       menuBadge.title = (window.transTopMenu || 'Top menu') + ': ' + menuAssignment.menuLabel;
       meta.appendChild(menuBadge);
     }
-    if (node.status) {
+    // Only show status badge for non-published pages (draft/archived)
+    if (node.status && node.status !== 'published') {
       const statusBadge = document.createElement('span');
       statusBadge.className = 'uk-label uk-margin-small-left';
       statusBadge.setAttribute('data-status-badge', node.id);
-      if (node.status === 'published') {
-        statusBadge.classList.add('uk-label-success');
-        statusBadge.textContent = window.transStatusPublished || 'Published';
-      } else if (node.status === 'archived') {
+      if (node.status === 'archived') {
         statusBadge.classList.add('uk-label-warning');
         statusBadge.textContent = window.transStatusArchived || 'Archived';
       } else {
@@ -115,7 +136,6 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
     }
 
     if (node.slug && node.editUrl) {
-      const hasChildren = Array.isArray(node.children) && node.children.length > 0;
       const actions = document.createElement('div');
       actions.className = 'uk-inline page-tree-actions';
 
@@ -197,13 +217,135 @@ const buildProjectPageTreeList = (nodes, level = 0, availableMenus = [], menuAss
     }
 
     item.appendChild(row);
-    if (Array.isArray(node.children) && node.children.length) {
-      item.appendChild(buildProjectPageTreeList(node.children, level + 1, availableMenus, menuAssignmentMap));
+
+    // -- Build children and wire collapse toggle --
+    if (hasChildren) {
+      const childList = buildProjectPageTreeList(node.children, level + 1, availableMenus, menuAssignmentMap);
+      collapseBtn.addEventListener('click', () => {
+        const expanded = collapseBtn.getAttribute('aria-expanded') === 'true';
+        collapseBtn.setAttribute('aria-expanded', String(!expanded));
+        collapseBtn.setAttribute('uk-icon', expanded ? 'icon: chevron-right; ratio: 0.7' : 'icon: chevron-down; ratio: 0.7');
+        if (window.UIkit && UIkit.icon) {
+          UIkit.icon(collapseBtn);
+        }
+        childList.hidden = expanded;
+      });
+      item.appendChild(childList);
     }
     list.appendChild(item);
   });
 
   return list;
+};
+
+// ===========================================================================
+// Page tree search/filter
+// ===========================================================================
+
+const debouncePageTreeSearch = (fn, delay = 200) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const filterPageTree = (container, query) => {
+  const allNodes = container.querySelectorAll('.page-tree-node');
+  if (!query) {
+    allNodes.forEach(node => {
+      node.style.display = '';
+      node.classList.remove('page-tree-node--search-match');
+    });
+    return;
+  }
+  // First, hide all nodes
+  allNodes.forEach(node => {
+    node.style.display = 'none';
+    node.classList.remove('page-tree-node--search-match');
+  });
+  // Show nodes that match and their ancestors
+  allNodes.forEach(node => {
+    const title = node.getAttribute('data-page-title') || '';
+    const slug = node.getAttribute('data-page-slug') || '';
+    if (title.includes(query) || slug.includes(query)) {
+      node.style.display = '';
+      node.classList.add('page-tree-node--search-match');
+      // Show all ancestor <li> elements
+      let parent = node.parentElement;
+      while (parent) {
+        if (parent.classList && parent.classList.contains('page-tree-node')) {
+          parent.style.display = '';
+        }
+        // Auto-expand collapsed subtrees that contain matches
+        const childLists = parent.querySelectorAll(':scope > .page-tree-list');
+        childLists.forEach(cl => { cl.hidden = false; });
+        const toggleBtn = parent.querySelector(':scope > .page-tree-row > .page-tree-toggle[aria-expanded]');
+        if (toggleBtn && toggleBtn.getAttribute('aria-expanded') === 'false') {
+          toggleBtn.setAttribute('aria-expanded', 'true');
+          toggleBtn.setAttribute('uk-icon', 'icon: chevron-down; ratio: 0.7');
+          if (window.UIkit && UIkit.icon) {
+            UIkit.icon(toggleBtn);
+          }
+        }
+        parent = parent.parentElement;
+      }
+      // Show direct children too (so subtree is visible)
+      const directChildList = node.querySelector(':scope > .page-tree-list');
+      if (directChildList) {
+        directChildList.hidden = false;
+        directChildList.querySelectorAll('.page-tree-node').forEach(child => {
+          child.style.display = '';
+        });
+      }
+    }
+  });
+};
+
+const toggleAllPageTreeNodes = (container, expand) => {
+  const toggleBtns = container.querySelectorAll('.page-tree-toggle[aria-expanded]');
+  toggleBtns.forEach(btn => {
+    const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+    if (expand !== isExpanded) {
+      btn.setAttribute('aria-expanded', String(expand));
+      btn.setAttribute('uk-icon', expand ? 'icon: chevron-down; ratio: 0.7' : 'icon: chevron-right; ratio: 0.7');
+      if (window.UIkit && UIkit.icon) {
+        UIkit.icon(btn);
+      }
+      const li = btn.closest('.page-tree-node');
+      if (li) {
+        const childList = li.querySelector(':scope > .page-tree-list');
+        if (childList) {
+          childList.hidden = !expand;
+        }
+      }
+    }
+  });
+};
+
+const initPageTreeSearch = (treeContainer) => {
+  // Toolbar lives as a sibling (in project_tree.twig) or inside a shared parent card
+  const card = treeContainer.closest('.uk-card-body') || treeContainer.parentElement;
+  const searchInput = card?.querySelector('[data-page-tree-search]');
+  if (!searchInput) {
+    return;
+  }
+  searchInput.addEventListener('input', debouncePageTreeSearch(() => {
+    const query = searchInput.value.trim().toLowerCase();
+    filterPageTree(treeContainer, query);
+  }));
+
+  const expandAllBtn = card?.querySelector('[data-page-tree-expand-all]');
+  if (expandAllBtn) {
+    expandAllBtn.addEventListener('click', () => {
+      const isExpand = expandAllBtn.getAttribute('data-page-tree-expand-all') !== 'collapse';
+      toggleAllPageTreeNodes(treeContainer, isExpand);
+      expandAllBtn.setAttribute('data-page-tree-expand-all', isExpand ? 'collapse' : 'expand');
+      expandAllBtn.textContent = isExpand
+        ? (window.transCollapseAll || 'Collapse all')
+        : (window.transExpandAll || 'Expand all');
+    });
+  }
 };
 
 // ===========================================================================
@@ -793,6 +935,9 @@ const renderProjectTree = (container, namespaces, emptyMessage) => {
 
     container.appendChild(wrapper);
   });
+
+  // Wire up search and expand/collapse after tree is rendered
+  initPageTreeSearch(container);
 };
 
 // ===========================================================================
@@ -809,21 +954,11 @@ const resolveNamespaceQuery = () => {
   return (params.get('namespace') || '').trim();
 };
 
-const getNamespaceSelects = () => {
-  const elements = Array.from(document.querySelectorAll('[data-namespace-select]'));
-  if (elements.length) {
-    return elements;
-  }
-  const legacy = document.getElementById('namespaceSelect');
-  return legacy ? [legacy] : [];
-};
+const getNamespaceSelects = () =>
+  Array.from(document.querySelectorAll('[data-namespace-select]'));
 
-const getPrimaryNamespaceSelect = () => {
-  const [firstNamespaceSelect] = getNamespaceSelects();
-  return firstNamespaceSelect
-    || document.getElementById('projectNamespaceSelect')
-    || document.getElementById('pageNamespaceSelect');
-};
+const getPrimaryNamespaceSelect = () =>
+  document.querySelector('[data-namespace-select]');
 
 const withProjectNamespace = (endpoint, namespace) => {
   if (!namespace) {
@@ -963,6 +1098,7 @@ const initProjectSettings = () => {
     const logoLabelInput = form.querySelector('#headerLogoLabel');
     const logoPathInput = form.querySelector('input[name="header_logo_path"]');
     const logoFileInput = form.querySelector('#headerLogoFile');
+    const topbarStyleSelect = form.querySelector('#headerTopbarStyle');
 
     if (consentInput) {
       payload.append('cookieConsentEnabled', consentInput.checked ? '1' : '0');
@@ -1011,6 +1147,9 @@ const initProjectSettings = () => {
     }
     if (logoFileInput && logoFileInput.files && logoFileInput.files[0]) {
       payload.append('headerLogoFile', logoFileInput.files[0]);
+    }
+    if (topbarStyleSelect) {
+      payload.append('headerTopbarStyle', topbarStyleSelect.value || 'auto');
     }
 
     setStatus(window.transSaving || 'Saving\u2026', false);
@@ -1107,6 +1246,9 @@ const initProjectSettings = () => {
             input.checked = input.value === modeValue;
           }
         });
+      }
+      if (topbarStyleSelect && typeof settings.header_topbar_style === 'string') {
+        topbarStyleSelect.value = settings.header_topbar_style;
       }
       const updatedAt = result?.settings?.updated_at || result?.settings?.updatedAt;
       if (updatedLabel) {

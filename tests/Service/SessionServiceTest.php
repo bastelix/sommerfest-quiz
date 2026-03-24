@@ -6,7 +6,9 @@ namespace Tests\Service;
 
 use App\Service\SessionService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class SessionServiceTest extends TestCase
 {
     public function testInvalidateRemovesSessions(): void {

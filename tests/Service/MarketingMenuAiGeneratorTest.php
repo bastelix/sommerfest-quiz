@@ -139,6 +139,6 @@ final class MarketingMenuAiGeneratorTest extends TestCase
 
     private function createPage(string $namespace, string $slug, string $content): Page
     {
-        return new Page(1, $namespace, $slug, ucfirst($slug), $content, null, null, 0, null, 'de', null, null, false);
+        return new Page(1, $namespace, $slug, ucfirst($slug), $content, null, null, 0, null, 'de', null, null, null, false);
     }
 }

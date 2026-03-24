@@ -7,7 +7,9 @@ namespace Tests\Service;
 use App\Service\PageService;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class PageServiceStartpageTest extends TestCase
 {
     private PDO $pdo;

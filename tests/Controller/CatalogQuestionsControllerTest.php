@@ -9,7 +9,9 @@ use App\Service\CatalogService;
 use App\Service\ConfigService;
 use Tests\TestCase;
 use Slim\Psr7\Response;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class CatalogQuestionsControllerTest extends TestCase
 {
     public function testGetQuestionsRequiresValidTokenAndWhitelist(): void {

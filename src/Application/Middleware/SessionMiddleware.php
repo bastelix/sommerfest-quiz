@@ -214,12 +214,14 @@ class SessionMiddleware implements Middleware
             return;
         }
 
-        $record = $this->loadUserRecord($request);
-        if ($record === null) {
-            return;
+        $cachedNamespaces = $_SESSION['user']['namespaces'] ?? null;
+        if (!is_array($cachedNamespaces)) {
+            $record = $this->loadUserRecord($request);
+            if ($record === null) {
+                return;
+            }
+            $_SESSION['user']['namespaces'] = $record['namespaces'];
         }
-
-        $_SESSION['user']['namespaces'] = $record['namespaces'];
 
         $role = $_SESSION['user']['role'] ?? null;
         $accessService = new NamespaceAccessService();
@@ -229,17 +231,7 @@ class SessionMiddleware implements Middleware
             return;
         }
 
-        if ($role === Roles::ADMIN) {
-            $_SESSION['user']['active_namespace'] = $requestedNamespace;
-            return;
-        }
-
-        $pdo = $this->resolvePdo($request);
-        $sessionService = new SessionService($pdo);
-        $_SESSION['user']['active_namespace'] = $sessionService->resolveActiveNamespace(
-            $record['namespaces'],
-            $requestedNamespace
-        );
+        $_SESSION['user']['active_namespace'] = $requestedNamespace;
     }
 
     /**

@@ -8,7 +8,9 @@ use App\Domain\Roles;
 use App\Service\UserService;
 use App\Support\UsernameBlockedException;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class UserServiceTest extends TestCase
 {
     public function testSaveAllStoresPositionAndReturnsOrdered(): void {

@@ -42,7 +42,9 @@ use Slim\Views\TwigMiddleware;
 use Tests\TestCase;
 use PDO;
 use ReflectionProperty;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class CmsPageNamespaceDesignTest extends TestCase
 {
     protected function tearDown(): void
@@ -204,7 +206,7 @@ class CmsPageNamespaceDesignTest extends TestCase
         ?PageService $pageServiceOverride = null,
         string $slug = 'styled'
     ): PageController {
-        $page = new Page(1, $contentNamespace, $slug, 'Styled', '<p>Styled</p>', null, null, 0, null, null, null, null, false);
+        $page = new Page(1, $contentNamespace, $slug, 'Styled', '<p>Styled</p>', null, null, 0, null, null, null, null, null, false);
 
         $pageService = $pageServiceOverride ?? $this->createMock(PageService::class);
         $pageService->method('findByKey')->willReturn($page);

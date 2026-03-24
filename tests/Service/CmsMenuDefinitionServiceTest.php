@@ -8,7 +8,9 @@ use App\Service\CmsMenuDefinitionService;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class CmsMenuDefinitionServiceTest extends TestCase
 {
     public function testSlotUniquenessRejectsDuplicates(): void

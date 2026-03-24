@@ -8,7 +8,9 @@ use App\Support\UsernameBlockedException;
 use App\Support\UsernameGuard;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class UsernameGuardTest extends TestCase
 {
     public function testDatabaseEntriesAreBlocked(): void

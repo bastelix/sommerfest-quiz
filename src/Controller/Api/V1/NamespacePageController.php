@@ -1,0 +1,359 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controller\Api\V1;
+
+use App\Application\Middleware\ApiTokenAuthMiddleware;
+use App\Application\Seo\PageSeoConfigService;
+use App\Domain\PageSeoConfig;
+use App\Service\CmsMenuDefinitionService;
+use App\Service\PageBlockContractMigrator;
+use App\Service\PageService;
+use App\Support\RequestDatabase;
+use PDO;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+
+final class NamespacePageController
+{
+    public const SCOPE_CMS_READ = 'cms:read';
+    public const SCOPE_CMS_WRITE = 'cms:write';
+    public const SCOPE_SEO_WRITE = 'seo:write';
+    public const SCOPE_MENU_WRITE = 'menu:write';
+
+    public function __construct(
+        private readonly ?PDO $pdo = null,
+        private readonly ?PageService $pages = null,
+        private readonly ?PageBlockContractMigrator $contract = null,
+        private readonly ?PageSeoConfigService $seo = null,
+        private readonly ?CmsMenuDefinitionService $menus = null,
+    ) {
+    }
+
+    /**
+     * GET /api/v1/namespaces/{ns}/pages
+     */
+    public function list(Request $request, Response $response, array $args): Response
+    {
+        $ns = isset($args['ns']) ? (string) $args['ns'] : '';
+        $tokenNs = (string) $request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_NAMESPACE);
+        if ($tokenNs === '' || $ns === '' || $ns !== $tokenNs) {
+            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        }
+
+        $pdo = $this->pdo;
+        if (!$pdo instanceof PDO) {
+            $pdo = RequestDatabase::resolve($request);
+        }
+
+        $pages = $this->pages ?? new PageService($pdo);
+        $items = [];
+        foreach ($pages->getAllForNamespace($ns) as $page) {
+            $items[] = [
+                'id' => $page->getId(),
+                'namespace' => $page->getNamespace(),
+                'slug' => $page->getSlug(),
+                'title' => $page->getTitle(),
+                'status' => $page->getStatus(),
+                'type' => $page->getType(),
+                'language' => $page->getLanguage(),
+                'base_slug' => $page->getBaseSlug(),
+            ];
+        }
+
+        return $this->json($response, [
+            'namespace' => $ns,
+            'pages' => $items,
+        ]);
+    }
+
+    /**
+     * GET /api/v1/namespaces/{ns}/pages/tree
+     */
+    public function tree(Request $request, Response $response, array $args): Response
+    {
+        $ns = isset($args['ns']) ? (string) $args['ns'] : '';
+        $tokenNs = (string) $request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_NAMESPACE);
+        if ($tokenNs === '' || $ns === '' || $ns !== $tokenNs) {
+            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        }
+
+        $pdo = $this->pdo;
+        if (!$pdo instanceof PDO) {
+            $pdo = RequestDatabase::resolve($request);
+        }
+
+        $pages = $this->pages ?? new PageService($pdo);
+        $tree = $pages->getTree();
+        foreach ($tree as $entry) {
+            if (($entry['namespace'] ?? null) === $ns) {
+                return $this->json($response, [
+                    'namespace' => $ns,
+                    'tree' => $entry['pages'] ?? [],
+                ]);
+            }
+        }
+
+        return $this->json($response, [
+            'namespace' => $ns,
+            'tree' => [],
+        ]);
+    }
+
+    /**
+     * PUT /api/v1/namespaces/{ns}/pages/{slug}
+     *
+     * Body JSON:
+     * {
+     *   "blocks": [ ... ],
+     *   "meta": { ... },
+     *   "seo": { ... },
+     *   "menuAssignments": [ {"slot":"header","menuId":123,"locale":"de","isActive":true,"pageScoped":true} ]
+     * }
+     */
+    public function upsert(Request $request, Response $response, array $args): Response
+    {
+        $ns = isset($args['ns']) ? (string) $args['ns'] : '';
+        $slug = isset($args['slug']) ? (string) $args['slug'] : '';
+
+        $tokenNs = (string) $request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_NAMESPACE);
+        if ($tokenNs === '' || $ns === '' || $ns !== $tokenNs) {
+            return $this->json($response, ['error' => 'namespace_mismatch'], 403);
+        }
+
+        $pdo = $this->pdo;
+        if (!$pdo instanceof PDO) {
+            $pdo = RequestDatabase::resolve($request);
+        }
+
+        $payload = json_decode((string) $request->getBody(), true);
+        if (!is_array($payload)) {
+            return $this->json($response, ['error' => 'invalid_json'], 400);
+        }
+
+        $content = [
+            'id' => $payload['id'] ?? null,
+            'blocks' => $payload['blocks'] ?? null,
+            'meta' => $payload['meta'] ?? [],
+        ];
+
+        if (!is_array($content['blocks'])) {
+            return $this->json($response, ['error' => 'invalid_blocks'], 422);
+        }
+        if (!is_array($content['meta'])) {
+            $content['meta'] = [];
+        }
+
+        $pages = $this->pages ?? new PageService($pdo);
+        $contract = $this->contract ?? new PageBlockContractMigrator($pages);
+        if (!$contract->isContractValid($content)) {
+            return $this->json($response, ['error' => 'block_contract_invalid'], 422);
+        }
+
+        // Strict editor-level validation against block-contract.schema.json
+        $strictErrors = [];
+        try {
+            $strictValidator = new \App\Service\BlockContractSchemaValidator();
+            $strictErrors = $strictValidator->validatePageContent($content);
+        } catch (\Throwable $e) {
+            // If strict validation infra fails, do not block writes (but do log)
+            error_log('Strict block validation failed to run: ' . $e->getMessage());
+            $strictErrors = [];
+        }
+
+        if ($strictErrors !== []) {
+            // Log details (best-effort)
+            error_log(sprintf(
+                'CMS API block validation failed (ns=%s slug=%s tokenId=%s): %s',
+                $ns,
+                $slug,
+                (string)($request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_ID) ?? ''),
+                json_encode($strictErrors, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            ));
+
+            return $this->json($response, [
+                'error' => 'block_schema_invalid',
+                'details' => $strictErrors,
+            ], 422);
+        }
+
+        // Upsert page
+        $existing = $pages->findByKey($ns, $slug);
+        $contentJson = json_encode($content, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        if ($contentJson === false) {
+            return $this->json($response, ['error' => 'encode_failed'], 500);
+        }
+
+        $language = isset($payload['language']) && is_string($payload['language']) ? trim($payload['language']) : null;
+        $payloadBaseSlug = isset($payload['base_slug']) && is_string($payload['base_slug']) ? trim($payload['base_slug']) : null;
+
+        if ($existing === null) {
+            // Title is required for create(). API is blocks-first: use slug as safe default.
+            $pages->create($ns, $slug, $slug, $contentJson, 'api:v1', $language, $payloadBaseSlug);
+        } else {
+            $pages->save($ns, $slug, $contentJson);
+        }
+
+        $page = $pages->findByKey($ns, $slug);
+        if ($page === null) {
+            return $this->json($response, ['error' => 'page_not_found_after_upsert'], 500);
+        }
+
+        $pageId = $page->getId();
+
+        // Optional: page status/title/language/base_slug updates
+        if (array_key_exists('status', $payload) || array_key_exists('title', $payload) || $language !== null || $payloadBaseSlug !== null) {
+            $allowedStatus = ['draft', 'published'];
+            $newStatus = null;
+            if (array_key_exists('status', $payload)) {
+                $rawStatus = $payload['status'];
+                if (!is_string($rawStatus)) {
+                    return $this->json($response, ['error' => 'invalid_status'], 422);
+                }
+                $rawStatus = trim($rawStatus);
+                if ($rawStatus !== '') {
+                    if (!in_array($rawStatus, $allowedStatus, true)) {
+                        return $this->json($response, ['error' => 'invalid_status'], 422);
+                    }
+                    $newStatus = $rawStatus;
+                }
+            }
+
+            $newTitle = null;
+            if (array_key_exists('title', $payload)) {
+                $rawTitle = $payload['title'];
+                if ($rawTitle !== null && !is_string($rawTitle)) {
+                    return $this->json($response, ['error' => 'invalid_title'], 422);
+                }
+                if (is_string($rawTitle)) {
+                    $rawTitle = trim($rawTitle);
+                    $newTitle = $rawTitle === '' ? null : $rawTitle;
+                }
+            }
+
+            if ($newStatus !== null || $newTitle !== null || $language !== null || $payloadBaseSlug !== null) {
+                $fields = [];
+                $params = [];
+                if ($newStatus !== null) {
+                    $fields[] = 'status = ?';
+                    $params[] = $newStatus;
+                }
+                if ($newTitle !== null) {
+                    $fields[] = 'title = ?';
+                    $params[] = $newTitle;
+                }
+                if ($language !== null && $language !== '') {
+                    $fields[] = 'language = ?';
+                    $params[] = $language;
+                }
+                if ($payloadBaseSlug !== null && $payloadBaseSlug !== '') {
+                    $fields[] = 'base_slug = ?';
+                    $params[] = $payloadBaseSlug;
+                }
+                if ($fields !== []) {
+                    $fields[] = 'updated_at = CURRENT_TIMESTAMP';
+                    $params[] = $ns;
+                    $params[] = $slug;
+                    $stmt = $pdo->prepare('UPDATE pages SET ' . implode(', ', $fields) . ' WHERE namespace = ? AND slug = ?');
+                    $stmt->execute($params);
+                }
+            }
+        }
+
+        // Optional: SEO
+        if (array_key_exists('seo', $payload) && is_array($payload['seo'])) {
+            if (!$this->hasScope($request, self::SCOPE_SEO_WRITE)) {
+                return $this->json($response, ['error' => 'missing_scope', 'scope' => self::SCOPE_SEO_WRITE], 403);
+            }
+            $seoPayload = $payload['seo'];
+            $seo = $this->seo ?? new PageSeoConfigService($pdo);
+
+            $cfg = new PageSeoConfig(
+                $pageId,
+                is_string($seoPayload['slug'] ?? null) ? (string) $seoPayload['slug'] : $slug,
+                isset($seoPayload['metaTitle']) && is_string($seoPayload['metaTitle']) ? $seoPayload['metaTitle'] : null,
+                isset($seoPayload['metaDescription']) && is_string($seoPayload['metaDescription']) ? $seoPayload['metaDescription'] : null,
+                isset($seoPayload['canonicalUrl']) && is_string($seoPayload['canonicalUrl']) ? $seoPayload['canonicalUrl'] : null,
+                isset($seoPayload['robotsMeta']) && is_string($seoPayload['robotsMeta']) ? $seoPayload['robotsMeta'] : null,
+                isset($seoPayload['ogTitle']) && is_string($seoPayload['ogTitle']) ? $seoPayload['ogTitle'] : null,
+                isset($seoPayload['ogDescription']) && is_string($seoPayload['ogDescription']) ? $seoPayload['ogDescription'] : null,
+                isset($seoPayload['ogImage']) && is_string($seoPayload['ogImage']) ? $seoPayload['ogImage'] : null,
+                isset($seoPayload['schemaJson']) && is_string($seoPayload['schemaJson']) ? $seoPayload['schemaJson'] : null,
+                isset($seoPayload['hreflang']) && is_string($seoPayload['hreflang']) ? $seoPayload['hreflang'] : null,
+                isset($seoPayload['domain']) && is_string($seoPayload['domain']) ? $seoPayload['domain'] : null,
+                isset($seoPayload['faviconPath']) && is_string($seoPayload['faviconPath']) ? $seoPayload['faviconPath'] : null,
+            );
+
+            $seo->save($cfg);
+        }
+
+        // Optional: menu assignments (page-scoped by default)
+        if (array_key_exists('menuAssignments', $payload) && is_array($payload['menuAssignments'])) {
+            if (!$this->hasScope($request, self::SCOPE_MENU_WRITE)) {
+                return $this->json($response, ['error' => 'missing_scope', 'scope' => self::SCOPE_MENU_WRITE], 403);
+            }
+            $menus = $this->menus ?? new CmsMenuDefinitionService($pdo);
+            foreach ($payload['menuAssignments'] as $assignment) {
+                if (!is_array($assignment)) {
+                    continue;
+                }
+
+                $slot = is_string($assignment['slot'] ?? null) ? trim((string) $assignment['slot']) : '';
+                $menuId = (int) ($assignment['menuId'] ?? 0);
+                $locale = is_string($assignment['locale'] ?? null) ? (string) $assignment['locale'] : null;
+                $isActive = (bool) ($assignment['isActive'] ?? true);
+                $pageScoped = array_key_exists('pageScoped', $assignment) ? (bool) $assignment['pageScoped'] : true;
+
+                if ($slot === '' || $menuId <= 0) {
+                    continue;
+                }
+
+                $scopePageId = $pageScoped ? $pageId : null;
+                $existingAssignment = $menus->getAssignmentForSlot($ns, $slot, $locale, $scopePageId, false);
+                if ($existingAssignment === null) {
+                    $menus->createAssignment($ns, $menuId, $scopePageId, $slot, $locale, $isActive);
+                } else {
+                    $menus->updateAssignment(
+                        $ns,
+                        $existingAssignment->getId(),
+                        $menuId,
+                        $scopePageId,
+                        $slot,
+                        $locale,
+                        $isActive
+                    );
+                }
+            }
+        }
+
+        return $this->json($response, [
+            'status' => 'ok',
+            'namespace' => $ns,
+            'slug' => $slug,
+            'pageId' => $pageId,
+        ], 200);
+    }
+
+    private function hasScope(Request $request, string $scope): bool
+    {
+        $scopes = $request->getAttribute(ApiTokenAuthMiddleware::ATTR_TOKEN_SCOPES);
+        if (!is_array($scopes)) {
+            return false;
+        }
+
+        foreach ($scopes as $s) {
+            if (is_string($s) && $s === $scope) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function json(Response $response, array $payload, int $status = 200): Response
+    {
+        $response->getBody()->write((string) json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+    }
+}

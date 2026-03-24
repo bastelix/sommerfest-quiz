@@ -23,7 +23,9 @@ use Slim\Psr7\Response;
 use Slim\Psr7\Stream;
 use Slim\Psr7\UploadedFile;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class CmsPageWikiControllerTest extends TestCase
 {
     public function testUpdateSettingsAcceptsJsonPayload(): void

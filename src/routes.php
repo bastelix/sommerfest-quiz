@@ -87,6 +87,10 @@ use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\AdminAuthMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
 use App\Application\Middleware\RateLimitMiddleware;
+use App\Controller\Marketing\LlmsTxtController;
+use App\Controller\Marketing\RobotsTxtController;
+use App\Controller\Marketing\SitemapController;
+use App\Controller\Marketing\FeedController;
 use App\Application\Middleware\NamespaceQueryMiddleware;
 use App\Application\Middleware\MarketingNamespaceMiddleware;
 use App\Application\Middleware\MarketingAccessResolver;
@@ -186,12 +190,21 @@ return function (\Slim\App $app, TranslationService $translator) {
     };
         $cmsPageRouteResolver = new CmsPageRouteResolver();
         $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
-            if ($request->getUri()->getPath() === '/healthz') {
+            $requestPath = $request->getUri()->getPath();
+
+            if ($requestPath === '/healthz') {
                 return $handler->handle($request);
             }
 
             $base = Database::connectFromEnv();
             MigrationRuntime::ensureUpToDate($base, __DIR__ . '/../migrations', 'base');
+
+            // MCP and OAuth endpoints need only DB connection + tenant schema,
+            // not the full service initialisation (events, catalogs, AI, etc.).
+            $normalizedPath = rtrim($requestPath, '/');
+            $isMcpOrOAuth = $normalizedPath === '/mcp'
+                || str_starts_with($normalizedPath, '/oauth/')
+                || str_starts_with($normalizedPath, '/.well-known/');
 
             $host = $request->getUri()->getHost();
             $domainType = $request->getAttribute('domainType');
@@ -203,6 +216,11 @@ return function (\Slim\App $app, TranslationService $translator) {
 
             $pdo = Database::connectWithSchema($schema);
             MigrationRuntime::ensureUpToDate($pdo, __DIR__ . '/../migrations', 'schema:' . $schema);
+
+            if ($isMcpOrOAuth) {
+                $request = $request->withAttribute('pdo', $pdo);
+                return $handler->handle($request);
+            }
 
             $nginxService = new NginxService();
             $tenantService = new TenantService($base, null, $nginxService);
@@ -339,7 +357,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                                 return $normalised;
                             }
 
-                            return $path === '' ? '/v1/chat/completions' : $path;
+                            return $path;
                         };
 
                         $rebuilt = $scheme . '://';
@@ -756,6 +774,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         return $response->withStatus(404);
     });
+    // AI / SEO discovery endpoints
+    $app->get('/robots.txt', new RobotsTxtController());
+    $app->get('/llms.txt', [new LlmsTxtController(), 'index']);
+    $app->get('/llms-full.txt', [new LlmsTxtController(), 'full']);
+    $app->get('/sitemap.xml', new SitemapController());
+    $app->get('/feed.xml', [new FeedController(), 'rss']);
+    $app->get('/feed.atom', [new FeedController(), 'atom']);
+
     $app->get('/faq', FaqController::class);
     $app->get('/help', HelpController::class);
     $app->get('/events', EventListController::class);
@@ -848,14 +874,42 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingLandingNewsController();
         return $controller->show($request, $response, $args);
     })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
+    // Wiki routes: redirect /pages/{slug}/wiki to /pages/{slug} when page.type === 'wiki'
+    $wikiRedirectIfDirect = static function (Request $request, string $slug, string $prefix): ?Response {
+        $pageService = new PageService();
+        $namespaceContext = (new \App\Service\NamespaceResolver())->resolve($request);
+        $ns = $namespaceContext->getNamespace();
+        $locale = (string) $request->getAttribute('lang', 'de');
+        $pageSlug = \App\Service\MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
+        $page = $pageService->findByKey($ns, $pageSlug);
+        if ($page === null && $pageSlug !== $slug) {
+            $page = $pageService->findByKey($ns, $slug);
+        }
+        if ($page !== null && $page->getType() === 'wiki') {
+            $basePath = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
+            $target = $basePath . '/' . $prefix . '/' . $slug;
+            $query = $request->getUri()->getQuery();
+            if ($query !== '') {
+                $target .= '?' . $query;
+            }
+            $resp = new \Slim\Psr7\Response();
+            return $resp->withHeader('Location', $target)->withStatus(301);
+        }
+        return null;
+    };
     $app->get('/pages/{slug:[a-z0-9-]+}/wiki', function (
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess) {
+    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
+        }
+
+        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug'], 'pages');
+        if ($redirect !== null) {
+            return $redirect;
         }
 
         $controller = new CmsPageWikiListController();
@@ -866,14 +920,92 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
+    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+
+        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug'], 'pages');
+        if ($redirect !== null) {
+            return $redirect->withHeader(
+                'Location',
+                $redirect->getHeaderLine('Location') . '/' . $args['articleSlug']
+            );
+        }
+
+        $controller = new CmsPageWikiArticleController();
+
+        return $controller($request, $response, $args);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
+    // Direct wiki routes: /pages/{slug} and /pages/{slug}/{articleSlug} for type=wiki pages
+    $app->get('/pages/{slug:[a-z0-9-]+}/{articleSlug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
     ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
         }
 
+        $request = $request->withAttribute('wikiDirectMode', true);
         $controller = new CmsPageWikiArticleController();
 
+        return $controller($request, $response, $args);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
+    $app->get('/pages/{slug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+
+        $request = $request->withAttribute('wikiDirectMode', true);
+
+        // For direct wiki pages, try to find and show the start document
+        $slug = (string) ($args['slug'] ?? '');
+        $locale = (string) $request->getAttribute('lang', 'de');
+        $pageSlug = \App\Service\MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
+        $namespaceContext = (new \App\Service\NamespaceResolver())->resolve($request);
+        $ns = $namespaceContext->getNamespace();
+        $pageService = new PageService();
+        $page = $pageService->findByKey($ns, $pageSlug);
+        if ($page === null && $pageSlug !== $slug) {
+            $page = $pageService->findByKey($ns, $slug);
+        }
+        if ($page === null || $page->getType() !== 'wiki') {
+            return $response->withStatus(404);
+        }
+
+        // Find the start document and render it as article
+        $settingsService = new \App\Service\CmsPageWikiSettingsService();
+        $settings = $settingsService->getSettingsForPage($page->getId());
+        if (!$settings->isActive()) {
+            return $response->withStatus(404);
+        }
+
+        $articleService = new CmsPageWikiArticleService();
+        $articles = $articleService->getPublishedArticles($page->getId(), $locale);
+        $startArticle = null;
+        foreach ($articles as $article) {
+            if ($article->isStartDocument()) {
+                $startArticle = $article;
+                break;
+            }
+        }
+
+        if ($startArticle !== null) {
+            $args['articleSlug'] = $startArticle->getSlug();
+            $controller = new CmsPageWikiArticleController();
+            return $controller($request, $response, $args);
+        }
+
+        // No start document: show article list
+        $controller = new CmsPageWikiListController();
         return $controller($request, $response, $args);
     })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/m/{landingSlug:[a-z0-9-]+}/news', function (
@@ -892,10 +1024,15 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess) {
+    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
+        }
+
+        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug'], 'm');
+        if ($redirect !== null) {
+            return $redirect;
         }
 
         $controller = new CmsPageWikiListController();
@@ -906,12 +1043,36 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
+    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+
+        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug'], 'm');
+        if ($redirect !== null) {
+            return $redirect->withHeader(
+                'Location',
+                $redirect->getHeaderLine('Location') . '/' . $args['articleSlug']
+            );
+        }
+
+        $controller = new CmsPageWikiArticleController();
+
+        return $controller($request, $response, $args);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
+    // Direct wiki routes for /m/ prefix
+    $app->get('/m/{slug:[a-z0-9-]+}/{articleSlug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
     ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
         }
 
+        $request = $request->withAttribute('wikiDirectMode', true);
         $controller = new CmsPageWikiArticleController();
 
         return $controller($request, $response, $args);
@@ -1089,6 +1250,12 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/logout', LogoutController::class);
     // Admin routes (extracted to Routes/admin.php)
     (require __DIR__ . '/Routes/admin.php')($app, $namespaceQueryMiddleware);
+
+    // Public v1 API (headless CMS)
+    (require __DIR__ . '/Routes/api_v1.php')($app);
+
+    // MCP server + OAuth 2.0
+    (require __DIR__ . '/Routes/mcp.php')($app);
 
     $app->get('/api/players', function (Request $request, Response $response) {
         $params = $request->getQueryParams();
@@ -1973,6 +2140,57 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->delete('/backups/{name}', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('backupController')->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware('admin'));
+
+    // ── Namespace Backup & Restore (complete, DB-based) ─────────────
+    $app->post('/namespace-backup/{namespace}', function (Request $request, Response $response, array $args) {
+        $pdo = $request->getAttribute('pdo');
+        $ns = (string) ($args['namespace'] ?? '');
+        if ($ns === '' || preg_match('/^[a-z0-9][a-z0-9-]*$/', $ns) !== 1) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid namespace']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+        $service = new \App\Service\NamespaceBackupService($pdo);
+        $data = $service->export($ns);
+        $response->getBody()->write(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/namespace-restore/{namespace}', function (Request $request, Response $response, array $args) {
+        $pdo = $request->getAttribute('pdo');
+        $ns = (string) ($args['namespace'] ?? '');
+        if ($ns === '' || preg_match('/^[a-z0-9][a-z0-9-]*$/', $ns) !== 1) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid namespace']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+        $body = (string) $request->getBody();
+        $data = json_decode($body, true);
+        if (!is_array($data) || !isset($data['meta'])) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid backup format: missing meta key']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+        $service = new \App\Service\NamespaceBackupService($pdo);
+        $service->import($ns, $data);
+        return $response->withStatus(204);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/namespace-backup/{namespace}/download', function (Request $request, Response $response, array $args) {
+        $pdo = $request->getAttribute('pdo');
+        $ns = (string) ($args['namespace'] ?? '');
+        if ($ns === '' || preg_match('/^[a-z0-9][a-z0-9-]*$/', $ns) !== 1) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid namespace']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+        $service = new \App\Service\NamespaceBackupService($pdo);
+        $data = $service->export($ns);
+        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $response->getBody()->write($json);
+        $filename = $ns . '_backup_' . date('Y-m-d_His') . '.json';
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->withHeader('Content-Length', (string) strlen($json));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->get('/qr.png', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->image($request, $response);
     });
@@ -2353,30 +2571,35 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
         }
-        $script = realpath(__DIR__ . '/../scripts/renew_ssl.sh');
 
-        if (!is_file($script)) {
-            $response->getBody()->write(json_encode(['error' => 'Renew script not found']));
+        $pdo = $request->getAttribute('pdo');
+        $registry = new CertificateZoneRegistry($pdo);
+        $registry->backfillActiveDomains();
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
+        $zones = $registry->listWildcardEnabled();
+        $now = new \DateTimeImmutable();
+        foreach ($zones as $zone) {
+            $registry->markPending($zone['zone'], null, $now);
         }
 
-        $result = runSyncProcess($script, ['--main']);
-        if (!$result['success']) {
-            $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
-            $response->getBody()->write(json_encode([
-                'error' => 'Failed to renew certificate',
-                'message' => $message,
-            ]));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
+        $script = realpath(__DIR__ . '/../scripts/wildcard_maintenance.sh');
+        if ($script !== false && is_file($script)) {
+            $command = 'bash ' . escapeshellarg($script) . ' >/dev/null 2>&1 &';
+            $process = @proc_open(
+                ['/bin/sh', '-c', $command],
+                [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']],
+                $pipes
+            );
+            if (is_resource($process)) {
+                proc_close($process);
+            }
         }
 
-        $response->getBody()->write(json_encode(['status' => 'success', 'slug' => 'main']));
+        $response->getBody()->write(json_encode([
+            'status' => 'success',
+            'message' => 'Certificate renewal queued for all active zones.',
+            'zones' => count($zones),
+        ]));
 
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware('admin'));
@@ -2391,30 +2614,49 @@ return function (\Slim\App $app, TranslationService $translator) {
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
-        $script = realpath(__DIR__ . '/../scripts/renew_ssl.sh');
 
-        if (!is_file($script)) {
-            $response->getBody()->write(json_encode(['error' => 'Renew script not found']));
+        $pdo = $request->getAttribute('pdo');
+        $registry = new CertificateZoneRegistry($pdo);
+        $domainService = new \App\Service\DomainService($pdo);
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
+        $domains = $domainService->listDomains();
+        $matchingZones = [];
+        foreach ($domains as $domain) {
+            if (($domain['namespace'] ?? '') === $slug && !in_array($domain['zone'], $matchingZones, true)) {
+                $matchingZones[] = $domain['zone'];
+            }
         }
 
-        $result = runSyncProcess($script, [$slug]);
-        if (!$result['success']) {
-            $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
-            $response->getBody()->write(json_encode([
-                'error' => 'Failed to renew certificate',
-                'message' => $message,
-            ]));
+        if (empty($matchingZones)) {
+            $response->getBody()->write(json_encode(['error' => 'No active domains found for this tenant.']));
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
         }
 
-        $response->getBody()->write(json_encode(['status' => 'success', 'slug' => $slug]));
+        $now = new \DateTimeImmutable();
+        foreach ($matchingZones as $zone) {
+            $registry->ensureZone($zone);
+            $registry->markPending($zone, null, $now);
+        }
+
+        $script = realpath(__DIR__ . '/../scripts/wildcard_maintenance.sh');
+        if ($script !== false && is_file($script)) {
+            $command = 'bash ' . escapeshellarg($script) . ' >/dev/null 2>&1 &';
+            $process = @proc_open(
+                ['/bin/sh', '-c', $command],
+                [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']],
+                $pipes
+            );
+            if (is_resource($process)) {
+                proc_close($process);
+            }
+        }
+
+        $response->getBody()->write(json_encode([
+            'status' => 'success',
+            'slug' => $slug,
+            'zones' => count($matchingZones),
+        ]));
 
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware('admin'));

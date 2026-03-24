@@ -15,7 +15,9 @@ use App\Service\EventService;
 use PDO;
 use Tests\TestCase;
 use Slim\Psr7\Response;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class ExportControllerTest extends TestCase
 {
     private function createServices(): array {

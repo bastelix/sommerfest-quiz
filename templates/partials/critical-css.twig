@@ -1,0 +1,19 @@
+{#
+  Inline critical CSS for immediate First Paint.
+  Included inside a <style> tag in layout.twig.
+  Keep small (<6 KB) – only above-the-fold layout essentials.
+  Mirror changes to public/css/critical.css for reference.
+#}
+*,*::before,*::after{box-sizing:border-box}
+html,body{min-height:100%;margin:0}
+html{font-size:clamp(14px,1vw + 0.5rem,18px)}
+body{min-height:100vh;overflow-x:hidden;background-color:var(--surface-page,#f7f9fb);color:var(--text-body,#111827);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+@font-face{font-family:'Poppins';font-display:swap;src:local('Poppins')}
+.wrapper{display:flex;flex-direction:column;min-height:100vh}
+.content{flex:1}
+.qr-landing-topbar,.uk-navbar-container{min-height:64px;display:flex;align-items:center}
+[data-page-root]{display:block;min-height:50vh}
+.uk-section:first-child,.cms-page>*:first-child{min-height:40vh}
+h1,h2,h3,h4{color:var(--text-heading,var(--text-body,#111827));margin-top:0}
+a{color:var(--brand-primary,#1e87f0)}
+body[data-cms-hydrating] [data-page-root]:empty{visibility:hidden}

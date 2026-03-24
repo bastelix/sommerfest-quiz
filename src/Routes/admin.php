@@ -36,6 +36,7 @@ use App\Controller\Admin\MarketingFooterBlockController;
 use App\Controller\Admin\PageModuleController as AdminPageModuleController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\LandingpageController;
+use App\Controller\Admin\NamespaceApiTokenController;
 use App\Domain\Roles;
 use App\Domain\Plan;
 use App\Infrastructure\Database;
@@ -1112,6 +1113,32 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new LandingpageController();
 
         return $controller->importFromAi($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    // Namespace API Tokens (Public API auth)
+    $app->get('/admin/api-tokens', function (Request $request, Response $response) {
+        $controller = new NamespaceApiTokenController();
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/api-tokens/data', function (Request $request, Response $response) {
+        $controller = new NamespaceApiTokenController();
+        return $controller->list($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/api-tokens', function (Request $request, Response $response) {
+        $controller = new NamespaceApiTokenController();
+        return $controller->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/api-tokens/{id:[0-9]+}/revoke', function (Request $request, Response $response, array $args) {
+        $controller = new NamespaceApiTokenController();
+        return $controller->revoke($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->delete('/admin/api-tokens/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new NamespaceApiTokenController();
+        return $controller->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/results', function (Request $request, Response $response) {

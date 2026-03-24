@@ -4,8 +4,15 @@
    Activated via body class .default-theme
    ══════════════════════════════════════════════════════════ */
 
-/* ── Typography ── */
+/* ── Design tokens (override via namespace or dark mode) ── */
 .default-theme {
+  --dt-hero-bg-start: #0b1a2e;
+  --dt-hero-bg-end: #122240;
+  --dt-cta-color: var(--brand-primary, #1a73e8);
+  --dt-cta-hover: color-mix(in srgb, var(--dt-cta-color) 82%, #000);
+  --dt-accent-light: var(--brand-accent, #58a6ff);
+  --dt-success-accent: #34d399;
+  --dt-star-fill: #eab308;
   --font-family-heading: 'Plus Jakarta Sans', 'Poppins', system-ui, sans-serif;
   --font-family-body: 'Plus Jakarta Sans', 'Poppins', system-ui, sans-serif;
   scroll-behavior: smooth;
@@ -19,13 +26,17 @@
   font-family: var(--font-family-heading);
 }
 
-/* ── Hero section (navy gradient, compact padding) ── */
+/* ── Hero section (gradient, compact padding) ── */
 .default-theme .section[data-section-intent="hero"] {
-  background: linear-gradient(170deg, #0b1a2e 0%, #122240 100%) !important;
+  background: linear-gradient(170deg, var(--dt-hero-bg-start) 0%, var(--dt-hero-bg-end) 100%) !important;
+  --section-surface: var(--dt-hero-bg-start);
+  --section-bg-color: var(--dt-hero-bg-start);
+  --section-text-color: #ffffff;
   --section-padding-outer: clamp(20px, 3vw, 40px);
   --section-padding-inner: clamp(16px, 2.5vw, 28px);
   padding-top: clamp(20px, 3vw, 40px);
   padding-bottom: clamp(20px, 3vw, 40px);
+  color: #ffffff;
 }
 .default-theme .section[data-section-intent="hero"].section--full .section__inner {
   padding: clamp(16px, 2.5vw, 28px);
@@ -54,7 +65,7 @@
   font-size: clamp(2rem, 3.5vw, 2.8rem);
   font-weight: 800;
   font-family: var(--font-family-heading);
-  color: #58a6ff;
+  color: var(--dt-accent-light);
   line-height: 1.1;
 }
 .default-theme .cs-stat-tile .uk-text-small {
@@ -64,11 +75,14 @@
   color: rgba(255, 255, 255, 0.65) !important;
 }
 
-/* Hero CTA buttons */
-.default-theme .section[data-section-intent="hero"] .uk-button-primary {
-  background: #1a73e8 !important;
+/* Hero CTA buttons
+   Specificity must beat sections.css (0,7,0 + !important):
+   .section[hero] > .uk-container > .section__inner:not():not() .uk-button-primary
+   Our selectors use 0,8,0 + !important to win reliably. */
+.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-primary {
+  background: var(--dt-cta-color) !important;
   color: #fff !important;
-  border-color: #1a73e8 !important;
+  border-color: var(--dt-cta-color) !important;
   border-radius: 100px;
   padding: 0 2.2rem;
   font-weight: 600;
@@ -76,12 +90,13 @@
   line-height: 44px;
   height: 44px;
 }
-.default-theme .section[data-section-intent="hero"] .uk-button-primary:hover {
-  background: #1557b0 !important;
+.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-primary:hover {
+  background: var(--dt-cta-hover) !important;
 }
-.default-theme .section[data-section-intent="hero"] .uk-button-default {
-  color: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 255, 255, 0.25);
+.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-default {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
   border-radius: 100px;
   padding: 0 2.2rem;
   font-weight: 600;
@@ -89,8 +104,9 @@
   line-height: 44px;
   height: 44px;
 }
-.default-theme .section[data-section-intent="hero"] .uk-button-default:hover {
-  background: rgba(255, 255, 255, 0.1);
+.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-default:hover {
+  background: rgba(255, 255, 255, 0.30) !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
   color: #fff;
 }
 /* Hero CTA group spacing */
@@ -109,7 +125,7 @@
 .default-theme .cs-star {
   width: 18px;
   height: 18px;
-  fill: #eab308;
+  fill: var(--dt-star-fill);
 }
 .default-theme .cs-proven-expert__text .uk-text-small {
   color: rgba(255, 255, 255, 0.9);
@@ -130,12 +146,12 @@
 
 /* ── Blue icon accent ── */
 .default-theme .cs-blue {
-  color: #1a73e8 !important;
+  color: var(--dt-cta-color) !important;
 }
 
 /* ── Feature cards (grid-bullets) ── */
 .default-theme .section[data-block-type="feature_list"] .uk-card {
-  border-top: 3px solid #1a73e8;
+  border-top: 3px solid var(--dt-cta-color);
   border-radius: 10px;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
@@ -158,7 +174,7 @@
 .default-theme .cs-quote-deco {
   font-size: 4.5rem;
   line-height: 1;
-  color: rgba(26, 115, 232, 0.12);
+  color: color-mix(in srgb, var(--dt-cta-color) 12%, transparent);
   font-family: Georgia, serif;
   pointer-events: none;
 }
@@ -166,7 +182,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1a73e8, #58a6ff);
+  background: linear-gradient(135deg, var(--dt-cta-color), var(--dt-accent-light));
   color: #fff;
   display: flex;
   align-items: center;
@@ -192,19 +208,19 @@
 }
 /* Popular plan ring */
 .default-theme .section[data-block-type="package_summary"] .uk-card:has(.uk-label) {
-  box-shadow: 0 0 0 2px #1a73e8;
+  box-shadow: 0 0 0 2px var(--dt-cta-color);
 }
 .default-theme .section[data-block-type="package_summary"] .uk-label {
-  background: #1a73e8;
+  background: var(--dt-cta-color);
   border-radius: 4px;
 }
 .default-theme .section[data-block-type="package_summary"] .uk-button-primary {
   border-radius: 100px;
-  background: #1a73e8;
+  background: var(--dt-cta-color);
   font-weight: 600;
 }
 .default-theme .section[data-block-type="package_summary"] .uk-button-primary:hover {
-  background: #1557b0;
+  background: var(--dt-cta-hover);
 }
 
 /* ── Founder card ── */
@@ -213,9 +229,13 @@
   font-size: 0.82rem;
 }
 
-/* ── CTA section (highlight intent – navy gradient) ── */
+/* ── CTA section (highlight intent – gradient) ── */
 .default-theme .section[data-section-intent="highlight"] {
-  background: linear-gradient(170deg, #0b1a2e 0%, #122240 100%) !important;
+  background: linear-gradient(170deg, var(--dt-hero-bg-start) 0%, var(--dt-hero-bg-end) 100%) !important;
+  --section-surface: var(--dt-hero-bg-start);
+  --section-bg-color: var(--dt-hero-bg-start);
+  --section-text-color: #ffffff;
+  color: #ffffff;
 }
 .default-theme .section[data-section-intent="highlight"] .uk-heading-medium {
   color: #fff;
@@ -224,26 +244,28 @@
 .default-theme .section[data-section-intent="highlight"] .uk-text-lead {
   color: rgba(255, 255, 255, 0.85);
 }
-.default-theme .section[data-section-intent="highlight"] .uk-button-primary {
-  background: #1a73e8 !important;
+.default-theme .section[data-section-intent="highlight"] > .uk-container > .section__inner .uk-button-primary {
+  background: var(--dt-cta-color) !important;
   color: #fff !important;
-  border-color: #1a73e8 !important;
+  border-color: var(--dt-cta-color) !important;
   border-radius: 100px;
   padding: 0 2rem;
   font-weight: 600;
 }
-.default-theme .section[data-section-intent="highlight"] .uk-button-primary:hover {
-  background: #1557b0 !important;
+.default-theme .section[data-section-intent="highlight"] > .uk-container > .section__inner .uk-button-primary:hover {
+  background: var(--dt-cta-hover) !important;
 }
-.default-theme .section[data-section-intent="highlight"] .uk-button-default {
-  color: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 255, 255, 0.25);
+.default-theme .section[data-section-intent="highlight"] > .uk-container > .section__inner .uk-button-default {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
   border-radius: 100px;
   padding: 0 2rem;
   font-weight: 600;
 }
-.default-theme .section[data-section-intent="highlight"] .uk-button-default:hover {
-  background: rgba(255, 255, 255, 0.1);
+.default-theme .section[data-section-intent="highlight"] > .uk-container > .section__inner .uk-button-default:hover {
+  background: rgba(255, 255, 255, 0.30) !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
   color: #fff;
 }
 
@@ -254,15 +276,15 @@
 
 /* ── Eyebrow tag style (green hosted badge) ── */
 .default-theme .section[data-section-intent="hero"] .hero-eyebrow-tag {
-  background: rgba(52, 211, 153, 0.15);
-  color: #34d399;
+  background: color-mix(in srgb, var(--dt-success-accent) 15%, transparent);
+  color: var(--dt-success-accent);
   border-radius: 100px;
   font-size: 0.82rem;
   padding: 0.35rem 1rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: none;
-  border: 1px solid rgba(52, 211, 153, 0.3);
+  border: 1px solid color-mix(in srgb, var(--dt-success-accent) 30%, transparent);
 }
 .default-theme .section[data-section-intent="hero"] .hero-eyebrow-tag::before {
   content: "";
@@ -278,7 +300,7 @@
 
 /* ── Section header label/eyebrow ── */
 .default-theme .section .uk-text-meta {
-  color: #1a73e8;
+  color: var(--dt-cta-color);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -287,7 +309,7 @@
 
 /* ── Logo blue border ── */
 .default-theme .cs-logo__image {
-  border: 2px solid #1a73e8;
+  border: 2px solid var(--dt-cta-color);
   border-radius: 8px;
   padding: 3px;
   display: inline-flex;
@@ -320,7 +342,7 @@
   font-size: 1.2rem;
   letter-spacing: -0.02em;
   font-family: var(--font-family-heading, 'Plus Jakarta Sans', system-ui, sans-serif);
-  color: #0b1a2e;
+  color: var(--text-heading, #0b1a2e);
 }
 .default-theme .qr-topbar .uk-navbar-container {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
@@ -336,4 +358,45 @@
 .default-theme .section .uk-text-lead {
   font-size: clamp(1rem, 1.6vw, 1.15rem);
   line-height: 1.55;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Dark mode overrides
+   ══════════════════════════════════════════════════════════ */
+
+:root[data-theme="dark"] .default-theme,
+body[data-theme="dark"] .default-theme {
+  --dt-hero-bg-start: #060a10;
+  --dt-hero-bg-end: #0c1422;
+  --dt-cta-color: var(--brand-primary, #5ba3f5);
+  --dt-cta-hover: color-mix(in srgb, var(--dt-cta-color) 85%, #fff);
+  --dt-accent-light: var(--brand-accent, #7dc4ff);
+  --dt-success-accent: #6ee7b7;
+  --dt-star-fill: #fbbf24;
+}
+
+:root[data-theme="dark"] .default-theme .uk-logo {
+  color: var(--text-heading);
+}
+
+:root[data-theme="dark"] .default-theme .section .uk-text-meta {
+  color: var(--dt-cta-color);
+}
+
+:root[data-theme="dark"] .default-theme .section[data-block-variant="trust_bar"] {
+  background: var(--surface-muted);
+  border-top-color: var(--border-muted);
+  border-bottom-color: var(--border-muted);
+}
+
+:root[data-theme="dark"] .default-theme .qr-topbar .uk-navbar-container {
+  border-bottom-color: var(--border-muted);
+}
+
+:root[data-theme="dark"] .default-theme .section[data-block-type="feature_list"] .uk-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .default-theme .section[data-block-type="package_summary"] .uk-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }

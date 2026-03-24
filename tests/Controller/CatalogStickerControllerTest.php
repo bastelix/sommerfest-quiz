@@ -14,7 +14,9 @@ use Slim\Psr7\Response;
 use Slim\Psr7\Stream;
 use Slim\Psr7\UploadedFile;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class CatalogStickerControllerTest extends TestCase
 {
     public function testPdfWithEmptyParameters(): void {

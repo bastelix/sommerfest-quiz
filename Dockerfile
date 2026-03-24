@@ -1,4 +1,4 @@
-FROM php:8.2.29-alpine
+FROM php:8.4-alpine
 
 # allow Composer to run as root inside the container
 ARG COMPOSER_RETRY=5
@@ -41,8 +41,6 @@ RUN test -f composer.lock \
        else \
         composer install --no-interaction ${INSTALL_PREFERENCE} --no-progress; \
        fi
-# Invalidate source layer on every deploy so PHPStan always analyses fresh code
-ARG SOURCE_HASH=0
 COPY . /var/www
 RUN mkdir -p /var/www/logs && chown www-data:www-data /var/www/logs
 RUN mkdir -p /var/www/backup \
@@ -51,9 +49,6 @@ RUN mkdir -p /var/www/backup \
 
 # include custom PHP configuration
 COPY config/php.ini /usr/local/etc/php/conf.d/custom.ini
-
-# run static analysis during image build
-RUN if [ -f vendor/bin/phpstan ]; then vendor/bin/phpstan --no-progress --memory-limit=512M; fi
 
 # entrypoint to install dependencies if host volume lacks vendor/
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh

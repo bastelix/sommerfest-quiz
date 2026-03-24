@@ -21,10 +21,12 @@
   {% endif %}
   {% if includeMainStyles and includeDarkStyles %}
     {% set cfg = config is defined ? config : {} %}
-    <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
+    <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all"></noscript>
   {% endif %}
   {% if includeMainStyles and includeHighContrastStyles %}
-    <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+    <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css"></noscript>
   {% endif %}
   <link rel="stylesheet" href="{{ basePath }}/css/footer-blocks.css">
 {% endblock %}

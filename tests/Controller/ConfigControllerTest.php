@@ -10,7 +10,9 @@ use App\Service\ConfigValidator;
 use App\Service\EventService;
 use Tests\TestCase;
 use Slim\Psr7\Response;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class ConfigControllerTest extends TestCase
 {
     public function testGetNotFound(): void {

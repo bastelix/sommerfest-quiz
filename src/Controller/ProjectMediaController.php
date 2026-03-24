@@ -8,6 +8,7 @@ use App\Domain\Roles;
 use App\Service\ConfigService;
 use App\Service\LogService;
 use App\Service\NamespaceAccessService;
+use App\Service\NamespaceResolver;
 use App\Service\NamespaceValidator;
 use App\Support\HttpCacheHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -87,27 +88,35 @@ class ProjectMediaController
 
     private function isNamespaceAllowed(string $requestedNamespace, Request $request): bool
     {
-        $role = $_SESSION['user']['role'] ?? null;
-        if (!is_string($role) || $role === '') {
-            return false;
-        }
-
-        if ($role === Roles::ADMIN) {
-            return true;
-        }
-
         $validator = new NamespaceValidator();
         $normalizedRequested = $validator->normalizeCandidate($requestedNamespace);
         if ($normalizedRequested === null) {
             return false;
         }
 
-        $accessService = new NamespaceAccessService();
+        $role = $_SESSION['user']['role'] ?? null;
 
-        return $accessService->shouldExposeNamespace(
-            $normalizedRequested,
-            $accessService->resolveAllowedNamespaces($role),
-            $role
-        );
+        if (is_string($role) && $role !== '') {
+            if ($role === Roles::ADMIN) {
+                return true;
+            }
+
+            $accessService = new NamespaceAccessService();
+
+            return $accessService->shouldExposeNamespace(
+                $normalizedRequested,
+                $accessService->resolveAllowedNamespaces($role),
+                $role
+            );
+        }
+
+        // No session – allow if the request's resolved namespace matches
+        try {
+            $context = (new NamespaceResolver())->resolve($request->withAttribute('namespace', null));
+
+            return $context->getNamespace() === $normalizedRequested;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }

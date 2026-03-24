@@ -7,6 +7,8 @@ namespace App\Service;
 use App\Infrastructure\Database;
 use PDO;
 
+use App\Service\CmsMenuResolverService;
+
 use function is_string;
 use function ltrim;
 use function rtrim;
@@ -60,7 +62,7 @@ final class CmsLayoutDataService
     ): array {
         $menuResolver = new CmsMenuResolverService($this->pdo);
 
-        $headerNavigation = $menuResolver->resolveMenu($namespace, 'header', $pageId, $locale);
+        $headerNavigation = $menuResolver->resolveMenu($namespace, CmsMenuResolverService::SLOT_MAIN, $pageId, $locale);
         $cmsMainNavigation = $headerNavigation['items'];
 
         $footerNavigation = $menuResolver->resolveMenu($namespace, 'footer', $pageId, $locale);
@@ -90,7 +92,7 @@ final class CmsLayoutDataService
     }
 
     /**
-     * @return array<string, bool>
+     * @return array<string, bool|string>
      */
     public function buildHeaderConfig(array $settings): array
     {
@@ -98,6 +100,7 @@ final class CmsLayoutDataService
             'show_language' => (bool) ($settings['show_language_toggle'] ?? true),
             'show_theme_toggle' => (bool) ($settings['show_theme_toggle'] ?? true),
             'show_contrast_toggle' => (bool) ($settings['show_contrast_toggle'] ?? true),
+            'topbar_style' => (string) ($settings['header_topbar_style'] ?? 'auto'),
         ];
     }
 

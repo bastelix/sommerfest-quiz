@@ -51,6 +51,7 @@
   <meta name="description" content="{{ effectiveDescription }}">
   {% set effectiveRobots = robotsMeta|default('index, follow') %}
   <meta name="robots" content="{{ effectiveRobots }}">
+  <meta name="theme-color" content="{{ themeColor|default('#764ba2') }}">
   {% set effectiveCanonical = canonicalUrl|default('') %}
   {% if effectiveCanonical %}
   <link rel="canonical" href="{{ effectiveCanonical }}">
@@ -76,6 +77,9 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="de_DE">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ effectiveOgTitle }}">
+    <meta name="twitter:description" content="{{ effectiveOgDescription }}">
+    <meta name="twitter:image" content="{{ effectiveOgImage }}">
   {% if hreflangLinks is defined and hreflangLinks is not empty %}
     {% for link in hreflangLinks %}
       <link rel="alternate" href="{{ link.href }}" hreflang="{{ link.hreflang }}">
@@ -91,6 +95,8 @@
   {% else %}
   <link rel="alternate" href="https://quizrace.app/" hreflang="de">
   {% endif %}
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="{{ basePath }}/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="{{ basePath }}/feed.atom">
   {% if schemaJson is defined and schemaJson %}
   <script type="application/ld+json">
   {{ schemaJson|raw }}
@@ -137,6 +143,11 @@
     {% set faviconType = 'image/svg+xml' %}
   {% endif %}
   <link rel="icon" href="{{ faviconSource }}" type="{{ faviconType }}">
+  <style>{% include 'partials/critical-css.twig' %}</style>
+  <meta name="view-transition" content="same-origin">
+  <link rel="stylesheet" href="{{ basePath }}/css/page-transition.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
   {% if includeUikitStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   {% endif %}
@@ -146,7 +157,8 @@
   {% set includeDarkStyles = includeDarkStyles is same as(false) ? false : includeDarkStyles|default(true) %}
   {% set shouldIncludeDarkStyles = includeMainStyles and includeVariablesStyles and includeDarkStyles %}
   {% if shouldIncludeDarkStyles %}
-    <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
+    <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all"></noscript>
   {% endif %}
   {% set namespaceTokensVersionsMap = namespaceTokensVersions|default({}) %}
   {% set namespaceTokensQuery = namespaceTokensVersionsMap[activeNamespace]|default(namespaceTokensVersion|default('now'|date('U'))) %}
@@ -197,6 +209,7 @@
   data-theme="{{ resolvedTheme }}"
   class="{{ mergedBodyClass }}"
   {% if resolvedAdminLayout %}data-admin-layout="{{ resolvedAdminLayout }}"{% endif %}
+  {% if includeFrontendHydrator|default(false) %}data-cms-hydrating{% endif %}
 >
   <div class="wrapper">
     {% block site_header %}{% endblock %}

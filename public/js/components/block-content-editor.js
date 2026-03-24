@@ -72,7 +72,8 @@ const VARIANT_LABELS = {
     media_right: 'Bild rechts',
     media_left: 'Bild links',
     media_video: 'Video rechts',
-    minimal: 'Minimal'
+    minimal: 'Minimal',
+    small: 'Kompakt'
   },
   feature_list: {
     'detailed-cards': 'Detailkarten',
@@ -528,17 +529,25 @@ const applySectionStyle = (block, sectionStyle) => {
     || normalizeSectionIntent(baseSectionStyle.intent)
     || resolveSectionIntent(block);
 
+  const mergedSectionStyle = {
+    ...baseSectionStyle,
+    ...sectionStyle,
+    intent,
+    layout: rawLayout
+  };
+
+  // When sectionStyle omits viewportHeight it means 'auto' —
+  // remove any inherited value so the default applies.
+  if (!('viewportHeight' in sectionStyle)) {
+    delete mergedSectionStyle.viewportHeight;
+  }
+
   return sanitizeBlock({
     ...block,
     sectionAppearance: LAYOUT_TO_APPEARANCE[normalizedLayout],
     meta: {
       ...(block.meta || {}),
-      sectionStyle: {
-        ...baseSectionStyle,
-        ...sectionStyle,
-        intent,
-        layout: rawLayout
-      }
+      sectionStyle: mergedSectionStyle
     }
   });
 };
@@ -941,7 +950,8 @@ const LAYOUT_PREVIEWS = {
     media_right: () => createHeroPreview('right'),
     media_left: () => createHeroPreview('left'),
     media_video: () => createHeroPreview('right'),
-    minimal: () => createColumnsPreview(1)
+    minimal: () => createColumnsPreview(1),
+    small: createCenteredCtaPreview
   },
   feature_list: {
     'detailed-cards': () => createColumnsPreview(3),
@@ -3796,8 +3806,9 @@ export class BlockContentEditor {
       const slideBody = [
         this.addLabeledInput('Label', slide.label, value => this.updateContentSliderSlide(block.id, slide.id, ['label'], value)),
         this.wrapField('Text / HTML', bodyField),
-        this.addLabeledInput('Bild-ID', slide.imageId, value => this.updateContentSliderSlide(block.id, slide.id, ['imageId'], value), {
-          placeholder: 'z. B. upload_12345'
+        this.addMediaUploadField('Bild-ID', slide.imageId, value => this.updateContentSliderSlide(block.id, slide.id, ['imageId'], value), {
+          placeholder: 'z. B. upload_12345',
+          nameContext: 'slider'
         }),
         this.addLabeledInput('Alt-Text', slide.imageAlt, value => this.updateContentSliderSlide(block.id, slide.id, ['imageAlt'], value)),
         this.addLabeledInput('Link-Label', slide.link?.label, value => this.updateContentSliderSlide(block.id, slide.id, ['link', 'label'], value)),
@@ -3836,6 +3847,39 @@ export class BlockContentEditor {
 
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
     wrapper.append(this.addLabeledInput('Untertitel', block.data.subtitle, value => this.updateBlockData(block.id, ['data', 'subtitle'], value)));
+
+    const columnsField = document.createElement('label');
+    columnsField.dataset.fieldLabel = 'true';
+    const columnsLabel = document.createElement('div');
+    columnsLabel.className = 'field-label';
+    columnsLabel.textContent = 'Spalten (Desktop)';
+    const columnsHelp = createHelperText('Auf Mobilgeräten wird immer eine Spalte angezeigt.');
+    const columnsSelect = document.createElement('select');
+    columnsSelect.className = 'uk-select';
+    const allowedColumns = [2, 3, 4];
+    const currentColumns = allowedColumns.includes(Number(block.data.columns)) ? Number(block.data.columns) : 0;
+    const autoOption = document.createElement('option');
+    autoOption.value = '';
+    autoOption.textContent = 'Automatisch';
+    autoOption.selected = currentColumns === 0;
+    columnsSelect.append(autoOption);
+    allowedColumns.forEach(value => {
+      const option = document.createElement('option');
+      option.value = String(value);
+      option.textContent = `${value} Spalten`;
+      option.selected = value === currentColumns;
+      columnsSelect.append(option);
+    });
+    columnsSelect.addEventListener('change', event => {
+      const val = event.target.value;
+      this.updateBlockData(block.id, ['data', 'columns'], val ? Number(val) : undefined);
+    });
+    columnsField.append(columnsLabel);
+    if (columnsHelp) {
+      columnsField.append(columnsHelp);
+    }
+    columnsField.append(columnsSelect);
+    wrapper.append(columnsField);
 
     const optionsWrapper = document.createElement('div');
     optionsWrapper.dataset.field = 'options';
@@ -4012,7 +4056,9 @@ export class BlockContentEditor {
           remove: itemIndex => this.removeAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex),
           move: (itemIndex, delta) => this.moveAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex, delta)
         }),
-        this.addLabeledInput('Medienbild', audienceCase.media?.image, value => this.updateAudienceCase(block.id, audienceCase.id, ['media', 'image'], value)),
+        this.addMediaUploadField('Medienbild', audienceCase.media?.image, value => this.updateAudienceCase(block.id, audienceCase.id, ['media', 'image'], value), {
+          nameContext: 'audience'
+        }),
         this.addLabeledInput('Alt-Text', audienceCase.media?.alt, value => this.updateAudienceCase(block.id, audienceCase.id, ['media', 'alt'], value))
       ];
 
@@ -4120,6 +4166,173 @@ export class BlockContentEditor {
     }
 
     wrapper.append(input);
+    return wrapper;
+  }
+
+  addMediaUploadField(labelText, imageIdValue, onImageIdChange, options = {}) {
+    const wrapper = document.createElement('div');
+    wrapper.dataset.fieldLabel = 'true';
+    wrapper.className = 'media-upload-field';
+
+    const label = document.createElement('div');
+    label.className = 'field-label';
+    label.textContent = labelText;
+    wrapper.append(label);
+
+    const helper = createHelperText(options.helpText);
+    if (helper) {
+      wrapper.append(helper);
+    }
+
+    const inputRow = document.createElement('div');
+    inputRow.style.cssText = 'display:flex;gap:6px;align-items:center;';
+
+    const input = document.createElement('input');
+    input.className = 'uk-input';
+    input.style.flex = '1';
+    input.placeholder = options.placeholder || 'z. B. upload_12345';
+    input.value = imageIdValue ?? '';
+    input.addEventListener('input', event => onImageIdChange(event.target.value));
+
+    const uploadBtn = document.createElement('button');
+    uploadBtn.type = 'button';
+    uploadBtn.className = 'uk-button uk-button-default uk-button-small';
+    uploadBtn.textContent = 'Hochladen';
+    uploadBtn.style.whiteSpace = 'nowrap';
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/png,image/jpeg,image/webp,image/svg+xml';
+    fileInput.style.display = 'none';
+
+    inputRow.append(input, uploadBtn, fileInput);
+    wrapper.append(inputRow);
+
+    const progress = document.createElement('progress');
+    progress.className = 'uk-progress';
+    progress.max = 100;
+    progress.value = 0;
+    progress.hidden = true;
+    progress.style.marginTop = '4px';
+    wrapper.append(progress);
+
+    const statusText = document.createElement('div');
+    statusText.className = 'uk-text-small';
+    statusText.hidden = true;
+    wrapper.append(statusText);
+
+    const preview = document.createElement('div');
+    preview.style.cssText = 'margin-top:6px;';
+    const previewImg = document.createElement('img');
+    previewImg.style.cssText = 'max-height:80px;max-width:200px;border-radius:4px;display:none;';
+    previewImg.loading = 'lazy';
+    preview.append(previewImg);
+
+    const resolvePreviewSrc = (id) => {
+      if (!id || typeof id !== 'string') return null;
+      const trimmed = id.trim();
+      if (!trimmed) return null;
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      const base = (typeof window !== 'undefined' && typeof window.basePath === 'string')
+        ? window.basePath.replace(/\/+$/, '') : '';
+      return `${base}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+    };
+
+    const showPreview = (src) => {
+      if (src) {
+        previewImg.src = src;
+        previewImg.style.display = '';
+      } else {
+        previewImg.style.display = 'none';
+        previewImg.removeAttribute('src');
+      }
+    };
+
+    showPreview(resolvePreviewSrc(imageIdValue));
+    input.addEventListener('input', () => {
+      showPreview(resolvePreviewSrc(input.value));
+    });
+
+    wrapper.append(preview);
+
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+
+      const pageSlug = window.pageSlug || 'page';
+      const context = options.nameContext || 'bild';
+      const autoName = `${pageSlug}-${context}`;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('scope', 'project');
+      formData.append('name', autoName);
+      const ns = typeof window.pageNamespace === 'string' ? window.pageNamespace : '';
+      if (ns) {
+        formData.append('namespace', ns);
+      }
+
+      const xhr = new XMLHttpRequest();
+      const basePath = (typeof window.basePath === 'string')
+        ? window.basePath.replace(/\/+$/, '') : '';
+      xhr.open('POST', `${basePath}/admin/media/upload`);
+      xhr.withCredentials = true;
+      xhr.setRequestHeader('X-Requested-With', 'fetch');
+      const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+        || window.csrfToken || '';
+      if (token) {
+        xhr.setRequestHeader('X-CSRF-Token', token);
+      }
+
+      uploadBtn.disabled = true;
+      progress.hidden = false;
+      progress.value = 0;
+      statusText.hidden = false;
+      statusText.textContent = 'Wird hochgeladen…';
+      statusText.classList.remove('uk-text-danger', 'uk-text-success');
+
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          progress.value = Math.round((event.loaded / event.total) * 100);
+        }
+      });
+
+      xhr.addEventListener('error', () => {
+        uploadBtn.disabled = false;
+        statusText.textContent = 'Upload fehlgeschlagen.';
+        statusText.classList.add('uk-text-danger');
+      });
+
+      xhr.addEventListener('load', () => {
+        uploadBtn.disabled = false;
+        progress.hidden = true;
+        let response = {};
+        try { response = JSON.parse(xhr.responseText || '{}'); } catch (_e) { /* ignore */ }
+
+        if (xhr.status >= 200 && xhr.status < 300 && response.file) {
+          const filePath = response.file.path || response.file.url || '';
+          input.value = filePath;
+          onImageIdChange(filePath);
+          if (typeof options.onImageUrlChange === 'function') {
+            const resolvedUrl = resolvePreviewSrc(filePath);
+            options.onImageUrlChange(resolvedUrl || filePath);
+          }
+          showPreview(resolvePreviewSrc(filePath));
+          statusText.textContent = `Hochgeladen: ${response.file.name || filePath}`;
+          statusText.classList.add('uk-text-success');
+        } else {
+          const errorMsg = response.error || 'Upload fehlgeschlagen.';
+          statusText.textContent = errorMsg;
+          statusText.classList.add('uk-text-danger');
+        }
+      });
+
+      xhr.send(formData);
+      fileInput.value = '';
+    });
+
     return wrapper;
   }
 
@@ -4379,9 +4592,11 @@ export class BlockContentEditor {
 
     const mediaSection = createFieldSection('Medien', 'Steuere das Hero-Bild und den sichtbaren Ausschnitt.');
     mediaSection.append(
-      this.addLabeledInput('Bild-ID (Mediathek)', block.data.media?.imageId, value => this.updateBlockData(block.id, ['data', 'media', 'imageId'], value), {
+      this.addMediaUploadField('Bild-ID (Mediathek)', block.data.media?.imageId, value => this.updateBlockData(block.id, ['data', 'media', 'imageId'], value), {
         placeholder: 'z. B. upload_12345',
-        helpText: 'Nutze die ID aus der Medienverwaltung.'
+        helpText: 'Nutze die ID aus der Medienverwaltung oder lade ein Bild direkt hoch.',
+        nameContext: 'hero',
+        onImageUrlChange: url => this.updateBlockData(block.id, ['data', 'media', 'image'], url)
       })
     );
     mediaSection.append(
@@ -4390,6 +4605,60 @@ export class BlockContentEditor {
         helpText: 'Hilft Screenreadern und verbessert SEO.'
       })
     );
+
+    const mediaSizeGroup = document.createElement('div');
+    mediaSizeGroup.className = 'section-config-panel__group';
+    const mediaSizeLabel = document.createElement('div');
+    mediaSizeLabel.className = 'field-label';
+    mediaSizeLabel.textContent = 'Bildgröße';
+    mediaSizeGroup.append(mediaSizeLabel);
+
+    const mediaSizeOptions = document.createElement('div');
+    mediaSizeOptions.className = 'layout-style-picker__options layout-style-picker__options--inline';
+
+    const currentMediaSize = block.data.media?.mediaSize || 'medium';
+    [
+      { value: 'small', label: 'Klein' },
+      { value: 'medium', label: 'Mittel' },
+      { value: 'large', label: 'Groß' },
+      { value: 'xlarge', label: 'Sehr groß' }
+    ].forEach(option => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'layout-style-card layout-style-card--compact';
+      const selected = option.value === currentMediaSize;
+      btn.dataset.selected = String(selected);
+      btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      btn.textContent = option.label;
+      btn.addEventListener('click', () => {
+        this.updateBlockData(block.id, ['data', 'media', 'mediaSize'], option.value);
+        mediaSizeOptions.querySelectorAll('button').forEach(b => {
+          const isSelected = b === btn;
+          b.dataset.selected = String(isSelected);
+          b.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+        });
+      });
+      mediaSizeOptions.append(btn);
+    });
+
+    mediaSizeGroup.append(mediaSizeOptions);
+    mediaSection.append(mediaSizeGroup);
+
+    const framelessToggle = document.createElement('label');
+    framelessToggle.className = 'field-toggle';
+    const framelessCheckbox = document.createElement('input');
+    framelessCheckbox.type = 'checkbox';
+    framelessCheckbox.checked = Boolean(block.data.media?.frameless);
+    framelessCheckbox.addEventListener('change', () => {
+      this.updateBlockData(block.id, ['data', 'media', 'frameless'], framelessCheckbox.checked);
+    });
+    const framelessLabel = document.createElement('span');
+    framelessLabel.textContent = 'Rahmenlos';
+    framelessLabel.className = 'field-toggle__label';
+    framelessToggle.append(framelessCheckbox, framelessLabel);
+    const framelessHelper = createHelperText('Bild ohne Rahmen, Schatten und abgerundete Ecken anzeigen.');
+    mediaSection.append(framelessToggle);
+    if (framelessHelper) { mediaSection.append(framelessHelper); }
 
     const focalSection = createFieldSection('Optional: Bildfokus', 'Feineinstellung für den Bildausschnitt.', { optional: true });
     focalSection.append(
@@ -4664,8 +4933,10 @@ export class BlockContentEditor {
 
     const mediaWrapper = document.createElement('div');
     mediaWrapper.dataset.field = 'media';
-    mediaWrapper.append(this.addLabeledInput('Media ID', block.data.media?.imageId, value => this.updateBlockData(block.id, ['data', 'media', 'imageId'], value)));
-    mediaWrapper.append(this.addLabeledInput('Media URL', block.data.media?.image, value => this.updateBlockData(block.id, ['data', 'media', 'image'], value)));
+    mediaWrapper.append(this.addMediaUploadField('Media ID', block.data.media?.imageId, value => this.updateBlockData(block.id, ['data', 'media', 'imageId'], value), {
+      nameContext: 'info-media',
+      onImageUrlChange: url => this.updateBlockData(block.id, ['data', 'media', 'image'], url)
+    }));
     mediaWrapper.append(this.addLabeledInput('Alt-Text', block.data.media?.alt, value => this.updateBlockData(block.id, ['data', 'media', 'alt'], value)));
     mediaWrapper.append(
       this.addLabeledInput(
@@ -4709,10 +4980,10 @@ export class BlockContentEditor {
       const itemMediaWrapper = document.createElement('div');
       itemMediaWrapper.dataset.field = 'media';
       itemMediaWrapper.append(
-        this.addLabeledInput('Media ID', item.media?.imageId, value => this.updateInfoMediaItem(block.id, item.id, ['media', 'imageId'], value))
-      );
-      itemMediaWrapper.append(
-        this.addLabeledInput('Media URL', item.media?.image, value => this.updateInfoMediaItem(block.id, item.id, ['media', 'image'], value))
+        this.addMediaUploadField('Media ID', item.media?.imageId, value => this.updateInfoMediaItem(block.id, item.id, ['media', 'imageId'], value), {
+          nameContext: 'info-media-item',
+          onImageUrlChange: url => this.updateInfoMediaItem(block.id, item.id, ['media', 'image'], url)
+        })
       );
       itemMediaWrapper.append(
         this.addLabeledInput('Alt-Text', item.media?.alt, value => this.updateInfoMediaItem(block.id, item.id, ['media', 'alt'], value))
@@ -5828,7 +6099,28 @@ export class BlockContentEditor {
           return block;
         }
         const allowedVariant = ensureRendererVariant(block.type, variant);
-        return sanitizeBlock({ ...block, variant: allowedVariant });
+        const updated = { ...block, variant: allowedVariant };
+
+        if (block.type === 'stat_strip') {
+          const data = { ...(updated.data || {}) };
+          const toTrustBand = allowedVariant === 'trust_band' || allowedVariant === 'trust_bar';
+          const fromTrustBand = (block.variant === 'trust_band' || block.variant === 'trust_bar') && !toTrustBand;
+
+          if (toTrustBand && !(Array.isArray(data.items) && data.items.length)) {
+            const metrics = Array.isArray(data.metrics) ? data.metrics : [];
+            data.items = metrics.length
+              ? metrics.map(m => ({ icon: m.icon || 'check', label: m.label || '' }))
+              : [{ icon: 'check', label: 'Merkmal' }];
+          } else if (fromTrustBand && !(Array.isArray(data.metrics) && data.metrics.length)) {
+            const items = Array.isArray(data.items) ? data.items : [];
+            data.metrics = items.length
+              ? items.map(item => ({ id: createId(), value: '', label: item.label || '', icon: item.icon || '', asOf: '', tooltip: '', benefit: '' }))
+              : [{ id: createId(), value: '100%', label: 'Zuverlässig', icon: '', asOf: '', tooltip: '', benefit: '' }];
+          }
+          updated.data = data;
+        }
+
+        return sanitizeBlock(updated);
       });
       this.render();
     } catch (error) {

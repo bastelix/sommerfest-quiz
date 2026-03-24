@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use App\Service\StripeService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class StripeCheckoutControllerTest extends TestCase
 {
     public function testPostRequiresSubdomain(): void {

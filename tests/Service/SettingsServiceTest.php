@@ -6,7 +6,9 @@ namespace Tests\Service;
 
 use App\Service\SettingsService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class SettingsServiceTest extends TestCase
 {
     public function testReadWriteSettings(): void {

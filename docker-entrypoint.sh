@@ -534,4 +534,13 @@ case "$ssl_bootstrap" in
         ;;
 esac
 
+# Write standalone nginx server blocks for marketing domains and provision
+# SSL certificates via acme.sh.  docker-gen only sees env vars from
+# docker-compose.yml (not entrypoint exports), so marketing domains that
+# live in the database need their own nginx configs and certs.
+if [ -f scripts/sync_marketing_proxy.php ]; then
+    echo "Synchronising marketing domain proxy configs and certificates"
+    php scripts/sync_marketing_proxy.php || true
+fi
+
 exec $@

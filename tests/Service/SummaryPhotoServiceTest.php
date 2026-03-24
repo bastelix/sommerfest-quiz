@@ -8,7 +8,9 @@ use App\Service\SummaryPhotoService;
 use App\Service\ConfigService;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class SummaryPhotoServiceTest extends TestCase
 {
     public function testAddAndGetAll(): void {

@@ -12,7 +12,9 @@ use App\Service\PageService;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Tests\Stubs\StaticChatResponder;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class CmsPageMenuServiceGenerationTest extends TestCase
 {
     private PDO $pdo;

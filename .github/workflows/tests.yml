@@ -31,15 +31,15 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php: [8.2]
+                php: [8.4]
                 experimental: [false]
                 include:
-                    - php: 8.2
+                    - php: 8.4
                       analysis: true
 
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
               with:
                   fetch-depth: 0
 
@@ -69,13 +69,8 @@ jobs:
                   POSTGRES_DSN: pgsql:host=127.0.0.1;port=5432;dbname=quiz
                   POSTGRES_USER: postgres
                   POSTGRES_PASSWORD: postgres
+                  DASHBOARD_TOKEN_SECRET: ci-test-secret
               run: php scripts/run_migrations.php
-
-            - name: Debug Composer
-              run: composer show --all
-
-            - name: Ensure vendor/bin Exists
-              run: ls -la vendor/bin
 
             - name: Block edits to existing migrations
               run: |
@@ -124,7 +119,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Set up Node.js
               uses: actions/setup-node@v4

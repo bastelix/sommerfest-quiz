@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Controller;
 
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class ResultControllerTest extends TestCase
 {
     public function testQuestionResultsEndpoint(): void {

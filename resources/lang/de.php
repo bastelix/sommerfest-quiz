@@ -1796,6 +1796,11 @@ return [
     'text_theme_toggle_hint' => 'Light/Dark-Umschalter sichtbar',
     'label_contrast_toggle_show' => 'Kontrast-Button anzeigen',
     'text_contrast_toggle_hint' => 'High-Contrast-Umschalter sichtbar',
+    'label_topbar_style' => 'Topbar-Stil',
+    'text_topbar_style_hint' => 'Definiert die visuelle Abgrenzung der Navigation zum Inhalt.',
+    'option_topbar_auto' => 'Standard (subtil)',
+    'option_topbar_shadow' => 'Schatten',
+    'option_topbar_border' => 'Sichtbare Linie',
     'heading_logo_settings' => 'Logo-Einstellungen',
     'label_logo_text_mode' => 'Schriftzug verwenden',
     'label_logo_image_mode' => 'Bildlogo anzeigen',
@@ -2086,4 +2091,23 @@ return [
 
     // ── Admin JS: Domain SSL ─────────────────────────────────────────────
     'error_domain_ssl' => 'SSL-Fehler',
+
+    // ── Admin: Cookie settings page ────────────────────────────────────
+    'label_cookies_banner_active' => 'Cookie-Banner',
+    'label_cookies_show_banner' => 'Cookie-Banner anzeigen',
+    'label_cookies_storage_key' => 'Speicherschlüssel',
+    'text_cookies_storage_key_hint' => 'Name des localStorage-Eintrags, in dem die Cookie-Einwilligung gespeichert wird.',
+    'label_cookies_banner_text_de' => 'Bannertext (Deutsch)',
+    'text_cookies_banner_text_de_hint' => 'Wird Besuchern mit deutscher Spracheinstellung angezeigt.',
+    'label_cookies_banner_text_en' => 'Bannertext (Englisch)',
+    'text_cookies_banner_text_en_hint' => 'Wird Besuchern mit englischer Spracheinstellung angezeigt.',
+    'label_cookies_vendor_flags' => 'Anbieter-Flags',
+    'text_cookies_vendor_flags_hint' => 'JSON-Objekt mit Vendor-spezifischen Flags (z. B. YouTube, Analytics).',
+    'label_cookies_privacy_policy' => 'Datenschutzerklärung',
+    'text_cookies_privacy_policy_hint' => 'Links zur Datenschutzerklärung, die im Cookie-Banner angezeigt werden.',
+    'label_cookies_privacy_url_de' => 'Datenschutz-URL (Deutsch)',
+    'text_cookies_privacy_url_de_hint' => 'URL zur deutschen Datenschutzerklärung.',
+    'label_cookies_privacy_url_en' => 'Datenschutz-URL (Englisch)',
+    'text_cookies_privacy_url_en_hint' => 'URL zur englischen Datenschutzerklärung.',
+    'label_cookies_last_saved' => 'Zuletzt gespeichert',
 ];

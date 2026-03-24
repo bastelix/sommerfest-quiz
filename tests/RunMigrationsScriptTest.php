@@ -13,7 +13,9 @@ use PDO;
 use PDOStatement;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class RunMigrationsScriptTest extends TestCase
 {
     protected function tearDown(): void

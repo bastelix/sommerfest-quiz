@@ -3,6 +3,7 @@ import { initReveal } from './reveal.js';
 import { initHeroIntro } from './heroIntro.js';
 import { initSlider } from './slider.js';
 import { initHoverMicroInteractions } from './hoverMicroInteractions.js';
+import { initPageTransition } from './pageTransition.js';
 
 const MODES = {
   FRONTEND: 'frontend',
@@ -60,6 +61,10 @@ export function initEffects(root = document, context = {}) {
   }
   if (profile?.[EFFECT_TYPES.HOVER]?.enabled) {
     const stop = initHoverMicroInteractions(scope, profile, options);
+    if (typeof stop === 'function') teardowns.push(stop);
+  }
+  if (profile?.[EFFECT_TYPES.PAGE_TRANSITION]?.enabled) {
+    const stop = initPageTransition(scope, profile, options);
     if (typeof stop === 'function') teardowns.push(stop);
   }
 

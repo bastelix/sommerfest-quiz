@@ -39,12 +39,20 @@ class LoginController
 
         $googleClientId = getenv('GOOGLE_CLIENT_ID') ?: '';
 
+        // Pass through OAuth redirect parameter so the form preserves it
+        $oauthRedirect = isset($query['redirect']) && is_string($query['redirect']) ? $query['redirect'] : '';
+        $basePath2 = BasePathHelper::normalize(getenv('BASE_PATH') ?: '');
+        if ($oauthRedirect !== '' && !str_starts_with($oauthRedirect, $basePath2 . '/oauth/')) {
+            $oauthRedirect = '';
+        }
+
         return $view->render($response, 'login.twig', [
             'registration_allowed' => $allowed,
             'reset_success' => $resetSuccess,
             'version' => $version,
             'csrf_token' => $csrf,
             'google_client_id' => $googleClientId,
+            'oauth_redirect' => $oauthRedirect,
         ]);
     }
 
@@ -105,6 +113,15 @@ class LoginController
                     ->withHeader('Location', $scheme . '://' . $mainDomain . '/admin')
                     ->withStatus(302);
             }
+            $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
+
+            // Honor ?redirect= parameter (used by OAuth authorize flow)
+            $query = $request->getQueryParams();
+            $redirectParam = isset($query['redirect']) && is_string($query['redirect']) ? trim($query['redirect']) : '';
+            if ($redirectParam !== '' && str_starts_with($redirectParam, $basePath . '/oauth/')) {
+                return $response->withHeader('Location', $redirectParam)->withStatus(302);
+            }
+
             $dashboardRoles = [
                 Roles::ADMIN,
                 Roles::CATALOG_EDITOR,
@@ -128,7 +145,6 @@ class LoginController
             } else {
                 $target = '/help';
             }
-            $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
             return $response->withHeader('Location', $basePath . $target)->withStatus(302);
         }
 
@@ -147,6 +163,14 @@ class LoginController
             error_log(sprintf('Invalid password for "%s" (%s) from %s', (string) $record['username'], $email, $ip));
         }
 
+        // Preserve OAuth redirect on failed login
+        $query = $request->getQueryParams();
+        $oauthRedirect = isset($query['redirect']) && is_string($query['redirect']) ? $query['redirect'] : '';
+        $basePath = BasePathHelper::normalize(getenv('BASE_PATH') ?: '');
+        if ($oauthRedirect !== '' && !str_starts_with($oauthRedirect, $basePath . '/oauth/')) {
+            $oauthRedirect = '';
+        }
+
         return $view->render(
             $response->withStatus(401),
             'login.twig',
@@ -154,6 +178,7 @@ class LoginController
                 'error' => true,
                 'inactive' => $inactive,
                 'unknown' => $unknown,
+                'oauth_redirect' => $oauthRedirect,
             ]
         );
     }

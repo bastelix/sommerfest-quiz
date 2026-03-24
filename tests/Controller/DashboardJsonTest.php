@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class DashboardJsonTest extends TestCase
 {
     public function testAggregatesWebContentStatsPerNamespace(): void

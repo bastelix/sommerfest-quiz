@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Application;
 
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class OptionsRequestTest extends TestCase
 {
     public function testOptionsRequestReturnsNoContent(): void

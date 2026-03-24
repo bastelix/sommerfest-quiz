@@ -1,4 +1,4 @@
-import { resolveSectionIntentInfo, deriveSectionIntent } from './section-intents.js';
+import { resolveSectionIntentInfo, deriveSectionIntent, DEFAULT_CONTAINER_BY_TYPE } from './section-intents.js';
 
 export function escapeHtml(value) {
   if (value === null || value === undefined) {
@@ -416,8 +416,9 @@ const CONTAINER_SPACING_TO_CLASS = {
 };
 
 function resolveContainerPreset(block) {
-  const container = block?.meta?.sectionStyle?.container;
-  if (!container) return null;
+  const container = block?.meta?.sectionStyle?.container
+    || DEFAULT_CONTAINER_BY_TYPE[block?.type]
+    || { width: 'normal', frame: 'none', spacing: 'normal' };
 
   const background = block?.meta?.sectionStyle?.background || {};
   const intent = deriveSectionIntent(container, background);
@@ -870,12 +871,38 @@ function renderSubheadline(block, alignmentClass = '', context = 'frontend') {
   return `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom${alignment}"${editable}>${escapeHtml(subheadline)}</p>`;
 }
 
+const MEDIA_SIZE_MAP = {
+  small:  { containerHeight: 150, width: 600, height: 400 },
+  medium: { containerHeight: 300, width: 800, height: 600 },
+  large:  { containerHeight: 450, width: 1000, height: 750 },
+  xlarge: { containerHeight: 600, width: 1200, height: 900 }
+};
+
+let _heroMediaModalCounter = 0;
+
 function renderHeroMedia(media) {
-  if (!media || !media.image) {
+  const imageSrc = media?.image || resolveBackgroundImage(media?.imageId);
+  if (!imageSrc) {
     return '';
   }
   const altText = media.alt ? escapeAttribute(media.alt) : '';
-  return `<div class="uk-cover-container uk-height-medium uk-border-rounded uk-box-shadow-small"><img src="${escapeAttribute(media.image)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="800" height="600"></canvas></div>`;
+  const size = MEDIA_SIZE_MAP[media?.mediaSize] || MEDIA_SIZE_MAP.medium;
+  const modalId = `hero-media-modal-${++_heroMediaModalCounter}`;
+  const escapedSrc = escapeAttribute(imageSrc);
+
+  const frameClasses = media.frameless ? '' : ' uk-border-rounded uk-box-shadow-small';
+  const thumbnail = `<div class="uk-cover-container${frameClasses} hero-media-thumb" style="cursor:pointer; height: ${size.containerHeight}px" uk-toggle="target: #${modalId}"><img src="${escapedSrc}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div>`;
+
+  const modal = `<div id="${modalId}" class="uk-modal-full hero-media-lightbox" uk-modal>` +
+    '<div class="uk-modal-dialog hero-media-lightbox__dialog">' +
+      '<button class="uk-modal-close-full hero-media-lightbox__close" type="button" uk-close uk-toggle="target: #' + modalId + '"></button>' +
+      '<div class="hero-media-lightbox__wrap">' +
+        `<img src="${escapedSrc}" alt="${altText}" class="hero-media-lightbox__img">` +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  return thumbnail + modal;
 }
 
 function applyEmbedDefaults(url) {
@@ -894,7 +921,8 @@ function applyEmbedDefaults(url) {
 }
 
 function renderHeroMediaVideoCard(media, video, referenceLink) {
-  if (!video?.embedUrl && !media?.image) {
+  const resolvedImage = media?.image || resolveBackgroundImage(media?.imageId) || '';
+  if (!video?.embedUrl && !resolvedImage) {
     return '';
   }
 
@@ -925,8 +953,8 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
     embedContent = `<iframe src="${escapeAttribute(embedUrl)}" title="${escapeAttribute(video?.title || 'Video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`;
   }
 
-  const fallbackImage = media?.image
-    ? `<img src="${escapeAttribute(media.image)}" alt="${escapeAttribute(media?.alt || '')}" loading="lazy">`
+  const fallbackImage = resolvedImage
+    ? `<img src="${escapeAttribute(resolvedImage)}" alt="${escapeAttribute(media?.alt || '')}" loading="lazy">`
     : '';
   const referenceLabel = referenceLink?.label ? escapeHtml(referenceLink.label) : '';
   const referenceHref = referenceLink?.href ? escapeAttribute(referenceLink.href) : '';
@@ -954,8 +982,9 @@ function renderHeroMediaVideoCard(media, video, referenceLink) {
     ? ` data-hero-video-consent data-embed-url="${escapeAttribute(embedUrl)}" data-embed-title="${escapeAttribute(video?.title || 'Video')}"`
     : '';
 
+  const framelessClass = media?.frameless ? ' hero-media-card--frameless' : '';
   return `
-    <div class="hero-media-card"${consentAttrs}>
+    <div class="hero-media-card${framelessClass}"${consentAttrs}>
       <div class="hero-media-card__frame">
         <div class="hero-media-card__embed">
           ${embedContent || fallbackImage}
@@ -1052,6 +1081,18 @@ function renderHeroMinimal(block, options = {}) {
   const subheadline = renderSubheadline(block, '', context);
   const content = `<div class="uk-width-1-1 uk-width-3-4@m uk-align-center">${eyebrow}${headline}${subheadline}</div>`;
   return renderHeroSection({ block, variant: 'minimal', content, sectionModifiers: 'uk-section-small' });
+}
+
+function renderHeroSmall(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const eyebrow = renderEyebrow(block, 'uk-text-center', context);
+  const headline = block?.data?.headline
+    ? `<h1 class="uk-heading-small uk-margin-small-top uk-text-center"${buildEditableAttributes(block, 'data.headline', context)}>${escapeHtml(block.data.headline || '')}</h1>`
+    : '';
+  const subheadline = renderSubheadline(block, 'uk-text-center', context);
+  const ctas = renderHeroCtas(block.data?.cta, 'uk-flex-center');
+  const content = `<div class="uk-width-1-1 uk-width-2-3@m uk-align-center uk-text-center">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  return renderHeroSection({ block, variant: 'small', content, sectionModifiers: 'uk-section-small' });
 }
 
 function renderHeroStatTiles(block, options = {}) {
@@ -2507,7 +2548,10 @@ function renderStatStripTrustBar(block, options = {}) {
 }
 
 function renderStatStripTrustBand(block, options = {}) {
-  const items = Array.isArray(block.data?.items) ? block.data.items : [];
+  let items = Array.isArray(block.data?.items) ? block.data.items : [];
+  if (!items.length && Array.isArray(block.data?.metrics) && block.data.metrics.length) {
+    items = block.data.metrics.map(m => ({ icon: m.icon || 'check', label: m.label || '' }));
+  }
   if (!items.length) {
     return renderSection({ block, variant: 'trust_band', content: '<!-- trust_band: no items -->' });
   }
@@ -3229,7 +3273,8 @@ export const RENDERER_MATRIX = {
     'media-right': renderHeroMediaRight,
     'media-left': renderHeroMediaLeft,
     minimal: renderHeroMinimal,
-    stat_tiles: renderHeroStatTiles
+    stat_tiles: renderHeroStatTiles,
+    small: renderHeroSmall
   },
   feature_list: {
     'detailed-cards': renderFeatureListDetailedCards,

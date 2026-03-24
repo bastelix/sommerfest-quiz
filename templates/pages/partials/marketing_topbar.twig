@@ -10,9 +10,10 @@
 {% set logoSrc = headerLogo.src|default(null) %}
 {% set logoLabel = headerLogo.label|default(pageTitle|default('QuizRace')) %}
 {% set logoAlt = headerLogo.alt|default(logoLabel) %}
+{% set topbarStyle = headerConfig.topbar_style|default('auto') %}
 
 <header
-  class="qr-topbar uk-position-sticky uk-top"
+  class="qr-topbar uk-position-sticky uk-top{% if topbarStyle == 'shadow' %} qr-topbar--shadow{% elseif topbarStyle == 'border' %} qr-topbar--border{% endif %}"
   data-theme="{{ headerTheme }}"
   uk-sticky="animation: uk-animation-slide-top; sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky;"
 >
@@ -26,7 +27,7 @@
                 aria-controls="qr-offcanvas"
                 aria-expanded="false"
                 aria-label="{{ t('menu') }}"></button>
-        <a class="uk-logo" href="{{ basePath }}/{{ cmsSlug }}">
+        <a class="uk-logo" href="{{ basePath }}/">
           {% if logoMode == 'image' and logoSrc %}
             <img src="{{ logoSrc }}" alt="{{ logoAlt }}">
           {% else %}

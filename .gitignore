@@ -31,3 +31,6 @@ data/test-logo.webp
 
 # Generated per-namespace token stylesheets (rebuilt via DesignTokenService)
 public/css/*/namespace-tokens.css
+
+# MkDocs build output
+site/

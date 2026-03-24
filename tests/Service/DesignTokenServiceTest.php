@@ -10,7 +10,9 @@ use App\Service\NamespaceDesignFileRepository;
 use App\Service\PageService;
 use PDO;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class DesignTokenServiceTest extends TestCase
 {
     public function testPersistTokensCreatesNamespaceAndCss(): void

@@ -55,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const adminMenu = document.getElementById('adminMenu');
   const adminNav = document.getElementById('adminNav');
   const adminMenuToggle = document.getElementById('adminMenuToggle');
-  const pageNamespaceSelect = document.getElementById('pageNamespaceSelect');
   const namespaceSelects = getNamespaceSelects();
   const pageTabs = document.getElementById('pageTabs');
 
@@ -65,38 +64,23 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   const resolveActivePageTab = () => pageTabs?.querySelector('li.uk-active')?.dataset.pageTab || '';
-  if (pageNamespaceSelect) {
-    const currentNamespace = pageNamespaceSelect.dataset.pageNamespace || pageNamespaceSelect.value || '';
-    if (currentNamespace && pageNamespaceSelect.value !== currentNamespace) {
-      pageNamespaceSelect.value = currentNamespace;
+  namespaceSelects.forEach((select) => {
+    if (select.dataset.namespaceListenerAttached === '1') {
+      return;
     }
-    pageNamespaceSelect.addEventListener('change', () => {
-      const selectedNamespace = pageNamespaceSelect.value || '';
-      if (!selectedNamespace) {
-        return;
-      }
-      const url = new URL(window.location.href);
-      url.searchParams.set('namespace', selectedNamespace);
-      const activeTab = resolveActivePageTab();
-      if (activeTab) {
-        url.searchParams.set('pageTab', activeTab);
-      }
-      window.location.assign(url.toString());
-    });
-  }
-  namespaceSelects.forEach((namespaceSelect) => {
-    const currentNamespace = namespaceSelect.dataset.namespace || namespaceSelect.value || '';
-    if (currentNamespace && namespaceSelect.value !== currentNamespace) {
-      namespaceSelect.value = currentNamespace;
+    select.dataset.namespaceListenerAttached = '1';
+
+    const currentNamespace = select.dataset.namespace || select.value || '';
+    if (currentNamespace && select.value !== currentNamespace) {
+      select.value = currentNamespace;
     }
-    if (namespaceSelect.dataset.namespaceListenerAttached === '1') {
+
+    if (select.id === 'subscriptionNamespaceSelect') {
       return;
     }
 
-    namespaceSelect.dataset.namespaceListenerAttached = '1';
-
-    namespaceSelect.addEventListener('change', () => {
-      const selectedNamespace = namespaceSelect.value || '';
+    select.addEventListener('change', () => {
+      const selectedNamespace = select.value || '';
       if (!selectedNamespace) {
         return;
       }

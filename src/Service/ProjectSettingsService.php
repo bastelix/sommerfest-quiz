@@ -26,6 +26,7 @@ use RuntimeException;
  *     header_logo_path:string,
  *     header_logo_alt:string,
  *     header_logo_label:string,
+ *     header_topbar_style:string,
  *     updated_at:?string
  * }
  */
@@ -66,6 +67,7 @@ final class ProjectSettingsService
      *     header_logo_path:string,
      *     header_logo_alt:string,
      *     header_logo_label:string,
+     *     header_topbar_style:string,
      *     updated_at:?string
      * }
      * @phpstan-return CookieConsentSettings
@@ -104,6 +106,7 @@ final class ProjectSettingsService
         $headerLogoPath = isset($row['header_logo_path']) ? trim((string) $row['header_logo_path']) : '';
         $headerLogoAlt = isset($row['header_logo_alt']) ? trim((string) $row['header_logo_alt']) : '';
         $headerLogoLabel = isset($row['header_logo_label']) ? trim((string) $row['header_logo_label']) : '';
+        $headerTopbarStyle = $this->normalizeTopbarStyle($row['header_topbar_style'] ?? null, $defaults['header_topbar_style']);
 
         return [
             'namespace' => $normalized,
@@ -122,6 +125,7 @@ final class ProjectSettingsService
             'header_logo_path' => $headerLogoPath,
             'header_logo_alt' => $headerLogoAlt,
             'header_logo_label' => $headerLogoLabel !== '' ? $headerLogoLabel : $defaults['header_logo_label'],
+            'header_topbar_style' => $headerTopbarStyle,
             'updated_at' => isset($row['updated_at']) ? (string) $row['updated_at'] : null,
         ];
     }
@@ -144,6 +148,7 @@ final class ProjectSettingsService
      *     header_logo_path:string,
      *     header_logo_alt:string,
      *     header_logo_label:string,
+     *     header_topbar_style:string,
      *     updated_at:?string
      * }
      */
@@ -163,7 +168,8 @@ final class ProjectSettingsService
         ?string $headerLogoMode,
         ?string $headerLogoPath,
         ?string $headerLogoAlt,
-        ?string $headerLogoLabel
+        ?string $headerLogoLabel,
+        ?string $headerTopbarStyle = null
     ): array {
         $normalized = $this->normalizeNamespace($namespace);
         $this->assertTableExists();
@@ -195,6 +201,7 @@ final class ProjectSettingsService
         $normalizedLogoPath = $headerLogoPath !== null ? trim($headerLogoPath) : null;
         $normalizedLogoAlt = $headerLogoAlt !== null ? trim($headerLogoAlt) : null;
         $normalizedLogoLabel = $headerLogoLabel !== null ? trim($headerLogoLabel) : null;
+        $normalizedTopbarStyle = $this->normalizeTopbarStyle($headerTopbarStyle, 'auto');
         if ($normalizedLogoPath !== null && mb_strlen($normalizedLogoPath) > self::MAX_PRIVACY_URL_LENGTH) {
             throw new RuntimeException('Logo path is too long.');
         }
@@ -224,7 +231,8 @@ final class ProjectSettingsService
             $normalizedLogoMode,
             $normalizedLogoPath !== '' ? $normalizedLogoPath : null,
             $normalizedLogoAlt !== '' ? $normalizedLogoAlt : null,
-            $normalizedLogoLabel !== '' ? $normalizedLogoLabel : null
+            $normalizedLogoLabel !== '' ? $normalizedLogoLabel : null,
+            $normalizedTopbarStyle
         );
 
         return $this->getCookieConsentSettings($normalized);
@@ -247,6 +255,7 @@ final class ProjectSettingsService
      *     header_logo_mode:string,
      *     header_logo_path:string,
      *     header_logo_alt:string,
+     *     header_topbar_style:string,
      *     updated_at:?string
      * }
      * @phpstan-return CookieConsentSettings
@@ -270,6 +279,7 @@ final class ProjectSettingsService
             'header_logo_path' => '',
             'header_logo_alt' => '',
             'header_logo_label' => 'QuizRace',
+            'header_topbar_style' => 'auto',
             'updated_at' => null,
         ];
     }
@@ -309,6 +319,16 @@ final class ProjectSettingsService
         $mode = is_string($value) ? strtolower(trim($value)) : '';
         if (in_array($mode, ['text', 'image'], true)) {
             return $mode;
+        }
+
+        return $fallback;
+    }
+
+    private function normalizeTopbarStyle(mixed $value, string $fallback): string
+    {
+        $style = is_string($value) ? strtolower(trim($value)) : '';
+        if (in_array($style, ['auto', 'shadow', 'border'], true)) {
+            return $style;
         }
 
         return $fallback;

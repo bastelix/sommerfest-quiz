@@ -803,33 +803,11 @@
             is_active: true
           }] %}
         {% endif %}
-        <div class="uk-grid-small uk-flex-middle uk-margin-small" uk-grid>
-          <div class="uk-width-auto">
-            <label class="uk-form-label uk-margin-remove" for="ragChatNamespaceSelect">{{ t('label_project_namespace') }}</label>
-          </div>
-          <div class="uk-width-1-1 uk-width-medium@m">
-            <select
-              id="ragChatNamespaceSelect"
-              class="uk-select uk-form-small"
-              data-namespace-select
-              data-namespace="{{ ragChatNamespace|e('html_attr') }}"
-            >
-              {% for entry in ragChatNamespaceOptions %}
-                {% set entryNamespace = entry.namespace|default('') %}
-                {% set entryLabel = entry.label|default('') %}
-                {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                <option
-                  value="{{ entryNamespace|e('html_attr') }}"
-                  {% if entryNamespace == ragChatNamespace %}selected{% endif %}
-                >
-                  {{ entryNamespace }}
-                  {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                  {% if entryIsInactive %} – inaktiv{% endif %}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
+        {% include 'admin/partials/namespace_select.twig' with {
+          activeNamespace: ragChatNamespace,
+          namespaceOptions: ragChatNamespaceOptions,
+          selectorId: 'ragChatNamespaceSelect'
+        } only %}
         <ul uk-tab>
           <li><a href="#">{{ t('tab_domain_chat') }}</a></li>
           <li><a href="#">{{ t('tab_rag_chat_config') }}</a></li>
@@ -1581,40 +1559,10 @@
         <h2 class="uk-heading-bullet">{{ t('heading_pages') }}</h2>
         {% set activePageNamespace = pageNamespace|default('default') %}
         {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
-        {% set pageNamespaceOptions = available_namespaces|default([]) %}
-        {% if pageNamespaceOptions is empty %}
-          {% set pageNamespaceOptions = [{
-            namespace: activePageNamespace,
-            label: null,
-            is_active: true
-          }] %}
-        {% endif %}
-        <div class="uk-grid-small uk-flex-middle uk-margin-small" uk-grid>
-          <div class="uk-width-auto">
-            <label class="uk-form-label uk-margin-remove" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
-          </div>
-          <div class="uk-width-1-1 uk-width-medium@m">
-            <select
-              id="pageNamespaceSelect"
-              class="uk-select uk-form-small"
-              data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
-            >
-              {% for entry in pageNamespaceOptions %}
-                {% set entryNamespace = entry.namespace|default('') %}
-                {% set entryLabel = entry.label|default('') %}
-                {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                <option
-                  value="{{ entryNamespace|e('html_attr') }}"
-                  {% if entryNamespace == activePageNamespace %}selected{% endif %}
-                >
-                  {{ entryNamespace }}
-                  {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                  {% if entryIsInactive %} – inaktiv{% endif %}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
+        {% include 'admin/partials/namespace_select.twig' with {
+          activeNamespace: activePageNamespace,
+          namespaceOptions: available_namespaces|default([])
+        } only %}
         {% include 'admin/components/project_tree.twig' %}
         {% set currentPageTab = pageTab|default('seo') %}
         <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
@@ -2539,7 +2487,6 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="{{ basePath }}/js/custom-icons.js"></script>
   <script>
     window.quizConfig = {{ config|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.quizSettings = {{ settings|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};

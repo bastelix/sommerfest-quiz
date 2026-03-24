@@ -10,7 +10,9 @@ use App\Service\ConfigService;
 use App\Service\DesignTokenService;
 use App\Service\NamespaceService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class NamespaceServiceTest extends TestCase
 {
     public function testAllReturnsDefaultWhenNamespaceTableIsMissing(): void

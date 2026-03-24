@@ -9,7 +9,9 @@ use App\Service\UserService;
 use App\Domain\Roles;
 use Slim\Psr7\Factory\StreamFactory;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class LoginControllerTest extends TestCase
 {
     protected function setUp(): void {

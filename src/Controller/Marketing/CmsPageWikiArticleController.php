@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
+use App\Service\CmsLayoutDataService;
 use App\Service\CmsPageWikiArticleService;
 use App\Service\CmsPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
@@ -35,6 +36,8 @@ final class CmsPageWikiArticleController
 
     private NamespaceRenderContextService $namespaceRenderContext;
 
+    private CmsLayoutDataService $layoutData;
+
     public function __construct(
         ?PageService $pageService = null,
         ?CmsPageWikiSettingsService $settingsService = null,
@@ -42,7 +45,8 @@ final class CmsPageWikiArticleController
         ?NamespaceResolver $namespaceResolver = null,
         ?MarketingWikiThemeConfigService $themeConfigService = null,
         ?NamespaceAppearanceService $namespaceAppearance = null,
-        ?NamespaceRenderContextService $namespaceRenderContext = null
+        ?NamespaceRenderContextService $namespaceRenderContext = null,
+        ?CmsLayoutDataService $layoutData = null
     ) {
         $this->pageService = $pageService ?? new PageService();
         $this->settingsService = $settingsService ?? new CmsPageWikiSettingsService();
@@ -51,6 +55,7 @@ final class CmsPageWikiArticleController
         $this->themeConfigService = $themeConfigService ?? new MarketingWikiThemeConfigService();
         $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
         $this->namespaceRenderContext = $namespaceRenderContext ?? new NamespaceRenderContextService();
+        $this->layoutData = $layoutData ?? new CmsLayoutDataService();
     }
 
     public function __invoke(Request $request, Response $response, array $args): Response
@@ -74,6 +79,12 @@ final class CmsPageWikiArticleController
             $page = $this->pageService->findByKey($namespace, $slug);
         }
         if ($page === null) {
+            return $response->withStatus(404);
+        }
+
+        // In direct mode, only wiki-type pages are served
+        $directMode = (bool) $request->getAttribute('wikiDirectMode', false);
+        if ($directMode && $page->getType() !== 'wiki') {
             return $response->withStatus(404);
         }
 
@@ -108,18 +119,39 @@ final class CmsPageWikiArticleController
             return $response->withStatus(404);
         }
 
+        $articles = $this->articleService->getPublishedArticles($settingsPage->getId(), $locale);
+
         $menuLabel = $settings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
         $view = Twig::fromRequest($request);
         $basePath = RouteContext::fromRequest($request)->getBasePath();
 
+        $directMode = (bool) $request->getAttribute('wikiDirectMode', false);
+        $wikiBasePath = $directMode
+            ? $basePath . '/pages/' . $wikiSlug
+            : $basePath . '/pages/' . $wikiSlug . '/wiki';
+
         $themeOverrides = $this->themeConfigService->getThemeForSlug($namespace, $settingsPage->getSlug());
         $theme = MarketingWikiThemeResolver::resolve($themeOverrides);
+
+        $layoutChromeData = $this->layoutData->loadLayoutData($pageNamespace, $settingsPage->getId(), $locale, $basePath);
+
+        $pageUrl = $directMode
+            ? $basePath . '/cms/pages/' . $page->getSlug()
+            : $basePath . '/' . $page->getSlug();
 
         return $view->render($response, 'marketing/wiki/show.twig', [
             'page' => $page,
             'article' => $article,
+            'articles' => $articles,
             'menuLabel' => $menuLabel,
             'wikiTheme' => $theme,
+            'wikiBasePath' => $wikiBasePath,
+            'pageUrl' => $pageUrl,
+            'cmsMainNavigation' => $layoutChromeData['cmsMainNavigation'],
+            'headerConfig' => $layoutChromeData['headerConfig'],
+            'headerLogo' => $layoutChromeData['headerLogo'],
+            'cmsSlug' => $page->getSlug(),
+            'pageTitle' => $page->getTitle(),
             'namespace' => $pageNamespace,
             'pageNamespace' => $pageNamespace,
             'designNamespace' => $designNamespace,
@@ -128,15 +160,15 @@ final class CmsPageWikiArticleController
             'renderContext' => $renderContext,
             'breadcrumbs' => [
                 [
-                    'url' => $basePath . '/' . $page->getSlug(),
+                    'url' => $pageUrl,
                     'label' => $page->getTitle(),
                 ],
                 [
-                    'url' => $basePath . '/pages/' . $wikiSlug . '/wiki',
+                    'url' => $wikiBasePath,
                     'label' => $menuLabel,
                 ],
                 [
-                    'url' => $basePath . '/pages/' . $wikiSlug . '/wiki/' . $article->getSlug(),
+                    'url' => $wikiBasePath . '/' . $article->getSlug(),
                     'label' => $article->getTitle(),
                 ],
             ],

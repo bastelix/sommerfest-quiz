@@ -897,4 +897,191 @@ class DesignTokenService
 
         return $selector . " {\n" . $css . "\n}";
     }
+
+    /**
+     * Return the full design manifest for a namespace.
+     *
+     * Provides a complete picture of all design tokens, their resolved values,
+     * the token hierarchy, block-level token options, section intents, and
+     * legacy aliases. Designed for external API consumers.
+     *
+     * @return array<string, mixed>
+     */
+    public function getDesignManifest(string $namespace): array
+    {
+        $ns = $this->normalizeNamespace($namespace);
+        $tokens = $this->getTokensForNamespace($ns);
+        $importMeta = $this->getImportMeta($ns);
+
+        $brandPrimary = $tokens['brand']['primary'] ?? self::DEFAULT_TOKENS['brand']['primary'];
+        $brandAccent = $tokens['brand']['accent'] ?? self::DEFAULT_TOKENS['brand']['accent'];
+        $brandSecondary = $tokens['brand']['secondary'] ?? self::DEFAULT_TOKENS['brand']['secondary'];
+
+        return [
+            'namespace' => $ns,
+            'tokenHierarchy' => [
+                'semantic' => [
+                    'description' => 'Core tokens defined in variables.css. Apply to all namespaces unless overridden.',
+                    'tokens' => [
+                        '--surface-page', '--surface-section', '--surface-card', '--surface-muted', '--surface-subtle',
+                        '--text-body', '--text-heading', '--text-muted',
+                        '--text-on-primary', '--text-on-secondary', '--text-on-accent',
+                        '--border-muted', '--border-strong',
+                        '--space-section', '--card-radius',
+                        '--danger-500', '--danger-600',
+                    ],
+                ],
+                'namespace' => [
+                    'description' => 'Brand-specific overrides applied via [data-namespace] attribute.',
+                    'tokens' => [
+                        '--brand-primary', '--brand-accent', '--brand-secondary',
+                        '--contrast-text-on-primary', '--contrast-text-on-secondary', '--contrast-text-on-accent',
+                        '--contrast-text-on-surface', '--contrast-text-on-surface-muted', '--contrast-text-on-page',
+                        '--marketing-primary', '--marketing-accent', '--marketing-secondary', '--marketing-link',
+                        '--marketing-surface', '--marketing-ink',
+                        '--layout-profile', '--typography-preset',
+                        '--components-card-style', '--components-button-style',
+                    ],
+                ],
+                'component' => [
+                    'description' => 'Component-level tokens scoped to specific blocks or sections.',
+                    'tokens' => [
+                        '--dt-hero-bg-start', '--dt-hero-bg-end',
+                        '--dt-cta-color', '--dt-cta-hover',
+                        '--dt-accent-light', '--dt-success-accent', '--dt-star-fill',
+                    ],
+                ],
+            ],
+            'resolvedValues' => [
+                '--brand-primary' => ['value' => $brandPrimary, 'category' => 'brand', 'description' => 'Primary brand color'],
+                '--brand-accent' => ['value' => $brandAccent, 'category' => 'brand', 'description' => 'Accent color for highlights and CTAs'],
+                '--brand-secondary' => ['value' => $brandSecondary, 'category' => 'brand', 'description' => 'Secondary brand color'],
+                '--layout-profile' => ['value' => $tokens['layout']['profile'] ?? 'standard', 'category' => 'layout', 'description' => 'Layout width profile', 'options' => self::LAYOUT_PROFILES],
+                '--typography-preset' => ['value' => $tokens['typography']['preset'] ?? 'modern', 'category' => 'typography', 'description' => 'Typography font family preset', 'options' => self::TYPOGRAPHY_PRESETS],
+                '--components-card-style' => ['value' => $tokens['components']['cardStyle'] ?? 'rounded', 'category' => 'components', 'description' => 'Card border-radius style', 'options' => self::CARD_STYLES],
+                '--components-button-style' => ['value' => $tokens['components']['buttonStyle'] ?? 'filled', 'category' => 'components', 'description' => 'Button visual style', 'options' => self::BUTTON_STYLES],
+            ],
+            'tokens' => $tokens,
+            'importMeta' => $importMeta,
+            'blockTokens' => [
+                'background' => ['primary', 'secondary', 'muted', 'accent', 'surface'],
+                'spacing' => ['small', 'normal', 'large'],
+                'width' => ['narrow', 'normal', 'wide'],
+                'columns' => ['single', 'two', 'three', 'four'],
+                'accent' => ['brandA', 'brandB', 'brandC'],
+            ],
+            'sectionAppearances' => ['contained', 'full', 'card', 'default', 'surface', 'contrast', 'image', 'image-fixed'],
+            'sectionIntents' => ['plain', 'content', 'feature', 'highlight', 'hero'],
+            'legacyAliases' => [
+                '--bg-page' => '--surface-page',
+                '--bg-section' => '--surface-section',
+                '--bg-card' => '--surface-card',
+                '--bg-surface' => '--surface-card',
+                '--bg-muted' => '--surface-muted',
+                '--bg-subtle' => '--surface-subtle',
+                '--text-default' => '--text-body',
+                '--text-primary' => '--text-body',
+                '--text-secondary' => '--text-muted',
+                '--text-link' => '--brand-primary',
+                '--accent-primary' => '--brand-primary',
+                '--accent-secondary' => '--brand-secondary',
+                '--accent-color' => '--brand-primary',
+                '--section-gap' => '--space-section',
+            ],
+        ];
+    }
+
+    /**
+     * Validate a page design for consistency.
+     *
+     * Checks block tokens against valid values, verifies section intents and
+     * appearances, and flags deprecated block types.
+     *
+     * @return array{valid: bool, errors: list<array{block: string, field: string, message: string}>, warnings: list<array{block: string, field: string, message: string}>}
+     */
+    public function validatePageDesign(string $namespace, string $pageContent): array
+    {
+        $errors = [];
+        $warnings = [];
+
+        $blocks = json_decode($pageContent, true);
+        if (!is_array($blocks)) {
+            $wrapped = json_decode($pageContent, true);
+            $blocks = is_array($wrapped) && isset($wrapped['blocks']) ? $wrapped['blocks'] : [];
+        }
+
+        if (isset($blocks['blocks']) && is_array($blocks['blocks'])) {
+            $blocks = $blocks['blocks'];
+        }
+
+        $validBackgrounds = ['primary', 'secondary', 'muted', 'accent', 'surface'];
+        $validSpacings = ['small', 'normal', 'large'];
+        $validWidths = ['narrow', 'normal', 'wide'];
+        $validColumns = ['single', 'two', 'three', 'four'];
+        $validAccents = ['brandA', 'brandB', 'brandC'];
+        $validAppearances = ['contained', 'full', 'card', 'default', 'surface', 'contrast', 'image', 'image-fixed'];
+        $deprecatedTypes = ['system_module', 'case_showcase'];
+
+        foreach ($blocks as $index => $block) {
+            if (!is_array($block)) {
+                continue;
+            }
+
+            $blockId = $block['id'] ?? $block['type'] ?? "block[{$index}]";
+            $blockType = $block['type'] ?? null;
+
+            if ($blockType === null) {
+                $errors[] = ['block' => (string) $blockId, 'field' => 'type', 'message' => 'Block type is missing'];
+                continue;
+            }
+
+            if (in_array($blockType, $deprecatedTypes, true)) {
+                $warnings[] = ['block' => (string) $blockId, 'field' => 'type', 'message' => "Block type '{$blockType}' is deprecated"];
+            }
+
+            if (!isset($block['variant']) || !is_string($block['variant'])) {
+                $errors[] = ['block' => (string) $blockId, 'field' => 'variant', 'message' => 'Block variant is missing or not a string'];
+            }
+
+            $tokens = $block['tokens'] ?? null;
+            if (is_array($tokens)) {
+                $this->validateTokenField($tokens, 'background', $validBackgrounds, (string) $blockId, $errors);
+                $this->validateTokenField($tokens, 'spacing', $validSpacings, (string) $blockId, $errors);
+                $this->validateTokenField($tokens, 'width', $validWidths, (string) $blockId, $errors);
+                $this->validateTokenField($tokens, 'columns', $validColumns, (string) $blockId, $errors);
+                $this->validateTokenField($tokens, 'accent', $validAccents, (string) $blockId, $errors);
+            }
+
+            $appearance = $block['sectionAppearance'] ?? null;
+            if ($appearance !== null && !in_array($appearance, $validAppearances, true)) {
+                $errors[] = ['block' => (string) $blockId, 'field' => 'sectionAppearance', 'message' => "Invalid sectionAppearance '{$appearance}'. Valid: " . implode(', ', $validAppearances)];
+            }
+        }
+
+        return [
+            'valid' => $errors === [],
+            'errors' => $errors,
+            'warnings' => $warnings,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $tokens
+     * @param list<string> $validValues
+     * @param list<array{block: string, field: string, message: string}> &$errors
+     */
+    private function validateTokenField(array $tokens, string $field, array $validValues, string $blockId, array &$errors): void
+    {
+        if (!isset($tokens[$field])) {
+            return;
+        }
+        $value = $tokens[$field];
+        if (!is_string($value) || !in_array($value, $validValues, true)) {
+            $errors[] = [
+                'block' => $blockId,
+                'field' => "tokens.{$field}",
+                'message' => "Invalid value '{$value}'. Valid: " . implode(', ', $validValues),
+            ];
+        }
+    }
 }

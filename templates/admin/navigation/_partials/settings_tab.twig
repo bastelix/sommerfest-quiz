@@ -65,6 +65,18 @@
       </div>
     </div>
     <div class="uk-margin">
+      <label class="uk-form-label" for="headerTopbarStyle">{{ t('label_topbar_style') }}</label>
+      <div class="uk-form-controls">
+        {% set topbarStyle = navSettings.header_topbar_style|default('auto') %}
+        <select class="uk-select" name="header_topbar_style" id="headerTopbarStyle">
+          <option value="auto" {% if topbarStyle == 'auto' %}selected{% endif %}>{{ t('option_topbar_auto') }}</option>
+          <option value="shadow" {% if topbarStyle == 'shadow' %}selected{% endif %}>{{ t('option_topbar_shadow') }}</option>
+          <option value="border" {% if topbarStyle == 'border' %}selected{% endif %}>{{ t('option_topbar_border') }}</option>
+        </select>
+        <div class="uk-text-meta uk-margin-small-top">{{ t('text_topbar_style_hint') }}</div>
+      </div>
+    </div>
+    <div class="uk-margin">
       <label class="uk-form-label">{{ t('heading_logo_settings') }}</label>
       <div class="uk-form-controls">
         <div class="uk-grid-small uk-child-width-auto uk-flex-middle" uk-grid>

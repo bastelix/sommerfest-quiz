@@ -1051,6 +1051,132 @@ body.admin-page {
   color: var(--text-on-primary);
 }
 
+/* ---- Page tree: improved hierarchy & UX ---- */
+
+.page-tree-toolbar {
+  gap: 8px;
+}
+
+.page-tree-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.page-tree-node {
+  position: relative;
+  padding-left: calc(var(--tree-depth, 0) * 24px);
+}
+
+/* Vertical tree line for child nodes */
+.page-tree-node:not(.page-tree-node--root)::before {
+  content: '';
+  position: absolute;
+  left: calc((var(--tree-depth, 0) - 1) * 24px + 10px);
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-muted, #dfe3eb);
+  pointer-events: none;
+}
+
+/* Horizontal connector for child nodes */
+.page-tree-node:not(.page-tree-node--root)::after {
+  content: '';
+  position: absolute;
+  left: calc((var(--tree-depth, 0) - 1) * 24px + 10px);
+  top: 18px;
+  width: 12px;
+  height: 1px;
+  background: var(--border-muted, #dfe3eb);
+  pointer-events: none;
+}
+
+/* Last child: cut the vertical line at the connector */
+.page-tree-node:not(.page-tree-node--root):last-child::before {
+  bottom: calc(100% - 19px);
+}
+
+/* Collapse / expand toggle */
+.page-tree-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+  color: var(--text-muted, #6b7280);
+  border-radius: 3px;
+  transition: background-color 0.1s ease;
+  margin-right: 4px;
+}
+
+.page-tree-toggle:hover {
+  background-color: var(--surface-muted, #f0f0f0);
+}
+
+.page-tree-toggle--leaf {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.page-tree-toggle--leaf:hover {
+  background: none;
+}
+
+/* Row hover */
+.page-tree-row {
+  padding: 5px 8px;
+  border-radius: 4px;
+  transition: background-color 0.1s ease;
+  gap: 6px;
+}
+
+.page-tree-row:hover {
+  background-color: var(--surface-muted, #f5f5f5);
+}
+
+/* Slug: hidden by default, shown on row hover */
+.page-tree-slug {
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: baseline;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, max-width 0.2s ease;
+}
+
+.page-tree-row:hover .page-tree-slug {
+  opacity: 1;
+  max-width: 300px;
+}
+
+/* Smaller, subtler badges */
+.page-tree-badge {
+  font-size: 0.7rem;
+  padding: 1px 7px;
+  opacity: 0.85;
+}
+
+/* Info section: allow title to truncate */
+.page-tree-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+}
+
+/* Meta section */
+.page-tree-meta {
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+/* Highlight search matches */
+.page-tree-node--search-match > .page-tree-row {
+  background-color: rgba(var(--brand-primary-rgb, 25, 135, 84), 0.08);
+}
+
 @media (min-width: 640px) {
   #adminTabs {
     display: flex;
@@ -1289,6 +1415,9 @@ body.admin-page {
 .page-editor [data-block-list="true"] ul {
   display: grid;
   gap: 10px;
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
 }
 
 .page-editor [data-block-editor="true"] {
@@ -3942,4 +4071,18 @@ body.admin-page {
 
 .news-editor-richtext p {
   margin: 0.25em 0;
+}
+
+.news-editor-richtext a {
+  color: var(--brand-primary, #1e87f0);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.news-editor-richtext img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 0.5em 0;
+  display: block;
 }

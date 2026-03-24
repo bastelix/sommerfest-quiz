@@ -11,7 +11,9 @@ use App\Twig\UikitExtension;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Slim\Views\Twig;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class MarketingWikiThemeRenderTest extends TestCase
 {
     public function testThemeDataRenderedIntoMarkup(): void

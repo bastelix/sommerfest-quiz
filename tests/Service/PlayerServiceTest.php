@@ -9,7 +9,9 @@ use App\Support\UsernameBlockedException;
 use App\Support\UsernameGuard;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class PlayerServiceTest extends TestCase
 {
     public function testSaveUpdatesResultNamesWhenRenamingCaseOnly(): void

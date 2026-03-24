@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use App\Service\MailProvider\MailProviderManager;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class NewsletterControllerTest extends TestCase
 {
     public function testUnsubscribeEndpointValidatesPayload(): void

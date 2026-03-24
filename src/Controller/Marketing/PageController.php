@@ -151,15 +151,32 @@ class PageController
 
         $pageStatus = $page->getStatus();
         if ($pageStatus !== null && $pageStatus !== Page::STATUS_PUBLISHED) {
-            $view = Twig::fromRequest($request);
-            return $view->render(
-                $response->withStatus(503),
-                'marketing/coming_soon.twig',
-                [
-                    'pageTitle' => $page->getTitle(),
-                    'requestedHost' => $request->getUri()->getHost(),
-                ]
-            );
+            // Preview: allow draft pages when a logged-in user opens them intentionally.
+            $params = $request->getQueryParams();
+            $previewRequested = ($params['preview'] ?? null) === '1' || ($params['preview'] ?? null) === 'true';
+            $role = $_SESSION['user']['role'] ?? null;
+            $previewAllowed = $role !== null && in_array((string) $role, [
+                'admin',
+                'event_manager',
+                'customer',
+                'designer',
+                'redakteur',
+                'catalog_editor',
+            ], true);
+
+            if (!$previewRequested || !$previewAllowed) {
+                $view = Twig::fromRequest($request);
+                return $view->render(
+                    $response->withStatus(503),
+                    'marketing/coming_soon.twig',
+                    [
+                        'pageTitle' => $page->getTitle(),
+                        'requestedHost' => $request->getUri()->getHost(),
+                    ]
+                );
+            }
+
+            $response = $response->withHeader('X-Preview-Mode', '1');
         }
 
         $contentNamespace = $page->getNamespace();
@@ -372,9 +389,26 @@ class PageController
             ]);
         }
 
+        // Embed the hydration payload in the HTML so the frontend-hydrator
+        // can read it from a <script data-json="page"> tag instead of making
+        // an extra fetch() round-trip to ?format=json.
+        $embeddedPayload = null;
+        if (is_array($pageBlocks) && $pageBlocks !== []) {
+            $embeddedPayload = [
+                'namespace' => $pageNamespace,
+                'slug' => $page->getSlug(),
+                'blocks' => $pageBlocks,
+                'design' => $design,
+                'content' => $html,
+                'pageType' => $pageType,
+                'featureData' => $marketingPayload['featureData'],
+            ];
+        }
+
         $data = [
             'content' => $html,
             'pageBlocks' => $pageBlocks,
+            'embeddedPayload' => $embeddedPayload,
             'pageFavicon' => $config?->getFaviconPath(),
             'metaTitle' => $config?->getMetaTitle(),
             'metaDescription' => $config?->getMetaDescription(),
@@ -696,7 +730,9 @@ class PageController
                 $wikiArticles = $this->wikiArticles->getPublishedArticles($wikiPage->getId(), $locale);
                 if ($wikiArticles !== []) {
                     $label = $wikiSettings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
-                    $wikiUrl = sprintf('%s/pages/%s/wiki', $basePath, $wikiSlug);
+                    $wikiUrl = $wikiPage->getType() === 'wiki'
+                        ? sprintf('%s/pages/%s', $basePath, $wikiSlug)
+                        : sprintf('%s/pages/%s/wiki', $basePath, $wikiSlug);
                     $data['wikiMenu'] = [
                         'label' => $label,
                         'url' => $wikiUrl,

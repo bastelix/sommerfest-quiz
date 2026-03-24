@@ -47,18 +47,8 @@ class RoleAuthMiddleware implements MiddlewareInterface
             return $response->withHeader('Location', $base . '/login')->withStatus(302);
         }
 
-        $activeNamespace = $_SESSION['user']['active_namespace'] ?? null;
-        if (is_string($activeNamespace) && $activeNamespace !== '') {
-            $request = $request->withAttribute('active_namespace', $activeNamespace);
-            if (
-                $request->getAttribute('namespace') === null
-                && $request->getAttribute('pageNamespace') === null
-                && $request->getAttribute('legalPageNamespace') === null
-                && $request->getAttribute('domainNamespace') === null
-            ) {
-                $request = $request->withAttribute('namespace', $activeNamespace);
-            }
-        }
+        $activeNamespace = $request->getAttribute('active_namespace')
+            ?? $request->getAttribute('namespace');
 
         if ($role === Roles::ADMIN) {
             return $handler->handle($request);

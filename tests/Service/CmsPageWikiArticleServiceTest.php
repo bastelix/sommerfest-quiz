@@ -11,7 +11,9 @@ use App\Service\Marketing\Wiki\WikiPublisher;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 final class CmsPageWikiArticleServiceTest extends TestCase
 {
     private string $exportDir;
@@ -294,6 +296,139 @@ MD;
         $this->assertStringContainsString('<strong>importance</strong>', $html);
         $this->assertStringContainsString('<del>legacy</del>', $html);
         $this->assertStringContainsString('<code>inline code</code>', $html);
+    }
+
+    public function testMarkdownImportParsesGfmTableWithHeadings(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new CmsPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+
+        $pageId = $this->createPage($pdo, 'metcal', 'MET/CAL');
+        $markdown = <<<MD
+# Commands
+
+| Befehl | Beschreibung |
+|--------|-------------|
+| STD    | Alias für ein Referenzinstrument |
+| ACC    | Systemgenauigkeit und Toleranz  |
+MD;
+
+        $article = $service->saveArticleFromMarkdown(
+            $pageId,
+            'de',
+            'commands',
+            'Commands',
+            $markdown
+        );
+
+        $state = $article->getEditorState();
+        $this->assertNotNull($state);
+
+        $tableBlock = null;
+        foreach ($state['blocks'] as $block) {
+            if (is_array($block) && ($block['type'] ?? '') === 'table') {
+                $tableBlock = $block;
+                break;
+            }
+        }
+
+        $this->assertNotNull($tableBlock, 'Expected a table block in the editor state');
+        $this->assertTrue($tableBlock['data']['withHeadings']);
+        $this->assertCount(3, $tableBlock['data']['content']);
+        $this->assertSame('Befehl', $tableBlock['data']['content'][0][0]);
+        $this->assertSame('Beschreibung', $tableBlock['data']['content'][0][1]);
+        $this->assertSame('STD', $tableBlock['data']['content'][1][0]);
+        $this->assertSame('ACC', $tableBlock['data']['content'][2][0]);
+
+        // Verify contentHtml contains a proper table with thead
+        $html = $article->getContentHtml();
+        $this->assertStringContainsString('<table>', $html);
+        $this->assertStringContainsString('<thead>', $html);
+        $this->assertStringContainsString('<th>Befehl</th>', $html);
+        $this->assertStringContainsString('<td>STD</td>', $html);
+
+        // Verify contentMarkdown round-trips as GFM table
+        $md = $article->getContentMarkdown();
+        $this->assertStringContainsString('| Befehl | Beschreibung |', $md);
+        $this->assertStringContainsString('| --- | --- |', $md);
+        $this->assertStringContainsString('| STD |', $md);
+    }
+
+    public function testMarkdownImportParsesTableWithInlineFormatting(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new CmsPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+
+        $pageId = $this->createPage($pdo, 'guide', 'Guide');
+        $markdown = <<<MD
+| Name | Code |
+|------|------|
+| **Bold** | `STD` |
+MD;
+
+        $article = $service->saveArticleFromMarkdown(
+            $pageId,
+            'de',
+            'inline-table',
+            'Inline Table',
+            $markdown
+        );
+
+        $state = $article->getEditorState();
+        $this->assertNotNull($state);
+
+        $tableBlock = null;
+        foreach ($state['blocks'] as $block) {
+            if (is_array($block) && ($block['type'] ?? '') === 'table') {
+                $tableBlock = $block;
+                break;
+            }
+        }
+
+        $this->assertNotNull($tableBlock);
+        $this->assertStringContainsString('<strong>Bold</strong>', $tableBlock['data']['content'][1][0]);
+        $this->assertStringContainsString('<code>STD</code>', $tableBlock['data']['content'][1][1]);
+    }
+
+    public function testMarkdownImportParsesTableWithoutHeadings(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new CmsPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+
+        $pageId = $this->createPage($pdo, 'data', 'Data');
+        // Table without a separator row → withHeadings: false
+        $markdown = <<<MD
+| A | B |
+| C | D |
+MD;
+
+        $article = $service->saveArticleFromMarkdown(
+            $pageId,
+            'de',
+            'no-header',
+            'No Header',
+            $markdown
+        );
+
+        $state = $article->getEditorState();
+        $this->assertNotNull($state);
+
+        $tableBlock = null;
+        foreach ($state['blocks'] as $block) {
+            if (is_array($block) && ($block['type'] ?? '') === 'table') {
+                $tableBlock = $block;
+                break;
+            }
+        }
+
+        $this->assertNotNull($tableBlock);
+        $this->assertFalse($tableBlock['data']['withHeadings']);
+        $this->assertCount(2, $tableBlock['data']['content']);
+
+        // HTML should not contain <thead> for tables without headings
+        $html = $article->getContentHtml();
+        $this->assertStringContainsString('<table>', $html);
+        $this->assertStringNotContainsString('<thead>', $html);
     }
 
     private function createDatabase(): PDO

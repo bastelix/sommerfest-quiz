@@ -10,7 +10,9 @@ use App\Service\TenantService;
 use App\Service\TurnstileConfig;
 use App\Service\TurnstileVerificationService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class ContactControllerTest extends TestCase
 {
     /**

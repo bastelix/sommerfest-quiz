@@ -43,15 +43,25 @@
     Marketing pages avoid global UI bundles by default (see includeMainStyles).
     dark.css and highcontrast.css are loaded explicitly here because
     includeCmsBaseStyles=false prevents them from loading via cms_base.
+
+    Non-critical CSS is loaded async via the media="print" pattern to avoid
+    render-blocking (~540KB). The onload handler switches to media="all"
+    once downloaded. <noscript> fallbacks ensure styles load without JS.
   #}
   {{ parent() }}
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/sections.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all"></noscript>
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css"></noscript>
+  <link rel="stylesheet" href="{{ basePath }}/css/sections.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ basePath }}/css/sections.css"></noscript>
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
-  <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/marketing-cards.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ basePath }}/css/marketing.css"></noscript>
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing-cards.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ basePath }}/css/marketing-cards.css"></noscript>
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css"></noscript>
   <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
@@ -71,6 +81,12 @@
 
 {% block body %}
   {% include 'marketing/partials/design-data.twig' %}
+
+  {% if embeddedPayload is defined and embeddedPayload %}
+  <script data-json="page" type="application/json">
+    {{ embeddedPayload|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }}
+  </script>
+  {% endif %}
 
   <div
     class="cms-page"

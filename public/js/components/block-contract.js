@@ -76,7 +76,7 @@ const schema = {
       "title": "Hero block",
       "properties": {
         "type": { "const": "hero" },
-        "variant": { "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left", "media_video", "media-video", "minimal", "stat_tiles"] },
+        "variant": { "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left", "media_video", "media-video", "minimal", "stat_tiles", "small"] },
         "data": { "$ref": "#/definitions/HeroData" }
       },
       "required": ["type", "variant", "data"]
@@ -514,7 +514,8 @@ const schema = {
           "items": { "$ref": "#/definitions/PackagePlan" },
           "minItems": 1
         },
-        "disclaimer": { "type": "string" }
+        "disclaimer": { "type": "string" },
+        "columns": { "type": "integer", "minimum": 2, "maximum": 4 }
       }
     },
     "ContactFormField": {
@@ -617,7 +618,9 @@ const schema = {
         "imageId": { "type": "string" },
         "image": { "type": "string" },
         "alt": { "type": "string" },
-        "focalPoint": { "$ref": "#/definitions/FocalPoint" }
+        "focalPoint": { "$ref": "#/definitions/FocalPoint" },
+        "mediaSize": { "enum": ["small", "medium", "large", "xlarge"] },
+        "frameless": { "type": "boolean" }
       }
     },
     "InfoMediaItem": {

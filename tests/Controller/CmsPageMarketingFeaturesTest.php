@@ -9,13 +9,15 @@ use App\Domain\Page;
 use ReflectionClass;
 use ReflectionMethod;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class CmsPageMarketingFeaturesTest extends TestCase
 {
     public function testResolvePageFeaturesMergesDefaultsAndConfig(): void
     {
         $controller = $this->createController();
-        $page = new Page(1, 'default', 'landing', 'Landing', '{}', 'marketing', null, 0, null, null, null, null, false);
+        $page = new Page(1, 'default', 'landing', 'Landing', '{}', 'marketing', null, 0, null, null, null, null, null, false);
 
         $design = [
             'config' => [

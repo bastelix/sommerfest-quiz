@@ -3,21 +3,11 @@
 {% set themeDefaults = {
   'bodyClasses': ['marketing-wiki'],
   'stylesheets': [],
-  'colors': {
-    'headerFrom': '#111827',
-    'headerTo': '#1f2937',
-    'detailHeaderFrom': '#0f172a',
-    'detailHeaderTo': '#1d4ed8',
-    'headerText': '#ffffff',
-    'excerpt': '#4b5563',
-    'calloutBorder': '#3b82f6',
-    'calloutBackground': '#f9fafb',
-    'calloutText': '#0f172a'
-  }
+  'colors': {}
 } %}
 {% set bodyClasses = themeDefaults.bodyClasses %}
 {% set stylesheets = themeDefaults.stylesheets %}
-{% set colors = themeDefaults.colors %}
+{% set themeColors = {} %}
 {% set logoUrl = wikiTheme.logoUrl|default(null) %}
 {% if wikiTheme is defined %}
   {% if wikiTheme.bodyClasses is defined and wikiTheme.bodyClasses is iterable %}
@@ -27,7 +17,7 @@
     {% set stylesheets = wikiTheme.stylesheets %}
   {% endif %}
   {% if wikiTheme.colors is defined %}
-    {% set colors = themeDefaults.colors|merge(wikiTheme.colors) %}
+    {% set themeColors = wikiTheme.colors %}
   {% endif %}
   {% if wikiTheme.logoUrl is defined %}
     {% set logoUrl = wikiTheme.logoUrl %}
@@ -38,126 +28,82 @@
 
 {% block body_class %}marketing-page {{ (bodyClasses is not empty ? bodyClasses : ['marketing-wiki'])|join(' ') }}{% endblock %}
 
+{% block site_header %}
+  {% if cmsMainNavigation is defined and cmsMainNavigation is not empty %}
+    {% include 'pages/partials/header.twig' with {
+      normalizedNamespace: designNamespace|default('default'),
+      headerTheme: 'light',
+      headerLogo: headerLogo|default({}),
+      cmsMenuItems: [],
+      cmsMainNavigation: cmsMainNavigation|default([]),
+      headerConfig: headerConfig|default({}),
+      basePath: basePath,
+      cmsSlug: cmsSlug|default(''),
+      pageTitle: pageTitle|default('QuizRace')
+    } only %}
+  {% endif %}
+{% endblock %}
+
 {% block head %}
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/wiki.css">
   <script type="module" src="{{ basePath }}/js/marketing-design.js"></script>
   {% for stylesheet in stylesheets %}
     {% set href = stylesheet matches '/^https?:\\/\\//i' or stylesheet starts with('//') ? stylesheet : (stylesheet starts with('/') ? stylesheet : basePath ~ '/css/' ~ stylesheet) %}
     <link rel="stylesheet" href="{{ href }}">
   {% endfor %}
-  <style>
-    .marketing-wiki {
-      --marketing-wiki-header-from: {{ colors.headerFrom }};
-      --marketing-wiki-header-to: {{ colors.headerTo }};
-      --marketing-wiki-detail-header-from: {{ colors.detailHeaderFrom }};
-      --marketing-wiki-detail-header-to: {{ colors.detailHeaderTo }};
-      --marketing-wiki-header-text: {{ colors.headerText }};
-      --marketing-wiki-excerpt: {{ colors.excerpt }};
-      --marketing-wiki-callout-border: {{ colors.calloutBorder }};
-      --marketing-wiki-callout-bg: {{ colors.calloutBackground }};
-      --marketing-wiki-callout-text: {{ colors.calloutText }};
-    }
-
-    .marketing-wiki__header {
-      background: linear-gradient(135deg, var(--marketing-wiki-header-from), var(--marketing-wiki-header-to));
-      color: var(--marketing-wiki-header-text);
-    }
-
-    .marketing-wiki__header a,
-    .marketing-wiki__header .uk-heading-small,
-    .marketing-wiki__header .uk-text-lead,
-    .marketing-wiki__header .uk-text-meta {
-      color: inherit;
-    }
-
-    .marketing-wiki__header .uk-breadcrumb > li:nth-child(n+2)::before,
-    .marketing-wiki__header .uk-breadcrumb > li > a,
-    .marketing-wiki__header .uk-breadcrumb > li > span {
-      color: var(--marketing-wiki-header-text);
-    }
-
-    .marketing-wiki__card { transition: transform .2s ease, box-shadow .2s ease; }
-
-    .marketing-wiki__card:hover { transform: translateY(-2px); box-shadow: 0 18px 35px rgba(15, 23, 42, .15); }
-
-    .marketing-wiki__search {
-      max-width: 540px;
-      margin: 0 auto;
-      position: relative;
-    }
-
-    .marketing-wiki__search .uk-search-input {
-      width: 100%;
-      height: 56px;
-      font-size: 1.125rem;
-      padding: 0 64px 0 24px;
-      border-radius: 9999px;
-      box-sizing: border-box;
-      background: #ffffff;
-      color: #111827;
-    }
-
-    .marketing-wiki__search.uk-active .uk-search-input,
-    .marketing-wiki__search .uk-search-input:focus {
-      background: #ffffff;
-      color: #111827;
-    }
-
-    .marketing-wiki__search.uk-active .uk-search-input::placeholder,
-    .marketing-wiki__search .uk-search-input:focus::placeholder {
-      color: #6b7280;
-    }
-
-    .marketing-wiki__search .uk-search-icon {
-      width: 56px;
-      height: 56px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #1f2937;
-      background: transparent;
-      border: none;
-    }
-
-    .marketing-wiki__search .uk-search-input::placeholder {
-      color: #6b7280;
-    }
-
-    .marketing-wiki__logo img {
-      max-height: 64px;
-      width: auto;
-    }
-
-    @media (max-width: 640px) {
-      .marketing-wiki__search {
-        max-width: none;
-      }
-
-      .marketing-wiki__search .uk-search-input {
-        height: 48px;
-        font-size: 1rem;
-        padding-right: 56px;
-      }
-
-      .marketing-wiki__search .uk-search-icon {
-        width: 48px;
-        height: 48px;
-      }
-    }
-
-    .marketing-wiki__list { margin-top: 40px; }
-
-    .marketing-wiki__excerpt { color: var(--marketing-wiki-excerpt); }
-  </style>
+  {% include 'marketing/partials/theme-vars.twig' with {
+    appearance: appearance|default({}),
+    design: design|default({}),
+    normalizedNamespace: designNamespace|default('default')
+  } only %}
 {% endblock %}
 
 {% block body %}
   {% include 'marketing/partials/design-data.twig' %}
-  <div class="marketing-wiki__header uk-section uk-section-medium">
-    <div class="uk-container uk-container-small">
-      <nav aria-label="Breadcrumb" class="marketing-wiki__breadcrumb uk-margin-small">
+  <div class="wiki-layout">
+    {# ── Sidebar ── #}
+    <aside class="wiki-sidebar" id="wikiSidebar">
+      {% if logoUrl %}
+        <div class="wiki-sidebar__logo">
+          <img src="{{ logoUrl }}" alt="{{ page.getTitle() }} Logo" loading="lazy">
+        </div>
+      {% endif %}
+      <a class="wiki-sidebar__back" href="{{ pageUrl|default(basePath ~ '/pages/' ~ page.getSlug()) }}">
+        <span uk-icon="icon: arrow-left; ratio: 0.7"></span>
+        {{ page.getTitle() }}
+      </a>
+      <p class="wiki-sidebar__label">{{ menuLabel }}</p>
+      <form method="get" class="wiki-sidebar__search">
+        <svg class="wiki-sidebar__search-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd"/>
+        </svg>
+        <label class="uk-hidden" for="wiki-search">Suche</label>
+        <input id="wiki-search"
+               name="q"
+               class="wiki-sidebar__search-input"
+               type="search"
+               placeholder="Suchen..."
+               value="{{ searchTerm }}">
+      </form>
+      <ul class="wiki-sidebar__nav">
+        {% for article in articles %}
+          <li class="wiki-sidebar__nav-item">
+            <a class="wiki-sidebar__nav-link"
+               href="{{ wikiBasePath }}/{{ article.getSlug() }}">
+              {{ article.getTitle() }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </aside>
+
+    {# ── Main content ── #}
+    <main class="wiki-main">
+      <nav aria-label="Breadcrumb" class="wiki-main__breadcrumb">
         <ul class="uk-breadcrumb">
           {% for crumb in breadcrumbs %}
             <li{% if loop.last %} class="uk-active" aria-current="page"{% endif %}>
@@ -170,47 +116,44 @@
           {% endfor %}
         </ul>
       </nav>
-      {% if logoUrl %}
-        <div class="marketing-wiki__logo uk-margin-small">
-          <img src="{{ logoUrl }}" alt="{{ page.getTitle() }} Logo" loading="lazy">
-        </div>
-      {% endif %}
-      <h1 class="uk-heading-small uk-margin-remove">{{ menuLabel }}</h1>
-      <p class="uk-text-lead uk-margin-small-top">Antworten, Schritt-für-Schritt-Anleitungen und Hintergrundwissen zur {{ page.getTitle() }}.</p>
-      <form method="get" class="marketing-wiki__search uk-search uk-search-large uk-margin-top">
-        <label class="uk-hidden" for="wiki-search">Suche</label>
-        <input id="wiki-search"
-               name="q"
-               class="uk-search-input"
-               type="search"
-               placeholder="Artikel suchen"
-               value="{{ searchTerm }}">
-        <button type="submit" class="uk-search-icon-flip" uk-search-icon aria-label="Suchen"></button>
-      </form>
-    </div>
-  </div>
 
-  <div class="uk-section uk-section-default">
-    <div class="uk-container uk-container-small marketing-wiki__list">
-      <ul class="uk-list uk-list-divider">
-        {% for article in articles %}
-          <li>
-            <article class="marketing-wiki__card uk-card uk-card-default uk-card-body">
-              <h2 class="uk-card-title uk-margin-remove">
-                <a href="{{ basePath }}/pages/{{ page.getSlug() }}/wiki/{{ article.getSlug() }}" class="uk-link-heading">{{ article.getTitle() }}</a>
-              </h2>
-              {% if article.getExcerpt() %}
-                <p class="marketing-wiki__excerpt uk-margin-small-top">{{ article.getExcerpt() }}</p>
-              {% endif %}
+      <div class="wiki-main__header">
+        {% if logoUrl %}
+          <div class="wiki-main__logo">
+            <img src="{{ logoUrl }}" alt="{{ page.getTitle() }} Logo" loading="lazy">
+          </div>
+        {% endif %}
+        <h1 class="wiki-main__title">{{ menuLabel }}</h1>
+        <p class="wiki-main__subtitle">Antworten, Schritt-f&uuml;r-Schritt-Anleitungen und Hintergrundwissen zur {{ page.getTitle() }}.</p>
+      </div>
+
+      {% if articles is not empty %}
+        <div class="wiki-articles">
+          {% for article in articles %}
+            <a class="wiki-article-row" href="{{ wikiBasePath }}/{{ article.getSlug() }}">
+              <div>
+                <p class="wiki-article-row__title">{{ article.getTitle() }}</p>
+                {% if article.getExcerpt() %}
+                  <p class="wiki-article-row__excerpt">{{ article.getExcerpt() }}</p>
+                {% endif %}
+              </div>
               {% set displayDate = article.getUpdatedAt() ?? article.getPublishedAt() %}
               {% if displayDate %}
-                <p class="uk-text-meta uk-margin-remove">Aktualisiert am {{ displayDate|date('d.m.Y') }}</p>
+                <span class="wiki-article-row__date">{{ displayDate|date('d.m.Y') }}</span>
               {% endif %}
-              <a class="uk-button uk-button-text uk-margin-small-top" href="{{ basePath }}/pages/{{ page.getSlug() }}/wiki/{{ article.getSlug() }}" aria-label="{{ article.getTitle() }} lesen">Weiterlesen</a>
-            </article>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="wiki-empty">
+          <p>Keine Artikel gefunden.</p>
+        </div>
+      {% endif %}
+    </main>
+
+    {# ── Footer ── #}
+    <footer class="wiki-page-footer">
+      <span>&copy; {{ page.getTitle() }}</span>
+    </footer>
   </div>
 {% endblock %}

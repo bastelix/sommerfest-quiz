@@ -1,0 +1,234 @@
+{% extends 'admin/base.twig' %}
+
+{% block title %}API Tokens{% endblock %}
+
+{% block content %}
+  <div class="uk-container uk-container-large">
+    <h1 class="uk-heading-small">Namespace API Tokens</h1>
+    <p class="uk-text-muted">Bearer Tokens für die Public API (/api/v1). Klartext wird nur einmal nach dem Erstellen angezeigt.</p>
+
+    <div class="uk-card uk-card-default uk-card-body uk-margin">
+      <h3 class="uk-card-title">Neuen Token erstellen</h3>
+      <form class="uk-form-stacked" id="tokenCreateForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <div class="uk-margin">
+          <label class="uk-form-label">Namespace</label>
+          <div class="uk-form-controls">
+            <select class="uk-select" name="namespace" id="nsSelect" data-default-ns="{{ pageNamespace|e('js') }}">
+              <option value="{{ pageNamespace }}">{{ pageNamespace }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="uk-margin">
+          <label class="uk-form-label">Label (optional)</label>
+          <div class="uk-form-controls">
+            <input class="uk-input" name="label" placeholder="z.B. iOS-App" />
+          </div>
+        </div>
+        <div class="uk-margin">
+          <label class="uk-form-label">Scopes</label>
+          <div class="uk-form-controls uk-form-controls-text">
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="cms:read"> cms:read (List/Read)</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="cms:write" checked> cms:write (Pages)</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="seo:write"> seo:write</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="menu:read"> menu:read</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="menu:write"> menu:write</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="news:read"> news:read</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="news:write"> news:write</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="footer:read"> footer:read</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="footer:write"> footer:write</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="quiz:read"> quiz:read</label><br>
+            <label><input class="uk-checkbox" type="checkbox" name="scopes[]" value="quiz:write"> quiz:write</label>
+            <p class="uk-text-meta uk-margin-small-top">Tip: weniger Scopes = weniger Schaden bei Leaks.</p>
+          </div>
+        </div>
+        <button class="uk-button uk-button-primary" type="submit">Token erstellen</button>
+      </form>
+
+      <div class="uk-alert uk-alert-warning uk-margin-top" hidden id="tokenRevealBox">
+        <div class="uk-flex uk-flex-middle uk-flex-between" style="gap: 8px; flex-wrap: wrap;">
+          <p class="uk-margin-remove"><strong>Token (nur jetzt sichtbar):</strong></p>
+          <button class="uk-button uk-button-default uk-button-small" type="button" id="tokenCopyBtn">Copy</button>
+        </div>
+        <pre class="uk-margin-small-top" id="tokenRevealValue" style="white-space: pre-wrap; word-break: break-all; overflow-wrap: anywhere;"></pre>
+      </div>
+    </div>
+
+    <div class="uk-card uk-card-default uk-card-body">
+      <h3 class="uk-card-title">Tokens</h3>
+      <table class="uk-table uk-table-divider uk-table-small">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Label</th>
+            <th>Scopes</th>
+            <th>Created</th>
+            <th>Last used</th>
+            <th>Revoked</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tokensBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const basePath = '{{ basePath|e('js') }}';
+      const ns = '{{ pageNamespace|e('js') }}';
+      const tokensBody = document.getElementById('tokensBody');
+      const form = document.getElementById('tokenCreateForm');
+      const nsSelect = document.getElementById('nsSelect');
+      const revealBox = document.getElementById('tokenRevealBox');
+      const revealValue = document.getElementById('tokenRevealValue');
+      const copyBtn = document.getElementById('tokenCopyBtn');
+
+      const apiFetch = window.apiFetch || ((path, opts = {}) => fetch(basePath + path, opts));
+
+      async function loadTokens() {
+        const activeNs = (nsSelect && nsSelect.value) ? nsSelect.value : ns;
+        const res = await apiFetch(`/admin/api-tokens/data?namespace=${encodeURIComponent(activeNs)}`, { headers: { 'Accept': 'application/json' }});
+        const data = await res.json();
+        const tokens = data.tokens || [];
+        tokensBody.innerHTML = '';
+
+        for (const t of tokens) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${t.id}</td>
+            <td>${(t.label || '')}</td>
+            <td>${(t.scopes || []).join(', ')}</td>
+            <td>${t.created_at || ''}</td>
+            <td>${t.last_used_at || ''}</td>
+            <td>${t.revoked_at || ''}</td>
+            <td>
+              ${t.revoked_at
+                ? `<button class="uk-button uk-button-default uk-button-small" data-delete="${t.id}">Delete</button>`
+                : `<button class="uk-button uk-button-danger uk-button-small" data-revoke="${t.id}">Revoke</button>`}
+            </td>
+          `;
+          tokensBody.appendChild(tr);
+        }
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        revealBox.hidden = true;
+        revealValue.textContent = '';
+
+        const fd = new FormData(form);
+        const payload = {
+          namespace: fd.get('namespace'),
+          label: fd.get('label'),
+          scopes: fd.getAll('scopes[]')
+        };
+
+        const res = await apiFetch('/admin/api-tokens', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'fetch',
+            'X-CSRF-Token': '{{ csrf_token|e('js') }}'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          alert(data.error || 'Token create failed');
+          return;
+        }
+
+        revealValue.textContent = data.token;
+        revealBox.hidden = false;
+        await loadTokens();
+      });
+
+      copyBtn && copyBtn.addEventListener('click', async () => {
+        const value = (revealValue.textContent || '').trim();
+        if (!value) return;
+        try {
+          await navigator.clipboard.writeText(value);
+          alert('Copied');
+        } catch (e) {
+          // fallback
+          const ta = document.createElement('textarea');
+          ta.value = value;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          alert('Copied');
+        }
+      });
+
+      document.addEventListener('click', async (e) => {
+        const revokeBtn = e.target.closest('[data-revoke]');
+        if (revokeBtn) {
+          const id = revokeBtn.getAttribute('data-revoke');
+          if (!confirm('Token wirklich revoke?')) return;
+          const res = await apiFetch(`/admin/api-tokens/${encodeURIComponent(id)}/revoke`, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'fetch',
+              'X-CSRF-Token': '{{ csrf_token|e('js') }}'
+            }
+          });
+          if (!res.ok) {
+            alert('Revoke failed');
+            return;
+          }
+          await loadTokens();
+          return;
+        }
+
+        const deleteBtn = e.target.closest('[data-delete]');
+        if (deleteBtn) {
+          const id = deleteBtn.getAttribute('data-delete');
+          if (!confirm('Token wirklich löschen?')) return;
+          const res = await apiFetch(`/admin/api-tokens/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'fetch',
+              'X-CSRF-Token': '{{ csrf_token|e('js') }}'
+            }
+          });
+          if (!res.ok) {
+            alert('Delete failed');
+            return;
+          }
+          await loadTokens();
+        }
+      });
+
+      async function loadNamespaces() {
+        if (!nsSelect) return;
+        const res = await apiFetch('/admin/namespaces/data', { headers: { 'Accept': 'application/json' }});
+        const data = await res.json().catch(() => ({}));
+        const namespaces = (data.namespaces || []).map(n => n.namespace).filter(Boolean);
+        const defaultNs = nsSelect.getAttribute('data-default-ns') || ns;
+
+        // rebuild options
+        nsSelect.innerHTML = '';
+        for (const n of namespaces.length ? namespaces : [defaultNs]) {
+          const opt = document.createElement('option');
+          opt.value = n;
+          opt.textContent = n;
+          if (n === defaultNs) opt.selected = true;
+          nsSelect.appendChild(opt);
+        }
+      }
+
+      nsSelect && nsSelect.addEventListener('change', () => loadTokens());
+
+      (async () => {
+        await loadNamespaces();
+        await loadTokens();
+      })();
+    })();
+  </script>
+{% endblock %}

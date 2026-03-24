@@ -9,7 +9,9 @@ use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
 use App\Service\UserService;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class PasswordControllerTest extends TestCase
 {
     private function createUser(): UserService {

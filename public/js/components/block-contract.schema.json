@@ -64,7 +64,8 @@
             "media_video",
             "media-video",
             "minimal",
-            "stat_tiles"
+            "stat_tiles",
+            "small"
           ]
         },
         "data": {
@@ -1043,6 +1044,11 @@
         },
         "disclaimer": {
           "type": "string"
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 4
         }
       }
     },
@@ -1189,6 +1195,9 @@
         },
         "focalPoint": {
           "$ref": "#/definitions/FocalPoint"
+        },
+        "frameless": {
+          "type": "boolean"
         }
       }
     },
