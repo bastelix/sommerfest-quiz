@@ -62,7 +62,16 @@ final class FooterTools
                         'namespace' => self::NS_PROP,
                         'slot' => ['type' => 'string', 'enum' => self::ALLOWED_SLOTS, 'description' => 'Footer slot (footer_1, footer_2, footer_3)'],
                         'type' => ['type' => 'string', 'enum' => self::ALLOWED_TYPES, 'description' => 'Block type (menu, text, social, contact, newsletter, html)'],
-                        'content' => ['type' => 'object', 'description' => 'Block content as JSON object (structure depends on type)'],
+                        'content' => [
+                            'type' => 'object',
+                            'description' => 'Block content (structure depends on type). '
+                                . 'menu: {"title": "string (optional)", "menuId": integer} – references a menu definition; items are resolved at render time. '
+                                . 'text: {"title": "string (optional)", "text": "HTML string"}. '
+                                . 'social: {"title": "string (optional)", "links": {"facebook": "url", "twitter": "url", "linkedin": "url", "instagram": "url"}} – all link fields optional. '
+                                . 'contact: {"title": "string (optional)", "email": "string", "phone": "string", "address": "string (newlines allowed)"} – all fields optional. '
+                                . 'newsletter: {"title": "string (optional)", "description": "string", "buttonText": "string (default: Subscribe)", "actionUrl": "string (default: /newsletter/subscribe)"} – all optional. '
+                                . 'html: {"title": "string (optional, internal only)", "html": "raw HTML string"}.',
+                        ],
                         'position' => ['type' => 'integer', 'description' => 'Sort position within the slot (default 0)'],
                         'locale' => ['type' => 'string', 'description' => 'Locale (default de)'],
                         'isActive' => ['type' => 'boolean', 'description' => 'Whether the block is active (default true)'],
@@ -79,7 +88,16 @@ final class FooterTools
                     'properties' => [
                         'blockId' => ['type' => 'integer', 'description' => 'ID of the footer block to update'],
                         'type' => ['type' => 'string', 'enum' => self::ALLOWED_TYPES, 'description' => 'Block type'],
-                        'content' => ['type' => 'object', 'description' => 'Block content as JSON object'],
+                        'content' => [
+                            'type' => 'object',
+                            'description' => 'Block content (structure depends on type). '
+                                . 'menu: {"title": "string (optional)", "menuId": integer} – references a menu definition; items are resolved at render time. '
+                                . 'text: {"title": "string (optional)", "text": "HTML string"}. '
+                                . 'social: {"title": "string (optional)", "links": {"facebook": "url", "twitter": "url", "linkedin": "url", "instagram": "url"}} – all link fields optional. '
+                                . 'contact: {"title": "string (optional)", "email": "string", "phone": "string", "address": "string (newlines allowed)"} – all fields optional. '
+                                . 'newsletter: {"title": "string (optional)", "description": "string", "buttonText": "string (default: Subscribe)", "actionUrl": "string (default: /newsletter/subscribe)"} – all optional. '
+                                . 'html: {"title": "string (optional, internal only)", "html": "raw HTML string"}.',
+                        ],
                         'position' => ['type' => 'integer', 'description' => 'Sort position within the slot'],
                         'slot' => ['type' => 'string', 'enum' => self::ALLOWED_SLOTS, 'description' => 'Move block to a different slot'],
                         'isActive' => ['type' => 'boolean', 'description' => 'Whether the block is active'],
