@@ -7,6 +7,8 @@
 - Tag image as sommerfest-quiz
 - Enforce conventional commits via commitlint and husky
 - *(deps-dev)* Bump phpstan/phpstan from 2.1.32 to 2.1.40
+- *(deps)* Bump intervention/image from 3.11.4 to 3.11.7
+- *(deps)* Bump stripe/stripe-php from 19.1.0 to 19.4.0
 
 ### Chore
 
