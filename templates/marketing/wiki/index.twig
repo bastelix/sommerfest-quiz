@@ -303,7 +303,7 @@
         {% for article in articles %}
           <li class="wiki-sidebar__nav-item">
             <a class="wiki-sidebar__nav-link"
-               href="{{ basePath }}/pages/{{ page.getSlug() }}/wiki/{{ article.getSlug() }}">
+               href="{{ wikiBasePath }}/{{ article.getSlug() }}">
               {{ article.getTitle() }}
             </a>
           </li>
@@ -340,7 +340,7 @@
       {% if articles is not empty %}
         <div class="wiki-articles">
           {% for article in articles %}
-            <a class="wiki-article-row" href="{{ basePath }}/pages/{{ page.getSlug() }}/wiki/{{ article.getSlug() }}">
+            <a class="wiki-article-row" href="{{ wikiBasePath }}/{{ article.getSlug() }}">
               <div>
                 <p class="wiki-article-row__title">{{ article.getTitle() }}</p>
                 {% if article.getExcerpt() %}

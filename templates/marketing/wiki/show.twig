@@ -368,7 +368,7 @@
           <img src="{{ logoUrl }}" alt="{{ page.getTitle() }} Logo" loading="lazy">
         </div>
       {% endif %}
-      <a class="wiki-sidebar__back" href="{{ basePath }}/pages/{{ page.getSlug() }}/wiki">
+      <a class="wiki-sidebar__back" href="{{ wikiBasePath }}">
         <span uk-icon="icon: arrow-left; ratio: 0.75"></span>
         {{ menuLabel }}
       </a>
@@ -377,7 +377,7 @@
         {% for sidebarArticle in articles|default([]) %}
           <li class="wiki-sidebar__nav-item">
             <a class="wiki-sidebar__nav-link{% if sidebarArticle.getSlug() == article.getSlug() %} wiki-sidebar__nav-link--active{% endif %}"
-               href="{{ basePath }}/pages/{{ page.getSlug() }}/wiki/{{ sidebarArticle.getSlug() }}">
+               href="{{ wikiBasePath }}/{{ sidebarArticle.getSlug() }}">
               {{ sidebarArticle.getTitle() }}
             </a>
           </li>
@@ -414,7 +414,7 @@
       </article>
 
       <div class="wiki-article-footer">
-        <a class="wiki-article-footer__link" href="{{ basePath }}/pages/{{ page.getSlug() }}/wiki">
+        <a class="wiki-article-footer__link" href="{{ wikiBasePath }}">
           <span uk-icon="icon: arrow-left; ratio: 0.75"></span>
           Zur&uuml;ck zur &Uuml;bersicht
         </a>
