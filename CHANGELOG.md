@@ -395,6 +395,7 @@
 - *(tickets)* Add ticket system API with customer registration and profiles
 - *(hero)* Add frameless option for hero media images
 - *(wiki)* Integrate namespace design and apply Notion-inspired layout
+- *(wiki)* Add GFM markdown table support for wiki article parser
 
 ### Fix
 
@@ -701,6 +702,7 @@
 - *(menu)* Auto-promote link items with children to dropdown
 - *(hero)* Scale media image on mobile instead of cropping
 - Add dark mode background to cookie consent banner
+- *(ci)* Clean up stale containers before docker compose up
 
 ### Merge
 
@@ -851,6 +853,7 @@
 - *(ui)* Modernize customer portal page layout
 - *(editor)* Strengthen input field contrast and add rich-text borders
 - *(admin)* Remove bullet dots from page block list
+- *(wiki)* Tighten typography for technical-reference look
 
 ### Test
 
