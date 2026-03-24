@@ -284,7 +284,8 @@ class ColorContrastServiceTest extends TestCase
         $this->assertNotNull($ratio);
         $this->assertTrue(
             $this->service->meetsAA($ratio),
-            "textOnSecondary ({$tokens['textOnSecondary']}) on hero bg ($heroBg) from secondary $secondary has ratio $ratio, expected >= 4.5",
+            "textOnSecondary ({$tokens['textOnSecondary']}) on hero bg ($heroBg)"
+            . " from secondary $secondary has ratio $ratio, expected >= 4.5",
         );
     }
 

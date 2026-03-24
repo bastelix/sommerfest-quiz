@@ -48,6 +48,9 @@ final class MarketingEventTemplateTest extends TestCase
 
         $this->assertStringContainsString('05.10.2025 um 18:00 Uhr', $html);
         $this->assertStringContainsString('05.10.2025 um 20:30 Uhr', $html);
-        $this->assertMatchesRegularExpression('/data-start="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})"/', $html);
+        $this->assertMatchesRegularExpression(
+            '/data-start="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})"/',
+            $html
+        );
     }
 }

@@ -248,7 +248,8 @@ class ConfigService
     /**
      * Resolve merged design configuration for the given namespace.
      *
-     * @return array{config: array<string,mixed>, usedDefaults: bool, hasOverrides: bool, namespace: string, baseNamespace: string}
+     * @return array{config: array<string,mixed>, usedDefaults: bool,
+     *     hasOverrides: bool, namespace: string, baseNamespace: string}
      */
     public function resolveDesignConfig(string $namespace): array
     {
@@ -274,7 +275,11 @@ class ConfigService
     {
         $filtered = [];
 
-        if (array_key_exists('startTheme', $config) && is_string($config['startTheme']) && $config['startTheme'] !== '') {
+        if (
+            array_key_exists('startTheme', $config)
+            && is_string($config['startTheme'])
+            && $config['startTheme'] !== ''
+        ) {
             $filtered['startTheme'] = $config['startTheme'];
         }
 
@@ -329,7 +334,9 @@ class ConfigService
             switch ($key) {
                 case 'colors':
                     $mergedColors = is_array($merged['colors'] ?? null) ? $merged['colors'] : [];
-                    $overrideColors = is_array($namespaceOverrides['colors'] ?? null) ? $namespaceOverrides['colors'] : [];
+                    $overrideColors = is_array($namespaceOverrides['colors'] ?? null)
+                        ? $namespaceOverrides['colors']
+                        : [];
                     foreach ($overrideColors as $colorKey => $value) {
                         if (!in_array($colorKey, self::DESIGN_COLOR_KEYS, true)) {
                             continue;

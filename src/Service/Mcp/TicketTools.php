@@ -133,12 +133,31 @@ final class TicketTools
                         'id' => ['type' => 'integer', 'description' => 'Ticket ID'],
                         'title' => ['type' => 'string', 'description' => 'New title'],
                         'description' => ['type' => 'string', 'description' => 'New description'],
-                        'priority' => ['type' => 'string', 'description' => 'New priority', 'enum' => ['low', 'normal', 'high', 'critical']],
-                        'type' => ['type' => 'string', 'description' => 'New type', 'enum' => ['bug', 'task', 'review', 'improvement']],
-                        'assignee' => ['type' => 'string', 'description' => 'New assignee username (or null to unassign)'],
-                        'labels' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'New labels'],
+                        'priority' => [
+                            'type' => 'string',
+                            'description' => 'New priority',
+                            'enum' => ['low', 'normal', 'high', 'critical'],
+                        ],
+                        'type' => [
+                            'type' => 'string',
+                            'description' => 'New type',
+                            'enum' => ['bug', 'task', 'review', 'improvement'],
+                        ],
+                        'assignee' => [
+                            'type' => 'string',
+                            'description' => 'New assignee username (or null to unassign)',
+                        ],
+                        'labels' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                            'description' => 'New labels',
+                        ],
                         'dueDate' => ['type' => 'string', 'description' => 'New due date (or null to remove)'],
-                        'referenceType' => ['type' => 'string', 'description' => 'Reference type', 'enum' => ['wiki_article', 'page']],
+                        'referenceType' => [
+                            'type' => 'string',
+                            'description' => 'Reference type',
+                            'enum' => ['wiki_article', 'page'],
+                        ],
                         'referenceId' => ['type' => 'integer', 'description' => 'Reference ID'],
                     ],
                     'required' => ['id'],
@@ -147,7 +166,9 @@ final class TicketTools
             [
                 'name' => 'transition_ticket',
                 'method' => 'transitionTicket',
-                'description' => 'Change ticket status. Allowed: open→in_progress|closed, in_progress→resolved|open, resolved→closed|in_progress, closed→open.',
+                'description' => 'Change ticket status. Allowed: '
+                    . 'open->in_progress|closed, in_progress->resolved|open, '
+                    . 'resolved->closed|in_progress, closed->open.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [
