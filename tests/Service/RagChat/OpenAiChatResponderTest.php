@@ -12,6 +12,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -27,8 +28,6 @@ use function putenv;
 use function random_bytes;
 use function rmdir;
 use function sys_get_temp_dir;
-use PHPUnit\Framework\Attributes\Group;
-
 use function unlink;
 
 use const JSON_PRETTY_PRINT;

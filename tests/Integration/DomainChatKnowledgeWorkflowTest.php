@@ -18,6 +18,7 @@ use App\Service\MarketingDomainProvider;
 use PDO;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Psr7\UploadedFile;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 use function basename;
@@ -43,8 +44,6 @@ use function scandir;
 use function sprintf;
 use function sys_get_temp_dir;
 use function tempnam;
-use PHPUnit\Framework\Attributes\Group;
-
 use function unlink;
 
 use const JSON_THROW_ON_ERROR;

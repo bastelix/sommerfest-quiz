@@ -11,9 +11,8 @@ use InvalidArgumentException;
 use PDOException;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
-use Slim\Psr7\Response;
-
 use PHPUnit\Framework\Attributes\Group;
+use Slim\Psr7\Response;
 
 use function json_encode;
 
