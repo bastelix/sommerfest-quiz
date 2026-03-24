@@ -699,6 +699,7 @@
 - Resolve phpstan errors in TicketService
 - *(hero)* Reset viewport height when switching back to auto
 - *(menu)* Auto-promote link items with children to dropdown
+- *(hero)* Scale media image on mobile instead of cropping
 
 ### Merge
 
