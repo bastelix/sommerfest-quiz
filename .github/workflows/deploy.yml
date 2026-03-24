@@ -31,6 +31,7 @@ jobs:
             SOURCE_HASH=$(git rev-parse HEAD)
             docker build --build-arg SOURCE_HASH="$SOURCE_HASH" -t "$APP_IMAGE" -t "${BASE_IMAGE}:latest" .
             export COMPOSE_PROJECT_NAME=sommerfest-quiz
+            docker compose -p sommerfest-quiz rm -f 2>/dev/null || true
             docker compose -p sommerfest-quiz up -d --build --remove-orphans --wait
             docker compose -p sommerfest-quiz exec -T slim php scripts/run_migrations.php
             docker compose -p sommerfest-quiz ps slim
