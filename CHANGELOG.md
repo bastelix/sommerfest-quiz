@@ -880,6 +880,7 @@
 - Use new sticker background route
 - *(onboarding)* Add Playwright E2E tests for onboarding wizard
 - Verify pre-commit hook runs
+- Add phpunit unit tests to pre-commit hook
 
 ### Ui
 
