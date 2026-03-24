@@ -21,6 +21,7 @@ use ReflectionProperty;
 use RuntimeException;
 use Tests\Stubs\FakeTeamNameAiClient;
 use Tests\Stubs\FakeTeamNameWarmupDispatcher;
+use PHPUnit\Framework\Attributes\Group;
 
 use function array_column;
 use function array_filter;
@@ -32,7 +33,6 @@ use function preg_match;
 use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
-use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/../Stubs/FakeTeamNameAiClient.php';
 require_once __DIR__ . '/../Stubs/FakeTeamNameWarmupDispatcher.php';

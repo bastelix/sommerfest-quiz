@@ -27,11 +27,12 @@ use function putenv;
 use function random_bytes;
 use function rmdir;
 use function sys_get_temp_dir;
+use PHPUnit\Framework\Attributes\Group;
+
 use function unlink;
 
 use const JSON_PRETTY_PRINT;
 use const JSON_UNESCAPED_UNICODE;
-use PHPUnit\Framework\Attributes\Group;
 
 #[Group('integration')]
 final class OpenAiChatResponderTest extends TestCase

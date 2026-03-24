@@ -43,10 +43,11 @@ use function scandir;
 use function sprintf;
 use function sys_get_temp_dir;
 use function tempnam;
+use PHPUnit\Framework\Attributes\Group;
+
 use function unlink;
 
 use const JSON_THROW_ON_ERROR;
-use PHPUnit\Framework\Attributes\Group;
 
 #[Group('integration')]
 final class DomainChatKnowledgeWorkflowTest extends TestCase

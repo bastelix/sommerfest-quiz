@@ -52,7 +52,8 @@ final class PageAiErrorMapper
             ];
         }
 
-        if ($message === PageAiGenerator::ERROR_INVALID_JSON
+        if (
+            $message === PageAiGenerator::ERROR_INVALID_JSON
             || $message === PageAiBlockContractValidator::ERROR_INVALID_JSON
             || $message === PageAiBlockContractValidator::ERROR_MISSING_META
             || $message === PageAiBlockContractValidator::ERROR_MISSING_BLOCKS

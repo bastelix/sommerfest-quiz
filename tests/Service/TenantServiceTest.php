@@ -658,5 +658,4 @@ SQL;
         $this->assertArrayHasKey('sync', $second);
         $this->assertTrue($second['sync']['is_throttled']);
     }
-
 }

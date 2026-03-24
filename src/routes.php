@@ -901,7 +901,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
+    ) use (
+        $resolveMarketingAccess,
+        $wikiRedirectIfDirect
+    ) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -920,7 +923,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
+    ) use (
+        $resolveMarketingAccess,
+        $wikiRedirectIfDirect
+    ) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -1024,7 +1030,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
+    ) use (
+        $resolveMarketingAccess,
+        $wikiRedirectIfDirect
+    ) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -1043,7 +1052,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess, $wikiRedirectIfDirect) {
+    ) use (
+        $resolveMarketingAccess,
+        $wikiRedirectIfDirect
+    ) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);

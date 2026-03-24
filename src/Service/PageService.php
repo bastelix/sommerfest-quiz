@@ -661,11 +661,13 @@ class PageService
 
     public function updateStatus(int $pageId, string $status): Page
     {
-        if (!in_array($status, [
-            Page::STATUS_DRAFT,
-            Page::STATUS_PUBLISHED,
-            Page::STATUS_ARCHIVED,
-        ], true)) {
+        if (
+            !in_array($status, [
+                Page::STATUS_DRAFT,
+                Page::STATUS_PUBLISHED,
+                Page::STATUS_ARCHIVED,
+            ], true)
+        ) {
             throw new InvalidArgumentException('Ungültiger Status: ' . $status);
         }
 

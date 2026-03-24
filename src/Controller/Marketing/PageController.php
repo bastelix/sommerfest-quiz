@@ -264,7 +264,8 @@ class PageController
         if (is_array($pageBlocks)) {
             $eventHighlightSlugs = [];
             foreach ($pageBlocks as $block) {
-                if (isset($block['type']) && $block['type'] === 'event_highlight'
+                if (
+                    isset($block['type']) && $block['type'] === 'event_highlight'
                     && isset($block['data']['eventSlug']) && is_string($block['data']['eventSlug'])
                 ) {
                     $eventHighlightSlugs[] = $block['data']['eventSlug'];

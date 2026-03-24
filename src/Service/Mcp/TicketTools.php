@@ -231,8 +231,17 @@ final class TicketTools
         }
 
         $ticket = $this->ticketService->create(
-            $ns, $title, $description, $type, $priority,
-            $referenceType, $referenceId, $assignee, $labels, $dueDate, $createdBy
+            $ns,
+            $title,
+            $description,
+            $type,
+            $priority,
+            $referenceType,
+            $referenceId,
+            $assignee,
+            $labels,
+            $dueDate,
+            $createdBy
         );
 
         return [

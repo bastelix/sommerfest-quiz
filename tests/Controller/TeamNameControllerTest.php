@@ -13,10 +13,11 @@ use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Response;
 
+use PHPUnit\Framework\Attributes\Group;
+
 use function json_encode;
 
 use const JSON_THROW_ON_ERROR;
-use PHPUnit\Framework\Attributes\Group;
 
 #[Group('integration')]
 final class TeamNameControllerTest extends TestCase

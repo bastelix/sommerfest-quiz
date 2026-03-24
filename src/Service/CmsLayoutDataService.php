@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Infrastructure\Database;
-use PDO;
-
 use App\Service\CmsMenuResolverService;
+use PDO;
 
 use function is_string;
 use function ltrim;
