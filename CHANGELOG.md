@@ -697,6 +697,7 @@
 - Prevent frame from showing when no frame is configured
 - Resolve phpstan errors in TicketService
 - *(hero)* Reset viewport height when switching back to auto
+- *(menu)* Auto-promote link items with children to dropdown
 
 ### Merge
 
