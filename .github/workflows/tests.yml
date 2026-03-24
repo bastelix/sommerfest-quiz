@@ -69,6 +69,7 @@ jobs:
                   POSTGRES_DSN: pgsql:host=127.0.0.1;port=5432;dbname=quiz
                   POSTGRES_USER: postgres
                   POSTGRES_PASSWORD: postgres
+                  DASHBOARD_TOKEN_SECRET: ci-test-secret
               run: php scripts/run_migrations.php
 
             - name: Block edits to existing migrations
