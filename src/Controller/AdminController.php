@@ -13,6 +13,7 @@ use App\Repository\NamespaceRepository;
 use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\EventService;
+use App\Service\NamespaceSubscriptionService;
 use App\Service\DomainService;
 use App\Service\PageService;
 use App\Service\ResultService;
@@ -466,6 +467,8 @@ class AdminController
               'tenant_sync' => $tenantSyncState,
               'stripe_configured' => StripeService::isConfigured()['ok'],
               'stripe_sandbox' => $stripeSandbox,
+              'stripe_pricing_table_id' => $this->resolveStripePricingTableId($namespace),
+              'stripe_publishable_key' => $this->resolveStripePublishableKey(),
               'initialTenantListHtml' => $initialTenantListHtml,
               'currentPath' => $request->getUri()->getPath(),
               'username' => $_SESSION['user']['username'] ?? '',
@@ -585,5 +588,24 @@ class AdminController
         }
 
         return $result;
+    }
+
+    private function resolveStripePricingTableId(string $namespace): string
+    {
+        try {
+            $pdo = Database::connectFromEnv();
+            $nsSvc = new NamespaceSubscriptionService($pdo);
+            $project = $nsSvc->findBySlug($namespace);
+            return (string) ($project['stripe_pricing_table_id'] ?? '');
+        } catch (\Throwable) {
+            return '';
+        }
+    }
+
+    private function resolveStripePublishableKey(): string
+    {
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $envKey = $useSandbox ? 'STRIPE_SANDBOX_PUBLISHABLE_KEY' : 'STRIPE_PUBLISHABLE_KEY';
+        return (string) (getenv($envKey) ?: '');
     }
 }
