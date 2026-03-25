@@ -109,7 +109,7 @@ class StripeCheckoutController
             $e->getTraceAsString()
         );
 
-        $headers = "From: noreply@quizrace.app\r\n";
-        @mail('support@quizrace.app', 'Fehler beim Onboarding Schritt 3', $body, $headers);
+        $headers = "From: noreply@edocs.cloud\r\n";
+        @mail('support@edocs.cloud', 'Fehler beim Onboarding Schritt 3', $body, $headers);
     }
 }

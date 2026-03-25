@@ -475,7 +475,7 @@ Steuert die visuelle Darstellung der Sektion im Renderer:
 ### Schritt 1: Anforderungen sammeln
 
 Der Chat fragt den Nutzer nach:
-- **Namespace** (z.B. `marketing`, `calserver`, `quizrace`)
+- **Namespace** (z.B. `marketing`, `calserver`, `edocs`)
 - **Slug** (z.B. `mein-produkt`)
 - **Titel** der Seite
 - **Ziel/Produkt** der Landing Page

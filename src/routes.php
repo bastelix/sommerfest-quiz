@@ -768,7 +768,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $isHealthy = $dbStatus['status'] !== 'error';
         $payload = [
             'status'  => $isHealthy ? 'ok' : 'error',
-            'app'     => 'quizrace',
+            'app'     => 'edocs',
             'version' => $version,
             'time'    => gmdate('c'),
             'db'      => $dbStatus,

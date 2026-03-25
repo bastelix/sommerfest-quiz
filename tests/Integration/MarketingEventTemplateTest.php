@@ -37,7 +37,7 @@ final class MarketingEventTemplateTest extends TestCase
 
         $html = $twig->render('marketing/event_upcoming.twig', [
             'event' => [
-                'name' => 'QuizRace Herbstfest',
+                'name' => 'edocs Herbstfest',
                 'description' => '',
             ],
             'config' => [],

@@ -43,10 +43,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  {% set defaultTitle = headerLogo.label|default('QuizRace') %}
+  {% set defaultTitle = headerLogo.label|default('edocs') %}
   {% set effectiveTitle = metaTitle|default(defaultTitle) %}
   <title>{% block title %}{{ effectiveTitle }}{% endblock %}</title>
-  {% set defaultDescription = 'QuizRace macht Ihr Event einzigartig: QR-Code-Stationen, Live-Ranking & Rätselspaß – datensicher, flexibel, ohne App-Download.' %}
+  {% set defaultDescription = 'edocs.cloud – Ihre Plattform für Webseiten, Inhalte und digitale Erlebnisse.' %}
   {% set effectiveDescription = metaDescription|default(defaultDescription) %}
   <meta name="description" content="{{ effectiveDescription }}">
   {% set effectiveRobots = robotsMeta|default('index, follow') %}
@@ -93,7 +93,7 @@
       {% endif %}
     {% endfor %}
   {% else %}
-  <link rel="alternate" href="https://quizrace.app/" hreflang="de">
+  <link rel="alternate" href="https://edocs.cloud/" hreflang="de">
   {% endif %}
   <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="{{ basePath }}/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="{{ basePath }}/feed.atom">
@@ -106,21 +106,21 @@
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "QuizRace",
-    "url": "https://quizrace.app/",
-    "description": "QuizRace ist das interaktive Event-Quiz mit QR-Code-Stationen, Live-Ranking & Rätselspaß – datensicher, flexibel, ohne App-Download.",
+    "name": "edocs",
+    "url": "https://edocs.cloud/",
+    "description": "edocs.cloud – Ihre Plattform für Webseiten, Inhalte und digitale Erlebnisse.",
     "publisher": {
       "@type": "Organization",
-      "name": "QuizRace",
+      "name": "edocs",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://quizrace.app/uploads/branding/logo.png"
+        "url": "https://edocs.cloud/uploads/branding/logo.png"
       }
     },
     "sameAs": [
-      "https://www.facebook.com/quizrace",
-      "https://www.instagram.com/quizrace",
-      "https://www.linkedin.com/company/quizrace"
+      "https://www.facebook.com/edocs",
+      "https://www.instagram.com/edocs",
+      "https://www.linkedin.com/company/edocs"
     ]
   }
   </script>

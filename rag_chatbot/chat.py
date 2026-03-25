@@ -47,7 +47,7 @@ class ChatResponder(Protocol):
 
 
 DEFAULT_SYSTEM_PROMPT = (
-    "Du bist ein hilfreicher Assistent für die QuizRace-Dokumentation. "
+    "Du bist ein hilfreicher Assistent für die edocs-Dokumentation. "
     "Beantworte Fragen ausschließlich anhand der bereitgestellten Kontexte."
 )
 

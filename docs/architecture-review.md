@@ -1,4 +1,4 @@
-# Architecture Review – QuizRace / Sommerfest-Quiz
+# Architecture Review – edocs / edocs-cloud
 
 > Dieses Review bewertet die Ist-Architektur gegen die in `AGENTS.md`, `CONTRIBUTING.md`
 > und `ROBOTS.md` definierten Regeln. Es identifiziert Abweichungen, fehlende Konzepte
@@ -274,7 +274,7 @@ Tests laufen gegen eine andere DB-Version als Produktion.
 
 ## 7  Helm-Chart: Fehlende Health-Probes
 
-Das Kubernetes-Deployment (`helm/sommerfest-quiz/templates/deployment.yaml`) hat
+Das Kubernetes-Deployment (`helm/edocs-cloud/templates/deployment.yaml`) hat
 **keine liveness- oder readiness-Probes** für den Application-Container. Ein
 hängender PHP-Prozess würde nicht automatisch neu gestartet.
 

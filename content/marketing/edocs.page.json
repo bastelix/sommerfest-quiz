@@ -1,8 +1,8 @@
 {
   "meta": {
     "namespace": "marketing",
-    "slug": "quizrace",
-    "title": "QuizRace – Live-Quiz für Teams",
+    "slug": "edocs",
+    "title": "edocs – Live-Quiz für Teams",
     "schemaVersion": "block-contract-v1"
   },
   "blocks": [
@@ -12,16 +12,16 @@
       "variant": "media_right",
       "data": {
         "eyebrow": "Ohne App, sofort spielbar",
-        "headline": "QuizRace verbindet Teams in Echtzeit.",
+        "headline": "edocs verbindet Teams in Echtzeit.",
         "subheadline": "Live-Ranking, QR-Stationen und Moderation aus einem Dashboard – ideal für Sommerfeste, Teamevents und Bildungsrallyes.",
         "cta": {
           "primary": {
             "label": "Demo ansehen",
-            "href": "https://quizrace.app/?katalog=station"
+            "href": "https://edocs.cloud/?katalog=station"
           },
           "secondary": {
             "label": "Live-Dashboard öffnen",
-            "href": "https://quizrace.app/event/98e5abe1-f80a-4241-8d03-a154ae2f6cb0/dashboard/kqVk1ZTLLBoKdxw0VDwFrcV9"
+            "href": "https://edocs.cloud/event/98e5abe1-f80a-4241-8d03-a154ae2f6cb0/dashboard/kqVk1ZTLLBoKdxw0VDwFrcV9"
           }
         }
       }
@@ -65,8 +65,8 @@
       "type": "process_steps",
       "variant": "timeline_vertical",
       "data": {
-        "title": "So funktioniert QuizRace",
-        "intro": "Die alte QuizRace-Landingpage zeigte einen schnellen Ablauf – diese Version fasst ihn für den Page-Editor zusammen.",
+        "title": "So funktioniert edocs",
+        "intro": "Die alte edocs-Landingpage zeigte einen schnellen Ablauf – diese Version fasst ihn für den Page-Editor zusammen.",
         "steps": [
           {
             "id": "idea",
@@ -86,15 +86,15 @@
         ],
         "closing": {
           "title": "Fertig für Sommerfest, Unterricht oder Messe",
-          "body": "QuizRace bleibt leichtgewichtig: Browser-Link teilen, Spiel starten, Live-Ergebnisse projizieren oder auf dem Smartphone anzeigen."
+          "body": "edocs bleibt leichtgewichtig: Browser-Link teilen, Spiel starten, Live-Ergebnisse projizieren oder auf dem Smartphone anzeigen."
         },
         "ctaPrimary": {
           "label": "Live-Dashboard testen",
-          "href": "https://quizrace.app/event/98e5abe1-f80a-4241-8d03-a154ae2f6cb0/dashboard/kqVk1ZTLLBoKdxw0VDwFrcV9"
+          "href": "https://edocs.cloud/event/98e5abe1-f80a-4241-8d03-a154ae2f6cb0/dashboard/kqVk1ZTLLBoKdxw0VDwFrcV9"
         },
         "ctaSecondary": {
           "label": "QR-Station scannen",
-          "href": "https://quizrace.app/?katalog=station"
+          "href": "https://edocs.cloud/?katalog=station"
         }
       }
     },
@@ -103,9 +103,9 @@
       "type": "feature_list",
       "variant": "detailed-cards",
       "data": {
-        "eyebrow": "Highlights der alten QuizRace-Page",
+        "eyebrow": "Highlights der alten edocs-Page",
         "title": "Alles für schnelle Live-Events",
-        "lead": "Die Inhalte stammen aus der bisherigen QuizRace-Marketingseite und sind bereit für den Block-Editor.",
+        "lead": "Die Inhalte stammen aus der bisherigen edocs-Marketingseite und sind bereit für den Block-Editor.",
         "items": [
           {
             "id": "editor",
@@ -118,7 +118,7 @@
             ],
             "primaryCta": {
               "label": "Editor öffnen",
-              "href": "https://quizrace.app"
+              "href": "https://edocs.cloud"
             }
           },
           {
@@ -133,7 +133,7 @@
             ],
             "primaryCta": {
               "label": "Dashboard starten",
-              "href": "https://quizrace.app/event/98e5abe1-f80a-4241-8d03-a154ae2f6cb0/dashboard/kqVk1ZTLLBoKdxw0VDwFrcV9"
+              "href": "https://edocs.cloud/event/98e5abe1-f80a-4241-8d03-a154ae2f6cb0/dashboard/kqVk1ZTLLBoKdxw0VDwFrcV9"
             }
           },
           {
@@ -147,7 +147,7 @@
             ],
             "primaryCta": {
               "label": "QR-Vorlagen",
-              "href": "https://quizrace.app/uploads/landing/quizrace-shot-frontend.webp"
+              "href": "https://edocs.cloud/uploads/landing/quizrace-shot-frontend.webp"
             }
           }
         ]
@@ -178,7 +178,7 @@
           {
             "id": "faq-devices",
             "question": "Welche Geräte unterstützen wir?",
-            "answer": "QuizRace läuft auf Smartphones, Tablets und Laptops. Das Live-Dashboard funktioniert auf TV/Beamer."
+            "answer": "edocs läuft auf Smartphones, Tablets und Laptops. Das Live-Dashboard funktioniert auf TV/Beamer."
           },
           {
             "id": "faq-data",
@@ -189,7 +189,7 @@
         "followUp": {
           "text": "Weitere Details aus der alten Landingpage benötigt?",
           "linkLabel": "Kontakt aufnehmen",
-          "href": "mailto:support@quizrace.app"
+          "href": "mailto:support@edocs.cloud"
         }
       }
     },
@@ -200,11 +200,11 @@
       "data": {
         "primary": {
           "label": "Demo spielen",
-          "href": "https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&katalog=DFB-QUIZ"
+          "href": "https://edocs.cloud/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&katalog=DFB-QUIZ"
         },
         "secondary": {
           "label": "Mit Team sprechen",
-          "href": "https://www.quizrace.app"
+          "href": "https://www.edocs.cloud"
         }
       }
     }

@@ -47,9 +47,9 @@ final class RagChatService implements RagChatServiceInterface
     ];
 
     private const SYSTEM_PROMPTS = [
-        'de' => 'Du bist ein hilfreicher Assistent für die QuizRace-Dokumentation. '
+        'de' => 'Du bist ein hilfreicher Assistent für die edocs-Dokumentation. '
             . 'Beantworte Fragen ausschließlich anhand der bereitgestellten Kontexte.',
-        'en' => 'You are a helpful assistant for the QuizRace documentation. '
+        'en' => 'You are a helpful assistant for the edocs documentation. '
             . 'Answer questions only by relying on the supplied context snippets.',
     ];
 

@@ -306,7 +306,7 @@ class HomeControllerTest extends TestCase
             $this->assertEquals(200, $response->getStatusCode());
             $body = (string) $response->getBody();
             $this->assertStringContainsString('Das Event ist beendet', $body);
-            $this->assertStringContainsString('team@quizrace.app', $body);
+            $this->assertStringContainsString('team@edocs.cloud', $body);
         } finally {
             unlink($db);
         }

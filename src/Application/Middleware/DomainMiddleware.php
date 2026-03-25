@@ -234,7 +234,7 @@ class DomainMiddleware implements MiddlewareInterface
     {
         $payload = [
             'status' => 'ok',
-            'app' => 'quizrace',
+            'app' => 'edocs',
             'time' => gmdate('c'),
         ];
 

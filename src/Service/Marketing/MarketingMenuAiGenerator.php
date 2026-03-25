@@ -37,7 +37,7 @@ final class MarketingMenuAiGenerator
 
     private const MAX_HTML_LENGTH = 8000;
 
-    private const SYSTEM_PROMPT = 'You turn QuizRace marketing page HTML into structured navigation menus.';
+    private const SYSTEM_PROMPT = 'You turn edocs marketing page HTML into structured navigation menus.';
 
     private const PROMPT_TEMPLATE = <<<'PROMPT'
 Nutze den folgenden HTML-Inhalt einer Marketing-Seite, um Navigationspunkte zu erzeugen.

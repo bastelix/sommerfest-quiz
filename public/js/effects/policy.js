@@ -13,14 +13,14 @@ export const EFFECT_TYPES = {
 };
 
 export const EFFECTS_PROFILES = {
-  'quizrace.marketing': {
+  'edocs.marketing': {
     [EFFECT_TYPES.REVEAL]: { enabled: true, preset: 'lifted' },
     [EFFECT_TYPES.HERO_INTRO]: { enabled: true, preset: 'punchy' },
     [EFFECT_TYPES.SLIDER]: { enabled: true, preset: 'momentum' },
     [EFFECT_TYPES.HOVER]: { enabled: true, preset: 'playful' },
     [EFFECT_TYPES.PAGE_TRANSITION]: { enabled: true, preset: 'smooth' }
   },
-  'quizrace.calm': {
+  'edocs.calm': {
     [EFFECT_TYPES.REVEAL]: { enabled: true, preset: 'gentle' },
     [EFFECT_TYPES.HERO_INTRO]: { enabled: false, preset: 'static' },
     [EFFECT_TYPES.SLIDER]: { enabled: true, preset: 'steady' },
@@ -44,7 +44,7 @@ export const EFFECTS_PROFILES = {
 };
 
 export const EFFECTS_BY_NAMESPACE = {
-  quizrace: 'quizrace.marketing',
+  edocs: 'edocs.marketing',
   calserver: 'calserver.professional'
 };
 

@@ -18,7 +18,7 @@
 
 ### Multi-Tenancy
 
-Das gesamte System ist **Namespace-basiert**. Jede Entität (Seite, Menü, Footer-Block, Design-Token) gehört zu einem `namespace`-String (z.B. `quizrace`, `calhelp`, `aurora`). Der Default-Namespace ist `quizrace`.
+Das gesamte System ist **Namespace-basiert**. Jede Entität (Seite, Menü, Footer-Block, Design-Token) gehört zu einem `namespace`-String (z.B. `edocs`, `calhelp`, `aurora`). Der Default-Namespace ist `edocs`.
 
 ### Authentifizierung
 
@@ -282,7 +282,7 @@ Scope: cms:read
 ```json
 {
   "id": 42,
-  "namespace": "quizrace",
+  "namespace": "edocs",
   "slug": "landing",
   "title": "Landing Page",
   "status": "published",
@@ -444,7 +444,7 @@ Scope: cms:read
   "header": {
     "navigation": [ /* Aufgelöste Menü-Items */ ],
     "config": { "show_language": true, "show_theme_toggle": true, "show_contrast_toggle": true },
-    "logo": { "mode": "text", "label": "QuizRace", "src": null, "alt": "QuizRace" }
+    "logo": { "mode": "text", "label": "edocs", "src": null, "alt": "edocs" }
   },
   "footer": {
     "blocks": {

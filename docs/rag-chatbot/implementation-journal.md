@@ -1,6 +1,6 @@
 # RAG Chatbot – Implementation Journal
 
-Dieses Journal begleitet den Aufbau eines Retrieval-Augmented-Generation-Chatbots für die QuizRace-Dokumentation.
+Dieses Journal begleitet den Aufbau eines Retrieval-Augmented-Generation-Chatbots für die edocs-Dokumentation.
 Die Arbeit ist in fünf Phasen gegliedert. Dieses Journal beschreibt die Umsetzung von **Phase 1** bis **Phase 5**.
 
 ## Phase 1: Wissensbasis vorbereiten

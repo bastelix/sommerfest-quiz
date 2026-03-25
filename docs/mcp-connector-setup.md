@@ -1,12 +1,12 @@
 # MCP-Connector einrichten (Claude.ai)
 
-> Anleitung zum Verbinden von Claude.ai mit dem QuizRace MCP-Server.
+> Anleitung zum Verbinden von Claude.ai mit dem edocs MCP-Server.
 
 ---
 
 ## Voraussetzungen
 
-- Ein laufender QuizRace-Server mit HTTPS (z. B. `https://mein-quiz.example.com`)
+- Ein laufender edocs-Server mit HTTPS (z. B. `https://mein-quiz.example.com`)
 - Der MCP-Endpunkt ist unter `https://<deine-domain>/mcp` erreichbar
 - OAuth 2.0 ist aktiv (automatisch, wenn der Server läuft)
 
@@ -19,7 +19,7 @@
 
 | Feld                          | Wert                                       | Hinweis                                                    |
 |-------------------------------|--------------------------------------------|------------------------------------------------------------|
-| **Name**                      | `quizrace` (oder beliebig)                 | Anzeigename in Claude.ai                                   |
+| **Name**                      | `edocs` (oder beliebig)                 | Anzeigename in Claude.ai                                   |
 | **Remote MCP Server URL**     | `https://<deine-domain>/mcp`               | z. B. `https://quiz.example.com/mcp`                       |
 | **OAuth Client ID** (optional)| *leer lassen*                              | Claude registriert sich automatisch via Dynamic Client Registration (RFC 7591) |
 | **OAuth-Client-Geheimnis** (optional) | *leer lassen*                       | Wird automatisch bei der Registrierung erzeugt              |
@@ -131,7 +131,7 @@ Fuer lokale Entwicklung mit HTTPS (z. B. via Caddy oder mkcert):
 
 | Feld                      | Wert                              |
 |---------------------------|-----------------------------------|
-| **Name**                  | `quizrace-dev`                    |
+| **Name**                  | `edocs-dev`                    |
 | **Remote MCP Server URL** | `https://localhost:8443/mcp`      |
 | **OAuth Client ID**       | *leer lassen*                     |
 | **OAuth-Client-Geheimnis**| *leer lassen*                     |

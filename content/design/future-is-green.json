@@ -3,7 +3,7 @@
     "name": "Future is Green",
     "description": "Modernes gr\u00fcnes Theme, inspiriert von der Future-is-Green-Landingpage. Frische Waldgr\u00fcn-T\u00f6ne mit hellen Akzenten f\u00fcr einen nachhaltigen, professionellen Auftritt.",
     "version": "2.0.0",
-    "author": "QuizRace Design System"
+    "author": "edocs Design System"
   },
   "config": {
     "designTokens": {
@@ -43,7 +43,7 @@
     }
   },
   "effects": {
-    "effectsProfile": "quizrace.calm",
+    "effectsProfile": "edocs.calm",
     "sliderProfile": "calm"
   },
   "contrastPairs": {

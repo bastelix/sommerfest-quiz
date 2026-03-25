@@ -3,7 +3,7 @@
     "name": "eForms",
     "description": "Design-Theme für eForms. Basiert auf dem Aurora-Design mit kräftigen Blautönen und professioneller Ästhetik.",
     "version": "2.0.0",
-    "author": "QuizRace Design System"
+    "author": "edocs Design System"
   },
   "config": {
     "designTokens": {
@@ -43,7 +43,7 @@
     }
   },
   "effects": {
-    "effectsProfile": "quizrace.calm",
+    "effectsProfile": "edocs.calm",
     "sliderProfile": "calm"
   },
   "contrastPairs": {

@@ -66,7 +66,7 @@ final class PageSeoAiGeneratorTest extends TestCase
                     'variant' => 'centered_cta',
                     'data' => [
                         'eyebrow' => 'Ohne App',
-                        'headline' => 'QuizRace verbindet Teams.',
+                        'headline' => 'edocs verbindet Teams.',
                         'subheadline' => 'Live-Ranking und Moderation.',
                         'cta' => ['primary' => ['label' => 'Demo', 'href' => '#']],
                     ],
@@ -90,10 +90,10 @@ final class PageSeoAiGeneratorTest extends TestCase
         ]);
 
         $response = json_encode([
-            'metaTitle' => 'QuizRace – Live-Quiz',
+            'metaTitle' => 'edocs – Live-Quiz',
             'metaDescription' => 'Teams verbinden mit Live-Ranking.',
             'canonicalUrl' => 'https://example.com/quiz',
-            'ogTitle' => 'QuizRace',
+            'ogTitle' => 'edocs',
             'ogDescription' => 'Live-Ranking und Moderation.',
             'robotsMeta' => 'index, follow',
         ]);
@@ -107,7 +107,7 @@ final class PageSeoAiGeneratorTest extends TestCase
 
         $config = $generator->generate($page, 'example.com');
 
-        $this->assertSame('QuizRace – Live-Quiz', $config['metaTitle']);
+        $this->assertSame('edocs – Live-Quiz', $config['metaTitle']);
         $this->assertSame(7, $config['pageId']);
     }
 
@@ -150,7 +150,7 @@ final class PageSeoAiGeneratorTest extends TestCase
                     'type' => 'feature_list',
                     'variant' => 'icon_grid',
                     'data' => [
-                        'title' => 'Was QuizRace bietet',
+                        'title' => 'Was edocs bietet',
                         'items' => [
                             [
                                 'id' => 'f1',
@@ -191,7 +191,7 @@ final class PageSeoAiGeneratorTest extends TestCase
         // Prompt must contain extracted text
         $this->assertStringContainsString('Teamevents leicht gemacht', $capturedPrompt);
         $this->assertStringContainsString('Rallye und Quiz im Browser', $capturedPrompt);
-        $this->assertStringContainsString('Was QuizRace bietet', $capturedPrompt);
+        $this->assertStringContainsString('Was edocs bietet', $capturedPrompt);
         $this->assertStringContainsString('Live-Ranking', $capturedPrompt);
         $this->assertStringContainsString('Echtzeit-Punktestand', $capturedPrompt);
 

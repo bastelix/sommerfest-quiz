@@ -276,34 +276,34 @@ export function initSeoForm() {
 
   const exampleGenerators = {
     landing: ctx => ({
-      metaTitle: 'QuizRace – Gestalten Sie Ihr interaktives Team-Quiz für Events',
+      metaTitle: 'edocs – Ihre Plattform für Webseiten und digitale Erlebnisse',
       metaDescription:
-        'QuizRace macht Ihr Event einzigartig: QR-Code-Stationen, Live-Ranking & Rätselspaß – datensicher, flexibel, ohne App. Jetzt kostenlos testen!',
+        'edocs.cloud – Webseiten, Inhalte und digitale Erlebnisse erstellen, verwalten und veröffentlichen. DSGVO-konform, flexibel, ohne App.',
       slug: '/',
       canonical: `${ctx.baseUrl}/`,
       robots: 'index, follow',
-      ogTitle: 'QuizRace – Gestalten Sie Ihr interaktives Team-Quiz für Events',
+      ogTitle: 'edocs – Ihre Plattform für Webseiten und digitale Erlebnisse',
       ogDescription:
         'Erstellen Sie Ihr eigenes Event-Quiz mit QR-Code-Stationen, Live-Ranking & Rätselspaß. DSGVO-konform, flexibel, ohne App. Jetzt kostenlos testen!',
       ogImage: `${ctx.baseUrl}/uploads/seo/social-preview.jpg`,
       schema: `{
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "QuizRace",
+  "name": "edocs",
   "url": "${ctx.baseUrl}/",
-  "description": "QuizRace ist das interaktive Event-Quiz mit QR-Code-Stationen, Live-Ranking & Rätselspaß – datensicher, flexibel, ohne App. Jetzt kostenlos testen!",
+  "description": "edocs.cloud – Ihre Plattform für Webseiten, Inhalte und digitale Erlebnisse.",
   "publisher": {
     "@type": "Organization",
-    "name": "QuizRace",
+    "name": "edocs",
     "logo": {
       "@type": "ImageObject",
       "url": "${ctx.baseUrl}/uploads/branding/logo.png"
     }
   },
   "sameAs": [
-    "https://www.facebook.com/quizrace",
-    "https://www.instagram.com/quizrace",
-    "https://www.linkedin.com/company/quizrace"
+    "https://www.facebook.com/edocs",
+    "https://www.instagram.com/edocs",
+    "https://www.linkedin.com/company/edocs"
   ]
 }`,
       hreflang: `<link rel="alternate" href="${ctx.baseUrl}/" hreflang="de" />`,
@@ -485,7 +485,7 @@ export function initSeoForm() {
     if (/calserver/.test(normalizedDomain)) {
       return 'calserver';
     }
-    if (/quizrace|quiz-race/.test(normalizedDomain)) {
+    if (/edocs/.test(normalizedDomain)) {
       return 'landing';
     }
 

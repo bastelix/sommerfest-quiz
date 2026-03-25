@@ -21,12 +21,12 @@ vm.runInContext(matrixSource, sandbox);
 const { RENDERER_MATRIX } = sandbox;
 assert.ok(RENDERER_MATRIX, 'Renderer matrix should be available');
 
-const page = JSON.parse(fs.readFileSync('content/marketing/quizrace.page.json', 'utf8'));
+const page = JSON.parse(fs.readFileSync('content/marketing/edocs.page.json', 'utf8'));
 assert.ok(Array.isArray(page.blocks), 'Page should contain blocks');
 assert.strictEqual(
   page.blocks.map(block => block.type).join(','),
   ['hero', 'stat_strip', 'process_steps', 'feature_list', 'faq', 'cta'].join(','),
-  'Expected block ordering for quizrace page'
+  'Expected block ordering for edocs page'
 );
 
 const renderedBlocks = page.blocks.map((block, index) => {

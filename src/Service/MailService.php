@@ -149,7 +149,7 @@ class MailService
         $email = (new Email())
             ->from($this->from)
             ->to($to)
-            ->subject('Einladung zu QuizRace')
+            ->subject('Einladung zu edocs')
             ->html($html);
 
         $this->providerManager->sendMail($email);
@@ -177,7 +177,7 @@ class MailService
         $email = (new Email())
             ->from($this->from)
             ->to($to)
-            ->subject('Willkommen bei QuizRace')
+            ->subject('Willkommen bei edocs')
             ->html($html);
 
         $this->providerManager->sendMail($email);

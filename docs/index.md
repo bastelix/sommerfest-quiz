@@ -4,9 +4,9 @@ hide:
   - toc
 ---
 
-# Willkommen zur QuizRace Dokumentation
+# Willkommen zur edocs Dokumentation
 
-Das **QuizRace** ist eine Web-App für Veranstaltungen wie Sommerfeste und Firmenevents.
+Das **edocs** ist eine Web-App für Veranstaltungen wie Sommerfeste und Firmenevents.
 Die Anwendung basiert auf dem Slim Framework und nutzt UIkit3 für ein responsives Design.
 Fragenkataloge, Teilnehmer und Ergebnisse werden in einer PostgreSQL-Datenbank gespeichert
 und können per JSON importiert oder exportiert werden.
@@ -19,7 +19,7 @@ und können per JSON importiert oder exportiert werden.
 
     ---
 
-    Spielablauf, Spielregeln und häufige Fragen rund um das QuizRace.
+    Spielablauf, Spielregeln und häufige Fragen rund um das edocs.
 
     [:octicons-arrow-right-24: Zum Handbuch](about.md)
 

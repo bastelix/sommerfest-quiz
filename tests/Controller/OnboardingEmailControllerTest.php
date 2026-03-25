@@ -206,7 +206,7 @@ class OnboardingEmailControllerTest extends TestCase
             'Content-Type' => 'application/json',
             'X-CSRF-Token' => 'tok',
             'X-Forwarded-Proto' => 'https',
-            'X-Forwarded-Host' => 'quizrace.app',
+            'X-Forwarded-Host' => 'edocs.cloud',
             'X-Forwarded-Port' => '443',
         ]);
         $stream = fopen('php://temp', 'r+');
@@ -220,7 +220,7 @@ class OnboardingEmailControllerTest extends TestCase
         $this->assertCount(1, $mailer->sent);
 
         $link = $mailer->sent[0][1];
-        $this->assertStringStartsWith('https://quizrace.app/onboarding/email/confirm?token=', $link);
+        $this->assertStringStartsWith('https://edocs.cloud/onboarding/email/confirm?token=', $link);
         session_destroy();
     }
 

@@ -29,7 +29,7 @@ def test_chat_session_builds_prompt_with_context() -> None:
         SearchResult(
             chunk_id="doc:0001",
             score=0.8,
-            text="QuizRace ist eine Webanwendung für Quizrunden.",
+            text="edocs ist eine Webanwendung für Quizrunden.",
             metadata={"title": "README", "chunk_index": 0},
         ),
         SearchResult(
@@ -42,14 +42,14 @@ def test_chat_session_builds_prompt_with_context() -> None:
     index = FakeIndex(results)
     captured: list = []
 
-    expected_response = "QuizRace ist eine Quiz-Plattform."
+    expected_response = "edocs ist eine Quiz-Plattform."
 
     def responder(prompt):
         captured.append(prompt)
         return expected_response  # noqa: D401
 
     session = ChatSession(index, responder=responder, top_k=2)
-    turn = session.send("Was ist QuizRace?")
+    turn = session.send("Was ist edocs?")
 
     assert turn.response == expected_response
     assert "Basierend auf der Wissensbasis" not in turn.response
@@ -57,7 +57,7 @@ def test_chat_session_builds_prompt_with_context() -> None:
     assert captured[0].context == tuple(results)
     messages = captured[0].messages
     assert messages[0].role == "system"
-    assert messages[-1].content == "Was ist QuizRace?"
+    assert messages[-1].content == "Was ist edocs?"
     assert messages[-2].role == "system"
     assert "Kontext aus der Wissensbasis" in messages[-2].content
     assert "README" in messages[-2].content

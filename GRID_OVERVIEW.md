@@ -240,7 +240,7 @@ Handle-Centering, Action-Buttons, Dropdown-Row, Page-Tree-Actions.
 
 | Selektor | Zeile | Hinweis |
 |---|---:|---|
-| `.pricing-grid .uk-card-quizrace` | 67 | Card-Stack mit `margin-top: auto` → `grid-template-rows: 1fr auto` |
+| `.pricing-grid .uk-card-edocs` | 67 | Card-Stack mit `margin-top: auto` → `grid-template-rows: 1fr auto` |
 
 ---
 
@@ -273,7 +273,7 @@ Checkliste:
 - [ ] `marketing-cards.css`: `.module-card`, `.news-card`
 - [ ] `sections.css`: `.page-modules__grid`
 - [ ] `table.css`: `.qr-card-content`
-- [ ] `onboarding.css`: `.pricing-grid .uk-card-quizrace`
+- [ ] `onboarding.css`: `.pricing-grid .uk-card-edocs`
 
 **Test**: Visueller Vergleich aller Admin-Seiten und Spieler-Ansichten.
 

@@ -2,7 +2,7 @@
 
 > **Stand:** 2026-02-17
 > **Methode:** Statische Codeanalyse aller Templates, CSS-Dateien und PHP-Services
-> **Scope:** Gesamtes sommerfest-quiz Projekt
+> **Scope:** Gesamtes edocs-cloud Projekt
 
 ---
 

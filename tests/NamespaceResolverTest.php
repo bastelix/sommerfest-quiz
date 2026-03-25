@@ -18,7 +18,7 @@ final class NamespaceResolverTest extends TestCase
     public function testResolvesExplicitNamespaceWhenItExists(): void
     {
         $request = (new ServerRequestFactory())
-            ->createServerRequest('GET', 'https://quizrace.app/admin/dashboard')
+            ->createServerRequest('GET', 'https://edocs.cloud/admin/dashboard')
             ->withAttribute('namespace', 'calserver');
 
         $resolver = new NamespaceResolver();
@@ -40,7 +40,7 @@ final class NamespaceResolverTest extends TestCase
     public function testThrowsWhenNamespaceDoesNotExist(): void
     {
         $request = (new ServerRequestFactory())
-            ->createServerRequest('GET', 'https://quizrace.app/admin/dashboard')
+            ->createServerRequest('GET', 'https://edocs.cloud/admin/dashboard')
             ->withAttribute('namespace', 'missing');
 
         $resolver = new NamespaceResolver();
@@ -60,7 +60,7 @@ final class NamespaceResolverTest extends TestCase
 
     public function testThrowsWhenNoNamespaceCandidatesAreProvided(): void
     {
-        $request = (new ServerRequestFactory())->createServerRequest('GET', 'https://quizrace.app/');
+        $request = (new ServerRequestFactory())->createServerRequest('GET', 'https://edocs.cloud/');
         $resolver = new NamespaceResolver();
 
         $this->expectException(RuntimeException::class);

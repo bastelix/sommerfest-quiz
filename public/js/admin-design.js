@@ -28,8 +28,8 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
   const isEffectsReadOnly = editor.dataset.effectsReadOnly === '1';
   const sliderSuggestionMap = {
     'calserver.professional': 'static',
-    'quizrace.calm': 'calm',
-    'quizrace.marketing': 'marketing',
+    'edocs.calm': 'calm',
+    'edocs.marketing': 'marketing',
   };
   const LAYOUT_PROFILES = ['standard', 'wide', 'narrow'];
   const TYPOGRAPHY_PRESETS = ['modern', 'classic', 'tech'];

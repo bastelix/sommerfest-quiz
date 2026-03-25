@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "sommerfest-quiz.fullname" . }}-postgresql
+  name: {{ include "edocs-cloud.fullname" . }}-postgresql
 spec:
-  serviceName: {{ include "sommerfest-quiz.fullname" . }}-postgresql
+  serviceName: {{ include "edocs-cloud.fullname" . }}-postgresql
   replicas: 1
   selector:
     matchLabels:
-      app: {{ include "sommerfest-quiz.name" . }}-postgresql
+      app: {{ include "edocs-cloud.name" . }}-postgresql
   template:
     metadata:
       labels:
-        app: {{ include "sommerfest-quiz.name" . }}-postgresql
+        app: {{ include "edocs-cloud.name" . }}-postgresql
     spec:
       containers:
         - name: postgres

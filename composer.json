@@ -1,6 +1,6 @@
 {
-    "name": "sommerfest/quiz",
-    "description": "Slim-based quiz application using UIkit3",
+    "name": "edocs/cloud",
+    "description": "Slim-based CMS and hosting platform",
     "type": "project",
     "require": {
         "php": "^8.2",

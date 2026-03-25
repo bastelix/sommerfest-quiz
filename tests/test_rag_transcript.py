@@ -28,7 +28,7 @@ def test_transcript_records_turn_and_stats() -> None:
         SearchResult(
             chunk_id="doc:1",
             score=0.8,
-            text="QuizRace ist eine Plattform für Quiz-Events.",
+            text="edocs ist eine Plattform für Quiz-Events.",
             metadata={"title": "README", "chunk_index": 0},
         ),
         SearchResult(
@@ -47,11 +47,11 @@ def test_transcript_records_turn_and_stats() -> None:
         transcript=transcript,
     )
 
-    session.send("Was ist QuizRace?")
+    session.send("Was ist edocs?")
 
     assert len(transcript.turns) == 1
     turn = transcript.turns[0]
-    assert turn.question == "Was ist QuizRace?"
+    assert turn.question == "Was ist edocs?"
     assert turn.response.startswith("Antwort aus der Wissensbasis")
     assert len(turn.context) == 2
     assert turn.context[0].metadata["title"] == "README"
@@ -68,7 +68,7 @@ def test_transcript_save_creates_json(tmp_path: Path) -> None:
         SearchResult(
             chunk_id="doc:42",
             score=0.9,
-            text="QuizRace unterstützt Team-Wettbewerbe.",
+            text="edocs unterstützt Team-Wettbewerbe.",
             metadata={"source": "docs/features.md"},
         ),
     ]
@@ -80,7 +80,7 @@ def test_transcript_save_creates_json(tmp_path: Path) -> None:
         transcript=transcript,
     )
 
-    session.send("Welche Wettbewerbe unterstützt QuizRace?")
+    session.send("Welche Wettbewerbe unterstützt edocs?")
 
     output = tmp_path / "transcript.json"
     transcript.save(output)

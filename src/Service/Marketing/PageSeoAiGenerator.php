@@ -33,7 +33,7 @@ final class PageSeoAiGenerator
     private const MAX_TITLE_LENGTH = 60;
     private const MAX_DESCRIPTION_LENGTH = 160;
 
-    private const SYSTEM_PROMPT = 'You generate concise German SEO metadata for QuizRace marketing pages.';
+    private const SYSTEM_PROMPT = 'You generate concise German SEO metadata for edocs marketing pages.';
 
     private const PROMPT_TEMPLATE = <<<'PROMPT'
 Erstelle deutschsprachige SEO-Metadaten für eine Marketing-Seite. Antworte ausschließlich mit einem JSON-Objekt

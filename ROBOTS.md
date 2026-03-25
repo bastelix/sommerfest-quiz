@@ -1,4 +1,4 @@
-# ROBOTS.md – Engineering Guidelines for QuizRace
+# ROBOTS.md – Engineering Guidelines for edocs
 
 > These rules define the expected code quality for this repository. All contributors and assistants
 > must follow them when they add or modify code.

@@ -206,7 +206,7 @@ final class RagChatServiceTest extends TestCase
 
         $this->createDomainIndex('calserver');
 
-        $response = $service->answer('calserver inventar', 'de', 'calserver.quizrace.de');
+        $response = $service->answer('calserver inventar', 'de', 'calserver.edocs.cloud');
 
         $context = $response->getContext();
         self::assertNotSame([], $context);

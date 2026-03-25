@@ -3,7 +3,7 @@
     "name": "CalHelp",
     "description": "Klassisches professionelles Theme mit warmen Teal- und Gold-Akzenten. Seriöse, vertrauenswürdige Ausstrahlung für Business-Anwendungen.",
     "version": "2.0.0",
-    "author": "QuizRace Design System"
+    "author": "edocs Design System"
   },
   "config": {
     "designTokens": {
@@ -43,7 +43,7 @@
     }
   },
   "effects": {
-    "effectsProfile": "quizrace.calm",
+    "effectsProfile": "edocs.calm",
     "sliderProfile": "calm"
   },
   "contrastPairs": {

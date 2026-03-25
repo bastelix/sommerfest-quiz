@@ -14,7 +14,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 final class McpController
 {
     private const PROTOCOL_VERSION = '2025-03-26';
-    private const SERVER_NAME = 'sommerfest-quiz';
+    private const SERVER_NAME = 'edocs-cloud';
     private const SERVER_VERSION = '1.0.0';
 
     /**

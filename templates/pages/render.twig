@@ -24,7 +24,7 @@
 {% set logoSettings = headerLogo|default({}) %}
 {% set logoMode = logoSettings.mode|default('text') %}
 {% set logoSrc = logoSettings.src|default(null) %}
-{% set logoLabel = logoSettings.label|default(pageTitle|default('QuizRace')) %}
+{% set logoLabel = logoSettings.label|default(pageTitle|default('edocs')) %}
 {% set logoAlt = logoSettings.alt|default(logoLabel) %}
 {% set cmsChatEnabled = (cmsChatEndpoint is defined and cmsChatEndpoint) or (featureFlags.chatEndpoint|default(false) == true) %}
 {% set cookieConsent = cookieConsentConfig|default({}) %}
@@ -34,7 +34,7 @@
   {{ pageTheme|default('light') }}
 {% endblock %}
 
-{% block title %}{{ pageTitle|default('QuizRace') }}{% endblock %}
+{% block title %}{{ pageTitle|default('edocs') }}{% endblock %}
 
 {% block body_class %}page-render cms-page-render marketing-page uk-background-default{% endblock %}
 

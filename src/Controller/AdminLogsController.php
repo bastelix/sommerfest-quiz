@@ -23,7 +23,7 @@ class AdminLogsController
     public function __invoke(Request $request, Response $response): Response {
         $appLog = LogService::tail('app');
         $stripeLog = LogService::tail('stripe');
-        $slimLog = LogService::tailDocker('slim-1');
+        $slimLog = LogService::tailDocker('edocs-app');
         $onboardingLog = LogService::tail('onboarding');
         $sslProvisioningLog = LogService::tail('ssl_provisioning');
         $view = Twig::fromRequest($request);
