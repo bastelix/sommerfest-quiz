@@ -191,6 +191,72 @@ final class NamespaceSubscriptionService
     }
 
     /**
+     * Update Lago-related fields for a namespace project.
+     *
+     * @param array<string,mixed> $lagoData
+     */
+    public function updateLagoInfo(string $slug, array $lagoData): void
+    {
+        $project = $this->findOrCreate($slug);
+        $driver = $this->driverName();
+
+        $sets = [];
+        $params = [':id' => $project['id']];
+
+        $allowedFields = [
+            'lago_customer_id',
+            'lago_subscription_id',
+            'lago_plan_code',
+            'lago_status',
+        ];
+
+        foreach ($allowedFields as $field) {
+            if (array_key_exists($field, $lagoData)) {
+                $paramKey = ':' . $field;
+                $sets[] = "$field = $paramKey";
+                $params[$paramKey] = $lagoData[$field];
+            }
+        }
+
+        if ($sets === []) {
+            return;
+        }
+
+        $setClause = implode(', ', $sets);
+
+        if ($driver === 'sqlite') {
+            $sql = "UPDATE namespace_projects SET $setClause WHERE id = :id";
+        } else {
+            $sql = "UPDATE namespace_projects SET $setClause, updated_at = now() WHERE id = :id::uuid";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+    }
+
+    /**
+     * Find a namespace project by its Lago customer ID.
+     */
+    public function findByLagoCustomerId(string $lagoCustomerId): ?array
+    {
+        if ($lagoCustomerId === '') {
+            return null;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT * FROM namespace_projects WHERE lago_customer_id = :cid'
+            );
+            $stmt->execute([':cid' => $lagoCustomerId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException) {
+            return null;
+        }
+
+        return $row !== false ? $this->normalizeRow($row) : null;
+    }
+
+    /**
      * Update Stripe-related fields for a namespace project.
      *
      * @param array<string,mixed> $stripeData
@@ -350,6 +416,10 @@ final class NamespaceSubscriptionService
             'stripe_status' => $row['stripe_status'] ?? null,
             'stripe_current_period_end' => $row['stripe_current_period_end'] ?? null,
             'stripe_cancel_at_period_end' => (bool) ($row['stripe_cancel_at_period_end'] ?? false),
+            'lago_customer_id' => $row['lago_customer_id'] ?? null,
+            'lago_subscription_id' => $row['lago_subscription_id'] ?? null,
+            'lago_plan_code' => $row['lago_plan_code'] ?? null,
+            'lago_status' => $row['lago_status'] ?? null,
             'display_name' => (string) ($row['display_name'] ?? $row['slug'] ?? ''),
             'status' => (string) ($row['status'] ?? 'active'),
         ];
