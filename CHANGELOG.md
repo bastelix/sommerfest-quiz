@@ -403,6 +403,7 @@
 - *(wiki)* Add direct wiki mode for pages with type=wiki
 - *(wiki)* Add Material Design styling inspired by MkDocs Material
 - *(billing)* Add Lago billing stack integration
+- *(billing)* Add multi-product Stripe billing hub
 
 ### Fix
 
@@ -837,6 +838,10 @@
 - Remove 6 legacy marketing twig templates and dead code
 - *(wiki)* Move page namespace selector into accordion
 - [**breaking**] Rename project from sommerfest-quiz/quizrace to edocs-cloud/edocs.cloud
+
+### Revert
+
+- *(billing)* Remove Lago stack in favor of direct Stripe integration
 
 ### Style
 
