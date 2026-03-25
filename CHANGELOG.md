@@ -404,6 +404,7 @@
 - *(wiki)* Add Material Design styling inspired by MkDocs Material
 - *(billing)* Add Lago billing stack integration
 - *(billing)* Add multi-product Stripe billing hub
+- *(account)* Add customer-facing /account page per namespace
 
 ### Fix
 
@@ -839,6 +840,7 @@
 - Remove 6 legacy marketing twig templates and dead code
 - *(wiki)* Move page namespace selector into accordion
 - [**breaking**] Rename project from sommerfest-quiz/quizrace to edocs-cloud/edocs.cloud
+- *(billing)* Simplify subscription page and add Stripe Pricing Table
 
 ### Revert
 
