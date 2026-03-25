@@ -6,7 +6,6 @@
 {% block title %}{{ t('admin_title') }}{% endblock %}
 
 {% block admin_head %}
-  <style>#adminSwitcher > li { display: none; } #adminSwitcher > li.uk-active { display: block; }</style>
   <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <script>
@@ -83,7 +82,7 @@
           {% if activeRoute == '' %}
             {% set activeRoute = 'dashboard' %}
           {% endif %}
-            <ul id="adminSwitcher" class="uk-margin" style="list-style:none;padding:0">
+            <ul id="adminSwitcher" class="uk-switcher uk-margin">
               <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
                 <div class="admin-section dashboard-container">
                   <h1 class="uk-heading-bullet">Willkommen {{ username }}</h1>
