@@ -158,9 +158,9 @@ class PagesDesignController
                     ->withStatus(303);
             }
 
+            $escapedPreset = htmlspecialchars($preset, ENT_QUOTES, 'UTF-8');
             try {
                 $designService->importDesign($namespace, $preset);
-                $escapedPreset = htmlspecialchars($preset, ENT_QUOTES, 'UTF-8');
                 $message = $translator instanceof \App\Service\TranslationService
                     ? sprintf($translator->translate('notify_design_preset_imported'), $escapedPreset)
                     : 'Design preset "' . $escapedPreset . '" imported successfully.';
