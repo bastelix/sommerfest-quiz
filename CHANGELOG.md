@@ -834,6 +834,7 @@
 - *(hero)* Replace fullscreen lightbox with framed modal overlay
 - Remove 6 legacy marketing twig templates and dead code
 - *(wiki)* Move page namespace selector into accordion
+- [**breaking**] Rename project from sommerfest-quiz/quizrace to edocs-cloud/edocs.cloud
 
 ### Style
 
