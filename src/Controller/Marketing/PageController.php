@@ -20,6 +20,7 @@ use App\Service\PageContentLoader;
 use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\ProjectSettingsService;
+use App\Service\NamespaceSubscriptionService;
 use App\Service\EventService;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
@@ -465,6 +466,8 @@ class PageController
             'turnstileSiteKey' => $marketingPayload['featureData']['turnstileSiteKey'],
             'featureFlags' => $pageFeatures,
             'marketingDesignDebug' => $marketingDesignDebug,
+            'pricingTableId' => $this->resolvePricingTableId($pageNamespace),
+            'stripePublishableKey' => $this->resolveStripePublishableKey(),
         ];
 
         return $view->render($response, 'pages/render.twig', $data);
@@ -1626,5 +1629,23 @@ class PageController
     private function resolveLocalizedSlug(string $baseSlug, string $locale): string
     {
         return MarketingSlugResolver::resolveLocalizedSlug($baseSlug, $locale);
+    }
+
+    private function resolveStripePublishableKey(): string
+    {
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $envKey = $useSandbox ? 'STRIPE_SANDBOX_PUBLISHABLE_KEY' : 'STRIPE_PUBLISHABLE_KEY';
+        return (string) (getenv($envKey) ?: '');
+    }
+
+    private function resolvePricingTableId(string $namespace): string
+    {
+        try {
+            $nsSvc = new NamespaceSubscriptionService($this->pdo);
+            $project = $nsSvc->findBySlug($namespace);
+            return (string) ($project['stripe_pricing_table_id'] ?? '');
+        } catch (\Throwable) {
+            return '';
+        }
     }
 }

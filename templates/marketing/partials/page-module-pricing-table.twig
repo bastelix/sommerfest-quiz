@@ -1,0 +1,33 @@
+{# Renders the "pricing-table" page module.
+   Expects: module (PageModule), pricingTableId (string), stripePublishableKey (string), namespace (string).
+   Config keys: heading (string), subheading (string). #}
+{% set moduleConfig = module.config|default({}) %}
+{% set heading = moduleConfig.heading|default('') %}
+{% set subheading = moduleConfig.subheading|default('') %}
+{% set tableId = pricingTableId|default('') %}
+{% set pubKey = stripePublishableKey|default('') %}
+
+{% if tableId and pubKey %}
+  <section class="marketing-section uk-section page-module-pricing-table"
+           data-page-module-id="{{ module.id|e('html_attr') }}"
+           data-page-module-type="pricing-table">
+    <div class="uk-container">
+      {% if heading %}
+        <div class="uk-text-center uk-margin-medium-bottom">
+          <h2 class="uk-heading-medium">{{ heading }}</h2>
+          {% if subheading %}
+            <p class="uk-text-lead uk-text-muted">{{ subheading }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <stripe-pricing-table
+        pricing-table-id="{{ tableId|e('html_attr') }}"
+        publishable-key="{{ pubKey|e('html_attr') }}"
+        client-reference-id="{{ namespace|default('')|e('html_attr') }}"
+      ></stripe-pricing-table>
+    </div>
+  </section>
+
+  <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+{% endif %}

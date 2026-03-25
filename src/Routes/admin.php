@@ -598,6 +598,46 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         '/admin/subscription/checkout/{id}',
         StripeSessionController::class
     )->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    // Billing hub settings (product, pricing table, webhook URL)
+    $app->post('/admin/subscription/billing-settings', function (Request $request, Response $response) {
+        $body = json_decode((string) $request->getBody(), true) ?: [];
+        $namespace = trim((string) ($body['namespace'] ?? ''));
+        if ($namespace === '') {
+            $response->getBody()->write('{"error":"namespace required"}');
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        $pdo = Database::connectFromEnv();
+        $nsSvc = new NamespaceSubscriptionService($pdo);
+
+        $nsSvc->updateBillingSettings($namespace, [
+            'product' => isset($body['product']) ? trim((string) $body['product']) : null,
+            'stripe_pricing_table_id' => isset($body['stripe_pricing_table_id']) ? trim((string) $body['stripe_pricing_table_id']) : null,
+            'webhook_url' => isset($body['webhook_url']) ? trim((string) $body['webhook_url']) : null,
+        ]);
+
+        $response->getBody()->write('{"ok":true}');
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
+    // Billing hub settings: read
+    $app->get('/admin/subscription/billing-settings', function (Request $request, Response $response) {
+        $namespace = trim((string) ($request->getQueryParams()['namespace'] ?? ''));
+        if ($namespace === '') {
+            $response->getBody()->write('{"error":"namespace required"}');
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        $pdo = Database::connectFromEnv();
+        $nsSvc = new NamespaceSubscriptionService($pdo);
+        $project = $nsSvc->findBySlug($namespace);
+
+        $response->getBody()->write((string) json_encode([
+            'product' => $project['product'] ?? '',
+            'stripe_pricing_table_id' => $project['stripe_pricing_table_id'] ?? '',
+            'webhook_url' => $project['webhook_url'] ?? '',
+        ]));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->post('/admin/profile', function (Request $request, Response $response) {
         $controller = new ProfileController();
         return $controller->update($request, $response);

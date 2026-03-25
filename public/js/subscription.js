@@ -335,10 +335,60 @@
 
   window.loadSubscription = loadSubscription;
 
+  // ── Billing Hub Settings ──
+  function loadBillingSettings() {
+    const container = document.querySelector('[data-billing-settings]');
+    if (!container) return;
+    const ns = getSelectedNamespace();
+    if (!ns) return;
+
+    window.apiFetch(withBase('/admin/subscription/billing-settings?namespace=' + encodeURIComponent(ns)))
+      .then(r => r.json())
+      .then(data => {
+        const product = container.querySelector('#billing-product');
+        const tableId = container.querySelector('#billing-pricing-table-id');
+        const webhookUrl = container.querySelector('#billing-webhook-url');
+        if (product) product.value = data.product || '';
+        if (tableId) tableId.value = data.stripe_pricing_table_id || '';
+        if (webhookUrl) webhookUrl.value = data.webhook_url || '';
+      })
+      .catch(() => {});
+  }
+
+  function initBillingSettings() {
+    const btn = document.getElementById('billing-settings-save');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      const ns = getSelectedNamespace();
+      if (!ns) return;
+      const container = document.querySelector('[data-billing-settings]');
+      if (!container) return;
+
+      const payload = {
+        namespace: ns,
+        product: (container.querySelector('#billing-product') || {}).value || '',
+        stripe_pricing_table_id: (container.querySelector('#billing-pricing-table-id') || {}).value || '',
+        webhook_url: (container.querySelector('#billing-webhook-url') || {}).value || '',
+      };
+
+      window.apiFetch(withBase('/admin/subscription/billing-settings'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then(r => r.json())
+        .then(() => { if (window.notify) window.notify('Billing-Einstellungen gespeichert.', 'success'); })
+        .catch(() => { if (window.notify) window.notify('Fehler beim Speichern.', 'danger'); });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     loadSubscription();
     loadInvoices();
     initPlanSelect();
     initNamespaceSelect();
+    loadBillingSettings();
+    initBillingSettings();
   });
 })();
