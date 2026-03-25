@@ -137,6 +137,17 @@ const IFRAME_INLINE_STYLES = `
     padding: 40px 20px;
     color: var(--text-muted, #6b7280);
   }
+  /* Neutralise viewport-height inside the preview iframe to prevent
+     a feedback loop between min-height: 80vh and the ResizeObserver
+     that syncs iframe.style.height = scrollHeight. */
+  .section[data-viewport-height] {
+    min-height: auto !important;
+    height: auto !important;
+  }
+  [uk-height-viewport] {
+    min-height: auto !important;
+    height: auto !important;
+  }
 `;
 
 const collectPreviewStylesheets = () => {
@@ -318,6 +329,21 @@ export class PreviewCanvas {
 
     if (this.iframeDoc?.documentElement) {
       this.iframeDoc.documentElement.dataset.namespace = namespace;
+
+      /* Propagate design-token data attributes to the iframe's <html> and
+         <body> so that CSS selectors like :root[data-typography-preset="…"]
+         and [data-preview-intent][data-card-style="…"] match correctly
+         inside the iframe document. */
+      const designAttrs = ['typographyPreset', 'cardStyle', 'buttonStyle'];
+      for (const attr of designAttrs) {
+        const val = this.surface.dataset[attr];
+        if (val) {
+          this.iframeDoc.documentElement.dataset[attr] = val;
+          if (this.iframeDoc.body) {
+            this.iframeDoc.body.dataset[attr] = val;
+          }
+        }
+      }
     }
 
     const html = renderPage(Array.isArray(this.visibleBlocks) ? this.visibleBlocks : [], {
