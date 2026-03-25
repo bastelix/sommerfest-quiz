@@ -1028,6 +1028,9 @@
         "subtitle": {
           "type": "string"
         },
+        "billingToggle": {
+          "$ref": "#/definitions/BillingCycleToggle"
+        },
         "options": {
           "type": "array",
           "items": {
@@ -1358,6 +1361,24 @@
         }
       }
     },
+    "BillingCycleToggle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "labelA",
+        "labelB"
+      ],
+      "properties": {
+        "labelA": {
+          "type": "string",
+          "minLength": 1
+        },
+        "labelB": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "PackagePlan": {
       "type": "object",
       "additionalProperties": false,
@@ -1390,6 +1411,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "priceA": {
+          "type": "string"
+        },
+        "priceB": {
+          "type": "string"
         },
         "primaryCta": {
           "$ref": "#/definitions/CallToAction"

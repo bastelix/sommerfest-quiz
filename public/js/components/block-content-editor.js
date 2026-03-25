@@ -3881,6 +3881,35 @@ export class BlockContentEditor {
     columnsField.append(columnsSelect);
     wrapper.append(columnsField);
 
+    // Billing cycle toggle config
+    const toggleEnabled = !!block.data.billingToggle;
+    const toggleGroup = document.createElement('div');
+    toggleGroup.className = 'uk-margin-small-top';
+
+    const toggleLabel = document.createElement('label');
+    toggleLabel.className = 'uk-flex uk-flex-middle';
+    const toggleCheckbox = document.createElement('input');
+    toggleCheckbox.type = 'checkbox';
+    toggleCheckbox.className = 'uk-checkbox uk-margin-small-right';
+    toggleCheckbox.checked = toggleEnabled;
+    toggleCheckbox.addEventListener('change', () => {
+      if (toggleCheckbox.checked) {
+        this.updateBlockData(block.id, ['data', 'billingToggle'], { labelA: '30 Tage', labelB: 'Monatlich' });
+      } else {
+        this.updateBlockData(block.id, ['data', 'billingToggle'], undefined);
+      }
+    });
+    const toggleText = document.createElement('span');
+    toggleText.textContent = 'Abrechnungszyklus-Toggle anzeigen';
+    toggleLabel.append(toggleCheckbox, toggleText);
+    toggleGroup.append(toggleLabel);
+
+    if (toggleEnabled) {
+      toggleGroup.append(this.addLabeledInput('Toggle Label A', block.data.billingToggle.labelA, value => this.updateBlockData(block.id, ['data', 'billingToggle', 'labelA'], value)));
+      toggleGroup.append(this.addLabeledInput('Toggle Label B', block.data.billingToggle.labelB, value => this.updateBlockData(block.id, ['data', 'billingToggle', 'labelB'], value)));
+    }
+    wrapper.append(toggleGroup);
+
     const optionsWrapper = document.createElement('div');
     optionsWrapper.dataset.field = 'options';
     optionsWrapper.className = 'collection-list';
@@ -3970,6 +3999,8 @@ export class BlockContentEditor {
         this.addLabeledInput('ID', plan.id, value => this.updatePackagePlan(block.id, plan.id, 'id', value)),
         this.addLabeledInput('Titel', plan.title, value => this.updatePackagePlan(block.id, plan.id, 'title', value)),
         this.addLabeledInput('Badge', plan.badge, value => this.updatePackagePlan(block.id, plan.id, 'badge', value)),
+        this.addLabeledInput('Preis A', plan.priceA, value => this.updatePackagePlan(block.id, plan.id, 'priceA', value)),
+        this.addLabeledInput('Preis B', plan.priceB, value => this.updatePackagePlan(block.id, plan.id, 'priceB', value)),
         this.addLabeledInput('Beschreibung', plan.description, value => this.updatePackagePlan(block.id, plan.id, 'description', value), { multiline: true }),
         this.buildStringList(plan.features, 'Feature', {
           add: () => this.addPackagePlanListItem(block.id, plan.id, 'features'),
@@ -7252,6 +7283,8 @@ export class BlockContentEditor {
         description: '',
         features: [],
         notes: [],
+        priceA: '',
+        priceB: '',
         primaryCta: { label: 'Mehr erfahren', href: '#' }
       });
       updated.data.plans = plans;

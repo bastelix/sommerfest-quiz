@@ -9058,3 +9058,42 @@ body.marketing-page.calhelp-theme[data-theme="high-contrast"] .calhelp-process__
 body.high-contrast .calhelp-process__criteria span {
     color: currentColor;
 }
+
+/* ── Billing cycle toggle (package_summary block) ── */
+
+.billing-toggle {
+    display: inline-flex;
+    border: 1px solid var(--marketing-accent, #1e87f0);
+    border-radius: 500px;
+    overflow: hidden;
+}
+
+.billing-toggle__btn {
+    padding: 0.5rem 1.25rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--marketing-accent, #1e87f0);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.billing-toggle__btn:hover {
+    background: color-mix(in oklab, var(--marketing-accent, #1e87f0) 10%, transparent);
+}
+
+.billing-toggle__btn--active {
+    background: var(--marketing-accent, #1e87f0);
+    color: #fff;
+}
+
+.billing-toggle__btn--active:hover {
+    background: var(--marketing-accent, #1e87f0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .billing-toggle__btn {
+        transition: none;
+    }
+}
