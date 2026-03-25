@@ -149,6 +149,9 @@ class AdminSubscriptionCheckoutController
             // Use namespace slug as client reference ID
             $clientReferenceId = $namespaceSlug;
 
+            // Resolve trial days from Stripe Product metadata (per-plan), env, or default
+            $trialDays = $service->getTrialDaysForPlan($plan->value);
+
             try {
                 $result = $service->createCheckoutSession(
                     $priceId,
@@ -158,7 +161,7 @@ class AdminSubscriptionCheckoutController
                     $customerId === '' ? $email : null,
                     $customerId !== '' ? $customerId : null,
                     $clientReferenceId,
-                    null,
+                    $trialDays,
                     $embedded
                 );
             } catch (\Throwable $e) {

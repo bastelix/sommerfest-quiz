@@ -62,6 +62,36 @@ enum Plan: string
     }
 
     /**
+     * Resolve limits for a plan key, preferring Stripe Product metadata over hardcoded values.
+     *
+     * Priority: Stripe metadata > plan_limits DB overrides (handled by caller) > hardcoded enum
+     *
+     * @return array<string,int>
+     */
+    public static function resolvedLimits(string $planKey): array
+    {
+        $planEnum = self::tryFrom($planKey);
+        $fallback = $planEnum !== null ? $planEnum->limits() : self::FREE->limits();
+
+        if (!\App\Service\StripeService::isConfigured()['ok']) {
+            return $fallback;
+        }
+
+        try {
+            $service = new \App\Service\StripeService();
+            $stripeLimits = $service->getProductLimits($planKey);
+            if ($stripeLimits !== null && $stripeLimits !== []) {
+                // Merge: Stripe limits override fallback, but keep any metrics not defined in Stripe
+                return array_merge($fallback, $stripeLimits);
+            }
+        } catch (\Throwable) {
+            // Fall back to hardcoded limits
+        }
+
+        return $fallback;
+    }
+
+    /**
      * @return list<string>
      */
     public static function allMetrics(): array

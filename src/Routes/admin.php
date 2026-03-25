@@ -598,6 +598,45 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         '/admin/subscription/checkout/{id}',
         StripeSessionController::class
     )->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    // Fetch available plans from Stripe Product metadata (with hardcoded fallback)
+    $app->get('/admin/subscription/plans', function (Request $request, Response $response) {
+        $config = StripeService::isConfigured();
+
+        if ($config['ok']) {
+            try {
+                $service = new StripeService();
+                $products = $service->listProducts();
+                if ($products !== []) {
+                    $response->getBody()->write((string) json_encode($products));
+                    return $response->withHeader('Content-Type', 'application/json');
+                }
+            } catch (\Throwable) {
+                // Fall through to hardcoded fallback
+            }
+        }
+
+        // Hardcoded fallback when Stripe is not configured or has no products with plan_key
+        $fallback = [];
+        foreach ([Plan::STARTER, Plan::STANDARD] as $plan) {
+            $limits = $plan->limits();
+            $fallback[] = [
+                'plan_key' => $plan->value,
+                'name' => ucfirst($plan->value),
+                'description' => '',
+                'price' => 0,
+                'currency' => 'eur',
+                'interval' => 'month',
+                'price_id' => StripeService::priceIdForPlan($plan->value),
+                'features' => [],
+                'limits' => $limits,
+                'highlighted' => $plan === Plan::STANDARD,
+                'sort_order' => $plan === Plan::STARTER ? 1 : 2,
+            ];
+        }
+
+        $response->getBody()->write((string) json_encode($fallback));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     // Billing hub settings (product, pricing table, webhook URL)
     $app->post('/admin/subscription/billing-settings', function (Request $request, Response $response) {
         $body = json_decode((string) $request->getBody(), true) ?: [];

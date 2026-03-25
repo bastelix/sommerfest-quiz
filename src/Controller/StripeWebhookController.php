@@ -134,6 +134,14 @@ class StripeWebhookController
                         'stripe_current_period_end' => $currentEnd,
                         'stripe_cancel_at_period_end' => $cancelAtPeriodEnd,
                     ]);
+                    // Sync to namespace_projects
+                    $this->syncNamespaceSubscription($customerId, [
+                        'stripe_sub_id' => (string) ($object['id'] ?? ''),
+                        'stripe_price_id' => $priceId !== '' ? $priceId : null,
+                        'stripe_status' => $status !== '' ? $status : null,
+                        'stripe_current_period_end' => $currentEnd,
+                        'stripe_cancel_at_period_end' => $cancelAtPeriodEnd,
+                    ], $plan);
                 }
                 break;
             case 'customer.subscription.deleted':
@@ -143,6 +151,11 @@ class StripeWebhookController
                         'plan' => null,
                         'stripe_status' => 'canceled',
                     ]);
+                    // Sync to namespace_projects
+                    $this->syncNamespaceSubscription($customerId, [
+                        'stripe_status' => 'canceled',
+                        'stripe_cancel_at_period_end' => 0,
+                    ], 'free');
                 }
                 break;
         }
@@ -151,6 +164,28 @@ class StripeWebhookController
         $this->forwardToProduct($type, $object, $logger);
 
         return $response->withStatus(200);
+    }
+
+    /**
+     * Sync subscription data to namespace_projects by Stripe customer ID.
+     *
+     * @param array<string,mixed> $stripeData
+     */
+    private function syncNamespaceSubscription(string $customerId, array $stripeData, ?string $plan): void
+    {
+        try {
+            $pdo = Database::connectFromEnv();
+            $nsSvc = new NamespaceSubscriptionService($pdo);
+            $project = $nsSvc->findByStripeCustomerId($customerId);
+            if ($project !== null) {
+                $nsSvc->updateStripeInfo($project['slug'], $stripeData);
+                if ($plan !== null) {
+                    $nsSvc->updatePlan($project['slug'], $plan);
+                }
+            }
+        } catch (\Throwable) {
+            // Best-effort sync
+        }
     }
 
     /**

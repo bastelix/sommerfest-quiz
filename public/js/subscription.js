@@ -322,13 +322,124 @@
     });
   }
 
+  async function loadPlans() {
+    const container = document.getElementById('plan-cards');
+    if (!container) return;
+
+    try {
+      const res = await fetch(withBase('/admin/subscription/plans'));
+      if (!res.ok) return;
+      const plans = await res.json();
+      if (!Array.isArray(plans) || !plans.length) return;
+
+      container.textContent = '';
+
+      const grid = document.createElement('div');
+      grid.className = 'uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m uk-grid-match';
+      grid.setAttribute('uk-grid', '');
+
+      const currentPlan = window.currentSubscriptionPlan || null;
+
+      for (const plan of plans) {
+        const col = document.createElement('div');
+        const card = document.createElement('div');
+        card.className = 'uk-card qr-card uk-card-body pricing-plan-card';
+        card.setAttribute('data-plan-card', plan.plan_key);
+        if (currentPlan === plan.plan_key) {
+          card.classList.add('pricing-plan-card--active');
+        }
+
+        // Plan name
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'uk-text-bold uk-text-large';
+        nameDiv.textContent = plan.name;
+        card.appendChild(nameDiv);
+
+        // Price
+        if (plan.price > 0) {
+          const priceDiv = document.createElement('div');
+          priceDiv.className = 'pricing-plan-price';
+          const formattedPrice = fmtAmount(plan.price, plan.currency);
+          const intervalLabel = plan.interval === 'year' ? '/Jahr' : '/Monat';
+          priceDiv.innerHTML = formattedPrice + '<span class="uk-text-meta">' + intervalLabel + '</span>';
+          card.appendChild(priceDiv);
+        }
+
+        // Description
+        if (plan.description) {
+          const descDiv = document.createElement('div');
+          descDiv.className = 'uk-text-meta uk-margin-small-top';
+          descDiv.textContent = plan.description;
+          card.appendChild(descDiv);
+        }
+
+        // Feature list
+        if (plan.features && plan.features.length) {
+          const ul = document.createElement('ul');
+          ul.className = 'uk-list uk-list-bullet uk-text-small uk-margin-small-top';
+          for (const feature of plan.features) {
+            const li = document.createElement('li');
+            li.textContent = feature;
+            ul.appendChild(li);
+          }
+          card.appendChild(ul);
+        }
+
+        // Trial badge
+        if (plan.trial_days && plan.trial_days > 0) {
+          const trialDiv = document.createElement('div');
+          trialDiv.className = 'uk-margin-small-top';
+          const trialBadge = document.createElement('span');
+          trialBadge.className = 'uk-label uk-label-success';
+          trialBadge.style.fontSize = '0.75rem';
+          const trialLabel = container.dataset.labelTrial || '{n} Tage kostenlos testen';
+          trialBadge.textContent = trialLabel.replace('{n}', plan.trial_days);
+          trialDiv.appendChild(trialBadge);
+          card.appendChild(trialDiv);
+        }
+
+        // Select button
+        const btn = document.createElement('button');
+        btn.className = plan.highlighted
+          ? 'uk-button uk-button-primary uk-width-1-1 plan-select uk-margin-small-top'
+          : 'uk-button uk-button-default uk-width-1-1 plan-select uk-margin-small-top';
+        btn.setAttribute('data-plan', plan.plan_key);
+
+        const actionLabel = container.dataset.actionStart || 'Abo starten';
+        const currentLabel = container.dataset.labelCurrent || 'Aktueller Plan';
+
+        if (currentPlan === plan.plan_key) {
+          btn.textContent = currentLabel;
+          btn.disabled = true;
+          btn.classList.add('uk-disabled');
+        } else {
+          btn.textContent = actionLabel;
+        }
+
+        card.appendChild(btn);
+        col.appendChild(card);
+        grid.appendChild(col);
+      }
+
+      container.appendChild(grid);
+
+      // Bind click handlers on dynamically created buttons
+      initPlanSelect();
+
+    } catch (e) {
+      console.error('Failed to load plans', e);
+    }
+  }
+
   function initNamespaceSelect() {
     const select = document.getElementById('subscriptionNamespaceSelect');
     if (!select) return;
 
     select.addEventListener('change', () => {
       window.subscriptionNamespace = select.value;
-      loadSubscription();
+      loadSubscription().then(() => {
+        loadPlans();
+      });
       loadInvoices();
     });
   }
@@ -384,7 +495,9 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    loadSubscription();
+    loadSubscription().then(() => {
+      loadPlans();
+    });
     loadInvoices();
     initPlanSelect();
     initNamespaceSelect();
