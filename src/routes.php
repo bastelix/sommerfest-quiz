@@ -155,7 +155,6 @@ use App\Controller\GoogleAuthController;
 use App\Controller\CatalogSessionController;
 use App\Controller\PlayerContactController;
 use App\Controller\PlayerSessionController;
-use App\Controller\LagoWebhookController;
 use App\Controller\StripeCheckoutController;
 use App\Controller\StripeSessionController;
 use App\Controller\StripeWebhookController;
@@ -1267,7 +1266,6 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/onboarding/checkout/{id}', StripeSessionController::class);
     $app->post('/onboarding/checkout/{id}/cancel', [SubscriptionController::class, 'cancelOnboardingCheckout']);
     $app->post('/stripe/webhook', StripeWebhookController::class);
-    $app->post('/lago/webhook', LagoWebhookController::class);
     $app->get('/login', [LoginController::class, 'show']);
     $app->post('/login', [LoginController::class, 'login'])
         ->add(new RateLimitMiddleware(3, 3600))

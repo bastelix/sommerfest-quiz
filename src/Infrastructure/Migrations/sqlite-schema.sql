@@ -1,7 +1,6 @@
 -- SQLite schema for tests
 -- This script sets up the database schema in a SQLite-compatible way
 -- 20300111: data-only migration (rename quizrace.app → edocs.cloud in domains) — no schema change needed
--- 20300112: add Lago billing fields to namespace_projects
 
 CREATE TABLE IF NOT EXISTS migrations (
     version TEXT PRIMARY KEY
@@ -943,10 +942,6 @@ CREATE TABLE IF NOT EXISTS namespace_projects (
     stripe_status TEXT,
     stripe_current_period_end TEXT,
     stripe_cancel_at_period_end INTEGER DEFAULT 0,
-    lago_customer_id TEXT,
-    lago_subscription_id TEXT,
-    lago_plan_code TEXT,
-    lago_status TEXT,
     status TEXT DEFAULT 'active',
     design_config TEXT DEFAULT '{}',
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
