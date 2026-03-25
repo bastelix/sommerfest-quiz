@@ -73,7 +73,7 @@
 /* Article header title (detail page) */
 .wiki-article-header__title {
   font-family: var(--wm-font);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--wm-text-heading);
@@ -83,7 +83,7 @@
 
 /* Article headings – Material-style hierarchy */
 .wiki-article-content h1 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--wm-text-heading);
@@ -94,7 +94,7 @@
 }
 
 .wiki-article-content h2 {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--wm-text-heading);
@@ -104,7 +104,7 @@
 }
 
 .wiki-article-content h3 {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   color: var(--wm-text-heading);
   margin: 1.5rem 0 0.5rem;
@@ -136,8 +136,13 @@
   letter-spacing: 0.05em;
 }
 
+/* Hide duplicate title – the article header already shows the title */
+.wiki-article-content > h1:first-child {
+  display: none;
+}
+
 /* Fix first heading margin */
-.wiki-article-content > h1:first-child,
+.wiki-article-content > h1:first-child + *,
 .wiki-article-content > h2:first-child,
 .wiki-article-content > h3:first-child {
   margin-top: 0;
