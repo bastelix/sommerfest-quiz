@@ -66,7 +66,7 @@
 
 {% block body %}
   {% include 'marketing/partials/design-data.twig' %}
-  <div class="wiki-layout">
+  <div class="wiki-layout{% if cmsMainNavigation is defined and cmsMainNavigation is not empty %} wiki-layout--has-topbar{% endif %}">
     {# ── Mobile sidebar overlay + toggle ── #}
     <div class="wiki-sidebar-overlay"></div>
     <button class="wiki-sidebar-toggle" aria-label="Navigation öffnen">
