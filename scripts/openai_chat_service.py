@@ -1,4 +1,4 @@
-"""Minimal HTTP chat relay for QuizRace RAG chatbot.
+"""Minimal HTTP chat relay for edocs RAG chatbot.
 
 This service accepts the same payload as :class:`HttpChatResponder` sends from
 our Symfony application.  It validates the bearer token, enriches the prompt
@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field, validator
 
 LOGGER = logging.getLogger(__name__)
 
-app = FastAPI(title="QuizRace RAG Chat Service")
+app = FastAPI(title="edocs RAG Chat Service")
 
 
 class ChatMessage(BaseModel):

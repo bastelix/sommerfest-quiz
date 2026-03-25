@@ -23,7 +23,7 @@ class HealthzEndpointTest extends TestCase
             }
             $payload = [
                 'status'  => 'ok',
-                'app'     => 'quizrace',
+                'app'     => 'edocs',
                 'version' => $version,
                 'time'    => gmdate('c'),
             ];
@@ -42,7 +42,7 @@ class HealthzEndpointTest extends TestCase
         $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
         $data = json_decode((string) $res->getBody(), true);
         $this->assertSame('ok', $data['status'] ?? null);
-        $this->assertSame('quizrace', $data['app'] ?? null);
+        $this->assertSame('edocs', $data['app'] ?? null);
         $time = $data['time'] ?? '';
         $dt = \DateTimeImmutable::createFromFormat(DATE_ATOM, $time);
         $this->assertNotFalse($dt);

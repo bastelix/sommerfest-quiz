@@ -17,14 +17,14 @@ jobs:
           script: |
             set -euo pipefail
 
-            cd /var/sommerfest-quiz
+            cd /var/edocs-cloud
             if ! git diff --quiet; then
               echo "Uncommitted changes detected. Stash or commit them before proceeding."
               exit 1
             fi
             git pull --ff-only
 
-            docker build -t sommerfest-quiz:latest .
+            docker build -t edocs-cloud:latest .
 
             if [ -f .env ]; then
               export $(grep -v '^#' .env | xargs)
@@ -36,7 +36,7 @@ jobs:
               docker run --rm \
                 --env-file .env \
                 --network webproxy \
-                sommerfest-quiz:latest \
+                edocs-cloud:latest \
                 php scripts/run_migrations.php
             fi
 

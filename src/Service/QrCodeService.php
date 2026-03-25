@@ -72,7 +72,7 @@ class QrCodeService
      */
     public function generateCatalog(array $q, array $cfg = []): array {
         $defaults = [
-            't' => 'https://quizrace.app/?katalog=station',
+            't' => 'https://edocs.cloud/?katalog=station',
             'fg' => ltrim((string)($cfg['qrColorCatalog'] ?? 'dc0000'), '#'),
         ];
         $defaults = $this->mergeDesignDefaults($defaults, $cfg);
@@ -96,7 +96,7 @@ class QrCodeService
      */
     public function generateEvent(array $q, array $cfg = []): array {
         $defaults = [
-            't' => 'https://quizrace.app/?event=station',
+            't' => 'https://edocs.cloud/?event=station',
             'fg' => ltrim((string)($cfg['qrColorEvent'] ?? '00a65a'), '#'),
         ];
         $defaults = $this->mergeDesignDefaults($defaults, $cfg);

@@ -12,11 +12,11 @@ class EffectsPolicyService
             'label' => 'Ruhig & sachlich',
             'description' => 'Für informationslastige, professionelle Seiten',
         ],
-        'quizrace.calm' => [
+        'edocs.calm' => [
             'label' => 'Dezent lebendig',
             'description' => 'Sanfte Übergänge ohne Ablenkung',
         ],
-        'quizrace.marketing' => [
+        'edocs.marketing' => [
             'label' => 'Lebendig & aufmerksamkeitsstark',
             'description' => 'Marketing-orientiert, dynamisch',
         ],
@@ -113,10 +113,10 @@ class EffectsPolicyService
 
     public function getSuggestedSliderProfile(string $effectsProfile): string
     {
-        if ($effectsProfile === 'quizrace.marketing') {
+        if ($effectsProfile === 'edocs.marketing') {
             return 'marketing';
         }
-        if ($effectsProfile === 'quizrace.calm') {
+        if ($effectsProfile === 'edocs.calm') {
             return 'calm';
         }
 

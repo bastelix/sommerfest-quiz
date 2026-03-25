@@ -322,7 +322,7 @@ class CmsPageNamespaceDesignTest extends TestCase
 
         $effectsPolicy = $this->createMock(EffectsPolicyService::class);
         $effectsPolicy->method('getEffectsForNamespace')->willReturn([
-            'effectsProfile' => 'quizrace.calm',
+            'effectsProfile' => 'edocs.calm',
             'sliderProfile' => 'static',
         ]);
 

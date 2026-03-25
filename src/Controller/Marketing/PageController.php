@@ -1433,7 +1433,7 @@ class PageController
 
         $normalized = $this->normalizeNewsletterSlug($identifier);
         $brands = [
-            'landing' => 'QuizRace',
+            'landing' => 'edocs',
             'calserver' => 'calServer',
             'calhelp' => 'calHelp',
             'future-is-green' => 'Future is Green',
@@ -1454,7 +1454,7 @@ class PageController
             return $brands['future-is-green'];
         }
 
-        return 'QuizRace';
+        return 'edocs';
     }
 
     private function extractContactEndpointSlug(string $html): ?string
@@ -1480,7 +1480,7 @@ class PageController
     {
         $normalizedBrand = trim((string) $brand);
         if ($normalizedBrand === '') {
-            $normalizedBrand = 'QuizRace';
+            $normalizedBrand = 'edocs';
         }
 
         $language = strtolower(substr($locale, 0, 2));

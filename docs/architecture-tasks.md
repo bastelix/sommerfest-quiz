@@ -1,4 +1,4 @@
-# Aufgabenliste – Architektur-Professionalisierung QuizRace
+# Aufgabenliste – Architektur-Professionalisierung edocs
 
 > Priorisierte Aufgabenliste zur Behebung der im Architecture Review identifizierten
 > Unzulänglichkeiten. Jede Phase baut auf der vorherigen auf. Innerhalb einer Phase
@@ -114,11 +114,11 @@ bereits ohne `require_once`. Die 73 Statements (Zeilen 173-245) sind Legacy-Arte
 
 ### 1.3 Kubernetes Health-Probes ergänzen
 
-**Problem:** `helm/sommerfest-quiz/templates/deployment.yaml` hat keine Liveness-/Readiness-Probes.
+**Problem:** `helm/edocs-cloud/templates/deployment.yaml` hat keine Liveness-/Readiness-Probes.
 Ein hängender PHP-Prozess würde nicht automatisch neu gestartet.
 
 **Betroffene Stelle:**
-- `helm/sommerfest-quiz/templates/deployment.yaml`
+- `helm/edocs-cloud/templates/deployment.yaml`
 
 **Aufgabe:**
 - [ ] `livenessProbe` ergänzen: HTTP GET `/healthz` (Route existiert bereits in routes.php)
@@ -131,7 +131,7 @@ Ein hängender PHP-Prozess würde nicht automatisch neu gestartet.
 
 ### 1.4 `db-init-job.yaml` Schema-Referenz korrigieren
 
-**Problem:** `helm/sommerfest-quiz/templates/db-init-job.yaml` referenziert `docs/schema.sql`,
+**Problem:** `helm/edocs-cloud/templates/db-init-job.yaml` referenziert `docs/schema.sql`,
 eine Datei die nicht eindeutig für diesen Zweck existiert.
 
 **Aufgabe:**

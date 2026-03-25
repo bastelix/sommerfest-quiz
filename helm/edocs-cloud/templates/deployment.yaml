@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "sommerfest-quiz.fullname" . }}
+  name: {{ include "edocs-cloud.fullname" . }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ include "sommerfest-quiz.name" . }}
+      app: {{ include "edocs-cloud.name" . }}
   template:
     metadata:
       labels:
-        app: {{ include "sommerfest-quiz.name" . }}
+        app: {{ include "edocs-cloud.name" . }}
     spec:
       containers:
         - name: app
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- $marketingSslSecretName := default (printf "%s-marketing-ssl" (include "sommerfest-quiz.fullname" .)) .Values.marketingSsl.existingSecret }}
+          {{- $marketingSslSecretName := default (printf "%s-marketing-ssl" (include "edocs-cloud.fullname" .)) .Values.marketingSsl.existingSecret }}
           {{- if or .Values.marketingSsl.apiToken .Values.marketingSsl.existingSecret }}
           envFrom:
             - secretRef:
@@ -24,7 +24,7 @@ spec:
           {{- end }}
           env:
             - name: POSTGRES_DSN
-              value: "pgsql:host={{ include \"sommerfest-quiz.fullname\" . }}-postgresql;dbname={{ .Values.database.name }}"
+              value: "pgsql:host={{ include \"edocs-cloud.fullname\" . }}-postgresql;dbname={{ .Values.database.name }}"
             - name: POSTGRES_USER
               value: {{ .Values.database.user | quote }}
             - name: POSTGRES_PASSWORD
@@ -82,7 +82,7 @@ spec:
         - name: data
 {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ include "sommerfest-quiz.fullname" . }}-data
+            claimName: {{ include "edocs-cloud.fullname" . }}-data
 {{- else }}
           emptyDir: {}
 {{- end }}

@@ -122,7 +122,7 @@ final class CmsLayoutDataService
             ? trim((string) $settings['header_logo_label'])
             : '';
         if ($label === '') {
-            $label = $alt !== '' ? $alt : 'QuizRace';
+            $label = $alt !== '' ? $alt : 'edocs';
         }
         if ($alt === '') {
             $alt = $label;

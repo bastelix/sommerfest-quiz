@@ -20,7 +20,7 @@ final class MarketingProxySyncService
     private const CERT_DIR = '/etc/nginx/certs';
     private const WEBROOT = '/usr/share/nginx/html';
     private const CONF_PREFIX = 'marketing_';
-    private const UPSTREAM = 'http://slim-1:8080';
+    private const UPSTREAM = 'http://edocs-app:8080';
 
     private PDO $pdo;
     private string $confDir;

@@ -1,4 +1,4 @@
-# Block System Design for QuizRace & calServer Pages
+# Block System Design for edocs & calServer Pages
 
 ## Phase 1 – Page Structure Analysis
 **Recurring patterns across pages**
@@ -8,7 +8,7 @@
 - Calls to action repeated mid-page and/or near the end.
 - Informational sections with mixed media (text + imagery/illustrations) to explain how the product works.
 
-**QuizRace-specific patterns**
+**edocs-specific patterns**
 - Multi-segment feature storytelling: “How it works” step flow and repeated callouts for events, schools, and companies.
 - Gamification proof points: usage stats, highlights of competitive play, and quick-start guidance.
 - Package-like summaries for different buyer types (e.g., event kit, class module, team-builder), often with distinct CTAs per audience.
@@ -32,76 +32,76 @@
 1. **hero** – Introduces the page with headline, subhead, primary/secondary CTAs, optional media. Used by both.
 2. **feature_list** – Lists key benefits or capabilities with optional icons/media. Used by both.
 3. **process_steps** – Explains a workflow or journey in ordered steps. Used by both.
-4. **audience_spotlight** – Highlights specific audiences/use cases with tailored copy and CTAs. Used mainly by QuizRace, optional for calServer case studies.
+4. **audience_spotlight** – Highlights specific audiences/use cases with tailored copy and CTAs. Used mainly by edocs, optional for calServer case studies.
 5. **proof** – Conveys trust via logos, testimonials, quotes, metrics. Used by both.
-6. **package_summary** – Presents grouped offerings or bundles (pricing-like without amounts). Used by QuizRace, optional for calServer service tiers.
+6. **package_summary** – Presents grouped offerings or bundles (pricing-like without amounts). Used by edocs, optional for calServer service tiers.
 7. **info_media** – Mixed content section pairing narrative text with imagery/video/diagram. Used by both.
 8. **cta** – Focused call-to-action block to drive sign-up/demo/contact. Used by both.
-9. **stat_strip** – Concise numeric highlights in a bar/cluster. Used by QuizRace (engagement stats) and calServer (uptime/compliance metrics).
-10. **faq** – Collapsible list of questions/answers for objections. Used by calServer, optional on QuizRace.
+9. **stat_strip** – Concise numeric highlights in a bar/cluster. Used by edocs (engagement stats) and calServer (uptime/compliance metrics).
+10. **faq** – Collapsible list of questions/answers for objections. Used by calServer, optional on edocs.
 
 ## Phase 3 – Variant Design
 **hero**
-- `centered-cta` – Central text and buttons for quick action; QuizRace uses for excitement entry.
+- `centered-cta` – Central text and buttons for quick action; edocs uses for excitement entry.
 - `media-right` – Narrative left, media right to showcase product UI; calServer uses to show dashboards.
-- `minimal` – Reduced chrome for focused message; can fit short-form QuizRace or calServer campaigns.
+- `minimal` – Reduced chrome for focused message; can fit short-form edocs or calServer campaigns.
 
 **feature_list**
-- `grid-icons` – Icon + short description per item to scan benefits; QuizRace uses for playful advantages, calServer for capability overview.
+- `grid-icons` – Icon + short description per item to scan benefits; edocs uses for playful advantages, calServer for capability overview.
 - `text-columns` – Two-column bullet/text lists when icons are unnecessary; calServer uses for technical features.
-- `card-stack` – Stacked cards with deeper copy per item; QuizRace uses for audience-specific messaging.
+- `card-stack` – Stacked cards with deeper copy per item; edocs uses for audience-specific messaging.
 
 **process_steps**
-- `numbered-horizontal` – Linear steps for quick how-it-works overview; QuizRace onboarding flow.
+- `numbered-horizontal` – Linear steps for quick how-it-works overview; edocs onboarding flow.
 - `numbered-vertical` – Detailed vertical steps with room for copy; calServer calibration workflow.
-- `media-per-step` – Each step paired with image; QuizRace demo flow, calServer device lifecycle.
+- `media-per-step` – Each step paired with image; edocs demo flow, calServer device lifecycle.
 
 **audience_spotlight**
-- `tiles` – Parallel tiles for multiple audiences (events/schools/companies); QuizRace primary use.
-- `carousel` – Optional rotating spotlights when space is constrained; secondary for QuizRace.
+- `tiles` – Parallel tiles for multiple audiences (events/schools/companies); edocs primary use.
+- `carousel` – Optional rotating spotlights when space is constrained; secondary for edocs.
 - `single-focus` – One audience deep dive; calServer could use for a key industry case study.
 
 **proof**
 - `logo-row` – Partner/customer logos; both use.
 - `testimonial-card` – Quote with attribution and optional portrait; both use.
-- `metric-callout` – Bold stats to reinforce value; QuizRace engagement, calServer reliability.
+- `metric-callout` – Bold stats to reinforce value; edocs engagement, calServer reliability.
 
 **package_summary**
-- `comparison-cards` – Parallel cards describing bundles without prices; QuizRace event vs. school vs. company kits.
+- `comparison-cards` – Parallel cards describing bundles without prices; edocs event vs. school vs. company kits.
 - `accordion-detail` – Expandable detail per package; calServer service tiers with compliance notes.
-- `highlighted-pick` – Emphasises a recommended option; QuizRace most-popular kit.
+- `highlighted-pick` – Emphasises a recommended option; edocs most-popular kit.
 
 **info_media**
 - `image-left` – Media left, text right; calServer deep feature explainer.
-- `image-right` – Media right, text left; QuizRace gameplay visuals.
+- `image-right` – Media right, text left; edocs gameplay visuals.
 - `stacked` – Text then media for mobile-first storytelling; both use.
 
 **cta**
 - `full-width` – Strong bar with single CTA; both use as footer prompt.
-- `split` – Text + dual CTAs (demo/contact); calServer uses for sales/demo, QuizRace for play now vs. learn more.
-- `inline` – Lightweight CTA embedded between sections; QuizRace mid-page prompt.
+- `split` – Text + dual CTAs (demo/contact); calServer uses for sales/demo, edocs for play now vs. learn more.
+- `inline` – Lightweight CTA embedded between sections; edocs mid-page prompt.
 
 **stat_strip**
 - `three-up` – Three to four concise metrics in a row; both use.
-- `marquee` – Scrolling/clustered numbers for energy; QuizRace excitement.
+- `marquee` – Scrolling/clustered numbers for energy; edocs excitement.
 - `paired` – Two larger stats for credibility; calServer uptime/compliance.
 
 **faq**
 - `accordion` – Standard expand/collapse list; both can use where included.
-- `compact-list` – Short Q&A bullets for quick objections; QuizRace quick answers.
+- `compact-list` – Short Q&A bullets for quick objections; edocs quick answers.
 
 ## Phase 4 – Design Tokens
-Tokens influence renderer styling without entering block content. Each block references tokens; renderer applies theme per brand (QuizRace vs. calServer).
+Tokens influence renderer styling without entering block content. Each block references tokens; renderer applies theme per brand (edocs vs. calServer).
 - **background:** `default` | `muted` | `primary`
 - **spacing:** `small` | `normal` | `large`
 - **width:** `narrow` | `normal` | `wide`
 - **columns (where applicable):** `single` | `two` | `three` | `four`
-- **accent palette:** `brandA` | `brandB` (mapped to QuizRace/calServer tones)
+- **accent palette:** `brandA` | `brandB` (mapped to edocs/calServer tones)
 
 Render logic: tokens pick section padding, background color, and max-width, while variants control structure; content stays semantic and UIkit-free.
 
 ## Phase 5 – Page Mapping
-### 1) Typical QuizRace Landing Page
+### 1) Typical edocs Landing Page
 1. `hero` – `centered-cta` (wide, primary background) to invite play/signup.
 2. `stat_strip` – `marquee` (normal width) to show engagement numbers.
 3. `feature_list` – `grid-icons` (wide) for fun benefits.

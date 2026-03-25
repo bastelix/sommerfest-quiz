@@ -109,7 +109,7 @@ class DesignImportTest extends TestCase
                 'brand' => ['primary' => '#222222'],
             ],
             'effects' => [
-                'effectsProfile' => 'quizrace.calm',
+                'effectsProfile' => 'edocs.calm',
                 'sliderProfile' => 'calm',
             ],
         ];
@@ -126,7 +126,7 @@ class DesignImportTest extends TestCase
 
         $result = $service->importDesign('effect-ns', 'effects-preset');
 
-        $this->assertSame('quizrace.calm', $result['effects']['effectsProfile']);
+        $this->assertSame('edocs.calm', $result['effects']['effectsProfile']);
         $this->assertSame('calm', $result['effects']['sliderProfile']);
     }
 

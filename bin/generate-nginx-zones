@@ -14,7 +14,7 @@ EnvLoader::loadAndSet(__DIR__ . '/../.env');
 
 $configDir = getenv('NGINX_WILDCARD_CONF_DIR') ?: '/etc/nginx/wildcards';
 $certificateDir = getenv('NGINX_WILDCARD_CERT_DIR') ?: '/etc/ssl/wildcards';
-$upstream = getenv('NGINX_WILDCARD_UPSTREAM') ?: 'http://slim-1:8080';
+$upstream = getenv('NGINX_WILDCARD_UPSTREAM') ?: 'http://edocs-app:8080';
 $dnsProvider = AcmeDnsProvider::fromEnv();
 
 $pdo = Database::connectFromEnv();

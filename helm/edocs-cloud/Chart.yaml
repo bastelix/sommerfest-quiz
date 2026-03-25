@@ -1,0 +1,4 @@
+apiVersion: v2
+name: edocs-cloud
+version: 0.2.0
+description: Helm chart to deploy the edocs.cloud application with PostgreSQL

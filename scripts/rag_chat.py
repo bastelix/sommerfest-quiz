@@ -180,7 +180,7 @@ def main() -> None:
         min_score=args.min_score,
     )
 
-    print("QuizRace RAG-Chatbot – Tippe 'quit' oder 'exit' zum Beenden.")
+    print("edocs RAG-Chatbot – Tippe 'quit' oder 'exit' zum Beenden.")
     while True:
         try:
             user_input = input("Du: ")

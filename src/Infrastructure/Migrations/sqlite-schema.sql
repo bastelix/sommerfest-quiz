@@ -1,5 +1,6 @@
 -- SQLite schema for tests
 -- This script sets up the database schema in a SQLite-compatible way
+-- 20300111: data-only migration (rename quizrace.app → edocs.cloud in domains) — no schema change needed
 
 CREATE TABLE IF NOT EXISTS migrations (
     version TEXT PRIMARY KEY
@@ -625,7 +626,7 @@ CREATE INDEX IF NOT EXISTS idx_marketing_newsletter_configs_slug
     ON marketing_newsletter_configs(namespace, slug);
 
 INSERT INTO marketing_newsletter_configs (namespace, slug, position, label, url, style) VALUES
-    ('default', 'landing', 0, 'QuizRace entdecken', '/landing', 'primary'),
+    ('default', 'landing', 0, 'edocs entdecken', '/landing', 'primary'),
     ('default', 'landing', 1, 'Kontakt aufnehmen', '/landing#contact-us', 'secondary'),
     ('default', 'calserver', 0, 'Mehr über calServer', '/calserver', 'primary'),
     ('default', 'calserver', 1, 'Demo anfragen', '/calserver#contact', 'secondary'),

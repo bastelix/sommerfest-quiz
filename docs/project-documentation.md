@@ -1,4 +1,4 @@
-# QuizRace – Projektdokumentation für Marketing-Website
+# edocs – Projektdokumentation für Marketing-Website
 
 > **Zweck dieses Dokuments:** Diese Dokumentation ist ein eigenständiges Briefing, das alle
 > Informationen enthält, die ein KI-Assistent benötigt, um ein vollständiges Konzept für eine
@@ -17,25 +17,25 @@
 
 | Feld | Wert |
 |---|---|
-| **Produktname** | QuizRace |
+| **Produktname** | edocs |
 | **Interner Projektname** | Sommerfest-Quiz |
 | **Inhaber** | René Buske, Weidenbusch 8, 14532 Kleinmachnow, Deutschland |
 | **USt-IdNr.** | DE 259645623 |
-| **Domain** | quizrace.app |
-| **Kontakt** | support@quizrace.app |
+| **Domain** | edocs.cloud |
+| **Kontakt** | support@edocs.cloud |
 | **Lizenz** | Proprietär – kommerzielle Nutzung erlaubt. Alle Rechte bei René Buske. |
 | **Version** | 0.9.18 |
 
-### 1.2 Was ist QuizRace?
+### 1.2 Was ist edocs?
 
-QuizRace ist eine **sofort einsetzbare Web-App**, mit der Veranstalter Besucherinnen und
+edocs ist eine **sofort einsetzbare Web-App**, mit der Veranstalter Besucherinnen und
 Besucher spielerisch an Events beteiligen. Spieler scannen QR-Codes an physischen Stationen,
 beantworten Quizfragen direkt im Browser und sehen ihre Platzierung in einer Echtzeit-Rangliste.
 Hosts steuern das gesamte Geschehen aus einem zentralen Live-Dashboard.
 
-**Kernproblem, das QuizRace löst:** Klassische Event-Unterhaltung (Papierfragebögen,
+**Kernproblem, das edocs löst:** Klassische Event-Unterhaltung (Papierfragebögen,
 aufwändige Rallye-Organisation) ist zeitintensiv, schwer auswertbar und wenig interaktiv.
-QuizRace digitalisiert diesen Prozess komplett: Fragen erstellen, QR-Sticker drucken, Event
+edocs digitalisiert diesen Prozess komplett: Fragen erstellen, QR-Sticker drucken, Event
 starten – fertig. Ergebnisse fließen automatisch in eine Live-Rangliste.
 
 ### 1.3 Zielgruppen
@@ -71,7 +71,7 @@ starten – fertig. Ergebnisse fließen automatisch in eine Live-Rangliste.
 ```
 
 > **Fertig für Sommerfest, Unterricht oder Messe.**
-> QuizRace bleibt leichtgewichtig: Browser-Link teilen, Spiel starten,
+> edocs bleibt leichtgewichtig: Browser-Link teilen, Spiel starten,
 > Live-Ergebnisse projizieren oder auf dem Smartphone anzeigen.
 
 ### 1.5 Einsatzszenarien
@@ -207,7 +207,7 @@ starten – fertig. Ergebnisse fließen automatisch in eine Live-Rangliste.
 
 ### 3.1 Vergleich mit Wettbewerbern
 
-| Merkmal | **QuizRace** | **Kahoot** | **Mentimeter** |
+| Merkmal | **edocs** | **Kahoot** | **Mentimeter** |
 |---|:---:|:---:|:---:|
 | Stationsbasiert (physische QR-Codes) | ✅ | ❌ | ❌ |
 | Kein Account für Spieler nötig | ✅ | ❌ (App) | ✅ (Code) |
@@ -227,7 +227,7 @@ starten – fertig. Ergebnisse fließen automatisch in eine Live-Rangliste.
 
 1. **Gebaut für physische Events, nicht für Präsentationen.** Während Kahoot und Mentimeter
    für Klassenzimmer und Meetings konzipiert sind (alle schauen auf einen Bildschirm), ist
-   QuizRace für Lauf-Events optimiert: Teilnehmer bewegen sich zwischen Stationen, scannen
+   edocs für Lauf-Events optimiert: Teilnehmer bewegen sich zwischen Stationen, scannen
    QR-Codes und lösen Aufgaben eigenständig.
 
 2. **Null Einstiegshürde für Spieler.** Kein Download, kein Account, kein Login. QR-Code
@@ -242,7 +242,7 @@ starten – fertig. Ergebnisse fließen automatisch in eine Live-Rangliste.
    Keine Daten in US-Clouds, DSGVO-konform by Design.
 
 5. **White-Label für Agenturen und Unternehmen.** Eigenes Branding (Logo, Farben, Domain)
-   pro Mandant. Ideal für Event-Agenturen, die QuizRace unter eigenem Namen anbieten.
+   pro Mandant. Ideal für Event-Agenturen, die edocs unter eigenem Namen anbieten.
 
 ### 3.3 Bewusste Designentscheidungen
 
@@ -260,7 +260,7 @@ starten – fertig. Ergebnisse fließen automatisch in eine Live-Rangliste.
 
 ### 4.1 Plattform
 
-QuizRace ist eine **reine Web-App**. Es gibt keine native iOS- oder Android-App. Alles läuft
+edocs ist eine **reine Web-App**. Es gibt keine native iOS- oder Android-App. Alles läuft
 im Browser – sowohl die Spieler-Oberfläche als auch das Admin-Dashboard.
 
 ### 4.2 Zugangsweg für Spieler
@@ -277,7 +277,7 @@ QR-Code scannen → Browser öffnet sich automatisch → Name wählen → Sofort
 ### 4.3 Zugangsweg für Admins
 
 ```
-quizrace.app/login → Benutzername + Passwort → Admin-Dashboard
+edocs.cloud/login → Benutzername + Passwort → Admin-Dashboard
 ```
 
 - Rollenbasierter Zugriff je nach zugewiesener Rolle
@@ -288,7 +288,7 @@ quizrace.app/login → Benutzername + Passwort → Admin-Dashboard
 
 | Modell | Beschreibung |
 |---|---|
-| **SaaS (gehostet)** | Betrieb auf quizrace.app – sofort startklar, Updates und Wartung inklusive, Hosting in Deutschland |
+| **SaaS (gehostet)** | Betrieb auf edocs.cloud – sofort startklar, Updates und Wartung inklusive, Hosting in Deutschland |
 | **Self-Hosted (Docker)** | Eigene Infrastruktur mit Docker Compose – volle Datenhoheit, eigene Domain, eigene Backups |
 
 Das Self-Hosted-Setup umfasst:
@@ -350,7 +350,7 @@ festliche, spielerische Atmosphäre vermitteln.
 - Favicon: `favicon.svg` (Sonne mit Konfetti, 64x64 Viewbox)
 - Das Logo kann pro Mandant durch ein eigenes Logo ersetzt werden (Upload als PNG, WebP oder SVG)
 
-[HINWEIS: Das aktuelle Logo mit „SF"-Initialen stammt aus der Ursprungsversion als „Sommerfest-Quiz". Für die Marketing-Website sollte geprüft werden, ob ein QuizRace-spezifisches Logo existiert oder erstellt werden soll.]
+[HINWEIS: Das aktuelle Logo mit „SF"-Initialen stammt aus der Ursprungsversion als „Sommerfest-Quiz". Für die Marketing-Website sollte geprüft werden, ob ein edocs-spezifisches Logo existiert oder erstellt werden soll.]
 
 ### 5.2 Farbpalette
 
@@ -449,11 +449,11 @@ Die Gold-/Sonnenfarben des Logos können als Akzent eingesetzt werden.]
 
 ### 6.1 Bestehende Marketing-Texte
 
-Die folgenden Texte stammen direkt aus der bestehenden QuizRace-Marketingseite und können
+Die folgenden Texte stammen direkt aus der bestehenden edocs-Marketingseite und können
 für die neue Website übernommen oder adaptiert werden:
 
 **Tagline / Claim:**
-> QuizRace verbindet Teams in Echtzeit.
+> edocs verbindet Teams in Echtzeit.
 
 **Eyebrow (Überschrift-Vorsatz):**
 > Ohne App, sofort spielbar
@@ -463,7 +463,7 @@ für die neue Website übernommen oder adaptiert werden:
 > Teamevents und Bildungsrallyes.
 
 **Produktbeschreibung (aus README):**
-> QuizRace ist eine sofort einsetzbare Web-App, mit der Sie Besucherinnen und Besucher
+> edocs ist eine sofort einsetzbare Web-App, mit der Sie Besucherinnen und Besucher
 > spielerisch an Events beteiligen. Dank Slim Framework und UIkit3 funktioniert alles ohne
 > komplizierte Server-Setups direkt im Browser.
 
@@ -500,7 +500,7 @@ Diese kurzen Aussagen eignen sich für Trust-Badges, Ticker oder Highlight-Leist
 |---|---|
 | Brauchen Teams einen Account? | Nein. Teams scannen einen QR-Code, wählen ihren Namen und spielen direkt im Browser. |
 | Wie lang dauert das Setup? | Mit fertigen Katalogaufgaben bist du in wenigen Minuten startklar; eigene Fragen können importiert werden. |
-| Welche Geräte unterstützen wir? | QuizRace läuft auf Smartphones, Tablets und Laptops. Das Live-Dashboard funktioniert auf TV/Beamer. |
+| Welche Geräte unterstützen wir? | edocs läuft auf Smartphones, Tablets und Laptops. Das Live-Dashboard funktioniert auf TV/Beamer. |
 | Wo liegen die Daten? | Der Dienst läuft in Deutschland und ist DSGVO-konform. Exporte für Auswertungen sind jederzeit möglich. |
 
 ### 6.5 Sprachen
@@ -553,13 +553,13 @@ Folgende Block-Typen stehen zur Verfügung und können für die Marketing-Websit
 
 ### 7.2 Testimonials
 
-[EINSCHÄTZUNG: Im Quellcode und in der Dokumentation wurden **keine QuizRace-spezifischen
+[EINSCHÄTZUNG: Im Quellcode und in der Dokumentation wurden **keine edocs-spezifischen
 Testimonials** gefunden. Es existieren Testimonials für das verwandte Produkt calHelp/calServer
 (ProvenExpert: 4.91/5 Sterne, 63 Bewertungen, 100 % Weiterempfehlung), diese beziehen sich
-jedoch auf Kalibriertechnik-Dienstleistungen, nicht auf QuizRace.
+jedoch auf Kalibriertechnik-Dienstleistungen, nicht auf edocs.
 
 **Empfehlung für die Marketing-Website:**
-- QuizRace-spezifische Testimonials von Event-Veranstaltern einholen
+- edocs-spezifische Testimonials von Event-Veranstaltern einholen
 - Alternativ: Allgemeine Vertrauenssignale des Inhabers nutzen (Erfahrung, ProvenExpert-Bewertung)
 - Die Kennzahlen (25.000+ Teilnehmer, 420 Events) sind bereits starke Social-Proof-Elemente]
 
@@ -608,7 +608,7 @@ Datenschutzerklärung der Marketing-Website korrekt abgebildet werden.
 
 ### 8.1 Preispläne
 
-QuizRace bietet drei Abonnement-Stufen mit steigenden Funktionslimits:
+edocs bietet drei Abonnement-Stufen mit steigenden Funktionslimits:
 
 | Feature | **Starter** | **Standard** | **Professional** |
 |---|:---:|:---:|:---:|
@@ -635,7 +635,7 @@ Basierend auf dem bestehenden Marketing-Content und der Produktstruktur eignen s
 | **„Demo spielen"** | Direkt eine Quiz-Station ausprobieren | Primär |
 | **„Live-Dashboard testen"** | Das Dashboard mit echten Daten erleben | Primär |
 | **„Kostenlos testen"** | 7-Tage-Trial starten (Registrierung) | Primär |
-| **„Kontakt aufnehmen"** | E-Mail an support@quizrace.app | Sekundär |
+| **„Kontakt aufnehmen"** | E-Mail an support@edocs.cloud | Sekundär |
 | **„QR-Station scannen"** | Demo-QR-Code scannen | Sekundär |
 
 ### 8.4 Verfügbare Demo-Links
@@ -655,7 +655,7 @@ da sie Event-spezifische UUIDs und Tokens enthalten.]
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    QuizRace                              │
+│                    edocs                              │
 │                                                         │
 │  ┌─────────┐   ┌──────────┐   ┌──────────────────┐     │
 │  │ STARTER │   │ STANDARD │   │  PROFESSIONAL    │     │
@@ -685,8 +685,8 @@ da sie Event-spezifische UUIDs und Tokens enthalten.]
 
 ### Zielgruppe der Marketing-Website
 
-Die Website richtet sich primär an **Event-Veranstalter** (Admins/Hosts), die QuizRace für
-ihre Events einsetzen möchten. Sekundär an **Agenturen**, die QuizRace als White-Label-Lösung
+Die Website richtet sich primär an **Event-Veranstalter** (Admins/Hosts), die edocs für
+ihre Events einsetzen möchten. Sekundär an **Agenturen**, die edocs als White-Label-Lösung
 nutzen wollen.
 
 ### Tonalität

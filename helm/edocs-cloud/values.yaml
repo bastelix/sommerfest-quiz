@@ -1,5 +1,5 @@
 image:
-  repository: sommerfest-quiz
+  repository: edocs-cloud
   tag: latest
   pullPolicy: IfNotPresent
 
@@ -16,8 +16,8 @@ smtp:
   user: user@example.com
   pass: secret
   port: "587"
-  from: support@quizrace.app
-  fromName: "QuizRace Support"
+  from: support@edocs.cloud
+  fromName: "edocs Support"
 
 logging:
   containerMetrics:

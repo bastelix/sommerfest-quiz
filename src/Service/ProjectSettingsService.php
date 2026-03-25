@@ -300,7 +300,7 @@ final class ProjectSettingsService
             'header_logo_mode' => 'text',
             'header_logo_path' => '',
             'header_logo_alt' => '',
-            'header_logo_label' => 'QuizRace',
+            'header_logo_label' => 'edocs',
             'header_topbar_style' => 'auto',
             'updated_at' => null,
         ];

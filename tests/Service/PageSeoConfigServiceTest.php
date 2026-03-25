@@ -54,11 +54,11 @@ class PageSeoConfigServiceTest extends TestCase
         $cache = new PageSeoCache();
         $redirects = new NullRedirectManager();
         $service = new PageSeoConfigService($pdo, $redirects, null, $cache);
-        $config = new PageSeoConfig(1, 'start', domain: 'quizrace.app');
+        $config = new PageSeoConfig(1, 'start', domain: 'edocs.cloud');
         $service->save($config);
         $first = $service->load(1);
         $this->assertSame('start', $first->getSlug());
-        $service->save(new PageSeoConfig(1, 'changed', domain: 'quizrace.app'));
+        $service->save(new PageSeoConfig(1, 'changed', domain: 'edocs.cloud'));
         $second = $service->load(1);
         $this->assertSame('changed', $second->getSlug());
         $row = $pdo->query('SELECT slug FROM page_seo_config WHERE page_id = 1')->fetch(PDO::FETCH_ASSOC);
@@ -98,7 +98,7 @@ class PageSeoConfigServiceTest extends TestCase
         );
         $redirects = new NullRedirectManager();
         $service = new PageSeoConfigService($pdo, $redirects);
-        $config = new PageSeoConfig(1, 'slug', schemaJson: '', domain: 'quizrace.app');
+        $config = new PageSeoConfig(1, 'slug', schemaJson: '', domain: 'edocs.cloud');
         $service->save($config);
         $row = $pdo->query('SELECT schema_json FROM page_seo_config WHERE page_id = 1')->fetch(PDO::FETCH_ASSOC);
         $this->assertNull($row['schema_json']);
@@ -131,23 +131,23 @@ class PageSeoConfigServiceTest extends TestCase
         $service->save(new PageSeoConfig(
             1,
             '/',
-            canonicalUrl: 'https://quizrace.app/',
+            canonicalUrl: 'https://edocs.cloud/',
             robotsMeta: 'index, follow',
-            domain: 'quizrace.app'
+            domain: 'edocs.cloud'
         ));
 
         $service->save(new PageSeoConfig(
             1,
             '/',
-            canonicalUrl: 'https://quizrace.app/landing',
+            canonicalUrl: 'https://edocs.cloud/landing',
             robotsMeta: 'noindex, follow',
-            domain: 'quizrace.app'
+            domain: 'edocs.cloud'
         ));
 
         $row = $pdo->query('SELECT canonical_url, robots_meta FROM page_seo_config WHERE page_id = 1')
             ->fetch(PDO::FETCH_ASSOC);
 
-        $this->assertSame('https://quizrace.app/landing', $row['canonical_url']);
+        $this->assertSame('https://edocs.cloud/landing', $row['canonical_url']);
         $this->assertSame('noindex, follow', $row['robots_meta']);
     }
 
@@ -174,7 +174,7 @@ class PageSeoConfigServiceTest extends TestCase
         );
 
         $service = new PageSeoConfigService($pdo, new NullRedirectManager());
-        $config = new PageSeoConfig(1, 'slug', domain: 'quizrace.app', faviconPath: '/uploads/icon.png');
+        $config = new PageSeoConfig(1, 'slug', domain: 'edocs.cloud', faviconPath: '/uploads/icon.png');
         $service->save($config);
 
         $row = $pdo->query('SELECT favicon_path FROM page_seo_config WHERE page_id = 1')
@@ -186,7 +186,7 @@ class PageSeoConfigServiceTest extends TestCase
         $errors = $service->validate([
             'pageId' => 1,
             'slug' => 'slug',
-            'domain' => 'quizrace.app',
+            'domain' => 'edocs.cloud',
             'faviconPath' => 'javascript:alert(1)'
         ]);
         $this->assertArrayHasKey('faviconPath', $errors);

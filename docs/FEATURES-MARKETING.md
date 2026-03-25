@@ -1,8 +1,8 @@
-# quizrace – Funktionsübersicht
+# edocs – Funktionsübersicht
 
-quizrace ist eine vollständige SaaS-Plattform für interaktive Quiz-Events – von der Erstellung einzelner Fragenkataloge bis zum mandantenfähigen Betrieb mit eigenem Branding. Ob Firmen-Sommerfest, Teambuilding-Tag, Schulprojekt oder öffentliche Veranstaltung: quizrace liefert eine reibungslose Spielerfahrung auf jedem Gerät und gibt Veranstaltenden alle Werkzeuge an die Hand, um das Quiz vollständig ohne technisches Vorwissen durchzuführen. Das System ist vollständig selbst gehostet, DSGVO-konform und über Docker innerhalb weniger Minuten einsatzbereit.
+edocs ist eine vollständige SaaS-Plattform für interaktive Quiz-Events – von der Erstellung einzelner Fragenkataloge bis zum mandantenfähigen Betrieb mit eigenem Branding. Ob Firmen-Sommerfest, Teambuilding-Tag, Schulprojekt oder öffentliche Veranstaltung: edocs liefert eine reibungslose Spielerfahrung auf jedem Gerät und gibt Veranstaltenden alle Werkzeuge an die Hand, um das Quiz vollständig ohne technisches Vorwissen durchzuführen. Das System ist vollständig selbst gehostet, DSGVO-konform und über Docker innerhalb weniger Minuten einsatzbereit.
 
-Die Abrechnung erfolgt **pro Namespace**: Jeder Namespace hat sein eigenes Abonnement, und Quotas legen fest, was er abbilden kann – von Events und Katalogen bis hin zu Nutzerplätzen und KI-Generierungen. So lässt sich quizrace sowohl als Einzellösung für ein einziges Event als auch als mehrmandantenfähige Plattform für Event-Agenturen betreiben.
+Die Abrechnung erfolgt **pro Namespace**: Jeder Namespace hat sein eigenes Abonnement, und Quotas legen fest, was er abbilden kann – von Events und Katalogen bis hin zu Nutzerplätzen und KI-Generierungen. So lässt sich edocs sowohl als Einzellösung für ein einziges Event als auch als mehrmandantenfähige Plattform für Event-Agenturen betreiben.
 
 ---
 
@@ -211,7 +211,7 @@ Das Live-Dashboard ist die Kommandozentrale für Moderatoren und Zuschauer währ
 
 ## 8. CMS & Seiteninhalte
 
-quizrace enthält ein vollständiges Content-Management-System für Marketing-Seiten, Landing Pages und Informationsseiten – alles innerhalb derselben Plattform.
+edocs enthält ein vollständiges Content-Management-System für Marketing-Seiten, Landing Pages und Informationsseiten – alles innerhalb derselben Plattform.
 
 ### Seiten-Verwaltung
 - Unbegrenzt viele Seiten pro Namespace mit hierarchischer Struktur (Parent-Child)
@@ -293,7 +293,7 @@ Jede Seite hat eine unabhängige SEO-Konfiguration:
 
 ### Multi-Tenant & Namespace-Isolation
 - Vollständige Datenisolation zwischen Mandanten via PostgreSQL
-- Subdomain-Routing: Jeder Mandant erhält eigene Subdomain (z. B. `kunde1.quizrace.app`)
+- Subdomain-Routing: Jeder Mandant erhält eigene Subdomain (z. B. `kunde1.edocs.app`)
 - Namespace-System: logische Gruppierung von Events, Seiten, Design und rechtlichen Angaben
 - Onboarding-Workflow: Automatisches Setup für neue Mandanten inkl. Admin-User
 - Abonnement und Quota-Enforcement: → siehe [Abschnitt 11](#11-abonnement--namespace-billing)
@@ -453,13 +453,13 @@ Ein Unternehmen richtet einen Sommerfest-Quizabend aus. Jede Abteilung bildet ei
 Eine Schule erstellt mehrere Fragenkataloge zu verschiedenen Unterrichtsthemen. Schülerinnen und Schüler spielen im Einzelmodus auf ihren Geräten. Die Falsche-Antworten-Analyse zeigt Lehrkräften auf einen Blick, welche Themen noch vertieft werden müssen.
 
 ### Messen & Konferenzen
-Ein Unternehmen integriert quizrace als interaktives Stand-Element auf einer Messe. Besucher scannen einen Katalog-QR-Code, spielen ein kurzes Quiz und landen automatisch auf einer CMS-Seite mit Produkt-Informationen. Die Mediengalerie zeigt Selfies der Teilnehmer auf einem Display am Stand.
+Ein Unternehmen integriert edocs als interaktives Stand-Element auf einer Messe. Besucher scannen einen Katalog-QR-Code, spielen ein kurzes Quiz und landen automatisch auf einer CMS-Seite mit Produkt-Informationen. Die Mediengalerie zeigt Selfies der Teilnehmer auf einem Display am Stand.
 
 ### Öffentliche Veranstaltungen & Volksfeste
 Eine Stadt richtet einen Quiz-Abend für das Stadtfest aus. Verschiedene Vereine treten als Teams gegeneinander an. Das öffentliche Dashboard wird auf Großleinwand projiziert. Die Einladungs-PDFs mit QR-Codes wurden vorab an alle Teams gesendet.
 
 ### SaaS-Betrieb für Event-Agenturen
-Eine Event-Agentur betreibt quizrace als White-Label-Plattform für ihre Kundschaft. Jeder Kunde erhält eine eigene Subdomain, eigenes Branding per Design-Tokens und vollständig isolierte Daten. Die Stripe-Billing-Integration übernimmt Abrechnung und Plan-Management automatisch.
+Eine Event-Agentur betreibt edocs als White-Label-Plattform für ihre Kundschaft. Jeder Kunde erhält eine eigene Subdomain, eigenes Branding per Design-Tokens und vollständig isolierte Daten. Die Stripe-Billing-Integration übernimmt Abrechnung und Plan-Management automatisch.
 
 ---
 

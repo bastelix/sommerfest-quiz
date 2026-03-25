@@ -16,7 +16,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             set -e
-            cd /var/sommerfest-quiz
+            cd /var/edocs-cloud
             git remote prune origin
             git fetch origin main
             git reset --hard origin/main
@@ -29,8 +29,8 @@ jobs:
             fi
             BASE_IMAGE="${APP_IMAGE%:*}"
             docker build -t "$APP_IMAGE" -t "${BASE_IMAGE}:latest" .
-            export COMPOSE_PROJECT_NAME=sommerfest-quiz
-            docker compose -p sommerfest-quiz rm -f 2>/dev/null || true
-            docker compose -p sommerfest-quiz up -d --build --remove-orphans --wait
-            docker compose -p sommerfest-quiz exec -T slim php scripts/run_migrations.php
-            docker compose -p sommerfest-quiz ps slim
+            export COMPOSE_PROJECT_NAME=edocs-cloud
+            docker compose -p edocs-cloud rm -f 2>/dev/null || true
+            docker compose -p edocs-cloud up -d --build --remove-orphans --wait
+            docker compose -p edocs-cloud exec -T slim php scripts/run_migrations.php
+            docker compose -p edocs-cloud ps slim

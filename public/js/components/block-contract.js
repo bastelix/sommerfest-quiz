@@ -55,7 +55,7 @@ export const TOKEN_ALIASES = {
 
 const schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://quizrace.example.com/schemas/block-contract.schema.json",
+  "$id": "https://edocs.cloud/schemas/block-contract.schema.json",
   "title": "Block Contract",
   "description": "Strict contract for editorial blocks used by the editor, renderer, and migration tools.",
   "type": "object",

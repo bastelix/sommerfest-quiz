@@ -10,7 +10,7 @@ set -euo pipefail
 # - This relies on Docker build cache, so after the first run it should be fast.
 # - If you want a fully clean run: export NO_CACHE=1
 
-IMAGE_TAG=${IMAGE_TAG:-sommerfest-quiz:phpstan-check}
+IMAGE_TAG=${IMAGE_TAG:-edocs-cloud:phpstan-check}
 
 BUILD_ARGS=()
 if [[ "${NO_CACHE:-}" == "1" ]]; then

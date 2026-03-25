@@ -16,13 +16,13 @@ from rag_chatbot.transcript import ChatTranscript, TranscriptContext, Transcript
 def sample_transcript() -> ChatTranscript:
     transcript = ChatTranscript()
     turn_one = TranscriptTurn(
-        question="Was ist QuizRace?",
+        question="Was ist edocs?",
         response="Eine Event-Anwendung.",
         context=(
             TranscriptContext(
                 chunk_id="chunk-1",
                 score=0.42,
-                text="QuizRace ist eine Web-Anwendung für Veranstaltungen.",
+                text="edocs ist eine Web-Anwendung für Veranstaltungen.",
                 metadata={"source": "docs/about.md"},
             ),
             TranscriptContext(
@@ -34,12 +34,12 @@ def sample_transcript() -> ChatTranscript:
         ),
         prompt_messages=(
             ChatMessage("system", "system"),
-            ChatMessage("user", "Was ist QuizRace?"),
+            ChatMessage("user", "Was ist edocs?"),
             ChatMessage("assistant", "Eine Event-Anwendung."),
         ),
     )
     turn_two = TranscriptTurn(
-        question="Welche Daten speichert QuizRace?",
+        question="Welche Daten speichert edocs?",
         response="Es werden keine personenbezogenen Daten gespeichert.",
         context=(
             TranscriptContext(
@@ -51,7 +51,7 @@ def sample_transcript() -> ChatTranscript:
         ),
         prompt_messages=(
             ChatMessage("system", "system"),
-            ChatMessage("user", "Welche Daten speichert QuizRace?"),
+            ChatMessage("user", "Welche Daten speichert edocs?"),
             ChatMessage("assistant", "Es werden keine personenbezogenen Daten gespeichert."),
         ),
     )

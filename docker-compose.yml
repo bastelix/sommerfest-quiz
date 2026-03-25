@@ -99,7 +99,7 @@ services:
 
   slim:
     build: .
-    container_name: slim-1
+    container_name: edocs-app
     working_dir: /var/www
     mem_limit: 1g
     volumes:

@@ -22,7 +22,7 @@ class PageAnchorExtractorTest extends TestCase
             'blocks' => [
                 [
                     'type' => 'hero',
-                    'data' => ['headline' => 'Willkommen bei QuizRace'],
+                    'data' => ['headline' => 'Willkommen bei edocs'],
                 ],
                 [
                     'type' => 'feature_list',
@@ -43,7 +43,7 @@ class PageAnchorExtractorTest extends TestCase
         // hero → auto-generated anchor "hero"
         self::assertSame('hero', $result[0]['anchor']);
         self::assertSame('hero', $result[0]['blockType']);
-        self::assertSame('Willkommen bei QuizRace', $result[0]['blockTitle']);
+        self::assertSame('Willkommen bei edocs', $result[0]['blockTitle']);
 
         // feature_list → auto-generated anchor "feature-list"
         self::assertSame('feature-list', $result[1]['anchor']);

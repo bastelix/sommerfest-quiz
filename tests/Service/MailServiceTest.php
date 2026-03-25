@@ -85,7 +85,7 @@ class MailServiceTest extends TestCase
         $twig = new Environment(new FilesystemLoader(dirname(__DIR__, 2) . '/templates'));
         $service = new MailService($twig, $manager);
 
-        $service->sendPasswordReset('user@example.org', 'https://quizrace.app/reset');
+        $service->sendPasswordReset('user@example.org', 'https://edocs.cloud/reset');
 
         $this->assertCount(1, $provider->sentEmails);
         $this->assertSame('user@example.org', $provider->sentEmails[0]->getTo()[0]->getAddress());

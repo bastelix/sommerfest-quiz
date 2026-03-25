@@ -3,7 +3,7 @@
     "name": "calServer (neu)",
     "description": "Aurora-basiertes Design für den calServer-Namespace. Klare, professionelle Ästhetik mit kräftigen Blautönen und dezenten Slate-Akzenten.",
     "version": "2.0.0",
-    "author": "QuizRace Design System"
+    "author": "edocs Design System"
   },
   "config": {
     "designTokens": {
@@ -43,7 +43,7 @@
     }
   },
   "effects": {
-    "effectsProfile": "quizrace.marketing",
+    "effectsProfile": "edocs.marketing",
     "sliderProfile": "marketing"
   },
   "contrastPairs": {

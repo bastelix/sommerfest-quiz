@@ -52,7 +52,7 @@ final class CmsPageWikiArticleServiceTest extends TestCase
         $pageId = $this->createPage($pdo, 'landing', 'Landing');
         $editorState = [
             'blocks' => [
-                ['type' => 'paragraph', 'data' => ['text' => 'Willkommen bei QuizRace.']],
+                ['type' => 'paragraph', 'data' => ['text' => 'Willkommen bei edocs.']],
                 ['type' => 'header', 'data' => ['text' => 'Setup', 'level' => 2]],
             ],
         ];
@@ -80,7 +80,7 @@ final class CmsPageWikiArticleServiceTest extends TestCase
         $this->assertSame('Erste Schritte', $fetched->getTitle());
 
         $markdown = $service->exportMarkdown($article->getId());
-        $this->assertStringContainsString('Willkommen bei QuizRace.', $markdown);
+        $this->assertStringContainsString('Willkommen bei edocs.', $markdown);
 
         $service->updateStatus($article->getId(), CmsPageWikiArticle::STATUS_ARCHIVED);
         $archived = $service->getPublishedArticles($pageId, 'de');
@@ -238,10 +238,10 @@ final class CmsPageWikiArticleServiceTest extends TestCase
 
         $pageId = $this->createPage($pdo, 'guide', 'Guide');
         $markdown = <<<MD
-Intro with a [Quiz link](https://quizrace.example/guide) that mixes *emphasis*, **importance**,
+Intro with a [Quiz link](https://edocs.example/guide) that mixes *emphasis*, **importance**,
 ~~legacy~~ notes, and `inline code`.
 
-- Bullet with [Docs](https://quizrace.example/docs)
+- Bullet with [Docs](https://edocs.example/docs)
 MD;
 
         $article = $service->saveArticleFromMarkdown(
@@ -268,7 +268,7 @@ MD;
 
         $this->assertNotNull($paragraphBlock);
         $paragraphText = (string) ($paragraphBlock['data']['text'] ?? '');
-        $this->assertStringContainsString('<a href="https://quizrace.example/guide">Quiz link</a>', $paragraphText);
+        $this->assertStringContainsString('<a href="https://edocs.example/guide">Quiz link</a>', $paragraphText);
         $this->assertStringContainsString('<em>emphasis</em>', $paragraphText);
         $this->assertStringContainsString('<strong>importance</strong>', $paragraphText);
         $this->assertStringContainsString('<del>legacy</del>', $paragraphText);
@@ -290,12 +290,12 @@ MD;
         $this->assertIsArray($items);
         $this->assertNotSame([], $items);
         $this->assertStringContainsString(
-            '<a href="https://quizrace.example/docs">Docs</a>',
+            '<a href="https://edocs.example/docs">Docs</a>',
             (string) ($items[0] ?? '')
         );
 
         $html = $article->getContentHtml();
-        $this->assertStringContainsString('<a href="https://quizrace.example/guide">Quiz link</a>', $html);
+        $this->assertStringContainsString('<a href="https://edocs.example/guide">Quiz link</a>', $html);
         $this->assertStringContainsString('<em>emphasis</em>', $html);
         $this->assertStringContainsString('<strong>importance</strong>', $html);
         $this->assertStringContainsString('<del>legacy</del>', $html);

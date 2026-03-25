@@ -1,10 +1,10 @@
-# QuizRace
-[![Deploy](https://github.com/bastelix/sommerfest-quiz/actions/workflows/deploy.yml/badge.svg)](https://github.com/bastelix/sommerfest-quiz/actions/workflows/deploy.yml)
-[![HTML Validity Test](https://github.com/bastelix/sommerfest-quiz/actions/workflows/html-validity.yml/badge.svg)](https://github.com/bastelix/sommerfest-quiz/actions/workflows/html-validity.yml)
+# edocs
+[![Deploy](https://github.com/bastelix/edocs-cloud/actions/workflows/deploy.yml/badge.svg)](https://github.com/bastelix/edocs-cloud/actions/workflows/deploy.yml)
+[![HTML Validity Test](https://github.com/bastelix/edocs-cloud/actions/workflows/html-validity.yml/badge.svg)](https://github.com/bastelix/edocs-cloud/actions/workflows/html-validity.yml)
 
 ## Dokumentation
 
-Die ausführliche Anleitung findest du auf GitHub Pages: <https://bastelix.github.io/sommerfest-quiz/>
+Die ausführliche Anleitung findest du auf GitHub Pages: <https://bastelix.github.io/edocs-cloud/>
 
 ### Dokumentation lokal bauen
 
@@ -34,7 +34,7 @@ configured, the endpoint performs a quick database ping and reports the status i
 The Docker Compose setup for the `slim` service uses `curl -f http://localhost:8080/healthz` as its
 health check.
 
-Das **QuizRace** ist eine sofort einsetzbare Web-App, mit der Sie Besucherinnen und Besucher spielerisch an Events beteiligen. Dank Slim Framework und UIkit3 funktioniert alles ohne komplizierte Server-Setups direkt im Browser.
+Das **edocs** ist eine sofort einsetzbare Web-App, mit der Sie Besucherinnen und Besucher spielerisch an Events beteiligen. Dank Slim Framework und UIkit3 funktioniert alles ohne komplizierte Server-Setups direkt im Browser.
 
 ## Disclaimer / Hinweis
 
@@ -351,7 +351,7 @@ Zum Start genügt:
 cp sample.env .env
 docker compose up --build -d
 ```
-Die Datei setzt `COMPOSE_PROJECT_NAME=sommerfest-quiz`, damit Docker Compose vorhandene Container und Volumes bei späteren Deployments wiederverwendet.
+Die Datei setzt `COMPOSE_PROJECT_NAME=edocs-cloud`, damit Docker Compose vorhandene Container und Volumes bei späteren Deployments wiederverwendet.
 Standardmäßig legt Docker Compose das benötigte Netzwerk automatisch an. Soll
 ein bereits vorhandenes Proxy-Netz genutzt werden, setze in deiner `.env`
 `NETWORK_EXTERNAL=true` und lege das Netz manuell an:
@@ -665,7 +665,7 @@ und die Zertifikats-Erneuerung. Die Unit-Dateien liegen unter
 1. Kopiere `resources/systemd/wildcard-maintenance.service` und
    `resources/systemd/wildcard-maintenance.timer` nach `/etc/systemd/system/`.
 2. Passe `WorkingDirectory` und `EnvironmentFile` an deinen Projektpfad an (z. B.
-   `/opt/quizrace`) und hinterlege die nötigen Variablen (`ACME_SH_BIN`,
+   `/opt/edocs`) und hinterlege die nötigen Variablen (`ACME_SH_BIN`,
    `ACME_WILDCARD_PROVIDER`, `NGINX_WILDCARD_CERT_DIR`, optional `ACME_SH_HOME`).
 3. Aktiviere den Timer: `systemctl daemon-reload && systemctl enable --now
    wildcard-maintenance.timer` (oder richte einen äquivalenten Cronjob ein).
@@ -677,7 +677,7 @@ Der Timer ruft `scripts/wildcard_maintenance.sh` auf. Das Skript läuft im
 Projektwurzelverzeichnis, validiert die benötigten Umgebungsvariablen, führt
 `bin/generate-nginx-zones` und `bin/provision-wildcard-certificates`
 nacheinander aus und protokolliert alles in `logs/wildcard-maintenance.log`.
-Cron-Alternative: `0 * * * * cd /opt/quizrace && /usr/bin/env
+Cron-Alternative: `0 * * * * cd /opt/edocs && /usr/bin/env
 ACME_SH_BIN=/usr/bin/acme.sh ACME_WILDCARD_PROVIDER=dns_cf
 NGINX_WILDCARD_CERT_DIR=/etc/ssl/wildcards ./scripts/wildcard_maintenance.sh
 >> /var/log/wildcard-maintenance.log 2>&1`
@@ -708,7 +708,7 @@ Weitere nützliche Variablen in `.env` sind:
 - `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
 - `SLIM_LETSENCRYPT_HOST` – zusätzliche Zertifikats-Domains für den Slim-Container
   (nur konkrete Hostnamen, keine Regex-Ausdrücke).
-- `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `quizrace.app`).
+- `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `edocs.cloud`).
 - `APP_IMAGE` – Docker-Image, das für neue Mandanten verwendet wird.
   Es sollte den Tag des lokal gebauten Slim-Images (`docker build -t <tag> .`) nutzen,
   da das Onboarding-Skript auf diese Variable zurückgreift.
@@ -814,7 +814,7 @@ Das Frontend bringt mehrere Funktionen mit, die die Nutzung erleichtern:
 ## Anwenderhandbuch
 
 ### Einleitung
-Das Projekt *QuizRace* ist eine Web-Applikation zur Erstellung und Verwaltung von Quizfragen. Die Anwendung basiert auf dem Slim Framework und verwendet UIkit3 für das Frontend. Konfigurationen, Kataloge, Teams und Ergebnisse liegen in einer PostgreSQL-Datenbank und lassen sich über die Oberfläche als JSON-Dateien exportieren oder importieren.
+Das Projekt *edocs* ist eine Web-Applikation zur Erstellung und Verwaltung von Quizfragen. Die Anwendung basiert auf dem Slim Framework und verwendet UIkit3 für das Frontend. Konfigurationen, Kataloge, Teams und Ergebnisse liegen in einer PostgreSQL-Datenbank und lassen sich über die Oberfläche als JSON-Dateien exportieren oder importieren.
 
 ### Installation und Start
 1. Abhängigkeiten per Composer installieren:
@@ -822,7 +822,7 @@ Das Projekt *QuizRace* ist eine Web-Applikation zur Erstellung und Verwaltung vo
    composer install
    ```
    Beim ersten Aufruf wird eine `composer.lock` erzeugt und alle benötigten Bibliotheken geladen.
-2. Die Beispieldatei `sample.env` in `.env` kopieren und bei Bedarf anpassen. Sie enthält `COMPOSE_PROJECT_NAME=sommerfest-quiz`, wodurch Docker Compose bei späteren Deployments bestehende Container und Volumes wiederverwendet:
+2. Die Beispieldatei `sample.env` in `.env` kopieren und bei Bedarf anpassen. Sie enthält `COMPOSE_PROJECT_NAME=edocs-cloud`, wodurch Docker Compose bei späteren Deployments bestehende Container und Volumes wiederverwendet:
    ```bash
    cp sample.env .env
    ```
@@ -902,7 +902,7 @@ Unabhängig von der Variante legen `SMTP_FROM` (Absenderadresse) und `SMTP_FROM_
 
 Beispiele für DSNs:
 
-- Brevo SMTP: `smtp://support%40quizrace.app:DEIN_STARKES_PASSWORT@smtp.brevo.com:587?encryption=tls`
+- Brevo SMTP: `smtp://support%40edocs.cloud:DEIN_STARKES_PASSWORT@smtp.brevo.com:587?encryption=tls`
 - Mailgun API: `mailgun+https://API_KEY:DEINE-DOMAIN@default?region=eu`
 - Brevo API: `brevo+api://DEIN_API_KEY@default`
 - Mailchimp (Mandrill) API: `mailchimp+https://DEIN_MANDRILL_KEY@default`

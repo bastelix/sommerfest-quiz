@@ -2,12 +2,12 @@
   "page": {
     "id": 20,
     "slug": "landing",
-    "namespace": "quizrace"
+    "namespace": "edocs"
   },
-  "namespace": "quizrace",
+  "namespace": "edocs",
   "items": [
     {
-      "label": "QuizRace",
+      "label": "edocs",
       "href": "/",
       "icon": null,
       "layout": "link",
@@ -129,7 +129,7 @@
     },
     {
       "label": "Login",
-      "href": "https://app.quizrace.app/login",
+      "href": "https://app.edocs.cloud/login",
       "icon": null,
       "layout": "link",
       "detailTitle": null,

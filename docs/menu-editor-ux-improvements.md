@@ -1,6 +1,6 @@
 # Menü-Editor: UX-Verbesserungen
 
-Diese Notiz fasst den aktuellen Stand des Menüeditors zusammen und leitet konkrete Umsetzungsschritte ab. Sie orientiert sich an den vorhandenen JavaScript-Bausteinen von QuizRace, damit die Weiterentwicklung ohne Technologiebruch erfolgen kann.
+Diese Notiz fasst den aktuellen Stand des Menüeditors zusammen und leitet konkrete Umsetzungsschritte ab. Sie orientiert sich an den vorhandenen JavaScript-Bausteinen von edocs, damit die Weiterentwicklung ohne Technologiebruch erfolgen kann.
 
 ## Status quo: funktional, aber kognitiv überladen
 

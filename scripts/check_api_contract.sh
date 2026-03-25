@@ -4,7 +4,7 @@ set -euo pipefail
 # Smoke-test for the public CMS API contract.
 #
 # Required env vars:
-#   BASE_URL   e.g. https://quizrace.app
+#   BASE_URL   e.g. https://edocs.cloud
 #   NAMESPACE  e.g. calhelp
 #   TOKEN      Bearer token for that namespace
 #

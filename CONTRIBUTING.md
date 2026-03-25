@@ -1,6 +1,6 @@
-# Contributing to QuizRace
+# Contributing to edocs
 
-Thank you for your interest in improving QuizRace. This document explains how we collaborate, how to
+Thank you for your interest in improving edocs. This document explains how we collaborate, how to
 set up a working environment, and which quality checks are required before opening a pull request.
 
 ## Ways to contribute

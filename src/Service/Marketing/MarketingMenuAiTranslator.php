@@ -25,7 +25,7 @@ final class MarketingMenuAiTranslator
     public const ERROR_INVALID_JSON = 'invalid-json';
     public const ERROR_INVALID_ITEMS = 'invalid-items';
 
-    private const SYSTEM_PROMPT = 'You translate QuizRace marketing navigation trees between locales.';
+    private const SYSTEM_PROMPT = 'You translate edocs marketing navigation trees between locales.';
 
     private const PROMPT_TEMPLATE = <<<'PROMPT'
 Übersetze die folgende Navigationsstruktur in die Zielsprache.

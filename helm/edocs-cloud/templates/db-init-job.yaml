@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "sommerfest-quiz.fullname" . }}-db-init
+  name: {{ include "edocs-cloud.fullname" . }}-db-init
 spec:
   backoffLimit: 3
   template:
@@ -13,7 +13,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: POSTGRES_DSN
-              value: "pgsql:host={{ include \"sommerfest-quiz.fullname\" . }}-postgresql;dbname={{ .Values.database.name }}"
+              value: "pgsql:host={{ include \"edocs-cloud.fullname\" . }}-postgresql;dbname={{ .Values.database.name }}"
             - name: POSTGRES_USER
               value: {{ .Values.database.user | quote }}
             - name: POSTGRES_PASSWORD
@@ -24,7 +24,7 @@ spec:
             - sh
             - -c
             - |
-              until pg_isready -h {{ include "sommerfest-quiz.fullname" . }}-postgresql -U {{ .Values.database.user }}; do
+              until pg_isready -h {{ include "edocs-cloud.fullname" . }}-postgresql -U {{ .Values.database.user }}; do
                 sleep 2
               done
               php scripts/run_migrations.php

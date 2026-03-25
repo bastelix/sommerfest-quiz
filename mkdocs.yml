@@ -1,8 +1,8 @@
-site_name: QuizRace Dokumentation
-site_url: https://bastelix.github.io/sommerfest-quiz/
+site_name: edocs Dokumentation
+site_url: https://bastelix.github.io/edocs-cloud/
 site_description: Quizsystem für Firmenfeiern – Dokumentation
-repo_url: https://github.com/bastelix/sommerfest-quiz
-repo_name: bastelix/sommerfest-quiz
+repo_url: https://github.com/bastelix/edocs-cloud
+repo_name: bastelix/edocs-cloud
 
 docs_dir: docs
 
@@ -91,6 +91,6 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/bastelix/sommerfest-quiz
+      link: https://github.com/bastelix/edocs-cloud
 
-copyright: "&copy; bastelix – QuizRace Dokumentation"
+copyright: "&copy; bastelix – edocs Dokumentation"
