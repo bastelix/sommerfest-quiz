@@ -766,6 +766,12 @@
   .wiki-sidebar-overlay.is-visible {
     display: block;
   }
+
+  /* When a topbar is present, offset the fixed slide-out sidebar below it */
+  .wiki-layout--has-topbar .wiki-sidebar {
+    top: 56px;
+    height: calc(100vh - 56px);
+  }
 }
 
 

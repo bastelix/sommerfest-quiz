@@ -45,6 +45,12 @@
   border-radius: 4px;
 }
 
+/* When a topbar/menu is present, offset the sticky sidebar below it */
+.wiki-layout--has-topbar .wiki-sidebar {
+  top: 64px;
+  height: calc(100vh - 64px);
+}
+
 @media (max-width: 959px) {
   .wiki-sidebar {
     position: static;
