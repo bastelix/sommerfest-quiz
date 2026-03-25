@@ -726,6 +726,7 @@
 - *(wiki)* Offset wiki layout below topbar when menu is assigned
 - *(admin)* Define $escapedPreset before try block to avoid undefined variable
 - Remove extra {{end}} blocks in nginx.tmpl causing docker-gen parse failure
+- Include main domain in MarketingProxySyncService
 
 ### Merge
 
