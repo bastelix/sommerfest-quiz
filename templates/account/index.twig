@@ -1,0 +1,73 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Mein Konto{% endblock %}
+
+{% block head %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <style>
+    .account-container {
+      max-width: 440px;
+      margin: 80px auto;
+      padding: 0 20px;
+    }
+    .account-card {
+      background: var(--card-bg, #fff);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    }
+    .account-card h1 {
+      font-size: 1.5rem;
+      margin: 0 0 8px;
+    }
+    .account-card .uk-text-meta {
+      margin-bottom: 24px;
+    }
+    .account-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: .875rem;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="account-container">
+    <div class="account-card">
+      <h1>Mein Konto</h1>
+      <p class="uk-text-meta">Geben Sie Ihre E-Mail-Adresse ein, um Ihr Abo, Rechnungen und Zahlungsmethoden zu verwalten.</p>
+
+      {% if error %}
+        <div class="account-error">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" action="{{ basePath }}/account">
+        <div class="uk-margin">
+          <label class="uk-form-label" for="account-email">E-Mail-Adresse</label>
+          <input
+            class="uk-input"
+            type="email"
+            id="account-email"
+            name="email"
+            value="{{ email|e('html_attr') }}"
+            placeholder="name@firma.de"
+            required
+            autofocus
+          >
+        </div>
+        <button class="uk-button uk-button-primary uk-width-1-1" type="submit">
+          Zum Kundenportal
+        </button>
+      </form>
+
+      <p class="uk-text-small uk-text-muted uk-margin-top uk-text-center">
+        Sie werden sicher zu unserem Zahlungsanbieter weitergeleitet.
+      </p>
+    </div>
+  </div>
+{% endblock %}
