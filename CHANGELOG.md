@@ -402,6 +402,7 @@
 - *(wiki)* Add GFM markdown table support for wiki article parser
 - *(wiki)* Add direct wiki mode for pages with type=wiki
 - *(wiki)* Add Material Design styling inspired by MkDocs Material
+- *(billing)* Add Lago billing stack integration
 
 ### Fix
 
@@ -723,6 +724,7 @@
 - *(editor)* Prevent infinite scroll after hero and sync design tokens in preview
 - *(wiki)* Offset wiki layout below topbar when menu is assigned
 - *(admin)* Define $escapedPreset before try block to avoid undefined variable
+- Remove extra {{end}} blocks in nginx.tmpl causing docker-gen parse failure
 
 ### Merge
 
