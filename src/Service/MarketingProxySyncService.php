@@ -58,14 +58,11 @@ final class MarketingProxySyncService
     public function sync(): array
     {
         $domains = $this->loadActiveDomains();
-        $mainDomain = $this->getMainDomain();
 
-        // Exclude the main domain and its subdomains — docker-gen handles those.
-        $domains = array_values(array_filter(
-            $domains,
-            static fn (string $h): bool => $mainDomain === ''
-                || ($h !== $mainDomain && !str_ends_with($h, '.' . $mainDomain))
-        ));
+        // All domains from the database get their own standalone nginx server
+        // blocks.  docker-gen only handles Docker-native services (adminer etc.)
+        // and cannot reliably serve domains from the database — especially when
+        // the entrypoint injects a regex VIRTUAL_HOST pattern.
 
         $written = 0;
         $activeFiles = [];
