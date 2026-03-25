@@ -2357,32 +2357,7 @@
             {% endif %}
           </div>
 
-          {# ── Sektion B: Auslastung ── #}
-          <div class="uk-card qr-card uk-card-body uk-margin-small">
-            <h3 class="uk-card-title uk-margin-remove-bottom">{{ t('heading_subscription_usage') }}</h3>
-            <div data-subscription
-              data-label-plan="{{ t('label_plan') }}"
-              data-label-of="{{ t('word_of') }}"
-              data-plan-free="{{ t('plan_free') }}"
-              data-plan-starter="{{ t('plan_starter') }}"
-              data-plan-standard="{{ t('plan_standard') }}"
-              data-metrics='{{ {
-                "events": t("label_events"),
-                "teams": t("label_teams"),
-                "catalogs": t("label_catalogs"),
-                "questions": t("label_questions"),
-                "pages": t("label_pages"),
-                "wiki_entries": t("label_wiki_entries"),
-                "news_articles": t("label_news_articles"),
-                "chatbots": t("label_chatbots"),
-                "custom_domains": t("label_custom_domains"),
-                "namespace_users": t("label_namespace_users"),
-                "storage_mb": t("label_storage_mb"),
-                "ai_generations_month": t("label_ai_generations_month")
-              }|json_encode|raw }}'></div>
-          </div>
-
-          {# ── Sektion C: Rechnungen ── #}
+          {# ── Sektion B: Rechnungen ── #}
           <div class="uk-card qr-card uk-card-body uk-margin-small" id="invoices-card">
             <h3 class="uk-card-title uk-margin-remove-bottom">{{ t('heading_invoices') }}</h3>
             <div id="invoice-list"
@@ -2395,49 +2370,60 @@
                  data-text-empty="{{ t('text_no_data') }}"></div>
           </div>
 
-          {# ── Sektion D: Tarife ── #}
+          {# ── Sektion C: Tarife (Stripe Pricing Table oder Fallback) ── #}
           {% if stripe_configured %}
-          <script src="https://js.stripe.com/v3/"></script>
-          <div id="stripe-checkout"></div>
-          {% if not tenant or not tenant.imprint_email %}
-          <div class="uk-margin-top uk-width-1-2@s">
-            <label class="uk-form-label">{{ t('subscription_email') }}</label>
-            <input class="uk-input" type="email" id="subscription-email" placeholder="name@firma.de" required>
-          </div>
-          {% endif %}
           <h3 class="uk-margin-top">{{ t('heading_subscription_plans') }}</h3>
-          <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m uk-grid-match" uk-grid>
-            <div>
-              <div class="uk-card qr-card uk-card-body pricing-plan-card" data-plan-card="starter">
-                <div class="uk-text-bold uk-text-large">{{ t('plan_starter') }}</div>
-                <div class="pricing-plan-price">9&nbsp;€<span class="uk-text-meta">/Monat</span></div>
-                <ul class="uk-list uk-list-bullet uk-text-small uk-margin-small-top">
-                  <li>3 Events</li>
-                  <li>30 Teams &amp; 15 Kataloge</li>
-                  <li>100 Fragen</li>
-                  <li>5 Seiten &amp; 10 Wiki-Artikel</li>
-                  <li>500 MB Speicher</li>
-                </ul>
-                <button class="uk-button uk-button-default uk-width-1-1 plan-select uk-margin-small-top" data-plan="starter">{{ t('action_start_subscription') }}</button>
+          {% if stripe_pricing_table_id is defined and stripe_pricing_table_id %}
+            <div class="uk-margin-small">
+              <stripe-pricing-table
+                pricing-table-id="{{ stripe_pricing_table_id|e('html_attr') }}"
+                publishable-key="{{ stripe_publishable_key|e('html_attr') }}"
+                client-reference-id="{{ subscriptionNamespace|e('html_attr') }}"
+              ></stripe-pricing-table>
+              <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+            </div>
+          {% else %}
+            <script src="https://js.stripe.com/v3/"></script>
+            <div id="stripe-checkout"></div>
+            {% if not tenant or not tenant.imprint_email %}
+            <div class="uk-margin-top uk-width-1-2@s">
+              <label class="uk-form-label">{{ t('subscription_email') }}</label>
+              <input class="uk-input" type="email" id="subscription-email" placeholder="name@firma.de" required>
+            </div>
+            {% endif %}
+            <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m uk-grid-match" uk-grid>
+              <div>
+                <div class="uk-card qr-card uk-card-body pricing-plan-card" data-plan-card="starter">
+                  <div class="uk-text-bold uk-text-large">{{ t('plan_starter') }}</div>
+                  <div class="pricing-plan-price">9&nbsp;€<span class="uk-text-meta">/Monat</span></div>
+                  <ul class="uk-list uk-list-bullet uk-text-small uk-margin-small-top">
+                    <li>3 Events</li>
+                    <li>30 Teams &amp; 15 Kataloge</li>
+                    <li>100 Fragen</li>
+                    <li>5 Seiten &amp; 10 Wiki-Artikel</li>
+                    <li>500 MB Speicher</li>
+                  </ul>
+                  <button class="uk-button uk-button-default uk-width-1-1 plan-select uk-margin-small-top" data-plan="starter">{{ t('action_start_subscription') }}</button>
+                </div>
+              </div>
+              <div>
+                <div class="uk-card qr-card uk-card-body pricing-plan-card" data-plan-card="standard">
+                  <div class="uk-text-bold uk-text-large">{{ t('plan_standard') }}</div>
+                  <div class="pricing-plan-price">39&nbsp;€<span class="uk-text-meta">/Monat</span></div>
+                  <ul class="uk-list uk-list-bullet uk-text-small uk-margin-small-top">
+                    <li>50 Events</li>
+                    <li>200 Teams &amp; 50 Kataloge</li>
+                    <li>500 Fragen</li>
+                    <li>100 Seiten &amp; 100 Wiki-Artikel</li>
+                    <li>5 GB Speicher</li>
+                    <li>3 Custom Domains</li>
+                    <li>100 KI-Generierungen / Monat</li>
+                  </ul>
+                  <button class="uk-button uk-button-primary uk-width-1-1 plan-select uk-margin-small-top" data-plan="standard">{{ t('action_start_subscription') }}</button>
+                </div>
               </div>
             </div>
-            <div>
-              <div class="uk-card qr-card uk-card-body pricing-plan-card" data-plan-card="standard">
-                <div class="uk-text-bold uk-text-large">{{ t('plan_standard') }}</div>
-                <div class="pricing-plan-price">39&nbsp;€<span class="uk-text-meta">/Monat</span></div>
-                <ul class="uk-list uk-list-bullet uk-text-small uk-margin-small-top">
-                  <li>50 Events</li>
-                  <li>200 Teams &amp; 50 Kataloge</li>
-                  <li>500 Fragen</li>
-                  <li>100 Seiten &amp; 100 Wiki-Artikel</li>
-                  <li>5 GB Speicher</li>
-                  <li>3 Custom Domains</li>
-                  <li>100 KI-Generierungen / Monat</li>
-                </ul>
-                <button class="uk-button uk-button-primary uk-width-1-1 plan-select uk-margin-small-top" data-plan="standard">{{ t('action_start_subscription') }}</button>
-              </div>
-            </div>
-          </div>
+          {% endif %}
           {% endif %}
 
           {# ── Sektion E: Billing-Hub-Einstellungen (nur Admin) ── #}
