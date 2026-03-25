@@ -2440,6 +2440,34 @@
           </div>
           {% endif %}
 
+          {# ── Sektion E: Billing-Hub-Einstellungen (nur Admin) ── #}
+          {% if role == 'admin' %}
+          <h3 class="uk-margin-large-top">Billing-Hub</h3>
+          <div class="uk-card qr-card uk-card-body uk-margin-small-bottom" data-billing-settings>
+            <div class="uk-grid-small" uk-grid>
+              <div class="uk-width-1-3@s">
+                <label class="uk-form-label" for="billing-product">Produkt</label>
+                <select class="uk-select" id="billing-product" name="product">
+                  <option value="">-- kein Produkt --</option>
+                  <option value="edocs">edocs</option>
+                  <option value="eforms">eforms</option>
+                  <option value="quizrace">quizrace</option>
+                  <option value="calserver">calserver</option>
+                </select>
+              </div>
+              <div class="uk-width-1-3@s">
+                <label class="uk-form-label" for="billing-pricing-table-id">Stripe Pricing Table ID</label>
+                <input class="uk-input" type="text" id="billing-pricing-table-id" name="stripe_pricing_table_id" placeholder="prctbl_...">
+              </div>
+              <div class="uk-width-1-3@s">
+                <label class="uk-form-label" for="billing-webhook-url">Webhook-URL</label>
+                <input class="uk-input" type="url" id="billing-webhook-url" name="webhook_url" placeholder="https://eforms.cloud/api/webhooks/billing">
+              </div>
+            </div>
+            <button class="uk-button uk-button-primary uk-margin-small-top" id="billing-settings-save">Speichern</button>
+          </div>
+          {% endif %}
+
           <script>
             window.upgradeUrl = '{{ basePath }}/admin/subscription';
             window.subscriptionNamespace = '{{ subscriptionNamespace|e('js') }}';

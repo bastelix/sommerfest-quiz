@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\StripeService;
 use App\Service\TenantService;
+use App\Service\NamespaceSubscriptionService;
 use App\Infrastructure\Database;
 use App\Service\LogService;
 use Stripe\Webhook;
@@ -146,6 +147,41 @@ class StripeWebhookController
                 break;
         }
 
+        // Forward billing event to the target app if a webhook_url is configured
+        $this->forwardToProduct($type, $object, $logger);
+
         return $response->withStatus(200);
+    }
+
+    /**
+     * Forward Stripe event to the namespace's configured webhook URL.
+     */
+    private function forwardToProduct(string $eventType, array $object, \Psr\Log\LoggerInterface $logger): void
+    {
+        $customerId = (string) ($object['customer'] ?? '');
+        if ($customerId === '') {
+            return;
+        }
+
+        try {
+            $pdo = Database::connectFromEnv();
+            $nsSvc = new NamespaceSubscriptionService($pdo);
+            $project = $nsSvc->findByStripeCustomerId($customerId);
+
+            if ($project !== null && ($project['webhook_url'] ?? '') !== '') {
+                $nsSvc->forwardWebhook($project['slug'], $eventType, [
+                    'stripe_customer_id' => $customerId,
+                    'plan' => $project['plan'],
+                    'stripe_status' => $project['stripe_status'],
+                ]);
+                $logger->info('Forwarded event to product', [
+                    'type' => $eventType,
+                    'product' => $project['product'] ?? '',
+                    'url' => $project['webhook_url'],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            $logger->warning('Webhook forwarding failed', ['error' => $e->getMessage()]);
+        }
     }
 }

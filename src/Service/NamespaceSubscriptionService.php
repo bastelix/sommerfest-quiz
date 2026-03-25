@@ -191,72 +191,6 @@ final class NamespaceSubscriptionService
     }
 
     /**
-     * Update Lago-related fields for a namespace project.
-     *
-     * @param array<string,mixed> $lagoData
-     */
-    public function updateLagoInfo(string $slug, array $lagoData): void
-    {
-        $project = $this->findOrCreate($slug);
-        $driver = $this->driverName();
-
-        $sets = [];
-        $params = [':id' => $project['id']];
-
-        $allowedFields = [
-            'lago_customer_id',
-            'lago_subscription_id',
-            'lago_plan_code',
-            'lago_status',
-        ];
-
-        foreach ($allowedFields as $field) {
-            if (array_key_exists($field, $lagoData)) {
-                $paramKey = ':' . $field;
-                $sets[] = "$field = $paramKey";
-                $params[$paramKey] = $lagoData[$field];
-            }
-        }
-
-        if ($sets === []) {
-            return;
-        }
-
-        $setClause = implode(', ', $sets);
-
-        if ($driver === 'sqlite') {
-            $sql = "UPDATE namespace_projects SET $setClause WHERE id = :id";
-        } else {
-            $sql = "UPDATE namespace_projects SET $setClause, updated_at = now() WHERE id = :id::uuid";
-        }
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-    }
-
-    /**
-     * Find a namespace project by its Lago customer ID.
-     */
-    public function findByLagoCustomerId(string $lagoCustomerId): ?array
-    {
-        if ($lagoCustomerId === '') {
-            return null;
-        }
-
-        try {
-            $stmt = $this->pdo->prepare(
-                'SELECT * FROM namespace_projects WHERE lago_customer_id = :cid'
-            );
-            $stmt->execute([':cid' => $lagoCustomerId]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (PDOException) {
-            return null;
-        }
-
-        return $row !== false ? $this->normalizeRow($row) : null;
-    }
-
-    /**
      * Update Stripe-related fields for a namespace project.
      *
      * @param array<string,mixed> $stripeData
@@ -386,6 +320,113 @@ final class NamespaceSubscriptionService
     }
 
     /**
+     * Update billing hub settings for a namespace project.
+     *
+     * @param array<string,mixed> $data Allowed: product, stripe_pricing_table_id, webhook_url
+     */
+    public function updateBillingSettings(string $slug, array $data): void
+    {
+        $project = $this->findOrCreate($slug);
+        $driver = $this->driverName();
+
+        $sets = [];
+        $params = [':id' => $project['id']];
+
+        $allowedFields = [
+            'product',
+            'stripe_pricing_table_id',
+            'webhook_url',
+        ];
+
+        foreach ($allowedFields as $field) {
+            if (array_key_exists($field, $data)) {
+                $paramKey = ':' . $field;
+                $sets[] = "$field = $paramKey";
+                $params[$paramKey] = $data[$field];
+            }
+        }
+
+        if ($sets === []) {
+            return;
+        }
+
+        $setClause = implode(', ', $sets);
+
+        if ($driver === 'sqlite') {
+            $sql = "UPDATE namespace_projects SET $setClause WHERE id = :id";
+        } else {
+            $sql = "UPDATE namespace_projects SET $setClause, updated_at = now() WHERE id = :id::uuid";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+    }
+
+    /**
+     * Find namespace project by Stripe customer ID.
+     */
+    public function findByStripeCustomerId(string $customerId): ?array
+    {
+        if ($customerId === '') {
+            return null;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT * FROM namespace_projects WHERE stripe_customer_id = :cid'
+            );
+            $stmt->execute([':cid' => $customerId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException) {
+            return null;
+        }
+
+        return $row !== false ? $this->normalizeRow($row) : null;
+    }
+
+    /**
+     * Forward a billing event to the namespace's configured webhook URL.
+     *
+     * @param array<string,mixed> $payload
+     */
+    public function forwardWebhook(string $slug, string $eventType, array $payload): void
+    {
+        $project = $this->findBySlug($slug);
+        $webhookUrl = $project['webhook_url'] ?? '';
+
+        if ($webhookUrl === '') {
+            return;
+        }
+
+        $body = json_encode([
+            'event_type' => $eventType,
+            'product' => $project['product'] ?? '',
+            'namespace' => $slug,
+            'data' => $payload,
+        ], JSON_UNESCAPED_SLASHES);
+
+        try {
+            $ch = curl_init($webhookUrl);
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $body,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'X-Edocs-Event: ' . $eventType,
+                    'X-Edocs-Product: ' . ($project['product'] ?? ''),
+                ],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_CONNECTTIMEOUT => 5,
+            ]);
+            curl_exec($ch);
+            curl_close($ch);
+        } catch (\Throwable) {
+            // Fire and forget — target app handles retries
+        }
+    }
+
+    /**
      * List all namespace projects.
      *
      * @return list<array>
@@ -416,10 +457,9 @@ final class NamespaceSubscriptionService
             'stripe_status' => $row['stripe_status'] ?? null,
             'stripe_current_period_end' => $row['stripe_current_period_end'] ?? null,
             'stripe_cancel_at_period_end' => (bool) ($row['stripe_cancel_at_period_end'] ?? false),
-            'lago_customer_id' => $row['lago_customer_id'] ?? null,
-            'lago_subscription_id' => $row['lago_subscription_id'] ?? null,
-            'lago_plan_code' => $row['lago_plan_code'] ?? null,
-            'lago_status' => $row['lago_status'] ?? null,
+            'product' => $row['product'] ?? null,
+            'stripe_pricing_table_id' => $row['stripe_pricing_table_id'] ?? null,
+            'webhook_url' => $row['webhook_url'] ?? null,
             'display_name' => (string) ($row['display_name'] ?? $row['slug'] ?? ''),
             'status' => (string) ($row['status'] ?? 'active'),
         ];

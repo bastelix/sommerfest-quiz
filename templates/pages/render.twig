@@ -102,6 +102,19 @@
     {{ content|raw }}
   </noscript>
 
+  {% if pricingTableId is defined and pricingTableId and stripePublishableKey is defined and stripePublishableKey %}
+    <section class="uk-section page-module-pricing-table">
+      <div class="uk-container">
+        <stripe-pricing-table
+          pricing-table-id="{{ pricingTableId|e('html_attr') }}"
+          publishable-key="{{ stripePublishableKey|e('html_attr') }}"
+          client-reference-id="{{ contentNamespace|default(designNamespace|default(''))|e('html_attr') }}"
+        ></stripe-pricing-table>
+      </div>
+    </section>
+    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+  {% endif %}
+
   {% if cmsChatEnabled %}
     {% include 'marketing/partials/marketing-chat.twig' %}
   {% endif %}
