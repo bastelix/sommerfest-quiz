@@ -405,6 +405,8 @@
 - *(billing)* Add Lago billing stack integration
 - *(billing)* Add multi-product Stripe billing hub
 - *(account)* Add customer-facing /account page per namespace
+- *(subscription)* Load plans dynamically from Stripe Product metadata
+- *(subscription)* Add per-plan trial days via Stripe Product metadata
 
 ### Fix
 
