@@ -146,11 +146,11 @@ final class NamespaceSubscriptionService
     public function getLimits(string $slug): array
     {
         $plan = $this->getPlan($slug);
-        $planEnum = Plan::tryFrom($plan);
 
-        $enumLimits = $planEnum !== null ? $planEnum->limits() : Plan::FREE->limits();
+        // Resolve limits: Stripe metadata > hardcoded enum fallback
+        $baseLimits = Plan::resolvedLimits($plan);
 
-        // Check plan_limits table for overrides
+        // Check plan_limits table for per-plan DB overrides (highest priority)
         try {
             $stmt = $this->pdo->prepare(
                 'SELECT metric, max_value FROM plan_limits WHERE plan = :plan'
@@ -161,7 +161,7 @@ final class NamespaceSubscriptionService
             $overrides = [];
         }
 
-        return array_merge($enumLimits, $overrides);
+        return array_merge($baseLimits, $overrides);
     }
 
     /**

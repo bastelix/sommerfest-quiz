@@ -24,6 +24,8 @@ test-results/
 
 certs/
 vhost.d/
+data/cache/**
+!data/cache/.gitkeep
 data/events/
 data/onboarding/
 data/test-logo.webp

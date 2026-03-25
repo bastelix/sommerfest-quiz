@@ -319,9 +319,161 @@ class StripeService
     }
 
     /**
+     * Fetch all active Stripe Products that have a `plan_key` metadata field.
+     *
+     * Results are cached to `data/cache/stripe_products.json` with a 5-minute TTL
+     * so that the Stripe API is not called on every page load.
+     *
+     * Each returned entry contains:
+     *  - plan_key, name, description
+     *  - price (unit_amount), currency, interval
+     *  - price_id
+     *  - features (list of display strings, from pipe-separated metadata)
+     *  - limits (associative array of limit_* metadata values)
+     *  - highlighted (bool)
+     *  - sort_order (int)
+     *
+     * @return list<array<string,mixed>>
+     */
+    public function listProducts(): array {
+        // Try file cache first
+        $cacheFile = __DIR__ . '/../../data/cache/stripe_products.json';
+        if (is_file($cacheFile)) {
+            $cached = json_decode((string) file_get_contents($cacheFile), true);
+            if (is_array($cached) && isset($cached['ts']) && (time() - (int) $cached['ts']) < 300) {
+                return $cached['data'] ?? [];
+            }
+        }
+
+        try {
+            $products = $this->client->products->all(['active' => true, 'limit' => 50]);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($products->data as $product) {
+            $meta = (array) ($product->metadata ?? []);
+            $planKey = (string) ($meta['plan_key'] ?? '');
+            if ($planKey === '') {
+                continue;
+            }
+
+            // Resolve the default price or the first active price
+            $price = $product->default_price ?? null;
+            $priceId = '';
+            $unitAmount = 0;
+            $currency = 'eur';
+            $interval = 'month';
+
+            if ($price !== null && is_object($price)) {
+                $priceId = (string) ($price->id ?? '');
+                $unitAmount = (int) ($price->unit_amount ?? 0);
+                $currency = (string) ($price->currency ?? 'eur');
+                $interval = (string) ($price->recurring->interval ?? 'month');
+            } elseif (is_string($price) && $price !== '') {
+                // default_price is just an ID string; fetch the full object
+                try {
+                    $priceObj = $this->client->prices->retrieve($price);
+                    $priceId = (string) $priceObj->id;
+                    $unitAmount = (int) ($priceObj->unit_amount ?? 0);
+                    $currency = (string) ($priceObj->currency ?? 'eur');
+                    $interval = (string) ($priceObj->recurring->interval ?? 'month');
+                } catch (\Throwable) {
+                    // skip product without resolvable price
+                    continue;
+                }
+            } else {
+                // Try to find an active recurring price for this product
+                try {
+                    $prices = $this->client->prices->all([
+                        'product' => $product->id,
+                        'active' => true,
+                        'type' => 'recurring',
+                        'limit' => 1,
+                    ]);
+                    $firstPrice = $prices->data[0] ?? null;
+                    if ($firstPrice !== null) {
+                        $priceId = (string) $firstPrice->id;
+                        $unitAmount = (int) ($firstPrice->unit_amount ?? 0);
+                        $currency = (string) ($firstPrice->currency ?? 'eur');
+                        $interval = (string) ($firstPrice->recurring->interval ?? 'month');
+                    }
+                } catch (\Throwable) {
+                    // ignore
+                }
+            }
+
+            // Parse features from pipe-separated metadata
+            $featuresRaw = (string) ($meta['features'] ?? '');
+            $features = $featuresRaw !== '' ? array_map('trim', explode('|', $featuresRaw)) : [];
+
+            // Extract limit_* metadata
+            $limits = [];
+            foreach ($meta as $key => $value) {
+                if (str_starts_with($key, 'limit_')) {
+                    $limits[substr($key, 6)] = (int) $value;
+                }
+            }
+
+            $result[] = [
+                'plan_key' => $planKey,
+                'name' => (string) ($product->name ?? $planKey),
+                'description' => (string) ($product->description ?? ''),
+                'price' => $unitAmount,
+                'currency' => $currency,
+                'interval' => $interval,
+                'price_id' => $priceId,
+                'features' => $features,
+                'limits' => $limits,
+                'highlighted' => filter_var($meta['highlighted'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'sort_order' => (int) ($meta['sort_order'] ?? 99),
+            ];
+        }
+
+        // Sort by sort_order
+        usort($result, fn($a, $b) => $a['sort_order'] <=> $b['sort_order']);
+
+        // Write cache
+        $cacheDir = dirname($cacheFile);
+        if (!is_dir($cacheDir)) {
+            @mkdir($cacheDir, 0755, true);
+        }
+        @file_put_contents($cacheFile, json_encode(['ts' => time(), 'data' => $result], JSON_UNESCAPED_SLASHES));
+
+        return $result;
+    }
+
+    /**
+     * Clear the products cache (e.g. after webhook-driven plan changes).
+     */
+    public function clearProductsCache(): void {
+        $cacheFile = __DIR__ . '/../../data/cache/stripe_products.json';
+        if (is_file($cacheFile)) {
+            @unlink($cacheFile);
+        }
+    }
+
+    /**
+     * Get the limits defined in Stripe Product metadata for a given plan key.
+     *
+     * @return array<string,int>|null  Null when the plan is not found in Stripe.
+     */
+    public function getProductLimits(string $planKey): ?array {
+        $products = $this->listProducts();
+        foreach ($products as $product) {
+            if ($product['plan_key'] === $planKey && $product['limits'] !== []) {
+                return $product['limits'];
+            }
+        }
+        return null;
+    }
+
+    /**
      * Map a Stripe price ID to the corresponding plan name.
      *
-     * Centralises the mapping so it is not duplicated across controllers.
+     * Checks env-var mapping first (backward compat), then falls back to
+     * cached Stripe Product metadata.
      */
     public static function mapPriceToPlan(string $priceId): ?string {
         if ($priceId === '') {
@@ -342,11 +494,29 @@ class StripeService
         if ($free !== '') {
             $map[$free] = 'free';
         }
-        return $map[$priceId] ?? null;
+        if (isset($map[$priceId])) {
+            return $map[$priceId];
+        }
+
+        // Fall back to cached product metadata
+        $cacheFile = __DIR__ . '/../../data/cache/stripe_products.json';
+        if (is_file($cacheFile)) {
+            $cached = json_decode((string) file_get_contents($cacheFile), true);
+            foreach (($cached['data'] ?? []) as $product) {
+                if (($product['price_id'] ?? '') === $priceId) {
+                    return $product['plan_key'] ?? null;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
      * Resolve the price ID for a given plan name.
+     *
+     * Checks env-var mapping first (backward compat), then falls back to
+     * cached Stripe Product metadata.
      */
     public static function priceIdForPlan(string $plan): string {
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
@@ -356,7 +526,22 @@ class StripeService
             'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
             'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
         ];
-        return $map[$plan] ?? '';
+        if (($map[$plan] ?? '') !== '') {
+            return $map[$plan];
+        }
+
+        // Fall back to cached product metadata
+        $cacheFile = __DIR__ . '/../../data/cache/stripe_products.json';
+        if (is_file($cacheFile)) {
+            $cached = json_decode((string) file_get_contents($cacheFile), true);
+            foreach (($cached['data'] ?? []) as $product) {
+                if (($product['plan_key'] ?? '') === $plan) {
+                    return $product['price_id'] ?? '';
+                }
+            }
+        }
+
+        return '';
     }
 
     /**
