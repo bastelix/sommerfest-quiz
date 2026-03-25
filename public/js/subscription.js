@@ -385,6 +385,19 @@
           card.appendChild(ul);
         }
 
+        // Trial badge
+        if (plan.trial_days && plan.trial_days > 0) {
+          const trialDiv = document.createElement('div');
+          trialDiv.className = 'uk-margin-small-top';
+          const trialBadge = document.createElement('span');
+          trialBadge.className = 'uk-label uk-label-success';
+          trialBadge.style.fontSize = '0.75rem';
+          const trialLabel = container.dataset.labelTrial || '{n} Tage kostenlos testen';
+          trialBadge.textContent = trialLabel.replace('{n}', plan.trial_days);
+          trialDiv.appendChild(trialBadge);
+          card.appendChild(trialDiv);
+        }
+
         // Select button
         const btn = document.createElement('button');
         btn.className = plan.highlighted

@@ -416,6 +416,9 @@ class StripeService
                 }
             }
 
+            // Trial days: per-product metadata, fallback to env, then default 7
+            $trialDays = isset($meta['trial_days']) ? (int) $meta['trial_days'] : null;
+
             $result[] = [
                 'plan_key' => $planKey,
                 'name' => (string) ($product->name ?? $planKey),
@@ -428,6 +431,7 @@ class StripeService
                 'limits' => $limits,
                 'highlighted' => filter_var($meta['highlighted'] ?? false, FILTER_VALIDATE_BOOLEAN),
                 'sort_order' => (int) ($meta['sort_order'] ?? 99),
+                'trial_days' => $trialDays,
             ];
         }
 
@@ -467,6 +471,27 @@ class StripeService
             }
         }
         return null;
+    }
+
+    /**
+     * Get the trial period in days for a given plan key.
+     *
+     * Priority: Stripe Product metadata `trial_days` > STRIPE_TRIAL_DAYS env > 7
+     */
+    public function getTrialDaysForPlan(string $planKey): int {
+        $products = $this->listProducts();
+        foreach ($products as $product) {
+            if ($product['plan_key'] === $planKey && $product['trial_days'] !== null) {
+                return $product['trial_days'];
+            }
+        }
+
+        $envTrial = getenv('STRIPE_TRIAL_DAYS');
+        if ($envTrial !== false && $envTrial !== '') {
+            return (int) $envTrial;
+        }
+
+        return 7;
     }
 
     /**
