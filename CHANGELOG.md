@@ -721,6 +721,7 @@
 - *(admin)* Show content area by removing broken uk-switcher dependency
 - *(admin)* Remove stray closing div that breaks admin content layout
 - *(editor)* Prevent infinite scroll after hero and sync design tokens in preview
+- *(wiki)* Offset wiki layout below topbar when menu is assigned
 
 ### Merge
 
