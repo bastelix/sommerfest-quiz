@@ -3293,14 +3293,14 @@ function renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget) {
 
   const btnClass = plan.highlighted ? 'uk-button-primary' : 'uk-button-default';
   const label = escapeHtml(ctaLabel || 'Abo starten');
-  let ctaHtml;
-  if (ctaTarget) {
-    const separator = ctaTarget.includes('?') ? '&' : '?';
-    const href = escapeAttribute(ctaTarget) + separator + 'plan=' + escapeAttribute(plan.plan_key);
-    ctaHtml = `<div class="uk-margin-top"><a href="${href}" class="uk-button ${btnClass} uk-width-1-1">${label}</a></div>`;
-  } else {
-    ctaHtml = `<div class="uk-margin-top"><button class="uk-button ${btnClass} uk-width-1-1" data-subscription-plan="${escapeAttribute(plan.plan_key)}" disabled title="Ziel-URL im Block konfigurieren">${label}</button></div>`;
+  // Default to /checkout route when no ctaTarget is set
+  const target = ctaTarget || '/checkout';
+  const separator = target.includes('?') ? '&' : '?';
+  let href = escapeAttribute(target) + separator + 'plan=' + escapeAttribute(plan.plan_key);
+  if (plan.product_id) {
+    href += '&product=' + escapeAttribute(plan.product_id);
   }
+  const ctaHtml = `<div class="uk-margin-top"><a href="${href}" class="uk-button ${btnClass} uk-width-1-1">${label}</a></div>`;
 
   return `<div><div class="uk-card uk-card-default uk-height-1-1 uk-flex uk-flex-column">` +
     `<div class="uk-card-body uk-flex-1">${badge}${title}${priceHtml}${description}${featureList}${trialHtml}</div>` +
