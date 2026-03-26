@@ -4,48 +4,61 @@ hide:
   - toc
 ---
 
-# Willkommen zur edocs Dokumentation
+# Willkommen zur edocs.cloud Dokumentation
 
-Das **edocs** ist eine Web-App für Veranstaltungen wie Sommerfeste und Firmenevents.
-Die Anwendung basiert auf dem Slim Framework und nutzt UIkit3 für ein responsives Design.
-Fragenkataloge, Teilnehmer und Ergebnisse werden in einer PostgreSQL-Datenbank gespeichert
-und können per JSON importiert oder exportiert werden.
+**edocs.cloud** ist ein Multi-Tenant-Agentur-CMS auf Basis von Slim 4 und UIkit 3. Es kombiniert ein Quiz-/Event-System mit einem vollständigen CMS inkl. Wiki, Ticketsystem, News, Design-Token-System und MCP-Integration für AI-Agenten.
 
 ---
 
 <div class="grid cards" markdown>
 
--   :material-book-open-variant:{ .lg .middle } **Handbuch**
+-   :material-sitemap:{ .lg .middle } **Architektur**
 
     ---
 
-    Spielablauf, Spielregeln und häufige Fragen rund um das edocs.
+    Namespace-Konzept, Page-Modell, Custom Domains, Request-Lifecycle und Tech-Stack.
 
-    [:octicons-arrow-right-24: Zum Handbuch](about.md)
+    [:octicons-arrow-right-24: Zum Architektur-Überblick](architecture.md)
+
+-   :material-api:{ .lg .middle } **API & MCP**
+
+    ---
+
+    REST-API v1 Referenz und MCP-Tool-Dokumentation für AI-Agenten.
+
+    [:octicons-arrow-right-24: Zur API-Referenz](api-v1-reference.md) · [:octicons-arrow-right-24: MCP-Tools](mcp-reference.md)
+
+-   :material-view-module:{ .lg .middle } **Module**
+
+    ---
+
+    Wiki, Ticketsystem, Quiz/Events, News, Menü-System und Footer-Builder.
+
+    [:octicons-arrow-right-24: Zu den Modulen](wiki.md)
+
+-   :material-palette-swatch:{ .lg .middle } **Design-System**
+
+    ---
+
+    Design-Tokens, Presets, Custom CSS und Komponentenstile.
+
+    [:octicons-arrow-right-24: Zum Design-System](design-system.md)
 
 -   :material-shield-account:{ .lg .middle } **Administration**
 
     ---
 
-    Rollen, Berechtigungen, Mandantenverwaltung und Migrationen.
+    Rollen, Berechtigungen, Namespace-Management und Migrationen.
 
     [:octicons-arrow-right-24: Zur Administration](admin.md)
 
--   :material-api:{ .lg .middle } **Technik**
+-   :material-rocket-launch:{ .lg .middle } **Betrieb**
 
     ---
 
-    REST-API-Referenz, Architektur-Entscheidungen und ADRs.
+    Docker-Setup, Deployment, Domain-Mapping, Umgebungsvariablen.
 
-    [:octicons-arrow-right-24: Zur API-Referenz](api-v1-reference.md)
-
--   :material-palette-swatch:{ .lg .middle } **Entwicklung**
-
-    ---
-
-    Design-Tokens, Namespace-System, CSS-Audit und Block-Editor.
-
-    [:octicons-arrow-right-24: Zur Entwicklung](marketing-design-tokens.md)
+    [:octicons-arrow-right-24: Zum Deployment](deployment.md)
 
 </div>
 
@@ -54,23 +67,25 @@ und können per JSON importiert oder exportiert werden.
 ## Projekt-Steckbrief
 
 | Eigenschaft | Details |
-|-------------|---------|
-| **Typ** | Multi-Tenant-Webanwendung (PHP / Slim Framework) |
-| **Einsatzgebiet** | Quiz-Rallyes für Firmenfeiern und Veranstaltungen |
-| **Fragetypen** | Sortieren, Zuordnen, Multiple Choice, Swipe-Karten, Foto mit Texteingabe, „Hätten Sie es gewusst?" |
-| **Frontend** | UIkit3, responsives Design, Dark Mode |
-| **Datenbank** | PostgreSQL mit Schema-Isolation pro Mandant |
-| **Deployment** | Docker / Docker Compose |
-| **API** | REST-API mit JSON Import/Export |
-| **Authentifizierung** | QR-Code-Login, Session-basiert |
+|---|---|
+| **Typ** | Multi-Tenant-Agentur-CMS (PHP / Slim 4) |
+| **Module** | Quiz/Events, Wiki, Tickets, News, Menüs, Footer-Builder |
+| **Frontend** | UIkit 3, Responsive Design, Dark Mode |
+| **Datenbank** | PostgreSQL 15 |
+| **AI-Integration** | MCP-Server (OAuth 2.0), RAG-Chat-Service |
+| **Billing** | Stripe (Checkout, Subscriptions, Webhooks) |
+| **Deployment** | Docker / Docker Compose, GitHub Actions CI/CD |
+| **API** | REST v1 mit Bearer-Token-Auth, 7 Scopes |
+| **Dokumentation** | MkDocs Material, GitHub Pages |
 
 ## Highlights
 
-- **Flexibel einsetzbar** – Kataloge im JSON-Format lassen sich einfach austauschen.
-- **Sechs Fragetypen** – Sortieren, Zuordnen, Multiple Choice, Swipe-Karten, Foto mit Texteingabe und „Hätten Sie es gewusst?"-Karten.
-- **QR-Code-Login & Dunkelmodus** – Komfortables Spielen auf allen Geräten.
-- **Multi-Tenant** – Mehrere Organisationen gleichzeitig bedienbar, jeder Mandant mit eigener Subdomain und eigenem DB-Schema.
-- **Persistente Speicherung** – PostgreSQL mit automatischen Migrationen.
+- **Multi-Tenant** – Namespace-Isolation mit Custom-Domain-Mapping
+- **MCP-Server** – 60+ Tools für AI-Agenten (Seiten, Menüs, Design, Wiki, Tickets, etc.)
+- **Design-Tokens** – Visuelles System mit Presets, Custom CSS und Live-Mapping
+- **Wiki mit Versionierung** – Integrierte Wissensdatenbank pro Seite
+- **Ticketsystem** – Bug- und Aufgabenverwaltung mit Status-Workflow
+- **Quiz-Engine** – 6 Fragetypen, KI-Teamnamen, Echtzeit-Ergebnisse
 
 ---
 

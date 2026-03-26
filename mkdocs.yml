@@ -1,6 +1,6 @@
-site_name: edocs Dokumentation
+site_name: edocs.cloud Dokumentation
 site_url: https://bastelix.github.io/edocs-cloud/
-site_description: Quizsystem für Firmenfeiern – Dokumentation
+site_description: Agentur-CMS mit Quiz, Wiki, Ticketsystem und MCP-Integration – Dokumentation
 repo_url: https://github.com/bastelix/edocs-cloud
 repo_name: bastelix/edocs-cloud
 
@@ -48,7 +48,11 @@ plugins:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
@@ -66,23 +70,40 @@ nav:
     - Überblick: about.md
     - Spielablauf: spielablauf.md
     - FAQ: faq.md
-  - Administration:
-    - Übersicht: admin.md
-    - Migrationen: migrationen.md
-  - Technik:
-    - API-Referenz: api-v1-reference.md
-    - Architektur: architecture-review.md
+  - Architektur:
+    - Überblick: architecture.md
+    - Namespace-Design: namespace-design.md
+    - Architektur-Review: architecture-review.md
     - ADR:
       - "001 – Namespace Text Slugs": adr/001-namespace-text-slugs.md
       - "002 – No DI Container": adr/002-no-di-container-legacy.md
       - "003 – No Frontend Build Tool": adr/003-no-frontend-build-tool.md
-  - Entwicklung:
-    - Design-Tokens: marketing-design-tokens.md
-    - Namespace-Design: namespace-design.md
+  - Module:
+    - Wiki: wiki.md
+    - Ticketsystem: tickets.md
+    - Quiz & Events: quiz-events.md
+    - News: news.md
+    - Menü-System: menu-system.md
+    - Footer-Builder: footer-builder.md
+  - API & MCP:
+    - API-Referenz: api-v1-reference.md
+    - MCP-Tool-Referenz: mcp-reference.md
+    - MCP-Connector-Setup: mcp-connector-setup.md
+  - Design & Frontend:
+    - Design-System: design-system.md
+    - Marketing-Tokens: marketing-design-tokens.md
     - CSS-Audit: css-audit.md
     - Block-System: block_editor_architecture.md
     - Landing-Styles: landing-style-overrides.md
     - SEO: seo-sef-overview.md
+  - Administration:
+    - Übersicht: admin.md
+    - Namespace-Management: namespace-management.md
+    - Migrationen: migrationen.md
+  - Betrieb:
+    - Deployment & Infrastruktur: deployment.md
+  - Entwicklung:
+    - Verbesserungen & Roadmap: improvements.md
   - Rechtliches:
     - Datenschutz: datenschutz.md
     - Impressum: impressum.md
@@ -93,4 +114,4 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/bastelix/edocs-cloud
 
-copyright: "&copy; bastelix – edocs Dokumentation"
+copyright: "&copy; bastelix – edocs.cloud Dokumentation"
