@@ -1267,6 +1267,114 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/onboarding/checkout/{id}', StripeSessionController::class);
     $app->post('/onboarding/checkout/{id}/cancel', [SubscriptionController::class, 'cancelOnboardingCheckout']);
     $app->post('/stripe/webhook', StripeWebhookController::class);
+
+    // Public checkout: GET /checkout?plan=starter&product=prod_xxx&namespace=eforms
+    // Creates a Stripe Checkout Session and redirects to Stripe payment page.
+    $app->get('/checkout', function (
+        \Psr\Http\Message\ServerRequestInterface $request,
+        \Psr\Http\Message\ResponseInterface $response
+    ) {
+        $params = $request->getQueryParams();
+        $planKey = trim((string) ($params['plan'] ?? ''));
+        $productId = trim((string) ($params['product'] ?? ''));
+        $namespaceSlug = trim((string) ($params['namespace'] ?? ''));
+        $email = trim((string) ($params['email'] ?? ''));
+
+        if ($planKey === '') {
+            $response->getBody()->write('Missing plan parameter');
+            return $response->withStatus(400);
+        }
+
+        // Resolve namespace for per-namespace Stripe keys
+        $project = null;
+        $service = null;
+        if ($namespaceSlug !== '') {
+            try {
+                $pdo = Database::connectFromEnv();
+                $nsSvc = new \App\Service\NamespaceSubscriptionService($pdo);
+                $project = $nsSvc->findBySlug($namespaceSlug);
+                if ($project !== null) {
+                    $service = StripeService::forNamespace($project);
+                }
+            } catch (\Throwable) {
+                // Fall through
+            }
+        }
+        if ($service === null) {
+            $service = new StripeService();
+        }
+
+        // Find price_id for the plan (from cached products, filtered by product if given)
+        $priceId = '';
+        try {
+            $products = $service->listProducts($productId !== '' ? $productId : null);
+            foreach ($products as $p) {
+                if ($p['plan_key'] === $planKey) {
+                    $priceId = $p['price_id'];
+                    break;
+                }
+            }
+        } catch (\Throwable) {
+            // Try env fallback
+        }
+
+        if ($priceId === '') {
+            $priceId = StripeService::priceIdForPlan($planKey);
+        }
+
+        if ($priceId === '') {
+            $response->getBody()->write('Plan not found: ' . htmlspecialchars($planKey));
+            return $response->withStatus(404);
+        }
+
+        $trialDays = $service->getTrialDaysForPlan($planKey);
+
+        $uri = $request->getUri();
+        $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
+        $successUrl = $baseUrl . '/checkout/success?session_id={CHECKOUT_SESSION_ID}';
+        $cancelUrl = (string) ($params['cancel_url'] ?? $baseUrl);
+
+        try {
+            $url = $service->createCheckoutSession(
+                $priceId,
+                $successUrl,
+                $cancelUrl,
+                $planKey,
+                $email !== '' ? $email : null,
+                null,
+                $namespaceSlug !== '' ? $namespaceSlug : null,
+                $trialDays
+            );
+        } catch (\Throwable $e) {
+            error_log('Public checkout failed: ' . $e->getMessage());
+            $response->getBody()->write('Checkout could not be started. Please try again.');
+            return $response->withStatus(503);
+        }
+
+        return $response->withHeader('Location', $url)->withStatus(302);
+    });
+
+    // Checkout success page (simple confirmation)
+    $app->get('/checkout/success', function (
+        \Psr\Http\Message\ServerRequestInterface $request,
+        \Psr\Http\Message\ResponseInterface $response
+    ) {
+        $sessionId = trim((string) ($request->getQueryParams()['session_id'] ?? ''));
+        $html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Checkout</title>'
+            . '<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f8f8f8}'
+            . '.card{background:#fff;border-radius:12px;padding:3rem;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.08);max-width:480px}'
+            . '.check{font-size:3rem;margin-bottom:1rem}</style></head>'
+            . '<body><div class="card"><div class="check">&#10003;</div>'
+            . '<h1>Vielen Dank!</h1>'
+            . '<p>Dein Abonnement wurde erfolgreich gestartet.</p>';
+        if ($sessionId !== '') {
+            $html .= '<p style="color:#666;font-size:.85rem">Session: ' . htmlspecialchars(substr($sessionId, 0, 30)) . '…</p>';
+        }
+        $html .= '</div></body></html>';
+        $response->getBody()->write($html);
+        return $response->withHeader('Content-Type', 'text/html');
+    });
+
     $app->get('/account', [AccountController::class, 'show']);
     $app->post('/account', [AccountController::class, 'login'])
         ->add(new RateLimitMiddleware(5, 300))
