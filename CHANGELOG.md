@@ -735,6 +735,7 @@
 - Remove extra {{end}} blocks in nginx.tmpl causing docker-gen parse failure
 - Include main domain in MarketingProxySyncService
 - *(hero)* Add missing uk-modal class to hero media lightbox
+- *(subscription)* Hydrate plan cards in editor preview and frontend
 
 ### Merge
 
