@@ -345,94 +345,133 @@ class StripeService
             }
         }
 
-        try {
-            $products = $this->client->products->all(['active' => true, 'limit' => 50]);
-        } catch (\Throwable) {
-            return [];
-        }
-
         $result = [];
-        foreach ($products->data as $product) {
-            $meta = (array) ($product->metadata ?? []);
-            $planKey = (string) ($meta['plan_key'] ?? '');
-            if ($planKey === '') {
-                continue;
-            }
 
-            // Resolve the default price or the first active price
-            $price = $product->default_price ?? null;
-            $priceId = '';
-            $unitAmount = 0;
-            $currency = 'eur';
-            $interval = 'month';
+        // Strategy 1: Iterate over active recurring Prices and read metadata from Price.
+        // This supports the pattern: 1 Product (e.g. "eforms") with multiple Prices
+        // (Starter, Standard), where each Price carries its own plan_key metadata.
+        try {
+            $prices = $this->client->prices->all([
+                'active' => true,
+                'type' => 'recurring',
+                'expand' => ['data.product'],
+                'limit' => 50,
+            ]);
 
-            if ($price !== null && is_object($price)) {
-                $priceId = (string) ($price->id ?? '');
-                $unitAmount = (int) ($price->unit_amount ?? 0);
-                $currency = (string) ($price->currency ?? 'eur');
-                $interval = (string) ($price->recurring->interval ?? 'month');
-            } elseif (is_string($price) && $price !== '') {
-                // default_price is just an ID string; fetch the full object
-                try {
-                    $priceObj = $this->client->prices->retrieve($price);
-                    $priceId = (string) $priceObj->id;
-                    $unitAmount = (int) ($priceObj->unit_amount ?? 0);
-                    $currency = (string) ($priceObj->currency ?? 'eur');
-                    $interval = (string) ($priceObj->recurring->interval ?? 'month');
-                } catch (\Throwable) {
-                    // skip product without resolvable price
+            foreach ($prices->data as $price) {
+                $meta = (array) ($price->metadata ?? []);
+                $planKey = (string) ($meta['plan_key'] ?? '');
+                if ($planKey === '') {
                     continue;
                 }
-            } else {
-                // Try to find an active recurring price for this product
-                try {
-                    $prices = $this->client->prices->all([
-                        'product' => $product->id,
-                        'active' => true,
-                        'type' => 'recurring',
-                        'limit' => 1,
-                    ]);
-                    $firstPrice = $prices->data[0] ?? null;
-                    if ($firstPrice !== null) {
-                        $priceId = (string) $firstPrice->id;
-                        $unitAmount = (int) ($firstPrice->unit_amount ?? 0);
-                        $currency = (string) ($firstPrice->currency ?? 'eur');
-                        $interval = (string) ($firstPrice->recurring->interval ?? 'month');
+
+                $product = $price->product ?? null;
+                $productName = is_object($product) ? (string) ($product->name ?? '') : '';
+                $productDesc = is_object($product) ? (string) ($product->description ?? '') : '';
+
+                // Price nickname (e.g. "Starter") takes priority, then product name
+                $displayName = (string) ($price->nickname ?? '');
+                if ($displayName === '') {
+                    $displayName = $productName !== '' ? $productName : ucfirst($planKey);
+                }
+
+                $featuresRaw = (string) ($meta['features'] ?? '');
+                $features = $featuresRaw !== '' ? array_map('trim', explode('|', $featuresRaw)) : [];
+
+                $limits = [];
+                foreach ($meta as $key => $value) {
+                    if (str_starts_with($key, 'limit_')) {
+                        $limits[substr($key, 6)] = (int) $value;
                     }
-                } catch (\Throwable) {
-                    // ignore
                 }
+
+                $trialDays = isset($meta['trial_days']) ? (int) $meta['trial_days'] : null;
+
+                $result[] = [
+                    'plan_key' => $planKey,
+                    'name' => $displayName,
+                    'description' => $productDesc,
+                    'price' => (int) ($price->unit_amount ?? 0),
+                    'currency' => (string) ($price->currency ?? 'eur'),
+                    'interval' => (string) ($price->recurring->interval ?? 'month'),
+                    'price_id' => (string) ($price->id ?? ''),
+                    'features' => $features,
+                    'limits' => $limits,
+                    'highlighted' => filter_var($meta['highlighted'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                    'sort_order' => (int) ($meta['sort_order'] ?? 99),
+                    'trial_days' => $trialDays,
+                ];
             }
+        } catch (\Throwable) {
+            // Fall through to product-level strategy
+        }
 
-            // Parse features from pipe-separated metadata
-            $featuresRaw = (string) ($meta['features'] ?? '');
-            $features = $featuresRaw !== '' ? array_map('trim', explode('|', $featuresRaw)) : [];
+        // Strategy 2 (backward compat): If no prices had plan_key metadata, try
+        // the old approach of reading plan_key from Product metadata.
+        if ($result === []) {
+            try {
+                $products = $this->client->products->all(['active' => true, 'limit' => 50]);
+                foreach ($products->data as $product) {
+                    $meta = (array) ($product->metadata ?? []);
+                    $planKey = (string) ($meta['plan_key'] ?? '');
+                    if ($planKey === '') {
+                        continue;
+                    }
 
-            // Extract limit_* metadata
-            $limits = [];
-            foreach ($meta as $key => $value) {
-                if (str_starts_with($key, 'limit_')) {
-                    $limits[substr($key, 6)] = (int) $value;
+                    $priceId = '';
+                    $unitAmount = 0;
+                    $currency = 'eur';
+                    $interval = 'month';
+
+                    // Resolve default price or first recurring price
+                    $defaultPrice = $product->default_price ?? null;
+                    if ($defaultPrice !== null && is_object($defaultPrice)) {
+                        $priceId = (string) ($defaultPrice->id ?? '');
+                        $unitAmount = (int) ($defaultPrice->unit_amount ?? 0);
+                        $currency = (string) ($defaultPrice->currency ?? 'eur');
+                        $interval = (string) ($defaultPrice->recurring->interval ?? 'month');
+                    } elseif (is_string($defaultPrice) && $defaultPrice !== '') {
+                        try {
+                            $priceObj = $this->client->prices->retrieve($defaultPrice);
+                            $priceId = (string) $priceObj->id;
+                            $unitAmount = (int) ($priceObj->unit_amount ?? 0);
+                            $currency = (string) ($priceObj->currency ?? 'eur');
+                            $interval = (string) ($priceObj->recurring->interval ?? 'month');
+                        } catch (\Throwable) {
+                            continue;
+                        }
+                    }
+
+                    $featuresRaw = (string) ($meta['features'] ?? '');
+                    $features = $featuresRaw !== '' ? array_map('trim', explode('|', $featuresRaw)) : [];
+
+                    $limits = [];
+                    foreach ($meta as $key => $value) {
+                        if (str_starts_with($key, 'limit_')) {
+                            $limits[substr($key, 6)] = (int) $value;
+                        }
+                    }
+
+                    $trialDays = isset($meta['trial_days']) ? (int) $meta['trial_days'] : null;
+
+                    $result[] = [
+                        'plan_key' => $planKey,
+                        'name' => (string) ($product->name ?? $planKey),
+                        'description' => (string) ($product->description ?? ''),
+                        'price' => $unitAmount,
+                        'currency' => $currency,
+                        'interval' => $interval,
+                        'price_id' => $priceId,
+                        'features' => $features,
+                        'limits' => $limits,
+                        'highlighted' => filter_var($meta['highlighted'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                        'sort_order' => (int) ($meta['sort_order'] ?? 99),
+                        'trial_days' => $trialDays,
+                    ];
                 }
+            } catch (\Throwable) {
+                // Return empty
             }
-
-            // Trial days: per-product metadata, fallback to env, then default 7
-            $trialDays = isset($meta['trial_days']) ? (int) $meta['trial_days'] : null;
-
-            $result[] = [
-                'plan_key' => $planKey,
-                'name' => (string) ($product->name ?? $planKey),
-                'description' => (string) ($product->description ?? ''),
-                'price' => $unitAmount,
-                'currency' => $currency,
-                'interval' => $interval,
-                'price_id' => $priceId,
-                'features' => $features,
-                'limits' => $limits,
-                'highlighted' => filter_var($meta['highlighted'] ?? false, FILTER_VALIDATE_BOOLEAN),
-                'sort_order' => (int) ($meta['sort_order'] ?? 99),
-                'trial_days' => $trialDays,
-            ];
         }
 
         // Sort by sort_order
