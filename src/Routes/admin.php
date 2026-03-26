@@ -598,6 +598,83 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         '/admin/subscription/checkout/{id}',
         StripeSessionController::class
     )->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    // Debug endpoint: show raw Stripe prices for a product (admin only)
+    $app->get('/admin/subscription/debug', function (Request $request, Response $response) {
+        $params = $request->getQueryParams();
+        $productId = trim((string) ($params['product'] ?? ''));
+        $namespaceSlug = trim((string) ($params['namespace'] ?? ''));
+
+        $result = [
+            'global_config' => StripeService::isConfigured(),
+            'product_filter' => $productId,
+            'namespace' => $namespaceSlug,
+        ];
+
+        // Resolve service (per-namespace or global)
+        $service = null;
+        if ($namespaceSlug !== '') {
+            $pdo = Database::connectFromEnv();
+            $nsSvc = new NamespaceSubscriptionService($pdo);
+            $project = $nsSvc->findBySlug($namespaceSlug);
+            $result['namespace_has_own_keys'] = ($project['stripe_secret_key'] ?? '') !== '';
+            if ($project !== null) {
+                $service = StripeService::forNamespace($project);
+            }
+        }
+
+        if ($service === null && StripeService::isConfigured()['ok']) {
+            $service = new StripeService();
+        }
+
+        if ($service === null) {
+            $result['error'] = 'No Stripe service available (no global keys and no namespace keys)';
+            $response->getBody()->write((string) json_encode($result, JSON_PRETTY_PRINT));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        // Fetch raw prices from Stripe API
+        try {
+            $ref = new \ReflectionProperty($service, 'client');
+            $ref->setAccessible(true);
+            $client = $ref->getValue($service);
+
+            $apiParams = ['active' => true, 'type' => 'recurring', 'expand' => ['data.product'], 'limit' => 20];
+            if ($productId !== '') {
+                $apiParams['product'] = $productId;
+            }
+            $prices = $client->prices->all($apiParams);
+
+            $rawPrices = [];
+            foreach ($prices->data as $price) {
+                $meta = (array) ($price->metadata ?? []);
+                $rawPrices[] = [
+                    'price_id' => $price->id,
+                    'nickname' => $price->nickname ?? null,
+                    'unit_amount' => $price->unit_amount,
+                    'currency' => $price->currency,
+                    'interval' => $price->recurring->interval ?? null,
+                    'product_id' => is_object($price->product) ? $price->product->id : $price->product,
+                    'product_name' => is_object($price->product) ? ($price->product->name ?? '') : '',
+                    'metadata' => $meta,
+                    'has_plan_key' => isset($meta['plan_key']),
+                ];
+            }
+            $result['raw_prices'] = $rawPrices;
+            $result['raw_prices_count'] = count($rawPrices);
+        } catch (\Throwable $e) {
+            $result['stripe_error'] = $e->getMessage();
+        }
+
+        // Also show listProducts() result
+        try {
+            $result['listProducts_result'] = $service->listProducts($productId !== '' ? $productId : null);
+        } catch (\Throwable $e) {
+            $result['listProducts_error'] = $e->getMessage();
+        }
+
+        $response->getBody()->write((string) json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     // Fetch available plans from Stripe Product metadata (with hardcoded fallback)
     $app->get('/admin/subscription/plans', function (Request $request, Response $response) {
         $config = StripeService::isConfigured();
