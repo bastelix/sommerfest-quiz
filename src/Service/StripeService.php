@@ -380,7 +380,10 @@ class StripeService
             $prices = $this->client->prices->all($params);
 
             foreach ($prices->data as $price) {
-                $meta = (array) ($price->metadata ?? []);
+                $metaObj = $price->metadata ?? null;
+                $meta = ($metaObj !== null && method_exists($metaObj, 'toArray'))
+                    ? $metaObj->toArray()
+                    : (is_array($metaObj) ? $metaObj : []);
                 $planKey = (string) ($meta['plan_key'] ?? '');
                 if ($planKey === '') {
                     continue;
@@ -435,7 +438,10 @@ class StripeService
             try {
                 $products = $this->client->products->all(['active' => true, 'limit' => 50]);
                 foreach ($products->data as $product) {
-                    $meta = (array) ($product->metadata ?? []);
+                    $metaObj = $product->metadata ?? null;
+                    $meta = ($metaObj !== null && method_exists($metaObj, 'toArray'))
+                        ? $metaObj->toArray()
+                        : (is_array($metaObj) ? $metaObj : []);
                     $planKey = (string) ($meta['plan_key'] ?? '');
                     if ($planKey === '') {
                         continue;
