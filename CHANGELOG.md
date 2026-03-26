@@ -410,6 +410,7 @@
 - *(subscription)* Add subscription_plans CMS page block
 - *(subscription)* Register subscription_plans in page editor
 - *(subscription)* Add stripeProduct field to subscription_plans block
+- *(subscription)* Per-namespace Stripe keys and fix block validation
 
 ### Fix
 
