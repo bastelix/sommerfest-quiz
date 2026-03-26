@@ -412,6 +412,7 @@
 - *(subscription)* Add stripeProduct field to subscription_plans block
 - *(subscription)* Per-namespace Stripe keys and fix block validation
 - *(subscription)* Support per-namespace Stripe keys in public API
+- *(subscription)* Add /admin/subscription/debug endpoint
 
 ### Fix
 
@@ -738,6 +739,7 @@
 - *(hero)* Add missing uk-modal class to hero media lightbox
 - *(subscription)* Hydrate plan cards in editor preview and frontend
 - *(subscription)* Relax isConfigured() check to only require API keys
+- Allow nullable MailProviderManager in controller constructor
 
 ### Merge
 
