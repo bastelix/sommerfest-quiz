@@ -3293,8 +3293,14 @@ function renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget) {
 
   const btnClass = plan.highlighted ? 'uk-button-primary' : 'uk-button-default';
   const label = escapeHtml(ctaLabel || 'Abo starten');
-  const href = ctaTarget ? escapeAttribute(ctaTarget) + '?plan=' + escapeAttribute(plan.plan_key) : '#';
-  const ctaHtml = `<div class="uk-margin-top"><a href="${href}" class="uk-button ${btnClass} uk-width-1-1" data-subscription-plan="${escapeAttribute(plan.plan_key)}">${label}</a></div>`;
+  let ctaHtml;
+  if (ctaTarget) {
+    const separator = ctaTarget.includes('?') ? '&' : '?';
+    const href = escapeAttribute(ctaTarget) + separator + 'plan=' + escapeAttribute(plan.plan_key);
+    ctaHtml = `<div class="uk-margin-top"><a href="${href}" class="uk-button ${btnClass} uk-width-1-1">${label}</a></div>`;
+  } else {
+    ctaHtml = `<div class="uk-margin-top"><button class="uk-button ${btnClass} uk-width-1-1" data-subscription-plan="${escapeAttribute(plan.plan_key)}" disabled title="Ziel-URL im Block konfigurieren">${label}</button></div>`;
+  }
 
   return `<div><div class="uk-card uk-card-default uk-height-1-1 uk-flex uk-flex-column">` +
     `<div class="uk-card-body uk-flex-1">${badge}${title}${priceHtml}${description}${featureList}${trialHtml}</div>` +
