@@ -1544,7 +1544,8 @@ function buildDefaultBlock(type, variant) {
       type: 'subscription_plans',
       variant: 'cards',
       data: {
-        title: 'Unsere Pläne'
+        title: 'Unsere Pläne',
+        stripeProduct: ''
       }
     })
   };
@@ -1979,6 +1980,7 @@ const SECTION_TEMPLATES = [
       const block = getDefaultBlock('subscription_plans', variant);
       block.data.title = 'Unsere Pläne';
       block.data.subtitle = 'Wähle den passenden Plan für dein Projekt.';
+      block.data.stripeProduct = '';
       block.data.ctaLabel = 'Jetzt starten';
       return block;
     }
@@ -4118,6 +4120,15 @@ export class BlockContentEditor {
     const wrapper = document.createElement('div');
     wrapper.className = 'block-form-fields';
 
+    const stripeSection = createFieldSection('Stripe-Produkt', 'Die Product-ID aus dem Stripe Dashboard (z.\u00a0B. prod_xxx). Alle Preise dieses Produkts mit plan_key Metadata werden als Pläne angezeigt.');
+    stripeSection.append(
+      this.addLabeledInput('Stripe Product ID', block.data.stripeProduct || '', value => this.updateBlockData(block.id, ['data', 'stripeProduct'], value), {
+        placeholder: 'prod_...',
+        helpText: 'Stripe Dashboard → Products → Product-ID kopieren'
+      })
+    );
+    wrapper.append(stripeSection);
+
     const titleSection = createFieldSection('Überschrift', 'Titel und Untertitel über den Plan-Karten.');
     titleSection.append(
       this.addLabeledInput('Titel', block.data.title || '', value => this.updateBlockData(block.id, ['data', 'title'], value), {
@@ -4148,7 +4159,7 @@ export class BlockContentEditor {
     const infoSection = createFieldSection('Hinweis', '');
     const info = document.createElement('p');
     info.className = 'uk-text-meta';
-    info.textContent = 'Die Pläne werden automatisch aus Stripe geladen. Verwalte Preise, Features und Limits im Stripe Dashboard unter Product → Metadata.';
+    info.textContent = 'Preise und Features auf den Stripe Prices als Metadata pflegen (plan_key, features, limit_*, trial_days, highlighted, sort_order).';
     infoSection.append(info);
     wrapper.append(infoSection);
 

@@ -335,9 +335,19 @@ class StripeService
      *
      * @return list<array<string,mixed>>
      */
-    public function listProducts(): array {
-        // Try file cache first
-        $cacheFile = __DIR__ . '/../../data/cache/stripe_products.json';
+    /**
+     * Fetch plans from Stripe.
+     *
+     * When $productId is given (e.g. "prod_xxx"), only prices belonging to that
+     * product are returned.  Each Price must carry a `plan_key` metadata field.
+     *
+     * Results are cached with a 5-minute TTL per product filter.
+     *
+     * @return list<array<string,mixed>>
+     */
+    public function listProducts(?string $productId = null): array {
+        $cacheKey = $productId !== null && $productId !== '' ? md5($productId) : '_all';
+        $cacheFile = __DIR__ . '/../../data/cache/stripe_products_' . $cacheKey . '.json';
         if (is_file($cacheFile)) {
             $cached = json_decode((string) file_get_contents($cacheFile), true);
             if (is_array($cached) && isset($cached['ts']) && (time() - (int) $cached['ts']) < 300) {
@@ -351,12 +361,17 @@ class StripeService
         // This supports the pattern: 1 Product (e.g. "eforms") with multiple Prices
         // (Starter, Standard), where each Price carries its own plan_key metadata.
         try {
-            $prices = $this->client->prices->all([
+            $params = [
                 'active' => true,
                 'type' => 'recurring',
                 'expand' => ['data.product'],
                 'limit' => 50,
-            ]);
+            ];
+            if ($productId !== null && $productId !== '') {
+                $params['product'] = $productId;
+            }
+
+            $prices = $this->client->prices->all($params);
 
             foreach ($prices->data as $price) {
                 $meta = (array) ($price->metadata ?? []);
@@ -368,6 +383,7 @@ class StripeService
                 $product = $price->product ?? null;
                 $productName = is_object($product) ? (string) ($product->name ?? '') : '';
                 $productDesc = is_object($product) ? (string) ($product->description ?? '') : '';
+                $productIdResolved = is_object($product) ? (string) ($product->id ?? '') : (is_string($product) ? $product : '');
 
                 // Price nickname (e.g. "Starter") takes priority, then product name
                 $displayName = (string) ($price->nickname ?? '');
@@ -395,6 +411,7 @@ class StripeService
                     'currency' => (string) ($price->currency ?? 'eur'),
                     'interval' => (string) ($price->recurring->interval ?? 'month'),
                     'price_id' => (string) ($price->id ?? ''),
+                    'product_id' => $productIdResolved,
                     'features' => $features,
                     'limits' => $limits,
                     'highlighted' => filter_var($meta['highlighted'] ?? false, FILTER_VALIDATE_BOOLEAN),
@@ -408,7 +425,7 @@ class StripeService
 
         // Strategy 2 (backward compat): If no prices had plan_key metadata, try
         // the old approach of reading plan_key from Product metadata.
-        if ($result === []) {
+        if ($result === [] && ($productId === null || $productId === '')) {
             try {
                 $products = $this->client->products->all(['active' => true, 'limit' => 50]);
                 foreach ($products->data as $product) {
@@ -423,7 +440,6 @@ class StripeService
                     $currency = 'eur';
                     $interval = 'month';
 
-                    // Resolve default price or first recurring price
                     $defaultPrice = $product->default_price ?? null;
                     if ($defaultPrice !== null && is_object($defaultPrice)) {
                         $priceId = (string) ($defaultPrice->id ?? '');
@@ -462,6 +478,7 @@ class StripeService
                         'currency' => $currency,
                         'interval' => $interval,
                         'price_id' => $priceId,
+                        'product_id' => (string) ($product->id ?? ''),
                         'features' => $features,
                         'limits' => $limits,
                         'highlighted' => filter_var($meta['highlighted'] ?? false, FILTER_VALIDATE_BOOLEAN),
