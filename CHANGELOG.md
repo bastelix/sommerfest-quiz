@@ -409,6 +409,7 @@
 - *(subscription)* Add per-plan trial days via Stripe Product metadata
 - *(subscription)* Add subscription_plans CMS page block
 - *(subscription)* Register subscription_plans in page editor
+- *(subscription)* Add stripeProduct field to subscription_plans block
 
 ### Fix
 
