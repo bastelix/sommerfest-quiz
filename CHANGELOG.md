@@ -414,6 +414,7 @@
 - *(subscription)* Per-namespace Stripe keys and fix block validation
 - *(subscription)* Support per-namespace Stripe keys in public API
 - *(subscription)* Add /admin/subscription/debug endpoint
+- *(subscription)* Add public /checkout route for direct Stripe checkout
 
 ### Fix
 
