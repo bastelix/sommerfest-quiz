@@ -10,6 +10,8 @@ use PDO;
 
 final class StylesheetTools
 {
+    use McpToolTrait;
+
     private DesignTokenService $designTokens;
 
     private PageService $pageService;
@@ -23,12 +25,6 @@ final class StylesheetTools
     {
         $this->designTokens = new DesignTokenService($pdo);
         $this->pageService = new PageService($pdo);
-    }
-
-    private function resolveNamespace(array $args): string
-    {
-        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
-        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**

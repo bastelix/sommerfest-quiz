@@ -13,6 +13,8 @@ use PDO;
 
 final class QuizTools
 {
+    use McpToolTrait;
+
     private EventService $events;
 
     private const NS_PROP = [
@@ -23,12 +25,6 @@ final class QuizTools
     public function __construct(private readonly PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->events = new EventService($pdo);
-    }
-
-    private function resolveNamespace(array $args): string
-    {
-        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
-        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**

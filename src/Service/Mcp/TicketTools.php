@@ -10,6 +10,8 @@ use PDO;
 
 final class TicketTools
 {
+    use McpToolTrait;
+
     private TicketService $ticketService;
 
     private const NS_PROP = [
@@ -20,12 +22,6 @@ final class TicketTools
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->ticketService = new TicketService($pdo);
-    }
-
-    private function resolveNamespace(array $args): string
-    {
-        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
-        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**

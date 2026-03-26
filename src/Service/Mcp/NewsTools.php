@@ -11,6 +11,8 @@ use PDO;
 
 final class NewsTools
 {
+    use McpToolTrait;
+
     private LandingNewsService $news;
 
     private const NS_PROP = [
@@ -21,12 +23,6 @@ final class NewsTools
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->news = new LandingNewsService($pdo);
-    }
-
-    private function resolveNamespace(array $args): string
-    {
-        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
-        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**
@@ -159,7 +155,11 @@ final class NewsTools
 
         $publishedAt = null;
         if (isset($args['publishedAt']) && is_string($args['publishedAt'])) {
-            $publishedAt = new DateTimeImmutable($args['publishedAt'], new DateTimeZone('UTC'));
+            try {
+                $publishedAt = new DateTimeImmutable($args['publishedAt'], new DateTimeZone('UTC'));
+            } catch (\Exception $e) {
+                throw new \InvalidArgumentException('publishedAt must be a valid ISO 8601 date string, got: ' . $args['publishedAt']);
+            }
         }
 
         $news = $this->news->create($pageId, $slug, $title, $excerpt, $content, $publishedAt, $isPublished, $imageUrl);
@@ -197,7 +197,11 @@ final class NewsTools
             if ($args['publishedAt'] === null) {
                 $publishedAt = null;
             } elseif (is_string($args['publishedAt'])) {
-                $publishedAt = new DateTimeImmutable($args['publishedAt'], new DateTimeZone('UTC'));
+                try {
+                    $publishedAt = new DateTimeImmutable($args['publishedAt'], new DateTimeZone('UTC'));
+                } catch (\Exception $e) {
+                    throw new \InvalidArgumentException('publishedAt must be a valid ISO 8601 date string, got: ' . $args['publishedAt']);
+                }
             }
         }
 
