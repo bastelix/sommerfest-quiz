@@ -3316,39 +3316,29 @@ function renderSubscriptionPlans(block, variant, options = {}) {
 
   const pageContext = resolveActivePageContext();
   const allPlans = pageContext?.featureData?.subscriptionPlans || [];
-  // Filter to plans matching this block's stripeProduct (if set, by product_id)
   const plans = stripeProduct && allPlans.length
     ? allPlans.filter(p => p.product_id === stripeProduct)
     : allPlans;
 
   let cardsHtml = '';
-  if (isPreview || plans.length === 0) {
-    const placeholders = [];
-    for (let i = 0; i < 2; i++) {
-      placeholders.push(
-        `<div><div class="uk-card uk-card-default uk-height-1-1">` +
-        `<div class="uk-card-body">` +
-        `<h3 class="uk-h4" style="opacity:0.4">Plan ${i + 1}</h3>` +
-        `<div class="uk-text-large uk-text-bold" style="opacity:0.3">0,00 €<span class="uk-text-meta">/Monat</span></div>` +
-        `<ul class="uk-list uk-list-bullet uk-text-small" style="opacity:0.3"><li>Feature 1</li><li>Feature 2</li><li>Feature 3</li></ul>` +
-        `</div>` +
-        `<div class="uk-card-footer"><span class="uk-button uk-button-default uk-width-1-1 uk-disabled" style="opacity:0.3">${escapeHtml(ctaLabel)}</span></div>` +
-        `</div></div>`
-      );
-    }
-    if (plans.length === 0 && !isPreview) {
-      cardsHtml = `<div data-subscription-plans data-cta-label="${escapeAttribute(ctaLabel)}" data-cta-target="${escapeAttribute(ctaTarget)}" data-product="${escapeAttribute(stripeProduct)}">` +
-        `<div class="uk-text-meta">Pläne werden geladen…</div></div>`;
-    } else {
-      cardsHtml = placeholders.join('');
-    }
-  } else {
+  if (plans.length > 0) {
     cardsHtml = plans.map(plan => renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget)).join('');
+  } else {
+    // Render a container that the hydrator will fill with real data from the API
+    const productAttr = stripeProduct ? ` data-product="${escapeAttribute(stripeProduct)}"` : '';
+    cardsHtml = `<div data-subscription-plans data-cta-label="${escapeAttribute(ctaLabel)}" data-cta-target="${escapeAttribute(ctaTarget)}"${productAttr}>` +
+      `<div class="uk-text-muted uk-text-center uk-padding-small">` +
+      (stripeProduct
+        ? `<span uk-spinner="ratio: 0.6"></span> Pläne werden geladen…`
+        : `<span uk-icon="icon: warning"></span> Keine Stripe Product ID konfiguriert.`) +
+      `</div></div>`;
   }
 
-  const gridColumns = Math.min(isPreview ? 2 : plans.length, 3);
+  const gridColumns = Math.min(plans.length > 0 ? plans.length : 2, 3);
   const gridClass = buildResponsiveGridClasses(gridColumns);
-  const grid = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cardsHtml}</div>`;
+  const grid = plans.length > 0
+    ? `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cardsHtml}</div>`
+    : cardsHtml;
 
   return renderSection({ block, variant: escapeAttribute(variant), content: `${headerContent}${grid}` });
 }
@@ -3457,9 +3447,10 @@ export const RENDERER_MATRIX = {
  * server-side featureData (e.g. when plans were not yet cached). Fetches plans
  * from the public API and renders cards into the container.
  */
-export function hydrateSubscriptionPlans() {
-  if (typeof document === 'undefined') return;
-  document.querySelectorAll('[data-subscription-plans]:not([data-loaded])').forEach(container => {
+export function hydrateSubscriptionPlans(root) {
+  const scope = root || (typeof document !== 'undefined' ? document : null);
+  if (!scope) return;
+  scope.querySelectorAll('[data-subscription-plans]:not([data-loaded])').forEach(container => {
     container.setAttribute('data-loaded', '');
     const basePath = resolveBasePath();
     const ctaLabel = container.dataset.ctaLabel || 'Abo starten';

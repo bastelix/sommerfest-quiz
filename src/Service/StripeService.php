@@ -342,23 +342,6 @@ class StripeService
     }
 
     /**
-     * Fetch all active Stripe Products that have a `plan_key` metadata field.
-     *
-     * Results are cached to `data/cache/stripe_products.json` with a 5-minute TTL
-     * so that the Stripe API is not called on every page load.
-     *
-     * Each returned entry contains:
-     *  - plan_key, name, description
-     *  - price (unit_amount), currency, interval
-     *  - price_id
-     *  - features (list of display strings, from pipe-separated metadata)
-     *  - limits (associative array of limit_* metadata values)
-     *  - highlighted (bool)
-     *  - sort_order (int)
-     *
-     * @return list<array<string,mixed>>
-     */
-    /**
      * Fetch plans from Stripe.
      *
      * When $productId is given (e.g. "prod_xxx"), only prices belonging to that
@@ -531,9 +514,12 @@ class StripeService
      * Clear the products cache (e.g. after webhook-driven plan changes).
      */
     public function clearProductsCache(): void {
-        $cacheFile = __DIR__ . '/../../data/cache/stripe_products.json';
-        if (is_file($cacheFile)) {
-            @unlink($cacheFile);
+        $cacheDir = __DIR__ . '/../../data/cache';
+        if (!is_dir($cacheDir)) {
+            return;
+        }
+        foreach (glob($cacheDir . '/stripe_products_*.json') as $file) {
+            @unlink($file);
         }
     }
 

@@ -1,4 +1,4 @@
-import { renderPage, RENDERER_MATRIX } from './block-renderer-matrix.js';
+import { renderPage, RENDERER_MATRIX, hydrateSubscriptionPlans } from './block-renderer-matrix.js';
 import { initEffects } from '../effects/initEffects.js';
 import { applyNamespaceDesign, resolveNamespaceAppearance } from './namespace-design.js';
 
@@ -354,6 +354,12 @@ export class PreviewCanvas {
     });
     this.surface.innerHTML = html;
     this.applySelectionHighlight();
+
+    // Hydrate subscription plan blocks (fetches live data from Stripe API)
+    if (this.surface.querySelector('[data-subscription-plans]')) {
+      hydrateSubscriptionPlans(this.surface);
+    }
+
     const mode = this.intent === 'preview' ? 'preview' : (this.intent === 'design' ? 'design-preview' : 'edit');
     const effects = initEffects(this.surface, { namespace, mode });
     this.cleanupEffects = effects?.destroy || null;
