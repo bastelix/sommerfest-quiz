@@ -1601,8 +1601,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "title",
-        "stripeProduct"
+        "title"
       ],
       "properties": {
         "title": {
@@ -1613,8 +1612,7 @@
           "type": "string"
         },
         "stripeProduct": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "ctaLabel": {
           "type": "string"

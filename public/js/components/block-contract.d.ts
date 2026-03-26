@@ -317,7 +317,7 @@ export interface EventHighlightBlockData {
 
 export interface SubscriptionPlansBlockData {
   title: string;
-  stripeProduct: string;
+  stripeProduct?: string;
   subtitle?: string;
   ctaLabel?: string;
   ctaTarget?: string;

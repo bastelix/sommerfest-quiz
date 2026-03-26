@@ -2,6 +2,7 @@
 -- This script sets up the database schema in a SQLite-compatible way
 -- 20300111: data-only migration (rename quizrace.app → edocs.cloud in domains) — no schema change needed
 -- 20300112: add product, stripe_pricing_table_id, webhook_url to namespace_projects
+-- 20300113: add stripe_secret_key, stripe_publishable_key to namespace_projects
 
 CREATE TABLE IF NOT EXISTS migrations (
     version TEXT PRIMARY KEY
@@ -946,6 +947,8 @@ CREATE TABLE IF NOT EXISTS namespace_projects (
     product TEXT,
     stripe_pricing_table_id TEXT,
     webhook_url TEXT,
+    stripe_secret_key TEXT,
+    stripe_publishable_key TEXT,
     status TEXT DEFAULT 'active',
     design_config TEXT DEFAULT '{}',
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,

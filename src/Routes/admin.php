@@ -653,6 +653,8 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
             'product' => isset($body['product']) ? trim((string) $body['product']) : null,
             'stripe_pricing_table_id' => isset($body['stripe_pricing_table_id']) ? trim((string) $body['stripe_pricing_table_id']) : null,
             'webhook_url' => isset($body['webhook_url']) ? trim((string) $body['webhook_url']) : null,
+            'stripe_secret_key' => isset($body['stripe_secret_key']) ? trim((string) $body['stripe_secret_key']) : null,
+            'stripe_publishable_key' => isset($body['stripe_publishable_key']) ? trim((string) $body['stripe_publishable_key']) : null,
         ]);
 
         $response->getBody()->write('{"ok":true}');
@@ -670,10 +672,16 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $nsSvc = new NamespaceSubscriptionService($pdo);
         $project = $nsSvc->findBySlug($namespace);
 
+        // Mask secret key: only show last 4 characters
+        $rawSecret = (string) ($project['stripe_secret_key'] ?? '');
+        $maskedSecret = $rawSecret !== '' ? str_repeat('*', max(0, strlen($rawSecret) - 4)) . substr($rawSecret, -4) : '';
+
         $response->getBody()->write((string) json_encode([
             'product' => $project['product'] ?? '',
             'stripe_pricing_table_id' => $project['stripe_pricing_table_id'] ?? '',
             'webhook_url' => $project['webhook_url'] ?? '',
+            'stripe_secret_key' => $maskedSecret,
+            'stripe_publishable_key' => $project['stripe_publishable_key'] ?? '',
         ]));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
