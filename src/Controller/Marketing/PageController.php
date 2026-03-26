@@ -264,37 +264,40 @@ class PageController
             }
         }
 
-        // Load subscription plan data when subscription_plans block is present.
+        // Load subscription plan data for each subscription_plans block.
         if (is_array($pageBlocks)) {
-            $hasSubscriptionPlansBlock = false;
+            $subscriptionProductIds = [];
             foreach ($pageBlocks as $block) {
                 if (isset($block['type']) && $block['type'] === 'subscription_plans') {
-                    $hasSubscriptionPlansBlock = true;
-                    break;
+                    $pid = trim((string) ($block['data']['stripeProduct'] ?? ''));
+                    if ($pid !== '') {
+                        $subscriptionProductIds[$pid] = true;
+                    }
                 }
             }
 
-            if ($hasSubscriptionPlansBlock) {
+            if ($subscriptionProductIds !== []) {
                 try {
                     $stripeSvc = new \App\Service\StripeService();
-                    $products = $stripeSvc->listProducts();
-                    // Filter to display-safe fields only
-                    $displayPlans = [];
-                    foreach ($products as $product) {
-                        $displayPlans[] = [
-                            'plan_key' => $product['plan_key'],
-                            'name' => $product['name'],
-                            'description' => $product['description'],
-                            'price' => $product['price'],
-                            'currency' => $product['currency'],
-                            'interval' => $product['interval'],
-                            'features' => $product['features'],
-                            'highlighted' => $product['highlighted'],
-                            'trial_days' => $product['trial_days'],
-                            'sort_order' => $product['sort_order'],
-                        ];
+                    $allPlans = [];
+                    foreach (array_keys($subscriptionProductIds) as $pid) {
+                        foreach ($stripeSvc->listProducts($pid) as $product) {
+                            $allPlans[] = [
+                                'plan_key' => $product['plan_key'],
+                                'name' => $product['name'],
+                                'description' => $product['description'],
+                                'price' => $product['price'],
+                                'currency' => $product['currency'],
+                                'interval' => $product['interval'],
+                                'features' => $product['features'],
+                                'highlighted' => $product['highlighted'],
+                                'trial_days' => $product['trial_days'],
+                                'sort_order' => $product['sort_order'],
+                                'product_id' => $product['product_id'] ?? '',
+                            ];
+                        }
                     }
-                    $marketingPayload['featureData']['subscriptionPlans'] = $displayPlans;
+                    $marketingPayload['featureData']['subscriptionPlans'] = $allPlans;
                 } catch (\Throwable) {
                     $marketingPayload['featureData']['subscriptionPlans'] = [];
                 }

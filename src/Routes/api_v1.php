@@ -18,14 +18,16 @@ return function (\Slim\App $app): void {
     });
 
     // Public subscription plans endpoint (display-safe data only, no auth required)
+    // Optional query param: ?product=prod_xxx to filter by Stripe Product
     $app->get('/api/v1/subscription/plans', function (Request $request, Response $response): Response {
         $config = \App\Service\StripeService::isConfigured();
         $plans = [];
+        $productId = trim((string) ($request->getQueryParams()['product'] ?? ''));
 
         if ($config['ok']) {
             try {
                 $service = new \App\Service\StripeService();
-                $products = $service->listProducts();
+                $products = $service->listProducts($productId !== '' ? $productId : null);
                 // Filter to display-safe fields only (no price_id, no limits)
                 foreach ($products as $product) {
                     $plans[] = [
@@ -39,6 +41,7 @@ return function (\Slim\App $app): void {
                         'highlighted' => $product['highlighted'],
                         'trial_days' => $product['trial_days'],
                         'sort_order' => $product['sort_order'],
+                        'product_id' => $product['product_id'] ?? '',
                     ];
                 }
             } catch (\Throwable) {

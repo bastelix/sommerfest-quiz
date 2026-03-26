@@ -805,10 +805,11 @@ const schema = {
     "SubscriptionPlansData": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title"],
+      "required": ["title", "stripeProduct"],
       "properties": {
         "title": { "type": "string", "minLength": 1 },
         "subtitle": { "type": "string" },
+        "stripeProduct": { "type": "string", "minLength": 1 },
         "ctaLabel": { "type": "string" },
         "ctaTarget": { "type": "string" }
       }
