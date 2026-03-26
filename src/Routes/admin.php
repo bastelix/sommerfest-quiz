@@ -646,7 +646,10 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
 
             $rawPrices = [];
             foreach ($prices->data as $price) {
-                $meta = (array) ($price->metadata ?? []);
+                $metaObj = $price->metadata ?? null;
+                $meta = ($metaObj !== null && method_exists($metaObj, 'toArray'))
+                    ? $metaObj->toArray()
+                    : (is_array($metaObj) ? $metaObj : []);
                 $rawPrices[] = [
                     'price_id' => $price->id,
                     'nickname' => $price->nickname ?? null,
