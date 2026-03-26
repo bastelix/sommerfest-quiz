@@ -41,7 +41,8 @@ const BLOCK_TYPE_LABELS = {
   cta: 'Call to Action',
   proof: 'Nachweise',
   latest_news: 'Neuigkeiten',
-  event_highlight: 'Veranstaltung'
+  event_highlight: 'Veranstaltung',
+  subscription_plans: 'Abo-Pläne'
 };
 
 // Each entry: { abbr, color } where color is a badge-* utility class from card-row.css
@@ -62,6 +63,7 @@ const BLOCK_TYPE_ABBR = {
   proof:              { abbr: 'NA',  color: 'badge-green'  },
   latest_news:        { abbr: 'NG',  color: 'badge-orange' },
   event_highlight:    { abbr: 'EV',  color: 'badge-red'    },
+  subscription_plans: { abbr: 'AB',  color: 'badge-green'  },
   system_module:      { abbr: 'MO',  color: 'badge-muted'  },
   case_showcase:      { abbr: 'CS',  color: 'badge-muted'  },
 };
@@ -1536,6 +1538,14 @@ function buildDefaultBlock(type, variant) {
       data: {
         eventSlug: 'mein-event'
       }
+    }),
+    subscription_plans: () => ({
+      id: createId(),
+      type: 'subscription_plans',
+      variant: 'cards',
+      data: {
+        title: 'Unsere Pläne'
+      }
     })
   };
 
@@ -1956,6 +1966,20 @@ const SECTION_TEMPLATES = [
       block.data.eventSlug = 'mein-event';
       block.data.showCountdown = true;
       block.data.showDescription = true;
+      return block;
+    }
+  },
+  {
+    id: 'subscription-plans',
+    label: 'Abo-Pläne',
+    description: 'Zeigt Abonnementpläne aus Stripe mit Preisen, Features und Testzeitraum.',
+    type: 'subscription_plans',
+    variant: 'cards',
+    build: variant => {
+      const block = getDefaultBlock('subscription_plans', variant);
+      block.data.title = 'Unsere Pläne';
+      block.data.subtitle = 'Wähle den passenden Plan für dein Projekt.';
+      block.data.ctaLabel = 'Jetzt starten';
       return block;
     }
   }
@@ -3328,6 +3352,8 @@ export class BlockContentEditor {
         return this.buildLatestNewsForm(block);
       case 'event_highlight':
         return this.buildEventHighlightForm(block);
+      case 'subscription_plans':
+        return this.buildSubscriptionPlansForm(block);
       default:
         return this.buildGenericJsonForm(block);
     }
@@ -4085,6 +4111,47 @@ export class BlockContentEditor {
     casesWrapper.append(this.createCollectionAddButton('Use Case hinzufügen', () => this.addAudienceCase(block.id)));
 
     wrapper.append(casesWrapper);
+    return wrapper;
+  }
+
+  buildSubscriptionPlansForm(block) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'block-form-fields';
+
+    const titleSection = createFieldSection('Überschrift', 'Titel und Untertitel über den Plan-Karten.');
+    titleSection.append(
+      this.addLabeledInput('Titel', block.data.title || '', value => this.updateBlockData(block.id, ['data', 'title'], value), {
+        placeholder: 'z.\u00a0B. Unsere Pläne'
+      })
+    );
+    titleSection.append(
+      this.addLabeledInput('Untertitel', block.data.subtitle || '', value => this.updateBlockData(block.id, ['data', 'subtitle'], value), {
+        placeholder: 'Optional'
+      })
+    );
+    wrapper.append(titleSection);
+
+    const ctaSection = createFieldSection('Call to Action', 'Button-Text und Ziel-URL für die Plan-Auswahl.');
+    ctaSection.append(
+      this.addLabeledInput('Button-Text', block.data.ctaLabel || '', value => this.updateBlockData(block.id, ['data', 'ctaLabel'], value), {
+        placeholder: 'z.\u00a0B. Jetzt starten'
+      })
+    );
+    ctaSection.append(
+      this.addLabeledInput('Ziel-URL', block.data.ctaTarget || '', value => this.updateBlockData(block.id, ['data', 'ctaTarget'], value), {
+        placeholder: 'z.\u00a0B. /register',
+        helpText: 'Plan-Key wird als ?plan= Parameter angehängt.'
+      })
+    );
+    wrapper.append(ctaSection);
+
+    const infoSection = createFieldSection('Hinweis', '');
+    const info = document.createElement('p');
+    info.className = 'uk-text-meta';
+    info.textContent = 'Die Pläne werden automatisch aus Stripe geladen. Verwalte Preise, Features und Limits im Stripe Dashboard unter Product → Metadata.';
+    infoSection.append(info);
+    wrapper.append(infoSection);
+
     return wrapper;
   }
 
@@ -5713,6 +5780,8 @@ export class BlockContentEditor {
         return block.data.title || block.data.intro || '';
       case 'latest_news':
         return block.data.heading || '';
+      case 'subscription_plans':
+        return block.data.title || '';
       default:
         return '';
     }
