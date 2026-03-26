@@ -893,7 +893,7 @@ function renderHeroMedia(media) {
   const frameClasses = media.frameless ? '' : ' uk-border-rounded uk-box-shadow-small';
   const thumbnail = `<div class="uk-cover-container${frameClasses} hero-media-thumb" style="cursor:pointer; height: ${size.containerHeight}px" uk-toggle="target: #${modalId}"><img src="${escapedSrc}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="${size.width}" height="${size.height}"></canvas></div>`;
 
-  const modal = `<div id="${modalId}" class="uk-modal-full hero-media-lightbox" uk-modal>` +
+  const modal = `<div id="${modalId}" class="uk-modal uk-modal-full hero-media-lightbox" uk-modal>` +
     '<div class="uk-modal-dialog hero-media-lightbox__dialog">' +
       '<button class="uk-modal-close-full hero-media-lightbox__close" type="button" uk-close uk-toggle="target: #' + modalId + '"></button>' +
       '<div class="hero-media-lightbox__wrap">' +
