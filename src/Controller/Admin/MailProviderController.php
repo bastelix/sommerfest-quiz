@@ -48,7 +48,7 @@ class MailProviderController
     public function __construct(
         ?MailProviderRepository $repository,
         SettingsService $settings,
-        MailProviderManager $manager
+        ?MailProviderManager $manager
     ) {
         $this->repository = $repository;
         $this->settings = $settings;
