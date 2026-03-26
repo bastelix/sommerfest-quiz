@@ -740,6 +740,8 @@
 - *(subscription)* Hydrate plan cards in editor preview and frontend
 - *(subscription)* Relax isConfigured() check to only require API keys
 - Allow nullable MailProviderManager in controller constructor
+- *(subscription)* Use toArray() for Stripe metadata instead of array cast
+- Make MailProviderController manager property nullable
 
 ### Merge
 
