@@ -407,6 +407,7 @@
 - *(account)* Add customer-facing /account page per namespace
 - *(subscription)* Load plans dynamically from Stripe Product metadata
 - *(subscription)* Add per-plan trial days via Stripe Product metadata
+- *(subscription)* Add subscription_plans CMS page block
 
 ### Fix
 
