@@ -846,6 +846,7 @@
 - *(wiki)* Move page namespace selector into accordion
 - [**breaking**] Rename project from sommerfest-quiz/quizrace to edocs-cloud/edocs.cloud
 - *(billing)* Simplify subscription page and add Stripe Pricing Table
+- *(subscription)* Read plan metadata from Stripe Prices instead of Products
 
 ### Revert
 
