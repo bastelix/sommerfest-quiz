@@ -97,6 +97,7 @@
 - *(api)* Add comprehensive API v1 reference and register news endpoints
 - Add API expansion briefing for AI assistant
 - Add MCP connector setup guide for Claude.ai
+- Complete documentation overhaul for GitHub Pages
 
 ### Feat
 
