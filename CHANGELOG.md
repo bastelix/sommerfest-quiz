@@ -742,6 +742,7 @@
 - Allow nullable MailProviderManager in controller constructor
 - *(subscription)* Use toArray() for Stripe metadata instead of array cast
 - Make MailProviderController manager property nullable
+- *(subscription)* Build correct CTA href with query separator
 
 ### Merge
 
