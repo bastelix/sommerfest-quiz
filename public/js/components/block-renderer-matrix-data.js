@@ -3456,9 +3456,15 @@ export function hydrateSubscriptionPlans(root) {
     const ctaLabel = container.dataset.ctaLabel || 'Abo starten';
     const ctaTarget = container.dataset.ctaTarget || '';
     const product = container.dataset.product || '';
-    const productParam = product ? `?product=${encodeURIComponent(product)}` : '';
+    const params = new URLSearchParams();
+    if (product) params.set('product', product);
+    // Pass namespace for per-namespace Stripe keys resolution
+    const pageContext = resolveActivePageContext();
+    const ns = pageContext?.namespace || (typeof window !== 'undefined' ? window.pageNamespace : '') || '';
+    if (ns) params.set('namespace', ns);
+    const qs = params.toString() ? `?${params.toString()}` : '';
 
-    fetch(`${basePath}/api/v1/subscription/plans${productParam}`)
+    fetch(`${basePath}/api/v1/subscription/plans${qs}`)
       .then(r => r.ok ? r.json() : [])
       .then(plans => {
         if (!Array.isArray(plans) || plans.length === 0) {

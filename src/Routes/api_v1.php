@@ -18,17 +18,34 @@ return function (\Slim\App $app): void {
     });
 
     // Public subscription plans endpoint (display-safe data only, no auth required)
-    // Optional query param: ?product=prod_xxx to filter by Stripe Product
+    // Optional query params: ?product=prod_xxx, ?namespace=my-ns (for per-namespace Stripe keys)
     $app->get('/api/v1/subscription/plans', function (Request $request, Response $response): Response {
-        $config = \App\Service\StripeService::isConfigured();
         $plans = [];
         $productId = trim((string) ($request->getQueryParams()['product'] ?? ''));
+        $namespace = trim((string) ($request->getQueryParams()['namespace'] ?? ''));
 
-        if ($config['ok']) {
+        // Resolve StripeService: prefer per-namespace keys, fall back to global
+        $service = null;
+        if ($namespace !== '') {
             try {
-                $service = new \App\Service\StripeService();
+                $pdo = \App\Infrastructure\Database::connectFromEnv();
+                $nsSvc = new \App\Service\NamespaceSubscriptionService($pdo);
+                $project = $nsSvc->findBySlug($namespace);
+                if ($project !== null) {
+                    $service = \App\Service\StripeService::forNamespace($project);
+                }
+            } catch (\Throwable) {
+                // Fall through to global
+            }
+        }
+
+        if ($service === null && \App\Service\StripeService::isConfigured()['ok']) {
+            $service = new \App\Service\StripeService();
+        }
+
+        if ($service !== null) {
+            try {
                 $products = $service->listProducts($productId !== '' ? $productId : null);
-                // Filter to display-safe fields only (no price_id, no limits)
                 foreach ($products as $product) {
                     $plans[] = [
                         'plan_key' => $product['plan_key'],
