@@ -730,6 +730,7 @@
 - *(admin)* Define $escapedPreset before try block to avoid undefined variable
 - Remove extra {{end}} blocks in nginx.tmpl causing docker-gen parse failure
 - Include main domain in MarketingProxySyncService
+- *(hero)* Add missing uk-modal class to hero media lightbox
 
 ### Merge
 
