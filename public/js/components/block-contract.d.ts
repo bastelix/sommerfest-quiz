@@ -20,6 +20,7 @@ export type FaqVariant = VariantsFor<'faq'>;
 export type SystemModuleVariant = VariantsFor<'system_module'>;
 export type CaseShowcaseVariant = VariantsFor<'case_showcase'>;
 export type EventHighlightVariant = VariantsFor<'event_highlight'>;
+export type SubscriptionPlansVariant = VariantsFor<'subscription_plans'>;
 
 export type BlockVariant = keyof RendererMatrix[keyof RendererMatrix];
 
@@ -314,6 +315,13 @@ export interface EventHighlightBlockData {
   catalogSlug?: string;
 }
 
+export interface SubscriptionPlansBlockData {
+  title: string;
+  subtitle?: string;
+  ctaLabel?: string;
+  ctaTarget?: string;
+}
+
 export interface BaseBlock<TType extends BlockType, TVariant extends BlockVariant, TData> {
   id: string;
   type: TType;
@@ -338,6 +346,7 @@ export type FaqBlock = BaseBlock<'faq', FaqVariant, FaqBlockData>;
 export type SystemModuleBlock = BaseBlock<'system_module', SystemModuleVariant, InfoMediaBlockData>;
 export type CaseShowcaseBlock = BaseBlock<'case_showcase', CaseShowcaseVariant, AudienceSpotlightBlockData>;
 export type EventHighlightBlock = BaseBlock<'event_highlight', EventHighlightVariant, EventHighlightBlockData>;
+export type SubscriptionPlansBlock = BaseBlock<'subscription_plans', SubscriptionPlansVariant, SubscriptionPlansBlockData>;
 
 export type BlockContract =
   | HeroBlock
@@ -353,5 +362,6 @@ export type BlockContract =
   | PackageSummaryBlock
   | FaqBlock
   | EventHighlightBlock
+  | SubscriptionPlansBlock
   | SystemModuleBlock
   | CaseShowcaseBlock;

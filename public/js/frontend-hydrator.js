@@ -250,6 +250,11 @@ const hydratePage = async () => {
     } catch (contactError) {
       console.warn('[CMS] Contact form handler not available', contactError);
     }
+
+    // Hydrate subscription plan blocks that need async data
+    if (matrixModule?.hydrateSubscriptionPlans) {
+      matrixModule.hydrateSubscriptionPlans();
+    }
   } catch (error) {
     console.error('[CMS] Failed to hydrate page', error);
     showHydrationFallback(pageRoot, 'Content could not be loaded. Please refresh the page.');
