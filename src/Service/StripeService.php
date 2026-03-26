@@ -588,13 +588,15 @@ class StripeService
             return $map[$priceId];
         }
 
-        // Fall back to cached product metadata
-        $cacheFile = __DIR__ . '/../../data/cache/stripe_products.json';
-        if (is_file($cacheFile)) {
-            $cached = json_decode((string) file_get_contents($cacheFile), true);
-            foreach (($cached['data'] ?? []) as $product) {
-                if (($product['price_id'] ?? '') === $priceId) {
-                    return $product['plan_key'] ?? null;
+        // Fall back to cached product metadata (scan all cache files)
+        $cacheDir = __DIR__ . '/../../data/cache';
+        if (is_dir($cacheDir)) {
+            foreach (glob($cacheDir . '/stripe_products_*.json') as $file) {
+                $cached = json_decode((string) file_get_contents($file), true);
+                foreach (($cached['data'] ?? []) as $product) {
+                    if (($product['price_id'] ?? '') === $priceId) {
+                        return $product['plan_key'] ?? null;
+                    }
                 }
             }
         }
@@ -620,13 +622,15 @@ class StripeService
             return $map[$plan];
         }
 
-        // Fall back to cached product metadata
-        $cacheFile = __DIR__ . '/../../data/cache/stripe_products.json';
-        if (is_file($cacheFile)) {
-            $cached = json_decode((string) file_get_contents($cacheFile), true);
-            foreach (($cached['data'] ?? []) as $product) {
-                if (($product['plan_key'] ?? '') === $plan) {
-                    return $product['price_id'] ?? '';
+        // Fall back to cached product metadata (scan all cache files)
+        $cacheDir = __DIR__ . '/../../data/cache';
+        if (is_dir($cacheDir)) {
+            foreach (glob($cacheDir . '/stripe_products_*.json') as $file) {
+                $cached = json_decode((string) file_get_contents($file), true);
+                foreach (($cached['data'] ?? []) as $product) {
+                    if (($product['plan_key'] ?? '') === $plan) {
+                        return $product['price_id'] ?? '';
+                    }
                 }
             }
         }
@@ -661,16 +665,11 @@ class StripeService
         $pk = getenv($prefix . 'PUBLISHABLE_KEY') ?: getenv($prefix . 'PUBLISHABLE') ?: '';
         $wh = getenv($prefix . 'WEBHOOK_SECRET') ?: '';
 
-        $priceStarter = getenv($prefix . 'PRICE_STARTER') ?: '';
-        $priceStandard = getenv($prefix . 'PRICE_STANDARD') ?: '';
-        $pricingTableId = getenv($prefix . 'PRICING_TABLE_ID') ?: '';
-
+        // Only the API keys are truly required. Price IDs and pricing table ID
+        // are now optional since plans can be read from Stripe Price metadata.
         $mapRequired = [
             $prefix . 'SECRET_KEY' => $sk,
             $prefix . 'PUBLISHABLE_KEY' => $pk,
-            $prefix . 'PRICE_STARTER' => $priceStarter,
-            $prefix . 'PRICE_STANDARD' => $priceStandard,
-            $prefix . 'PRICING_TABLE_ID' => $pricingTableId,
         ];
 
         $missing = [];
@@ -684,7 +683,6 @@ class StripeService
 
         if ($wh === '') {
             $warnings[] = $prefix . 'WEBHOOK_SECRET missing';
-            error_log('Missing ' . $prefix . 'WEBHOOK_SECRET');
         }
         $skLive = str_starts_with($sk, 'sk_live_');
         $pkLive = str_starts_with($pk, 'pk_live_');
