@@ -13,6 +13,8 @@ class StripeService
 {
     private StripeClient $client;
 
+    private ?string $namespacePublishableKey = null;
+
     public function __construct(?string $apiKey = null, ?StripeClient $client = null) {
         if ($client !== null) {
             $this->client = $client;
@@ -23,6 +25,24 @@ class StripeService
         $altKey = $useSandbox ? 'STRIPE_SANDBOX_SECRET' : 'STRIPE_SECRET';
         $apiKey = $apiKey ?? (getenv($envKey) ?: getenv($altKey) ?: '');
         $this->client = new StripeClient($apiKey);
+    }
+
+    /**
+     * Create a StripeService instance using per-namespace keys if available.
+     *
+     * Falls back to global ENV keys when the namespace has no own Stripe keys.
+     */
+    public static function forNamespace(array $namespaceProject): self {
+        $secretKey = (string) ($namespaceProject['stripe_secret_key'] ?? '');
+        $publishableKey = (string) ($namespaceProject['stripe_publishable_key'] ?? '');
+
+        if ($secretKey !== '') {
+            $instance = new self($secretKey);
+            $instance->namespacePublishableKey = $publishableKey !== '' ? $publishableKey : null;
+            return $instance;
+        }
+
+        return new self();
     }
 
     /**
@@ -85,6 +105,9 @@ class StripeService
      * Get the publishable key for the current environment.
      */
     public function getPublishableKey(): string {
+        if ($this->namespacePublishableKey !== null) {
+            return $this->namespacePublishableKey;
+        }
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $envKey = $useSandbox ? 'STRIPE_SANDBOX_PUBLISHABLE_KEY' : 'STRIPE_PUBLISHABLE_KEY';
         $altKey = $useSandbox ? 'STRIPE_SANDBOX_PUBLISHABLE' : 'STRIPE_PUBLISHABLE';

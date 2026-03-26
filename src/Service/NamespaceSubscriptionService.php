@@ -276,9 +276,9 @@ final class NamespaceSubscriptionService
             ];
         }
 
-        // Fetch live status from Stripe
+        // Fetch live status from Stripe (using per-namespace keys if configured)
         try {
-            $service = new StripeService();
+            $service = StripeService::forNamespace($project);
             $info = $service->getActiveSubscription($customerId);
             if ($info !== null) {
                 return $info;
@@ -312,7 +312,7 @@ final class NamespaceSubscriptionService
         }
 
         try {
-            $service = new StripeService();
+            $service = StripeService::forNamespace($project);
             return $service->listInvoices($customerId);
         } catch (\Throwable) {
             return [];
@@ -336,6 +336,8 @@ final class NamespaceSubscriptionService
             'product',
             'stripe_pricing_table_id',
             'webhook_url',
+            'stripe_secret_key',
+            'stripe_publishable_key',
         ];
 
         foreach ($allowedFields as $field) {
@@ -460,6 +462,8 @@ final class NamespaceSubscriptionService
             'product' => $row['product'] ?? null,
             'stripe_pricing_table_id' => $row['stripe_pricing_table_id'] ?? null,
             'webhook_url' => $row['webhook_url'] ?? null,
+            'stripe_secret_key' => $row['stripe_secret_key'] ?? null,
+            'stripe_publishable_key' => $row['stripe_publishable_key'] ?? null,
             'display_name' => (string) ($row['display_name'] ?? $row['slug'] ?? ''),
             'status' => (string) ($row['status'] ?? 'active'),
         ];

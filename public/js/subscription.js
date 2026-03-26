@@ -459,9 +459,13 @@
         const product = container.querySelector('#billing-product');
         const tableId = container.querySelector('#billing-pricing-table-id');
         const webhookUrl = container.querySelector('#billing-webhook-url');
+        const secretKey = container.querySelector('#billing-stripe-secret-key');
+        const publishableKey = container.querySelector('#billing-stripe-publishable-key');
         if (product) product.value = data.product || '';
         if (tableId) tableId.value = data.stripe_pricing_table_id || '';
         if (webhookUrl) webhookUrl.value = data.webhook_url || '';
+        if (secretKey) secretKey.value = data.stripe_secret_key || '';
+        if (publishableKey) publishableKey.value = data.stripe_publishable_key || '';
       })
       .catch(() => {});
   }
@@ -476,12 +480,21 @@
       const container = document.querySelector('[data-billing-settings]');
       if (!container) return;
 
+      const secretKeyEl = container.querySelector('#billing-stripe-secret-key');
+      const secretKeyVal = secretKeyEl ? secretKeyEl.value : '';
+      // Only send secret key if it was actually changed (not the masked value)
+      const sendSecretKey = secretKeyVal && !secretKeyVal.startsWith('*');
+
       const payload = {
         namespace: ns,
         product: (container.querySelector('#billing-product') || {}).value || '',
         stripe_pricing_table_id: (container.querySelector('#billing-pricing-table-id') || {}).value || '',
         webhook_url: (container.querySelector('#billing-webhook-url') || {}).value || '',
+        stripe_publishable_key: (container.querySelector('#billing-stripe-publishable-key') || {}).value || '',
       };
+      if (sendSecretKey) {
+        payload.stripe_secret_key = secretKeyVal;
+      }
 
       window.apiFetch(withBase('/admin/subscription/billing-settings'), {
         method: 'POST',

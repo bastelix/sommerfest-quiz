@@ -2424,6 +2424,16 @@
                 <input class="uk-input" type="url" id="billing-webhook-url" name="webhook_url" placeholder="https://eforms.cloud/api/webhooks/billing">
               </div>
             </div>
+            <div class="uk-grid-small uk-margin-small-top" uk-grid>
+              <div class="uk-width-1-2@s">
+                <label class="uk-form-label" for="billing-stripe-secret-key">Stripe Secret Key <span class="uk-text-meta">(optional, eigenes Konto)</span></label>
+                <input class="uk-input" type="password" id="billing-stripe-secret-key" name="stripe_secret_key" placeholder="sk_live_... oder sk_test_..." autocomplete="off">
+              </div>
+              <div class="uk-width-1-2@s">
+                <label class="uk-form-label" for="billing-stripe-publishable-key">Stripe Publishable Key <span class="uk-text-meta">(optional)</span></label>
+                <input class="uk-input" type="text" id="billing-stripe-publishable-key" name="stripe_publishable_key" placeholder="pk_live_... oder pk_test_..." autocomplete="off">
+              </div>
+            </div>
             <button class="uk-button uk-button-primary uk-margin-small-top" id="billing-settings-save">Speichern</button>
           </div>
           {% endif %}
