@@ -16,6 +16,7 @@ import {
   setActiveAppearance,
   withPageContext,
   withAppearance,
+  hydrateSubscriptionPlans,
 } from './block-renderer-matrix-data.js';
 import { resolveSectionIntent } from './section-intents.js';
 
@@ -185,7 +186,7 @@ export function listSelectableBlocks(rendererMatrix = RENDERER_MATRIX) {
   }, {});
 }
 
-export { RENDERER_MATRIX };
+export { RENDERER_MATRIX, hydrateSubscriptionPlans };
 
 const PREVIEW_STATUS = {
   INCOMPLETE: 'INCOMPLETE',

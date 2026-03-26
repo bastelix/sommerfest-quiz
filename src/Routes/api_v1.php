@@ -17,6 +17,39 @@ return function (\Slim\App $app): void {
         return (new CustomerController())->register($request, $response);
     });
 
+    // Public subscription plans endpoint (display-safe data only, no auth required)
+    $app->get('/api/v1/subscription/plans', function (Request $request, Response $response): Response {
+        $config = \App\Service\StripeService::isConfigured();
+        $plans = [];
+
+        if ($config['ok']) {
+            try {
+                $service = new \App\Service\StripeService();
+                $products = $service->listProducts();
+                // Filter to display-safe fields only (no price_id, no limits)
+                foreach ($products as $product) {
+                    $plans[] = [
+                        'plan_key' => $product['plan_key'],
+                        'name' => $product['name'],
+                        'description' => $product['description'],
+                        'price' => $product['price'],
+                        'currency' => $product['currency'],
+                        'interval' => $product['interval'],
+                        'features' => $product['features'],
+                        'highlighted' => $product['highlighted'],
+                        'trial_days' => $product['trial_days'],
+                        'sort_order' => $product['sort_order'],
+                    ];
+                }
+            } catch (\Throwable) {
+                // Return empty array on failure
+            }
+        }
+
+        $response->getBody()->write((string) json_encode($plans));
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
     $app->group('/api/v1', function (\Slim\Routing\RouteCollectorProxy $group) {
         $group->get('/namespaces/{ns:[a-z0-9\-]+}/pages', function (
             Request $request,

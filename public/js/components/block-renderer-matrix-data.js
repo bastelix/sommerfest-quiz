@@ -3264,6 +3264,90 @@ function renderEventHighlightCompact(block, options = {}) {
   });
 }
 
+function renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget) {
+  const badge = plan.highlighted ? '<span class="uk-label uk-label-success uk-margin-small-bottom">Empfohlen</span>' : '';
+  const title = `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(plan.name || '')}</h3>`;
+  const description = plan.description ? `<p class="uk-margin-small-top">${escapeHtml(plan.description)}</p>` : '';
+
+  let priceHtml = '';
+  if (plan.price > 0) {
+    let formatted;
+    try {
+      formatted = (plan.price / 100).toLocaleString(undefined, { style: 'currency', currency: (plan.currency || 'eur').toUpperCase() });
+    } catch (_) {
+      formatted = (plan.price / 100) + ' ' + (plan.currency || '');
+    }
+    const intervalLabel = plan.interval === 'year' ? '/Jahr' : '/Monat';
+    priceHtml = `<div class="uk-text-large uk-text-bold uk-margin-small-top">${formatted}<span class="uk-text-meta uk-text-normal">${intervalLabel}</span></div>`;
+  }
+
+  const features = Array.isArray(plan.features)
+    ? plan.features.filter(f => typeof f === 'string' && f.trim() !== '').map(f => `<li>${escapeHtml(f)}</li>`)
+    : [];
+  const featureList = features.length ? `<ul class="uk-list uk-list-bullet uk-margin-small-top">${features.join('')}</ul>` : '';
+
+  let trialHtml = '';
+  if (plan.trial_days && plan.trial_days > 0) {
+    trialHtml = `<div class="uk-margin-small-top"><span class="uk-label uk-label-success" style="font-size:0.75rem">${plan.trial_days} Tage kostenlos testen</span></div>`;
+  }
+
+  const btnClass = plan.highlighted ? 'uk-button-primary' : 'uk-button-default';
+  const label = escapeHtml(ctaLabel || 'Abo starten');
+  const href = ctaTarget ? escapeAttribute(ctaTarget) + '?plan=' + escapeAttribute(plan.plan_key) : '#';
+  const ctaHtml = `<div class="uk-margin-top"><a href="${href}" class="uk-button ${btnClass} uk-width-1-1" data-subscription-plan="${escapeAttribute(plan.plan_key)}">${label}</a></div>`;
+
+  return `<div><div class="uk-card uk-card-default uk-height-1-1 uk-flex uk-flex-column">` +
+    `<div class="uk-card-body uk-flex-1">${badge}${title}${priceHtml}${description}${featureList}${trialHtml}</div>` +
+    `<div class="uk-card-footer">${ctaHtml}</div>` +
+    `</div></div>`;
+}
+
+function renderSubscriptionPlans(block, variant, options = {}) {
+  const context = options?.context || 'frontend';
+  const headerContent = renderSectionHeader(block, {
+    subtitleClass: 'uk-text-lead uk-margin-small-top uk-margin-medium-bottom',
+    context
+  });
+
+  const ctaLabel = block.data?.ctaLabel || 'Abo starten';
+  const ctaTarget = block.data?.ctaTarget || '';
+  const isPreview = context === 'preview';
+
+  const pageContext = resolveActivePageContext();
+  const plans = pageContext?.featureData?.subscriptionPlans || [];
+
+  let cardsHtml = '';
+  if (isPreview || plans.length === 0) {
+    const placeholders = [];
+    for (let i = 0; i < 2; i++) {
+      placeholders.push(
+        `<div><div class="uk-card uk-card-default uk-height-1-1">` +
+        `<div class="uk-card-body">` +
+        `<h3 class="uk-h4" style="opacity:0.4">Plan ${i + 1}</h3>` +
+        `<div class="uk-text-large uk-text-bold" style="opacity:0.3">0,00 €<span class="uk-text-meta">/Monat</span></div>` +
+        `<ul class="uk-list uk-list-bullet uk-text-small" style="opacity:0.3"><li>Feature 1</li><li>Feature 2</li><li>Feature 3</li></ul>` +
+        `</div>` +
+        `<div class="uk-card-footer"><span class="uk-button uk-button-default uk-width-1-1 uk-disabled" style="opacity:0.3">${escapeHtml(ctaLabel)}</span></div>` +
+        `</div></div>`
+      );
+    }
+    if (plans.length === 0 && !isPreview) {
+      cardsHtml = `<div data-subscription-plans data-cta-label="${escapeAttribute(ctaLabel)}" data-cta-target="${escapeAttribute(ctaTarget)}">` +
+        `<div class="uk-text-meta">Pläne werden geladen…</div></div>`;
+    } else {
+      cardsHtml = placeholders.join('');
+    }
+  } else {
+    cardsHtml = plans.map(plan => renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget)).join('');
+  }
+
+  const gridColumns = Math.min(isPreview ? 2 : plans.length, 3);
+  const gridClass = buildResponsiveGridClasses(gridColumns);
+  const grid = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cardsHtml}</div>`;
+
+  return renderSection({ block, variant: escapeAttribute(variant), content: `${headerContent}${grid}` });
+}
+
 export const RENDERER_MATRIX = {
   hero: {
     centered_cta: renderHeroCenteredCta,
@@ -3357,5 +3441,39 @@ export const RENDERER_MATRIX = {
   },
   case_showcase: {
     tabs: renderLegacyCaseShowcase
+  },
+  subscription_plans: {
+    cards: (block, options) => renderSubscriptionPlans(block, 'cards', options)
   }
 };
+
+/**
+ * Hydrate any [data-subscription-plans] containers that were rendered without
+ * server-side featureData (e.g. when plans were not yet cached). Fetches plans
+ * from the public API and renders cards into the container.
+ */
+export function hydrateSubscriptionPlans() {
+  if (typeof document === 'undefined') return;
+  document.querySelectorAll('[data-subscription-plans]:not([data-loaded])').forEach(container => {
+    container.setAttribute('data-loaded', '');
+    const basePath = resolveBasePath();
+    const ctaLabel = container.dataset.ctaLabel || 'Abo starten';
+    const ctaTarget = container.dataset.ctaTarget || '';
+
+    fetch(`${basePath}/api/v1/subscription/plans`)
+      .then(r => r.ok ? r.json() : [])
+      .then(plans => {
+        if (!Array.isArray(plans) || plans.length === 0) {
+          container.innerHTML = '<div class="uk-text-meta">Keine Pläne verfügbar.</div>';
+          return;
+        }
+        const gridColumns = Math.min(plans.length, 3);
+        const gridClass = buildResponsiveGridClasses(gridColumns);
+        const cards = plans.map(plan => renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget)).join('');
+        container.innerHTML = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
+      })
+      .catch(() => {
+        container.innerHTML = '<div class="uk-text-meta">Pläne konnten nicht geladen werden.</div>';
+      });
+  });
+}

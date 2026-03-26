@@ -230,6 +230,15 @@ const schema = {
       },
       "required": ["type", "variant", "data"],
       "deprecated": true
+    },
+    {
+      "title": "Subscription plans block",
+      "properties": {
+        "type": { "const": "subscription_plans" },
+        "variant": { "enum": ["cards"] },
+        "data": { "$ref": "#/definitions/SubscriptionPlansData" }
+      },
+      "required": ["type", "variant", "data"]
     }
   ],
   "definitions": {
@@ -791,6 +800,17 @@ const schema = {
       "properties": {
         "x": { "type": "number", "minimum": 0, "maximum": 1 },
         "y": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "SubscriptionPlansData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "subtitle": { "type": "string" },
+        "ctaLabel": { "type": "string" },
+        "ctaTarget": { "type": "string" }
       }
     }
   }
