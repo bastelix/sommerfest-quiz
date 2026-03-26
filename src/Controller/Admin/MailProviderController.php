@@ -24,7 +24,7 @@ class MailProviderController
 
     private SettingsService $settings;
 
-    private MailProviderManager $manager;
+    private ?MailProviderManager $manager;
 
 
     /**
