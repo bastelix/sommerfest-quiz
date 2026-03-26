@@ -12,9 +12,9 @@
 2. [Scopes](#scopes)
 3. [Fehlerformat](#fehlerformat)
 4. [Pages (CMS-Seiten)](#pages-cms-seiten)
-5. [Menus (Navigationsmenüs)](#menus-navigationsmenüs)
-6. [Menu Items (Menüeinträge)](#menu-items-menüeinträge)
-7. [News (Neuigkeiten / Blog)](#news-neuigkeiten--blog)
+5. [Menus (Navigationsmenüs)](#menus-navigationsmenus)
+6. [Menu Items (Menüeinträge)](#menu-items-menueinträge)
+7. [News (Neuigkeiten / Blog)](#news-neuigkeiten-blog)
 8. [Interne Endpunkte (Session-basiert)](#interne-endpunkte-session-basiert)
 
 ---
