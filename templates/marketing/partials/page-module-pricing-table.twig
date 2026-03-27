@@ -1,13 +1,58 @@
 {# Renders the "pricing-table" page module.
    Expects: module (PageModule), pricingTableId (string), stripePublishableKey (string), namespace (string).
+   Optional: checkoutApp (string) – when set, renders plan cards linking to the auth-gated /stripe/checkout
+             instead of the embedded Stripe Pricing Table.
+             plans (list of {plan_key, name, price_label, features}) – plan data for card rendering.
    Config keys: heading (string), subheading (string). #}
 {% set moduleConfig = module.config|default({}) %}
 {% set heading = moduleConfig.heading|default('') %}
 {% set subheading = moduleConfig.subheading|default('') %}
 {% set tableId = pricingTableId|default('') %}
 {% set pubKey = stripePublishableKey|default('') %}
+{% set appName = checkoutApp|default('') %}
 
-{% if tableId and pubKey %}
+{% if appName and plans|default([])|length > 0 %}
+  {# Auth-gated checkout flow: plan cards link to /stripe/checkout?plan=X&app=Y #}
+  <section class="marketing-section uk-section page-module-pricing-table"
+           data-page-module-id="{{ module.id|default('')|e('html_attr') }}"
+           data-page-module-type="pricing-table">
+    <div class="uk-container">
+      {% if heading %}
+        <div class="uk-text-center uk-margin-medium-bottom">
+          <h2 class="uk-heading-medium">{{ heading }}</h2>
+          {% if subheading %}
+            <p class="uk-text-lead uk-text-muted">{{ subheading }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="uk-grid uk-grid-match uk-child-width-1-3@m uk-child-width-1-1" uk-grid>
+        {% for plan in plans %}
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-text-center{% if plan.highlighted|default(false) %} uk-card-primary{% endif %}">
+              <h3 class="uk-card-title">{{ plan.name }}</h3>
+              {% if plan.price_label|default('') %}
+                <div class="uk-text-lead uk-margin-small-bottom">{{ plan.price_label }}</div>
+              {% endif %}
+              {% if plan.features|default([])|length > 0 %}
+                <ul class="uk-list uk-list-bullet uk-text-left">
+                  {% for feature in plan.features %}
+                    <li>{{ feature }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+              <a href="{{ basePath }}/stripe/checkout?plan={{ plan.plan_key|url_encode }}&app={{ appName|url_encode }}"
+                 class="uk-button uk-button-primary uk-button-large uk-width-1-1 uk-margin-small-top">
+                Jetzt starten
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+{% elseif tableId and pubKey %}
+  {# Legacy embedded Stripe Pricing Table #}
   <section class="marketing-section uk-section page-module-pricing-table"
            data-page-module-id="{{ module.id|e('html_attr') }}"
            data-page-module-type="pricing-table">

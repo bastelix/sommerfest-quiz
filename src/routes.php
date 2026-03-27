@@ -1427,6 +1427,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     // MCP server + OAuth 2.0
     (require __DIR__ . '/Routes/mcp.php')($app);
 
+    // Account auth + auth-gated Stripe Checkout
+    (require __DIR__ . '/Routes/auth.php')($app);
+
     $app->get('/api/players', function (Request $request, Response $response) {
         $params = $request->getQueryParams();
         $eventUid = trim((string) ($params['event_uid'] ?? ''));
