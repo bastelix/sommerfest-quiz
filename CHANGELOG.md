@@ -415,6 +415,7 @@
 - *(subscription)* Support per-namespace Stripe keys in public API
 - *(subscription)* Add /admin/subscription/debug endpoint
 - *(subscription)* Add public /checkout route for direct Stripe checkout
+- *(auth)* Add account auth layer between pricing page and Stripe checkout
 
 ### Fix
 
