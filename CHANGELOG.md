@@ -748,6 +748,7 @@
 - *(subscription)* Build correct CTA href with query separator
 - Address security, performance, and MCP improvements
 - *(auth)* Pass checkoutApp and plans to pricing templates
+- *(build)* Run composer install when lock file is newer than vendor
 
 ### Merge
 
