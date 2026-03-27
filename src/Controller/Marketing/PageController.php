@@ -508,6 +508,8 @@ class PageController
             'marketingDesignDebug' => $marketingDesignDebug,
             'pricingTableId' => $this->resolvePricingTableId($pageNamespace),
             'stripePublishableKey' => $this->resolveStripePublishableKey(),
+            'checkoutApp' => $this->resolveCheckoutApp($pageNamespace),
+            'subscriptionPlans' => $marketingPayload['featureData']['subscriptionPlans'] ?? [],
         ];
 
         return $view->render($response, 'pages/render.twig', $data);
@@ -1684,6 +1686,20 @@ class PageController
             $nsSvc = new NamespaceSubscriptionService($this->pdo);
             $project = $nsSvc->findBySlug($namespace);
             return (string) ($project['stripe_pricing_table_id'] ?? '');
+        } catch (\Throwable) {
+            return '';
+        }
+    }
+
+    /**
+     * Resolve the product/app name from namespace_projects for auth-gated checkout.
+     */
+    private function resolveCheckoutApp(string $namespace): string
+    {
+        try {
+            $nsSvc = new NamespaceSubscriptionService($this->pdo);
+            $project = $nsSvc->findBySlug($namespace);
+            return (string) ($project['product'] ?? '');
         } catch (\Throwable) {
             return '';
         }
