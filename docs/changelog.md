@@ -1,0 +1,1264 @@
+# Changelog
+
+## [unreleased]
+
+### Build
+
+- Tag image as sommerfest-quiz
+- Enforce conventional commits via commitlint and husky
+- *(deps-dev)* Bump phpstan/phpstan from 2.1.32 to 2.1.40
+- *(deps)* Bump intervention/image from 3.11.4 to 3.11.7
+- *(deps)* Bump stripe/stripe-php from 19.1.0 to 19.4.0
+
+### Chore
+
+- Add pages table for SEO config
+- Increase phpstan memory limit
+- Restore config
+- Scope landing page styles
+- Apply dark blue landing theme
+- Improve landing page contrast
+- Refine compose project handling
+- *(deps)* Bump symfony/process from 7.3.0 to 7.3.3
+- *(deps)* Bump symfony/mailer from 7.3.2 to 7.3.3
+- *(deps)* Bump stripe/stripe-php from 17.5.0 to 17.6.0
+- *(deps)* Bump slim/slim from 4.14.0 to 4.15.0
+- *(deps)* Bump guzzlehttp/guzzle from 7.9.3 to 7.10.0
+- Normalize invite setup indentation
+- Restore config backup
+- *(docs)* Remove unused jekyll rtd theme
+- Add migration for logo width
+- Mark admin script as module
+- Streamline catalog styles
+- Preserve query string on rewrite
+- Remove obsolete comment
+- Send JSON accept header when fetching catalogs
+- Seed admin user
+- Handle network errors in event switcher
+- Add migration for sticker text toggles
+- Normalize spacing before EOF docblocks
+- Track namespace-specific token CSS and tighten .gitignore
+- Remove legacy labor.css, topbar.landing.css, and dead references
+- Add auto-generated namespace token stylesheets
+- Include pre-existing namespace token and upgrade script changes
+- *(design)* Complete v2.0.0 structure for all design presets
+- Update generated namespace token CSS files
+- Add calhelp blocks demo draft page
+- Add phpstan check script
+- Add cms api contract smoke test script
+- Remove test comment from FooterTools
+- Modernize CI and Docker setup
+
+### Ci
+
+- Rebase changelog updates before push
+- Add GitHub Pages workflow
+- Add JS unit tests job to PR workflow
+- Add pre-commit hook for local CI checks
+- Disable update-tenants workflow
+
+### Docs
+
+- Remove version bump entries from changelog
+- Note removal of docker tag for tenant upgrade
+- Note landing page style overrides
+- Clarify tenant wait probing and HTTPS upgrade
+- Document Docker Compose project name
+- Dokumentation des table frameworks
+- Update table framework guide
+- Add local documentation build instructions
+- Escape twig example in docs
+- Describe QR code endpoint requirements
+- Document active event handling
+- Add domain configuration section
+- Clarify quiz start comment
+- Note management role redirect
+- Refresh contribution and coding guides
+- Explain team name ai preview
+- Document marketing menu assignments
+- Add comprehensive architecture review against AGENTS.md
+- Add prioritized architecture task list (27 tasks in 7 phases)
+- Add harmonization plan for menu editor and footer block editor UX
+- Add comprehensive role and permission documentation
+- Document PR #5300 as superseded by #5303/#5312
+- Add comprehensive project documentation for marketing website
+- Add namespace design explanation
+- Add namespace design review and improvement recommendations
+- Add branch naming conventions to CLAUDE.md
+- Add CSS audit analyzing stylesheet conflicts and legacy inclusions
+- Fix inaccuracies in CSS audit
+- *(css)* Document intentional hardcoding in highcontrast.css
+- Add UX/UI improvement plan for tenant onboarding
+- Add FEATURES-MARKETING.md with comprehensive feature documentation
+- *(features)* Add namespace-based subscription and quota model
+- Add GRID_OVERVIEW.md with CSS grid migration analysis and roadmap
+- Update GRID_OVERVIEW.md with exact marketing.css selector analysis
+- Add standard customer chat snippet for cms collaboration
+- *(api)* Add comprehensive API v1 reference and register news endpoints
+- Add API expansion briefing for AI assistant
+- Add MCP connector setup guide for Claude.ai
+
+### Feat
+
+- Allow selecting subscription plan
+- Persist and extend QR design
+- Allow resending welcome mail
+- *(admin)* Allow column selection for tenants
+- Show tenant invoices
+- Enable subscription plan toggle for all tenants
+- Add health endpoint and improve onboarding check
+- Add automatic patch bump workflow
+- Enforce password repeat in reset
+- Group admin options by category
+- Extend dark mode styling to html element
+- Sync Stripe subscription on plan change
+- Increase icon button tap size
+- Enable automatic dark mode
+- Make font sizes responsive
+- Always show tenant actions in dropdown
+- Add dynamic canonical and OG URLs
+- Add theme color variables
+- Add dynamic nav placeholder sizing
+- Add responsive offcanvas menu toggle
+- Add mobile offcanvas navigation
+- Validate redirects before navigation
+- Allow hiding topbar icons
+- Add compact settings dropdown
+- Add player profile page
+- Add profile name management
+- Enforce profile setup for random names
+- Store player names per event
+- Add exponential backoff for db connection
+- Improve topbar accessibility
+- Pull image before tenant upgrade
+- Allow custom image tag for tenant upgrade
+- Consolidate admin toolbar actions
+- Improve navigation accessibility
+- Dark pricing cards
+- Toggle dark stylesheet via disabled attribute
+- Themeable landing topbar
+- Improve landing page theme variables
+- Streamline dark mode handling
+- Improve dark theme colors
+- Use Poppins font for body
+- Replace landing page with new design
+- Apply design system to landing
+- Refresh landing page
+- *(dark-mode)* Refine login input styling
+- Initialize theme before css load
+- Mobil-first landing styles
+- Darken login version tag
+- Add redirects table
+- Apply dark mode classes without stylesheet
+- Simplify landing hero
+- Use uikit navbar toggle
+- Add offcanvas nav to marketing landing
+- Add light landing theme with dark override
+- Redesign landing topbar
+- Implement theme toggle and qr tokens for landing
+- Improve tenant creation error handling
+- Set default light theme
+- Add icons to landing page navigation
+- Add collapsible log to onboarding
+- Improve tenant health check and TLS logging
+- Require Stripe pricing table
+- Toggle dark mode class
+- *(editor)* Add section template after hero
+- Enable dark mode by default on landing
+- Load .env variables in onboarding script
+- Limit onboarding task log height
+- Add language menu to landing
+- Update how-it-works section
+- Ensure btn icons match text color
+- Add use case slider
+- Expand landing FAQ
+- Update contact block copy
+- Greet returning team name
+- Preserve catalog questions on slug change
+- *(admin)* Edit teams via modal
+- Add qr action button style
+- Add teams speed dial
+- Add pagination for team management
+- Add light mode row styling
+- Refine QR code defaults
+- Add swipe card styles
+- Add table macros for admin views
+- Add generic table manager
+- Add mobile card rendering with accessibility
+- Polish table layout and theme variables
+- Add table macros and update docs
+- Add table manager utility
+- Add twig template for tenant rows
+- Update catalog manager save logic
+- *(admin)* Render catalog mobile cards
+- Expose event config endpoints
+- Implement event config page logic
+- *(admin)* Enhance event config sidebar
+- Add pagination and classes to catalog manager
+- Guard table manager init
+- Add mobile action menu and modal editing for catalogs
+- Improve mobile table layout
+- Add paginated catalog endpoint
+- Add accessible table loading spinners
+- Allow custom QR code options
+- Add mobile labels for table columns
+- Apply default QR code layout
+- Add explicit chillerlan qr options
+- Use table layout for admin events
+- Make QR logo punch-out configurable
+- Punchout logo area in svg QR codes
+- Add reusable cell editor helper
+- Support event-specific QR logo endpoints
+- *(admin)* Add catalog edit modal
+- Auto-save catalog changes
+- *(admin)* Add missing events table
+- Autosave questions
+- Add event-specific config endpoint
+- Add eventless catalog fallback
+- Add save button identifier
+- Add autosave for loaded config
+- Make tenants directory configurable
+- Enable autosave for event configuration
+- Import existing page content
+- Add catalog load warning
+- *(catalog)* Show intro on initial load
+- Resolve catalog slug from URL path
+- Add async catalog selection
+- Centralize storage utilities
+- Add player session endpoint
+- *(storage)* Scope puzzle and catalog data
+- Provide storage fallbacks for catalog
+- Redirect event selection via query
+- Show event name in admin headings
+- Pass event uid to result service
+- Collect solved catalogs in competition mode
+- Preload events on admin page
+- Remove events pagination limit
+- Warn if no events present
+- Combine team actions into single column
+- Move team name prompt to top bar
+- Globalize player name storage
+- Allow resetting stored team name
+- Show team name button
+- Stop resuming catalog from session
+- Enhance event catalogs layout
+- Adapt onboarding buttons for dark mode
+- Show event header outside topbar
+- Improve sticker background upload UX
+- Improve sticker background upload UX
+- Add catalog sticker preview
+- Add dark-mode contrast for secondary buttons
+- Suggest username for manual QR input
+- Enable dark theme on license page
+- Update user rendering
+- Highlight catalog cards in dark mode
+- Prevent replaying solved catalogs
+- Add label for event selection
+- Use native select for event picker
+- Inline role editing
+- Add username modal for admin
+- Dynamically switch admin events
+- Hide event selector on small screens
+- Persist letter in puzzle mode
+- Prevent admin event change auto reload
+- Widen sticker editor modal
+- Reintroduce additional Avery sticker templates
+- Introduce image upload service
+- Centralize event image storage
+- Auto orient image uploads
+- Add image format option
+- Support per-line font sizes in sticker preview
+- Add catalog fallback
+- Use new image upload controller for sticker background
+- Use UIkit uploader for sticker backgrounds
+- Preserve text box position during resize
+- *(sticker)* Support padding in editor
+- Add mm grid snapping for sticker editor
+- Refine sticker QR size field
+- Allow marketing contact forms to define endpoint
+- Add animated calserver hero background
+- Implement future-is-green mega menu
+- Add domain-specific RAG management
+- Manage RAG chat settings in admin
+- Expand calHelp case stories
+- Redesign calhelp news section
+- Redesign calhelp news section
+- Add CalHelp section theming
+- Allow customizing live dashboard widget titles
+- Allow marketing event pages to adopt event branding
+- Integrate events module into namespace system
+- Add advanced footer block system with content types
+- Add automatic WCAG color contrast checking for theme tokens
+- Add conventional commits and manual version bump support
+- Make all page module block types mobile-first responsive
+- Add responsive font-size scaling for all heading classes in modules
+- Add item-level card toggle with filtered sub-variants in Layout-Stil
+- Add Future-is-Green namespace design theme and design import function
+- Add fully functional contact_form block with configurable fields
+- Enhance footer editor with layout persistence, drag-and-drop, live preview, rich text and inline editing
+- Improve admin menu for mobile with touch-optimized offcanvas nav
+- Reorganize admin navigation – split Struktur into Menüs + Footer
+- Add self-service mail settings page (/settings/mail)
+- Extract anchors from all pages for menu editor autocomplete
+- Add latest-news page editor module
+- Add latest_news block type to page editor section templates
+- Add customer role for self-service namespace management
+- Add newsletter variant to CTA block
+- Add rename and delete actions via dropdown menu in page tree
+- Add rename/delete actions to page editor tree via dropdown menu
+- Namespace-driven team name generation and event scoping
+- *(config)* Add admin toggle for player contact email form
+- *(design)* Track source preset and import timestamp
+- *(design)* Add custom CSS overrides tab per namespace
+- *(cms)* Add block-contract-v1 prompt template for marketing page import
+- *(calserver)* Implement one-pager design via CMS blocks and namespace CSS
+- *(calserver)* Add CMS page migration for calserver namespace
+- *(calserver)* Add CMS menu migration for calserver namespace
+- *(pages)* Add domain selector to page tree for per-domain startpage assignment
+- *(calserver)* Replace marketing page with CMS block-based design
+- *(page-tree)* Add top menu assignment to page tree context menu
+- *(page-tree)* Add menu assignment to pages content tree
+- *(pages)* Auto-generate section anchors and expose them in menu editor
+- *(calserver)* Add trust_band variant for seamless trust strip below hero
+- *(menu)* Replace native datalist with grouped anchor suggestion dropdown
+- *(cms)* Add event_highlight page block
+- *(hero)* Add optional video support to stat_tiles variant
+- *(cms)* Register event_highlight block in page editor
+- *(hero)* Add viewport height options to hero sections
+- *(hero)* Add DSGVO consent gate for embedded videos
+- *(cms)* Add event dropdown and settings form for event_highlight block
+- *(feature_list)* Add clustered-tabs variant for grouped module display
+- *(hero)* Suppress unrelated YouTube recommendations via rel=0
+- *(theme)* Add default theme based on calServer design
+- *(subscription)* Inline cancel and upgrade/downgrade on abo page
+- *(theme)* Allow design preset selection on namespace creation
+- *(editor)* Add visual icon picker for block icon fields
+- *(pages)* Add page publishing with draft/published/archived status
+- *(i18n)* Translate event config admin page
+- *(i18n)* Translate wiki admin page and add design translation keys
+- *(i18n)* Translate design and cookies admin pages
+- *(i18n)* Translate admin controller error messages
+- *(i18n)* Extract admin JS strings to translation system
+- *(i18n)* Translate remaining admin templates
+- *(ai)* Add progress log and spinner to AI page generation modal
+- *(quota)* Add namespace-based quota logging system
+- *(dashboard)* Display all quota metrics on admin dashboard
+- *(media)* Restrict project media access to authenticated namespace users
+- *(auth)* Add Google Sign-In for login and onboarding
+- *(quiz)* Redesign question editor with block-card pattern
+- *(quiz)* Enhance question editor with numbering, duplicate and UX polish
+- *(pages)* Modernize block list with type badges and drag-and-drop reorder
+- *(i18n)* Translate admin area including question editor
+- *(quiz)* Add catalog selector to event block and fix quiz start links
+- *(tests)* Add vitest unit test suite for admin-utils, catalog, and teams modules
+- *(editor)* Show live preview side-by-side in edit mode
+- *(editor)* Improve side-by-side preview with responsive layout and collapse toggle
+- *(landing-news)* Add slug suggestion and rich text content editor
+- *(news)* Add optional image URL to landing news entries
+- *(ai)* Add HTML-import prompt template for 1:1 block-contract conversion
+- *(news)* Add link and image insertion to content editor
+- Public CMS API v1 with namespace tokens
+- *(api)* Allow status/title updates in cms upsert
+- *(api)* Strict block schema validation with detailed errors
+- *(marketing)* Allow draft preview with ?preview=1 for logged-in users
+- *(api)* Add cms page list endpoint (cms:read)
+- *(api)* Add pages tree endpoint
+- *(admin)* Allow deleting api tokens and improve copy UX
+- *(api)* Menu read/write endpoints for namespace
+- *(api)* Add menu read/write endpoints
+- *(api)* Add menu endpoints (read/write) with hierarchical items
+- *(api)* Add news CRUD endpoints with read/write scopes
+- *(mcp)* Add MCP server with OAuth 2.0 authentication
+- *(mcp)* Add optional namespace parameter to all tools and list_namespaces discovery
+- *(mcp)* Add get_block_contract tool to retrieve block schema
+- *(mcp)* Add footer block and layout MCP tools
+- *(mcp)* Resolve block contract schema and return detailed validation errors
+- *(quiz)* Add API v1 and MCP endpoints for quiz module
+- *(backup)* Add complete namespace backup & restore
+- *(oauth)* Show all MCP endpoints on authorization page
+- *(docs)* Migrate GitHub Pages from Jekyll/Minima to MkDocs Material
+- *(seo)* Add AI training data integration (GEO)
+- Auto-expose marketing domains to nginx reverse proxy
+- *(mcp)* Add stylesheet API for AI-driven design management
+- *(mcp)* Register design:read and design:write OAuth scopes
+- *(cms)* Add dynamic language variant resolution via base_slug column
+- *(mcp)* Add seo parameter to upsert_page tool
+- *(i18n)* Add translations for cookie admin page
+- *(editor)* Add direct image upload to page editor block fields
+- *(mcp)* Add menu assignment tools for header/footer menu slot management
+- *(hero)* Add configurable media size for hero image area
+- *(topbar)* Add configurable topbar style setting for navigation visibility
+- *(hero)* Make hero media image clickable with UIkit lightbox
+- *(packages)* Add configurable columns per row for package summary block
+- *(ui)* Add smooth page transitions with progressive enhancement
+- *(mcp)* Add wiki tools module
+- *(mcp)* Register wiki scopes in OAuth consent screen
+- *(page-tree)* Improve sidebar tree usability
+- *(mcp)* Add delete_page tool
+- *(page-tree)* Apply sidebar tree improvements to /admin/pages/content
+- *(tickets)* Add ticket system API with customer registration and profiles
+- *(hero)* Add frameless option for hero media images
+- *(wiki)* Integrate namespace design and apply Notion-inspired layout
+- *(wiki)* Add GFM markdown table support for wiki article parser
+- *(wiki)* Add direct wiki mode for pages with type=wiki
+- *(wiki)* Add Material Design styling inspired by MkDocs Material
+- *(billing)* Add Lago billing stack integration
+- *(billing)* Add multi-product Stripe billing hub
+- *(account)* Add customer-facing /account page per namespace
+- *(subscription)* Load plans dynamically from Stripe Product metadata
+- *(subscription)* Add per-plan trial days via Stripe Product metadata
+
+### Fix
+
+- Update phpstan config for v2
+- Ensure page content respects dynamic topbar height
+- *(events)* Prevent table frame from clipping actions
+- Respect flex-wrap when sizing nav placeholder
+- Remove empty hamburger menu and align settings toggle
+- Always show topbar icons
+- Handle missing player name key
+- Align config button to navbar edge
+- Remove opacity from accessibility toggle icon
+- Ensure landing navbar uses UIKit-specific background
+- Improve landing page contrast
+- Restore backend light mode styles
+- Make landing topbar github buttons rectangular
+- Serve assets with base path
+- Reveal hero gradient
+- Allow landing offcanvas to overlay viewport
+- Improve topbar contrast in light theme
+- Override UIkit card backgrounds
+- Remove redundant nullsafe operator
+- Align landing button icon color
+- Preserve player name across catalogs
+- Ensure consistent table cell padding
+- Preserve svg logo aspect ratio
+- Reuse catalog uid for existing slug
+- Avoid autosave after load
+- Reuse existing catalog uid for duplicate slug
+- Address phpstan warnings
+- Remove admin topbar position override
+- Avoid duplicate params declaration
+- Align admin action wrappers to right
+- Preserve player name on restart
+- Restore landing theme toggles
+- Load storage helper for options menu
+- Scope topbar button bg for landing
+- Apply topbar button background on landing
+- Dark mode landing primary buttons
+- Verify sticker background path
+- Remove quoted identifiers in sticker migration
+- Allow automated commits to trigger ci
+- Guard entrypoint pipefail usage
+- Make admin.js event handling namespace-aware
+- Resolve PHPStan errors in LegacyCalserverLandingController
+- Enforce namespace isolation across all event-related endpoints
+- Enforce namespace access checks on admin content write operations
+- Link brand tokens to marketing vars when scheme is active in namespace-design
+- Resolve admin page tree loading and namespace design application
+- Restore missing pageTypeDefaultsList variable in content.twig
+- Use DOMContentLoaded for page tree init and harden apiFetch fallback
+- Escape Liquid/Twig syntax in docs to fix GitHub Pages build
+- Add missing section CSS for namespace-themed block rendering
+- Add missing CSS tokens and block styles for CMS page rendering
+- Connect theme blocks to contrast system, improve palettes
+- Reset text/link color inside cards on coloured section backgrounds
+- Resolve GitHub Actions race condition with concurrency groups
+- Remove margin-top between sections that caused unfilled gaps
+- Hero text contrast on colored sections + eyebrow tag option
+- FAQ accordion contrast — inherit section text color, adaptive icons
+- Align block renderer output with UIkit HTML reference styling
+- Resolve missing stylesheet contrast on marketing landing page
+- Regenerate namespace token CSS and load topbar styles on CMS pages
+- Harden section contrast for dark backgrounds and extract renderSectionHeader helper
+- Align CTA buttons to same height when both are visible
+- Add missing eyebrowAsTag to HeroData validation schema
+- Hero block text contrast matches actual hero background
+- Persist container in sectionStyle and always include background
+- Guarantee readable text on every background surface
+- Complete all marketing schemes with missing tokens for display safety
+- Resolve PHPStan nullCoalesce.offset errors in ColorContrastService
+- Resolve missing scheme tokens and CSS fallback gaps in marketing design
+- Make dark mode work for sections by preventing light-theme inline style overrides
+- Remove blank line before class closing brace in LegacyMarketingMenuDefinition
+- Block-slider intro shows raw HTML tags, CTA button invisible on highlight sections
+- Prevent double-escaping of notes in package_summary block
+- Filter namespace selection to only show active namespaces
+- Enable AI menu generation by connecting frontend to existing backend API
+- Route all contact forms to /api/contact-form endpoint
+- Add missing mobile menu toggle on header/footer settings page
+- Stop auto-creating namespaces when domains are created
+- Hard-delete namespaces and clean up derived data on removal
+- Add missing mobile menu toggle to all admin templates
+- Correct admin topbar layout order and hide namespace prefix on mobile
+- Hide breadcrumb divider on small screens
+- Improve mobile responsiveness for page editor structure view
+- Make page block style options freely combinable
+- Reset padding-left on uk-grid-large children in mobile admin view
+- Make footer block modal responsive on mobile and add missing translations
+- Resolve CI test failures in entrypoint and onboarding tests
+- Scope admin dashboard data to the selected namespace
+- Menu editor item creation and AI generation
+- Allow deletion of inactive namespaces
+- Menu card editor – inline editing, auto-save, and preview
+- Pass PostgreSQL sequence names to lastInsertId() for menu operations
+- Show 3 cards side-by-side on iPad for page modules
+- Create project_settings table before altering it
+- Add missing layout to FAQ block default meta sectionStyle
+- IPad card layout — follow Ablauf pattern, drop @s intermediate for 3+ columns
+- Revert modified migration and add new one for table creation
+- Resolve PHPStan errors for null coalesce and redundant comparison
+- Remove redundant non-empty-string comparison with empty string
+- Remove redundant null coalescing on uid which is always a non-nullable string
+- Restore footer block editor tab in navigation page
+- Remove redundant comparisons flagged by PHPStan
+- Swap surface text variables to dark variants in aurora dark mode
+- Add dark mode contrast-text overrides to all namespace-tokens.css
+- Resolve AI menu generation HTTP 500 errors
+- Sync sqlite-schema.sql with missing migration changes
+- Swap page background and text inline styles for dark mode
+- Forward namespace parameter to domain-chat API endpoints
+- Clear stale inline styles before re-applying on theme toggle
+- Add ALTER TABLE statements for existing SQLite databases
+- Dark mode toggle now applies all styles without page refresh
+- Handle network errors in AI page creation with user-friendly message
+- Preserve featureData in normalizePagePayload so latest_news block renders news
+- Load landingNews for pages with latest_news block regardless of feature flag
+- Replace news redirect routes with proper MarketingLandingNewsController handlers
+- Add hero intent to button/link contrast overrides in sections.css
+- Prevent light default surface from overriding dark hero/highlight bg
+- Remove unused PageService property in PageModuleController
+- Load marketing.css in page editor for correct inline preview
+- Preserve container (width/frame/spacing) in section style sanitization
+- Generate client-side player UID fallback when registration fails
+- Update sqlite-schema.sql with customer role CHECK constraint
+- Apply namespace design tokens to editor inline preview
+- Add data-effect attributes to sections so behavior effects are applied
+- Tablet-responsive Layouts für Card-/Options-Blöcke verbessern
+- 3 Spalten direkt ab @s (640px) statt 2-Spalten-Zwischenschritt
+- Redesign use-cases block with proper BEM structure, contrast and theme support
+- Connect sliderProfile to frontend and skip reveal for above-fold sections
+- Case-insensitive comparison for hover effect target detection
+- Add missing CSS for module-card and news-card variants
+- Rename team-name namespace migration to run after prerequisites
+- Stat-Strip 4–6 Spalten Regression beheben
+- Load marketing.css in page editor for namespace preview
+- CalServer.com Tablet-responsive Grid-Overrides
+- Show namespace-scoped catalogs instead of single event in admin views
+- Add marketing-page class to preview canvas for full namespace tokens
+- Remove duplicate 'pageModules' array key in PageController
+- Remove unused $pageModules property from PageController
+- Apply aurora design scheme correctly for calserver-neu namespace
+- *(docs)* Correct privacy claims to reflect player email collection
+- *(docs)* Clarify email collection is player-optional, not admin-configurable
+- *(design)* Clean up orphan CSS files when namespace is deleted
+- *(teams)* Scope all team API calls to the active event
+- *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
+- *(design)* Resolve duplicate CSS vars and missing quizrace namespace tokens
+- *(design)* Emit marketing scheme tokens with falsy CSS values like '0'
+- *(news)* Add header, breadcrumb navigation, and footer to news pages
+- *(news)* Align CSS and footer with CMS landing page template
+- *(design)* Fix CSS tab visibility and add preview tab
+- *(docs)* Escape Liquid template syntax in Jekyll documentation
+- *(design)* Resolve contrast panel issues for transparent secondary bg and missing card-dark token
+- Make secondary button visible in design preview primary/secondary sections
+- *(sections)* Remove column-gap that broke 3-column grid on desktop
+- *(calserver)* Align block data with block-contract schema
+- *(calserver)* Repair block-contract violations in database content
+- *(pages)* Resolve startpage removal bug and stale tree menu labels
+- *(calserver)* Repair block-contract violations in update_calserver_page_blocks migration
+- *(design)* Generate dark-mode namespace tokens to prevent cascade overrides
+- *(calserver)* Update CTA hrefs to match renamed demo anchor
+- *(design)* Auto-fix contrast button now considers all themes
+- Create namespaces table before calserver CMS page migration
+- *(topbar)* Use display:contents for namespace label to prevent line wrap
+- *(rag-chat)* Add namespace selector to chatbot admin page
+- Handle PostgreSQL boolean string representations in normalizeBoolean
+- *(seo)* Extract text from block-based JSON for AI SEO import
+- *(seo)* Improve AI import error messages with German details
+- *(seo)* Show specific field errors when saving SEO config
+- *(calserver)* Use snake_case column name design_tokens in migration
+- Use namespace-specific brand name for browser tab title
+- *(admin)* Add missing namespace middleware to rag-chat route
+- *(templates)* Use null coalescing instead of default filter for boolean toggles
+- Resolve localhost requests to main domain namespace
+- *(calserver)* Align block contract with new page data
+- *(calserver)* Correct visual styling for hero, trust bar, and navbar
+- *(testimonial)* Validate individual quote entries in testimonial block contract
+- *(calserver)* Sync block-contract.schema.json with block-contract.js
+- *(calserver)* Add JS cache-busting, fix PHP testimonial validator, revert legacy twig
+- *(header)* Hide config menu when no options are enabled
+- *(calserver)* Rebuild namespace CSS after migrations and write full stylesheet
+- *(calserver)* Ensure config row exists before setting custom CSS and fix referenzen data
+- *(calserver)* Reduce hero padding, improve element sizing, add logo config
+- Remove unused nullable type from PageAiGenerator::$blockContractValidator
+- *(ai-page)* Restore prompt template selection and add Impressum template
+- *(ai)* Limit template selector to block-contract prompts and backfill missing templates
+- *(calserver)* Move CSS and logo config changes to new migration
+- *(calserver)* Add module switcher styles for CMS page namespace
+- *(calserver)* Add new migration for updated CSS (20300104 was already applied)
+- *(calserver)* Increase hero spacing, compact stats strip, enlarge logo
+- *(calserver)* Persist layout fixes via database migration
+- *(ai)* Surface dispatch failures and add polling backoff
+- *(pages)* Allow editing page title in rename modal
+- *(ai)* Add shutdown handler, fix template sync, and align polling budget
+- Delegate block-based impressum content to PageController
+- Prevent 404 error when deleting pages with numeric slugs
+- Remove redundant null coalescing on guaranteed array offset
+- Prevent CssSanitizer from mangling scroll-behavior property
+- Stop tracking generated namespace CSS and auto-rebuild on first request
+- *(preview)* Render editor preview in iframe for responsive fidelity
+- *(menu)* Pass menuId to AI generation endpoint
+- Allow deleting pages with reserved slugs
+- Use CSS variable references for section backgrounds to support dark mode
+- Remove redundant null coalesce on always-present array key
+- Remove redundant getEditableSlugs check from page deletion
+- *(admin)* Stop leaking internal exception messages on page delete
+- Use section-default vars for light-mode namespace surface colors
+- *(renderer)* Honor container frame 'none' in resolveContainerPreset
+- Use theme-aware vars in resolveSectionBackgroundStyles for color backgrounds
+- *(hero)* Apply video card styles to stat_tiles variant
+- *(effects)* Extend hover micro-interactions to custom card components
+- *(hero)* Use event delegation for DSGVO video consent handlers
+- *(consent)* Use MutationObserver for hero video consent init
+- *(css)* Propagate namespace card-style token to sections and marketing cards
+- *(cms)* Pass page namespace to events API in event_highlight form
+- *(subscription)* Use Stripe customer portal in platform mode
+- Generate correct inline surface styles for container-based section presets
+- Load .env in page AI generation script and detach background process
+- *(editor)* Add padding to optional details section content fields
+- *(subscription)* Use reactivateSubscriptionForCustomer for pending cancellations
+- *(ai)* Increase default max_completion_tokens to 16384
+- *(editor)* Translate English labels to German in stat_strip block
+- *(subscription)* Prevent errors on reactivation and plan change
+- *(subscription)* Restore plan in database on reactivation
+- *(ai)* Increase default HTTP timeout from 60s to 180s
+- Resolve PHPStan nullCoalesce.offset errors
+- *(page-tree)* Add missing "Status ändern" menu item to Seitenbaum
+- *(subscription)* Scope subscription handling to namespace instead of tenant
+- *(quiz)* Pass event UID explicitly in catalog requests
+- *(i18n)* Remove duplicate notify_domain_ssl_issued translation keys
+- Remove conflicting flex layout from block-row in page designer
+- *(marketing)* Point logo links to root instead of page slug
+- *(admin)* Address codex review – footer handle, wiki sort listener, highlight reorder
+- *(table-manager)* Sync filteredData after paginated reorder
+- *(editor)* Fix block reordering in structure view not persisting
+- *(blocks)* Adapt news block grid columns to configured entry count
+- *(stat_strip)* Add trust_band variant support to schema and editor
+- *(news)* Align news page templates with CMS layout pattern
+- *(news)* Remove namespace-specific conditionals from news templates
+- *(editor)* Truncate block display title to prevent layout overflow
+- *(migrator)* Align CTA data structure and block schema extraction
+- *(layout)* Move header before main and enable SSR content for CMS pages
+- *(migrations)* Ensure forward-referenced schema exists before use
+- *(ai)* Shorten html-import template to prevent token overflow
+- *(ai)* Strip CSS/scripts from HTML input and sync updated templates
+- *(ai)* Request minified JSON and detect token-limit truncation
+- *(migrations)* Drop fk_config_event before namespace config inserts
+- *(migrations)* Create marketing_ai_prompts table before ALTER
+- *(cms)* Remove redundant embedded JSON payload from CMS page body
+- *(cms)* Suppress raw JSON flash when CMS content is a blocks payload
+- *(ci)* Scan all commits since last bump for version type detection
+- *(cms)* Prevent header+footer flash and enable staggered section reveals
+- Remove redundant null check after isset() in LandingNewsService
+- *(effects)* Use rAF for reveal transitions and add default profile fallback
+- Add csrf header for api token admin actions
+- *(admin)* Preview links include preview=1 and add preview action to structure tree
+- Phpstan issues in api token auth and page list
+- Phpstan false-positive in pages tree endpoint
+- *(admin)* Add missing menu:read scope checkbox to API token form
+- *(mcp)* Align MCP server with Streamable HTTP transport spec for Claude custom connectors
+- *(auth)* Honor redirect parameter in login flow for OAuth authorization
+- Resolve pre-existing phpstan errors blocking CI build
+- *(mcp)* Return server info on GET /mcp instead of 405
+- *(mcp)* Remove unused $pdo promoted property in FooterTools
+- *(ssl)* Dispatch wildcard jobs on SSL renewal and replace missing renew script
+- Resolve merge conflict in MCP scope mapping
+- *(mcp)* Add missing CORS headers and OAuth scopes for Claude.ai connector
+- *(domains)* Save domain before validating ACME DNS provider
+- *(mcp)* Bypass domain resolution and service init for MCP/OAuth endpoints
+- Resolve PHPStan errors blocking Docker build
+- Add missing eforms design tokens based on aurora theme
+- Prevent duplicate nginx server blocks for marketing domains
+- *(mcp)* Remove unused promoted property in StylesheetTools
+- Remove unused PDO property promotion in StylesheetTools
+- Use standalone nginx configs with acme.sh for custom domains
+- *(cms)* Hide entire page during hydration to prevent header/footer flash
+- *(mcp)* Clarify upsert_page description — seo lives in meta.seo, not as separate param
+- *(preview)* Load default-theme.css and dark.css in editor preview
+- *(cms)* Link eforms english page variant and remove test page
+- *(stat_strip)* Migrate data when switching to/from trust_band variant
+- *(design)* Increase specificity of hero/highlight button selectors
+- *(ci)* Prune stale remote refs before fetch in deploy script
+- *(editor)* Render custom icons in icon picker via programmatic API
+- *(mcp)* Decode double-encoded unicode escape sequences in tool arguments
+- *(hero)* Resolve image from imageId when media.image is missing
+- *(editor)* Load custom-icons.js on all admin pages
+- *(media)* Allow public access to project uploads via namespace resolution
+- *(topbar)* Resolve PHPStan type errors for header_topbar_style
+- Override UIkit absolute positioning on navbar center for CMS pages
+- *(ui)* Improve secondary button visibility on dark backgrounds
+- *(hero)* Use inline height styles instead of UIkit height classes for media size
+- *(topbar)* Link logo to namespace homepage instead of current page
+- Remove redundant null coalescing on header_topbar_style
+- *(packages)* Add columns property to inline schema in block-contract.js
+- *(ui)* Override button tokens instead of properties for dark surfaces
+- *(editor)* Align preview stylesheets with actual rendered page
+- *(page-tree)* Move toolbar to project_tree template and fix search wiring
+- *(mcp)* Validate pageId exists before creating wiki articles
+- Use correct slot name for header menu resolution
+- Prevent frame from showing when no frame is configured
+- Resolve phpstan errors in TicketService
+- *(hero)* Reset viewport height when switching back to auto
+- *(menu)* Auto-promote link items with children to dropdown
+- *(hero)* Scale media image on mobile instead of cropping
+- Add dark mode background to cookie consent banner
+- *(ci)* Clean up stale containers before docker compose up
+- *(wiki)* Add main navigation header and fix backlink in wiki pages
+- Unify namespace switching and fix reset bug
+- *(wiki)* Generate direct wiki URL in menu for type=wiki pages
+- *(mcp)* Add content schema documentation to footer block tools
+- *(ci)* Resolve migration failure due to missing dashboard token secret
+- *(ci)* Prevent spurious patch bumps triggered by changelog push
+- Add /news routes to prevent empty news page
+- *(wiki)* Correct grid layout and reduce heading sizes
+- *(admin)* Restore namespace switch handler on pages without admin.js
+- *(admin)* Show content area by removing broken uk-switcher dependency
+- *(admin)* Remove stray closing div that breaks admin content layout
+- *(editor)* Prevent infinite scroll after hero and sync design tokens in preview
+- *(wiki)* Offset wiki layout below topbar when menu is assigned
+- *(admin)* Define $escapedPreset before try block to avoid undefined variable
+- Remove extra {{end}} blocks in nginx.tmpl causing docker-gen parse failure
+- Include main domain in MarketingProxySyncService
+- *(hero)* Add missing uk-modal class to hero media lightbox
+
+### Merge
+
+- Resolve conflict with main, update admin routes with customer role
+
+### Nav
+
+- Nur SEO, Cookies und RAG Chat als zu technisch einschraenken
+
+### Perf
+
+- *(admin)* Optimize table loading for events and logins
+- Lazy-load non-critical CSS and embed hydration payload
+- *(seo)* Improve global seo with twitter tags, theme-color, font optimization and https redirect
+
+### Refactor
+
+- Centralize SMTP config loading
+- Wrap invoice return docblock
+- Sanitize subscription DOM updates
+- Build pagination DOM and escape paths
+- Externalize onboarding styles
+- Use accent color variable in dark mode
+- Use CSS variables for landing page
+- Update topbar text colors
+- Unify landing page theme variables
+- Scope dark mode styles
+- Replace landing page inline styles
+- Improve dark mode handling
+- Apply accessibility landing style patch
+- Extract landing tokens into scss
+- Consolidate landing page design tokens
+- Centralize landing navigation links
+- Use data-theme for dark mode
+- Add log details container
+- Replace UIkit card modifiers with qr-card
+- Add theme-aware icon color
+- Derive base url from request
+- Add qr color variables
+- Extract table styles and theme variables
+- Move configuration fully to database
+- Filter tenants by status safely
+- Use table macro in admin
+- Wrap long lines in QrCodeService
+- Streamline catalog and team tables
+- Use catalogKey for identifiers
+- Remove redundant null coalesce
+- Centralize quiz intro
+- Rely on SessionMiddleware
+- Centralize session post requests
+- Rename active event uid variable
+- Remove config fallback for empty event
+- Merge password action into user actions
+- Centralize event switching
+- Add manual drag fallback
+- Replace sticker background upload
+- Add stage container for sticker editor
+- Centralize calhelp placeholder injection
+- Relocate admin event controls
+- Phase 0-2 – fix AGENTS.md, remove require_once, add namespace scoping
+- Phase 3/5/7 – extract middleware, shared JS utils, establish ADRs
+- Improve admin pages UI for clarity and reduced clutter
+- Redesign block editor section config UI into 3 clear layers
+- Consolidate namespace design editor from 6 panels to 2 panels
+- Simplify menu and footer template structure
+- Consolidate admin navigation into single tabbed page
+- Integrate footer block editor as 4th tab in navigation page
+- Harmonize menu tree editor UX with footer block editor patterns
+- Simplify admin UI by removing duplicate selectors and restructuring tabs
+- Remove hidden pageContentSelect and extract admin base layout
+- Dissolve Zuordnungen tab from navigation admin
+- Split navigation tabs into separate admin menu pages
+- Rename header settings sidebar link and reorder navigation
+- Migrate all remaining admin templates to admin/base.twig
+- Codebase audit - security hardening, deduplication, and file splitting
+- Remove legacy calhelp bindings from CMS page generation
+- *(design)* Remove redundant top-level designTokens from presets
+- *(design)* Remove duplicate [data-namespace="default"] CSS block
+- *(design)* Normalize color keys to camelCase convention
+- Rename data-calhelp-* attributes to data-page-* (Prio 6)
+- *(css)* Migrate calhelp-about styles to token-based values in marketing.css
+- *(css)* Migrate calserver-maintenance styles to marketing.css with tokens
+- *(css)* Migrate fluke-metcal styles to marketing.css with token refs
+- *(css)* Migrate future-is-green styles to marketing.css with scheme aliases
+- *(css)* Replace hardcoded hex values with design tokens in admin CSS
+- *(css)* Replace ~64 hardcoded hex values in dark.css with design tokens
+- *(css)* Consolidate calserver.css and calhelp.css into marketing.css
+- *(css)* Remove redundant marketing-utilities.css
+- *(calserver)* Remove fixed slug routes and add namespace design tokens
+- *(pages)* Replace domain combo box with inline submenu in page tree
+- *(ai-page)* Rework AI page creation to block-contract-v1
+- *(calserver)* Rename switcher classes to generic BEM names
+- Remove sectionStyleDefaults from page types
+- *(stripe)* Improve subscription management for easier plan switching, cancellation, and trial handling
+- *(ui)* Rename subscription page to customer portal and remove redundant button
+- *(tenant)* Replace docker-per-tenant with schema-only isolation
+- *(ui)* Extract shared card-row system and convert all admin list editors
+- *(subscription)* Rename Kundenportal to Abonnements and improve page layout
+- *(pages)* Remove preview modal from page editor
+- *(wiki)* Replace color settings with tabs and remove theme options
+- *(admin)* Extract utility functions into admin-utils.js
+- *(admin)* Extract page-tree and project modules
+- *(admin)* Extract teams, events, and users modules
+- *(admin)* Integrate events and users module extractions
+- *(admin)* Extract catalog and help sidebar modules
+- *(admin)* Extract configuration module into admin-config.js
+- *(ai)* Rewrite html-import template for better GPT-4.1 conversion quality
+- *(design)* Audit and simplify design system for API integration
+- *(hero)* Replace fullscreen lightbox with framed modal overlay
+- Remove 6 legacy marketing twig templates and dead code
+- *(wiki)* Move page namespace selector into accordion
+- [**breaking**] Rename project from sommerfest-quiz/quizrace to edocs-cloud/edocs.cloud
+- *(billing)* Simplify subscription page and add Stripe Pricing Table
+
+### Revert
+
+- *(billing)* Remove Lago stack in favor of direct Stripe integration
+
+### Style
+
+- Add top spacing to event selector label
+- Match hamburger menu toggle to options button
+- Improve landing topbar contrast
+- Square icon buttons
+- Add dark mode styles for landing page
+- Align topbar link colors with theme
+- Use variables for footer colors
+- Refine landing visuals
+- Improve form error contrast
+- Darken options button in light mode
+- Improve landing backgrounds for themes
+- Add danger color tokens
+- Emulate GitHub header on landing
+- Update landing hero styling
+- Add git style to menu toggle
+- Switch landing page to light theme
+- Refine landing focus and hover styles
+- Expand scenario pill list
+- Unify landing footer layout
+- Use black text for contact details on light theme
+- Enhance landing slider
+- Make event start button text white
+- Adjust team table layout
+- Add admin config CSS with dark mode variables
+- Remove extra blank line
+- Add draggable sticker handle
+- Refresh calserver card styling
+- Compact admin layout for mobile screens
+- Improve optional contact fields UI with proper card design
+- *(sections)* Connect marketing design tokens to section rendering
+- *(admin)* Align namespace selectors to compact partial layout
+- *(calserver)* Redesign trust-bar section as chip/badge layout
+- *(editor)* Improve block configuration form UI hierarchy and spacing
+- *(ui)* Modernize customer portal page layout
+- *(editor)* Strengthen input field contrast and add rich-text borders
+- *(admin)* Remove bullet dots from page block list
+- *(wiki)* Tighten typography for technical-reference look
+- *(wiki)* Redesign wiki layout inspired by MkDocs Material theme
+- Fix phpcs errors across codebase
+- Fix remaining header block errors in test files
+- Fix phpcs line-length warnings across codebase
+- Fix additional phpcs line-length warnings
+- Fix phpcs line-length warnings in remaining files
+- Fix phpcs line-length warnings in repository and service files
+- Fix phpcs line-length warnings in service files
+- Fix phpcs line-length warnings in admin controllers
+- Fix phpcs line-length warnings in marketing and seo services
+- Fix phpcs line-length warnings in marketing page controller
+- Fix phpcs line-length warnings in test files
+- Fix phpcs line-length warnings in controller test files
+- Fix phpcs line-length warnings in route files
+- Fix phpcs line-length warnings in service and integration tests
+- Fix phpcs line-length warnings in controller test files group 2
+- Fix phpcs line-length warnings in api and misc controllers
+- Fix phpcs line-length warnings in service files group 3
+- Fix phpcs line-length warnings in test files group 6
+- Fix phpcs line-length warnings in test files group 4
+- Fix phpcs line-length warnings in service files group 4
+- Fix phpcs line-length warnings in mcp tool files
+- Fix remaining phpcs errors
+- *(wiki)* Fix oversized headings, duplicate titles, and narrow content area
+
+### Test
+
+- Enforce starter plan event limit
+- Add plan limit controller tests
+- Switch to postgres in tests
+- Support sqlite memory db
+- Verify health endpoint timestamp and tenant host
+- Ensure version displayed on login
+- Cover catalog question access
+- Verify catalog slug parameter
+- Validate catalog slug selection
+- Verify slug option selection
+- Add handleSelection header test
+- Cover quiz autostart error cases
+- Persist session on localhost
+- Ensure login redirect on main domain
+- Cover team name suggestion
+- Cover user position ordering
+- Ensure managers redirect to admin
+- Ensure summary updates after event switch
+- Generate sticker background during test
+- Use new sticker background route
+- *(onboarding)* Add Playwright E2E tests for onboarding wizard
+- Verify pre-commit hook runs
+- Add phpunit unit tests to pre-commit hook
+
+### Ui
+
+- Namespace + scopes picker for api tokens
+- Add cms:read scope option for namespace api tokens
+
+## [0.2.0] - 2025-08-18
+
+### Dokumentation
+
+- Statistik-Tab beschrieben
+
+### Chore
+
+- Cascade delete events
+- Pin GitHub Actions to SHA
+- Apply unless-stopped restart policy
+- *(test)* Run migrations for sqlite
+- *(test)* Remove extra newline
+- Split ranking regex lines
+- Upgrade QR code library
+- Optimize landing page images
+- Add ghostscript to Docker image
+- Require PHP 8.2
+- Test against php 8.2
+- Update dependencies
+- Pin php base images to patch release
+- Add migration for Stripe customer id
+- Restrict access to hidden files
+- Use textContent for quiz buttons
+- Fix style and security warnings
+- Reformat stripe tests for readability
+- Release 0.2.0
+
+### Ci
+
+- Add workflow for automatic changelog
+- Build tenant image during deploy
+- Use setup-php v2
+- Run deploy on push to main
+
+### Docs
+
+- Add postgres instructions
+- Document running psql via Docker
+- Add frontend word-break guidelines
+- Switch to MkDocs readthedocs
+- Add hierarchical navigation
+- Add version history
+- Mention exif extension
+- Add tenant API section
+- Add tenant features section
+- Clarify event table columns
+- Fix shell commands for alpine
+- Ignore changelog update commits
+- Add troubleshooting for test data
+- Update docker setup instructions
+- Clarify php.ini usage
+- Add domain workflow and signup instructions
+- Add nginx onboarding note
+- Add migration step
+- Clarify DB privileges for tenants
+- Mention onboard_tenant script
+- Clarify Docker requirement for onboarding
+- Mention proxy network
+- Clarify APP_IMAGE usage
+- Describe password reset flow
+- Describe higher subscription tiers cumulatively
+- Document PHP 8.2 requirement
+- Add PHP 8.2 stable support note
+- Document qr code enhancements
+- Outline SEO and SEF requirements
+- Note removal of unsupported automatic payment methods
+- Note removal of unsupported automatic payment methods
+
+### Feat
+
+- Skip schema init when db ready
+- Support soft hyphen placeholders
+- Add dynamic congratulations for team PDFs
+- Add event API and schema columns
+- *(admin)* Activate event selection
+- Confirm event deletion
+- Centralize roles and update management
+- Seed users for all roles
+- Improve mobile admin nav
+- *(summary)* Link catalog headers
+- *(migrations)* Add QRRemember manual migration
+- *(db)* Use consolidated base schema
+- Seed default roles via migration
+- *(migrations)* Add admin seed
+- Allow restore and delete of old backups
+- *(admin)* Add dropdown for active event
+- *(admin)* Landing page option
+- *(admin)* Improve mobile event list
+- Add admin page editor
+- Integrate static page editing
+- *(admin)* Allow editing of FAQ page
+- Retry database connection
+- *(admin)* Add language selector
+- Manage nginx vhost creation
+- *(onboarding)* Create admin account and show password
+- Add tenant availability check
+- Add nginx reload route
+- Support webhook-based nginx reload
+- Display tenants tab for admin
+- Launch tenant webserver for ssl
+- Add SSL renewal for tenants
+- Auto onboard when credentials available
+- *(admin)* Link tenant subdomains
+- *(onboarding)* Show link to new container
+- Collapse onboarding logs and track availability
+- *(admin)* Add frontend open button for selected event
+- *(admin)* Show tenant profile on main domain
+- Add blacklist for sensitive subdomains
+- Support profile variables in pages
+- *(admin)* Autosave settings
+- Style landing page with calhelp design
+- Autosave for event configuration
+- Add save text button for event settings
+- Store admin password per tenant
+- Collect and store user email
+- Add password reset endpoints
+- Add password reset templates
+- Allow publishing events and copying links
+- Add fallbacks for QR and logo
+- Center landing page topbar elements
+- Make landing footer non-sticky
+- Animate landing page
+- Animate landing page content blocks
+- Add horizontal scrollspy animations
+- Enhance landing page messaging
+- Align subscription templates with new plan details
+- Add subscription matrix to landing page
+- Add event selector to summary and results
+- Add invitation handling
+- Secure password reset tokens
+- Implement QR code service
+- Update admin QR codes to new design
+- Add parameterized QR routes
+- Elevate Warum QuizRace section
+- Add rotating word animation to hero
+- Add logo and rounding to QR codes
+- Enhance rotating word marker
+- Style founder section
+- *(stripe)* Add session status endpoint
+- Add reusable admin navigation partial
+- Group admin navigation links
+- Centralize SMTP sender configuration
+- Enforce stripe-only payments
+- Add page SEO config
+- *(admin)* Move stats filter below header on mobile
+- Fallback to null logger when monolog missing
+- Add subscription usage widget
+- Support embedded stripe checkout
+- Show event summary on dashboard
+- Add csrf protection to profile page
+- *(admin)* Greet user on dashboard
+- *(onboarding)* Show upcoming steps
+- Validate onboarding inputs
+- *(onboarding)* Reinstate app creation progress
+- Enhance tenant onboarding tasks
+- Fallback logo path when event id missing
+- Enhance tenant table UI
+- Add demo data export
+- Make database connection retries configurable
+- Add customizable qr design modal
+- Add responsive email layout
+- Support configurable QR designs
+- Show overall event counts on dashboard
+
+### Fix
+
+- *(migrate)* Clear reference after uid update
+- *(qr)* Enable camera flip after scanner ready
+- *(qr)* Await scanner init
+- Avoid scanner timing race
+- Hide catalog list when repeating in competition mode
+- *(js)* Refresh UIkit lightboxes
+- Sanitize migrations
+- Avoid using first event if active one missing
+- Address style warnings
+- Encode flip card text
+- Add summary photo service dependency
+- Support PostgreSQL serial syntax
+- Standardize qrremember column name
+- *(migrations)* Ensure idempotent sort order constraint
+- Align config controller test with default settings
+- Format event dates for datetime-local
+- Ensure topbar icons work on mobile
+- Respect base path in admin JS
+- Serve event-specific logo paths
+- Remove landing menu in admin
+- *(onboard)* Write error messages to stderr
+- Detect docker compose command
+- Skip docker compose check when reload disabled
+- *(admin)* Ensure ssl renewal starts tenant
+- Ensure landing route sets domain type
+- Apply dark mode styles to page editor
+- Read SMTP settings from .env
+- Ensure logo uploads work across image versions
+- Update QR code generation
+- Enforce fixed topbar height
+- Prevent landing page header overlap on mobile
+- Render footer menu at page bottom
+- Import email confirmation service
+- Show feedback after password reset request
+- Address code style issues
+- Ensure mobile nav active items remain readable
+- Improve active nav contrast in dark menu
+- Add migration for password reset token hash
+- Remove redundant null coalesce
+- Improve dark mode menu active state
+- Handle missing onboarding data after payment
+- Avoid published column migration error
+- Remove fallback logo srcset
+- Show catalog info on start page
+- Remove manual chunked encoding in tenant onboarding
+- Avoid global variable conflict on landing page
+- Align QR config migration with camelCase columns
+
+### Refactor
+
+- Wrap long SQL strings
+- Reuse existing events script for event selector
+- Use constants for qr code defaults
+- Redesign dashboard calendar
+- Avoid multiple classes in test
+- Drop qrcode url field
+
+### Style
+
+- Add custom file input
+- Enhance catalog comment card
+- Enhance rotate button appearance
+- Improve mobile layout for events
+- Unify vue quiz buttons
+- Unify admin question buttons
+- Wrap long SQL strings in TenantService
+- Improve landing page layout
+- Enlarge hero heading and center button text
+- Harmonize landing page section backgrounds
+- Use neutral background for founder section
+- Add textured underline animation
+- Remove Weisheit font from about section
+- Modernize onboarding step boxes
+- Show pricing plans in onboarding
+- Improve event selector display
+- Remove trailing blank line
+
+### Test
+
+- Switch service tests to use sqlite
+- Verify tenant creation and removal
+- Fix schemas for event-aware tables
+- Verify catalog create and delete via db
+- Expect marketing pages on main domain
+- Cover main profile update
+- *(admin)* Ensure dashboard greets username
+- *(admin)* Ensure dashboard greets username
+- Update profile plan enum
+- Cover award ranking edge cases
+- Cover welcome mail resend
+
+## [0.1.0] - 2025-06-16
+
+### Chore
+
+- Update php requirements
+
+### Doc
+
+- Elaborate license section
+- Explain manual composer workflow
+
+### Docs
+
+- Add info boxes for manual file replacement
+- Add html validity badge
+- Expand team tab help
+- Add deployment status badge
+- Remove outdated statistical.log references
+- Expand accessibility notes
+- Update README with development focus and config
+- Mention composer lock update
+
+### Feat
+
+- Show results overview and restart option
+- Add catalog selection
+- Show QR login on start
+- Auto-open QR scan for direct catalog links
+- Use SortableJS for drag operations
+- *(admin)* Integrate results tab
+- *(config)* Migrate legacy config
+- *(admin)* Auto-generate catalog ids
+- *(data)* Add remote QR codes for catalog samples
+- *(data)* Add remote QR codes for catalog samples
+- *(pdf)* Add login qr code
+- *(admin)* Auto-generate unique catalog ids
+- *(export)* Show records as printable cards
+- Allow logo upload
+- *(photos)* Restore consent modal
+
+### Fix
+
+- Remove duplicate feedback vars
+- Show catalog selection with config header and move questions to json
+- Keep topbar at page top
+- *(pdf)* Show QR code column when qrcode_url present
+- *(catalog)* Ensure catalog files persist
+
+### Style
+
+- Align remove button right
+- Enlarge drag elements
+- Enlarge multiple choice view
+- Apply dark mode to qr modal
+- Add top spacing above header
+- *(login)* Center login card
+- Enhance question preview
+- Ensure card titles are white in dark mode
+- *(results)* Use uk-leader layout for top rankings
+

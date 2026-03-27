@@ -11,6 +11,8 @@ use PDO;
 
 final class FooterTools
 {
+    use McpToolTrait;
+
     private CmsFooterBlockService $footerBlocks;
     private ProjectSettingsRepository $settingsRepo;
 
@@ -27,12 +29,6 @@ final class FooterTools
     {
         $this->footerBlocks = new CmsFooterBlockService($pdo);
         $this->settingsRepo = new ProjectSettingsRepository($pdo);
-    }
-
-    private function resolveNamespace(array $args): string
-    {
-        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
-        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**

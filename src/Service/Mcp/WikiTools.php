@@ -12,6 +12,8 @@ use PDO;
 
 final class WikiTools
 {
+    use McpToolTrait;
+
     private CmsPageWikiArticleService $articleService;
 
     private CmsPageWikiSettingsService $settingsService;
@@ -28,12 +30,6 @@ final class WikiTools
         $this->articleService = new CmsPageWikiArticleService($pdo);
         $this->settingsService = new CmsPageWikiSettingsService($pdo);
         $this->pageService = new PageService($pdo);
-    }
-
-    private function resolveNamespace(array $args): string
-    {
-        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
-        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     private function requirePage(int $pageId): void

@@ -13,6 +13,8 @@ use PDO;
 
 final class PageTools
 {
+    use McpToolTrait;
+
     private PageService $pages;
 
     private const NS_PROP = [
@@ -23,12 +25,6 @@ final class PageTools
     public function __construct(private readonly PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->pages = new PageService($pdo);
-    }
-
-    private function resolveNamespace(array $args): string
-    {
-        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
-        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**

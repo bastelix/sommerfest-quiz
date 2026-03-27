@@ -25,6 +25,8 @@ final class OAuthController
         'backup:read', 'backup:write',
         'design:read', 'design:write',
         'wiki:read', 'wiki:write',
+        'ticket:read', 'ticket:write',
+        'customer:read', 'customer:write',
     ];
 
     private const SCOPE_DETAILS = [
@@ -124,6 +126,29 @@ final class OAuthController
                 'update_wiki_settings', 'create_wiki_article', 'update_wiki_article',
                 'delete_wiki_article', 'update_wiki_article_status', 'reorder_wiki_articles',
             ],
+        ],
+        'ticket:read' => [
+            'label' => 'Tickets (read)',
+            'description' => 'List and view tickets and their comments',
+            'tools' => ['list_tickets', 'get_ticket', 'list_ticket_comments'],
+        ],
+        'ticket:write' => [
+            'label' => 'Tickets (write)',
+            'description' => 'Create, update, delete, and transition tickets; manage comments',
+            'tools' => [
+                'create_ticket', 'update_ticket', 'delete_ticket',
+                'transition_ticket', 'add_ticket_comment', 'delete_ticket_comment',
+            ],
+        ],
+        'customer:read' => [
+            'label' => 'Customer (read)',
+            'description' => 'Read customer profile information',
+            'tools' => [],
+        ],
+        'customer:write' => [
+            'label' => 'Customer (write)',
+            'description' => 'Register and update customer profiles',
+            'tools' => [],
         ],
     ];
 

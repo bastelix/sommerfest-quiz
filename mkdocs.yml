@@ -104,6 +104,7 @@ nav:
     - Deployment & Infrastruktur: deployment.md
   - Entwicklung:
     - Verbesserungen & Roadmap: improvements.md
+    - Changelog: changelog.md
   - Rechtliches:
     - Datenschutz: datenschutz.md
     - Impressum: impressum.md
