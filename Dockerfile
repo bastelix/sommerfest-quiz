@@ -55,4 +55,6 @@ COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD ["php", "/var/www/scripts/check_stripe_config.php"]
 EXPOSE 8080
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+# Prefer the volume-mounted entrypoint so host-side updates (e.g. improved
+# composer-install checks) take effect without rebuilding the image.
+ENTRYPOINT ["/bin/sh", "-c", "if [ -x /var/www/docker-entrypoint.sh ]; then exec /var/www/docker-entrypoint.sh \"$@\"; else exec /usr/local/bin/docker-entrypoint.sh \"$@\"; fi", "--"]
