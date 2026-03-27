@@ -404,8 +404,15 @@ if [ "${1:-}" = "env" ]; then
     exec "$@"
 fi
 
-# Install composer dependencies if autoloader or QR code library is missing
+# Install composer dependencies if autoloader is missing, a key library is
+# absent, or the lock file is newer than the installed marker.
+composer_needs_install=0
 if [ ! -f vendor/autoload.php ] || [ ! -d vendor/chillerlan/php-qrcode ]; then
+    composer_needs_install=1
+elif [ -f composer.lock ] && [ composer.lock -nt vendor/autoload.php ]; then
+    composer_needs_install=1
+fi
+if [ "$composer_needs_install" -eq 1 ]; then
     composer install --no-interaction --prefer-dist --no-progress
 fi
 
