@@ -59,7 +59,8 @@ class StripeService
         ?string $customerId = null,
         ?string $clientReferenceId = null,
         ?int $trialPeriodDays = null,
-        bool $embedded = false
+        bool $embedded = false,
+        ?array $extraMetadata = null
     ): string {
         if ($trialPeriodDays === null) {
             $envTrial = getenv('STRIPE_TRIAL_DAYS');
@@ -75,7 +76,7 @@ class StripeService
             'line_items' => [
                 ['price' => $priceId, 'quantity' => 1],
             ],
-            'metadata' => ['plan' => $plan],
+            'metadata' => array_merge(['plan' => $plan], $extraMetadata ?? []),
         ];
         if ($trialPeriodDays > 0) {
             $params['subscription_data'] = ['trial_period_days' => $trialPeriodDays];
