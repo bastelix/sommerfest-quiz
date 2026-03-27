@@ -749,6 +749,7 @@
 - Address security, performance, and MCP improvements
 - *(auth)* Pass checkoutApp and plans to pricing templates
 - *(build)* Run composer install when lock file is newer than vendor
+- *(build)* Prefer volume-mounted entrypoint for up-to-date dependency checks
 
 ### Merge
 
