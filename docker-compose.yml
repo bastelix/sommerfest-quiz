@@ -98,7 +98,11 @@ services:
       - webproxy
 
   slim:
-    build: .
+    build:
+      context: .
+      cache_from:
+        - ${APP_IMAGE:-sommerfest-quiz:latest}
+    image: ${APP_IMAGE:-sommerfest-quiz:latest}
     container_name: edocs-app
     working_dir: /var/www
     mem_limit: 1g
