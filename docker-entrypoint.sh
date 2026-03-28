@@ -413,7 +413,10 @@ elif [ -f composer.lock ] && [ composer.lock -nt vendor/autoload.php ]; then
     composer_needs_install=1
 fi
 if [ "$composer_needs_install" -eq 1 ]; then
-    composer install --no-interaction --prefer-dist --no-progress
+    echo "Installing composer dependencies..." >&2
+    if ! composer install --no-interaction --prefer-dist --no-progress; then
+        echo "Warning: composer install failed; continuing with existing vendor/" >&2
+    fi
 fi
 
 # Ensure log directory exists and is writable
@@ -513,15 +516,17 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
     fi
     if [ -f scripts/run_migrations.php ]; then
         echo "Running migrations"
-        php scripts/run_migrations.php
+        if ! php scripts/run_migrations.php; then
+            echo "Warning: migration script reported errors; the deploy script will retry" >&2
+        fi
     fi
     if [ -f scripts/rebuild_namespace_tokens.php ]; then
         echo "Rebuilding namespace token stylesheet"
-        php scripts/rebuild_namespace_tokens.php
+        php scripts/rebuild_namespace_tokens.php || echo "Warning: token rebuild failed" >&2
     fi
     if [ -f scripts/bootstrap_admin_user.php ]; then
         echo "Bootstrapping admin user"
-        php scripts/bootstrap_admin_user.php
+        php scripts/bootstrap_admin_user.php || echo "Warning: admin bootstrap failed" >&2
     fi
     unset PGPASSWORD
 fi
