@@ -752,6 +752,7 @@
 - *(build)* Prefer volume-mounted entrypoint for up-to-date dependency checks
 - *(build)* Align compose build cache with standalone docker build
 - *(build)* Make entrypoint resilient to non-critical startup failures
+- Correct table names and remove invalid column reference in namespace indexes migration
 
 ### Merge
 
