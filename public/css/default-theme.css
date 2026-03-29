@@ -27,7 +27,9 @@
 }
 
 /* ── Hero section (gradient, compact padding) ── */
-.default-theme .section[data-section-intent="hero"] {
+/* Only apply the dark gradient when no explicit background color token is set.
+   Heroes with e.g. tokens.background:"muted" use the token colour instead. */
+.default-theme .section[data-section-intent="hero"]:not([data-section-background-color-token]) {
   background: linear-gradient(170deg, var(--dt-hero-bg-start) 0%, var(--dt-hero-bg-end) 100%) !important;
   --section-surface: var(--dt-hero-bg-start);
   --section-bg-color: var(--dt-hero-bg-start);
@@ -38,17 +40,17 @@
   padding-bottom: clamp(20px, 3vw, 40px);
   color: #ffffff;
 }
-.default-theme .section[data-section-intent="hero"].section--full .section__inner {
+.default-theme .section[data-section-intent="hero"]:not([data-section-background-color-token]).section--full .section__inner {
   padding: clamp(16px, 2.5vw, 28px);
 }
-.default-theme .section[data-section-intent="hero"] .uk-heading-medium {
+.default-theme .section[data-section-intent="hero"]:not([data-section-background-color-token]) .uk-heading-medium {
   color: #fff;
   font-weight: 800;
   font-size: clamp(2.4rem, 5vw, 3.4rem);
   line-height: 1.1;
   margin-bottom: 0.5em;
 }
-.default-theme .section[data-section-intent="hero"] .uk-text-lead {
+.default-theme .section[data-section-intent="hero"]:not([data-section-background-color-token]) .uk-text-lead {
   color: rgba(255, 255, 255, 0.85);
   font-size: clamp(1.05rem, 1.8vw, 1.25rem);
   line-height: 1.5;
@@ -71,15 +73,15 @@
 .default-theme .cs-stat-tile .uk-text-small {
   font-size: 0.82rem;
 }
-.default-theme .section[data-section-intent="hero"] .cs-stat-tile .uk-text-muted {
+.default-theme .section[data-section-intent="hero"]:not([data-section-background-color-token]) .cs-stat-tile .uk-text-muted {
   color: rgba(255, 255, 255, 0.65) !important;
 }
 
-/* Hero CTA buttons
+/* Hero CTA buttons (dark gradient variant only)
    Specificity must beat sections.css (0,7,0 + !important):
    .section[hero] > .uk-container > .section__inner:not():not() .uk-button-primary
    Our selectors use 0,8,0 + !important to win reliably. */
-.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-primary {
+.default-theme .section[data-section-intent="hero"]:not([data-section-background-color-token]) > .uk-container > .section__inner .uk-button-primary {
   background: var(--dt-cta-color) !important;
   color: #fff !important;
   border-color: var(--dt-cta-color) !important;
@@ -90,10 +92,10 @@
   line-height: 44px;
   height: 44px;
 }
-.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-primary:hover {
+.default-theme .section[data-section-intent="hero"]:not([data-section-background-color-token]) > .uk-container > .section__inner .uk-button-primary:hover {
   background: var(--dt-cta-hover) !important;
 }
-.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-default {
+.default-theme .section[data-section-intent="hero"]:not([data-section-background-color-token]) > .uk-container > .section__inner .uk-button-default {
   color: #fff !important;
   background: rgba(255, 255, 255, 0.18) !important;
   border: 1px solid rgba(255, 255, 255, 0.6) !important;
@@ -104,7 +106,7 @@
   line-height: 44px;
   height: 44px;
 }
-.default-theme .section[data-section-intent="hero"] > .uk-container > .section__inner .uk-button-default:hover {
+.default-theme .section[data-section-intent="hero"]:not([data-section-background-color-token]) > .uk-container > .section__inner .uk-button-default:hover {
   background: rgba(255, 255, 255, 0.30) !important;
   border-color: rgba(255, 255, 255, 0.8) !important;
   color: #fff;

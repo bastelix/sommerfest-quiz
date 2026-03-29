@@ -582,10 +582,22 @@ function resolveSectionIntentPreset(block) {
     );
     styleVariables.push(`--section-text-color:${darkFallback}`);
   } else if (textColor) {
-    /* For light-surface intents use the CSS variable fallback from the
-       intent config so text colour responds to theme changes.  Dark-
-       surface intents (highlight, hero) keep the resolved value. */
-    if (themeAwareSurface && basePreset.textToken?.fallback) {
+    /* When a dark-surface intent (hero, highlight) has an explicit light
+       background token (muted, surface), switch to the matching dark text
+       colour so contrast is preserved on the light background. */
+    const hasLightExplicitBackground = explicitBackgroundToken
+      && !DARK_SURFACE_TOKENS.has(explicitBackgroundToken);
+    if (hasLightExplicitBackground) {
+      const lightTextToken = `text-on-${explicitBackgroundToken}`;
+      const lightTextColor = resolveAppearanceValue(
+        lightTextToken,
+        DEFAULT_APPEARANCE.colors[lightTextToken] || 'var(--contrast-text-on-surface, var(--color-text, #111827))'
+      );
+      styleVariables.push(`--section-text-color:${lightTextColor}`);
+    } else if (themeAwareSurface && basePreset.textToken?.fallback) {
+      /* For light-surface intents use the CSS variable fallback from the
+         intent config so text colour responds to theme changes.  Dark-
+         surface intents (highlight, hero) keep the resolved value. */
       styleVariables.push(`--section-text-color:${basePreset.textToken.fallback}`);
     } else {
       styleVariables.push(`--section-text-color:${textColor}`);
