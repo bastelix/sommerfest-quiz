@@ -105,11 +105,11 @@ class OAuthCallbackController
         $_SESSION['account_id'] = (int) $account['id'];
         $_SESSION['account_email'] = $account['email'];
 
-        // Redirect to stored return URL or home
+        // Redirect to stored return URL or account subscriptions page
         $returnUrl = $_SESSION['auth_return_url'] ?? null;
         unset($_SESSION['auth_return_url']);
 
-        $target = is_string($returnUrl) && $returnUrl !== '' ? $returnUrl : $basePath . '/';
+        $target = is_string($returnUrl) && $returnUrl !== '' ? $returnUrl : $basePath . '/account/subscriptions';
 
         return $response->withHeader('Location', $target)->withStatus(302);
     }

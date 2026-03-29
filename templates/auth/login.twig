@@ -17,10 +17,12 @@
       <div class="uk-width-1-1 uk-margin-auto uk-card qr-card uk-card-body uk-box-shadow-large">
         <h3 class="uk-card-title uk-text-center">Anmelden</h3>
 
-        {% set error = app.request.queryParams.error|default('') %}
+        {% set error = app.request is defined ? app.request.queryParams.error|default('') : '' %}
         {% if error %}
           <div class="uk-alert-danger" uk-alert>
-            {% if error == 'state_mismatch' %}
+            {% if error == 'token_invalid' %}
+              <p>Der Bestätigungslink ist ungültig oder abgelaufen.</p>
+            {% elseif error == 'state_mismatch' %}
               <p>Sitzung abgelaufen. Bitte erneut versuchen.</p>
             {% elseif error == 'account_inactive' %}
               <p>Dieses Konto ist deaktiviert.</p>
@@ -30,7 +32,32 @@
           </div>
         {% endif %}
 
+        {# Email login via confirmation link #}
+        <div id="emailStep">
+          <p class="uk-text-muted">Gib deine E-Mail-Adresse ein. Du erhältst einen Anmeldelink.</p>
+          <div class="uk-margin">
+            <div class="uk-inline uk-width-1-1">
+              <span class="uk-form-icon" uk-icon="icon: mail"></span>
+              <input class="uk-input uk-form-large" type="email" id="loginEmail" placeholder="E-Mail-Adresse" required>
+            </div>
+          </div>
+          <button class="uk-button uk-button-primary uk-button-large uk-width-1-1" id="sendLoginLink">
+            Anmeldelink senden
+          </button>
+          <div id="emailSent" class="uk-alert-success uk-margin-small-top" uk-alert hidden>
+            <p>Anmeldelink wurde gesendet. Bitte prüfe dein E-Mail-Postfach.</p>
+          </div>
+          <div id="emailError" class="uk-alert-danger uk-margin-small-top" uk-alert hidden>
+            <p id="emailErrorText"></p>
+          </div>
+        </div>
+
+        {# Google OAuth #}
         {% if providers|length > 0 %}
+          <div class="uk-margin uk-text-center">
+            <hr class="uk-divider-icon">
+            <p class="uk-text-small uk-text-muted">Oder anmelden mit:</p>
+          </div>
           <div class="uk-margin">
             {% for provider in providers %}
               <a href="{{ basePath }}/auth/provider/{{ provider }}"
@@ -42,10 +69,6 @@
                 {% endif %}
               </a>
             {% endfor %}
-          </div>
-        {% else %}
-          <div class="uk-alert-warning" uk-alert>
-            <p>Zurzeit sind keine Anmeldeverfahren konfiguriert.</p>
           </div>
         {% endif %}
 
@@ -60,4 +83,55 @@
 
 {% block scripts %}
   <script src="{{ basePath }}/js/custom-icons.js"></script>
+  <script>
+    (function () {
+      var basePath = '{{ basePath }}';
+      var sendBtn = document.getElementById('sendLoginLink');
+      var emailInput = document.getElementById('loginEmail');
+      var sentBox = document.getElementById('emailSent');
+      var errorBox = document.getElementById('emailError');
+      var errorText = document.getElementById('emailErrorText');
+
+      if (!sendBtn || !emailInput) return;
+
+      sendBtn.addEventListener('click', function () {
+        var email = (emailInput.value || '').trim();
+        if (!email) return;
+
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'Wird gesendet...';
+        if (errorBox) errorBox.hidden = true;
+        if (sentBox) sentBox.hidden = true;
+
+        fetch(basePath + '/auth/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ email: email })
+        })
+          .then(function (res) {
+            if (res.status === 204) {
+              if (sentBox) sentBox.hidden = false;
+              sendBtn.textContent = 'Erneut senden';
+              sendBtn.disabled = false;
+            } else {
+              return res.json().then(function (data) {
+                var msg = 'E-Mail konnte nicht gesendet werden.';
+                if (data.error === 'invalid_email') msg = 'Bitte eine gültige E-Mail-Adresse eingeben.';
+                if (errorText) errorText.textContent = msg;
+                if (errorBox) errorBox.hidden = false;
+                sendBtn.textContent = 'Anmeldelink senden';
+                sendBtn.disabled = false;
+              });
+            }
+          })
+          .catch(function () {
+            if (errorText) errorText.textContent = 'Verbindungsfehler. Bitte erneut versuchen.';
+            if (errorBox) errorBox.hidden = false;
+            sendBtn.textContent = 'Anmeldelink senden';
+            sendBtn.disabled = false;
+          });
+      });
+    })();
+  </script>
 {% endblock %}
