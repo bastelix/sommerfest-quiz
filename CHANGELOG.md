@@ -418,6 +418,7 @@
 - *(auth)* Add email double opt-in registration and abo management page
 - *(subscription)* Add public /checkout route for direct Stripe checkout
 - *(news)* Add magazin frontend with categories, pagination and sidebar
+- *(news)* Extend MCP tools with category management
 
 ### Fix
 
@@ -765,6 +766,7 @@
 - *(auth)* Use tenant-schema PDO for mail provider in AccountEmailController
 - *(auth)* Fall back to main domain mail config for auth emails
 - *(settings)* Enable namespace switching on mail settings page
+- Allow hero blocks to use background color tokens
 
 ### Merge
 
