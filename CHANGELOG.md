@@ -952,6 +952,7 @@
 - Fix phpcs line-length warnings in mcp tool files
 - Fix remaining phpcs errors
 - *(wiki)* Fix oversized headings, duplicate titles, and narrow content area
+- *(news)* Redesign landing news list and detail pages
 
 ### Test
 
