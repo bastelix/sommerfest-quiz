@@ -753,6 +753,7 @@
 - *(build)* Align compose build cache with standalone docker build
 - *(build)* Make entrypoint resilient to non-critical startup failures
 - Correct table names and remove invalid column reference in namespace indexes migration
+- *(mcp)* Resolve trait property conflict preventing tool discovery
 
 ### Merge
 
