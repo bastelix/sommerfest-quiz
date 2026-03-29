@@ -416,6 +416,7 @@
 - *(subscription)* Add /admin/subscription/debug endpoint
 - *(subscription)* Add public /checkout route for direct Stripe checkout
 - *(auth)* Add account auth layer between pricing page and Stripe checkout
+- *(auth)* Add email double opt-in registration and abo management page
 
 ### Fix
 
