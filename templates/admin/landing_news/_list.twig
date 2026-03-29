@@ -3,6 +3,7 @@
 {% set token = csrfToken|default('') %}
 {% set pageNamespace = pageNamespace|default('') %}
 {% set namespaceQuery = pageNamespace is not empty ? '?namespace=' ~ pageNamespace|url_encode : '' %}
+{% set categoryMap = entryCategoryMap|default({}) %}
 
 {% if newsStatus == 'created' %}
   <div class="uk-alert-success" uk-alert>{{ t('message_news_created') }}</div>
@@ -18,6 +19,7 @@
       <tr>
         <th>{{ t('column_title') }}</th>
         <th>{{ t('column_page') }}</th>
+        <th>Kategorien</th>
         <th>{{ t('column_status') }}</th>
         <th>{{ t('column_published') }}</th>
         <th>{{ t('column_actions') }}</th>
@@ -28,6 +30,14 @@
         <tr>
           <td>{{ entry.title }}</td>
           <td>{{ entry.pageTitle }}</td>
+          <td>
+            {% set cats = categoryMap[entry.id]|default([]) %}
+            {% for cat in cats %}
+              <span class="uk-label uk-label-default" style="font-size: 0.75rem;">{{ cat.name }}</span>
+            {% else %}
+              <span class="uk-text-muted">&mdash;</span>
+            {% endfor %}
+          </td>
           <td>
             {% if entry.isPublished %}
               <span class="uk-label uk-label-success">{{ t('status_published') }}</span>
@@ -71,7 +81,7 @@
         </tr>
       {% else %}
         <tr>
-          <td colspan="5" class="uk-text-center">{{ t('message_news_empty') }}</td>
+          <td colspan="6" class="uk-text-center">{{ t('message_news_empty') }}</td>
         </tr>
       {% endfor %}
     </tbody>

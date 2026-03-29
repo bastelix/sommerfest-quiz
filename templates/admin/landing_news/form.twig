@@ -27,6 +27,23 @@
   <div class="uk-container uk-container-expand">
     <form method="post" action="{{ formAction }}" class="uk-form-stacked uk-grid-small" uk-grid data-is-edit="{{ isEdit ? 'true' : 'false' }}">
       <input type="hidden" name="_token" value="{{ csrfToken }}">
+
+      {# ── Primary: Title + Content ─────────────────────────── #}
+      <div class="uk-width-1-1">
+        <label class="uk-form-label" for="newsTitle">{{ t('label_news_title') }}</label>
+        <div class="uk-form-controls">
+          <input id="newsTitle" class="uk-input" type="text" name="title" value="{{ titleValue|e }}" required>
+        </div>
+      </div>
+      <div class="uk-width-1-1">
+        <label class="uk-form-label" for="newsContent">{{ t('label_news_content') }}</label>
+        <div class="uk-form-controls">
+          <div id="newsContentEditor" class="news-content-editor"></div>
+          <textarea id="newsContent" name="content" style="display:none" required>{{ contentValue|e }}</textarea>
+        </div>
+      </div>
+
+      {# ── Publish settings ─────────────────────────────────── #}
       <div class="uk-width-1-1 uk-width-1-2@m">
         <label class="uk-form-label" for="landingPage">{{ t('label_news_page') }}</label>
         <div class="uk-form-controls">
@@ -38,50 +55,28 @@
           </select>
         </div>
       </div>
-      <div class="uk-width-1-1">
-        <label class="uk-form-label" for="newsTitle">{{ t('label_news_title') }}</label>
-        <div class="uk-form-controls">
-          <input id="newsTitle" class="uk-input" type="text" name="title" value="{{ titleValue|e }}" required>
-        </div>
-      </div>
-      <div class="uk-width-1-1 uk-width-expand@m">
-        <label class="uk-form-label" for="newsSlug">{{ t('label_news_slug') }}</label>
-        <div class="uk-form-controls uk-flex uk-flex-middle" style="gap: 0.5rem;">
-          <input id="newsSlug" class="uk-input" type="text" name="slug" value="{{ slug|e }}" required pattern="[a-z0-9\-]+" maxlength="100">
-          <button type="button" id="newsSlugSuggest" class="uk-button uk-button-default uk-button-small uk-text-nowrap" title="{{ t('label_news_title') }} → Slug">
-            ↺ Aus Titel
-          </button>
-        </div>
-      </div>
-      <div class="uk-width-1-1">
-        <label class="uk-form-label" for="newsExcerpt">{{ t('label_news_excerpt') }}</label>
-        <div class="uk-form-controls">
-          <textarea id="newsExcerpt" class="uk-textarea" name="excerpt" rows="4">{{ excerptValue|e }}</textarea>
-        </div>
-      </div>
-      <div class="uk-width-1-1">
-        <label class="uk-form-label" for="newsImageUrl">Bild-URL <span class="uk-text-meta">(optional)</span></label>
-        <div class="uk-form-controls">
-          <input id="newsImageUrl" class="uk-input" type="url" name="image_url" value="{{ imageUrl|e }}" placeholder="https://...">
-          <div class="uk-text-meta uk-margin-small-top">
-            URL aus der
-            <a href="{{ basePath }}/admin/media{% if pageNamespace is not empty %}?namespace={{ pageNamespace|url_encode }}{% endif %}" target="_blank">Medienbibliothek ({{ pageNamespace ?: 'Standard' }})</a>
-            oder externen Quelle eintragen.
-          </div>
-          {% if imageUrl %}
-            <div class="uk-margin-small-top">
-              <img src="{{ imageUrl|e }}" alt="Vorschau" style="max-height: 120px; max-width: 100%; border-radius: 4px;">
+      {% if categories is defined and categories|length > 0 %}
+        <div class="uk-width-1-1 uk-width-1-2@m uk-flex uk-flex-bottom">
+          <div class="uk-width-1-1">
+            <label class="uk-form-label">Kategorien</label>
+            <div class="uk-form-controls">
+              {% set selectedIds = override.category_ids|default(assignedCategoryIds|default([])) %}
+              {% for cat in categories %}
+                <label class="uk-margin-small-right" style="display: inline-flex; align-items: center; gap: 0.3rem;">
+                  <input
+                    class="uk-checkbox"
+                    type="checkbox"
+                    name="category_ids[]"
+                    value="{{ cat.id }}"
+                    {% if cat.id in selectedIds %}checked{% endif %}
+                  >
+                  {{ cat.name }}
+                </label>
+              {% endfor %}
             </div>
-          {% endif %}
+          </div>
         </div>
-      </div>
-      <div class="uk-width-1-1">
-        <label class="uk-form-label" for="newsContent">{{ t('label_news_content') }}</label>
-        <div class="uk-form-controls">
-          <div id="newsContentEditor" class="news-content-editor"></div>
-          <textarea id="newsContent" name="content" style="display:none" required>{{ contentValue|e }}</textarea>
-        </div>
-      </div>
+      {% endif %}
       <div class="uk-width-1-1 uk-width-1-3@m">
         <label class="uk-form-label" for="newsPublishedAt">{{ t('label_news_published_at') }}</label>
         <div class="uk-form-controls">
@@ -89,8 +84,54 @@
         </div>
       </div>
       <div class="uk-width-1-1 uk-width-1-3@m uk-flex uk-flex-middle">
-        <label><input class="uk-checkbox" type="checkbox" name="is_published" value="1" {% if published %}checked{% endif %}> {{ t('label_news_is_published') }}</label>
+        <label><input id="newsIsPublished" class="uk-checkbox" type="checkbox" name="is_published" value="1" {% if published %}checked{% endif %}> {{ t('label_news_is_published') }}</label>
       </div>
+
+      {# ── Advanced options (collapsed by default on create) ── #}
+      <div class="uk-width-1-1 uk-margin-small-top">
+        <button type="button" id="toggleAdvanced" class="uk-button uk-button-text uk-text-small">
+          <span id="toggleAdvancedIcon">&#9654;</span> Erweiterte Optionen
+        </button>
+      </div>
+      <div id="advancedOptions" class="uk-width-1-1" {% if not isEdit and not slug and not excerptValue and not imageUrl %}style="display: none;"{% endif %}>
+        <div class="uk-grid-small" uk-grid>
+          <div class="uk-width-1-1 uk-width-expand@m">
+            <label class="uk-form-label" for="newsSlug">{{ t('label_news_slug') }}</label>
+            <div class="uk-form-controls uk-flex uk-flex-middle" style="gap: 0.5rem;">
+              <input id="newsSlug" class="uk-input" type="text" name="slug" value="{{ slug|e }}" required pattern="[a-z0-9\-]+" maxlength="100">
+              <button type="button" id="newsSlugSuggest" class="uk-button uk-button-default uk-button-small uk-text-nowrap" title="{{ t('label_news_title') }} &rarr; Slug">
+                &circlearrowleft; Aus Titel
+              </button>
+            </div>
+            <div class="uk-text-meta uk-margin-small-top">Wird automatisch aus dem Titel erzeugt, falls leer.</div>
+          </div>
+          <div class="uk-width-1-1">
+            <label class="uk-form-label" for="newsExcerpt">{{ t('label_news_excerpt') }} <span class="uk-text-meta">(optional)</span></label>
+            <div class="uk-form-controls">
+              <textarea id="newsExcerpt" class="uk-textarea" name="excerpt" rows="3">{{ excerptValue|e }}</textarea>
+            </div>
+            <div class="uk-text-meta uk-margin-small-top">Wenn leer, wird der Anfang des Inhalts als Vorschautext verwendet.</div>
+          </div>
+          <div class="uk-width-1-1">
+            <label class="uk-form-label" for="newsImageUrl">Bild-URL <span class="uk-text-meta">(optional)</span></label>
+            <div class="uk-form-controls">
+              <input id="newsImageUrl" class="uk-input" type="url" name="image_url" value="{{ imageUrl|e }}" placeholder="https://...">
+              <div class="uk-text-meta uk-margin-small-top">
+                URL aus der
+                <a href="{{ basePath }}/admin/media{% if pageNamespace is not empty %}?namespace={{ pageNamespace|url_encode }}{% endif %}" target="_blank">Medienbibliothek ({{ pageNamespace ?: 'Standard' }})</a>
+                oder externen Quelle eintragen.
+              </div>
+              {% if imageUrl %}
+                <div class="uk-margin-small-top">
+                  <img src="{{ imageUrl|e }}" alt="Vorschau" style="max-height: 120px; max-width: 100%; border-radius: 4px;">
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Actions ──────────────────────────────────────────── #}
       <div class="uk-width-1-1 uk-margin-top">
         <button type="submit" class="uk-button uk-button-primary">{{ t('button_save') }}</button>
         <a class="uk-button uk-button-default" href="{{ basePath }}/admin/landing-news{% if pageNamespace is not empty %}?namespace={{ pageNamespace|url_encode }}{% endif %}">{{ t('button_cancel') }}</a>
