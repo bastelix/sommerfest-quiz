@@ -105,11 +105,19 @@ class OAuthCallbackController
         $_SESSION['account_id'] = (int) $account['id'];
         $_SESSION['account_email'] = $account['email'];
 
-        // Redirect to stored return URL or account subscriptions page
-        $returnUrl = $_SESSION['auth_return_url'] ?? null;
-        unset($_SESSION['auth_return_url']);
+        // If plan/app were stored during registration, proceed to Stripe checkout
+        $regData = $_SESSION['auth_register'] ?? [];
+        $plan = (string) ($regData['plan'] ?? '');
+        $app = (string) ($regData['app'] ?? '');
+        unset($_SESSION['auth_register']);
 
-        $target = is_string($returnUrl) && $returnUrl !== '' ? $returnUrl : $basePath . '/account/subscriptions';
+        if ($plan !== '' && $app !== '') {
+            $target = $basePath . '/stripe/checkout?' . http_build_query(['plan' => $plan, 'app' => $app]);
+        } else {
+            $returnUrl = $_SESSION['auth_return_url'] ?? null;
+            unset($_SESSION['auth_return_url']);
+            $target = is_string($returnUrl) && $returnUrl !== '' ? $returnUrl : $basePath . '/account/subscriptions';
+        }
 
         return $response->withHeader('Location', $target)->withStatus(302);
     }
