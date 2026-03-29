@@ -191,7 +191,8 @@ final class ProjectSettingsService
         ?string $headerLogoPath,
         ?string $headerLogoAlt,
         ?string $headerLogoLabel,
-        ?string $headerTopbarStyle = null
+        ?string $headerTopbarStyle = null,
+        bool $showAccountLink = false
     ): array {
         $normalized = $this->normalizeNamespace($namespace);
         $this->assertTableExists();
@@ -254,7 +255,8 @@ final class ProjectSettingsService
             $normalizedLogoPath !== '' ? $normalizedLogoPath : null,
             $normalizedLogoAlt !== '' ? $normalizedLogoAlt : null,
             $normalizedLogoLabel !== '' ? $normalizedLogoLabel : null,
-            $normalizedTopbarStyle
+            $normalizedTopbarStyle,
+            $showAccountLink
         );
 
         return $this->getCookieConsentSettings($normalized);

@@ -1,0 +1,69 @@
+{% extends 'admin/base.twig' %}
+
+{% block title %}Kundenaccounts{% endblock %}
+
+{% block admin_content %}
+<div class="uk-container">
+  <h2>Kundenaccounts</h2>
+  <p class="uk-text-muted">Zentrale Accounts mit Abonnements.</p>
+
+  <div id="accountList"
+       data-list-url="{{ basePath }}/admin/accounts/data"
+       data-text-loading="Lade Accounts..."
+       data-text-empty="Keine Accounts vorhanden.">
+    <div class="uk-text-center uk-padding">
+      <span uk-spinner></span>
+      <p class="uk-text-muted">Lade Accounts...</p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  const container = document.getElementById('accountList');
+  if (container) {
+    const url = container.dataset.listUrl;
+    const emptyText = container.dataset.textEmpty;
+
+    fetch(url, { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } })
+      .then(r => r.json())
+      .then(accounts => {
+        if (!accounts.length) {
+          container.innerHTML = '<div class="uk-text-center uk-text-muted uk-padding">' + emptyText + '</div>';
+          return;
+        }
+
+        let html = '<table class="uk-table uk-table-striped uk-table-small uk-table-responsive">';
+        html += '<thead><tr><th>E-Mail</th><th>Name</th><th>Status</th><th>Abos</th><th>Erstellt</th></tr></thead>';
+        html += '<tbody>';
+
+        for (const acc of accounts) {
+          const subs = (acc.subscriptions || []).map(s => {
+            const badge = s.status === 'active'
+              ? '<span class="uk-label uk-label-success">' + s.status + '</span>'
+              : '<span class="uk-label">' + s.status + '</span>';
+            return (s.app || '') + ' ' + (s.plan || '') + ' ' + badge;
+          }).join('<br>');
+
+          const created = acc.created_at ? new Date(acc.created_at).toLocaleDateString('de-DE') : '';
+          const statusBadge = acc.status === 'active'
+            ? '<span class="uk-label uk-label-success">aktiv</span>'
+            : '<span class="uk-label uk-label-warning">' + (acc.status || '') + '</span>';
+
+          html += '<tr>';
+          html += '<td>' + (acc.email || '') + '</td>';
+          html += '<td>' + (acc.name || '-') + '</td>';
+          html += '<td>' + statusBadge + '</td>';
+          html += '<td>' + (subs || '-') + '</td>';
+          html += '<td>' + created + '</td>';
+          html += '</tr>';
+        }
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+      })
+      .catch(() => {
+        container.innerHTML = '<div class="uk-alert-danger" uk-alert><p>Fehler beim Laden der Accounts.</p></div>';
+      });
+  }
+</script>
+{% endblock %}

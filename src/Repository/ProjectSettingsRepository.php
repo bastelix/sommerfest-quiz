@@ -39,7 +39,7 @@ final class ProjectSettingsRepository
             'SELECT namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, '
             . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, '
             . 'privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, '
-            . 'show_language_toggle, show_theme_toggle, show_contrast_toggle, '
+            . 'show_language_toggle, show_theme_toggle, show_contrast_toggle, show_account_link, '
             . 'header_logo_mode, header_logo_path, header_logo_alt, header_logo_label, '
             . 'header_topbar_style, footer_layout, updated_at '
             . 'FROM project_settings WHERE namespace = ?'
@@ -73,16 +73,17 @@ final class ProjectSettingsRepository
         ?string $headerLogoPath,
         ?string $headerLogoAlt,
         ?string $headerLogoLabel,
-        string $headerTopbarStyle = 'auto'
+        string $headerTopbarStyle = 'auto',
+        bool $showAccountLink = false
     ): void {
         $stmt = $this->pdo->prepare(
             'INSERT INTO project_settings ('
             . 'namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, '
             . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, '
             . 'privacy_url, privacy_url_de, privacy_url_en, show_language_toggle, '
-            . 'show_theme_toggle, show_contrast_toggle, header_logo_mode, header_logo_path, '
+            . 'show_theme_toggle, show_contrast_toggle, show_account_link, header_logo_mode, header_logo_path, '
             . 'header_logo_alt, header_logo_label, header_topbar_style, updated_at'
-            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
+            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
             . 'ON CONFLICT (namespace) DO UPDATE SET '
             . 'cookie_consent_enabled = EXCLUDED.cookie_consent_enabled, '
             . 'cookie_storage_key = EXCLUDED.cookie_storage_key, '
@@ -96,6 +97,7 @@ final class ProjectSettingsRepository
             . 'show_language_toggle = EXCLUDED.show_language_toggle, '
             . 'show_theme_toggle = EXCLUDED.show_theme_toggle, '
             . 'show_contrast_toggle = EXCLUDED.show_contrast_toggle, '
+            . 'show_account_link = EXCLUDED.show_account_link, '
             . 'header_logo_mode = EXCLUDED.header_logo_mode, '
             . 'header_logo_path = EXCLUDED.header_logo_path, '
             . 'header_logo_alt = EXCLUDED.header_logo_alt, '
@@ -117,6 +119,7 @@ final class ProjectSettingsRepository
             $showLanguageToggle ? 1 : 0,
             $showThemeToggle ? 1 : 0,
             $showContrastToggle ? 1 : 0,
+            $showAccountLink ? 1 : 0,
             $headerLogoMode,
             $headerLogoPath,
             $headerLogoAlt,

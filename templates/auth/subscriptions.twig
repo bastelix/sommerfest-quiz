@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% block title %}Meine Abos{% endblock %}
+{% block title %}Mein Konto{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
@@ -21,7 +21,14 @@
   {% endembed %}
 
   <div class="uk-container uk-margin-large-top">
-    <h2>Meine Abonnements</h2>
+
+    {# ── Alerts ── #}
+    {% if profile_saved|default(false) %}
+      <div class="uk-alert-success" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        <p>Profil wurde gespeichert.</p>
+      </div>
+    {% endif %}
 
     {% set checkout = app.request is defined ? app.request.queryParams.checkout|default('') : '' %}
     {% if checkout == 'success' %}
@@ -36,17 +43,43 @@
       </div>
     {% endif %}
 
+    {# ── Profil ── #}
+    <h2>Mein Konto</h2>
+
+    <div class="uk-card uk-card-default uk-card-body uk-margin-bottom">
+      <h3 class="uk-card-title">Profil</h3>
+      <form method="post" action="{{ basePath }}/account/subscriptions">
+        <div class="uk-grid uk-grid-small" uk-grid>
+          <div class="uk-width-1-2@s">
+            <label class="uk-form-label" for="profileName">Name</label>
+            <input class="uk-input" type="text" id="profileName" name="name"
+                   value="{{ account.name|default('') }}" placeholder="Dein Name">
+          </div>
+          <div class="uk-width-1-2@s">
+            <label class="uk-form-label">E-Mail</label>
+            <input class="uk-input" type="email" value="{{ account.email }}" disabled>
+          </div>
+        </div>
+        <div class="uk-margin-top">
+          <button type="submit" class="uk-button uk-button-primary">Speichern</button>
+        </div>
+      </form>
+    </div>
+
+    {# ── Abonnements ── #}
+    <h3 class="uk-margin-top">Abonnements</h3>
+
     {% if subscriptions|length > 0 %}
       <div class="uk-grid uk-grid-match uk-child-width-1-2@m uk-child-width-1-1" uk-grid>
         {% for sub in subscriptions %}
           <div>
             <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">
+              <h4 class="uk-card-title">
                 {{ sub.app|capitalize }}
                 {% if sub.plan %}
                   <span class="uk-label uk-margin-small-left">{{ sub.plan|capitalize }}</span>
                 {% endif %}
-              </h3>
+              </h4>
 
               <dl class="uk-description-list">
                 <dt>Status</dt>
@@ -93,6 +126,7 @@
       </div>
     {% endif %}
 
+    {# ── Zahlungsverwaltung ── #}
     {% if account.stripe_customer_id %}
       <div class="uk-margin-large-top">
         <a href="{{ basePath }}/subscription" class="uk-button uk-button-default">

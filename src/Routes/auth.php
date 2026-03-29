@@ -56,7 +56,9 @@ return function (App $app): void {
     $app->get('/stripe/checkout', StripeAccountCheckoutController::class)
         ->add(new AccountAuthMiddleware());
 
-    // Account subscription management page
-    $app->get('/account/subscriptions', AccountSubscriptionsController::class)
+    // Account profile & subscription management page
+    $app->get('/account/subscriptions', [AccountSubscriptionsController::class, 'show'])
+        ->add(new AccountAuthMiddleware());
+    $app->post('/account/subscriptions', [AccountSubscriptionsController::class, 'updateProfile'])
         ->add(new AccountAuthMiddleware());
 };
