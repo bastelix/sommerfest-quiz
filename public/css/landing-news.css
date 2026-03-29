@@ -1,0 +1,248 @@
+/* ============================================================
+   Landing News – List & Detail
+   Clean, monochrome design aligned with calhelp.com aesthetics
+   ============================================================ */
+
+/* --- News List Page --- */
+
+.landing-news-list__container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 20px;
+}
+
+.landing-news-list__heading {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 2rem;
+}
+
+.landing-news-list__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .landing-news-list__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* --- News Teaser Card --- */
+
+.landing-news-card {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .landing-news-card {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+
+.landing-news-card__image {
+    margin-bottom: 0.75rem;
+}
+
+.landing-news-card__image img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+}
+
+.landing-news-card__date {
+    font-size: 0.82rem;
+    color: #9ca3af;
+    margin: 0 0 0.35rem;
+}
+
+.landing-news-card__title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 0 0 0.5rem;
+    color: #1f2937;
+    max-width: 36ch;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: manual;
+}
+
+.landing-news-card__title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.landing-news-card__title a:hover {
+    color: var(--primary-color, #2563eb);
+}
+
+.landing-news-card__excerpt {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #4b5563;
+    margin: 0 0 0.75rem;
+}
+
+.landing-news-card__readmore {
+    font-size: 0.9rem;
+    color: var(--primary-color, #2563eb);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.landing-news-card__readmore:hover {
+    text-decoration: underline;
+}
+
+/* --- News Detail Page --- */
+
+.landing-news-detail__container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 20px;
+}
+
+.landing-news-detail__title {
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #1f2937;
+    margin: 0 0 0.5rem;
+}
+
+.landing-news-detail__date {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin: 0 0 1.5rem;
+}
+
+.landing-news-detail__image {
+    margin-bottom: 1.5rem;
+}
+
+.landing-news-detail__image img {
+    width: 100%;
+    border-radius: 4px;
+    display: block;
+}
+
+.landing-news-detail__excerpt {
+    font-size: 1.1rem;
+    line-height: 1.65;
+    color: #6b7280;
+    margin-bottom: 2rem;
+    font-style: italic;
+}
+
+/* --- Article content prose --- */
+
+.landing-news-detail__content {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #1f2937;
+}
+
+.landing-news-detail__content h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 2.5rem 0 0.75rem;
+    color: #1f2937;
+}
+
+.landing-news-detail__content h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 2rem 0 0.5rem;
+    color: #1f2937;
+}
+
+.landing-news-detail__content p {
+    margin: 0 0 1.25rem;
+}
+
+.landing-news-detail__content ul,
+.landing-news-detail__content ol {
+    padding-left: 1.5rem;
+    margin: 0 0 1.25rem;
+}
+
+.landing-news-detail__content li {
+    margin-bottom: 0.35rem;
+    line-height: 1.65;
+}
+
+.landing-news-detail__content ul li {
+    list-style-type: disc;
+}
+
+.landing-news-detail__content ol li {
+    list-style-type: decimal;
+}
+
+.landing-news-detail__content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.landing-news-detail__content a {
+    color: var(--primary-color, #2563eb);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}
+
+.landing-news-detail__content a:hover {
+    text-decoration-thickness: 2px;
+}
+
+/* --- Back link --- */
+
+.landing-news-detail__back {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.landing-news-detail__back a {
+    font-size: 0.9rem;
+    color: var(--primary-color, #2563eb);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.landing-news-detail__back a:hover {
+    text-decoration: underline;
+}
+
+/* --- Dark mode support --- */
+
+@media (prefers-color-scheme: dark) {
+    .dark-mode .landing-news-list__heading,
+    .dark-mode .landing-news-card__title,
+    .dark-mode .landing-news-detail__title,
+    .dark-mode .landing-news-detail__content {
+        color: var(--marketing-text-on-surface, #e5e7eb);
+    }
+
+    .dark-mode .landing-news-card__excerpt,
+    .dark-mode .landing-news-detail__excerpt {
+        color: var(--marketing-text-muted-on-surface, #9ca3af);
+    }
+
+    .dark-mode .landing-news-card {
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .dark-mode .landing-news-detail__back {
+        border-top-color: rgba(255, 255, 255, 0.1);
+    }
+}

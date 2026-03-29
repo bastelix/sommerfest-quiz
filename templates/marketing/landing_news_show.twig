@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing-cards.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing-news.css">
   <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
@@ -53,22 +54,25 @@
       </nav>
     {% endif %}
 
-    <section id="landing-news" class="marketing-section uk-section uk-section-default marketing-news">
-      <div class="uk-container uk-container-small">
-        <article class="marketing-news-entry uk-article">
-          <h1 class="uk-article-title">{{ entry.title }}</h1>
+    <section id="landing-news" class="marketing-section uk-section uk-section-default landing-news-detail">
+      <div class="landing-news-detail__container">
+        <article class="landing-news-detail__article">
+          <h1 class="landing-news-detail__title">{{ entry.title }}</h1>
           {% if entry.publishedAt %}
-            <p class="uk-article-meta">Veröffentlicht am {{ entry.publishedAt|date('d.m.Y') }}</p>
+            <p class="landing-news-detail__date">{{ entry.publishedAt|date('d.m.Y') }}</p>
           {% endif %}
           {% if entry.imageUrl %}
-            <div class="marketing-news-entry__image uk-margin-bottom">
-              <img src="{{ entry.imageUrl }}" alt="{{ entry.title|e }}" loading="lazy" style="max-width: 100%; border-radius: 4px;">
+            <div class="landing-news-detail__image">
+              <img src="{{ entry.imageUrl }}" alt="{{ entry.title|e }}" loading="lazy">
             </div>
           {% endif %}
           {% if entry.excerpt %}
-            <div class="marketing-news-entry__excerpt uk-text-lead">{{ entry.excerpt|raw }}</div>
+            <div class="landing-news-detail__excerpt">{{ entry.excerpt|raw }}</div>
           {% endif %}
-          <div class="marketing-news-entry__content uk-margin-top">{{ entry.content|raw }}</div>
+          <div class="landing-news-detail__content">{{ entry.content|raw }}</div>
+          <div class="landing-news-detail__back">
+            <a href="{{ basePath }}/{{ newsBaseSlug }}/news">&larr; Zurück zur Übersicht</a>
+          </div>
         </article>
       </div>
     </section>
