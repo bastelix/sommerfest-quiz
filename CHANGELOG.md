@@ -422,6 +422,7 @@
 - *(news)* Add category management to admin news UI
 - *(admin)* Add media library picker and upload for news article images
 - *(admin)* Add news category management UI
+- *(tickets)* Add admin UI and public ticket submission form
 
 ### Fix
 
