@@ -757,6 +757,7 @@
 - *(mcp)* Resolve trait property conflict preventing tool discovery
 - *(build)* Treat tenant migration errors as warnings, not fatal
 - *(auth)* Load subscription plans from Stripe for auth-gated checkout
+- *(auth)* Route pricing buttons through registration before Stripe
 
 ### Merge
 
