@@ -59,8 +59,8 @@ class StripeAccountCheckoutController
 
         $uri = $request->getUri();
         $base = $uri->getScheme() . '://' . $uri->getHost();
-        $successUrl = $base . $basePath . '/stripe/checkout/success?session_id={CHECKOUT_SESSION_ID}';
-        $cancelUrl = $base . $basePath . '/stripe/checkout/cancel';
+        $successUrl = $base . $basePath . '/account/subscriptions?checkout=success';
+        $cancelUrl = $base . $basePath . '/account/subscriptions?checkout=cancel';
 
         $service = $request->getAttribute('stripeService');
         if (!$service instanceof StripeService) {

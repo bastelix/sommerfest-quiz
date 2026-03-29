@@ -1,0 +1,108 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Meine Abos{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-padding{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block right %}
+      <div class="uk-flex uk-flex-middle">
+        <span class="uk-text-muted uk-margin-small-right">{{ account.email }}</span>
+        <a href="{{ basePath }}/auth/logout" class="uk-button uk-button-default uk-button-small">Abmelden</a>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-container uk-margin-large-top">
+    <h2>Meine Abonnements</h2>
+
+    {% set checkout = app.request is defined ? app.request.queryParams.checkout|default('') : '' %}
+    {% if checkout == 'success' %}
+      <div class="uk-alert-success" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        <p>Dein Abonnement wurde erfolgreich abgeschlossen. Es kann einen Moment dauern, bis es hier angezeigt wird.</p>
+      </div>
+    {% elseif checkout == 'cancel' %}
+      <div class="uk-alert-warning" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        <p>Der Checkout wurde abgebrochen. Du kannst es jederzeit erneut versuchen.</p>
+      </div>
+    {% endif %}
+
+    {% if subscriptions|length > 0 %}
+      <div class="uk-grid uk-grid-match uk-child-width-1-2@m uk-child-width-1-1" uk-grid>
+        {% for sub in subscriptions %}
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">
+                {{ sub.app|capitalize }}
+                {% if sub.plan %}
+                  <span class="uk-label uk-margin-small-left">{{ sub.plan|capitalize }}</span>
+                {% endif %}
+              </h3>
+
+              <dl class="uk-description-list">
+                <dt>Status</dt>
+                <dd>
+                  {% if sub.status == 'active' %}
+                    <span class="uk-label uk-label-success">Aktiv</span>
+                  {% elseif sub.status == 'trialing' %}
+                    <span class="uk-label">Testphase</span>
+                  {% elseif sub.status == 'past_due' %}
+                    <span class="uk-label uk-label-warning">Zahlung ausstehend</span>
+                  {% elseif sub.status == 'canceled' %}
+                    <span class="uk-label uk-label-danger">Gekündigt</span>
+                  {% else %}
+                    <span class="uk-label">{{ sub.status }}</span>
+                  {% endif %}
+                </dd>
+
+                {% if sub.valid_until %}
+                  <dt>Gültig bis</dt>
+                  <dd>{{ sub.valid_until|date('d.m.Y') }}</dd>
+                {% endif %}
+
+                <dt>Gebucht am</dt>
+                <dd>{{ sub.created_at|date('d.m.Y') }}</dd>
+              </dl>
+
+              {% if sub.status in ['active', 'trialing'] %}
+                <div class="uk-margin-top">
+                  <a href="https://{{ sub.app }}.cloud"
+                     class="uk-button uk-button-primary"
+                     target="_blank">
+                    {{ sub.app|capitalize }} öffnen
+                  </a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="uk-card uk-card-default uk-card-body uk-text-center">
+        <p class="uk-text-muted">Du hast noch keine Abonnements.</p>
+        <a href="{{ basePath }}/" class="uk-button uk-button-primary uk-margin-small-top">Tarife ansehen</a>
+      </div>
+    {% endif %}
+
+    {% if account.stripe_customer_id %}
+      <div class="uk-margin-large-top">
+        <a href="{{ basePath }}/subscription" class="uk-button uk-button-default">
+          Zahlungsdaten & Rechnungen verwalten
+        </a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/custom-icons.js"></script>
+{% endblock %}

@@ -47,6 +47,19 @@ class AppSubscriptionService
     }
 
     /**
+     * @return list<array{id:int,account_id:int,app:string,stripe_subscription_id:?string,plan:?string,status:string,valid_until:?string,created_at:string}>
+     */
+    public function findByAccountId(int $accountId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM app_subscriptions WHERE account_id = ? ORDER BY created_at DESC'
+        );
+        $stmt->execute([$accountId]);
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     public function updateByStripeSubscriptionId(string $subscriptionId, array $data): void

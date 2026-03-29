@@ -14,18 +14,31 @@ class AuthRegisterController
 {
     public function show(Request $request, Response $response): Response
     {
-        if (isset($_SESSION['account_id'])) {
-            $base = RouteContext::fromRequest($request)->getBasePath();
+        $base = RouteContext::fromRequest($request)->getBasePath();
 
-            return $response->withHeader('Location', $base . '/')->withStatus(302);
+        if (isset($_SESSION['account_id'])) {
+            // Already logged in — go to return URL or account page
+            $returnUrl = $_SESSION['auth_return_url'] ?? null;
+            unset($_SESSION['auth_return_url']);
+            $target = is_string($returnUrl) && $returnUrl !== '' ? $returnUrl : $base . '/account/subscriptions';
+
+            return $response->withHeader('Location', $target)->withStatus(302);
+        }
+
+        // Preserve plan/app from query params (from pricing page link)
+        $params = $request->getQueryParams();
+        if (isset($params['plan']) || isset($params['app'])) {
+            $_SESSION['auth_register'] = [
+                'plan' => (string) ($params['plan'] ?? ''),
+                'app' => (string) ($params['app'] ?? ''),
+            ];
         }
 
         $view = Twig::fromRequest($request);
-        $basePath = RouteContext::fromRequest($request)->getBasePath();
 
         return $view->render($response, 'auth/register.twig', [
             'providers' => OAuthProviderFactory::enabledProviders(),
-            'basePath' => $basePath,
+            'basePath' => $base,
         ]);
     }
 }
