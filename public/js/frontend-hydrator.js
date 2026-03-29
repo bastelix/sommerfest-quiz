@@ -7,7 +7,8 @@ const bootstrapHydrationContext = () => {
 
   const pageRoot = document.querySelector('[data-page-root]');
   if (!pageRoot) {
-    console.error('[CMS] Missing [data-page-root]');
+    console.warn('[CMS] Missing [data-page-root] – skipping hydration');
+    document.body.removeAttribute('data-cms-hydrating');
     return null;
   }
 
