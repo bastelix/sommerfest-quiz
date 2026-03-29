@@ -37,6 +37,7 @@ use App\Controller\Admin\PageModuleController as AdminPageModuleController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\LandingpageController;
 use App\Controller\Admin\NamespaceApiTokenController;
+use App\Controller\Admin\TicketController as AdminTicketController;
 use App\Domain\Roles;
 use App\Domain\Plan;
 use App\Infrastructure\Database;
@@ -1445,6 +1446,69 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new NamespaceApiTokenController();
         return $controller->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    // ── Ticket management ─────────────────────────────────────────────
+    $ticketAuth = new RoleAuthMiddleware(...Roles::ADMIN_UI);
+
+    $app->get('/admin/tickets', function (Request $request, Response $response) {
+        $controller = new AdminTicketController();
+        return $controller->index($request, $response);
+    })->add($ticketAuth)->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/tickets/settings', function (Request $request, Response $response) {
+        $controller = new AdminTicketController();
+        return $controller->settings($request, $response);
+    })->add($ticketAuth)->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/tickets/settings', function (Request $request, Response $response) {
+        $controller = new AdminTicketController();
+        return $controller->saveSettings($request, $response);
+    })->add($ticketAuth)->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/tickets/create', function (Request $request, Response $response) {
+        $controller = new AdminTicketController();
+        return $controller->create($request, $response);
+    })->add($ticketAuth)->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/tickets', function (Request $request, Response $response) {
+        $controller = new AdminTicketController();
+        return $controller->store($request, $response);
+    })->add($ticketAuth)->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/tickets/{id:\d+}', function (Request $request, Response $response, array $args) {
+        $controller = new AdminTicketController();
+        return $controller->show($request, $response, $args);
+    })->add($ticketAuth)->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/tickets/{id:\d+}/edit', function (Request $request, Response $response, array $args) {
+        $controller = new AdminTicketController();
+        return $controller->edit($request, $response, $args);
+    })->add($ticketAuth)->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/tickets/{id:\d+}', function (Request $request, Response $response, array $args) {
+        $controller = new AdminTicketController();
+        return $controller->update($request, $response, $args);
+    })->add($ticketAuth)->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/tickets/{id:\d+}/delete', function (Request $request, Response $response, array $args) {
+        $controller = new AdminTicketController();
+        return $controller->delete($request, $response, $args);
+    })->add($ticketAuth)->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/tickets/{id:\d+}/transition', function (Request $request, Response $response, array $args) {
+        $controller = new AdminTicketController();
+        return $controller->transition($request, $response, $args);
+    })->add($ticketAuth)->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/tickets/{id:\d+}/comment', function (Request $request, Response $response, array $args) {
+        $controller = new AdminTicketController();
+        return $controller->addComment($request, $response, $args);
+    })->add($ticketAuth)->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/tickets/{id:\d+}/comment/{commentId:\d+}/delete', function (Request $request, Response $response, array $args) {
+        $controller = new AdminTicketController();
+        return $controller->deleteComment($request, $response, $args);
+    })->add($ticketAuth)->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->page($request, $response);

@@ -41,7 +41,7 @@ final class ProjectSettingsRepository
             . 'privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, '
             . 'show_language_toggle, show_theme_toggle, show_contrast_toggle, '
             . 'header_logo_mode, header_logo_path, header_logo_alt, header_logo_label, '
-            . 'header_topbar_style, footer_layout, updated_at '
+            . 'header_topbar_style, footer_layout, ticket_public_submission, updated_at '
             . 'FROM project_settings WHERE namespace = ?'
         );
         $stmt->execute([$namespace]);
@@ -157,6 +157,20 @@ final class ProjectSettingsRepository
             $namespace,
             json_encode($wikiThemes, JSON_THROW_ON_ERROR),
         ]);
+        $stmt->closeCursor();
+    }
+
+    public function updateTicketPublicSubmission(string $namespace, bool $enabled): void
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO project_settings (namespace, ticket_public_submission) '
+            . 'VALUES (?, ?) '
+            . 'ON CONFLICT (namespace) DO UPDATE SET '
+            . 'ticket_public_submission = EXCLUDED.ticket_public_submission, '
+            . 'updated_at = CURRENT_TIMESTAMP'
+        );
+
+        $stmt->execute([$namespace, $enabled ? 1 : 0]);
         $stmt->closeCursor();
     }
 }

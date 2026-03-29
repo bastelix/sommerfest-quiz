@@ -1,0 +1,109 @@
+{% extends 'layouts/cms_base.twig' %}
+
+{% block title %}Ticket einreichen{% endblock %}
+
+{% block head %}
+  {{ parent() }}
+  <meta name="csrf-token" content="{{ csrfToken|default('') }}">
+  {% if turnstileEnabled|default(false) %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  {% endif %}
+  <style>
+    .ticket-form-container {
+      max-width: 640px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .ticket-form-container .uk-card { padding: 2rem; }
+    .hp-field { position: absolute; left: -9999px; opacity: 0; height: 0; width: 0; overflow: hidden; }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="ticket-form-container">
+    <div class="uk-card uk-card-default uk-card-body">
+      <h1 class="uk-card-title">Ticket einreichen</h1>
+      <p class="uk-text-meta">Beschreiben Sie Ihr Anliegen. Wir melden uns so schnell wie möglich.</p>
+
+      {% if error %}
+        <div class="uk-alert-danger" uk-alert>
+          <a class="uk-alert-close" uk-close></a>
+          {{ error }}
+        </div>
+      {% endif %}
+
+      <form method="post" action="{{ basePath }}/tickets/submit" class="uk-form-stacked">
+        <input type="hidden" name="_token" value="{{ csrfToken }}">
+
+        {# Honeypot #}
+        <div class="hp-field" aria-hidden="true">
+          <label for="company">Firma</label>
+          <input type="text" name="company" id="company" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="uk-margin">
+          <label class="uk-form-label" for="submitName">Name *</label>
+          <div class="uk-form-controls">
+            <input id="submitName" class="uk-input" type="text" name="name" value="{{ formData.name|default('')|e }}" required>
+          </div>
+        </div>
+
+        <div class="uk-margin">
+          <label class="uk-form-label" for="submitEmail">E-Mail</label>
+          <div class="uk-form-controls">
+            <input id="submitEmail" class="uk-input" type="email" name="email" value="{{ formData.email|default('')|e }}">
+          </div>
+        </div>
+
+        <div class="uk-margin">
+          <label class="uk-form-label" for="submitTitle">Titel *</label>
+          <div class="uk-form-controls">
+            <input id="submitTitle" class="uk-input" type="text" name="title" value="{{ formData.title|default('')|e }}" required>
+          </div>
+        </div>
+
+        <div class="uk-margin">
+          <label class="uk-form-label" for="submitDescription">Beschreibung</label>
+          <div class="uk-form-controls">
+            <textarea id="submitDescription" class="uk-textarea" name="description" rows="5">{{ formData.description|default('')|e }}</textarea>
+          </div>
+        </div>
+
+        <div class="uk-grid-small" uk-grid>
+          <div class="uk-width-1-2@s">
+            <label class="uk-form-label" for="submitType">Typ</label>
+            <div class="uk-form-controls">
+              <select id="submitType" name="type" class="uk-select">
+                <option value="task" {% if formData.type|default('task') == 'task' %}selected{% endif %}>Aufgabe</option>
+                <option value="bug" {% if formData.type|default('') == 'bug' %}selected{% endif %}>Bug / Fehler</option>
+                <option value="improvement" {% if formData.type|default('') == 'improvement' %}selected{% endif %}>Verbesserung</option>
+                <option value="review" {% if formData.type|default('') == 'review' %}selected{% endif %}>Review</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="uk-width-1-2@s">
+            <label class="uk-form-label" for="submitPriority">Priorität</label>
+            <div class="uk-form-controls">
+              <select id="submitPriority" name="priority" class="uk-select">
+                <option value="low" {% if formData.priority|default('') == 'low' %}selected{% endif %}>Niedrig</option>
+                <option value="normal" {% if formData.priority|default('normal') == 'normal' %}selected{% endif %}>Normal</option>
+                <option value="high" {% if formData.priority|default('') == 'high' %}selected{% endif %}>Hoch</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {% if turnstileEnabled|default(false) %}
+          <div class="uk-margin">
+            <div class="cf-turnstile" data-sitekey="{{ turnstileSiteKey }}"></div>
+          </div>
+        {% endif %}
+
+        <div class="uk-margin-medium-top">
+          <button type="submit" class="uk-button uk-button-primary">Ticket einreichen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

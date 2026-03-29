@@ -1208,6 +1208,18 @@ return function (\Slim\App $app, TranslationService $translator) {
     })
         ->add(new RateLimitMiddleware(10, 3600))
         ->add(new CsrfMiddleware());
+    // ── Public ticket submission ────────────────────────────────────
+    $app->get('/tickets/submit', function (Request $request, Response $response): Response {
+        $controller = new \App\Controller\Marketing\TicketSubmitController();
+        return $controller->showForm($request, $response);
+    });
+    $app->post('/tickets/submit', function (Request $request, Response $response): Response {
+        $controller = new \App\Controller\Marketing\TicketSubmitController();
+        return $controller->submit($request, $response);
+    })
+        ->add(new RateLimitMiddleware(10, 3600))
+        ->add(new CsrfMiddleware());
+
     $app->post('/api/newsletter-subscribe', function (Request $request, Response $response): Response {
         $controller = new \App\Controller\Marketing\BlockNewsletterController();
         return $controller($request, $response);
