@@ -75,6 +75,26 @@
           {% endif %}
         </div>
       </div>
+      {% if categories is defined and categories|length > 0 %}
+        <div class="uk-width-1-1">
+          <label class="uk-form-label">Kategorien</label>
+          <div class="uk-form-controls">
+            {% set selectedIds = override.category_ids|default(assignedCategoryIds|default([])) %}
+            {% for cat in categories %}
+              <label class="uk-margin-small-right" style="display: inline-flex; align-items: center; gap: 0.3rem;">
+                <input
+                  class="uk-checkbox"
+                  type="checkbox"
+                  name="category_ids[]"
+                  value="{{ cat.id }}"
+                  {% if cat.id in selectedIds %}checked{% endif %}
+                >
+                {{ cat.name }}
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
       <div class="uk-width-1-1">
         <label class="uk-form-label" for="newsContent">{{ t('label_news_content') }}</label>
         <div class="uk-form-controls">

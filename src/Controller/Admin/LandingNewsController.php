@@ -24,6 +24,8 @@ use Throwable;
 use PDO;
 
 use function array_filter;
+use function array_map;
+use function array_values;
 use function http_build_query;
 use function in_array;
 use function is_array;
@@ -66,8 +68,14 @@ class LandingNewsController
             static fn (LandingNews $entry): bool => isset($allowedPageIds[$entry->getPageId()])
         ));
 
+        $entryCategoryMap = [];
+        foreach ($entries as $entry) {
+            $entryCategoryMap[$entry->getId()] = $this->news->getCategoriesForArticle($entry->getId());
+        }
+
         return $view->render($response, 'admin/landing_news/index.twig', [
             'entries' => $entries,
+            'entryCategoryMap' => $entryCategoryMap,
             'status' => $this->normalizeStatus($status),
             'csrfToken' => $this->ensureCsrfToken(),
             'role' => $_SESSION['user']['role'] ?? '',
@@ -109,6 +117,7 @@ class LandingNewsController
                 $data['is_published'],
                 $data['image_url']
             );
+            $this->syncCategories($entry->getId(), $data['category_ids']);
         } catch (InvalidArgumentException | LogicException $exception) {
             return $this->renderForm($request, $response, null, $data, $exception->getMessage());
         } catch (Throwable $exception) {
@@ -159,6 +168,7 @@ class LandingNewsController
                 $data['is_published'],
                 $data['image_url']
             );
+            $this->syncCategories($entry->getId(), $data['category_ids']);
         } catch (InvalidArgumentException | LogicException $exception) {
             return $this->renderForm($request, $response, $entry, $data, $exception->getMessage());
         } catch (Throwable $exception) {
@@ -188,9 +198,21 @@ class LandingNewsController
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $pages = $this->getLandingPages($namespace);
+        $categories = $this->news->getCategoriesForNamespace($namespace);
+
+        $assignedCategoryIds = [];
+        if ($override !== null && isset($override['category_ids'])) {
+            $assignedCategoryIds = $override['category_ids'];
+        } elseif ($entry !== null) {
+            $assigned = $this->news->getCategoriesForArticle($entry->getId());
+            $assignedCategoryIds = array_map(static fn (array $c): int => (int) $c['id'], $assigned);
+        }
+
         $payload = [
             'entry' => $entry,
             'pages' => $pages,
+            'categories' => $categories,
+            'assignedCategoryIds' => $assignedCategoryIds,
             'error' => $error,
             'csrfToken' => $this->ensureCsrfToken(),
             'role' => $_SESSION['user']['role'] ?? '',
@@ -301,6 +323,14 @@ class LandingNewsController
         $publishedAt = isset($data['published_at']) ? (string) $data['published_at'] : '';
         $imageUrl = isset($data['image_url']) ? trim((string) $data['image_url']) : null;
 
+        $categoryIds = [];
+        if (isset($data['category_ids']) && is_array($data['category_ids'])) {
+            $categoryIds = array_values(array_filter(
+                array_map('intval', $data['category_ids']),
+                static fn (int $id): bool => $id > 0
+            ));
+        }
+
         return [
             'page_id' => $pageId,
             'slug' => trim($slug),
@@ -310,6 +340,7 @@ class LandingNewsController
             'is_published' => $isPublished,
             'published_at' => trim($publishedAt),
             'image_url' => $imageUrl !== '' ? $imageUrl : null,
+            'category_ids' => $categoryIds,
         ];
     }
 
@@ -416,6 +447,29 @@ class LandingNewsController
         $availableNamespaces = $accessService->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
 
         return [$availableNamespaces, $namespace];
+    }
+
+    /**
+     * Sync category assignments for an article: remove old, assign new.
+     *
+     * @param list<int> $categoryIds
+     */
+    private function syncCategories(int $articleId, array $categoryIds): void
+    {
+        $current = $this->news->getCategoriesForArticle($articleId);
+        $currentIds = array_map(static fn (array $c): int => (int) $c['id'], $current);
+
+        foreach ($currentIds as $oldId) {
+            if (!in_array($oldId, $categoryIds, true)) {
+                $this->news->removeCategory($articleId, $oldId);
+            }
+        }
+
+        foreach ($categoryIds as $newId) {
+            if (!in_array($newId, $currentIds, true)) {
+                $this->news->assignCategory($articleId, $newId);
+            }
+        }
     }
 
     private function resolveEntry(Request $request, array $args): ?LandingNews
