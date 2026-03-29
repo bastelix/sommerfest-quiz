@@ -1043,7 +1043,8 @@ export function normalizeBlockContract(block) {
 
   const normalizedMeta = normalizeBlockMeta(normalized.meta, {
     sectionAppearance: appearance,
-    backgroundImage: normalized.backgroundImage
+    backgroundImage: normalized.backgroundImage,
+    tokens: normalized.tokens
   });
 
   if (normalizedMeta) {
@@ -1216,21 +1217,37 @@ function normalizeSectionContainer(container) {
   return { width, frame, spacing };
 }
 
-function normalizeSectionStyle(sectionStyle, legacyBackgroundImage, legacyAppearance) {
+function normalizeSectionStyle(sectionStyle, legacyBackgroundImage, legacyAppearance, tokens) {
   const source = isPlainObject(sectionStyle) ? sectionStyle : {};
   const layout = normalizeSectionLayout(source.layout, legacyAppearance);
-  if (!layout) {
+
+  // Map tokens.background to the background object when no explicit colorToken exists
+  const tokenBackground = typeof tokens?.background === 'string' && tokens.background.trim()
+    ? tokens.background.trim()
+    : undefined;
+  let backgroundSource = source.background;
+  if (tokenBackground) {
+    const existing = isPlainObject(backgroundSource) ? backgroundSource : {};
+    if (!existing.colorToken && !existing.color) {
+      backgroundSource = { ...existing, mode: existing.mode || 'color', colorToken: tokenBackground };
+    }
+  }
+
+  // Default to 'normal' layout when tokens.background is set but no layout was resolved
+  const effectiveLayout = layout || (tokenBackground ? 'normal' : undefined);
+  if (!effectiveLayout) {
     return undefined;
   }
+
   const intent = normalizeSectionIntent(source.intent);
   const normalizedBackground = normalizeSectionBackground(
-    source.background,
+    backgroundSource,
     legacyBackgroundImage,
-    layout,
+    effectiveLayout,
     legacyAppearance
   );
 
-  const normalized = { layout };
+  const normalized = { layout: effectiveLayout };
   if (intent) {
     normalized.intent = intent;
   }
@@ -1251,13 +1268,14 @@ function normalizeSectionStyle(sectionStyle, legacyBackgroundImage, legacyAppear
   return normalized;
 }
 
-function normalizeBlockMeta(meta, { sectionAppearance, backgroundImage } = {}) {
+function normalizeBlockMeta(meta, { sectionAppearance, backgroundImage, tokens } = {}) {
   const normalizedMeta = isPlainObject(meta) ? { ...meta } : {};
   const anchor = hasContent(normalizedMeta.anchor) ? normalizedMeta.anchor.trim() : undefined;
   const sectionStyle = normalizeSectionStyle(
     normalizedMeta.sectionStyle,
     backgroundImage,
-    sectionAppearance
+    sectionAppearance,
+    tokens
   );
 
   const normalized = {};
