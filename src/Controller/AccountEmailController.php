@@ -8,9 +8,11 @@ use App\Infrastructure\Database;
 use App\Service\AccountService;
 use App\Service\EmailConfirmationService;
 use App\Service\MailProvider\MailProviderManager;
+use App\Infrastructure\MailProviderRepository;
 use App\Service\MailService;
 use App\Service\NamespaceResolver;
 use App\Service\SettingsService;
+use App\Support\RequestDatabase;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -62,8 +64,11 @@ class AccountEmailController
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $manager = $request->getAttribute('mailProviderManager');
         if (!$manager instanceof MailProviderManager) {
-            $pdo = Database::connectFromEnv();
-            $manager = new MailProviderManager(new SettingsService($pdo), [], null, $namespace);
+            // Use the tenant-schema PDO (where mail settings are stored),
+            // not connectFromEnv() which returns the public schema.
+            $tenantPdo = RequestDatabase::resolve($request);
+            $repo = new MailProviderRepository($tenantPdo);
+            $manager = new MailProviderManager(new SettingsService($tenantPdo), [], $repo, $namespace);
         }
 
         $mailer = $request->getAttribute('mailService');
