@@ -1314,6 +1314,34 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         $controller = new AdminLandingNewsController();
         return $controller->index($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
+
+    // ── News category management ─────────────────────────────────────────
+    $app->get('/admin/landing-news/categories', function (Request $request, Response $response) {
+        $controller = new AdminLandingNewsController();
+        return $controller->categories($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))->add($namespaceQueryMiddleware);
+    $app->post('/admin/landing-news/categories', function (Request $request, Response $response) {
+        $controller = new AdminLandingNewsController();
+        return $controller->storeCategory($request, $response);
+    })
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))
+        ->add(new CsrfMiddleware())
+        ->add($namespaceQueryMiddleware);
+    $app->post('/admin/landing-news/categories/{id:\d+}', function (Request $request, Response $response, array $args) {
+        $controller = new AdminLandingNewsController();
+        return $controller->updateCategory($request, $response, $args);
+    })
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))
+        ->add(new CsrfMiddleware())
+        ->add($namespaceQueryMiddleware);
+    $app->post('/admin/landing-news/categories/{id:\d+}/delete', function (Request $request, Response $response, array $args) {
+        $controller = new AdminLandingNewsController();
+        return $controller->deleteCategory($request, $response, $args);
+    })
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CUSTOMER))
+        ->add(new CsrfMiddleware())
+        ->add($namespaceQueryMiddleware);
+
     $app->get('/admin/landing-news/create', function (Request $request, Response $response) {
         $controller = new AdminLandingNewsController();
         return $controller->create($request, $response);
