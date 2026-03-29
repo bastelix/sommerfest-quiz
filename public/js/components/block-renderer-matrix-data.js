@@ -3264,7 +3264,7 @@ function renderEventHighlightCompact(block, options = {}) {
   });
 }
 
-function renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget) {
+function renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget, appName) {
   const badge = plan.highlighted ? '<span class="uk-label uk-label-success uk-margin-small-bottom">Empfohlen</span>' : '';
   const title = `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(plan.name || '')}</h3>`;
   const description = plan.description ? `<p class="uk-margin-small-top">${escapeHtml(plan.description)}</p>` : '';
@@ -3293,10 +3293,13 @@ function renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget) {
 
   const btnClass = plan.highlighted ? 'uk-button-primary' : 'uk-button-default';
   const label = escapeHtml(ctaLabel || 'Abo starten');
-  // Default to /checkout route when no ctaTarget is set
-  const target = ctaTarget || '/checkout';
+  // Default to /auth/register for auth-gated checkout, fall back to /checkout
+  const target = ctaTarget || '/auth/register';
   const separator = target.includes('?') ? '&' : '?';
   let href = escapeAttribute(target) + separator + 'plan=' + escapeAttribute(plan.plan_key);
+  if (appName) {
+    href += '&app=' + escapeAttribute(appName);
+  }
   if (plan.product_id) {
     href += '&product=' + escapeAttribute(plan.product_id);
   }
@@ -3316,19 +3319,29 @@ function renderSubscriptionPlans(block, variant, options = {}) {
   });
 
   const ctaLabel = block.data?.ctaLabel || 'Abo starten';
-  const ctaTarget = block.data?.ctaTarget || '';
   const stripeProduct = block.data?.stripeProduct || '';
   const isPreview = context === 'preview';
 
   const pageContext = resolveActivePageContext();
+
+  // Default CTA target to /auth/register when checkoutApp is configured
+  const ctaTarget = block.data?.ctaTarget
+    || (pageContext?.checkoutApp ? '/auth/register' : '');
   const allPlans = pageContext?.featureData?.subscriptionPlans || [];
   const plans = stripeProduct && allPlans.length
     ? allPlans.filter(p => p.product_id === stripeProduct)
     : allPlans;
 
+  // Resolve app name for auth-gated checkout: use checkoutApp from page
+  // context (set by PageController), fall back to namespace slug
+  const appName = pageContext?.checkoutApp
+    || pageContext?.namespace
+    || (typeof window !== 'undefined' ? window.pageNamespace : '')
+    || '';
+
   let cardsHtml = '';
   if (plans.length > 0) {
-    cardsHtml = plans.map(plan => renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget)).join('');
+    cardsHtml = plans.map(plan => renderSubscriptionPlanCard(plan, ctaLabel, ctaTarget, appName)).join('');
   } else {
     // Render a container that the hydrator will fill with real data from the API
     const productAttr = stripeProduct ? ` data-product="${escapeAttribute(stripeProduct)}"` : '';
