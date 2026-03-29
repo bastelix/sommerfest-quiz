@@ -761,6 +761,7 @@
 - Correct table names and remove invalid column reference in namespace indexes migration
 - *(mcp)* Resolve trait property conflict preventing tool discovery
 - Resolve merge conflict in subscription plan CTA rendering
+- *(auth)* Use tenant-schema PDO for mail provider in AccountEmailController
 
 ### Merge
 
