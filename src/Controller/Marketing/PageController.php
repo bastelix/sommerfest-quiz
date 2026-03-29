@@ -1697,13 +1697,31 @@ class PageController
 
     /**
      * Resolve the product/app name from namespace_projects for auth-gated checkout.
+     *
+     * Falls back to the namespace slug when a pricing table is configured
+     * but no explicit product name is set.
      */
     private function resolveCheckoutApp(string $namespace): string
     {
         try {
             $nsSvc = new NamespaceSubscriptionService($this->pdo);
             $project = $nsSvc->findBySlug($namespace);
-            return (string) ($project['product'] ?? '');
+            if ($project === null) {
+                return '';
+            }
+
+            $product = (string) ($project['product'] ?? '');
+            if ($product !== '') {
+                return $product;
+            }
+
+            // Fall back to namespace slug when pricing table is configured
+            $pricingTableId = (string) ($project['stripe_pricing_table_id'] ?? '');
+            if ($pricingTableId !== '') {
+                return $namespace;
+            }
+
+            return '';
         } catch (\Throwable) {
             return '';
         }
@@ -1729,32 +1747,52 @@ class PageController
             return [];
         }
 
+        // First try loading rich plan data from Stripe API
         try {
             $stripeSvc = StripeService::forNamespace(
                 (new NamespaceSubscriptionService($this->pdo))->findBySlug($namespace) ?? []
             );
             $plans = $stripeSvc->listProducts();
-            usort($plans, fn(array $a, array $b) => ($a['sort_order'] ?? 99) <=> ($b['sort_order'] ?? 99));
+            if ($plans !== []) {
+                usort($plans, fn(array $a, array $b) => ($a['sort_order'] ?? 99) <=> ($b['sort_order'] ?? 99));
 
-            return array_map(function (array $p): array {
-                $cents = (int) ($p['price'] ?? 0);
-                $currency = strtoupper((string) ($p['currency'] ?? 'EUR'));
-                $formatted = number_format($cents / 100, 2, ',', '.') . ' ' . $currency;
+                return array_map(function (array $p): array {
+                    $cents = (int) ($p['price'] ?? 0);
+                    $currency = strtoupper((string) ($p['currency'] ?? 'EUR'));
+                    $formatted = number_format($cents / 100, 2, ',', '.') . ' ' . $currency;
 
-                return [
-                    'plan_key' => $p['plan_key'] ?? '',
-                    'name' => $p['name'] ?? '',
-                    'price_label' => $formatted . ' / ' . ($p['interval'] ?? 'month'),
-                    'price' => $cents,
-                    'currency' => $currency,
-                    'interval' => $p['interval'] ?? 'month',
-                    'features' => $p['features'] ?? [],
-                    'highlighted' => $p['highlighted'] ?? false,
-                    'trial_days' => $p['trial_days'] ?? 0,
-                ];
-            }, $plans);
+                    return [
+                        'plan_key' => $p['plan_key'] ?? '',
+                        'name' => $p['name'] ?? '',
+                        'price_label' => $formatted . ' / ' . ($p['interval'] ?? 'month'),
+                        'features' => $p['features'] ?? [],
+                        'highlighted' => $p['highlighted'] ?? false,
+                        'trial_days' => $p['trial_days'] ?? 0,
+                    ];
+                }, $plans);
+            }
         } catch (\Throwable) {
-            return [];
+            // Fall through to ENV-based plans
         }
+
+        // Fallback: build plan cards from Plan enum + configured price IDs
+        $result = [];
+        foreach (\App\Domain\Plan::cases() as $plan) {
+            $priceId = StripeService::priceIdForPlan($plan->value);
+            if ($priceId === '' || $plan === \App\Domain\Plan::FREE) {
+                continue;
+            }
+
+            $result[] = [
+                'plan_key' => $plan->value,
+                'name' => ucfirst($plan->value),
+                'price_label' => '',
+                'features' => [],
+                'highlighted' => $plan === \App\Domain\Plan::STANDARD,
+                'trial_days' => 0,
+            ];
+        }
+
+        return $result;
     }
 }
