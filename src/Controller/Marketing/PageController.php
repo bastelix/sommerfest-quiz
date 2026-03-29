@@ -305,6 +305,10 @@ class PageController
             }
         }
 
+        // Make the checkout app name available to the frontend hydrator
+        // so subscription_plans blocks can build auth-gated CTA links.
+        $marketingPayload['featureData']['checkoutApp'] = $this->resolveCheckoutApp($pageNamespace);
+
         // Load event data when event_highlight blocks are present.
         if (is_array($pageBlocks)) {
             $eventHighlightSlugs = [];

@@ -213,6 +213,8 @@ const hydratePage = async () => {
         basePath,
         page: {
           type: payload.pageType || payload.type,
+          namespace: payload.namespace || ctx?.page?.namespace || '',
+          checkoutApp: (payload.featureData || {}).checkoutApp || '',
           featureData: payload.featureData || {}
         }
       });
