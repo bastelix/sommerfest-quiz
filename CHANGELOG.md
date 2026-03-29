@@ -419,6 +419,7 @@
 - *(subscription)* Add public /checkout route for direct Stripe checkout
 - *(news)* Add magazin frontend with categories, pagination and sidebar
 - *(news)* Extend MCP tools with category management
+- *(news)* Add category management to admin news UI
 
 ### Fix
 
@@ -882,6 +883,7 @@
 - [**breaking**] Rename project from sommerfest-quiz/quizrace to edocs-cloud/edocs.cloud
 - *(billing)* Simplify subscription page and add Stripe Pricing Table
 - *(subscription)* Read plan metadata from Stripe Prices instead of Products
+- *(admin)* Simplify news creation dialog
 
 ### Revert
 
