@@ -178,6 +178,10 @@ final class NamespacePageController
             ], 422);
         }
 
+        // Wrap all mutations in a transaction for atomicity
+        $pdo->beginTransaction();
+        try {
+
         // Upsert page
         $existing = $pages->findByKey($ns, $slug);
         $contentJson = json_encode($content, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
@@ -346,6 +350,13 @@ final class NamespacePageController
                     );
                 }
             }
+        }
+
+        $pdo->commit();
+
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
         }
 
         return $this->json($response, [

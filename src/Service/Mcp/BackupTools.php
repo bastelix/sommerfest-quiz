@@ -9,6 +9,8 @@ use PDO;
 
 final class BackupTools
 {
+    use McpToolTrait;
+
     private NamespaceBackupService $backupService;
 
     private const NS_PROP = [
@@ -19,12 +21,6 @@ final class BackupTools
     public function __construct(private readonly string $defaultNamespace, PDO $pdo)
     {
         $this->backupService = new NamespaceBackupService($pdo);
-    }
-
-    private function resolveNamespace(array $args): string
-    {
-        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
-        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**

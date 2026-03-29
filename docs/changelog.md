@@ -97,7 +97,6 @@
 - *(api)* Add comprehensive API v1 reference and register news endpoints
 - Add API expansion briefing for AI assistant
 - Add MCP connector setup guide for Claude.ai
-- Complete documentation overhaul for GitHub Pages
 
 ### Feat
 
@@ -408,15 +407,6 @@
 - *(account)* Add customer-facing /account page per namespace
 - *(subscription)* Load plans dynamically from Stripe Product metadata
 - *(subscription)* Add per-plan trial days via Stripe Product metadata
-- *(subscription)* Add subscription_plans CMS page block
-- *(subscription)* Register subscription_plans in page editor
-- *(subscription)* Add stripeProduct field to subscription_plans block
-- *(subscription)* Per-namespace Stripe keys and fix block validation
-- *(subscription)* Support per-namespace Stripe keys in public API
-- *(subscription)* Add /admin/subscription/debug endpoint
-- *(subscription)* Add public /checkout route for direct Stripe checkout
-- *(auth)* Add account auth layer between pricing page and Stripe checkout
-- *(auth)* Add email double opt-in registration and abo management page
 
 ### Fix
 
@@ -741,23 +731,6 @@
 - Remove extra {{end}} blocks in nginx.tmpl causing docker-gen parse failure
 - Include main domain in MarketingProxySyncService
 - *(hero)* Add missing uk-modal class to hero media lightbox
-- *(subscription)* Hydrate plan cards in editor preview and frontend
-- *(subscription)* Relax isConfigured() check to only require API keys
-- Allow nullable MailProviderManager in controller constructor
-- *(subscription)* Use toArray() for Stripe metadata instead of array cast
-- Make MailProviderController manager property nullable
-- *(subscription)* Build correct CTA href with query separator
-- Address security, performance, and MCP improvements
-- *(auth)* Pass checkoutApp and plans to pricing templates
-- *(build)* Run composer install when lock file is newer than vendor
-- *(build)* Prefer volume-mounted entrypoint for up-to-date dependency checks
-- *(build)* Align compose build cache with standalone docker build
-- *(build)* Make entrypoint resilient to non-critical startup failures
-- Correct table names and remove invalid column reference in namespace indexes migration
-- *(mcp)* Resolve trait property conflict preventing tool discovery
-- *(build)* Treat tenant migration errors as warnings, not fatal
-- *(auth)* Load subscription plans from Stripe for auth-gated checkout
-- *(auth)* Route pricing buttons through registration before Stripe
 
 ### Merge
 
@@ -871,7 +844,6 @@
 - *(wiki)* Move page namespace selector into accordion
 - [**breaking**] Rename project from sommerfest-quiz/quizrace to edocs-cloud/edocs.cloud
 - *(billing)* Simplify subscription page and add Stripe Pricing Table
-- *(subscription)* Read plan metadata from Stripe Prices instead of Products
 
 ### Revert
 

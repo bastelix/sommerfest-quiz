@@ -11,6 +11,8 @@ use PDO;
 
 final class MenuTools
 {
+    use McpToolTrait;
+
     private CmsMenuDefinitionService $menus;
     private CmsPageMenuService $menuItems;
 
@@ -23,12 +25,6 @@ final class MenuTools
     {
         $this->menus = new CmsMenuDefinitionService($pdo);
         $this->menuItems = new CmsPageMenuService($pdo);
-    }
-
-    private function resolveNamespace(array $args): string
-    {
-        $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
-        return $ns !== '' ? $ns : $this->defaultNamespace;
     }
 
     /**
