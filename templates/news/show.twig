@@ -1,0 +1,97 @@
+{% extends 'layouts/cms_base.twig' %}
+
+{% set includeCmsBaseStyles = false %}
+{% set includeMainStyles = false %}
+
+{% block title %}{{ metaTitle|default(article.title) }}{% endblock %}
+
+{% block head %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/sections.css">
+  <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing-cards.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/news.css">
+  <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
+{% endblock %}
+
+{% block body_class %}page-render cms-page-render marketing-page uk-background-default{% endblock %}
+
+{% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
+  <div class="marketing-layout">
+    {% include 'pages/partials/header.twig' with {
+      normalizedNamespace: designNamespace|default('default'),
+      headerTheme: design.theme|default('light'),
+      headerLogo: headerLogo|default({}),
+      cmsMenuItems: cmsMainNavigation|default([]),
+      cmsMainNavigation: cmsMainNavigation|default([]),
+      headerConfig: headerConfig|default({}),
+      basePath: basePath,
+      cmsSlug: 'magazin',
+      pageTitle: metaTitle|default('News & Updates')
+    } only %}
+
+    <article class="news-article">
+      {% if breadcrumbs is defined and breadcrumbs %}
+        <nav class="news-article__breadcrumb" aria-label="Breadcrumb">
+          {% for crumb in breadcrumbs %}
+            {% if not loop.last and crumb.url %}
+              <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+              <span class="separator">&rsaquo;</span>
+            {% else %}
+              <span>{{ crumb.label|length > 50 ? crumb.label|slice(0, 50) ~ '...' : crumb.label }}</span>
+              {% if not loop.last %}<span class="separator">&rsaquo;</span>{% endif %}
+            {% endif %}
+          {% endfor %}
+        </nav>
+      {% endif %}
+
+      <h1 class="news-article__title">{{ article.title }}</h1>
+
+      {% if article.image_url %}
+        <div class="news-article__hero">
+          <img src="{{ article.image_url }}" alt="{{ article.title|e('html_attr') }}">
+        </div>
+      {% endif %}
+
+      <div class="news-article__meta">
+        {% if article.published_at %}
+          <time datetime="{{ article.published_at|date('Y-m-d') }}">
+            {{ article.published_at|date('d.m.Y') }}
+          </time>
+        {% endif %}
+        {% if article.categories is defined and article.categories is not empty %}
+          <span class="news-article__categories">
+            | {% for cat in article.categories %}
+              <a href="{{ basePath }}/magazin/{{ cat.slug }}">{{ cat.name }}</a>
+              {%- if not loop.last %}, {% endif %}
+            {% endfor %}
+          </span>
+        {% endif %}
+      </div>
+
+      <div class="news-article__content">
+        {{ article.content|raw }}
+      </div>
+
+      {% if relatedArticles is defined and relatedArticles is not empty %}
+        <section class="news-article__related">
+          <h2>Verwandte Artikel</h2>
+          <div class="news-article__related-grid">
+            {% for related in relatedArticles %}
+              {% include 'news/partials/article-card.twig' with {
+                article: related,
+                featured: false,
+                basePath: basePath
+              } %}
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    </article>
+  </div>
+{% endblock %}

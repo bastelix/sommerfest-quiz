@@ -1,0 +1,78 @@
+{% extends 'layouts/cms_base.twig' %}
+
+{% set includeCmsBaseStyles = false %}
+{% set includeMainStyles = false %}
+
+{% block title %}{{ metaTitle|default('News & Updates') }}{% endblock %}
+
+{% block head %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/sections.css">
+  <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing-cards.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/news.css">
+  <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
+{% endblock %}
+
+{% block body_class %}page-render cms-page-render marketing-page uk-background-default{% endblock %}
+
+{% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
+  <div class="marketing-layout">
+    {% include 'pages/partials/header.twig' with {
+      normalizedNamespace: designNamespace|default('default'),
+      headerTheme: design.theme|default('light'),
+      headerLogo: headerLogo|default({}),
+      cmsMenuItems: cmsMainNavigation|default([]),
+      cmsMainNavigation: cmsMainNavigation|default([]),
+      headerConfig: headerConfig|default({}),
+      basePath: basePath,
+      cmsSlug: 'magazin',
+      pageTitle: metaTitle|default('News & Updates')
+    } only %}
+
+    <div class="news-page">
+      <div class="news-page__header">
+        <h1>{{ metaTitle|default('News & Updates') }}</h1>
+        {% if currentCategory %}
+          <p class="news-page__subtitle">Kategorie: {{ currentCategory.name }}</p>
+        {% endif %}
+      </div>
+
+      <div class="news-page__layout">
+        <main class="news-page__main">
+          {% for article in articles %}
+            {% include 'news/partials/article-card.twig' with {
+              article: article,
+              featured: loop.first and not currentCategory and not searchQuery,
+              basePath: basePath
+            } %}
+          {% else %}
+            <p class="news-page__empty">Noch keine Artikel vorhanden.</p>
+          {% endfor %}
+
+          {% if totalPages > 1 %}
+            {% include 'news/partials/pagination.twig' with {
+              currentPage: currentPage,
+              totalPages: totalPages,
+              currentCategory: currentCategory
+            } %}
+          {% endif %}
+        </main>
+
+        <aside class="news-page__sidebar">
+          {% include 'news/partials/sidebar.twig' with {
+            categories: categories,
+            currentCategory: currentCategory,
+            searchQuery: searchQuery,
+            basePath: basePath
+          } %}
+        </aside>
+      </div>
+    </div>
+  </div>
+{% endblock %}

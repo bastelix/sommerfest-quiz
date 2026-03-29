@@ -19,9 +19,12 @@ use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 use function array_merge;
+use function ceil;
+use function max;
 use function preg_match;
 use function sprintf;
 use function strip_tags;
+use function trim;
 
 class LandingNewsController
 {
@@ -208,6 +211,162 @@ class LandingNewsController
             'cmsSlug' => $newsOwnerPage->getSlug(),
             'breadcrumbs' => $breadcrumbs,
         ], $layoutData));
+    }
+
+    // ── Magazin endpoints ────────────────────────────────────────────
+
+    public function magazinIndex(Request $request, Response $response): Response
+    {
+        $params = $request->getQueryParams();
+        $currentPage = max(1, (int) ($params['page'] ?? 1));
+        $searchQuery = isset($params['q']) ? trim((string) $params['q']) : null;
+        if ($searchQuery === '') {
+            $searchQuery = null;
+        }
+        $perPage = 8;
+
+        [$namespace, $designNamespace, $design, $appearance, $basePath, $locale, $layoutData] =
+            $this->resolveMagazinContext($request);
+
+        $result = $this->news->getMagazinArticles($namespace, $currentPage, $perPage, null, $searchQuery);
+        $categories = $this->news->getCategoriesForNamespace($namespace);
+        $totalPages = (int) ceil($result['total'] / $perPage);
+
+        $view = Twig::fromRequest($request);
+
+        return $view->render($response, 'news/index.twig', array_merge([
+            'articles' => $result['articles'],
+            'categories' => $categories,
+            'currentCategory' => null,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
+            'searchQuery' => $searchQuery,
+            'namespace' => $namespace,
+            'pageNamespace' => $namespace,
+            'designNamespace' => $designNamespace,
+            'appearance' => $appearance,
+            'design' => $design,
+            'basePath' => $basePath,
+            'metaTitle' => 'News & Updates',
+            'metaDescription' => 'Aktuelle Neuigkeiten und Artikel.',
+        ], $layoutData));
+    }
+
+    public function magazinCategory(Request $request, Response $response, array $args): Response
+    {
+        $categorySlug = isset($args['categorySlug']) ? (string) $args['categorySlug'] : '';
+        if ($categorySlug === '') {
+            return $response->withStatus(404);
+        }
+
+        $params = $request->getQueryParams();
+        $currentPage = max(1, (int) ($params['page'] ?? 1));
+        $perPage = 8;
+
+        [$namespace, $designNamespace, $design, $appearance, $basePath, $locale, $layoutData] =
+            $this->resolveMagazinContext($request);
+
+        $category = $this->news->getCategoryBySlug($namespace, $categorySlug);
+        if ($category === null) {
+            return $response->withStatus(404);
+        }
+
+        $result = $this->news->getMagazinArticles($namespace, $currentPage, $perPage, $categorySlug);
+        $categories = $this->news->getCategoriesForNamespace($namespace);
+        $totalPages = (int) ceil($result['total'] / $perPage);
+
+        $view = Twig::fromRequest($request);
+
+        return $view->render($response, 'news/index.twig', array_merge([
+            'articles' => $result['articles'],
+            'categories' => $categories,
+            'currentCategory' => $category,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
+            'searchQuery' => null,
+            'namespace' => $namespace,
+            'pageNamespace' => $namespace,
+            'designNamespace' => $designNamespace,
+            'appearance' => $appearance,
+            'design' => $design,
+            'basePath' => $basePath,
+            'metaTitle' => sprintf('News – %s', $category['name']),
+            'metaDescription' => sprintf('Artikel in der Kategorie %s.', $category['name']),
+        ], $layoutData));
+    }
+
+    public function magazinShow(Request $request, Response $response, array $args): Response
+    {
+        $slug = isset($args['slug']) ? (string) $args['slug'] : '';
+        if ($slug === '') {
+            return $response->withStatus(404);
+        }
+
+        [$namespace, $designNamespace, $design, $appearance, $basePath, $locale, $layoutData] =
+            $this->resolveMagazinContext($request);
+
+        $article = $this->news->findMagazinArticle($namespace, $slug);
+        if ($article === null) {
+            return $response->withStatus(404);
+        }
+
+        $relatedArticles = $this->news->getRelatedArticles((int) $article['id'], $namespace, 3);
+
+        $breadcrumbs = [
+            ['label' => 'Magazin', 'url' => $basePath . '/magazin'],
+        ];
+        if ($article['primary_category'] !== null) {
+            $breadcrumbs[] = [
+                'label' => $article['primary_category']['name'],
+                'url' => $basePath . '/magazin/' . $article['primary_category']['slug'],
+            ];
+        }
+        $breadcrumbs[] = ['label' => $article['title'], 'url' => null];
+
+        $excerpt = $article['excerpt'];
+        $description = $excerpt !== null ? trim(strip_tags($excerpt)) : null;
+
+        $view = Twig::fromRequest($request);
+
+        return $view->render($response, 'news/show.twig', array_merge([
+            'article' => $article,
+            'relatedArticles' => $relatedArticles,
+            'breadcrumbs' => $breadcrumbs,
+            'namespace' => $namespace,
+            'pageNamespace' => $namespace,
+            'designNamespace' => $designNamespace,
+            'appearance' => $appearance,
+            'design' => $design,
+            'basePath' => $basePath,
+            'metaTitle' => $article['title'],
+            'metaDescription' => $description,
+            'ogImage' => $article['image_url'] ?? null,
+        ], $layoutData));
+    }
+
+    /**
+     * Shared context resolution for all magazin endpoints.
+     *
+     * @return array{0: string, 1: string, 2: array, 3: array, 4: string, 5: string, 6: array}
+     */
+    private function resolveMagazinContext(Request $request): array
+    {
+        $namespaceContext = $this->namespaceResolver->resolve($request);
+        $namespace = $namespaceContext->getNamespace();
+        if ($namespace === '') {
+            $namespace = PageService::DEFAULT_NAMESPACE;
+        }
+
+        $renderContext = $this->namespaceRenderContext->build($namespace);
+        $designNamespace = $renderContext['namespace'];
+        $design = $renderContext['design'];
+        $appearance = $design['appearance'] ?? $this->namespaceAppearance->load($namespace);
+
+        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
+        $locale = (string) ($request->getAttribute('lang') ?? 'de');
+        $layoutData = $this->layoutData->loadLayoutData($namespace, null, $locale, $basePath);
+
+        return [$namespace, $designNamespace, $design, $appearance, $basePath, $locale, $layoutData];
     }
 
     private function resolvePage(array $args, string $namespace): ?Page

@@ -856,6 +856,40 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $response->withHeader('Location', $target)->withStatus($status);
     };
+    // --- Magazin routes (category-aware news/magazine section) ---
+    $app->get('/magazin', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->magazinIndex($request, $response);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
+    $app->get('/magazin/{categorySlug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->magazinCategory($request, $response, $args);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
+    $app->get('/magazin/{categorySlug:[a-z0-9-]+}/{slug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->magazinShow($request, $response, $args);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
+
     $app->get('/news', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {

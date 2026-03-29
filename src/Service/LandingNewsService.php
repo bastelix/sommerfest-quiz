@@ -332,6 +332,226 @@ SQL;
         return array_map([$this, 'hydrate'], $stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
     }
 
+    // ── Magazin methods (paginated, category-aware) ──────────────────
+
+    /**
+     * Paginated published articles for a namespace, with category info.
+     *
+     * @return array{articles: list<array>, total: int}
+     */
+    public function getMagazinArticles(
+        string $namespace,
+        int $page = 1,
+        int $perPage = 8,
+        ?string $categorySlug = null,
+        ?string $searchQuery = null
+    ): array {
+        $ns = $this->resolveNamespace($namespace);
+        $page = max(1, $page);
+        $offset = ($page - 1) * $perPage;
+
+        $where = 'WHERE p.namespace = :ns AND ln.is_published = TRUE';
+        $params = ['ns' => $ns];
+        $joins = '';
+
+        if ($categorySlug !== null && $categorySlug !== '') {
+            $joins = ' JOIN news_article_category nac ON nac.article_id = ln.id'
+                . ' JOIN news_categories nc_filter ON nc_filter.id = nac.category_id';
+            $where .= ' AND nc_filter.namespace = :catNs AND nc_filter.slug = :catSlug';
+            $params['catNs'] = $ns;
+            $params['catSlug'] = strtolower(trim($categorySlug));
+        }
+
+        if ($searchQuery !== null && trim($searchQuery) !== '') {
+            $term = '%' . trim($searchQuery) . '%';
+            $where .= ' AND (ln.title ILIKE :q OR ln.excerpt ILIKE :q2)';
+            $params['q'] = $term;
+            $params['q2'] = $term;
+        }
+
+        $countSql = 'SELECT COUNT(DISTINCT ln.id) FROM landing_news ln'
+            . ' JOIN pages p ON p.id = ln.page_id' . $joins . ' ' . $where;
+        $stmt = $this->pdo->prepare($countSql);
+        $stmt->execute($params);
+        $total = (int) $stmt->fetchColumn();
+
+        $sql = 'SELECT DISTINCT ln.*, p.slug AS page_slug, p.title AS page_title'
+            . ' FROM landing_news ln JOIN pages p ON p.id = ln.page_id'
+            . $joins . ' ' . $where
+            . ' ORDER BY CASE WHEN ln.published_at IS NULL THEN 1 ELSE 0 END,'
+            . ' ln.published_at DESC, ln.id DESC'
+            . ' LIMIT :lim OFFSET :off';
+        $stmt = $this->pdo->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->bindValue('lim', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue('off', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $articles = [];
+        foreach ($rows as $row) {
+            $article = $this->hydrateToArray($row);
+            $article['categories'] = $this->getCategoriesForArticle((int) $row['id']);
+            $cats = $article['categories'];
+            $article['primary_category_slug'] = $cats !== [] ? $cats[0]['slug'] : 'allgemein';
+            $articles[] = $article;
+        }
+
+        return ['articles' => $articles, 'total' => $total];
+    }
+
+    /**
+     * Find a single published article by namespace and slug.
+     *
+     * @return array|null
+     */
+    public function findMagazinArticle(string $namespace, string $articleSlug): ?array
+    {
+        $ns = $this->resolveNamespace($namespace);
+        $sql = 'SELECT ln.*, p.slug AS page_slug, p.title AS page_title'
+            . ' FROM landing_news ln JOIN pages p ON p.id = ln.page_id'
+            . ' WHERE p.namespace = :ns AND ln.slug = :slug AND ln.is_published = TRUE'
+            . ' LIMIT 1';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['ns' => $ns, 'slug' => strtolower(trim($articleSlug))]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!is_array($row)) {
+            return null;
+        }
+
+        $article = $this->hydrateToArray($row);
+        $article['categories'] = $this->getCategoriesForArticle((int) $row['id']);
+        $cats = $article['categories'];
+        $article['primary_category_slug'] = $cats !== [] ? $cats[0]['slug'] : 'allgemein';
+        $article['primary_category'] = $cats !== [] ? $cats[0] : null;
+
+        return $article;
+    }
+
+    /**
+     * Related articles from the same categories.
+     *
+     * @return list<array>
+     */
+    public function getRelatedArticles(int $articleId, string $namespace, int $limit = 3): array
+    {
+        $ns = $this->resolveNamespace($namespace);
+
+        $sql = 'SELECT DISTINCT ln.*, p.slug AS page_slug, p.title AS page_title'
+            . ' FROM landing_news ln'
+            . ' JOIN pages p ON p.id = ln.page_id'
+            . ' JOIN news_article_category nac ON nac.article_id = ln.id'
+            . ' WHERE p.namespace = :ns AND ln.is_published = TRUE AND ln.id != :articleId'
+            . ' AND nac.category_id IN ('
+            . '   SELECT category_id FROM news_article_category WHERE article_id = :articleId2'
+            . ' )'
+            . ' ORDER BY ln.published_at DESC, ln.id DESC'
+            . ' LIMIT :lim';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue('ns', $ns);
+        $stmt->bindValue('articleId', $articleId, PDO::PARAM_INT);
+        $stmt->bindValue('articleId2', $articleId, PDO::PARAM_INT);
+        $stmt->bindValue('lim', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $articles = [];
+        foreach ($rows as $row) {
+            $article = $this->hydrateToArray($row);
+            $article['categories'] = $this->getCategoriesForArticle((int) $row['id']);
+            $cats = $article['categories'];
+            $article['primary_category_slug'] = $cats !== [] ? $cats[0]['slug'] : 'allgemein';
+            $articles[] = $article;
+        }
+
+        return $articles;
+    }
+
+    /**
+     * All categories for a namespace, ordered by sort_order.
+     *
+     * @return list<array{id: int, slug: string, name: string, sort_order: int}>
+     */
+    public function getCategoriesForNamespace(string $namespace): array
+    {
+        $ns = $this->resolveNamespace($namespace);
+        $stmt = $this->pdo->prepare(
+            'SELECT id, slug, name, sort_order FROM news_categories'
+            . ' WHERE namespace = :ns ORDER BY sort_order, name'
+        );
+        $stmt->execute(['ns' => $ns]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    /**
+     * Categories assigned to a specific article.
+     *
+     * @return list<array{id: int, slug: string, name: string}>
+     */
+    public function getCategoriesForArticle(int $articleId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT nc.id, nc.slug, nc.name FROM news_categories nc'
+            . ' JOIN news_article_category nac ON nac.category_id = nc.id'
+            . ' WHERE nac.article_id = :articleId'
+            . ' ORDER BY nc.sort_order, nc.name'
+        );
+        $stmt->bindValue('articleId', $articleId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    /**
+     * Find a single category by namespace and slug.
+     *
+     * @return array{id: int, slug: string, name: string, sort_order: int}|null
+     */
+    public function getCategoryBySlug(string $namespace, string $slug): ?array
+    {
+        $ns = $this->resolveNamespace($namespace);
+        $stmt = $this->pdo->prepare(
+            'SELECT id, slug, name, sort_order FROM news_categories'
+            . ' WHERE namespace = :ns AND slug = :slug LIMIT 1'
+        );
+        $stmt->execute(['ns' => $ns, 'slug' => strtolower(trim($slug))]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return is_array($row) ? $row : null;
+    }
+
+    private function resolveNamespace(string $namespace): string
+    {
+        $ns = strtolower(trim($namespace));
+
+        return $ns !== '' ? $ns : PageService::DEFAULT_NAMESPACE;
+    }
+
+    /**
+     * Hydrate a row to an associative array (for magazin endpoints).
+     */
+    private function hydrateToArray(array $row): array
+    {
+        return [
+            'id' => (int) $row['id'],
+            'page_id' => (int) $row['page_id'],
+            'page_slug' => (string) $row['page_slug'],
+            'slug' => (string) $row['slug'],
+            'title' => (string) $row['title'],
+            'excerpt' => $row['excerpt'] !== null ? (string) $row['excerpt'] : null,
+            'image_url' => isset($row['image_url']) ? (string) $row['image_url'] : null,
+            'content' => (string) $row['content'],
+            'published_at' => isset($row['published_at']) && $row['published_at'] !== ''
+                ? new DateTimeImmutable((string) $row['published_at'])
+                : null,
+            'is_published' => (bool) $row['is_published'],
+        ];
+    }
+
     private function baseSelect(string $suffix): string
     {
         return 'SELECT ln.*, p.slug AS page_slug, p.title AS page_title FROM landing_news ln '
