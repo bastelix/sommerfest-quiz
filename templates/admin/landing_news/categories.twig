@@ -1,0 +1,153 @@
+{% extends 'admin/base.twig' %}
+
+{% set adminLayout = 'narrow' %}
+{% set pageNamespace = pageNamespace|default('') %}
+{% set namespaceQuery = pageNamespace is not empty ? '?namespace=' ~ pageNamespace|url_encode : '' %}
+
+{% block title %}News-Kategorien{% endblock %}
+
+{% block content %}
+  <div class="uk-container uk-container-large">
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-padding-small uk-padding-remove-horizontal">
+      <h1 class="uk-heading-bullet uk-margin-remove">News-Kategorien</h1>
+      <div>
+        <a class="uk-button uk-button-default uk-margin-small-right" href="{{ basePath }}/admin/landing-news{{ namespaceQuery }}">Zurück zu News</a>
+        <button class="uk-button uk-button-primary" type="button" uk-toggle="target: #categoryCreateModal">Kategorie anlegen</button>
+      </div>
+    </div>
+  </div>
+  <div class="uk-container uk-container-large">
+    {% if catStatus == 'cat_created' %}
+      <div class="uk-alert-success" uk-alert>Kategorie wurde erstellt.</div>
+    {% elseif catStatus == 'cat_updated' %}
+      <div class="uk-alert-success" uk-alert>Kategorie wurde aktualisiert.</div>
+    {% elseif catStatus == 'cat_deleted' %}
+      <div class="uk-alert-success" uk-alert>Kategorie wurde gelöscht.</div>
+    {% elseif catStatus == 'cat_error' %}
+      <div class="uk-alert-danger" uk-alert>Fehler beim Speichern der Kategorie.</div>
+    {% endif %}
+
+    <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+      <div class="uk-grid-small uk-flex-middle" uk-grid>
+        <div class="uk-width-1-1 uk-width-expand@m">
+          {% include 'admin/partials/namespace_select.twig' with {
+            activeNamespace: pageNamespace,
+            namespaceOptions: available_namespaces|default([])
+          } only %}
+        </div>
+      </div>
+    </div>
+
+    <div class="uk-overflow-auto uk-margin-top">
+      <table class="uk-table uk-table-divider uk-table-striped">
+        <thead>
+          <tr>
+            <th style="width:60px;">Pos.</th>
+            <th>Name</th>
+            <th>Slug</th>
+            <th style="width:160px;">Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cat in categories %}
+            <tr>
+              <td>{{ cat.sort_order }}</td>
+              <td>{{ cat.name }}</td>
+              <td><code>{{ cat.slug }}</code></td>
+              <td class="uk-table-shrink">
+                <button type="button" class="uk-button uk-button-default uk-button-small"
+                  uk-toggle="target: #categoryEditModal-{{ cat.id }}">
+                  Bearbeiten
+                </button>
+                <form method="post" action="{{ basePath }}/admin/landing-news/categories/{{ cat.id }}/delete{{ namespaceQuery }}" style="display:inline;"
+                  onsubmit="return confirm('Kategorie &quot;{{ cat.name|e('js') }}&quot; wirklich löschen? Zuweisungen zu Artikeln werden entfernt.');">
+                  <input type="hidden" name="_token" value="{{ csrfToken }}">
+                  <button type="submit" class="uk-button uk-button-danger uk-button-small">Löschen</button>
+                </form>
+              </td>
+            </tr>
+
+            {# ── Edit modal for this category ── #}
+            <div id="categoryEditModal-{{ cat.id }}" uk-modal>
+              <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header"><h2 class="uk-modal-title">Kategorie bearbeiten</h2></div>
+                <form method="post" action="{{ basePath }}/admin/landing-news/categories/{{ cat.id }}{{ namespaceQuery }}" class="uk-form-stacked">
+                  <div class="uk-modal-body">
+                    <input type="hidden" name="_token" value="{{ csrfToken }}">
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="editCatName-{{ cat.id }}">Name</label>
+                      <div class="uk-form-controls">
+                        <input id="editCatName-{{ cat.id }}" class="uk-input" type="text" name="name" value="{{ cat.name|e }}" required>
+                      </div>
+                    </div>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="editCatSlug-{{ cat.id }}">Slug</label>
+                      <div class="uk-form-controls">
+                        <input id="editCatSlug-{{ cat.id }}" class="uk-input" type="text" name="slug" value="{{ cat.slug|e }}" required pattern="[a-z0-9\-]+">
+                      </div>
+                    </div>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="editCatSort-{{ cat.id }}">Sortierung</label>
+                      <div class="uk-form-controls">
+                        <input id="editCatSort-{{ cat.id }}" class="uk-input" type="number" name="sort_order" value="{{ cat.sort_order }}" min="0">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+                    <button class="uk-button uk-button-primary" type="submit">Speichern</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          {% else %}
+            <tr>
+              <td colspan="4" class="uk-text-center uk-text-muted">Keine Kategorien vorhanden.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {# ── Create modal ───────────────────────────────────── #}
+  <div id="categoryCreateModal" uk-modal>
+    <div class="uk-modal-dialog">
+      <button class="uk-modal-close-default" type="button" uk-close></button>
+      <div class="uk-modal-header"><h2 class="uk-modal-title">Neue Kategorie</h2></div>
+      <form method="post" action="{{ basePath }}/admin/landing-news/categories{{ namespaceQuery }}" class="uk-form-stacked">
+        <div class="uk-modal-body">
+          <input type="hidden" name="_token" value="{{ csrfToken }}">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="newCatName">Name</label>
+            <div class="uk-form-controls">
+              <input id="newCatName" class="uk-input" type="text" name="name" required placeholder="z.B. Ratgeber">
+            </div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="newCatSlug">Slug <span class="uk-text-meta">(optional, wird aus Name erzeugt)</span></label>
+            <div class="uk-form-controls">
+              <input id="newCatSlug" class="uk-input" type="text" name="slug" pattern="[a-z0-9\-]*" placeholder="ratgeber">
+            </div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="newCatSort">Sortierung</label>
+            <div class="uk-form-controls">
+              <input id="newCatSort" class="uk-input" type="number" name="sort_order" value="0" min="0">
+            </div>
+          </div>
+        </div>
+        <div class="uk-modal-footer uk-text-right">
+          <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+          <button class="uk-button uk-button-primary" type="submit">Erstellen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/storage.js"></script>
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+{% endblock %}

@@ -577,6 +577,56 @@ SQL;
     }
 
     /**
+     * Update a category.
+     *
+     * @return array{id: int, slug: string, name: string, sort_order: int}
+     */
+    public function updateCategory(int $id, string $slug, string $name, int $sortOrder = 0): array
+    {
+        $normalizedSlug = $this->normalizeSlug($slug);
+        $normalizedName = trim($name);
+        if ($normalizedName === '') {
+            throw new InvalidArgumentException('Category name is required.');
+        }
+
+        $stmt = $this->pdo->prepare(
+            'UPDATE news_categories SET slug = :slug, name = :name, sort_order = :sortOrder WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'slug' => $normalizedSlug,
+            'name' => $normalizedName,
+            'sortOrder' => $sortOrder,
+        ]);
+
+        $stmt = $this->pdo->prepare('SELECT id, slug, name, sort_order FROM news_categories WHERE id = :id');
+        $stmt->bindValue('id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!is_array($row)) {
+            throw new InvalidArgumentException('Category not found.');
+        }
+
+        return $row;
+    }
+
+    /**
+     * Find a category by ID.
+     *
+     * @return array{id: int, namespace: string, slug: string, name: string, sort_order: int}|null
+     */
+    public function findCategory(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT id, namespace, slug, name, sort_order FROM news_categories WHERE id = :id');
+        $stmt->bindValue('id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return is_array($row) ? $row : null;
+    }
+
+    /**
      * Assign a category to an article.
      */
     public function assignCategory(int $articleId, int $categoryId): void

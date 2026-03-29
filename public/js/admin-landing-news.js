@@ -360,6 +360,219 @@ function initAutoSlugOnSubmit() {
   });
 }
 
+// ── Media picker ─────────────────────────────────────────────────────────
+
+function initMediaPicker() {
+  const imageInput = document.getElementById('newsImageUrl');
+  const selectBtn = document.getElementById('newsMediaSelect');
+  const uploadInput = document.getElementById('newsMediaUpload');
+  const removeBtn = document.getElementById('newsImageRemove');
+  const previewWrap = document.getElementById('newsImagePreview');
+  const previewImg = document.getElementById('newsImagePreviewImg');
+  const modalEl = document.getElementById('newsMediaModal');
+
+  if (!imageInput || !modalEl) return;
+
+  const form = document.querySelector('form[data-is-edit]');
+  const basePath = form?.dataset.basePath || window.basePath || '';
+  const namespace = form?.dataset.namespace || '';
+  const apiFetch = window.apiFetch || ((path, opts) => fetch(basePath + path, opts));
+
+  const gridEl = modalEl.querySelector('[data-role="media-grid"]');
+  const emptyEl = modalEl.querySelector('[data-role="media-empty"]');
+  const loadingEl = modalEl.querySelector('[data-role="media-loading"]');
+  const searchInput = modalEl.querySelector('[data-role="media-search"]');
+  const scopeSelect = modalEl.querySelector('[data-role="media-scope"]');
+
+  const modal = typeof UIkit !== 'undefined' ? UIkit.modal(modalEl) : null;
+  let searchTimer;
+
+  // ── Preview helpers ──
+
+  function updatePreview(url) {
+    if (previewWrap && previewImg) {
+      if (url) {
+        previewImg.src = url;
+        previewWrap.style.display = '';
+      } else {
+        previewImg.src = '';
+        previewWrap.style.display = 'none';
+      }
+    }
+  }
+
+  imageInput.addEventListener('input', () => updatePreview(imageInput.value));
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', () => {
+      imageInput.value = '';
+      updatePreview('');
+    });
+  }
+
+  // ── Select from value ──
+
+  function selectImage(path) {
+    imageInput.value = path;
+    updatePreview(path);
+    if (modal) modal.hide();
+  }
+
+  // ── Render media grid ──
+
+  function isImage(name) {
+    return /\.(png|jpe?g|webp|svg|gif)$/i.test(name);
+  }
+
+  function renderGrid(files) {
+    if (!gridEl) return;
+    gridEl.innerHTML = '';
+
+    const images = (Array.isArray(files) ? files : []).filter(f => isImage(f.name || f.path || ''));
+
+    if (images.length === 0) {
+      if (emptyEl) emptyEl.hidden = false;
+      return;
+    }
+    if (emptyEl) emptyEl.hidden = true;
+
+    images.forEach(file => {
+      const path = file.path || file.url || '';
+      const name = file.name || path.split('/').pop();
+
+      const col = document.createElement('div');
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'uk-card uk-card-default uk-card-small uk-card-hover uk-padding-small uk-width-1-1';
+      card.style.cssText = 'cursor:pointer; border:none; text-align:center;';
+      card.dataset.path = path;
+
+      const img = document.createElement('img');
+      img.src = basePath + path;
+      img.alt = name;
+      img.style.cssText = 'max-height:80px; max-width:100%; object-fit:contain; display:block; margin:0 auto 4px;';
+      img.loading = 'lazy';
+
+      const label = document.createElement('div');
+      label.className = 'uk-text-truncate uk-text-small';
+      label.textContent = name;
+
+      card.append(img, label);
+      col.append(card);
+      gridEl.append(col);
+    });
+  }
+
+  // ── Load media from API ──
+
+  async function loadMedia(search = '') {
+    if (!gridEl) return;
+    if (loadingEl) loadingEl.hidden = false;
+    if (emptyEl) emptyEl.hidden = true;
+    gridEl.innerHTML = '';
+
+    const scope = scopeSelect ? scopeSelect.value : 'project';
+    const params = new URLSearchParams({ scope, perPage: '200' });
+    if (namespace && scope === 'project') params.set('namespace', namespace);
+    if (search) params.set('search', search);
+
+    try {
+      const res = await apiFetch(`/admin/media/files?${params}`, {
+        headers: { Accept: 'application/json' }
+      });
+      if (!res.ok) throw new Error('load failed');
+      const data = await res.json().catch(() => ({}));
+      renderGrid(Array.isArray(data.files) ? data.files : []);
+    } catch (err) {
+      console.error('Media load error:', err);
+      renderGrid([]);
+    } finally {
+      if (loadingEl) loadingEl.hidden = true;
+    }
+  }
+
+  // ── Grid click → select ──
+
+  if (gridEl) {
+    gridEl.addEventListener('click', e => {
+      const card = e.target.closest('button[data-path]');
+      if (card) selectImage(card.dataset.path);
+    });
+  }
+
+  // ── Search with debounce ──
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => loadMedia(searchInput.value.trim()), 250);
+    });
+  }
+
+  // ── Scope change ──
+
+  if (scopeSelect) {
+    scopeSelect.addEventListener('change', () => {
+      const search = searchInput ? searchInput.value.trim() : '';
+      loadMedia(search);
+    });
+  }
+
+  // ── Open modal ──
+
+  if (selectBtn) {
+    selectBtn.addEventListener('click', () => {
+      if (modal) {
+        if (searchInput) searchInput.value = '';
+        loadMedia('');
+        modal.show();
+      }
+    });
+  }
+
+  // ── Direct upload ──
+
+  if (uploadInput) {
+    uploadInput.addEventListener('change', async () => {
+      const file = uploadInput.files?.[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('scope', 'project');
+      if (namespace) formData.append('namespace', namespace);
+
+      // Add CSRF token
+      const token = document.querySelector('meta[name="csrf-token"]')?.content
+        || document.querySelector('input[name="_token"]')?.value
+        || window.csrfToken || '';
+      if (token) formData.append('_token', token);
+
+      try {
+        const res = await apiFetch('/admin/media/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Upload fehlgeschlagen');
+        }
+        const data = await res.json().catch(() => ({}));
+        const path = data.path || data.url || '';
+        if (path) {
+          selectImage(path);
+        }
+      } catch (err) {
+        console.error('Upload error:', err);
+        const notify = typeof window.notify === 'function' ? window.notify : msg => window.alert(msg);
+        notify(err.message || 'Upload fehlgeschlagen', 'danger');
+      } finally {
+        uploadInput.value = '';
+      }
+    });
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────
 
 initSlugSuggestion();
@@ -367,3 +580,4 @@ initContentEditor();
 initAdvancedToggle();
 initAutoPublishDate();
 initAutoSlugOnSubmit();
+initMediaPicker();

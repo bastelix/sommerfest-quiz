@@ -188,6 +188,130 @@ class LandingNewsController
         return $this->redirectToPages($request, $response, 'deleted');
     }
 
+    // ── Category management ──────────────────────────────────────────────
+
+    public function categories(Request $request, Response $response): Response
+    {
+        $view = Twig::fromRequest($request);
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $categories = $this->news->getCategoriesForNamespace($namespace);
+        $params = $request->getQueryParams();
+        $catStatus = isset($params['cat_status']) ? (string) $params['cat_status'] : '';
+
+        return $view->render($response, 'admin/landing_news/categories.twig', [
+            'categories' => $categories,
+            'catStatus' => $catStatus,
+            'csrfToken' => $this->ensureCsrfToken(),
+            'role' => $_SESSION['user']['role'] ?? '',
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
+            'pageNamespace' => $namespace,
+            'available_namespaces' => $availableNamespaces,
+            'pageTab' => 'landing-news',
+        ]);
+    }
+
+    public function storeCategory(Request $request, Response $response): Response
+    {
+        $data = $request->getParsedBody();
+        if (!is_array($data)) {
+            $data = [];
+        }
+
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $name = isset($data['name']) ? trim((string) $data['name']) : '';
+        $slug = isset($data['slug']) ? trim((string) $data['slug']) : '';
+        $sortOrder = isset($data['sort_order']) ? (int) $data['sort_order'] : 0;
+
+        if ($slug === '' && $name !== '') {
+            $slug = $this->generateSlug($name);
+        }
+
+        try {
+            $this->news->createCategory($namespace, $slug, $name, $sortOrder);
+        } catch (Throwable $exception) {
+            return $this->redirectToCategories($request, $response, 'cat_error');
+        }
+
+        return $this->redirectToCategories($request, $response, 'cat_created');
+    }
+
+    public function updateCategory(Request $request, Response $response, array $args): Response
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        $category = $id > 0 ? $this->news->findCategory($id) : null;
+        if ($category === null) {
+            return $response->withStatus(404);
+        }
+
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        if ($category['namespace'] !== $namespace) {
+            return $response->withStatus(404);
+        }
+
+        $data = $request->getParsedBody();
+        if (!is_array($data)) {
+            $data = [];
+        }
+
+        $name = isset($data['name']) ? trim((string) $data['name']) : '';
+        $slug = isset($data['slug']) ? trim((string) $data['slug']) : '';
+        $sortOrder = isset($data['sort_order']) ? (int) $data['sort_order'] : 0;
+
+        if ($slug === '' && $name !== '') {
+            $slug = $this->generateSlug($name);
+        }
+
+        try {
+            $this->news->updateCategory($id, $slug, $name, $sortOrder);
+        } catch (Throwable $exception) {
+            return $this->redirectToCategories($request, $response, 'cat_error');
+        }
+
+        return $this->redirectToCategories($request, $response, 'cat_updated');
+    }
+
+    public function deleteCategory(Request $request, Response $response, array $args): Response
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        $category = $id > 0 ? $this->news->findCategory($id) : null;
+        if ($category !== null) {
+            [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+            if ($category['namespace'] === $namespace) {
+                $this->news->deleteCategory($id);
+            }
+        }
+
+        return $this->redirectToCategories($request, $response, 'cat_deleted');
+    }
+
+    private function redirectToCategories(Request $request, Response $response, ?string $status = null): Response
+    {
+        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $query = [];
+        if ($namespace !== '') {
+            $query['namespace'] = $namespace;
+        }
+        if ($status !== null && $status !== '') {
+            $query['cat_status'] = $status;
+        }
+        $qs = http_build_query($query);
+
+        return $response
+            ->withHeader('Location', $basePath . '/admin/landing-news/categories' . ($qs !== '' ? '?' . $qs : ''))
+            ->withStatus(303);
+    }
+
+    private function generateSlug(string $text): string
+    {
+        $slug = mb_strtolower($text);
+        $slug = str_replace(['ä', 'ö', 'ü', 'ß'], ['ae', 'oe', 'ue', 'ss'], $slug);
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+
+        return trim($slug, '-');
+    }
+
     private function renderForm(
         Request $request,
         Response $response,

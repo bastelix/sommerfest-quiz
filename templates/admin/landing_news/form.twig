@@ -25,7 +25,7 @@
     </div>
   </div>
   <div class="uk-container uk-container-expand">
-    <form method="post" action="{{ formAction }}" class="uk-form-stacked uk-grid-small" uk-grid data-is-edit="{{ isEdit ? 'true' : 'false' }}">
+    <form method="post" action="{{ formAction }}" class="uk-form-stacked uk-grid-small" uk-grid data-is-edit="{{ isEdit ? 'true' : 'false' }}" data-namespace="{{ pageNamespace|e }}" data-base-path="{{ basePath|e }}">
       <input type="hidden" name="_token" value="{{ csrfToken }}">
 
       {# ── Primary: Title + Content ─────────────────────────── #}
@@ -113,19 +113,24 @@
             <div class="uk-text-meta uk-margin-small-top">Wenn leer, wird der Anfang des Inhalts als Vorschautext verwendet.</div>
           </div>
           <div class="uk-width-1-1">
-            <label class="uk-form-label" for="newsImageUrl">Bild-URL <span class="uk-text-meta">(optional)</span></label>
+            <label class="uk-form-label" for="newsImageUrl">Beitragsbild <span class="uk-text-meta">(optional)</span></label>
             <div class="uk-form-controls">
-              <input id="newsImageUrl" class="uk-input" type="url" name="image_url" value="{{ imageUrl|e }}" placeholder="https://...">
-              <div class="uk-text-meta uk-margin-small-top">
-                URL aus der
-                <a href="{{ basePath }}/admin/media{% if pageNamespace is not empty %}?namespace={{ pageNamespace|url_encode }}{% endif %}" target="_blank">Medienbibliothek ({{ pageNamespace ?: 'Standard' }})</a>
-                oder externen Quelle eintragen.
+              <div class="uk-flex uk-flex-middle uk-flex-wrap" style="gap: 0.5rem;">
+                <input id="newsImageUrl" class="uk-input uk-flex-auto" type="text" name="image_url" value="{{ imageUrl|e }}" placeholder="Bild aus Medienbibliothek wählen oder URL eingeben">
+                <button type="button" id="newsMediaSelect" class="uk-button uk-button-default uk-button-small uk-text-nowrap">
+                  Aus Medienbibliothek
+                </button>
+                <label class="uk-button uk-button-default uk-button-small uk-text-nowrap" style="margin: 0;">
+                  Hochladen
+                  <input type="file" id="newsMediaUpload" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+                </label>
               </div>
-              {% if imageUrl %}
-                <div class="uk-margin-small-top">
-                  <img src="{{ imageUrl|e }}" alt="Vorschau" style="max-height: 120px; max-width: 100%; border-radius: 4px;">
+              <div id="newsImagePreview" class="uk-margin-small-top" {% if not imageUrl %}style="display:none;"{% endif %}>
+                <div class="uk-inline uk-width-1-1">
+                  <img id="newsImagePreviewImg" src="{{ imageUrl|e }}" alt="Vorschau" style="max-height: 160px; max-width: 100%; border-radius: 4px; display: block;">
+                  <button type="button" id="newsImageRemove" class="uk-position-top-right uk-button uk-button-danger uk-button-small" style="margin: 4px;" title="Bild entfernen">&times;</button>
                 </div>
-              {% endif %}
+              </div>
             </div>
           </div>
         </div>
@@ -142,6 +147,30 @@
         </div>
       {% endif %}
     </form>
+
+    {# ── Media picker modal ──────────────────────────────── #}
+    <div id="newsMediaModal" class="uk-modal" uk-modal>
+      <div class="uk-modal-dialog" style="width: 720px;">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+          <h2 class="uk-modal-title">Bild aus Medienbibliothek wählen</h2>
+        </div>
+        <div class="uk-modal-body">
+          <div class="uk-margin-small-bottom uk-flex uk-flex-middle" style="gap: 0.5rem;">
+            <input class="uk-input uk-flex-auto" type="search" placeholder="Suchen..." data-role="media-search">
+            <select class="uk-select" style="width: auto;" data-role="media-scope">
+              <option value="project">{{ pageNamespace ?: 'Projekt' }}</option>
+              <option value="global">Global</option>
+            </select>
+          </div>
+          <div class="uk-overflow-auto" style="max-height: 400px;">
+            <div class="uk-grid-small uk-child-width-1-4@m uk-child-width-1-3 uk-text-center" uk-grid data-role="media-grid"></div>
+          </div>
+          <p class="uk-text-meta uk-text-center" data-role="media-empty" hidden>Keine Medien gefunden.</p>
+          <p class="uk-text-center" data-role="media-loading" hidden>Lade Medien...</p>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock %}
 
