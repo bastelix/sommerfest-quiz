@@ -21,6 +21,7 @@ use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\ProjectSettingsService;
 use App\Service\NamespaceSubscriptionService;
+use App\Service\StripeService;
 use App\Service\EventService;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
@@ -509,7 +510,10 @@ class PageController
             'pricingTableId' => $this->resolvePricingTableId($pageNamespace),
             'stripePublishableKey' => $this->resolveStripePublishableKey(),
             'checkoutApp' => $this->resolveCheckoutApp($pageNamespace),
-            'subscriptionPlans' => $marketingPayload['featureData']['subscriptionPlans'] ?? [],
+            'subscriptionPlans' => $this->resolveSubscriptionPlans(
+                $pageNamespace,
+                $marketingPayload['featureData']['subscriptionPlans'] ?? []
+            ),
         ];
 
         return $view->render($response, 'pages/render.twig', $data);
@@ -1702,6 +1706,55 @@ class PageController
             return (string) ($project['product'] ?? '');
         } catch (\Throwable) {
             return '';
+        }
+    }
+
+    /**
+     * Return subscription plans for the auth-gated checkout flow.
+     *
+     * If CMS blocks already provided plans, use those. Otherwise load plans
+     * from Stripe when an auth-gated checkoutApp is configured.
+     *
+     * @param list<array<string,mixed>> $existingPlans
+     * @return list<array<string,mixed>>
+     */
+    private function resolveSubscriptionPlans(string $namespace, array $existingPlans): array
+    {
+        if ($existingPlans !== []) {
+            return $existingPlans;
+        }
+
+        $app = $this->resolveCheckoutApp($namespace);
+        if ($app === '') {
+            return [];
+        }
+
+        try {
+            $stripeSvc = StripeService::forNamespace(
+                (new NamespaceSubscriptionService($this->pdo))->findBySlug($namespace) ?? []
+            );
+            $plans = $stripeSvc->listProducts();
+            usort($plans, fn(array $a, array $b) => ($a['sort_order'] ?? 99) <=> ($b['sort_order'] ?? 99));
+
+            return array_map(function (array $p): array {
+                $cents = (int) ($p['price'] ?? 0);
+                $currency = strtoupper((string) ($p['currency'] ?? 'EUR'));
+                $formatted = number_format($cents / 100, 2, ',', '.') . ' ' . $currency;
+
+                return [
+                    'plan_key' => $p['plan_key'] ?? '',
+                    'name' => $p['name'] ?? '',
+                    'price_label' => $formatted . ' / ' . ($p['interval'] ?? 'month'),
+                    'price' => $cents,
+                    'currency' => $currency,
+                    'interval' => $p['interval'] ?? 'month',
+                    'features' => $p['features'] ?? [],
+                    'highlighted' => $p['highlighted'] ?? false,
+                    'trial_days' => $p['trial_days'] ?? 0,
+                ];
+            }, $plans);
+        } catch (\Throwable) {
+            return [];
         }
     }
 }
