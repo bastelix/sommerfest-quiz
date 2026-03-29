@@ -63,12 +63,26 @@ class AccountEmailController
 
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $manager = $request->getAttribute('mailProviderManager');
-        if (!$manager instanceof MailProviderManager) {
-            // Use the tenant-schema PDO (where mail settings are stored),
-            // not connectFromEnv() which returns the public schema.
+
+        // Fallback chain: request attribute → tenant schema → main domain schema.
+        // Mail settings may only exist in the main domain's schema (edocs), not
+        // in the product domain's schema (eforms, quizrace, etc.).
+        if (!$manager instanceof MailProviderManager || !$manager->isConfigured()) {
             $tenantPdo = RequestDatabase::resolve($request);
             $repo = new MailProviderRepository($tenantPdo);
             $manager = new MailProviderManager(new SettingsService($tenantPdo), [], $repo, $namespace);
+        }
+
+        if (!$manager->isConfigured()) {
+            $mainDomain = (string) (getenv('MAIN_DOMAIN') ?: '');
+            $mainSchema = $mainDomain !== '' ? explode('.', $mainDomain)[0] : 'public';
+            try {
+                $mainPdo = Database::connectWithSchema($mainSchema);
+                $mainRepo = new MailProviderRepository($mainPdo);
+                $manager = new MailProviderManager(new SettingsService($mainPdo), [], $mainRepo, $mainSchema);
+            } catch (\Throwable) {
+                // Last resort — will fail with "not configured" below
+            }
         }
 
         $mailer = $request->getAttribute('mailService');
