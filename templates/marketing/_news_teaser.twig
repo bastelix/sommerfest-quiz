@@ -18,7 +18,7 @@
   {% endif %}
   <h3 class="landing-news-card__title">
     {% if linkHref %}
-      <a href="{{ linkHref }}">{{ entry.title|replace({': ': ':\u00AD '}) }}</a>
+      <a href="{{ linkHref }}">{{ entry.title|replace({': ': ': <wbr>'})|raw }}</a>
     {% else %}
       {{ entry.title }}
     {% endif %}
