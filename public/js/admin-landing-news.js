@@ -302,7 +302,68 @@ function initContentEditor() {
   });
 }
 
+// ── Advanced options toggle ───────────────────────────────────────────────
+
+function initAdvancedToggle() {
+  const toggleBtn = document.getElementById('toggleAdvanced');
+  const panel = document.getElementById('advancedOptions');
+  const icon = document.getElementById('toggleAdvancedIcon');
+
+  if (!toggleBtn || !panel) return;
+
+  function updateIcon() {
+    if (icon) {
+      icon.textContent = panel.style.display === 'none' ? '\u25B6' : '\u25BC';
+    }
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    panel.style.display = panel.style.display === 'none' ? '' : 'none';
+    updateIcon();
+  });
+
+  updateIcon();
+}
+
+// ── Auto-fill published_at on publish toggle ─────────────────────────────
+
+function initAutoPublishDate() {
+  const checkbox = document.getElementById('newsIsPublished');
+  const dateInput = document.getElementById('newsPublishedAt');
+
+  if (!checkbox || !dateInput) return;
+
+  checkbox.addEventListener('change', () => {
+    if (checkbox.checked && !dateInput.value) {
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      dateInput.value =
+        now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
+        'T' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+    }
+  });
+}
+
+// ── Auto-generate slug on submit if empty ────────────────────────────────
+
+function initAutoSlugOnSubmit() {
+  const form = document.querySelector('form[data-is-edit]');
+  const titleInput = document.getElementById('newsTitle');
+  const slugInput = document.getElementById('newsSlug');
+
+  if (!form || !titleInput || !slugInput) return;
+
+  form.addEventListener('submit', () => {
+    if (!slugInput.value.trim() && titleInput.value.trim()) {
+      slugInput.value = slugify(titleInput.value);
+    }
+  });
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────
 
 initSlugSuggestion();
 initContentEditor();
+initAdvancedToggle();
+initAutoPublishDate();
+initAutoSlugOnSubmit();
