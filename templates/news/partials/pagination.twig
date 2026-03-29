@@ -1,0 +1,19 @@
+<nav class="news-pagination" aria-label="Seitennavigation">
+  {% if currentPage > 1 %}
+    <a href="?page={{ currentPage - 1 }}" class="news-pagination__link">&laquo;</a>
+  {% endif %}
+
+  {% for p in 1..totalPages %}
+    {% if p == currentPage %}
+      <span class="news-pagination__link is-active">{{ p }}</span>
+    {% elseif p == 1 or p == totalPages or (p >= currentPage - 2 and p <= currentPage + 2) %}
+      <a href="?page={{ p }}" class="news-pagination__link">{{ p }}</a>
+    {% elseif p == currentPage - 3 or p == currentPage + 3 %}
+      <span class="news-pagination__ellipsis">...</span>
+    {% endif %}
+  {% endfor %}
+
+  {% if currentPage < totalPages %}
+    <a href="?page={{ currentPage + 1 }}" class="news-pagination__link">&raquo;</a>
+  {% endif %}
+</nav>

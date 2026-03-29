@@ -1,0 +1,45 @@
+<article class="article-card {% if featured|default(false) %}article-card--featured{% endif %}">
+  {% set articleUrl = basePath ~ '/magazin/' ~ article.primary_category_slug ~ '/' ~ article.slug %}
+
+  <a href="{{ articleUrl }}" class="article-card__image-link">
+    {% if article.image_url %}
+      <img
+        src="{{ article.image_url }}"
+        alt="{{ article.title|e('html_attr') }}"
+        class="article-card__image"
+        loading="lazy"
+      >
+    {% else %}
+      <div class="article-card__image-placeholder"></div>
+    {% endif %}
+  </a>
+
+  <div class="article-card__body">
+    <h3 class="article-card__title">
+      <a href="{{ articleUrl }}">{{ article.title }}</a>
+    </h3>
+
+    {% if article.excerpt %}
+      <p class="article-card__excerpt">{{ article.excerpt|striptags|length > 200 ? article.excerpt|striptags|slice(0, 200) ~ '...' : article.excerpt|striptags }}</p>
+    {% endif %}
+
+    <a href="{{ articleUrl }}" class="article-card__readmore">Weiterlesen</a>
+
+    <div class="article-card__meta">
+      {% if article.published_at %}
+        <time datetime="{{ article.published_at|date('Y-m-d') }}" class="article-card__date">
+          Veröffentlicht am {{ article.published_at|date('d.m.Y') }}
+        </time>
+      {% endif %}
+    </div>
+
+    {% if article.categories is defined and article.categories is not empty %}
+      <div class="article-card__tags">
+        {% for cat in article.categories %}
+          <a href="{{ basePath }}/magazin/{{ cat.slug }}" class="article-card__tag">{{ cat.name }}</a>
+          {%- if not loop.last %}, {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</article>

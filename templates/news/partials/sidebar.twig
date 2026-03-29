@@ -1,0 +1,36 @@
+<div class="news-sidebar">
+  <div class="news-sidebar__section">
+    <h4 class="news-sidebar__heading">Alle Themenbereiche</h4>
+    <ul class="news-sidebar__categories">
+      <li>
+        <a href="{{ basePath }}/magazin"
+           class="{% if not currentCategory %}is-active{% endif %}">
+          Alle Artikel anzeigen
+        </a>
+      </li>
+      {% for cat in categories %}
+        <li>
+          <a href="{{ basePath }}/magazin/{{ cat.slug }}"
+             class="{% if currentCategory is defined and currentCategory and currentCategory.slug == cat.slug %}is-active{% endif %}">
+            {{ cat.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="news-sidebar__section">
+    <h4 class="news-sidebar__heading">Suchfunktion</h4>
+    <form action="{{ basePath }}/magazin" method="get" class="news-sidebar__search">
+      <input type="text" name="q" placeholder="Artikel suchen..."
+             value="{{ searchQuery|default('') }}" class="news-sidebar__search-input">
+      <button type="submit" class="news-sidebar__search-btn">Suchen</button>
+    </form>
+  </div>
+
+  {% if sidebarCta is defined and sidebarCta %}
+    <div class="news-sidebar__section news-sidebar__cta">
+      {{ sidebarCta|raw }}
+    </div>
+  {% endif %}
+</div>
