@@ -1,0 +1,31 @@
+{% extends 'layouts/cms_base.twig' %}
+
+{% block title %}Ticket eingereicht{% endblock %}
+
+{% block head %}
+  {{ parent() }}
+  <style>
+    .ticket-confirm-container {
+      max-width: 640px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .ticket-confirm-container .uk-card { padding: 2rem; }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="ticket-confirm-container">
+    <div class="uk-card uk-card-default uk-card-body uk-text-center">
+      <span uk-icon="icon: check; ratio: 3" class="uk-text-success"></span>
+      <h1 class="uk-card-title uk-margin-small-top">Ticket eingereicht</h1>
+      <p>Vielen Dank! Ihr Ticket wurde erfolgreich erstellt.</p>
+      {% if ticketId > 0 %}
+        <p class="uk-text-meta">Ticket-Referenz: <strong>#{{ ticketId }}</strong></p>
+      {% endif %}
+      <div class="uk-margin-medium-top">
+        <a href="{{ basePath }}/tickets/submit" class="uk-button uk-button-default">Weiteres Ticket einreichen</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

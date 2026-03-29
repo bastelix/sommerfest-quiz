@@ -1,0 +1,175 @@
+{% extends 'admin/base.twig' %}
+
+{% set adminLayout = 'wide' %}
+{% set activePageNamespace = pageNamespace|default('default') %}
+{% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
+
+{% block title %}Tickets{% endblock %}
+
+{% block content %}
+  <div class="uk-container uk-container-large">
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-padding-small uk-padding-remove-horizontal">
+      <h1 class="uk-heading-bullet uk-margin-remove">Tickets</h1>
+      <div>
+        <a class="uk-button uk-button-default uk-margin-small-right" href="{{ basePath }}/admin/tickets/settings{{ pageNamespaceQuery }}">
+          <span uk-icon="icon: cog; ratio: 0.8"></span> Einstellungen
+        </a>
+        <a class="uk-button uk-button-primary" href="{{ basePath }}/admin/tickets/create{{ pageNamespaceQuery }}">
+          <span uk-icon="icon: plus; ratio: 0.8"></span> Neues Ticket
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="uk-container uk-container-expand">
+    <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+      <div class="uk-grid-small uk-flex-middle" uk-grid>
+        <div class="uk-width-1-1 uk-width-expand@m">
+          {% include 'admin/partials/namespace_select.twig' with {
+            activeNamespace: activePageNamespace,
+            namespaceOptions: available_namespaces|default([])
+          } only %}
+        </div>
+      </div>
+    </div>
+
+    {# ── Status messages ──────────────────────────────────────── #}
+    {% if status == 'created' %}
+      <div class="uk-alert-success" uk-alert><a class="uk-alert-close" uk-close></a>Ticket wurde erstellt.</div>
+    {% elseif status == 'updated' %}
+      <div class="uk-alert-success" uk-alert><a class="uk-alert-close" uk-close></a>Ticket wurde aktualisiert.</div>
+    {% elseif status == 'deleted' %}
+      <div class="uk-alert-success" uk-alert><a class="uk-alert-close" uk-close></a>Ticket wurde gelöscht.</div>
+    {% elseif status == 'settings_saved' %}
+      <div class="uk-alert-success" uk-alert><a class="uk-alert-close" uk-close></a>Einstellungen wurden gespeichert.</div>
+    {% endif %}
+
+    {# ── Filter bar ───────────────────────────────────────────── #}
+    <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+      <form method="get" action="{{ basePath }}/admin/tickets" class="uk-grid-small uk-flex-middle" uk-grid>
+        <input type="hidden" name="namespace" value="{{ activePageNamespace }}">
+        <div class="uk-width-1-4@m">
+          <select name="filterStatus" class="uk-select uk-form-small">
+            <option value="">Alle Status</option>
+            {% for s in ['open', 'in_progress', 'resolved', 'closed'] %}
+              <option value="{{ s }}" {% if filters.status|default('') == s %}selected{% endif %}>
+                {% if s == 'open' %}Offen{% elseif s == 'in_progress' %}In Bearbeitung{% elseif s == 'resolved' %}Gelöst{% else %}Geschlossen{% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="uk-width-1-4@m">
+          <select name="filterPriority" class="uk-select uk-form-small">
+            <option value="">Alle Prioritäten</option>
+            {% for p in ['low', 'normal', 'high', 'critical'] %}
+              <option value="{{ p }}" {% if filters.priority|default('') == p %}selected{% endif %}>
+                {% if p == 'low' %}Niedrig{% elseif p == 'normal' %}Normal{% elseif p == 'high' %}Hoch{% else %}Kritisch{% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="uk-width-1-4@m">
+          <select name="filterType" class="uk-select uk-form-small">
+            <option value="">Alle Typen</option>
+            {% for t in ['bug', 'task', 'review', 'improvement'] %}
+              <option value="{{ t }}" {% if filters.type|default('') == t %}selected{% endif %}>
+                {% if t == 'bug' %}Bug{% elseif t == 'task' %}Aufgabe{% elseif t == 'review' %}Review{% else %}Verbesserung{% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="uk-width-auto">
+          <button type="submit" class="uk-button uk-button-default uk-button-small">Filtern</button>
+          <a href="{{ basePath }}/admin/tickets{{ pageNamespaceQuery }}" class="uk-button uk-button-text uk-button-small uk-margin-small-left">Zurücksetzen</a>
+        </div>
+      </form>
+    </div>
+
+    {# ── Ticket table ─────────────────────────────────────────── #}
+    <div class="uk-overflow-auto uk-margin-top admin-table-wrapper">
+      <table class="uk-table uk-table-divider uk-table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Titel</th>
+            <th>Status</th>
+            <th>Priorität</th>
+            <th>Typ</th>
+            <th>Zugewiesen</th>
+            <th>Erstellt</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in entries %}
+            <tr>
+              <td class="uk-text-muted">#{{ ticket.id }}</td>
+              <td>
+                <a href="{{ basePath }}/admin/tickets/{{ ticket.id }}{{ pageNamespaceQuery }}">{{ ticket.title }}</a>
+              </td>
+              <td>
+                {% if ticket.status == 'open' %}
+                  <span class="uk-label">Offen</span>
+                {% elseif ticket.status == 'in_progress' %}
+                  <span class="uk-label uk-label-warning">In Bearbeitung</span>
+                {% elseif ticket.status == 'resolved' %}
+                  <span class="uk-label uk-label-success">Gelöst</span>
+                {% elseif ticket.status == 'closed' %}
+                  <span class="uk-label" style="background:#999;">Geschlossen</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if ticket.priority == 'critical' %}
+                  <span class="uk-label uk-label-danger">Kritisch</span>
+                {% elseif ticket.priority == 'high' %}
+                  <span class="uk-label uk-label-warning">Hoch</span>
+                {% elseif ticket.priority == 'normal' %}
+                  <span class="uk-text-muted">Normal</span>
+                {% else %}
+                  <span class="uk-text-muted">Niedrig</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if ticket.type == 'bug' %}Bug
+                {% elseif ticket.type == 'task' %}Aufgabe
+                {% elseif ticket.type == 'review' %}Review
+                {% else %}Verbesserung
+                {% endif %}
+              </td>
+              <td>{{ ticket.assignee|default('—') }}</td>
+              <td>{{ ticket.createdAt|date('d.m.Y H:i') }}</td>
+              <td class="uk-table-shrink">
+                <div class="uk-inline">
+                  <button class="uk-button uk-button-default uk-button-small" type="button" uk-icon="icon: more; ratio: 0.9" aria-label="Aktionen">
+                    <span class="uk-hidden">Aktionen</span>
+                  </button>
+                  <div uk-dropdown="mode: click; pos: bottom-right; offset: 0; container: .admin-page">
+                    <ul class="uk-nav uk-dropdown-nav">
+                      <li><a href="{{ basePath }}/admin/tickets/{{ ticket.id }}{{ pageNamespaceQuery }}" uk-dropdown-close>Anzeigen</a></li>
+                      <li><a href="{{ basePath }}/admin/tickets/{{ ticket.id }}/edit{{ pageNamespaceQuery }}" uk-dropdown-close>Bearbeiten</a></li>
+                      <li class="uk-nav-divider"></li>
+                      <li>
+                        <form method="post" action="{{ basePath }}/admin/tickets/{{ ticket.id }}/delete{{ pageNamespaceQuery }}" onsubmit="return confirm('Ticket wirklich löschen?');">
+                          <input type="hidden" name="_token" value="{{ csrfToken }}">
+                          <button type="submit" class="uk-button uk-button-link uk-text-danger uk-width-1-1 uk-text-left" uk-dropdown-close>Löschen</button>
+                        </form>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="8" class="uk-text-center uk-text-muted">Keine Tickets vorhanden.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/storage.js"></script>
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+{% endblock %}

@@ -435,6 +435,37 @@ final class ProjectSettingsService
     }
 
     /**
+     * @return array{ticket_public_submission: bool}
+     */
+    public function getTicketSettings(string $namespace): array
+    {
+        $normalized = $this->normalizeNamespace($namespace);
+
+        if (!$this->repository->hasTable()) {
+            return ['ticket_public_submission' => true];
+        }
+
+        $row = $this->repository->fetch($normalized);
+        if ($row === null && $normalized !== PageService::DEFAULT_NAMESPACE) {
+            $row = $this->repository->fetch(PageService::DEFAULT_NAMESPACE);
+        }
+
+        return [
+            'ticket_public_submission' => $this->normalizeBoolean(
+                $row['ticket_public_submission'] ?? null,
+                true
+            ),
+        ];
+    }
+
+    public function saveTicketSettings(string $namespace, bool $publicSubmission): void
+    {
+        $normalized = $this->normalizeNamespace($namespace);
+        $this->assertTableExists();
+        $this->repository->updateTicketPublicSubmission($normalized, $publicSubmission);
+    }
+
+    /**
      * @return array<array-key, mixed>
      */
     private function parseVendorFlags(mixed $value): array

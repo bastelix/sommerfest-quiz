@@ -1,0 +1,52 @@
+{% extends 'admin/base.twig' %}
+
+{% set adminLayout = 'narrow' %}
+{% set activePageNamespace = pageNamespace|default('default') %}
+{% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
+
+{% block title %}Ticket-Einstellungen{% endblock %}
+
+{% block content %}
+  <div class="uk-container uk-container-large">
+    <div class="uk-padding-small uk-padding-remove-horizontal">
+      <a href="{{ basePath }}/admin/tickets{{ pageNamespaceQuery }}" class="uk-button uk-button-text uk-margin-small-bottom">&larr; Zurück zur Liste</a>
+      <h1 class="uk-heading-bullet uk-margin-remove">Ticket-Einstellungen</h1>
+    </div>
+  </div>
+  <div class="uk-container uk-container-expand">
+    <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+      <div class="uk-grid-small uk-flex-middle uk-margin-bottom" uk-grid>
+        <div class="uk-width-1-1 uk-width-expand@m">
+          {% include 'admin/partials/namespace_select.twig' with {
+            activeNamespace: activePageNamespace,
+            namespaceOptions: available_namespaces|default([])
+          } only %}
+        </div>
+      </div>
+
+      <form method="post" action="{{ basePath }}/admin/tickets/settings{{ pageNamespaceQuery }}" class="uk-form-stacked">
+        <input type="hidden" name="_token" value="{{ csrfToken }}">
+
+        <div class="uk-margin">
+          <label>
+            <input class="uk-checkbox" type="checkbox" name="ticket_public_submission" value="1"
+              {% if ticketSettings.ticket_public_submission|default(true) %}checked{% endif %}>
+            Öffentliche Ticket-Einreichung erlauben (ohne Anmeldung)
+          </label>
+          <p class="uk-text-meta uk-margin-small-top">
+            Wenn aktiviert, können Besucher Tickets einreichen, ohne sich anzumelden.
+            Wenn deaktiviert, ist eine Anmeldung erforderlich.
+          </p>
+        </div>
+
+        <button type="submit" class="uk-button uk-button-primary">Speichern</button>
+        <a class="uk-button uk-button-default" href="{{ basePath }}/admin/tickets{{ pageNamespaceQuery }}">Abbrechen</a>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/storage.js"></script>
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'admin/base.twig' %}
+
+{% set adminLayout = 'narrow' %}
+
+{% set isEdit = ticket is not null %}
+{% set formValues = override|default({}) %}
+{% set titleValue = formValues.title|default(isEdit ? ticket.title : '') %}
+{% set descriptionValue = formValues.description|default(isEdit ? ticket.description : '') %}
+{% set typeValue = formValues.type|default(isEdit ? ticket.type : 'task') %}
+{% set priorityValue = formValues.priority|default(isEdit ? ticket.priority : 'normal') %}
+{% set assigneeValue = formValues.assignee|default(isEdit ? ticket.assignee|default('') : '') %}
+{% set labelsValue = formValues.labels is defined ? formValues.labels|join(', ') : (isEdit ? ticket.labels|join(', ') : '') %}
+{% set dueDateValue = formValues.due_date|default(isEdit and ticket.dueDate ? ticket.dueDate|date('Y-m-d') : '') %}
+{% set activePageNamespace = pageNamespace|default('default') %}
+{% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
+{% set formAction = (isEdit ? basePath ~ '/admin/tickets/' ~ ticket.id : basePath ~ '/admin/tickets') ~ pageNamespaceQuery %}
+
+{% block title %}{{ isEdit ? 'Ticket bearbeiten' : 'Neues Ticket' }}{% endblock %}
+
+{% block content %}
+  <div class="uk-container uk-container-large">
+    <div class="uk-padding-small uk-padding-remove-horizontal">
+      <a href="{{ basePath }}/admin/tickets{{ pageNamespaceQuery }}" class="uk-button uk-button-text uk-margin-small-bottom">&larr; Zurück zur Liste</a>
+      <h1 class="uk-heading-bullet uk-margin-remove">{{ isEdit ? 'Ticket bearbeiten' : 'Neues Ticket erstellen' }}</h1>
+    </div>
+  </div>
+  <div class="uk-container uk-container-expand">
+    {% if error %}
+      <div class="uk-alert-danger" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        {{ error }}
+      </div>
+    {% endif %}
+
+    <form method="post" action="{{ formAction }}" class="uk-form-stacked">
+      <input type="hidden" name="_token" value="{{ csrfToken }}">
+
+      <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+        <div class="uk-grid-small" uk-grid>
+          {# Title #}
+          <div class="uk-width-1-1">
+            <label class="uk-form-label" for="ticketTitle">Titel *</label>
+            <div class="uk-form-controls">
+              <input id="ticketTitle" class="uk-input" type="text" name="title" value="{{ titleValue|e }}" required>
+            </div>
+          </div>
+
+          {# Description #}
+          <div class="uk-width-1-1">
+            <label class="uk-form-label" for="ticketDescription">Beschreibung</label>
+            <div class="uk-form-controls">
+              <textarea id="ticketDescription" class="uk-textarea" name="description" rows="6">{{ descriptionValue|e }}</textarea>
+            </div>
+          </div>
+
+          {# Type + Priority #}
+          <div class="uk-width-1-2@m">
+            <label class="uk-form-label" for="ticketType">Typ</label>
+            <div class="uk-form-controls">
+              <select id="ticketType" name="type" class="uk-select">
+                <option value="task" {% if typeValue == 'task' %}selected{% endif %}>Aufgabe</option>
+                <option value="bug" {% if typeValue == 'bug' %}selected{% endif %}>Bug</option>
+                <option value="review" {% if typeValue == 'review' %}selected{% endif %}>Review</option>
+                <option value="improvement" {% if typeValue == 'improvement' %}selected{% endif %}>Verbesserung</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="uk-width-1-2@m">
+            <label class="uk-form-label" for="ticketPriority">Priorität</label>
+            <div class="uk-form-controls">
+              <select id="ticketPriority" name="priority" class="uk-select">
+                <option value="low" {% if priorityValue == 'low' %}selected{% endif %}>Niedrig</option>
+                <option value="normal" {% if priorityValue == 'normal' %}selected{% endif %}>Normal</option>
+                <option value="high" {% if priorityValue == 'high' %}selected{% endif %}>Hoch</option>
+                <option value="critical" {% if priorityValue == 'critical' %}selected{% endif %}>Kritisch</option>
+              </select>
+            </div>
+          </div>
+
+          {# Assignee + Due Date #}
+          <div class="uk-width-1-2@m">
+            <label class="uk-form-label" for="ticketAssignee">Zugewiesen an</label>
+            <div class="uk-form-controls">
+              <input id="ticketAssignee" class="uk-input" type="text" name="assignee" value="{{ assigneeValue|e }}" placeholder="Benutzername">
+            </div>
+          </div>
+
+          <div class="uk-width-1-2@m">
+            <label class="uk-form-label" for="ticketDueDate">Fällig am</label>
+            <div class="uk-form-controls">
+              <input id="ticketDueDate" class="uk-input" type="date" name="due_date" value="{{ dueDateValue|e }}">
+            </div>
+          </div>
+
+          {# Labels #}
+          <div class="uk-width-1-1">
+            <label class="uk-form-label" for="ticketLabels">Labels <span class="uk-text-meta">(kommagetrennt)</span></label>
+            <div class="uk-form-controls">
+              <input id="ticketLabels" class="uk-input" type="text" name="labels" value="{{ labelsValue|e }}" placeholder="z.B. frontend, dringend, design">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Actions #}
+      <div class="uk-margin-top">
+        <button type="submit" class="uk-button uk-button-primary">{{ isEdit ? 'Speichern' : 'Erstellen' }}</button>
+        <a class="uk-button uk-button-default" href="{{ basePath }}/admin/tickets{{ pageNamespaceQuery }}">Abbrechen</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/storage.js"></script>
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+{% endblock %}
