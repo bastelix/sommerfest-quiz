@@ -124,7 +124,7 @@
                 {% if plan.trial_days|default(0) > 0 %}
                   <p class="uk-text-muted uk-text-small">{{ plan.trial_days }} Tage kostenlos testen</p>
                 {% endif %}
-                <a href="{{ basePath }}/stripe/checkout?plan={{ plan.plan_key|url_encode }}&app={{ checkoutApp|url_encode }}"
+                <a href="{{ basePath }}/auth/register?plan={{ plan.plan_key|url_encode }}&app={{ checkoutApp|url_encode }}"
                    class="uk-button uk-button-primary uk-button-large uk-width-1-1 uk-margin-small-top">
                   Jetzt starten
                 </a>

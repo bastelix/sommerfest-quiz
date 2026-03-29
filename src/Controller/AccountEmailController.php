@@ -124,12 +124,21 @@ class AccountEmailController
         $_SESSION['account_id'] = (int) $account['id'];
         $_SESSION['account_email'] = $account['email'];
 
-        // Redirect to stored return URL (Stripe checkout) or account page
-        $returnUrl = $_SESSION['auth_return_url'] ?? null;
-        unset($_SESSION['auth_return_url']);
-
         $base = RouteContext::fromRequest($request)->getBasePath();
-        $target = is_string($returnUrl) && $returnUrl !== '' ? $returnUrl : $base . '/account/subscriptions';
+
+        // If plan/app were stored during registration, proceed to Stripe checkout
+        $regData = $_SESSION['auth_register'] ?? [];
+        $plan = (string) ($regData['plan'] ?? '');
+        $app = (string) ($regData['app'] ?? '');
+        unset($_SESSION['auth_register']);
+
+        if ($plan !== '' && $app !== '') {
+            $target = $base . '/stripe/checkout?' . http_build_query(['plan' => $plan, 'app' => $app]);
+        } else {
+            $returnUrl = $_SESSION['auth_return_url'] ?? null;
+            unset($_SESSION['auth_return_url']);
+            $target = is_string($returnUrl) && $returnUrl !== '' ? $returnUrl : $base . '/account/subscriptions';
+        }
 
         return $response->withHeader('Location', $target)->withStatus(302);
     }
