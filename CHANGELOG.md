@@ -763,6 +763,8 @@
 - *(mcp)* Resolve trait property conflict preventing tool discovery
 - Resolve merge conflict in subscription plan CTA rendering
 - *(auth)* Use tenant-schema PDO for mail provider in AccountEmailController
+- *(auth)* Fall back to main domain mail config for auth emails
+- *(settings)* Enable namespace switching on mail settings page
 
 ### Merge
 
