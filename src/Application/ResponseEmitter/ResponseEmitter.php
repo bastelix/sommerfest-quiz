@@ -64,6 +64,9 @@ class ResponseEmitter extends SlimResponseEmitter
             return true;
         }
 
+        // Always allow Claude.ai for MCP tool access
+        $allowedHosts[] = 'claude.ai';
+
         $originHost = parse_url($origin, PHP_URL_HOST) ?: '';
         foreach ($allowedHosts as $host) {
             if ($originHost === $host || str_ends_with($originHost, '.' . $host)) {
