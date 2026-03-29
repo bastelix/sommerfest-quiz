@@ -189,6 +189,9 @@ final class McpController
             'get_wiki_settings', 'list_wiki_articles', 'get_wiki_article', 'get_wiki_article_versions' => 'wiki:read',
             'update_wiki_settings', 'create_wiki_article', 'update_wiki_article', 'delete_wiki_article',
             'update_wiki_article_status', 'reorder_wiki_articles' => 'wiki:write',
+            'list_tickets', 'get_ticket', 'list_ticket_comments' => 'ticket:read',
+            'create_ticket', 'update_ticket', 'transition_ticket',
+            'delete_ticket', 'add_ticket_comment', 'delete_ticket_comment' => 'ticket:write',
             default => null,
         };
     }

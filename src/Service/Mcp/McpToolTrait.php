@@ -6,8 +6,6 @@ namespace App\Service\Mcp;
 
 trait McpToolTrait
 {
-    private string $defaultNamespace;
-
     private function resolveNamespace(array $args): string
     {
         $ns = isset($args['namespace']) && is_string($args['namespace']) ? trim($args['namespace']) : '';
