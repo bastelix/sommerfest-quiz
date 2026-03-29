@@ -109,6 +109,73 @@ final class NewsTools
                     'required' => ['id'],
                 ],
             ],
+            [
+                'name' => 'list_news_categories',
+                'method' => 'listCategories',
+                'description' => 'List all news categories for a namespace.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                    ],
+                ],
+            ],
+            [
+                'name' => 'create_news_category',
+                'method' => 'createCategory',
+                'description' => 'Create a new news category.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                        'slug' => ['type' => 'string', 'description' => 'URL slug for the category'],
+                        'name' => ['type' => 'string', 'description' => 'Display name'],
+                        'sortOrder' => ['type' => 'integer', 'description' => 'Sort order (default 0)'],
+                    ],
+                    'required' => ['slug', 'name'],
+                ],
+            ],
+            [
+                'name' => 'delete_news_category',
+                'method' => 'deleteCategory',
+                'description' => 'Delete a news category by ID. Removes all article associations.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                        'id' => ['type' => 'integer', 'description' => 'Category ID'],
+                    ],
+                    'required' => ['id'],
+                ],
+            ],
+            [
+                'name' => 'assign_news_category',
+                'method' => 'assignCategoryToArticle',
+                'description' => 'Assign a category to a news article.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                        'articleId' => ['type' => 'integer', 'description' => 'News article ID'],
+                        'categoryId' => ['type' => 'integer', 'description' => 'Category ID'],
+                    ],
+                    'required' => ['articleId', 'categoryId'],
+                ],
+            ],
+            [
+                'name' => 'remove_news_category',
+                'method' => 'removeCategoryFromArticle',
+                'description' => 'Remove a category assignment from a news article.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'namespace' => self::NS_PROP,
+                        'articleId' => ['type' => 'integer', 'description' => 'News article ID'],
+                        'categoryId' => ['type' => 'integer', 'description' => 'Category ID'],
+                    ],
+                    'required' => ['articleId', 'categoryId'],
+                ],
+            ],
         ];
     }
 
@@ -135,7 +202,10 @@ final class NewsTools
             throw new \RuntimeException('News article not found');
         }
 
-        return ['namespace' => $ns, 'news' => $news->jsonSerialize()];
+        $data = $news->jsonSerialize();
+        $data['categories'] = $this->news->getCategoriesForArticle($id);
+
+        return ['namespace' => $ns, 'news' => $data];
     }
 
     public function createNews(array $args): array
@@ -233,5 +303,55 @@ final class NewsTools
 
         $this->news->delete($id);
         return ['status' => 'deleted'];
+    }
+
+    // ── Category tools ──────────────────────────────────────────────
+
+    public function listCategories(array $args): array
+    {
+        $ns = $this->resolveNamespace($args);
+
+        return ['namespace' => $ns, 'categories' => $this->news->getCategoriesForNamespace($ns)];
+    }
+
+    public function createCategory(array $args): array
+    {
+        $ns = $this->resolveNamespace($args);
+        $slug = $this->requireString($args, 'slug');
+        $name = $this->requireString($args, 'name');
+        $sortOrder = $this->optionalInt($args, 'sortOrder', 0);
+
+        $category = $this->news->createCategory($ns, $slug, $name, $sortOrder);
+
+        return ['status' => 'created', 'category' => $category];
+    }
+
+    public function deleteCategory(array $args): array
+    {
+        $id = $this->requireInt($args, 'id');
+
+        $this->news->deleteCategory($id);
+
+        return ['status' => 'deleted'];
+    }
+
+    public function assignCategoryToArticle(array $args): array
+    {
+        $articleId = $this->requireInt($args, 'articleId');
+        $categoryId = $this->requireInt($args, 'categoryId');
+
+        $this->news->assignCategory($articleId, $categoryId);
+
+        return ['status' => 'assigned', 'articleId' => $articleId, 'categoryId' => $categoryId];
+    }
+
+    public function removeCategoryFromArticle(array $args): array
+    {
+        $articleId = $this->requireInt($args, 'articleId');
+        $categoryId = $this->requireInt($args, 'categoryId');
+
+        $this->news->removeCategory($articleId, $categoryId);
+
+        return ['status' => 'removed', 'articleId' => $articleId, 'categoryId' => $categoryId];
     }
 }

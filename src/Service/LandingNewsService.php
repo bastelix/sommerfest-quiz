@@ -524,6 +524,86 @@ SQL;
         return is_array($row) ? $row : null;
     }
 
+    /**
+     * Create a new category.
+     *
+     * @return array{id: int, slug: string, name: string, sort_order: int}
+     */
+    public function createCategory(string $namespace, string $slug, string $name, int $sortOrder = 0): array
+    {
+        $ns = $this->resolveNamespace($namespace);
+        $normalizedSlug = $this->normalizeSlug($slug);
+        $normalizedName = trim($name);
+        if ($normalizedName === '') {
+            throw new InvalidArgumentException('Category name is required.');
+        }
+
+        $existing = $this->getCategoryBySlug($ns, $normalizedSlug);
+        if ($existing !== null) {
+            throw new LogicException('A category with this slug already exists in this namespace.');
+        }
+
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO news_categories (namespace, slug, name, sort_order)'
+            . ' VALUES (:ns, :slug, :name, :sortOrder)'
+        );
+        $stmt->execute([
+            'ns' => $ns,
+            'slug' => $normalizedSlug,
+            'name' => $normalizedName,
+            'sortOrder' => $sortOrder,
+        ]);
+
+        $category = $this->getCategoryBySlug($ns, $normalizedSlug);
+        if ($category === null) {
+            throw new PDOException('Failed to persist news category.');
+        }
+
+        return $category;
+    }
+
+    /**
+     * Delete a category by ID. Pivot entries are cascade-deleted.
+     */
+    public function deleteCategory(int $id): void
+    {
+        if ($id <= 0) {
+            return;
+        }
+
+        $stmt = $this->pdo->prepare('DELETE FROM news_categories WHERE id = :id');
+        $stmt->bindValue('id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Assign a category to an article.
+     */
+    public function assignCategory(int $articleId, int $categoryId): void
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO news_article_category (article_id, category_id)'
+            . ' VALUES (:articleId, :categoryId)'
+            . ' ON CONFLICT (article_id, category_id) DO NOTHING'
+        );
+        $stmt->bindValue('articleId', $articleId, PDO::PARAM_INT);
+        $stmt->bindValue('categoryId', $categoryId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Remove a category assignment from an article.
+     */
+    public function removeCategory(int $articleId, int $categoryId): void
+    {
+        $stmt = $this->pdo->prepare(
+            'DELETE FROM news_article_category WHERE article_id = :articleId AND category_id = :categoryId'
+        );
+        $stmt->bindValue('articleId', $articleId, PDO::PARAM_INT);
+        $stmt->bindValue('categoryId', $categoryId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     private function resolveNamespace(string $namespace): string
     {
         $ns = strtolower(trim($namespace));
