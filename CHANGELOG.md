@@ -754,6 +754,8 @@
 - *(build)* Make entrypoint resilient to non-critical startup failures
 - Correct table names and remove invalid column reference in namespace indexes migration
 - *(mcp)* Resolve trait property conflict preventing tool discovery
+- *(build)* Treat tenant migration errors as warnings, not fatal
+- *(auth)* Load subscription plans from Stripe for auth-gated checkout
 
 ### Merge
 
