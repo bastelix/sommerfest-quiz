@@ -53,7 +53,7 @@ COPY config/php.ini /usr/local/etc/php/conf.d/custom.ini
 # entrypoint to install dependencies if host volume lacks vendor/
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD ["php", "/var/www/scripts/check_stripe_config.php"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD curl -sf http://localhost:8080/healthz-lite || exit 1
 EXPOSE 8080
 # Prefer the volume-mounted entrypoint so host-side updates (e.g. improved
 # composer-install checks) take effect without rebuilding the image.
