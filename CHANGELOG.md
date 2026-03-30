@@ -781,6 +781,7 @@
 - *(navigation)* Add diagnostic logging to menu items loading
 - *(marketing)* Prevent script tag breakout in embedded page payload
 - Add ORDER BY expression to SELECT list for DISTINCT query
+- Render stat_strip metric icons as SVG via UIkit instead of plain text
 
 ### Merge
 
