@@ -424,6 +424,7 @@
 - *(admin)* Add news category management UI
 - *(tickets)* Add admin UI and public ticket submission form
 - *(auth)* Add customer account UI — topbar icon, menu links, admin list, profile page
+- *(package-summary)* Add optional billing cycle toggle with dual pricing
 
 ### Fix
 
