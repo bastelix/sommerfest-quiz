@@ -98,6 +98,7 @@
 - Add API expansion briefing for AI assistant
 - Add MCP connector setup guide for Claude.ai
 - Complete documentation overhaul for GitHub Pages
+- Add block rendering handbook for external editors
 
 ### Feat
 
@@ -425,6 +426,7 @@
 - *(tickets)* Add admin UI and public ticket submission form
 - *(auth)* Add customer account UI — topbar icon, menu links, admin list, profile page
 - *(package-summary)* Add optional billing cycle toggle with dual pricing
+- *(mcp)* Add renderingGuide to get_design_manifest response
 
 ### Fix
 
