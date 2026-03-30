@@ -378,8 +378,7 @@ SQL;
         $sql = 'SELECT DISTINCT ln.*, p.slug AS page_slug, p.title AS page_title'
             . ' FROM landing_news ln JOIN pages p ON p.id = ln.page_id'
             . $joins . ' ' . $where
-            . ' ORDER BY CASE WHEN ln.published_at IS NULL THEN 1 ELSE 0 END,'
-            . ' ln.published_at DESC, ln.id DESC'
+            . ' ORDER BY ln.published_at DESC NULLS LAST, ln.id DESC'
             . ' LIMIT :lim OFFSET :off';
         $stmt = $this->pdo->prepare($sql);
         foreach ($params as $key => $val) {
