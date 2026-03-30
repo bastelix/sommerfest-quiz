@@ -2230,7 +2230,9 @@ function renderStatStripMarquee(block) {
 
 function renderStatMetricValue(block, metric, index, context, options = {}) {
   const tooltip = metric.tooltip ? ` title="${escapeAttribute(metric.tooltip)}" data-uk-tooltip` : '';
-  const icon = metric.icon ? `<span class="uk-margin-small-right" aria-hidden="true">${escapeHtml(metric.icon)}</span>` : '';
+  const icon = typeof metric.icon === 'string' && metric.icon.trim()
+    ? `<span data-uk-icon="icon: ${escapeAttribute(metric.icon)}; ratio: 1;" class="uk-margin-small-right cs-blue" aria-hidden="true"></span>`
+    : '';
   const sizeClass = options.valueSize || 'uk-heading-large';
   const alignment = options.alignClass ? ` ${options.alignClass}` : '';
   return `<div class="${sizeClass} uk-margin-remove${alignment}"${tooltip}${buildEditableAttributes(
