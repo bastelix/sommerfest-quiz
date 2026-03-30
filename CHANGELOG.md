@@ -778,6 +778,7 @@
 - Map tokens.background to section style background during normalization
 - *(news)* Use <wbr> instead of literal \u00AD for title line break
 - Prevent cascading service outage from transient DB failures
+- *(navigation)* Add diagnostic logging to menu items loading
 
 ### Merge
 
