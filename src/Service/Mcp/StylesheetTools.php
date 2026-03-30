@@ -175,9 +175,13 @@ final class StylesheetTools
                 'description' => 'Get the complete design token manifest for a namespace. '
                     . 'Returns all CSS custom properties with their resolved values, '
                     . 'the full token hierarchy (semantic -> namespace -> component), '
-                    . 'block-level token options, section intents/appearances, and '
-                    . 'legacy alias mappings. Use this to understand and validate the '
-                    . 'full design state before making changes.',
+                    . 'block-level token options, section intents/appearances, '
+                    . 'legacy alias mappings, and a comprehensive renderingGuide. '
+                    . 'The renderingGuide documents how block JSON maps to visual output: '
+                    . 'intent presets (background, text colour, padding), background '
+                    . 'color tokens (which are dark/light), variant behaviour per block '
+                    . 'type, the full icon catalog, CSS selectors for custom styling, '
+                    . 'and ready-to-use sectionStyle recipes.',
                 'inputSchema' => [
                     'type' => 'object',
                     'properties' => [

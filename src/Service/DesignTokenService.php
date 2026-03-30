@@ -1050,6 +1050,324 @@ class DesignTokenService
                 '--accent-color' => '--brand-primary',
                 '--section-gap' => '--space-section',
             ],
+            'renderingGuide' => self::buildRenderingGuide(),
+        ];
+    }
+
+    /**
+     * Build the rendering guide that documents how block JSON maps to visual output.
+     *
+     * This data helps external editors (MCP clients, AI agents) make informed
+     * decisions about section styling without trial-and-error.
+     *
+     * @return array<string, mixed>
+     */
+    private static function buildRenderingGuide(): array
+    {
+        return [
+            'sectionHtmlStructure' => [
+                'description' => 'Every block is wrapped in a <section> element. '
+                    . 'Visual styling is driven by data-attributes and CSS custom properties on this wrapper.',
+                'dataAttributes' => [
+                    'data-block-id' => 'Block ID from the block contract',
+                    'data-block-type' => 'Block type (e.g. feature_list, stat_strip)',
+                    'data-block-variant' => 'Block variant (e.g. icon_grid, trust_band)',
+                    'data-section-intent' => 'Resolved intent (content, plain, feature, highlight, hero)',
+                    'data-section-layout' => 'Layout mode when card layout is used',
+                    'data-section-background-mode' => 'Background mode (none, color, image)',
+                    'data-section-background-color-token' => 'Color token when background mode is color',
+                    'data-section-surface-token' => 'Surface token controlling the section surface',
+                    'data-section-text-token' => 'Text token controlling text colour',
+                    'data-viewport-height' => 'Viewport height setting (full, reduced, minus-next)',
+                    'data-effect' => 'Animation effect (reveal, heroIntro)',
+                ],
+                'cssVariables' => [
+                    '--section-surface' => 'Base surface colour of the section',
+                    '--section-bg-color' => 'Background colour (defaults to --section-surface)',
+                    '--section-text-color' => 'Text colour for the section',
+                    '--section-bg-image' => 'Background image URL (when mode is image)',
+                    '--section-bg-attachment' => 'scroll or fixed (parallax)',
+                    '--section-bg-overlay' => 'Dark overlay opacity (0–1)',
+                    '--section-padding-outer' => 'Vertical padding of the section',
+                ],
+                'customCssSelectors' => [
+                    '.section[data-block-type="feature_list"]' => 'Target all feature_list blocks',
+                    '.section[data-block-variant="trust_band"]' => 'Target a specific variant',
+                    '.section[data-section-intent="highlight"]' => 'Target all highlight sections',
+                    '.section[data-block-id="my-block"]' => 'Target a block by its ID',
+                    '.section__inner' => 'Inner content wrapper',
+                    '.section__inner--panel' => 'Panel-style inner wrapper',
+                    '.section__inner--card' => 'Card-style inner wrapper',
+                ],
+            ],
+            'intentPresets' => [
+                'content' => [
+                    'description' => 'Standard white/transparent section for prose and structured content',
+                    'surface' => '--surface (white/transparent)',
+                    'textColor' => 'dark',
+                    'padding' => 'normal',
+                    'containerWidth' => 'normal (1200px)',
+                    'useFor' => ['rich_text', 'process_steps', 'info_media with detailed content'],
+                ],
+                'plain' => [
+                    'description' => 'Minimal section with no visual weight, transparent background',
+                    'surface' => '--surface (white/transparent)',
+                    'textColor' => 'dark',
+                    'padding' => 'normal',
+                    'containerWidth' => 'normal (1200px)',
+                    'useFor' => ['faq', 'trust_bar', 'trust_band', 'minimally styled sections'],
+                ],
+                'feature' => [
+                    'description' => 'Light grey background section for feature showcases',
+                    'surface' => '--surface-muted (light grey)',
+                    'textColor' => 'dark',
+                    'padding' => 'generous',
+                    'containerWidth' => 'wide',
+                    'useFor' => ['feature_list', 'testimonial', 'info_media', 'package_summary'],
+                ],
+                'highlight' => [
+                    'description' => 'Brand-coloured dark section for emphasis and calls to action',
+                    'surface' => '--accent-primary (brand primary colour)',
+                    'textColor' => 'white',
+                    'padding' => 'generous',
+                    'containerWidth' => 'wide',
+                    'useFor' => ['stat_strip', 'cta', 'proof', 'key metrics'],
+                ],
+                'hero' => [
+                    'description' => 'Full-width dark section for page heroes with maximum visual impact',
+                    'surface' => '--accent-secondary (dark brand blend)',
+                    'textColor' => 'white',
+                    'padding' => 'extra-large',
+                    'containerWidth' => 'full-width',
+                    'useFor' => ['hero blocks exclusively'],
+                ],
+            ],
+            'defaultIntentByBlockType' => [
+                'hero' => 'hero',
+                'feature_list' => 'feature',
+                'info_media' => 'feature',
+                'audience_spotlight' => 'feature',
+                'testimonial' => 'feature',
+                'package_summary' => 'feature',
+                'contact_form' => 'feature',
+                'content_slider' => 'feature',
+                'stat_strip' => 'highlight',
+                'proof' => 'highlight',
+                'cta' => 'highlight',
+                'process_steps' => 'content',
+                'rich_text' => 'content',
+                'faq' => 'plain',
+                'latest_news' => 'feature',
+            ],
+            'backgroundColorTokens' => [
+                'surface' => [
+                    'visual' => 'white / transparent',
+                    'darkToken' => false,
+                    'textColor' => 'dark',
+                    'description' => 'Standard surface, no visual emphasis',
+                ],
+                'muted' => [
+                    'visual' => 'light grey',
+                    'darkToken' => false,
+                    'textColor' => 'dark',
+                    'description' => 'Subtle background distinction from white sections',
+                ],
+                'primary' => [
+                    'visual' => 'brand primary colour',
+                    'darkToken' => true,
+                    'textColor' => 'white (automatic)',
+                    'description' => 'Strong brand emphasis, automatically switches text to white',
+                ],
+                'secondary' => [
+                    'visual' => 'dark brand blend',
+                    'darkToken' => true,
+                    'textColor' => 'white (automatic)',
+                    'description' => 'Dark atmospheric background, used for heroes',
+                ],
+                'accent' => [
+                    'visual' => 'accent colour',
+                    'darkToken' => true,
+                    'textColor' => 'white (automatic)',
+                    'description' => 'Accent emphasis, automatically switches text to white',
+                ],
+            ],
+            'layoutModes' => [
+                'normal' => 'Standard contained layout with max-width container',
+                'full' => 'Full-bleed background extending to viewport edges, content still contained',
+                'card' => 'Content wrapped in a card panel with rounded corners and shadow',
+                'full-card' => 'Full-bleed background with card panel for inner content',
+            ],
+            'containerOptions' => [
+                'width' => [
+                    'normal' => 'Standard width (max 1200px)',
+                    'wide' => 'Wide container (uk-container-large)',
+                    'full' => 'Full viewport width (uk-container-expand)',
+                ],
+                'frame' => [
+                    'none' => 'No frame around content',
+                    'card' => 'Card panel wrapping inner content',
+                ],
+                'spacing' => [
+                    'compact' => 'Reduced vertical padding',
+                    'normal' => 'Standard vertical padding',
+                    'generous' => 'Large vertical padding for spacious sections',
+                ],
+            ],
+            'viewportHeight' => [
+                'auto' => 'Normal document flow (default)',
+                'full' => 'Section fills the entire viewport height',
+                'reduced' => 'Section has a minimum height of 80vh',
+                'minus-next' => 'Viewport height minus the height of the next section',
+            ],
+            'variantBehaviour' => [
+                'feature_list' => [
+                    'detailed-cards' => '3-column card grid with icon + title + description',
+                    'grid-bullets' => '3-column grid with compact items and optional bullets',
+                    'icon_grid' => 'Alias for grid-bullets — identical output',
+                    'slider' => 'Horizontal card carousel (swipeable)',
+                    'text-columns' => 'Multi-column text layout without icons',
+                    'card-stack' => 'Vertically stacked card layout',
+                    'clustered-tabs' => 'Items grouped into switchable tabs',
+                    '_note' => 'detailed-cards, grid-bullets, and icon_grid all render as a 3-column grid. '
+                        . 'For genuine layout variety use slider, text-columns, or clustered-tabs.',
+                ],
+                'info_media' => [
+                    'stacked' => 'Single column — media stacked above text',
+                    'image-left' => 'Two columns — image left, text and items right',
+                    'image-right' => 'Two columns — text and items left, image right',
+                    'switcher' => 'Multiple items displayed as switchable tabs with media',
+                    '_note' => 'image-left and image-right produce genuine 2-column layouts. '
+                        . 'Use these to break the 3-column grid monotony of feature_list.',
+                ],
+                'stat_strip' => [
+                    'inline' => 'Horizontal row of large metric values with labels',
+                    'cards' => 'Each metric displayed in its own card',
+                    'centered' => 'Centred metric values with labels below',
+                    'highlight' => 'Accent-background metrics designed for dark sections',
+                    'trust_bar' => 'Compact inline list of icon + label pairs separated by dividers',
+                    'trust_band' => 'Slightly larger icon + label list than trust_bar',
+                    '_note' => 'trust_bar and trust_band use data.items[].icon. '
+                        . 'All other variants use data.metrics[].icon.',
+                ],
+                'hero' => [
+                    'centered_cta' => 'Centred headline, subheadline, and CTA buttons',
+                    'media_right' => 'Two columns — text left, image right',
+                    'media_left' => 'Two columns — image left, text right',
+                    'media_video' => 'Text with embedded video player',
+                    'minimal' => 'Text only, no media element',
+                    'stat_tiles' => 'Text left with stat tiles on the right',
+                    'small' => 'Compact hero with reduced padding',
+                ],
+                'audience_spotlight' => [
+                    'tabs' => 'Tabbed case views (known issue: may render as accordion)',
+                    'tiles' => 'Tile grid of cases (known issue: may render as accordion)',
+                    'single-focus' => 'Single case prominently displayed',
+                    '_note' => 'tabs and tiles variants have a known rendering bug. '
+                        . 'Consider using feature_list or info_media as alternatives.',
+                ],
+                'process_steps' => [
+                    'numbered-vertical' => 'Vertical numbered step list',
+                    'numbered-horizontal' => 'Horizontal numbered step row',
+                    'timeline' => 'Timeline with visual connectors',
+                    'timeline_horizontal' => 'Horizontal timeline variant',
+                    'timeline_vertical' => 'Vertical timeline variant',
+                ],
+                'testimonial' => [
+                    'single_quote' => 'Single prominent quote with author attribution',
+                    'quote_wall' => 'Grid of 2–3 quotes side by side',
+                ],
+                'cta' => [
+                    'full_width' => 'Full-width call-to-action bar',
+                    'split' => 'Two CTA buttons displayed side by side',
+                ],
+                'faq' => [
+                    'accordion' => 'Collapsible question/answer sections',
+                ],
+                'package_summary' => [
+                    'toggle' => 'Uses data.options[] with expandable highlights',
+                    'comparison-cards' => 'Uses data.plans[] displayed as comparison cards',
+                ],
+            ],
+            'iconCatalog' => [
+                'general' => ['check', 'close', 'plus', 'minus', 'star', 'heart', 'bolt', 'bell', 'bookmark', 'tag', 'ban', 'info', 'question', 'warning', 'settings', 'cog', 'search', 'home', 'grid', 'list', 'hashtag', 'happy', 'clock', 'calendar', 'history', 'future'],
+                'media' => ['image', 'camera', 'play', 'video-camera', 'microphone', 'tv', 'album', 'thumbnails', 'file', 'file-text', 'file-pdf', 'file-edit', 'folder', 'copy', 'code', 'print'],
+                'navigation' => ['arrow-up', 'arrow-down', 'arrow-left', 'arrow-right', 'arrow-up-right', 'chevron-up', 'chevron-down', 'chevron-left', 'chevron-right', 'chevron-double-left', 'chevron-double-right', 'expand', 'shrink', 'move', 'forward', 'reply', 'refresh'],
+                'communication' => ['mail', 'comment', 'commenting', 'comments', 'receiver', 'phone', 'social', 'users', 'user', 'location', 'world', 'link', 'link-external', 'rss'],
+                'devices' => ['desktop', 'laptop', 'tablet', 'server', 'database', 'cloud-upload', 'cloud-download', 'download', 'upload'],
+                'security' => ['lock', 'unlock', 'key', 'shield', 'fingerprint', 'eye', 'eye-slash', 'sign-in', 'sign-out', 'credit-card'],
+                'editing' => ['pencil', 'paint-bucket', 'bold', 'italic', 'strikethrough', 'quote-right', 'nut', 'crosshairs', 'trash', 'bag', 'cart', 'lifesaver'],
+                'brands' => ['github', 'google', 'facebook', 'instagram', 'x', 'linkedin', 'youtube', 'tiktok', 'discord', 'whatsapp', 'telegram', 'signal', 'bluesky', 'mastodon', 'reddit', 'pinterest'],
+                'custom' => ['sun', 'moon', 'handbook'],
+                '_note' => 'Only these exact icon names are valid. UIkit silently renders nothing for unknown names. '
+                    . 'Names like "shield-check" or "badge-check" do NOT exist.',
+            ],
+            'sectionAppearanceLegacy' => [
+                'description' => 'sectionAppearance is a legacy shorthand. It only affects layout, NOT background or intent. '
+                    . 'Use meta.sectionStyle with explicit intent and background.colorToken instead.',
+                'aliases' => [
+                    'default' => 'contained (layout: normal)',
+                    'surface' => 'contained (layout: normal) — identical to default',
+                    'contrast' => 'full (layout: full) — does NOT set a dark background',
+                    'card' => 'card (layout: card)',
+                    'image' => 'full (layout: full) with image support',
+                    'image-fixed' => 'full (layout: full) with fixed attachment',
+                ],
+            ],
+            'recipes' => [
+                'lightContent' => [
+                    'description' => 'White background, dark text, standard width',
+                    'sectionStyle' => ['layout' => 'normal', 'intent' => 'content'],
+                ],
+                'mutedFeature' => [
+                    'description' => 'Light grey background for feature showcases',
+                    'sectionStyle' => ['layout' => 'normal', 'intent' => 'feature'],
+                ],
+                'darkHighlight' => [
+                    'description' => 'Brand-coloured dark section with white text',
+                    'sectionStyle' => [
+                        'layout' => 'normal',
+                        'intent' => 'highlight',
+                        'background' => ['mode' => 'color', 'colorToken' => 'primary'],
+                    ],
+                ],
+                'heroSection' => [
+                    'description' => 'Full-width dark hero with maximum impact',
+                    'sectionStyle' => [
+                        'layout' => 'full',
+                        'intent' => 'hero',
+                        'background' => ['mode' => 'color', 'colorToken' => 'secondary'],
+                    ],
+                ],
+                'minimalBar' => [
+                    'description' => 'No visual weight — ideal for trust bars',
+                    'sectionStyle' => ['layout' => 'normal', 'intent' => 'plain'],
+                ],
+                'backgroundImage' => [
+                    'description' => 'Full-bleed parallax background image with overlay',
+                    'sectionStyle' => [
+                        'layout' => 'full',
+                        'background' => [
+                            'mode' => 'image',
+                            'imageId' => '/uploads/example.jpg',
+                            'attachment' => 'fixed',
+                            'overlay' => 0.4,
+                        ],
+                    ],
+                ],
+            ],
+            'pageFlowGuidelines' => [
+                'Alternate section intents — never place two feature (muted) sections back to back.',
+                'Use info_media (image-left / image-right) to break 3-column grid monotony.',
+                'Reserve highlight intent for sections that need emphasis (stats, CTAs, testimonials).',
+                'Start with hero (dark), end with cta (dark), keep middle sections varied.',
+                'Typical flow: hero → plain → feature → content → feature → content → highlight → plain → highlight.',
+            ],
+            'knownLimitations' => [
+                ['id' => 5, 'summary' => 'audience_spotlight tabs/tiles render as accordion', 'workaround' => 'Use feature_list or info_media instead'],
+                ['id' => 6, 'summary' => 'German compound words break in 3-column grids', 'workaround' => 'Use shorter titles or 2-column layouts (info_media)'],
+                ['id' => 7, 'summary' => 'detailed-cards, icon_grid, grid-bullets render identically', 'workaround' => 'Use slider, text-columns, or clustered-tabs for layout variety'],
+                ['id' => 8, 'summary' => 'sectionAppearance default/surface/contrast produce no visual difference', 'workaround' => 'Use meta.sectionStyle with explicit intent and background'],
+            ],
         ];
     }
 
