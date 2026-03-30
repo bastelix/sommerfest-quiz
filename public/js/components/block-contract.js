@@ -513,6 +513,7 @@ const schema = {
       "properties": {
         "title": { "type": "string", "minLength": 1 },
         "subtitle": { "type": "string" },
+        "billingToggle": { "$ref": "#/definitions/BillingCycleToggle" },
         "options": {
           "type": "array",
           "items": { "$ref": "#/definitions/PackageOption" },
@@ -705,6 +706,15 @@ const schema = {
         "bullets": { "type": "array", "items": { "type": "string" } }
       }
     },
+    "BillingCycleToggle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["labelA", "labelB"],
+      "properties": {
+        "labelA": { "type": "string", "minLength": 1 },
+        "labelB": { "type": "string", "minLength": 1 }
+      }
+    },
     "PackagePlan": {
       "type": "object",
       "additionalProperties": false,
@@ -716,6 +726,8 @@ const schema = {
         "description": { "type": "string" },
         "features": { "type": "array", "items": { "type": "string" } },
         "notes": { "type": "array", "items": { "type": "string" } },
+        "priceA": { "type": "string" },
+        "priceB": { "type": "string" },
         "primaryCta": { "$ref": "#/definitions/CallToAction" },
         "secondaryCta": { "$ref": "#/definitions/CallToAction" }
       }

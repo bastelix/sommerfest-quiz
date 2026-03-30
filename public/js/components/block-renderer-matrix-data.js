@@ -2777,9 +2777,17 @@ function renderPackageOption(option) {
   return `<div><div class="uk-card uk-card-default uk-height-1-1 uk-flex uk-flex-column"><div class="uk-card-body uk-flex-1">${title}${intro}${highlights}</div></div></div>`;
 }
 
-function renderPackagePlan(plan) {
+function renderPackagePlan(plan, activeCycle) {
   const badge = plan.badge ? `<span class="uk-label uk-label-success uk-margin-small-bottom">${escapeHtml(plan.badge)}</span>` : '';
   const title = `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(plan.title || '')}</h3>`;
+
+  const priceText = activeCycle === 'B' && plan.priceB
+    ? plan.priceB
+    : (plan.priceA || '');
+  const price = priceText
+    ? `<p class="uk-h3 uk-margin-small-top uk-margin-remove-bottom" data-billing-price data-price-a="${escapeAttribute(plan.priceA || '')}" data-price-b="${escapeAttribute(plan.priceB || '')}">${escapeHtml(priceText)}</p>`
+    : '';
+
   const description = plan.description ? `<p class="uk-margin-small-top">${escapeHtml(plan.description)}</p>` : '';
   const features = Array.isArray(plan.features)
     ? plan.features
@@ -2803,7 +2811,7 @@ function renderPackagePlan(plan) {
   const ctaGroup = ctas.length ? `<div class="uk-margin-top">${ctas.join('')}</div>` : '';
 
   return `<div><div class="uk-card uk-card-default uk-height-1-1 uk-flex uk-flex-column">` +
-    `<div class="uk-card-body uk-flex-1">${badge}${title}${description}${featureList}${noteList}</div>` +
+    `<div class="uk-card-body uk-flex-1">${badge}${title}${price}${description}${featureList}${noteList}</div>` +
     (ctaGroup ? `<div class="uk-card-footer">${ctaGroup}</div>` : '') +
     `</div></div>`;
 }
@@ -2818,10 +2826,11 @@ function renderPackageSummary(block, variant, options = {}) {
 
   const packageOptions = Array.isArray(block.data?.options) ? block.data.options : [];
   const plans = Array.isArray(block.data?.plans) ? block.data.plans : [];
+  const billingToggle = block.data?.billingToggle;
 
   const isToggleVariant = variant === 'toggle';
   const itemsToRender = isToggleVariant ? packageOptions : plans;
-  const renderItem = isToggleVariant ? renderPackageOption : renderPackagePlan;
+  const renderItem = isToggleVariant ? renderPackageOption : (item) => renderPackagePlan(item, 'A');
   const gridClass = buildResponsiveGridClasses(
     resolveGridColumns(block, itemsToRender.length, { maxColumns: isToggleVariant ? 3 : 4 })
   );
@@ -2830,13 +2839,36 @@ function renderPackageSummary(block, variant, options = {}) {
     ? itemsToRender.map(item => renderItem(item)).join('')
     : '<div><div class="uk-alert-warning" role="alert">Keine Pakete hinterlegt.</div></div>';
 
+  const toggleHtml = billingToggle
+    ? `<div class="uk-flex uk-flex-center uk-margin-medium-bottom"><div class="billing-toggle" data-billing-toggle><button type="button" class="billing-toggle__btn billing-toggle__btn--active" data-billing-cycle="A">${escapeHtml(billingToggle.labelA)}</button><button type="button" class="billing-toggle__btn" data-billing-cycle="B">${escapeHtml(billingToggle.labelB)}</button></div></div>`
+    : '';
+
   const disclaimer = block.data?.disclaimer
     ? `<p class="uk-text-small uk-text-muted uk-margin-medium-top"${buildEditableAttributes(block, 'data.disclaimer', context)}>${escapeHtml(block.data.disclaimer)}</p>`
     : '';
 
   const grid = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
 
-  return renderSection({ block, variant: safeVariant, content: `${headerContent}${grid}${disclaimer}` });
+  return renderSection({ block, variant: safeVariant, content: `${headerContent}${toggleHtml}${grid}${disclaimer}` });
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-billing-cycle]');
+    if (!btn) return;
+    const toggle = btn.closest('[data-billing-toggle]');
+    if (!toggle) return;
+    const cycle = btn.dataset.billingCycle;
+    toggle.querySelectorAll('[data-billing-cycle]').forEach(function (b) {
+      b.classList.toggle('billing-toggle__btn--active', b === btn);
+    });
+    const section = toggle.closest('[data-block-type]') || toggle.parentElement?.parentElement;
+    if (!section) return;
+    section.querySelectorAll('[data-billing-price]').forEach(function (el) {
+      const price = cycle === 'B' ? (el.dataset.priceB || el.dataset.priceA) : el.dataset.priceA;
+      el.textContent = price || '';
+    });
+  });
 }
 
 function renderFaqItem(block, item, index, context) {

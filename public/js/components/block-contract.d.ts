@@ -269,6 +269,11 @@ export interface PackageOption {
   highlights?: PackageHighlight[];
 }
 
+export interface BillingCycleToggle {
+  labelA: string;
+  labelB: string;
+}
+
 export interface PackagePlan {
   id?: string;
   title: string;
@@ -276,6 +281,8 @@ export interface PackagePlan {
   description?: string;
   features?: string[];
   notes?: string[];
+  priceA?: string;
+  priceB?: string;
   primaryCta?: CallToAction;
   secondaryCta?: CallToAction;
 }
@@ -283,6 +290,7 @@ export interface PackagePlan {
 export interface PackageSummaryBlockData {
   title: string;
   subtitle?: string;
+  billingToggle?: BillingCycleToggle;
   options?: PackageOption[];
   plans?: PackagePlan[];
   disclaimer?: string;
