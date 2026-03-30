@@ -780,6 +780,7 @@
 - Prevent cascading service outage from transient DB failures
 - *(navigation)* Add diagnostic logging to menu items loading
 - *(marketing)* Prevent script tag breakout in embedded page payload
+- Add ORDER BY expression to SELECT list for DISTINCT query
 
 ### Merge
 
