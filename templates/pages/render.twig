@@ -84,7 +84,7 @@
 
   {% if embeddedPayload is defined and embeddedPayload %}
   <script data-json="page" type="application/json">
-    {{ embeddedPayload|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }}
+    {{ embeddedPayload|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_HEX_TAG'))|raw }}
   </script>
   {% endif %}
 
