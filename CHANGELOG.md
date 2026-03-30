@@ -775,6 +775,7 @@
 - Prevent blank news pages caused by stuck hydration gate
 - *(navigation)* Use proper query string construction for locale parameter
 - Map tokens.background to section style background during normalization
+- *(news)* Use <wbr> instead of literal \u00AD for title line break
 
 ### Merge
 
