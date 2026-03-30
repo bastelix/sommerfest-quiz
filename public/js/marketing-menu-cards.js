@@ -148,6 +148,12 @@
     return withNamespace(`${state.basePath}${path}`, container);
   }
 
+  function appendQueryParam(path, key, value) {
+    if (!value) return path;
+    const separator = path.includes('?') ? '&' : '?';
+    return `${path}${separator}${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+  }
+
   async function loadItems() {
     if (!state.menuId) { renderEmpty(); return; }
 
@@ -155,7 +161,7 @@
     try {
       let url = `${state.basePath}/admin/menus/${state.menuId}/items`;
       url = withNamespace(url, container);
-      if (state.locale) url += `&locale=${encodeURIComponent(state.locale)}`;
+      url = appendQueryParam(url, 'locale', state.locale);
 
       const res = await apiFetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
