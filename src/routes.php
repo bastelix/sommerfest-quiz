@@ -784,10 +784,6 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withHeader('Content-Type', 'application/json')
             ->withHeader('Access-Control-Allow-Origin', '*');
 
-        if (!$isHealthy) {
-            $response = $response->withStatus(503);
-        }
-
         return $response;
     });
 

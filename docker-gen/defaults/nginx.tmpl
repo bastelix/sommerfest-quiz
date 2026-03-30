@@ -903,7 +903,7 @@ server {
         location = /.env { deny all; return 403; }
 
         {{- if (exists "/usr/share/nginx/html/errors/50x.html") }}
-    error_page 500 502 503 504 /50x.html;
+    error_page 500 502 504 /50x.html;
     location /50x.html {
         root /usr/share/nginx/html/errors;
         internal;
@@ -1132,7 +1132,7 @@ server {
 
     {{- if (exists "/usr/share/nginx/html/errors/50x.html") }}
     proxy_intercept_errors on;
-    error_page 502 503 504 /50x.html;
+    error_page 502 504 /50x.html;
     location = /50x.html {
         root /usr/share/nginx/html/errors;
         internal;
