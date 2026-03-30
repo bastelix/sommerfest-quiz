@@ -772,6 +772,7 @@
 - *(settings)* Enable namespace switching on mail settings page
 - Allow hero blocks to use background color tokens
 - Prevent blank news pages caused by stuck hydration gate
+- *(navigation)* Use proper query string construction for locale parameter
 
 ### Merge
 
