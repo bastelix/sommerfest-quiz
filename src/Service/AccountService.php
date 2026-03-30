@@ -60,6 +60,14 @@ class AccountService
         $stmt->execute([$stripeCustomerId, $id]);
     }
 
+    public function updateName(int $id, string $name): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE accounts SET name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+        );
+        $stmt->execute([trim($name), $id]);
+    }
+
     public function updateStatus(int $id, string $status): void
     {
         $stmt = $this->pdo->prepare(

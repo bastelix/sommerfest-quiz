@@ -2,6 +2,17 @@
 {% set show_language = show_language is defined ? show_language : true %}
 {% set show_theme_toggle = show_theme_toggle is defined ? show_theme_toggle : true %}
 {% set show_contrast_toggle = show_contrast_toggle is defined ? show_contrast_toggle : true %}
+{% if show_account_link|default(false) %}
+<div class="uk-navbar-item">
+  <a href="{{ basePath }}{% if account_logged_in|default(false) %}/account/subscriptions{% else %}/auth/login{% endif %}"
+     class="uk-button uk-button-default git-btn"
+     aria-label="{{ t('my_account')|default('Mein Konto') }}">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+    </svg>
+  </a>
+</div>
+{% endif %}
 {% if show_help or show_language or show_theme_toggle or show_contrast_toggle %}
 <div class="uk-navbar-item config-menu uk-inline">
   <button id="configMenuToggle"

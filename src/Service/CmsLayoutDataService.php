@@ -99,6 +99,7 @@ final class CmsLayoutDataService
             'show_language' => (bool) ($settings['show_language_toggle'] ?? true),
             'show_theme_toggle' => (bool) ($settings['show_theme_toggle'] ?? true),
             'show_contrast_toggle' => (bool) ($settings['show_contrast_toggle'] ?? true),
+            'show_account_link' => (bool) ($settings['show_account_link'] ?? false),
             'topbar_style' => (string) ($settings['header_topbar_style'] ?? 'auto'),
         ];
     }

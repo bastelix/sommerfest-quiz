@@ -46,7 +46,9 @@
         show_help: headerConfig.show_help|default(false),
         show_language: headerConfig.show_language ?? true,
         show_theme_toggle: headerConfig.show_theme_toggle ?? true,
-        show_contrast_toggle: headerConfig.show_contrast_toggle ?? true
+        show_contrast_toggle: headerConfig.show_contrast_toggle ?? true,
+        show_account_link: headerConfig.show_account_link|default(false),
+        account_logged_in: account_logged_in|default(false)
       } %}
     </div>
   </nav>

@@ -177,6 +177,9 @@ class ProjectController
         $headerTopbarStyle = array_key_exists('headerTopbarStyle', $payload)
             ? (string) $payload['headerTopbarStyle']
             : $currentSettings['header_topbar_style'];
+        $showAccountLink = array_key_exists('showAccountLink', $payload)
+            ? filter_var($payload['showAccountLink'], FILTER_VALIDATE_BOOLEAN)
+            : (bool) ($currentSettings['show_account_link'] ?? false);
 
         $headerLogoFile = $uploadedFiles['headerLogoFile'] ?? null;
         if (
@@ -223,7 +226,8 @@ class ProjectController
             $headerLogoPath,
             $headerLogoAlt,
             $headerLogoLabel,
-            $headerTopbarStyle
+            $headerTopbarStyle,
+            $showAccountLink
         );
 
         $response->getBody()->write(json_encode([

@@ -513,6 +513,7 @@ class PageController
             'marketingDesignDebug' => $marketingDesignDebug,
             'pricingTableId' => $this->resolvePricingTableId($pageNamespace),
             'stripePublishableKey' => $this->resolveStripePublishableKey(),
+            'account_logged_in' => isset($_SESSION['account_id']),
             'checkoutApp' => $this->resolveCheckoutApp($pageNamespace),
             'subscriptionPlans' => $this->resolveSubscriptionPlans(
                 $pageNamespace,

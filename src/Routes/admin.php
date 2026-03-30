@@ -416,6 +416,16 @@ return function (\Slim\App $app, NamespaceQueryMiddleware $namespaceQueryMiddlew
         return $controller->send($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
     $app->get('/admin/logins', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/accounts', function (Request $request, Response $response) {
+        $controller = new \App\Controller\Admin\AccountListController();
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/accounts/data', function (Request $request, Response $response) {
+        $controller = new \App\Controller\Admin\AccountListController();
+        return $controller->list($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', function (Request $request, Response $response) {
         return $response
             ->withHeader('Location', $request->getAttribute('basePath') . '/admin/domains')

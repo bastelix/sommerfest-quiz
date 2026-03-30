@@ -466,7 +466,15 @@ final class NavigationController
             static fn (array $left, array $right): int => strcmp($left['label'], $right['label'])
         );
 
+        $specialLinks = [
+            ['value' => '/auth/login', 'label' => 'Anmelden', 'group' => 'Speziallinks', 'namespace' => '', 'page' => '', 'blockType' => '', 'blockTitle' => 'Account Login'],
+            ['value' => '/auth/register', 'label' => 'Registrieren', 'group' => 'Speziallinks', 'namespace' => '', 'page' => '', 'blockType' => '', 'blockTitle' => 'Account Registrierung'],
+            ['value' => '/auth/logout', 'label' => 'Abmelden', 'group' => 'Speziallinks', 'namespace' => '', 'page' => '', 'blockType' => '', 'blockTitle' => 'Account Logout'],
+            ['value' => '/account/subscriptions', 'label' => 'Mein Konto', 'group' => 'Speziallinks', 'namespace' => '', 'page' => '', 'blockType' => '', 'blockTitle' => 'Profil & Abonnements'],
+        ];
+
         return array_merge(
+            $specialLinks,
             array_values($standaloneAnchorOptions),
             array_values($pagePathOptions),
             array_values($pageAnchorOptions)
