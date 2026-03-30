@@ -423,6 +423,7 @@
 - *(admin)* Add media library picker and upload for news article images
 - *(admin)* Add news category management UI
 - *(tickets)* Add admin UI and public ticket submission form
+- *(auth)* Add customer account UI — topbar icon, menu links, admin list, profile page
 
 ### Fix
 
