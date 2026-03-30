@@ -375,11 +375,11 @@ SQL;
         $stmt->execute($params);
         $total = (int) $stmt->fetchColumn();
 
-        $sql = 'SELECT DISTINCT ln.*, p.slug AS page_slug, p.title AS page_title'
+        $sql = 'SELECT DISTINCT ln.*, p.slug AS page_slug, p.title AS page_title,'
+            . ' CASE WHEN ln.published_at IS NULL THEN 1 ELSE 0 END AS published_at_sort'
             . ' FROM landing_news ln JOIN pages p ON p.id = ln.page_id'
             . $joins . ' ' . $where
-            . ' ORDER BY CASE WHEN ln.published_at IS NULL THEN 1 ELSE 0 END,'
-            . ' ln.published_at DESC, ln.id DESC'
+            . ' ORDER BY published_at_sort, ln.published_at DESC, ln.id DESC'
             . ' LIMIT :lim OFFSET :off';
         $stmt = $this->pdo->prepare($sql);
         foreach ($params as $key => $val) {
