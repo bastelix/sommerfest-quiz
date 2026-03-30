@@ -158,13 +158,22 @@
     if (!state.menuId) { renderEmpty(); return; }
 
     hideFeedback(feedbackEl);
+    let url;
     try {
-      let url = `${state.basePath}/admin/menus/${state.menuId}/items`;
+      if (typeof apiFetch !== 'function') {
+        throw new Error('apiFetch is not available – marketing-menu-common.js may not have loaded');
+      }
+      url = `${state.basePath}/admin/menus/${state.menuId}/items`;
       url = withNamespace(url, container);
       url = appendQueryParam(url, 'locale', state.locale);
 
       const res = await apiFetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        let body = '';
+        try { body = await res.text(); } catch (_) { /* ignore */ }
+        console.error('[menu-cards] loadItems HTTP error:', res.status, res.statusText, 'url:', url, 'body:', body);
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
       state.items = (data.items || data || []).map(normalizeItem);
       rebuildIndex();
@@ -177,7 +186,7 @@
       renderPreview();
     } catch (err) {
       setFeedback(feedbackEl, 'Menüeinträge konnten nicht geladen werden.', 'danger');
-      console.error('[menu-cards] loadItems error:', err);
+      console.error('[menu-cards] loadItems error:', err, 'url:', url, 'menuId:', state.menuId, 'locale:', state.locale);
     }
   }
 
