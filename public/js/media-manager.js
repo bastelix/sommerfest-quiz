@@ -1062,8 +1062,11 @@ ready(() => {
     }
 
     async function fetchJson(path, options = {}) {
+      const token = getCsrfToken();
       const headers = {
         Accept: 'application/json',
+        ...(token ? { 'X-CSRF-Token': token } : {}),
+        'X-Requested-With': 'fetch',
         ...(options.headers || {})
       };
       const response = await apiFetch(path, { ...options, headers });
@@ -1348,7 +1351,6 @@ ready(() => {
         cleanup();
       }, { once: true });
       picker.addEventListener('cancel', cleanup, { once: true });
-      picker.addEventListener('blur', cleanup, { once: true });
       picker.click();
     }
 
