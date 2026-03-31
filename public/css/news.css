@@ -24,6 +24,17 @@
     padding: 0 1rem;
 }
 
+/* When a topbar is present, offset content below the sticky header */
+.cms-page-render .news-page__header {
+    margin-top: calc(64px + 2rem);
+}
+
+@media (max-width: 959px) {
+    .cms-page-render .news-page__header {
+        margin-top: calc(56px + 2rem);
+    }
+}
+
 .news-page__header h1 {
     font-size: 1.75rem;
     font-weight: 700;
@@ -251,6 +262,16 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem 1rem;
+}
+
+.cms-page-render .news-article {
+    padding-top: calc(64px + 2rem);
+}
+
+@media (max-width: 959px) {
+    .cms-page-render .news-article {
+        padding-top: calc(56px + 2rem);
+    }
 }
 
 .news-article__breadcrumb {
