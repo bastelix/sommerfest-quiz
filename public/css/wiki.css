@@ -45,10 +45,20 @@
   border-radius: 4px;
 }
 
-/* When a topbar/menu is present, offset the sticky sidebar below it */
+/* When a topbar/menu is present, push the layout below the sticky header */
+.wiki-layout--has-topbar {
+  padding-top: 64px;
+}
+
 .wiki-layout--has-topbar .wiki-sidebar {
   top: 64px;
   height: calc(100vh - 64px);
+}
+
+@media (max-width: 959px) {
+  .wiki-layout--has-topbar {
+    padding-top: 56px;
+  }
 }
 
 @media (max-width: 959px) {
