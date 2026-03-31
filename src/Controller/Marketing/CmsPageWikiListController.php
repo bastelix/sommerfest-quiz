@@ -128,7 +128,7 @@ final class CmsPageWikiListController
 
         $directMode = (bool) $request->getAttribute('wikiDirectMode', false);
         $wikiBasePath = $directMode
-            ? $basePath . '/pages/' . $wikiSlug
+            ? $basePath . '/' . $wikiSlug
             : $basePath . '/pages/' . $wikiSlug . '/wiki';
 
         $themeOverrides = $this->themeConfigService->getThemeForSlug($namespace, $settingsPage->getSlug());

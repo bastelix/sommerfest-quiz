@@ -950,8 +950,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingLandingNewsController();
         return $controller->show($request, $response, $args);
     })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
-    // Wiki routes: redirect /pages/{slug}/wiki to /pages/{slug} when page.type === 'wiki'
-    $wikiRedirectIfDirect = static function (Request $request, string $slug, string $prefix): ?Response {
+    // Wiki routes: redirect /pages/{slug}/wiki to /{slug} when page.type === 'wiki'
+    $wikiRedirectIfDirect = static function (Request $request, string $slug): ?Response {
         $pageService = new PageService();
         $namespaceContext = (new \App\Service\NamespaceResolver())->resolve($request);
         $ns = $namespaceContext->getNamespace();
@@ -963,7 +963,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         if ($page !== null && $page->getType() === 'wiki') {
             $basePath = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
-            $target = $basePath . '/' . $prefix . '/' . $slug;
+            $target = $basePath . '/' . $slug;
             $query = $request->getUri()->getQuery();
             if ($query !== '') {
                 $target .= '?' . $query;
@@ -986,7 +986,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(404);
         }
 
-        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug'], 'pages');
+        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug']);
         if ($redirect !== null) {
             return $redirect;
         }
@@ -1008,7 +1008,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(404);
         }
 
-        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug'], 'pages');
+        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug']);
         if ($redirect !== null) {
             return $redirect->withHeader(
                 'Location',
@@ -1020,75 +1020,33 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller($request, $response, $args);
     })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
-    // Direct wiki routes: /pages/{slug} and /pages/{slug}/{articleSlug} for type=wiki pages
+    // Legacy direct wiki routes: 301 redirect /pages/{slug}/{articleSlug} → /{slug}/{articleSlug}
     $app->get('/pages/{slug:[a-z0-9-]+}/{articleSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
+    ) {
+        $basePath = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
+        $target = $basePath . '/' . $args['slug'] . '/' . $args['articleSlug'];
+        $query = $request->getUri()->getQuery();
+        if ($query !== '') {
+            $target .= '?' . $query;
         }
-
-        $request = $request->withAttribute('wikiDirectMode', true);
-        $controller = new CmsPageWikiArticleController();
-
-        return $controller($request, $response, $args);
+        return $response->withHeader('Location', $target)->withStatus(301);
     })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
+    // Legacy direct wiki route: 301 redirect /pages/{slug} → /{slug}
     $app->get('/pages/{slug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
+    ) {
+        $basePath = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
+        $target = $basePath . '/' . $args['slug'];
+        $query = $request->getUri()->getQuery();
+        if ($query !== '') {
+            $target .= '?' . $query;
         }
-
-        $request = $request->withAttribute('wikiDirectMode', true);
-
-        // For direct wiki pages, try to find and show the start document
-        $slug = (string) ($args['slug'] ?? '');
-        $locale = (string) $request->getAttribute('lang', 'de');
-        $pageSlug = \App\Service\MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
-        $namespaceContext = (new \App\Service\NamespaceResolver())->resolve($request);
-        $ns = $namespaceContext->getNamespace();
-        $pageService = new PageService();
-        $page = $pageService->findByKey($ns, $pageSlug);
-        if ($page === null && $pageSlug !== $slug) {
-            $page = $pageService->findByKey($ns, $slug);
-        }
-        if ($page === null || $page->getType() !== 'wiki') {
-            return $response->withStatus(404);
-        }
-
-        // Find the start document and render it as article
-        $settingsService = new \App\Service\CmsPageWikiSettingsService();
-        $settings = $settingsService->getSettingsForPage($page->getId());
-        if (!$settings->isActive()) {
-            return $response->withStatus(404);
-        }
-
-        $articleService = new CmsPageWikiArticleService();
-        $articles = $articleService->getPublishedArticles($page->getId(), $locale);
-        $startArticle = null;
-        foreach ($articles as $article) {
-            if ($article->isStartDocument()) {
-                $startArticle = $article;
-                break;
-            }
-        }
-
-        if ($startArticle !== null) {
-            $args['articleSlug'] = $startArticle->getSlug();
-            $controller = new CmsPageWikiArticleController();
-            return $controller($request, $response, $args);
-        }
-
-        // No start document: show article list
-        $controller = new CmsPageWikiListController();
-        return $controller($request, $response, $args);
+        return $response->withHeader('Location', $target)->withStatus(301);
     })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/m/{landingSlug:[a-z0-9-]+}/news', function (
         Request $request,
@@ -1115,7 +1073,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(404);
         }
 
-        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug'], 'm');
+        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug']);
         if ($redirect !== null) {
             return $redirect;
         }
@@ -1137,7 +1095,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(404);
         }
 
-        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug'], 'm');
+        $redirect = $wikiRedirectIfDirect($request, (string) $args['slug']);
         if ($redirect !== null) {
             return $redirect->withHeader(
                 'Location',
@@ -2922,6 +2880,22 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $response->withHeader('Location', $location)->withStatus(302);
     })->add(new RoleAuthMiddleware('admin'));
 
+    // Canonical wiki article route: /{slug}/{articleSlug}
+    $app->get(
+        '/{slug:[a-z0-9-]+}/{articleSlug:[a-z0-9-]+}',
+        function (
+            Request $request,
+            Response $response,
+            array $args
+        ) {
+            $request = $request->withAttribute('wikiDirectMode', true);
+            $controller = new CmsPageWikiArticleController();
+
+            return $controller($request, $response, $args);
+        }
+    );
+
+    // Catch-all CMS page route (also handles wiki-type pages as start document)
     $app->get(
         '/{slug:[a-z0-9-]+}',
         function (
@@ -2932,6 +2906,47 @@ return function (\Slim\App $app, TranslationService $translator) {
             $cmsPageRouteResolver
         ) {
             $slug = isset($args['slug']) ? (string) $args['slug'] : '';
+
+            // Check if this is a wiki-type page — serve start document or article list
+            $locale = (string) $request->getAttribute('lang', 'de');
+            $pageSlug = \App\Service\MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
+            $namespaceContext = (new \App\Service\NamespaceResolver())->resolve($request);
+            $ns = $namespaceContext->getNamespace();
+            $pageService = new PageService();
+            $page = $pageService->findByKey($ns, $pageSlug);
+            if ($page === null && $pageSlug !== $slug) {
+                $page = $pageService->findByKey($ns, $slug);
+            }
+
+            if ($page !== null && $page->getType() === 'wiki' && \App\Support\FeatureFlags::wikiEnabled()) {
+                $request = $request->withAttribute('wikiDirectMode', true);
+
+                $settingsService = new \App\Service\CmsPageWikiSettingsService();
+                $settings = $settingsService->getSettingsForPage($page->getId());
+                if ($settings->isActive()) {
+                    $articleService = new CmsPageWikiArticleService();
+                    $articles = $articleService->getPublishedArticles($page->getId(), $locale);
+                    $startArticle = null;
+                    foreach ($articles as $article) {
+                        if ($article->isStartDocument()) {
+                            $startArticle = $article;
+                            break;
+                        }
+                    }
+
+                    if ($startArticle !== null) {
+                        $args['articleSlug'] = $startArticle->getSlug();
+                        $controller = new CmsPageWikiArticleController();
+                        return $controller($request, $response, $args);
+                    }
+
+                    // No start document: show article list
+                    $controller = new CmsPageWikiListController();
+                    return $controller($request, $response, $args);
+                }
+            }
+
+            // Not a wiki page — fall through to CMS page resolver
             $controller = $cmsPageRouteResolver->resolveController($request, $slug);
             if ($controller === null) {
                 return $response->withStatus(404);
