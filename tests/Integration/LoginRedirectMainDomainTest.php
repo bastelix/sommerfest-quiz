@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('integration')]
 final class LoginRedirectMainDomainTest extends TestCase
 {
-    public function testLoginRedirectsToMainDomainOnWrongHost(): void {
+    public function testLoginStaysOnTenantSubdomain(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('heidi', 'secret', 'heidi@example.com', Roles::ADMIN);
@@ -36,7 +36,7 @@ final class LoginRedirectMainDomainTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(302, $response->getStatusCode());
-        $this->assertSame('https://main.test/admin', $response->getHeaderLine('Location'));
+        $this->assertSame('/admin', $response->getHeaderLine('Location'));
 
         putenv('MAIN_DOMAIN');
         unset($_ENV['MAIN_DOMAIN'], $_SERVER['HTTP_HOST']);

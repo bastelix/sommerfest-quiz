@@ -428,6 +428,14 @@ class AdminController
         $mediaService = new MediaLibraryService($configSvc, new ImageUploadService());
         $mediaLimits = $mediaService->getLimits();
 
+        $namespaceLabel = null;
+        foreach ($availableNamespaces as $entry) {
+            if (($entry['namespace'] ?? '') === $namespace) {
+                $namespaceLabel = $entry['label'] ?? null;
+                break;
+            }
+        }
+
           return $view->render($response, 'admin.twig', [
               'config' => $cfg,
               'settings' => $settingsForView,
@@ -462,6 +470,7 @@ class AdminController
               'marketingNewsletterStyles' => $marketingNewsletterStyles,
               'marketingNewsletterNamespace' => $namespace,
               'pageNamespace' => $namespace,
+              'namespaceLabel' => $namespaceLabel,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'tenant_sync' => $tenantSyncState,

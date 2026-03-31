@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Domain\Roles;
-use App\Infrastructure\Database;
+use App\Repository\NamespaceRepository;
 use App\Service\SessionService;
 use App\Service\UserService;
 use App\Service\VersionService;
@@ -14,7 +14,6 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 use Slim\Routing\RouteContext;
-use PDO;
 
 /**
  * Handles administrator authentication.
@@ -46,6 +45,18 @@ class LoginController
             $oauthRedirect = '';
         }
 
+        $namespace = $request->getAttribute('namespace')
+            ?? $request->getAttribute('pageNamespace');
+        $namespaceLabel = null;
+        if (is_string($namespace) && $namespace !== '') {
+            try {
+                $nsEntry = (new NamespaceRepository($pdo))->find($namespace);
+                $namespaceLabel = $nsEntry['label'] ?? null;
+            } catch (\Throwable $e) {
+                // namespace table may not exist yet
+            }
+        }
+
         return $view->render($response, 'login.twig', [
             'registration_allowed' => $allowed,
             'reset_success' => $resetSuccess,
@@ -53,6 +64,8 @@ class LoginController
             'csrf_token' => $csrf,
             'google_client_id' => $googleClientId,
             'oauth_redirect' => $oauthRedirect,
+            'designNamespace' => is_string($namespace) ? $namespace : null,
+            'namespaceLabel' => $namespaceLabel,
         ]);
     }
 
@@ -103,16 +116,6 @@ class LoginController
                 'active_namespace' => $activeNamespace,
             ];
             $sessionService->persistSession((int) $record['id'], session_id());
-            $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
-            $mainDomain = (string) getenv('MAIN_DOMAIN');
-            // Redirect to the configured main domain if the login request
-            // was sent to a different host.
-            if ($mainDomain !== '' && strcasecmp($host, $mainDomain) !== 0) {
-                $scheme = $request->getUri()->getScheme() ?: 'https';
-                return $response
-                    ->withHeader('Location', $scheme . '://' . $mainDomain . '/admin')
-                    ->withStatus(302);
-            }
             $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
 
             // Honor ?redirect= parameter (used by OAuth authorize flow)
