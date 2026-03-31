@@ -427,6 +427,7 @@
 - *(auth)* Add customer account UI — topbar icon, menu links, admin list, profile page
 - *(package-summary)* Add optional billing cycle toggle with dual pricing
 - *(mcp)* Add renderingGuide to get_design_manifest response
+- *(modules)* Add timeline page module type
 
 ### Fix
 
