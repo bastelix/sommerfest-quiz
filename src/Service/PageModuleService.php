@@ -14,7 +14,7 @@ use PDO;
 class PageModuleService
 {
     /** @var list<string> */
-    public const ALLOWED_TYPES = ['latest-news', 'pricing-table'];
+    public const ALLOWED_TYPES = ['latest-news', 'pricing-table', 'timeline'];
 
     /** @var list<string> */
     public const ALLOWED_POSITIONS = ['before-content', 'after-content'];

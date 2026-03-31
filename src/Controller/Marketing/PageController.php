@@ -26,6 +26,7 @@ use App\Service\EventService;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
 use App\Service\MarketingSlugResolver;
+use App\Service\PageModuleService;
 use App\Service\TurnstileConfig;
 use App\Infrastructure\Database;
 use App\Support\BasePathHelper;
@@ -83,6 +84,7 @@ class PageController
     private LandingNewsService $landingNews;
     private CmsPageWikiSettingsService $wikiSettings;
     private CmsPageWikiArticleService $wikiArticles;
+    private PageModuleService $pageModules;
 
     public function __construct(
         ?string $slug = null,
@@ -99,7 +101,8 @@ class PageController
         ?ProjectSettingsService $projectSettings = null,
         ?ConfigService $configService = null,
         ?EffectsPolicyService $effectsPolicy = null,
-        ?CmsPageMenuService $cmsMenu = null
+        ?CmsPageMenuService $cmsMenu = null,
+        ?PageModuleService $pageModuleService = null
     ) {
         $this->slug = $slug;
         $pdo = Database::connectFromEnv();
@@ -117,6 +120,7 @@ class PageController
         $this->configService = $configService ?? new ConfigService($pdo);
         $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
         $this->cmsMenu = $cmsMenu ?? new CmsPageMenuService($pdo, $this->pages);
+        $this->pageModules = $pageModuleService ?? new PageModuleService($pdo);
         $this->layoutData = new CmsLayoutDataService($pdo, $this->projectSettings);
     }
 
@@ -519,6 +523,7 @@ class PageController
                 $pageNamespace,
                 $marketingPayload['featureData']['subscriptionPlans'] ?? []
             ),
+            'dbModules' => $this->pageModules->getModulesByPosition($page->getId()),
         ];
 
         return $view->render($response, 'pages/render.twig', $data);
