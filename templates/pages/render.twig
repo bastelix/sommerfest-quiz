@@ -148,6 +148,16 @@
     <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
   {% endif %}
 
+  {% if dbModules is defined %}
+    {% for module in dbModules['after-content']|default([]) %}
+      {% if module.type == 'timeline' %}
+        {% include 'marketing/partials/page-module-timeline.twig' with { module: module } only %}
+      {% elseif module.type == 'latest-news' %}
+        {% include 'marketing/partials/page-module-latest-news.twig' with { module: module, landingNews: landingNews|default([]), landingNewsBasePath: landingNewsBasePath|default(null) } %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
   {% if cmsChatEnabled %}
     {% include 'marketing/partials/marketing-chat.twig' %}
   {% endif %}

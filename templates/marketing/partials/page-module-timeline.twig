@@ -1,0 +1,52 @@
+{# Renders the "timeline" page module.
+   Expects: module (PageModule).
+   Config keys: heading (string), items (array of {title, description}),
+                closing (optional {title, body}). #}
+{% set moduleConfig = module.config|default({}) %}
+{% set heading = moduleConfig.heading|default('') %}
+{% set items = moduleConfig.items|default([]) %}
+{% set closing = moduleConfig.closing|default({}) %}
+
+{% if items|length > 0 %}
+  <section class="marketing-section uk-section uk-section-muted page-module-timeline"
+           data-page-module-id="{{ module.id|e('html_attr') }}"
+           data-page-module-type="timeline">
+    <div class="uk-container">
+      {% if heading %}
+        <h2 class="uk-heading-medium uk-margin-medium-bottom">{{ heading }}</h2>
+      {% endif %}
+
+      <ul class="trust-story trust-story--timeline" role="list" aria-label="{{ heading|default('Timeline')|e('html_attr') }}">
+        {% for item in items %}
+          {% set stepId = 'timeline-' ~ module.id ~ '-step-' ~ loop.index %}
+          <li class="trust-story__step" role="listitem" tabindex="0"
+              aria-labelledby="{{ stepId }}-title" aria-describedby="{{ stepId }}-desc">
+            <div class="trust-story__marker" aria-hidden="true">
+              <span class="trust-story__connector trust-story__connector--before"></span>
+              <span class="trust-story__badge" data-step-index="{{ loop.index }}">
+                {{ loop.index }}
+                <span class="trust-story__sr">Schritt {{ loop.index }}</span>
+              </span>
+              <span class="trust-story__connector trust-story__connector--after"></span>
+            </div>
+            <div class="trust-story__content">
+              <h3 id="{{ stepId }}-title" class="trust-story__title">{{ item.title|default('')|e }}</h3>
+              <p id="{{ stepId }}-desc" class="trust-story__text">{{ item.description|default('')|e }}</p>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+
+      {% if closing.title|default('') or closing.body|default('') %}
+        <div class="trust-story__closing">
+          {% if closing.title|default('') %}
+            <h3 class="trust-story__closing-title">{{ closing.title|e }}</h3>
+          {% endif %}
+          {% if closing.body|default('') %}
+            <p class="trust-story__closing-text">{{ closing.body|e }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
