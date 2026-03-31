@@ -94,8 +94,22 @@ body[data-theme="dark"].high-contrast,
   --drop-color: var(--topbar-text);
 }
 
+/* Hintergrund: UIKit .uk-navbar-container:not(.uk-navbar-transparent) hat
+   background:#f8f8f8 bei Spezifität 0,2,0.  dark.css :where(…) .topbar
+   kommt nur auf 0,1,0 und verliert.  Deshalb hier explizit überschreiben. */
+.topbar.uk-navbar-container{
+  background: var(--topbar-bg);
+  color: var(--topbar-text);
+}
+
 .admin-page .topbar{
   --topbar-height: 48px;
+}
+
+/* Logo: UIKit setzt color:#333 direkt – im Dark Mode überschreiben */
+.topbar .uk-logo,
+.topbar .uk-logo:hover{
+  color: var(--topbar-text);
 }
 
 .topbar,
@@ -226,7 +240,7 @@ body[data-theme="dark"].high-contrast,
 }
 body[data-theme="dark"] .config-menu #configMenuToggle.git-btn,
 .qr-topbar[data-theme="dark"] .config-menu #configMenuToggle.git-btn{
-  color: color-mix(in srgb, var(--topbar-text) 70%, var(--topbar-bg));
+  color: var(--topbar-text);
 }
 .config-menu #configMenuToggle.git-btn:hover,
 .config-menu #configMenuToggle.git-btn:focus,
