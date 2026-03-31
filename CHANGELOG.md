@@ -798,6 +798,7 @@
 - *(preview)* Align editor preview rendering with frontend page renderer
 - *(stat-strip)* Improve contrast of cards and decorations on dark sections
 - *(stat-strip)* Exclude card/highlight variants from white-text-inherit rules
+- *(faq)* Render HTML tags in FAQ accordion answers
 
 ### Merge
 
