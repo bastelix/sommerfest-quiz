@@ -700,6 +700,70 @@
   --stat-card-surface-muted: var(--surface-muted);
 }
 
+/* ------------------------------------------------------------------ */
+/*  Stat strip: text contrast on dark / coloured sections              */
+/* ------------------------------------------------------------------ */
+
+/*
+ * color-mix(in srgb, … transparent) corrupts white text because CSS
+ * transparent is rgba(0,0,0,0) — mixing shifts channels toward black.
+ * On dark sections replace with inherit + opacity (same pattern as the
+ * uk-text-meta / uk-text-lead overrides above).
+ * Excludes card layout where --stat-card-text is already reset to dark.
+ */
+
+.section[data-block-type="stat_strip"]:is(
+  [data-section-intent="highlight"],
+  [data-section-intent="hero"],
+  [data-appearance-legacy="contrast"],
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+):not([data-section-layout="card"]) :is(
+  .stat-strip__inline-label,
+  .stat-strip__centered-label,
+  .stat-strip__highlight-label,
+  .stat-strip__label-text
+) {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.section[data-block-type="stat_strip"]:is(
+  [data-section-intent="highlight"],
+  [data-section-intent="hero"],
+  [data-appearance-legacy="contrast"],
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+):not([data-section-layout="card"]) :is(
+  .stat-strip__inline-meta-item,
+  .stat-strip__centered-meta-item,
+  .stat-strip__highlight-meta-item,
+  .stat-strip__benefit
+) {
+  color: inherit;
+  opacity: 0.78;
+}
+
+.section[data-block-type="stat_strip"]:is(
+  [data-section-intent="highlight"],
+  [data-section-intent="hero"],
+  [data-appearance-legacy="contrast"],
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+):not([data-section-layout="card"]) :is(
+  .stat-strip__inline-meta-item--muted,
+  .stat-strip__centered-meta-item--muted,
+  .stat-strip__highlight-meta-item--muted,
+  .stat-strip__marquee,
+  .stat-strip__as-of
+) {
+  color: inherit;
+  opacity: 0.62;
+}
+
 /* Trust band – seamless strip variant (no borders, compact) */
 .section.trust-band {
   padding-top: 0 !important;
