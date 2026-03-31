@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Controller\Traits\CmsBlockDetectionTrait;
 use App\Service\LegalPageResolver;
 use App\Service\NamespaceResolver;
 use App\Service\NamespaceAppearanceService;
@@ -19,15 +20,23 @@ use Slim\Views\Twig;
  */
 class DatenschutzController
 {
+    use CmsBlockDetectionTrait;
+
     public function __invoke(Request $request, Response $response): Response {
         $resolver = new LegalPageResolver();
         $html = $resolver->resolve($request, 'datenschutz');
         if ($html === null) {
             return $response->withStatus(404);
         }
+
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+
+        if ($this->isCmsBlockContent($html)) {
+            return $this->renderCmsPage($request, $response, $namespace, 'datenschutz');
+        }
+
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $html = str_replace('{{ basePath }}', $basePath, $html);
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $appearance = (new NamespaceAppearanceService())->load($namespace);
         $html = PageVariableService::apply($html, $namespace);
 
