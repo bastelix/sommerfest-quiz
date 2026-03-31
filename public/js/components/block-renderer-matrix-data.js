@@ -1675,6 +1675,7 @@ function renderProcessStepsTimeline(block, options = {}) {
 
       const content = `
         <div class="trust-story__content">
+          ${step.duration ? `<span class="trust-story__duration"${buildEditableAttributes(block, `data.steps[${index}].duration`, context)}>${escapeHtml(step.duration)}</span>` : ''}
           <h3 id="${escapeAttribute(labelId)}" class="trust-story__title">${escapeHtml(step.title || '')}</h3>
           <p id="${escapeAttribute(descriptionId)}" class="trust-story__text">${escapeHtml(step.description || '')}</p>
         </div>`;
@@ -1709,6 +1710,77 @@ function renderProcessStepsTimeline(block, options = {}) {
     block,
     variant: 'timeline',
     sectionClass: 'uk-section-muted',
+    content: `${header}${list}${closing}`
+  });
+}
+
+function renderProcessStepsTimelineCards(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const steps = Array.isArray(block.data?.steps) ? block.data.steps : [];
+
+  if (!steps.length) {
+    throw new Error('process_steps block requires at least one step');
+  }
+
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-small uk-text-center uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const summary = block.data?.summary
+    ? `<p class="uk-text-lead uk-text-center uk-text-muted uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.summary', context)}>${escapeHtml(block.data.summary)}</p>`
+    : '';
+
+  const header = title || summary ? `<div class="uk-margin-large-bottom">${title}${summary}</div>` : '';
+
+  const stepsList = steps
+    .map((step, index) => {
+      const stepId = `${block.id || 'step'}-${step.id || index}`;
+      const labelId = `${stepId}-title`;
+      const descriptionId = `${stepId}-description`;
+      const side = index % 2 === 0 ? 'left' : 'right';
+
+      const duration = step.duration
+        ? `<span class="tl-cards__year"${buildEditableAttributes(block, `data.steps[${index}].duration`, context)}>${escapeHtml(step.duration)}</span>`
+        : '';
+
+      const card = `
+        <div class="tl-cards__card">
+          ${duration}
+          <h3 id="${escapeAttribute(labelId)}" class="tl-cards__title"${buildEditableAttributes(block, `data.steps[${index}].title`, context)}>${escapeHtml(step.title || '')}</h3>
+          <p id="${escapeAttribute(descriptionId)}" class="tl-cards__text"${buildEditableAttributes(block, `data.steps[${index}].description`, context)}>${escapeHtml(step.description || '')}</p>
+        </div>`;
+
+      return `
+        <li class="tl-cards__step tl-cards__step--${side}" role="listitem"
+            aria-labelledby="${escapeAttribute(labelId)}" aria-describedby="${escapeAttribute(descriptionId)}">
+          <div class="tl-cards__dot" aria-hidden="true">
+            <span class="tl-cards__dot-index">${index + 1}</span>
+          </div>
+          ${card}
+        </li>`;
+    })
+    .join('');
+
+  const closingTitle = block.data?.closing?.title
+    ? `<h3 class="uk-text-center uk-margin-medium-top"${buildEditableAttributes(block, 'data.closing.title', context)}>${escapeHtml(block.data.closing.title)}</h3>`
+    : '';
+  const closingBody = block.data?.closing?.body
+    ? `<p class="uk-text-center uk-text-muted"${buildEditableAttributes(block, 'data.closing.body', context)}>${escapeHtml(block.data.closing.body)}</p>`
+    : '';
+
+  const ctas = renderCtaButtons(block.data?.ctaPrimary, block.data?.ctaSecondary, {
+    alignment: 'uk-flex-center',
+    margin: 'uk-margin-medium-top'
+  });
+
+  const closing = closingTitle || closingBody || ctas
+    ? `<div class="tl-cards__closing">${closingTitle}${closingBody}${ctas ? `<div class="trust-story__cta-group">${ctas}</div>` : ''}</div>`
+    : '';
+
+  const list = `<ul class="tl-cards" role="list" aria-label="${escapeAttribute(block.data?.title || 'Timeline')}">${stepsList}</ul>`;
+
+  return renderSection({
+    block,
+    variant: 'timeline_cards',
     content: `${header}${list}${closing}`
   });
 }
@@ -3434,6 +3506,7 @@ export const RENDERER_MATRIX = {
     'numbered-vertical': (block, options) => renderProcessSteps(block, 'numbered-vertical', options),
     'numbered-horizontal': (block, options) => renderProcessSteps(block, 'numbered-horizontal', options),
     timeline: renderProcessStepsTimeline,
+    timeline_cards: renderProcessStepsTimelineCards,
     timeline_vertical: (block, options) => renderProcessSteps(block, 'timeline_vertical', options),
     timeline_horizontal: (block, options) => renderProcessSteps(block, 'timeline_horizontal', options)
   },
