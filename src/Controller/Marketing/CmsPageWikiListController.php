@@ -127,8 +127,9 @@ final class CmsPageWikiListController
         $menuLabel = $settings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
 
         $directMode = (bool) $request->getAttribute('wikiDirectMode', false);
+        $pathPrefix = (string) $request->getAttribute('wikiPathPrefix', '');
         $wikiBasePath = $directMode
-            ? $basePath . '/pages/' . $wikiSlug
+            ? $basePath . $pathPrefix . '/' . $wikiSlug
             : $basePath . '/pages/' . $wikiSlug . '/wiki';
 
         $themeOverrides = $this->themeConfigService->getThemeForSlug($namespace, $settingsPage->getSlug());

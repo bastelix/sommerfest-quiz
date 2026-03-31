@@ -117,7 +117,7 @@ final class PageTools
                             'enum' => ['wiki', 'mcp', ''],
                             'description' => 'Page type. Set to "wiki" to enable direct '
                                 . 'wiki mode (articles served at '
-                                . '/pages/{slug}/{articleSlug} without /wiki prefix). '
+                                . '/{slug}/{articleSlug} without /pages or /wiki prefix). '
                                 . 'Use empty string to clear.',
                         ],
                     ],

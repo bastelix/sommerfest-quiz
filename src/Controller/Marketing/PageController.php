@@ -821,7 +821,7 @@ class PageController
                 if ($wikiArticles !== []) {
                     $label = $wikiSettings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
                     $wikiUrl = $wikiPage->getType() === 'wiki'
-                        ? sprintf('%s/pages/%s', $basePath, $wikiSlug)
+                        ? sprintf('%s/%s', $basePath, $wikiSlug)
                         : sprintf('%s/pages/%s/wiki', $basePath, $wikiSlug);
                     $data['wikiMenu'] = [
                         'label' => $label,
