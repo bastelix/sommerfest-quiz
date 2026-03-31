@@ -1119,6 +1119,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
 
         $request = $request->withAttribute('wikiDirectMode', true);
+        $request = $request->withAttribute('wikiPathPrefix', '/m');
         $controller = new CmsPageWikiArticleController();
 
         return $controller($request, $response, $args);

@@ -126,8 +126,9 @@ final class CmsPageWikiArticleController
         $basePath = RouteContext::fromRequest($request)->getBasePath();
 
         $directMode = (bool) $request->getAttribute('wikiDirectMode', false);
+        $pathPrefix = (string) $request->getAttribute('wikiPathPrefix', '');
         $wikiBasePath = $directMode
-            ? $basePath . '/' . $wikiSlug
+            ? $basePath . $pathPrefix . '/' . $wikiSlug
             : $basePath . '/pages/' . $wikiSlug . '/wiki';
 
         $themeOverrides = $this->themeConfigService->getThemeForSlug($namespace, $settingsPage->getSlug());
