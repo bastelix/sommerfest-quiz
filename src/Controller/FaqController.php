@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Controller\Traits\CmsBlockDetectionTrait;
 use App\Service\NamespaceResolver;
 use App\Service\NamespaceAppearanceService;
 use App\Service\PageService;
@@ -18,17 +19,24 @@ use Slim\Views\Twig;
  */
 class FaqController
 {
+    use CmsBlockDetectionTrait;
+
     /**
      * Render the FAQ page.
      */
     public function __invoke(Request $request, Response $response): Response {
         $service = new PageService();
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
-        $appearance = (new NamespaceAppearanceService())->load($namespace);
         $html = $service->getByKey($namespace, 'faq');
         if ($html === null) {
             return $response->withStatus(404);
         }
+
+        if ($this->isCmsBlockContent($html)) {
+            return $this->renderCmsPage($request, $response, $namespace, 'faq');
+        }
+
+        $appearance = (new NamespaceAppearanceService())->load($namespace);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $html = str_replace('{{ basePath }}', $basePath, $html);
 
