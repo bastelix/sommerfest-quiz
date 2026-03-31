@@ -372,7 +372,7 @@ const schema = {
         "intro": { "type": "string" },
         "steps": {
           "type": "array",
-          "minItems": 2,
+          "minItems": 1,
           "items": { "$ref": "#/definitions/ProcessStep" }
         },
         "closing": { "$ref": "#/definitions/ClosingCopy" },
@@ -1469,7 +1469,7 @@ function validateFeatureListData(data) {
 }
 
 function validateProcessStepsData(data) {
-  if (!hasContent(data?.title) || !Array.isArray(data?.steps) || data.steps.length < 2) {
+  if (!hasContent(data?.title) || !Array.isArray(data?.steps) || data.steps.length < 1) {
     return false;
   }
 

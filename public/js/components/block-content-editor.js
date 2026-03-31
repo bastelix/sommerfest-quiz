@@ -5340,7 +5340,7 @@ export class BlockContentEditor {
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.textContent = 'Entfernen';
-      removeBtn.disabled = (block.data.steps || []).length <= 2;
+      removeBtn.disabled = (block.data.steps || []).length <= 1;
       removeBtn.addEventListener('click', () => this.removeProcessStep(block.id, step.id));
       const moveUp = document.createElement('button');
       moveUp.type = 'button';
@@ -7542,7 +7542,7 @@ export class BlockContentEditor {
       }
       const updated = deepClone(block);
       const steps = Array.isArray(updated.data.steps) ? [...updated.data.steps] : [];
-      if (steps.length <= 2) {
+      if (steps.length <= 1) {
         return block;
       }
       updated.data.steps = steps.filter(step => step.id !== stepId);
