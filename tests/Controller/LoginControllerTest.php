@@ -228,7 +228,7 @@ class LoginControllerTest extends TestCase
         unset($_ENV['BASE_PATH']);
     }
 
-    public function testLoginRedirectsToMainDomainOnWrongHost(): void {
+    public function testLoginStaysOnTenantSubdomain(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('grace', 'secret', 'grace@example.com', Roles::ADMIN);
@@ -250,7 +250,7 @@ class LoginControllerTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertSame(302, $response->getStatusCode());
-        $this->assertSame('https://main.test/admin', $response->getHeaderLine('Location'));
+        $this->assertSame('/admin', $response->getHeaderLine('Location'));
 
         putenv('MAIN_DOMAIN');
         unset($_ENV['MAIN_DOMAIN'], $_SERVER['HTTP_HOST']);
