@@ -2896,7 +2896,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
     );
 
-    // Catch-all CMS page route (also handles wiki-type pages as start document)
+    // Catch-all CMS page route
     $app->get(
         '/{slug:[a-z0-9-]+}',
         function (
@@ -2907,47 +2907,6 @@ return function (\Slim\App $app, TranslationService $translator) {
             $cmsPageRouteResolver
         ) {
             $slug = isset($args['slug']) ? (string) $args['slug'] : '';
-
-            // Check if this is a wiki-type page — serve start document or article list
-            $locale = (string) $request->getAttribute('lang', 'de');
-            $pageSlug = \App\Service\MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
-            $namespaceContext = (new \App\Service\NamespaceResolver())->resolve($request);
-            $ns = $namespaceContext->getNamespace();
-            $pageService = new PageService();
-            $page = $pageService->findByKey($ns, $pageSlug);
-            if ($page === null && $pageSlug !== $slug) {
-                $page = $pageService->findByKey($ns, $slug);
-            }
-
-            if ($page !== null && $page->getType() === 'wiki' && \App\Support\FeatureFlags::wikiEnabled()) {
-                $request = $request->withAttribute('wikiDirectMode', true);
-
-                $settingsService = new \App\Service\CmsPageWikiSettingsService();
-                $settings = $settingsService->getSettingsForPage($page->getId());
-                if ($settings->isActive()) {
-                    $articleService = new CmsPageWikiArticleService();
-                    $articles = $articleService->getPublishedArticles($page->getId(), $locale);
-                    $startArticle = null;
-                    foreach ($articles as $article) {
-                        if ($article->isStartDocument()) {
-                            $startArticle = $article;
-                            break;
-                        }
-                    }
-
-                    if ($startArticle !== null) {
-                        $args['articleSlug'] = $startArticle->getSlug();
-                        $controller = new CmsPageWikiArticleController();
-                        return $controller($request, $response, $args);
-                    }
-
-                    // No start document: show article list
-                    $controller = new CmsPageWikiListController();
-                    return $controller($request, $response, $args);
-                }
-            }
-
-            // Not a wiki page — fall through to CMS page resolver
             $controller = $cmsPageRouteResolver->resolveController($request, $slug);
             if ($controller === null) {
                 return $response->withStatus(404);
