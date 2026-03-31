@@ -809,6 +809,47 @@ const createStepsPreview = orientation => {
   return preview;
 };
 
+const createTimelinePreview = () => {
+  const preview = createPreviewContainer('layout-preview--timeline');
+  const line = document.createElement('div');
+  line.className = 'layout-preview__timeline-line';
+  preview.append(line);
+  [1, 2, 3].forEach(step => {
+    const row = document.createElement('div');
+    row.className = 'layout-preview__timeline-row';
+    const dot = createPreviewBadge(step);
+    dot.dataset.accent = 'true';
+    row.append(dot);
+    const content = document.createElement('div');
+    content.className = 'layout-preview__timeline-content';
+    content.append(createPreviewLine('70%', true));
+    content.append(createPreviewLine('90%'));
+    row.append(content);
+    preview.append(row);
+  });
+  return preview;
+};
+
+const createTimelineCardsPreview = () => {
+  const preview = createPreviewContainer('layout-preview--timeline-cards');
+  const centerLine = document.createElement('div');
+  centerLine.className = 'layout-preview__timeline-center';
+  preview.append(centerLine);
+  ['left', 'right', 'left'].forEach((side, i) => {
+    const row = document.createElement('div');
+    row.className = `layout-preview__tl-card-row layout-preview__tl-card-row--${side}`;
+    const dot = createPreviewBadge(i + 1);
+    dot.dataset.accent = 'true';
+    const card = document.createElement('div');
+    card.className = 'layout-preview__tl-card';
+    card.append(createPreviewLine('60%', true));
+    card.append(createPreviewLine('85%'));
+    row.append(dot, card);
+    preview.append(row);
+  });
+  return preview;
+};
+
 const createSplitPreview = ({ mediaFirst } = {}) => {
   const preview = createPreviewContainer('layout-preview--split');
   const media = createPreviewMedia();
@@ -988,7 +1029,10 @@ const LAYOUT_PREVIEWS = {
   process_steps: {
     'numbered-vertical': () => createStepsPreview('vertical'),
     'numbered-horizontal': () => createStepsPreview('horizontal'),
-    timeline: () => createStepsPreview('vertical')
+    timeline: createTimelinePreview,
+    timeline_cards: createTimelineCardsPreview,
+    timeline_vertical: createTimelinePreview,
+    timeline_horizontal: () => createStepsPreview('horizontal')
   },
   testimonial: {
     single_quote: () => createColumnsPreview(1),
