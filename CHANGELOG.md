@@ -428,6 +428,7 @@
 - *(package-summary)* Add optional billing cycle toggle with dual pricing
 - *(mcp)* Add renderingGuide to get_design_manifest response
 - *(modules)* Add timeline page module type
+- *(blocks)* Loosen process_steps minItems to 1 and enhance timeline style
 
 ### Fix
 
