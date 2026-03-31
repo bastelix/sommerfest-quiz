@@ -802,6 +802,7 @@
 - Delegate legal pages to CMS layout when content uses blocks
 - *(topbar)* Make logo text and config toggle visible in dark mode
 - *(topbar)* Override UIKit navbar background with theme-aware variable
+- *(media)* Add CSRF token to fetchJson and remove blur cleanup in replace picker
 
 ### Merge
 
