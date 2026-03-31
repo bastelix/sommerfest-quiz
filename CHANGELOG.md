@@ -795,6 +795,7 @@
 - Add top padding for wiki and news pages when menu is present
 - *(stat_strip)* Use inherit+opacity for text on dark sections
 - *(wiki)* Remove wiki start-document handling from catch-all /{slug}
+- *(preview)* Align editor preview rendering with frontend page renderer
 
 ### Merge
 
