@@ -1661,13 +1661,15 @@ function renderProcessStepsTimeline(block, options = {}) {
       const stepId = `${block.id || 'step'}-${step.id || index}`;
       const labelId = `${stepId}-title`;
       const descriptionId = `${stepId}-description`;
-      const badgeIcon = '<span class="trust-story__badge-icon" aria-hidden="true" data-uk-icon="icon: check"></span>';
+      const badgeContent = step.icon
+        ? `<span class="trust-story__badge-icon" aria-hidden="true" data-uk-icon="icon: ${escapeAttribute(step.icon)}"></span>`
+        : `${index + 1}`;
 
       const marker = `
         <div class="trust-story__marker" aria-hidden="true">
           <span class="trust-story__connector trust-story__connector--before"></span>
-          <span class="trust-story__badge" data-step-index="${index + 1}">
-            ${badgeIcon}
+          <span class="trust-story__badge${step.icon ? ' trust-story__badge--icon' : ''}" data-step-index="${index + 1}">
+            ${badgeContent}
             <span class="trust-story__sr">Schritt ${index + 1}</span>
           </span>
           <span class="trust-story__connector trust-story__connector--after"></span>
@@ -1749,11 +1751,15 @@ function renderProcessStepsTimelineCards(block, options = {}) {
           <p id="${escapeAttribute(descriptionId)}" class="tl-cards__text"${buildEditableAttributes(block, `data.steps[${index}].description`, context)}>${escapeHtml(step.description || '')}</p>
         </div>`;
 
+      const dotContent = step.icon
+        ? `<span class="tl-cards__dot-icon" data-uk-icon="icon: ${escapeAttribute(step.icon)}"></span>`
+        : `<span class="tl-cards__dot-index">${index + 1}</span>`;
+
       return `
         <li class="tl-cards__step tl-cards__step--${side}" role="listitem"
             aria-labelledby="${escapeAttribute(labelId)}" aria-describedby="${escapeAttribute(descriptionId)}">
-          <div class="tl-cards__dot" aria-hidden="true">
-            <span class="tl-cards__dot-index">${index + 1}</span>
+          <div class="tl-cards__dot${step.icon ? ' tl-cards__dot--icon' : ''}" aria-hidden="true">
+            ${dotContent}
           </div>
           ${card}
         </li>`;
