@@ -2957,7 +2957,7 @@ function renderFaqItem(block, item, index, context) {
   const questionText = escapeHtml(item.question || '');
   const question = `<h3 class="uk-accordion-title"${questionAttributes}>${questionText}</h3>`;
   const answer = item.answer
-    ? `<div class="uk-accordion-content"><p${answerAttributes}>${escapeHtml(item.answer)}</p></div>`
+    ? `<div class="uk-accordion-content"><div${answerAttributes}>${item.answer}</div></div>`
     : '';
   return `<div class="uk-card uk-card-default uk-card-body uk-margin">${question}${answer}</div>`;
 }
