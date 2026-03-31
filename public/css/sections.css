@@ -701,6 +701,121 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Stat strip: card/shell surfaces on dark / coloured sections        */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Variants that render their own card/shell backgrounds (cards, three-up,
+ * highlight) must reset --stat-card-surface to light values on dark
+ * sections so the cards visually separate from the coloured background.
+ * Same pattern as the card-layout reset above (lines 695-701).
+ */
+
+/* Cards / three-up variants: light cards on dark section */
+.section[data-block-type="stat_strip"]:is(
+  [data-section-intent="highlight"],
+  [data-section-intent="hero"],
+  [data-appearance-legacy="contrast"],
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+):not([data-section-layout="card"]):is(
+  [data-block-variant="cards"],
+  [data-block-variant="three-up"],
+  [data-block-variant="three_up"]
+) {
+  --stat-card-surface: var(--surface);
+  --stat-card-surface-muted: var(--surface-muted);
+  --stat-card-text: var(--contrast-text-on-surface, var(--color-text, #111827));
+}
+
+/* Highlight variant: light shells on dark section */
+.section[data-block-type="stat_strip"]:is(
+  [data-section-intent="highlight"],
+  [data-section-intent="hero"],
+  [data-appearance-legacy="contrast"],
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+):not([data-section-layout="card"])[data-block-variant="highlight"] {
+  --stat-card-surface: var(--surface);
+  --stat-card-surface-muted: var(--surface-muted);
+  --stat-card-text: var(--contrast-text-on-surface, var(--color-text, #111827));
+}
+
+/* ------------------------------------------------------------------ */
+/*  Stat strip: decorative borders on dark / coloured sections         */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Inline and centered variants sit directly on the section (no card
+ * background). Their decorative borders use color-mix with surface
+ * tokens, which become invisible on dark sections. Replace with
+ * rgba white or currentColor-based values.
+ */
+
+/* Inline variant: separator borders */
+.section[data-block-type="stat_strip"]:is(
+  [data-section-intent="highlight"],
+  [data-section-intent="hero"],
+  [data-appearance-legacy="contrast"],
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+):not([data-section-layout="card"])[data-block-variant="inline"] .stat-strip__inline-bar {
+  border-top-color: rgba(255, 255, 255, 0.2);
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Centered variant: top accent + bottom separator */
+.section[data-block-type="stat_strip"]:is(
+  [data-section-intent="highlight"],
+  [data-section-intent="hero"],
+  [data-appearance-legacy="contrast"],
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+):not([data-section-layout="card"])[data-block-variant="centered"] .stat-strip__centered-stack {
+  border-top-color: color-mix(in srgb, var(--stat-card-accent) 70%, currentColor 30%);
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+.section[data-block-type="stat_strip"]:is(
+  [data-section-intent="highlight"],
+  [data-section-intent="hero"],
+  [data-appearance-legacy="contrast"],
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+):not([data-section-layout="card"])[data-block-variant="centered"] .stat-strip__centered-accent {
+  background: color-mix(in srgb, var(--stat-card-accent) 85%, currentColor 15%);
+}
+
+/* Marquee border on dark sections */
+.section[data-block-type="stat_strip"]:is(
+  [data-section-intent="highlight"],
+  [data-section-intent="hero"],
+  [data-appearance-legacy="contrast"],
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+):not([data-section-layout="card"]) .stat-strip__marquee {
+  border-top-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Trust-band divider on dark sections */
+.section[data-block-type="stat_strip"]:is(
+  [data-section-intent="highlight"],
+  [data-section-intent="hero"],
+  [data-appearance-legacy="contrast"],
+  [data-section-background-color-token="primary"],
+  [data-section-background-color-token="secondary"],
+  [data-section-background-color-token="accent"]
+) .trust-band__list.uk-subnav-divider > :nth-child(n+2):not(.uk-first-column)::before {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ------------------------------------------------------------------ */
 /*  Stat strip: text contrast on dark / coloured sections              */
 /* ------------------------------------------------------------------ */
 
