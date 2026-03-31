@@ -430,6 +430,7 @@
 - *(modules)* Add timeline page module type
 - *(blocks)* Loosen process_steps minItems to 1 and enhance timeline style
 - *(admin)* Namespace-aware admin styling and login redirect
+- *(blocks)* Add timeline_cards variant and show duration field
 
 ### Fix
 
