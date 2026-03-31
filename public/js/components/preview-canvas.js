@@ -210,7 +210,7 @@ export class PreviewCanvas {
     doc.open();
     doc.write(
       `<!DOCTYPE html><html><head><meta charset="utf-8">\n${linkTags}\n<style>${IFRAME_INLINE_STYLES}</style></head>` +
-      `<body class="marketing-scope cms-page-render marketing-page default-theme" data-preview-intent="${escapeAttr(this.intent)}">` +
+      `<body class="page-render cms-page-render marketing-page uk-background-default" data-preview-intent="${escapeAttr(this.intent)}">` +
       `<div class="page-preview-surface"></div></body></html>`
     );
     doc.close();
