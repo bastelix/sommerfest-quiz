@@ -429,6 +429,7 @@
 - *(mcp)* Add renderingGuide to get_design_manifest response
 - *(modules)* Add timeline page module type
 - *(blocks)* Loosen process_steps minItems to 1 and enhance timeline style
+- *(admin)* Namespace-aware admin styling and login redirect
 
 ### Fix
 
