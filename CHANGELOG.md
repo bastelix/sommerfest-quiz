@@ -797,6 +797,7 @@
 - *(wiki)* Remove wiki start-document handling from catch-all /{slug}
 - *(preview)* Align editor preview rendering with frontend page renderer
 - *(stat-strip)* Improve contrast of cards and decorations on dark sections
+- *(stat-strip)* Exclude card/highlight variants from white-text-inherit rules
 
 ### Merge
 
