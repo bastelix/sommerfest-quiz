@@ -792,6 +792,7 @@ const schema = {
         "title": { "type": "string", "minLength": 1 },
         "description": { "type": "string", "minLength": 1 },
         "duration": { "type": "string" },
+        "icon": { "type": "string" },
         "media": { "$ref": "#/definitions/Media" }
       }
     },

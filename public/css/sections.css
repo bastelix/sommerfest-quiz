@@ -1542,6 +1542,27 @@ body.page-render .qr-page-renderer table {
   }
 }
 
+/* Badge with icon instead of number */
+.trust-story__badge--icon {
+  font-size: 0;
+}
+
+.trust-story__badge-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tl-cards__dot--icon .tl-cards__dot-index {
+  display: none;
+}
+
+.tl-cards__dot-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Duration label for trust-story timeline */
 .trust-story__duration {
   display: inline-block;

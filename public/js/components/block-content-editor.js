@@ -5335,6 +5335,7 @@ export class BlockContentEditor {
       stepCard.append(this.addLabeledInput('Titel', step.title, value => this.updateProcessStep(block.id, step.id, 'title', value)));
       stepCard.append(this.addLabeledInput('Beschreibung', step.description, value => this.updateProcessStep(block.id, step.id, 'description', value), { multiline: true }));
       stepCard.append(this.addLabeledInput('Dauer', step.duration, value => this.updateProcessStep(block.id, step.id, 'duration', value)));
+      stepCard.append(this.addIconPickerInput('Icon (statt Nummer)', step.icon || '', value => this.updateProcessStep(block.id, step.id, 'icon', value)));
 
       const controls = document.createElement('div');
       const removeBtn = document.createElement('button');

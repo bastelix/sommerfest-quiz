@@ -1,6 +1,6 @@
 {# Renders the "timeline" page module.
    Expects: module (PageModule).
-   Config keys: heading (string), items (array of {title, description, duration}),
+   Config keys: heading (string), items (array of {title, description, duration, icon}),
                 closing (optional {title, body}), variant (optional: "cards"). #}
 {% set moduleConfig = module.config|default({}) %}
 {% set heading = moduleConfig.heading|default('') %}
@@ -25,8 +25,12 @@
             {% set side = loop.index is odd ? 'left' : 'right' %}
             <li class="tl-cards__step tl-cards__step--{{ side }}" role="listitem"
                 aria-labelledby="{{ stepId }}-title" aria-describedby="{{ stepId }}-desc">
-              <div class="tl-cards__dot" aria-hidden="true">
-                <span class="tl-cards__dot-index">{{ loop.index }}</span>
+              <div class="tl-cards__dot{% if item.icon|default('') %} tl-cards__dot--icon{% endif %}" aria-hidden="true">
+                {% if item.icon|default('') %}
+                  <span class="tl-cards__dot-icon" data-uk-icon="icon: {{ item.icon|e('html_attr') }}"></span>
+                {% else %}
+                  <span class="tl-cards__dot-index">{{ loop.index }}</span>
+                {% endif %}
               </div>
               <div class="tl-cards__card">
                 {% if item.duration|default('') %}
@@ -47,8 +51,12 @@
                 aria-labelledby="{{ stepId }}-title" aria-describedby="{{ stepId }}-desc">
               <div class="trust-story__marker" aria-hidden="true">
                 <span class="trust-story__connector trust-story__connector--before"></span>
-                <span class="trust-story__badge" data-step-index="{{ loop.index }}">
-                  {{ loop.index }}
+                <span class="trust-story__badge{% if item.icon|default('') %} trust-story__badge--icon{% endif %}" data-step-index="{{ loop.index }}">
+                  {% if item.icon|default('') %}
+                    <span class="trust-story__badge-icon" aria-hidden="true" data-uk-icon="icon: {{ item.icon|e('html_attr') }}"></span>
+                  {% else %}
+                    {{ loop.index }}
+                  {% endif %}
                   <span class="trust-story__sr">Schritt {{ loop.index }}</span>
                 </span>
                 <span class="trust-story__connector trust-story__connector--after"></span>

@@ -1581,6 +1581,10 @@
         "duration": {
           "type": "string"
         },
+        "icon": {
+          "type": "string",
+          "description": "Optional UIkit icon name. When set, the icon is displayed instead of the step number."
+        },
         "media": {
           "$ref": "#/definitions/Media"
         }
