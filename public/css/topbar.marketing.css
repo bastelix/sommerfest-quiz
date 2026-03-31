@@ -280,6 +280,12 @@ body.cms-page-render[data-theme="dark"].high-contrast .lang-option__icon{
   box-shadow:0 0 0 1px currentColor;
 }
 
+/* Logo: UIKit setzt color:#333 direkt – im Dark Mode überschreiben */
+.cms-page-render .qr-topbar .uk-logo,
+.cms-page-render .qr-topbar .uk-logo:hover{
+  color: var(--qr-text);
+}
+
 .cms-page-render .qr-topbar{
   background: var(--qr-landing-topbar-bg);
   backdrop-filter: blur(8px);

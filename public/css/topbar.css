@@ -98,6 +98,12 @@ body[data-theme="dark"].high-contrast,
   --topbar-height: 48px;
 }
 
+/* Logo: UIKit setzt color:#333 direkt – im Dark Mode überschreiben */
+.topbar .uk-logo,
+.topbar .uk-logo:hover{
+  color: var(--topbar-text);
+}
+
 .topbar,
 .topbar.uk-navbar-container,
 .topbar .uk-navbar,
@@ -226,7 +232,7 @@ body[data-theme="dark"].high-contrast,
 }
 body[data-theme="dark"] .config-menu #configMenuToggle.git-btn,
 .qr-topbar[data-theme="dark"] .config-menu #configMenuToggle.git-btn{
-  color: color-mix(in srgb, var(--topbar-text) 70%, var(--topbar-bg));
+  color: var(--topbar-text);
 }
 .config-menu #configMenuToggle.git-btn:hover,
 .config-menu #configMenuToggle.git-btn:focus,
