@@ -790,6 +790,8 @@
 - *(marketing)* Prevent script tag breakout in embedded page payload
 - Add ORDER BY expression to SELECT list for DISTINCT query
 - Render stat_strip metric icons as SVG via UIkit instead of plain text
+- *(wiki)* Use clean URLs without /pages/ prefix for wiki-type pages
+- *(wiki)* Use wikiPathPrefix attribute for /m/ route compatibility
 
 ### Merge
 
