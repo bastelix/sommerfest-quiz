@@ -794,6 +794,7 @@
 - *(wiki)* Use wikiPathPrefix attribute for /m/ route compatibility
 - Add top padding for wiki and news pages when menu is present
 - *(stat_strip)* Use inherit+opacity for text on dark sections
+- *(wiki)* Remove wiki start-document handling from catch-all /{slug}
 
 ### Merge
 
