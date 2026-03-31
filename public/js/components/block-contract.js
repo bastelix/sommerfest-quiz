@@ -103,7 +103,7 @@ const schema = {
       "title": "Process steps block",
       "properties": {
         "type": { "const": "process_steps" },
-        "variant": { "enum": ["timeline_horizontal", "timeline_vertical", "timeline", "numbered-vertical", "numbered-horizontal"] },
+        "variant": { "enum": ["timeline_horizontal", "timeline_vertical", "timeline", "timeline_cards", "numbered-vertical", "numbered-horizontal"] },
         "data": { "$ref": "#/definitions/ProcessStepsData" }
       },
       "required": ["type", "variant", "data"]

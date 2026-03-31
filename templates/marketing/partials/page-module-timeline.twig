@@ -1,11 +1,12 @@
 {# Renders the "timeline" page module.
    Expects: module (PageModule).
-   Config keys: heading (string), items (array of {title, description}),
-                closing (optional {title, body}). #}
+   Config keys: heading (string), items (array of {title, description, duration}),
+                closing (optional {title, body}), variant (optional: "cards"). #}
 {% set moduleConfig = module.config|default({}) %}
 {% set heading = moduleConfig.heading|default('') %}
 {% set items = moduleConfig.items|default([]) %}
 {% set closing = moduleConfig.closing|default({}) %}
+{% set variant = moduleConfig.variant|default('default') %}
 
 {% if items|length > 0 %}
   <section class="marketing-section uk-section uk-section-muted page-module-timeline"
@@ -13,37 +14,64 @@
            data-page-module-type="timeline">
     <div class="uk-container">
       {% if heading %}
-        <h2 class="uk-heading-medium uk-margin-medium-bottom">{{ heading }}</h2>
+        <h2 class="uk-heading-medium uk-margin-medium-bottom{% if variant == 'cards' %} uk-text-center{% endif %}">{{ heading }}</h2>
       {% endif %}
 
-      <ul class="trust-story trust-story--timeline" role="list" aria-label="{{ heading|default('Timeline')|e('html_attr') }}">
-        {% for item in items %}
-          {% set stepId = 'timeline-' ~ module.id ~ '-step-' ~ loop.index %}
-          <li class="trust-story__step" role="listitem" tabindex="0"
-              aria-labelledby="{{ stepId }}-title" aria-describedby="{{ stepId }}-desc">
-            <div class="trust-story__marker" aria-hidden="true">
-              <span class="trust-story__connector trust-story__connector--before"></span>
-              <span class="trust-story__badge" data-step-index="{{ loop.index }}">
-                {{ loop.index }}
-                <span class="trust-story__sr">Schritt {{ loop.index }}</span>
-              </span>
-              <span class="trust-story__connector trust-story__connector--after"></span>
-            </div>
-            <div class="trust-story__content">
-              <h3 id="{{ stepId }}-title" class="trust-story__title">{{ item.title|default('')|e }}</h3>
-              <p id="{{ stepId }}-desc" class="trust-story__text">{{ item.description|default('')|e }}</p>
-            </div>
-          </li>
-        {% endfor %}
-      </ul>
+      {% if variant == 'cards' %}
+        {# ── Alternating cards timeline ── #}
+        <ul class="tl-cards" role="list" aria-label="{{ heading|default('Timeline')|e('html_attr') }}">
+          {% for item in items %}
+            {% set stepId = 'timeline-' ~ module.id ~ '-step-' ~ loop.index %}
+            {% set side = loop.index is odd ? 'left' : 'right' %}
+            <li class="tl-cards__step tl-cards__step--{{ side }}" role="listitem"
+                aria-labelledby="{{ stepId }}-title" aria-describedby="{{ stepId }}-desc">
+              <div class="tl-cards__dot" aria-hidden="true">
+                <span class="tl-cards__dot-index">{{ loop.index }}</span>
+              </div>
+              <div class="tl-cards__card">
+                {% if item.duration|default('') %}
+                  <span class="tl-cards__year">{{ item.duration|e }}</span>
+                {% endif %}
+                <h3 id="{{ stepId }}-title" class="tl-cards__title">{{ item.title|default('')|e }}</h3>
+                <p id="{{ stepId }}-desc" class="tl-cards__text">{{ item.description|default('')|e }}</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        {# ── Default vertical timeline ── #}
+        <ul class="trust-story trust-story--timeline" role="list" aria-label="{{ heading|default('Timeline')|e('html_attr') }}">
+          {% for item in items %}
+            {% set stepId = 'timeline-' ~ module.id ~ '-step-' ~ loop.index %}
+            <li class="trust-story__step" role="listitem" tabindex="0"
+                aria-labelledby="{{ stepId }}-title" aria-describedby="{{ stepId }}-desc">
+              <div class="trust-story__marker" aria-hidden="true">
+                <span class="trust-story__connector trust-story__connector--before"></span>
+                <span class="trust-story__badge" data-step-index="{{ loop.index }}">
+                  {{ loop.index }}
+                  <span class="trust-story__sr">Schritt {{ loop.index }}</span>
+                </span>
+                <span class="trust-story__connector trust-story__connector--after"></span>
+              </div>
+              <div class="trust-story__content">
+                {% if item.duration|default('') %}
+                  <span class="trust-story__duration">{{ item.duration|e }}</span>
+                {% endif %}
+                <h3 id="{{ stepId }}-title" class="trust-story__title">{{ item.title|default('')|e }}</h3>
+                <p id="{{ stepId }}-desc" class="trust-story__text">{{ item.description|default('')|e }}</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
 
       {% if closing.title|default('') or closing.body|default('') %}
-        <div class="trust-story__closing">
+        <div class="{% if variant == 'cards' %}tl-cards__closing{% else %}trust-story__closing{% endif %}">
           {% if closing.title|default('') %}
-            <h3 class="trust-story__closing-title">{{ closing.title|e }}</h3>
+            <h3 class="{% if variant == 'cards' %}uk-text-center uk-margin-medium-top{% else %}trust-story__closing-title{% endif %}">{{ closing.title|e }}</h3>
           {% endif %}
           {% if closing.body|default('') %}
-            <p class="trust-story__closing-text">{{ closing.body|e }}</p>
+            <p class="{% if variant == 'cards' %}uk-text-center uk-text-muted{% else %}trust-story__closing-text{% endif %}">{{ closing.body|e }}</p>
           {% endif %}
         </div>
       {% endif %}

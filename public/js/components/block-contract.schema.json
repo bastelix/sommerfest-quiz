@@ -139,6 +139,7 @@
             "timeline_horizontal",
             "timeline_vertical",
             "timeline",
+            "timeline_cards",
             "numbered-vertical",
             "numbered-horizontal"
           ]

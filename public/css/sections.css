@@ -1542,6 +1542,204 @@ body.page-render .qr-page-renderer table {
   }
 }
 
+/* Duration label for trust-story timeline */
+.trust-story__duration {
+  display: inline-block;
+  font-size: clamp(0.75rem, 1.5vw, 0.82rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--accent-primary, var(--brand-primary, #1e87f0));
+  margin-bottom: clamp(2px, 0.5vw, 4px);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Timeline Cards: alternating left/right layout                      */
+/* ------------------------------------------------------------------ */
+
+.tl-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+/* Central vertical line */
+.tl-cards::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  margin-left: -1.5px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--accent-primary, var(--brand-primary, #1e87f0)) 22%, transparent) 4%,
+    color-mix(in srgb, var(--accent-primary, var(--brand-primary, #1e87f0)) 22%, transparent) 96%,
+    transparent
+  );
+}
+
+/* Step row */
+.tl-cards__step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: clamp(24px, 5vw, 40px);
+}
+
+.tl-cards__step:last-child {
+  margin-bottom: 0;
+}
+
+/* Dot on the center line */
+.tl-cards__dot {
+  position: absolute;
+  left: 50%;
+  top: clamp(18px, 3vw, 24px);
+  width: clamp(36px, 7vw, 44px);
+  height: clamp(36px, 7vw, 44px);
+  margin-left: calc(clamp(36px, 7vw, 44px) / -2);
+  border-radius: 999px;
+  background: var(--accent-primary, var(--brand-primary, #1e87f0));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+  z-index: 2;
+  box-shadow:
+    0 0 0 4px var(--surface, #fff),
+    0 0 0 7px color-mix(in srgb, var(--accent-primary, var(--brand-primary, #1e87f0)) 18%, transparent);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tl-cards__step:hover .tl-cards__dot {
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 4px var(--surface, #fff),
+    0 0 0 9px color-mix(in srgb, var(--accent-primary, var(--brand-primary, #1e87f0)) 28%, transparent);
+}
+
+.tl-cards__dot-index {
+  line-height: 1;
+}
+
+/* Card */
+.tl-cards__card {
+  width: calc(50% - clamp(32px, 5vw, 48px));
+  background: var(--surface, #fff);
+  border-radius: clamp(8px, 1.5vw, 12px);
+  padding: clamp(16px, 3vw, 28px);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 4px 16px rgba(0, 0, 0, 0.04);
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tl-cards__step:hover .tl-cards__card {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* Card arrow pointing to center line */
+.tl-cards__card::after {
+  content: '';
+  position: absolute;
+  top: clamp(22px, 3.5vw, 30px);
+  width: 12px;
+  height: 12px;
+  background: var(--surface, #fff);
+  transform: rotate(45deg);
+  box-shadow: 2px -2px 3px rgba(0, 0, 0, 0.03);
+}
+
+/* Left card: sits on the left, arrow points right */
+.tl-cards__step--left .tl-cards__card {
+  margin-right: auto;
+}
+
+.tl-cards__step--left .tl-cards__card::after {
+  right: -6px;
+}
+
+/* Right card: sits on the right, arrow points left */
+.tl-cards__step--right .tl-cards__card {
+  margin-left: auto;
+}
+
+.tl-cards__step--right .tl-cards__card::after {
+  left: -6px;
+  box-shadow: -2px 2px 3px rgba(0, 0, 0, 0.03);
+}
+
+/* Year / duration badge */
+.tl-cards__year {
+  display: inline-block;
+  font-size: clamp(0.72rem, 1.4vw, 0.82rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-primary, var(--brand-primary, #1e87f0));
+  background: color-mix(in srgb, var(--accent-primary, var(--brand-primary, #1e87f0)) 10%, transparent);
+  padding: 2px 10px;
+  border-radius: 999px;
+  margin-bottom: clamp(6px, 1vw, 10px);
+}
+
+.tl-cards__title {
+  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+  font-weight: 700;
+  margin: 0 0 clamp(4px, 1vw, 8px);
+  color: var(--color-text, #111);
+}
+
+.tl-cards__text {
+  font-size: clamp(0.9rem, 1.6vw, 1rem);
+  line-height: 1.65;
+  margin: 0;
+  color: color-mix(in srgb, var(--color-text, #111) 68%, transparent);
+}
+
+.tl-cards__closing {
+  margin-top: clamp(32px, 6vw, 48px);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Timeline Cards: mobile (single-column)                             */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 959px) {
+  .tl-cards::before {
+    left: clamp(18px, 4vw, 22px);
+    margin-left: 0;
+  }
+
+  .tl-cards__dot {
+    left: clamp(18px, 4vw, 22px);
+    margin-left: calc(clamp(36px, 7vw, 44px) / -2);
+  }
+
+  .tl-cards__step--left .tl-cards__card,
+  .tl-cards__step--right .tl-cards__card {
+    width: auto;
+    margin-left: calc(clamp(18px, 4vw, 22px) + clamp(36px, 7vw, 44px) / 2 + 16px);
+    margin-right: 0;
+  }
+
+  .tl-cards__step--left .tl-cards__card::after,
+  .tl-cards__step--right .tl-cards__card::after {
+    left: -6px;
+    right: auto;
+    box-shadow: -2px 2px 3px rgba(0, 0, 0, 0.03);
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Contact form: mobile-first                                         */
 /* ------------------------------------------------------------------ */
