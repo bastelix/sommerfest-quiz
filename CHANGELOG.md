@@ -800,6 +800,8 @@
 - *(stat-strip)* Exclude card/highlight variants from white-text-inherit rules
 - *(faq)* Render HTML tags in FAQ accordion answers
 - Delegate legal pages to CMS layout when content uses blocks
+- *(topbar)* Make logo text and config toggle visible in dark mode
+- *(topbar)* Override UIKit navbar background with theme-aware variable
 
 ### Merge
 
