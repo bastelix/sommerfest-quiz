@@ -792,6 +792,7 @@
 - Render stat_strip metric icons as SVG via UIkit instead of plain text
 - *(wiki)* Use clean URLs without /pages/ prefix for wiki-type pages
 - *(wiki)* Use wikiPathPrefix attribute for /m/ route compatibility
+- Add top padding for wiki and news pages when menu is present
 
 ### Merge
 
