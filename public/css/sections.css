@@ -824,7 +824,12 @@
  * transparent is rgba(0,0,0,0) — mixing shifts channels toward black.
  * On dark sections replace with inherit + opacity (same pattern as the
  * uk-text-meta / uk-text-lead overrides above).
- * Excludes card layout where --stat-card-text is already reset to dark.
+ *
+ * Only applies to inline and centered variants which sit directly on
+ * the dark section with no card background. Variants with their own
+ * card/shell surface (cards, three-up, highlight) have --stat-card-text
+ * reset to dark and must NOT get white-inherit overrides.
+ * Also excludes card layout where --stat-card-text is already reset.
  */
 
 .section[data-block-type="stat_strip"]:is(
@@ -834,10 +839,15 @@
   [data-section-background-color-token="primary"],
   [data-section-background-color-token="secondary"],
   [data-section-background-color-token="accent"]
-):not([data-section-layout="card"]) :is(
+):not(
+  [data-section-layout="card"],
+  [data-block-variant="cards"],
+  [data-block-variant="three-up"],
+  [data-block-variant="three_up"],
+  [data-block-variant="highlight"]
+) :is(
   .stat-strip__inline-label,
   .stat-strip__centered-label,
-  .stat-strip__highlight-label,
   .stat-strip__label-text
 ) {
   color: inherit;
@@ -851,10 +861,15 @@
   [data-section-background-color-token="primary"],
   [data-section-background-color-token="secondary"],
   [data-section-background-color-token="accent"]
-):not([data-section-layout="card"]) :is(
+):not(
+  [data-section-layout="card"],
+  [data-block-variant="cards"],
+  [data-block-variant="three-up"],
+  [data-block-variant="three_up"],
+  [data-block-variant="highlight"]
+) :is(
   .stat-strip__inline-meta-item,
   .stat-strip__centered-meta-item,
-  .stat-strip__highlight-meta-item,
   .stat-strip__benefit
 ) {
   color: inherit;
@@ -868,10 +883,15 @@
   [data-section-background-color-token="primary"],
   [data-section-background-color-token="secondary"],
   [data-section-background-color-token="accent"]
-):not([data-section-layout="card"]) :is(
+):not(
+  [data-section-layout="card"],
+  [data-block-variant="cards"],
+  [data-block-variant="three-up"],
+  [data-block-variant="three_up"],
+  [data-block-variant="highlight"]
+) :is(
   .stat-strip__inline-meta-item--muted,
   .stat-strip__centered-meta-item--muted,
-  .stat-strip__highlight-meta-item--muted,
   .stat-strip__marquee,
   .stat-strip__as-of
 ) {
