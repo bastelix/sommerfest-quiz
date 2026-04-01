@@ -805,6 +805,7 @@
 - *(topbar)* Make logo text and config toggle visible in dark mode
 - *(topbar)* Override UIKit navbar background with theme-aware variable
 - *(media)* Add CSRF token to fetchJson and remove blur cleanup in replace picker
+- Synchronize all block types across contract files
 
 ### Merge
 
