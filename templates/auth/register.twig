@@ -11,6 +11,7 @@
   <style>
     .auth-page {
       min-height: calc(100vh - 80px);
+      min-height: calc(100dvh - 80px);
     }
 
     .auth-brand-panel {
@@ -23,6 +24,8 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      min-height: calc(100vh - 80px);
+      min-height: calc(100dvh - 80px);
     }
 
     .auth-brand-panel h1 {
@@ -69,6 +72,8 @@
       align-items: center;
       justify-content: center;
       padding: 3rem 3.5rem;
+      min-height: calc(100vh - 80px);
+      min-height: calc(100dvh - 80px);
     }
 
     .auth-form-panel {
@@ -147,6 +152,11 @@
     @media (max-width: 1199px) {
       .auth-form-wrapper {
         padding: 2.5rem 1.5rem;
+        min-height: auto;
+      }
+
+      .auth-page {
+        min-height: auto;
       }
     }
 
@@ -165,14 +175,14 @@
 {% block body %}
   {% embed 'topbar.twig' %}{% endembed %}
 
-  <div class="auth-page" uk-grid="margin: collapse">
+  <div class="auth-page uk-grid-collapse" uk-grid>
 
     {# ── Left: Branding Panel (desktop only) ── #}
     <div class="uk-width-2-5@l uk-visible@l auth-brand-panel">
       <div>
         <h1>edocs</h1>
         <p class="auth-brand-tagline">
-          Deine Plattform fuer Webseiten,<br>
+          Deine Plattform für Webseiten,<br>
           Inhalte und digitale Erlebnisse.
         </p>
 
