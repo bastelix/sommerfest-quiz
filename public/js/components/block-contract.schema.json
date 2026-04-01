@@ -505,6 +505,28 @@
         "variant",
         "data"
       ]
+    },
+    {
+      "title": "Contact form block",
+      "properties": {
+        "type": {
+          "const": "contact_form"
+        },
+        "variant": {
+          "enum": [
+            "default",
+            "compact"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/ContactFormData"
+        }
+      },
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
     }
   ],
   "definitions": {
@@ -674,18 +696,30 @@
           "items": {
             "type": "object",
             "properties": {
-              "value": { "type": "string" },
-              "label": { "type": "string" }
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
             }
           }
         },
         "provenExpert": {
           "type": "object",
           "properties": {
-            "rating": { "type": "string" },
-            "recommendation": { "type": "string" },
-            "reviewCount": { "type": "string" },
-            "reviewSource": { "type": "string" }
+            "rating": {
+              "type": "string"
+            },
+            "recommendation": {
+              "type": "string"
+            },
+            "reviewCount": {
+              "type": "string"
+            },
+            "reviewSource": {
+              "type": "string"
+            }
           }
         }
       }
@@ -827,11 +861,21 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-              "quote": { "type": "string" },
-              "author": { "$ref": "#/definitions/Author" },
-              "source": { "type": "string" },
-              "avatarInitials": { "type": "string" },
-              "inlineHtml": { "type": "string" }
+              "quote": {
+                "type": "string"
+              },
+              "author": {
+                "$ref": "#/definitions/Author"
+              },
+              "source": {
+                "type": "string"
+              },
+              "avatarInitials": {
+                "type": "string"
+              },
+              "inlineHtml": {
+                "type": "string"
+              }
             }
           },
           "minItems": 1
@@ -1650,6 +1694,77 @@
           "type": "string"
         },
         "ctaTarget": {
+          "type": "string"
+        }
+      }
+    },
+    "ContactFormField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label",
+        "enabled"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "enum": [
+            "subject",
+            "phone",
+            "company_name"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ContactFormData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "intro",
+        "recipient",
+        "submitLabel",
+        "privacyHint"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "intro": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recipient": {
+          "type": "string",
+          "minLength": 1
+        },
+        "submitLabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "privacyHint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContactFormField"
+          }
+        },
+        "successMessage": {
           "type": "string"
         }
       }
