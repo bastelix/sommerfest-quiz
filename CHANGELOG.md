@@ -433,6 +433,7 @@
 - *(blocks)* Add timeline_cards variant and show duration field
 - *(blocks)* Add icon picker for timeline steps
 - *(blocks)* Add distinct layout previews for timeline variants
+- *(auth)* Add name field to registration form
 
 ### Fix
 
