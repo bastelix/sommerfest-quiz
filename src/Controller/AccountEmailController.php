@@ -48,9 +48,12 @@ class AccountEmailController
             return $this->json($response, ['error' => 'invalid_email'], 400);
         }
 
-        // Store email and desired plan/app in session for after confirmation
+        $name = trim((string) ($data['name'] ?? ''));
+
+        // Store email, name and desired plan/app in session for after confirmation
         $_SESSION['auth_register'] = [
             'email' => $email,
+            'name' => $name,
             'plan' => (string) ($data['plan'] ?? $_SESSION['auth_register']['plan'] ?? ''),
             'app' => (string) ($data['app'] ?? $_SESSION['auth_register']['app'] ?? ''),
         ];
@@ -120,13 +123,18 @@ class AccountEmailController
                 ->withStatus(302);
         }
 
+        // Read registration data from session (includes name, plan, app)
+        $regData = $_SESSION['auth_register'] ?? [];
+        unset($_SESSION['auth_register']);
+
         // Create or find account
         $pdo = Database::connectFromEnv();
         $accountService = new AccountService($pdo);
         $account = $accountService->findByEmail($email);
 
         if ($account === null) {
-            $accountId = $accountService->create($email);
+            $regName = trim((string) ($regData['name'] ?? ''));
+            $accountId = $accountService->create($email, $regName !== '' ? $regName : null);
             $account = $accountService->findById($accountId);
         }
 
@@ -146,10 +154,8 @@ class AccountEmailController
         $base = RouteContext::fromRequest($request)->getBasePath();
 
         // If plan/app were stored during registration, proceed to Stripe checkout
-        $regData = $_SESSION['auth_register'] ?? [];
         $plan = (string) ($regData['plan'] ?? '');
         $app = (string) ($regData['app'] ?? '');
-        unset($_SESSION['auth_register']);
 
         if ($plan !== '' && $app !== '') {
             $target = $base . '/stripe/checkout?' . http_build_query(['plan' => $plan, 'app' => $app]);

@@ -34,9 +34,15 @@
           </div>
         {% endif %}
 
-        {# Step 1: Email double opt-in #}
+        {# Step 1: Profile + Email double opt-in #}
         <div id="emailStep">
-          <p class="uk-text-muted">Gib deine E-Mail-Adresse ein. Du erhältst einen Bestätigungslink.</p>
+          <p class="uk-text-muted">Erstelle dein Konto. Du erhältst anschließend einen Bestätigungslink per E-Mail.</p>
+          <div class="uk-margin">
+            <div class="uk-inline uk-width-1-1">
+              <span class="uk-form-icon" uk-icon="icon: user"></span>
+              <input class="uk-input uk-form-large" type="text" id="registerName" placeholder="Vor- und Nachname">
+            </div>
+          </div>
           <div class="uk-margin">
             <div class="uk-inline uk-width-1-1">
               <span class="uk-form-icon" uk-icon="icon: mail"></span>
@@ -89,6 +95,7 @@
     (function () {
       var basePath = '{{ basePath }}';
       var sendBtn = document.getElementById('sendConfirmation');
+      var nameInput = document.getElementById('registerName');
       var emailInput = document.getElementById('registerEmail');
       var sentBox = document.getElementById('emailSent');
       var errorBox = document.getElementById('emailError');
@@ -98,6 +105,7 @@
       if (!sendBtn || !emailInput) return;
 
       sendBtn.addEventListener('click', function () {
+        var name = nameInput ? (nameInput.value || '').trim() : '';
         var email = (emailInput.value || '').trim();
         if (!email) return;
 
@@ -110,7 +118,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
           credentials: 'same-origin',
-          body: JSON.stringify({ email: email })
+          body: JSON.stringify({ email: email, name: name })
         })
           .then(function (res) {
             if (res.status === 204) {
