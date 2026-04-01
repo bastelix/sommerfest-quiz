@@ -21,6 +21,9 @@ export type SystemModuleVariant = VariantsFor<'system_module'>;
 export type CaseShowcaseVariant = VariantsFor<'case_showcase'>;
 export type EventHighlightVariant = VariantsFor<'event_highlight'>;
 export type SubscriptionPlansVariant = VariantsFor<'subscription_plans'>;
+export type ProofVariant = VariantsFor<'proof'>;
+export type ContactFormVariant = VariantsFor<'contact_form'>;
+export type LatestNewsVariant = VariantsFor<'latest_news'>;
 
 export type BlockVariant = keyof RendererMatrix[keyof RendererMatrix];
 
@@ -331,6 +334,28 @@ export interface SubscriptionPlansBlockData {
   ctaTarget?: string;
 }
 
+export interface ContactFormField {
+  key: 'subject' | 'phone' | 'company_name';
+  label: string;
+  enabled: boolean;
+  required?: boolean;
+}
+
+export interface ContactFormBlockData {
+  title: string;
+  intro: string;
+  recipient: string;
+  submitLabel: string;
+  privacyHint: string;
+  fields?: ContactFormField[];
+  successMessage?: string;
+}
+
+export interface LatestNewsBlockData {
+  heading?: string;
+  limit?: number;
+}
+
 export interface BaseBlock<TType extends BlockType, TVariant extends BlockVariant, TData> {
   id: string;
   type: TType;
@@ -356,6 +381,9 @@ export type SystemModuleBlock = BaseBlock<'system_module', SystemModuleVariant, 
 export type CaseShowcaseBlock = BaseBlock<'case_showcase', CaseShowcaseVariant, AudienceSpotlightBlockData>;
 export type EventHighlightBlock = BaseBlock<'event_highlight', EventHighlightVariant, EventHighlightBlockData>;
 export type SubscriptionPlansBlock = BaseBlock<'subscription_plans', SubscriptionPlansVariant, SubscriptionPlansBlockData>;
+export type ProofBlock = BaseBlock<'proof', ProofVariant, StatStripBlockData>;
+export type ContactFormBlock = BaseBlock<'contact_form', ContactFormVariant, ContactFormBlockData>;
+export type LatestNewsBlock = BaseBlock<'latest_news', LatestNewsVariant, LatestNewsBlockData>;
 
 export type BlockContract =
   | HeroBlock
@@ -373,4 +401,7 @@ export type BlockContract =
   | EventHighlightBlock
   | SubscriptionPlansBlock
   | SystemModuleBlock
-  | CaseShowcaseBlock;
+  | CaseShowcaseBlock
+  | ProofBlock
+  | ContactFormBlock
+  | LatestNewsBlock;

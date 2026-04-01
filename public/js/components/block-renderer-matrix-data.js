@@ -2695,6 +2695,30 @@ function renderProofMetricCallout(block, options = {}) {
   return renderSection({ block, variant: 'metric-callout', content: `${header}${metricsGrid}${marquee}` });
 }
 
+function renderProofLogoRow(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const header = renderSectionHeader(block, {
+    wrapperClass: 'uk-width-1-1 uk-text-center uk-margin-medium-bottom',
+    context
+  });
+
+  const cases = Array.isArray(block.data?.cases) ? block.data.cases : [];
+  const logos = cases
+    .map(item => {
+      const img = item.media?.image
+        ? `<img src="${escapeAttribute(item.media.image)}" alt="${item.media?.alt ? escapeAttribute(item.media.alt) : escapeAttribute(item.title || '')}" loading="lazy" style="max-height:48px;width:auto;">`
+        : `<span class="uk-text-bold">${escapeHtml(item.title || '')}</span>`;
+      return `<div>${img}</div>`;
+    })
+    .join('');
+
+  const grid = logos
+    ? `<div class="uk-flex uk-flex-center uk-flex-middle uk-flex-wrap" data-uk-grid>${logos}</div>`
+    : '';
+
+  return renderSection({ block, variant: 'logo-row', content: `${header}${grid}` });
+}
+
 function renderAudienceSpotlightCard(item) {
   const badge = item.badge ? `<span class="uk-text-meta">${escapeHtml(item.badge)}</span>` : '';
   const title = `<h3 class="uk-card-title uk-margin-small-top">${escapeHtml(item.title || '')}</h3>`;
@@ -3549,7 +3573,8 @@ export const RENDERER_MATRIX = {
     trust_band: renderStatStripTrustBand
   },
   proof: {
-    'metric-callout': renderProofMetricCallout
+    'metric-callout': renderProofMetricCallout,
+    'logo-row': renderProofLogoRow
   },
   audience_spotlight: {
     tabs: (block, options) => renderAudienceSpotlight(block, 'tabs', options),

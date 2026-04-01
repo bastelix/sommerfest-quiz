@@ -130,7 +130,7 @@ const schema = {
       "title": "Info media block",
       "properties": {
         "type": { "const": "info_media" },
-        "variant": { "enum": ["stacked", "switcher"] },
+        "variant": { "enum": ["stacked", "image-left", "image-right", "switcher"] },
         "data": { "$ref": "#/definitions/InfoMediaData" }
       },
       "required": ["type", "variant", "data"]
@@ -148,7 +148,7 @@ const schema = {
       "title": "Stat strip block",
       "properties": {
         "type": { "const": "stat_strip" },
-        "variant": { "enum": ["inline", "cards", "centered", "highlight", "three-up", "three_up", "trust_bar"] },
+        "variant": { "enum": ["inline", "cards", "centered", "highlight", "three-up", "three_up", "trust_bar", "trust_band"] },
         "data": { "$ref": "#/definitions/StatStripData" }
       },
       "required": ["type", "variant", "data"]
@@ -239,6 +239,36 @@ const schema = {
         "data": { "$ref": "#/definitions/SubscriptionPlansData" }
       },
       "required": ["type", "variant", "data"]
+    },
+    {
+      "title": "Proof block",
+      "allOf": [
+        {
+          "properties": {
+            "type": { "const": "proof" },
+            "variant": { "enum": ["metric-callout", "logo-row"] }
+          },
+          "required": ["type", "variant", "data"]
+        },
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "variant": { "const": "metric-callout" },
+                "data": { "$ref": "#/definitions/StatStripData" }
+              },
+              "required": ["variant", "data"]
+            },
+            {
+              "properties": {
+                "variant": { "const": "logo-row" },
+                "data": { "$ref": "#/definitions/AudienceSpotlightData" }
+              },
+              "required": ["variant", "data"]
+            }
+          ]
+        }
+      ]
     }
   ],
   "definitions": {
