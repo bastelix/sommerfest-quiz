@@ -2,21 +2,216 @@
 
 {% block title %}Konto erstellen{% endblock %}
 
+{% block body_class %}{% endblock %}
+
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="all">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-{% endblock %}
+  <style>
+    .auth-page {
+      min-height: calc(100vh - 80px);
+    }
 
-{% block body_class %}uk-padding{% endblock %}
+    .auth-brand-panel {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--brand-primary) 6%, var(--surface-page)) 0%,
+        color-mix(in srgb, var(--brand-primary) 16%, var(--surface-page)) 100%
+      );
+      padding: 4rem 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .auth-brand-panel h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-brand-tagline {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+    }
+
+    .auth-benefit-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .auth-benefit-icon {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--brand-primary) 12%, transparent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand-primary);
+    }
+
+    .auth-benefit-text {
+      font-size: 0.95rem;
+      color: var(--text-body);
+      line-height: 1.4;
+    }
+
+    .auth-form-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 3.5rem;
+    }
+
+    .auth-form-panel {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .auth-form-panel h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 0.25rem;
+    }
+
+    .auth-form-subtitle {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+
+    .auth-provider-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      width: 100%;
+      background: var(--surface-card);
+      border: 1.5px solid var(--border-muted);
+      border-radius: 10px;
+      padding: 0.85rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-body);
+      text-decoration: none;
+      cursor: pointer;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      margin-bottom: 0.75rem;
+    }
+
+    .auth-provider-btn:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      border-color: var(--brand-primary);
+      text-decoration: none;
+      color: var(--text-body);
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      margin: 1.75rem 0;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      border-top: 1px solid var(--border-muted);
+    }
+
+    .auth-divider span {
+      padding: 0 1rem;
+      white-space: nowrap;
+    }
+
+    .auth-form-fields .uk-margin {
+      margin-bottom: 1rem;
+    }
+
+    .auth-login-link {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    @media (max-width: 1199px) {
+      .auth-form-wrapper {
+        padding: 2.5rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 639px) {
+      .auth-form-wrapper {
+        padding: 2rem 1.25rem;
+      }
+
+      .auth-form-panel h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
   {% embed 'topbar.twig' %}{% endembed %}
-  <div class="uk-container uk-flex uk-flex-center uk-margin-large-top">
-    <div class="uk-width-1-1@s uk-width-1-2@m uk-width-1-3@l">
-      <div class="uk-width-1-1 uk-margin-auto uk-card qr-card uk-card-body uk-box-shadow-large">
-        <h3 class="uk-card-title uk-text-center">Konto erstellen</h3>
 
+  <div class="auth-page" uk-grid="margin: collapse">
+
+    {# ── Left: Branding Panel (desktop only) ── #}
+    <div class="uk-width-2-5@l uk-visible@l auth-brand-panel">
+      <div>
+        <h1>edocs</h1>
+        <p class="auth-brand-tagline">
+          Deine Plattform fuer Webseiten,<br>
+          Inhalte und digitale Erlebnisse.
+        </p>
+
+        <div class="auth-benefit-item">
+          <div class="auth-benefit-icon">
+            <span uk-icon="icon: shield; ratio: 1.2"></span>
+          </div>
+          <div class="auth-benefit-text">
+            Sichere Anmeldung ohne Passwort
+          </div>
+        </div>
+
+        <div class="auth-benefit-item">
+          <div class="auth-benefit-icon">
+            <span uk-icon="icon: bolt; ratio: 1.2"></span>
+          </div>
+          <div class="auth-benefit-text">
+            In Sekunden startklar
+          </div>
+        </div>
+
+        <div class="auth-benefit-item">
+          <div class="auth-benefit-icon">
+            <span uk-icon="icon: users; ratio: 1.2"></span>
+          </div>
+          <div class="auth-benefit-text">
+            Gemeinsam Inhalte erstellen
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ── Right: Form Panel ── #}
+    <div class="uk-width-1-1 uk-width-3-5@l auth-form-wrapper">
+      <div class="auth-form-panel">
+        <h2>Konto erstellen</h2>
+        <p class="auth-form-subtitle">Starte kostenlos — kein Passwort nötig.</p>
+
+        {# ── Error alerts ── #}
         {% set error = app.request is defined ? app.request.queryParams.error|default('') : '' %}
         {% if error %}
           <div class="uk-alert-danger" uk-alert>
@@ -34,9 +229,28 @@
           </div>
         {% endif %}
 
-        {# Step 1: Profile + Email double opt-in #}
-        <div id="emailStep">
-          <p class="uk-text-muted">Erstelle dein Konto. Du erhältst anschließend einen Bestätigungslink per E-Mail.</p>
+        {# ── OAuth Providers (primary) ── #}
+        {% if providers|length > 0 %}
+          <div class="auth-providers">
+            {% for provider in providers %}
+              <a href="{{ basePath }}/auth/provider/{{ provider }}" class="auth-provider-btn">
+                {% if provider == 'google' %}
+                  <span uk-icon="icon: google"></span>
+                  <span>Mit Google registrieren</span>
+                {% else %}
+                  <span>Mit {{ provider|capitalize }} registrieren</span>
+                {% endif %}
+              </a>
+            {% endfor %}
+          </div>
+
+          <div class="auth-divider">
+            <span>oder mit E-Mail registrieren</span>
+          </div>
+        {% endif %}
+
+        {# ── Email registration form ── #}
+        <div id="emailStep" class="auth-form-fields">
           <div class="uk-margin">
             <div class="uk-inline uk-width-1-1">
               <span class="uk-form-icon" uk-icon="icon: user"></span>
@@ -60,32 +274,14 @@
           </div>
         </div>
 
-        {# Divider + Google OAuth shortcut #}
-        {% if providers|length > 0 %}
-          <div class="uk-margin uk-text-center">
-            <hr class="uk-divider-icon">
-            <p class="uk-text-small uk-text-muted">Oder schneller registrieren mit:</p>
-          </div>
-          <div class="uk-margin">
-            {% for provider in providers %}
-              <a href="{{ basePath }}/auth/provider/{{ provider }}"
-                 class="uk-button uk-button-default uk-button-large uk-width-1-1 uk-margin-small-bottom">
-                {% if provider == 'google' %}
-                  <span uk-icon="icon: google"></span> Mit Google registrieren
-                {% else %}
-                  Mit {{ provider|capitalize }} registrieren
-                {% endif %}
-              </a>
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        <div class="uk-margin uk-text-center">
+        {# ── Login link ── #}
+        <div class="auth-login-link">
           <span class="uk-text-muted">Bereits ein Konto?</span>
           <a href="{{ basePath }}/auth/login">Anmelden</a>
         </div>
       </div>
     </div>
+
   </div>
 {% endblock %}
 
