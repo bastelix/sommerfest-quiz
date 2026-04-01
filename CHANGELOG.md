@@ -434,6 +434,7 @@
 - *(blocks)* Add icon picker for timeline steps
 - *(blocks)* Add distinct layout previews for timeline variants
 - *(auth)* Add name field to registration form
+- *(auth)* Redesign registration page with split-screen layout and Google OAuth
 
 ### Fix
 
