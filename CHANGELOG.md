@@ -806,6 +806,7 @@
 - *(topbar)* Override UIKit navbar background with theme-aware variable
 - *(media)* Add CSRF token to fetchJson and remove blur cleanup in replace picker
 - Synchronize all block types across contract files
+- Match CSS specificity for stat-strip column breakpoints
 
 ### Merge
 
