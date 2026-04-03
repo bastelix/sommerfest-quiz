@@ -1,63 +1,49 @@
 # eQuiz-Modul – Migrationsprompt für eForms-Framework
 
-> **Zweck:** Dieses Dokument beschreibt vollständig das bestehende Quiz-System aus edocs-cloud und dient als **Implementierungsbriefing** für die eForms-Code-Assistenz. Es enthält alle Details zu DB-Schema, Fragetypen, Spielablauf, Scoring, Konfiguration, API-Endpunkten und Frontend-Code.
+> **Zweck:** Dieses Dokument beschreibt die **fachliche Logik** des bestehenden Quiz-Systems aus edocs-cloud. Es dient als Implementierungsbriefing für die eForms-Code-Assistenz – mit voller gestalterischer Freiheit bei der Umsetzung.
 
 ---
 
-## 1. Architektur-Überblick des Quellsystems
+## Gestaltungsprinzipien
 
-**Quell-Framework:** Slim 4 (PHP 8.2+), PostgreSQL 15, Twig 3, UIkit 3 + Vanilla JS  
-**Muster:** Controller → Service → Repository → PDO
+- **100% gestalterische Freiheit.** Es gibt keine Vorgaben zu UI-Framework, CSS, Komponenten-Bibliothek oder Templatestruktur. Die Umsetzung soll sich nahtlos in das bestehende eForms-Designsystem einfügen.
+- **Bestehende Komponenten wiederverwenden.** Tabellensysteme, Formulare, Modals, Admin-Layouts, Navigationsstrukturen und alle anderen bereits im eForms-Framework vorhandenen Bausteine sollen bevorzugt genutzt werden. Kein Rad neu erfinden.
+- **Laravel-Konventionen folgen.** Das Zielsystem ist Laravel – Eloquent Models, Migrations, Blade Templates, Resource Controllers, Form Requests, etc. sind die natürliche Wahl.
+- **Optimierter Gesamtcode.** Möglichst kompakt, möglichst viele vorhandene Komponenten, möglichst wenig Eigenentwicklung bei Infrastruktur-Themen (Tabellen, CRUD, Validierung).
 
-### Kerndateien Backend
+---
 
-| Datei | Funktion |
-|-------|----------|
+## 1. Quellsystem-Referenz
+
+Das Quellsystem basiert auf Slim 4 / PostgreSQL / Twig. Die folgenden Dateien dienen als **fachliche Referenz** für die Spiellogik – nicht als Vorlage für die Architektur:
+
+### Backend (Logik-Referenz)
+
+| Datei | Fachliche Funktion |
+|-------|-------------------|
 | `src/Controller/Api/V1/NamespaceQuizController.php` | REST-API (Events, Catalogs, Results, Teams) |
-| `src/Controller/CatalogController.php` | Web-UI für Kataloge |
-| `src/Controller/ResultController.php` | Ergebnisverwaltung |
 | `src/Service/EventService.php` | Event-Lifecycle |
-| `src/Service/CatalogService.php` | Katalog-CRUD + JSON-Dateifallback |
+| `src/Service/CatalogService.php` | Katalog-CRUD + Fragen-Verwaltung |
 | `src/Service/ResultService.php` | Ergebnis-Tracking mit Per-Question-Metriken |
 | `src/Service/TeamService.php` | Teamverwaltung |
 | `src/Service/ConfigService.php` | Event-Konfiguration (Bool/JSON-Keys) |
-| `src/Routes/api_v1.php` | Routendefinitionen |
-| `migrations/20240910_base_schema.sql` | Kernschema |
 
-### Kerndateien Frontend
+### Frontend (Logik-Referenz)
 
-| Datei | Zeilen | Funktion |
-|-------|--------|----------|
-| `public/js/quiz.js` | ~2650 | Hauptquiz-Engine: Fragerendering, Auswertung, Ergebnis-Submission |
-| `public/js/catalog.js` | ~489 | Katalogauswahl + Player-Logik |
-| `public/js/admin-catalog.js` | ~1679 | Admin-Frageneditor |
-| `public/js/admin-events.js` | ~598 | Admin-Eventverwaltung |
-| `public/js/admin-config.js` | ~4059 | Admin-Konfigurationseditor |
-| `public/js/admin-teams.js` | ~426 | Admin-Teamverwaltung |
-| `public/js/results.js` | ~569 | Ergebnisansicht |
-| `public/js/results-data-service.js` | ~933 | Ergebnis-Datenservice |
-| `public/js/event-dashboard.js` | ~1109 | Live-Dashboard/Leaderboard |
-| `public/js/event-config.js` | ~1384 | Event-Konfigurationslogik |
-| `public/js/storage.js` | ~165 | localStorage/sessionStorage-Abstraktion |
-| `public/js/events.js` | ~492 | Event-Auswahl und -Verwaltung |
-
-### Templates (Twig)
-
-| Template | Funktion |
-|----------|----------|
-| `templates/event_catalogs.twig` | Katalogübersicht mit Card-Grid |
-| `templates/results.twig` | Ergebnistabelle + Ranking |
-| `templates/results-hub.twig` | Ergebnis-Hub |
-| `templates/events_overview.twig` | Eventübersicht |
-| `templates/admin/event_config.twig` | Admin-Konfiguration |
-| `templates/admin/components/event_controls.twig` | Event-Steuerungselemente |
-| `templates/admin/components/event_dashboard.twig` | Dashboard-Komponente |
+| Datei | Fachliche Funktion |
+|-------|-------------------|
+| `public/js/quiz.js` (~2650 Z.) | Hauptquiz-Engine: Fragerendering, Auswertung, Ergebnis-Submission |
+| `public/js/catalog.js` (~489 Z.) | Katalogauswahl + Player-Logik |
+| `public/js/admin-catalog.js` (~1679 Z.) | Admin-Frageneditor (alle 6 Typen) |
+| `public/js/admin-config.js` (~4059 Z.) | Admin-Konfigurationseditor |
+| `public/js/results-data-service.js` (~933 Z.) | Ergebnis-Datenservice |
+| `public/js/event-dashboard.js` (~1109 Z.) | Live-Dashboard/Leaderboard |
 
 ---
 
 ## 2. Datenbank-Schema
 
-Alle Tabellen verwenden den Prefix `equiz_`. Die `namespace`-Spalte aus dem Quellsystem wird **nicht** übernommen.
+Die `namespace`-Spalte aus dem Quellsystem wird **nicht** übernommen. Die Tabellenstruktur in Laravel-Migrations überführen (Eloquent Models mit passenden Relationships).
 
 ```sql
 -- Quiz-Events (Hauptentität)
@@ -228,43 +214,42 @@ CREATE TABLE equiz_players (
 1. EVENT-AUSWAHL
    → Benutzer wählt ein Event (oder wird via URL direkt weitergeleitet)
 
-2. KATALOG-AUSWAHL (event_catalogs.twig)
-   → Kartenraster mit allen Katalogen des Events
+2. KATALOG-AUSWAHL
+   → Übersicht aller Kataloge des Events
    → Bereits gelöste Kataloge werden markiert (competitionMode)
    → Klick öffnet den Quiz-Player
 
-3. QUIZ-PLAYER (quiz.js)
+3. QUIZ-PLAYER
    a) TEAMNAME-EINGABE
-      - promptTeamName(): Modal mit Zufallsname-Vorschlag (Format: "Gast-xxxxx")
+      - Modal/Dialog mit Zufallsname-Vorschlag (Format: "Gast-xxxxx")
       - Einfache Zufallsnamen ohne Server-Reservierung
       - Alternativ: QR-Code-Scanner für Namenszuweisung (QRUser-Modus)
-      - Wiederkehrende Spieler werden erkannt ("Ah - dich kenne ich")
+      - Wiederkehrende Spieler werden erkannt
 
    b) STARTBILDSCHIRM
       - Logo + Event-Name + Beschreibung
-      - "Los geht's!"-Button
+      - Start-Button
 
    c) FRAGEN-DURCHLAUF
       - Fragen werden gemischt (shuffleQuestions, Fisher-Yates)
-      - Fortschrittsbalken (nur bewertbare Fragen zählen)
+      - Fortschrittsanzeige (nur bewertbare Fragen zählen)
       - Pro Frage:
         * Countdown-Timer (optional, konfigurierbar pro Frage oder global)
         * Punktevorschau bei aktivem Timer
         * Typ-spezifisches Rendering (mc/sort/assign/swipe/flip/photoText)
-        * Feedback nach Antwort (korrekt/falsch + Farbmarkierung)
+        * Feedback nach Antwort (korrekt/falsch)
         * Automatischer Weiter bei Timeout (1.5s Verzögerung)
       - Antworten werden im answers[]-Array gespeichert mit:
         * isCorrect, timeLeftSec, ggf. photo/text/consent
 
    d) ZUSAMMENFASSUNG
-      - "Danke für die Teilnahme [Name]!"
+      - Danke-Meldung mit Name
       - Punkte/Richtige anzeigen
-      - Confetti-Animation bei Volltreffer
       - Rätselwort-Buchstabe anzeigen (puzzleWordEnabled)
       - Verbleibende Stationen anzeigen (competitionMode)
       - Beweisfoto-Upload (photoUpload)
       - Rätselwort-Prüfung (puzzleWordEnabled)
-      - Ergebnis per POST /results an Server senden
+      - Ergebnis per POST an Server senden
 
    e) ERGEBNIS-DATEN (POST /results)
       {
@@ -326,12 +311,12 @@ function computePreviewPoints(basePoints, totalSeconds, remainingSeconds) {
 | `puzzleWord` | Das zu erratende Rätselwort |
 | `puzzleFeedback` | Feedback-Text bei korrektem Rätselwort |
 
-### Erscheinungsbild
+### Erscheinungsbild (Admin-konfigurierbar)
 
 | Key | Beschreibung |
 |-----|-------------|
-| `colors` | JSON mit `{primary, accent}` Farbschema |
-| `designTokens` | Design-System-Tokens |
+| `colors` | JSON mit Farbschema (frei gestaltbar) |
+| `designTokens` | Design-Tokens (frei gestaltbar) |
 | `logoPath` | Pfad zum Event-Logo |
 | `customCss` | Benutzerdefiniertes CSS |
 | `startTheme` | Start-Theme |
@@ -355,13 +340,13 @@ function computePreviewPoints(basePoints, totalSeconds, remainingSeconds) {
 
 - `randomNames` aktiviert Zufallsnamen (Format: `Gast-xxxxx`)
 - Kein AI-Generierungssystem, kein Reservierungssystem
-- Einfache clientseitige Generierung: `Gast-${Math.random().toString(36).slice(2, 7)}`
+- Einfache clientseitige Generierung
 
 ---
 
 ## 7. API-Endpunkte
 
-Alle Endpunkte ohne Namespace-Prefix, unter `/api/equiz/`.
+Alle Endpunkte ohne Namespace-Prefix. Routing-Struktur nach Laravel-Konventionen (Resource Controller, Route Groups, etc.).
 
 ```
 # Events
@@ -401,35 +386,9 @@ PUT    /api/equiz/events/{uid}/config          → Event-Konfiguration speichern
 
 ---
 
-## 8. Frontend-Architektur
+## 8. Entfernungen (Namespace-Bindung)
 
-**UI-Framework:** UIkit 3 (CSS + JS-Komponenten)  
-**Kein Build-System:** Vanilla JS mit `<script>` / `<script type="module">`  
-**Drag & Drop:** SortableJS für Sort- und Assign-Fragen
-
-### Schlüssel-Patterns
-
-- `window.quizConfig` – Globale Konfiguration (vom Server injiziert)
-- `window.quizQuestions` – Fragen-Array (vom Server injiziert)
-- `window.startQuiz(questions, skipIntro)` – Einstiegspunkt
-- `STORAGE_KEYS` – Abstraktion für localStorage/sessionStorage
-- Modale Dialoge via `UIkit.modal()` (dynamisch erzeugt)
-- CSS-Variablen für Theming (`--color-bg`, `--accent-color`)
-
-### Admin-Editor (admin-catalog.js)
-
-- `initCatalog(ctx)` – Modularer Editor mit Dependency Injection
-- TableManager für Katalogliste
-- Inline-Frageneditor mit Typ-Wechsel
-- Drag & Drop Sortierung der Fragen
-- Undo-Stack für Fragenänderungen
-- Slug-Generierung und Validierung
-
----
-
-## 9. Entfernungen (Namespace-Bindung)
-
-Folgendes wird **NICHT** in das eQuiz-Modul übernommen:
+Folgendes wird **NICHT** übernommen:
 
 - `namespace`-Spalte in Events und allen Queries
 - `ApiTokenAuthMiddleware` mit Namespace-Scope-Prüfung
@@ -445,57 +404,7 @@ Folgendes wird **NICHT** in das eQuiz-Modul übernommen:
 
 ---
 
-## 10. Modulstruktur-Empfehlung für eForms
-
-```
-eQuiz/
-├── Controller/
-│   ├── QuizApiController.php          → REST-API für Events, Catalogs, Results, Teams
-│   ├── QuizPlayerController.php       → Frontend-Endpunkte (Players, Progress, Photos)
-│   ├── QuizAdminController.php        → Admin-UI (Eventverwaltung, Kataloge, Konfiguration)
-│   └── QuizDashboardController.php    → Live-Dashboard/Leaderboard
-├── Service/
-│   ├── QuizEventService.php           → Event-Lifecycle
-│   ├── QuizCatalogService.php         → Katalog-CRUD + Fragen
-│   ├── QuizResultService.php          → Ergebnis-Tracking + Scoring
-│   ├── QuizTeamService.php            → Teamverwaltung
-│   └── QuizConfigService.php          → Event-Konfiguration
-├── Migration/
-│   └── create_equiz_tables.sql
-├── Resources/
-│   ├── js/
-│   │   ├── quiz.js                    → Quiz-Engine (1:1 übernehmen)
-│   │   ├── catalog.js                 → Katalogauswahl
-│   │   ├── admin-catalog.js           → Admin-Frageneditor
-│   │   ├── admin-events.js            → Admin-Eventverwaltung
-│   │   ├── admin-config.js            → Konfigurationseditor
-│   │   ├── admin-teams.js             → Teamverwaltung
-│   │   ├── results.js                 → Ergebnisansicht
-│   │   ├── results-data-service.js    → Ergebnis-Datenservice
-│   │   ├── event-dashboard.js         → Dashboard
-│   │   ├── event-config.js            → Konfigurationslogik
-│   │   └── storage.js                 → Storage-Abstraktion
-│   ├── css/
-│   │   ├── quiz.css                   → Quiz-Player Styles
-│   │   └── admin.css                  → Admin Styles
-│   └── views/
-│       ├── quiz/player.twig           → Quiz-Player Template
-│       ├── quiz/catalogs.twig         → Katalogauswahl
-│       ├── quiz/results.twig          → Ergebnisse
-│       ├── quiz/summary.twig          → Spieler-Zusammenfassung
-│       ├── quiz/dashboard.twig        → Live-Dashboard
-│       └── admin/
-│           ├── events.twig            → Event-Verwaltung
-│           ├── catalogs.twig          → Katalog-/Fragen-Editor
-│           ├── config.twig            → Konfiguration
-│           ├── results.twig           → Ergebnis-Verwaltung
-│           └── teams.twig             → Team-Verwaltung
-└── routes.php                         → Alle eQuiz-Routen
-```
-
----
-
-## 11. Testplan
+## 9. Testplan
 
 1. **Event erstellen** – Admin: neues Event mit Name, Beschreibung, Datumsbereich
 2. **Katalog anlegen** – Admin: Katalog mit Slug und Fragen aller 6 Typen erstellen
@@ -512,13 +421,14 @@ eQuiz/
 
 ## Zusammenfassung
 
-Dieses Dokument beschreibt vollständig das bestehende Quiz-System aus edocs-cloud. Die Kernprinzipien für die Migration:
+Dieses Dokument beschreibt die **fachliche Logik** des Quiz-Systems. Die Kernprinzipien:
 
 1. **Alle 6 Fragetypen** (mc, sort, assign, swipe, flip, photoText) mit identischer Spiellogik übernehmen
-2. **Frontend-Code** (quiz.js, admin-catalog.js) als Basis nutzen – die dynamische DOM-Erzeugung und UIkit-Integration bleiben gleich
+2. **Bestehende eForms-Komponenten maximal wiederverwenden** – Tabellen, Formulare, Admin-Layouts, Modals
 3. **Namespace-Bindung entfernen** – alle `namespace`-Parameter, Multi-Tenant-Middleware und Quotas weglassen
-4. **Tabellen-Prefix `equiz_`** verwenden für saubere Trennung im eForms-Schema
+4. **Tabellen-Prefix `equiz_`** verwenden, Eloquent Models + Laravel Migrations
 5. **API-Pfade** unter `/api/equiz/` ohne Namespace-Segment
 6. **Konfigurationssystem** vollständig übernehmen (Bool-Keys, JSON-Felder, Dashboard-Settings)
 7. **Scoring-Algorithmus** mit Countdown-Multiplikator exakt reproduzieren
-8. **Teamnamen** nur als einfache Zufallsnamen (`Gast-xxxxx`), ohne AI-Generierung und Reservierungssystem
+8. **Teamnamen** nur als einfache Zufallsnamen (`Gast-xxxxx`), ohne AI-Generierung
+9. **Volle gestalterische Freiheit** – Design, Layouts und UI-Komponenten nach eigenem Ermessen im eForms-Designsystem umsetzen
