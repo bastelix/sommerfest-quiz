@@ -99,6 +99,8 @@
 - Add MCP connector setup guide for Claude.ai
 - Complete documentation overhaul for GitHub Pages
 - Add block rendering handbook for external editors
+- *(quiz)* Add eQuiz migration prompt for eForms framework
+- *(quiz)* Remove design prescriptions, add creative freedom guidelines
 
 ### Feat
 
