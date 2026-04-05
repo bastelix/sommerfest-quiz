@@ -15,8 +15,11 @@ use Slim\Psr7\Uri;
 
 class McpControllerTest extends TestCase
 {
-    private function createJsonRpcRequest(mixed $body, array $attributes = []): Request
-    {
+    private function createJsonRpcRequest(
+        mixed $body,
+        array $attributes = [],
+        bool $withSession = true
+    ): Request {
         $uri = new Uri('https', 'example.com', 443, '/mcp');
         $stream = (new StreamFactory())->createStream(
             is_string($body) ? $body : json_encode($body)
@@ -24,6 +27,9 @@ class McpControllerTest extends TestCase
         $headers = new Headers();
         $headers->addHeader('Content-Type', 'application/json');
         $headers->addHeader('Accept', 'application/json, text/event-stream');
+        if ($withSession) {
+            $headers->addHeader('Mcp-Session-Id', 'test-session-id-abc123');
+        }
 
         $request = new Request('POST', $uri, $headers, [], [], $stream);
 
@@ -41,7 +47,7 @@ class McpControllerTest extends TestCase
     }
 
     // ---------------------------------------------------------------
-    // Fix 3: ping method
+    // Ping
     // ---------------------------------------------------------------
 
     public function testPingReturnsEmptyResult(): void
@@ -80,7 +86,9 @@ class McpControllerTest extends TestCase
     public function testMissingJsonrpcFieldReturnsInvalidRequest(): void
     {
         $controller = new McpController();
-        $request = $this->createJsonRpcRequest(['method' => 'ping', 'id' => 1]);
+        $request = $this->createJsonRpcRequest(
+            ['method' => 'ping', 'id' => 1]
+        );
 
         $response = $controller->handle($request, new Response());
 
@@ -106,7 +114,6 @@ class McpControllerTest extends TestCase
     public function testNotificationReturns202(): void
     {
         $controller = new McpController();
-        // Notification = has method but no id
         $request = $this->createJsonRpcRequest([
             'jsonrpc' => '2.0',
             'method' => 'notifications/initialized',
@@ -118,7 +125,73 @@ class McpControllerTest extends TestCase
     }
 
     // ---------------------------------------------------------------
-    // Fix 2: Batch requests
+    // Session-ID validation
+    // ---------------------------------------------------------------
+
+    public function testMissingSessionIdReturns400(): void
+    {
+        $controller = new McpController();
+        $request = $this->createJsonRpcRequest(
+            ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'ping'],
+            [],
+            false // no session header
+        );
+
+        $response = $controller->handle($request, new Response());
+
+        $this->assertSame(400, $response->getStatusCode());
+        $data = $this->decodeResponse($response);
+        $this->assertStringContainsString(
+            'Mcp-Session-Id',
+            $data['error']['message']
+        );
+    }
+
+    public function testInitializeDoesNotRequireSessionId(): void
+    {
+        $controller = new McpController();
+        $request = $this->createJsonRpcRequest(
+            [
+                'jsonrpc' => '2.0',
+                'id' => 1,
+                'method' => 'initialize',
+                'params' => [
+                    'protocolVersion' => '2025-03-26',
+                    'capabilities' => [],
+                    'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+                ],
+            ],
+            [],
+            false // no session header - initialize should still work
+        );
+
+        $response = $controller->handle($request, new Response());
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertNotEmpty(
+            $response->getHeaderLine('Mcp-Session-Id')
+        );
+    }
+
+    public function testBatchWithoutSessionIdReturns400(): void
+    {
+        $controller = new McpController();
+        $request = $this->createJsonRpcRequest(
+            [
+                ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'ping'],
+                ['jsonrpc' => '2.0', 'id' => 2, 'method' => 'ping'],
+            ],
+            [],
+            false
+        );
+
+        $response = $controller->handle($request, new Response());
+
+        $this->assertSame(400, $response->getStatusCode());
+    }
+
+    // ---------------------------------------------------------------
+    // Batch requests
     // ---------------------------------------------------------------
 
     public function testBatchWithMultiplePingsReturnsArray(): void
@@ -157,7 +230,12 @@ class McpControllerTest extends TestCase
     {
         $controller = new McpController();
         $request = $this->createJsonRpcRequest([
-            ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize', 'params' => []],
+            [
+                'jsonrpc' => '2.0',
+                'id' => 1,
+                'method' => 'initialize',
+                'params' => [],
+            ],
             ['jsonrpc' => '2.0', 'id' => 2, 'method' => 'ping'],
         ]);
 
@@ -165,7 +243,10 @@ class McpControllerTest extends TestCase
 
         $data = $this->decodeResponse($response);
         $this->assertSame(-32600, $data['error']['code']);
-        $this->assertStringContainsString('initialize', $data['error']['message']);
+        $this->assertStringContainsString(
+            'initialize',
+            $data['error']['message']
+        );
     }
 
     public function testBatchMixedRequestsAndNotifications(): void
@@ -173,14 +254,16 @@ class McpControllerTest extends TestCase
         $controller = new McpController();
         $request = $this->createJsonRpcRequest([
             ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'ping'],
-            ['jsonrpc' => '2.0', 'method' => 'notifications/initialized'],
+            [
+                'jsonrpc' => '2.0',
+                'method' => 'notifications/initialized',
+            ],
             ['jsonrpc' => '2.0', 'id' => 2, 'method' => 'ping'],
         ]);
 
         $response = $controller->handle($request, new Response());
 
         $data = $this->decodeResponse($response);
-        // Only 2 results (notifications produce no output)
         $this->assertCount(2, $data);
         $this->assertSame(1, $data[0]['id']);
         $this->assertSame(2, $data[1]['id']);
@@ -189,7 +272,6 @@ class McpControllerTest extends TestCase
     public function testEmptyBatchArrayReturnsInvalidRequest(): void
     {
         $controller = new McpController();
-        // Empty array is not a valid batch and not a valid single message
         $request = $this->createJsonRpcRequest([]);
 
         $response = $controller->handle($request, new Response());
@@ -199,7 +281,7 @@ class McpControllerTest extends TestCase
     }
 
     // ---------------------------------------------------------------
-    // Fix 4: HTTP 403 for missing scopes
+    // HTTP 403 for missing scopes
     // ---------------------------------------------------------------
 
     public function testToolsCallWithoutRequiredScopeReturns403(): void
@@ -210,7 +292,10 @@ class McpControllerTest extends TestCase
                 'jsonrpc' => '2.0',
                 'id' => 1,
                 'method' => 'tools/call',
-                'params' => ['name' => 'list_pages', 'arguments' => []],
+                'params' => [
+                    'name' => 'list_pages',
+                    'arguments' => [],
+                ],
             ],
             [
                 ApiTokenAuthMiddleware::ATTR_TOKEN_SCOPES => ['news:read'],
@@ -223,7 +308,10 @@ class McpControllerTest extends TestCase
         $this->assertSame(403, $response->getStatusCode());
         $data = $this->decodeResponse($response);
         $this->assertArrayHasKey('error', $data);
-        $this->assertStringContainsString('cms:read', $data['error']['message']);
+        $this->assertStringContainsString(
+            'cms:read',
+            $data['error']['message']
+        );
     }
 
     public function testToolsCallMissingToolNameReturnsError(): void
@@ -249,22 +337,27 @@ class McpControllerTest extends TestCase
     }
 
     // ---------------------------------------------------------------
-    // Fix 1: Scope mapping completeness
+    // Scope mapping completeness
     // ---------------------------------------------------------------
 
     /**
      * @dataProvider scopeMappingProvider
      */
-    public function testScopeMappingIsComplete(string $toolName, string $expectedScope): void
-    {
+    public function testScopeMappingIsComplete(
+        string $toolName,
+        string $expectedScope
+    ): void {
         $controller = new McpController();
 
-        // Use reflection to test the private getRequiredScope method
         $method = new \ReflectionMethod($controller, 'getRequiredScope');
         $method->setAccessible(true);
 
         $scope = $method->invoke($controller, $toolName);
-        $this->assertSame($expectedScope, $scope, "Tool '{$toolName}' should require scope '{$expectedScope}'");
+        $this->assertSame(
+            $expectedScope,
+            $scope,
+            "Tool '{$toolName}' should require scope '{$expectedScope}'"
+        );
     }
 
     /**
@@ -273,20 +366,20 @@ class McpControllerTest extends TestCase
     public static function scopeMappingProvider(): array
     {
         return [
-            // Menu assignments (Fix 1 - were missing)
+            // Menu assignments
             'list_menu_assignments' => ['list_menu_assignments', 'menu:read'],
             'create_menu_assignment' => ['create_menu_assignment', 'menu:write'],
             'update_menu_assignment' => ['update_menu_assignment', 'menu:write'],
             'delete_menu_assignment' => ['delete_menu_assignment', 'menu:write'],
 
-            // News categories (Fix 1 - were missing)
+            // News categories
             'list_news_categories' => ['list_news_categories', 'news:read'],
             'create_news_category' => ['create_news_category', 'news:write'],
             'delete_news_category' => ['delete_news_category', 'news:write'],
             'assign_news_category' => ['assign_news_category', 'news:write'],
             'remove_news_category' => ['remove_news_category', 'news:write'],
 
-            // Design tools (Fix 1 - were missing)
+            // Design tools
             'get_design_manifest' => ['get_design_manifest', 'design:read'],
             'validate_page_design' => ['validate_page_design', 'design:read'],
 
@@ -313,7 +406,23 @@ class McpControllerTest extends TestCase
         $method = new \ReflectionMethod($controller, 'getRequiredScope');
         $method->setAccessible(true);
 
-        $this->assertNull($method->invoke($controller, 'list_namespaces'));
+        $this->assertNull(
+            $method->invoke($controller, 'list_namespaces')
+        );
+    }
+
+    // ---------------------------------------------------------------
+    // tools/list pagination
+    // ---------------------------------------------------------------
+
+    public function testToolsListPaginationConstantExists(): void
+    {
+        $ref = new \ReflectionClass(McpController::class);
+        $this->assertTrue(
+            $ref->hasConstant('TOOLS_PAGE_SIZE'),
+            'TOOLS_PAGE_SIZE constant must exist'
+        );
+        $this->assertIsInt($ref->getConstant('TOOLS_PAGE_SIZE'));
     }
 
     // ---------------------------------------------------------------
@@ -350,7 +459,10 @@ class McpControllerTest extends TestCase
         $response = $controller->handleGet($request, new Response());
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertStringContainsString('text/event-stream', $response->getHeaderLine('Content-Type'));
+        $this->assertStringContainsString(
+            'text/event-stream',
+            $response->getHeaderLine('Content-Type')
+        );
     }
 
     // ---------------------------------------------------------------
@@ -360,23 +472,38 @@ class McpControllerTest extends TestCase
     public function testInitializeReturnsSessionId(): void
     {
         $controller = new McpController();
-        $request = $this->createJsonRpcRequest([
-            'jsonrpc' => '2.0',
-            'id' => 1,
-            'method' => 'initialize',
-            'params' => [
-                'protocolVersion' => '2025-03-26',
-                'capabilities' => [],
-                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+        $request = $this->createJsonRpcRequest(
+            [
+                'jsonrpc' => '2.0',
+                'id' => 1,
+                'method' => 'initialize',
+                'params' => [
+                    'protocolVersion' => '2025-03-26',
+                    'capabilities' => [],
+                    'clientInfo' => [
+                        'name' => 'test',
+                        'version' => '1.0',
+                    ],
+                ],
             ],
-        ]);
+            [],
+            false // initialize doesn't need session
+        );
 
         $response = $controller->handle($request, new Response());
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertNotEmpty($response->getHeaderLine('Mcp-Session-Id'));
+        $this->assertNotEmpty(
+            $response->getHeaderLine('Mcp-Session-Id')
+        );
         $data = $this->decodeResponse($response);
-        $this->assertSame('2025-03-26', $data['result']['protocolVersion']);
-        $this->assertSame('edocs-cloud', $data['result']['serverInfo']['name']);
+        $this->assertSame(
+            '2025-03-26',
+            $data['result']['protocolVersion']
+        );
+        $this->assertSame(
+            'edocs-cloud',
+            $data['result']['serverInfo']['name']
+        );
     }
 }

@@ -25,6 +25,73 @@ final class FooterTools
     private const ALLOWED_SLOTS = ['footer_1', 'footer_2', 'footer_3'];
     private const ALLOWED_LAYOUTS = ['equal', 'brand-left', 'cta-right', 'centered'];
 
+    /**
+     * Content schema per block type, used in create/update tool definitions.
+     */
+    private const CONTENT_SCHEMA = [
+        'type' => 'object',
+        'description' => 'Block content. Structure depends on the block type.',
+        'oneOf' => [
+            [
+                'title' => 'menu',
+                'properties' => [
+                    'title' => ['type' => 'string'],
+                    'menuId' => ['type' => 'integer', 'description' => 'References a menu definition'],
+                ],
+                'required' => ['menuId'],
+            ],
+            [
+                'title' => 'text',
+                'properties' => [
+                    'title' => ['type' => 'string'],
+                    'text' => ['type' => 'string', 'description' => 'HTML string'],
+                ],
+                'required' => ['text'],
+            ],
+            [
+                'title' => 'social',
+                'properties' => [
+                    'title' => ['type' => 'string'],
+                    'links' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'facebook' => ['type' => 'string', 'format' => 'uri'],
+                            'twitter' => ['type' => 'string', 'format' => 'uri'],
+                            'linkedin' => ['type' => 'string', 'format' => 'uri'],
+                            'instagram' => ['type' => 'string', 'format' => 'uri'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'title' => 'contact',
+                'properties' => [
+                    'title' => ['type' => 'string'],
+                    'email' => ['type' => 'string'],
+                    'phone' => ['type' => 'string'],
+                    'address' => ['type' => 'string', 'description' => 'Newlines allowed'],
+                ],
+            ],
+            [
+                'title' => 'newsletter',
+                'properties' => [
+                    'title' => ['type' => 'string'],
+                    'description' => ['type' => 'string'],
+                    'buttonText' => ['type' => 'string', 'default' => 'Subscribe'],
+                    'actionUrl' => ['type' => 'string', 'default' => '/newsletter/subscribe'],
+                ],
+            ],
+            [
+                'title' => 'html',
+                'properties' => [
+                    'title' => ['type' => 'string', 'description' => 'Internal label only'],
+                    'html' => ['type' => 'string', 'description' => 'Raw HTML string'],
+                ],
+                'required' => ['html'],
+            ],
+        ],
+    ];
+
     public function __construct(PDO $pdo, private readonly string $defaultNamespace)
     {
         $this->footerBlocks = new CmsFooterBlockService($pdo);
@@ -84,28 +151,7 @@ final class FooterTools
                             'description' => 'Block type (menu, text, social, contact, '
                                 . 'newsletter, html)',
                         ],
-                        'content' => [
-                            'type' => 'object',
-                            'description' => 'Block content (structure depends on type). '
-                                . 'menu: {"title": "string (optional)", "menuId": '
-                                . 'integer} – references a menu definition; items are '
-                                . 'resolved at render time. '
-                                . 'text: {"title": "string (optional)", "text": '
-                                . '"HTML string"}. '
-                                . 'social: {"title": "string (optional)", "links": '
-                                . '{"facebook": "url", "twitter": "url", "linkedin": '
-                                . '"url", "instagram": "url"}} – all link fields '
-                                . 'optional. '
-                                . 'contact: {"title": "string (optional)", "email": '
-                                . '"string", "phone": "string", "address": "string '
-                                . '(newlines allowed)"} – all fields optional. '
-                                . 'newsletter: {"title": "string (optional)", '
-                                . '"description": "string", "buttonText": "string '
-                                . '(default: Subscribe)", "actionUrl": "string '
-                                . '(default: /newsletter/subscribe)"} – all optional. '
-                                . 'html: {"title": "string (optional, internal only)",'
-                                . ' "html": "raw HTML string"}.',
-                        ],
+                        'content' => self::CONTENT_SCHEMA,
                         'position' => [
                             'type' => 'integer',
                             'description' => 'Sort position within the slot (default 0)',
@@ -128,28 +174,7 @@ final class FooterTools
                     'properties' => [
                         'blockId' => ['type' => 'integer', 'description' => 'ID of the footer block to update'],
                         'type' => ['type' => 'string', 'enum' => self::ALLOWED_TYPES, 'description' => 'Block type'],
-                        'content' => [
-                            'type' => 'object',
-                            'description' => 'Block content (structure depends on type). '
-                                . 'menu: {"title": "string (optional)", "menuId": '
-                                . 'integer} – references a menu definition; items are '
-                                . 'resolved at render time. '
-                                . 'text: {"title": "string (optional)", "text": '
-                                . '"HTML string"}. '
-                                . 'social: {"title": "string (optional)", "links": '
-                                . '{"facebook": "url", "twitter": "url", "linkedin": '
-                                . '"url", "instagram": "url"}} – all link fields '
-                                . 'optional. '
-                                . 'contact: {"title": "string (optional)", "email": '
-                                . '"string", "phone": "string", "address": "string '
-                                . '(newlines allowed)"} – all fields optional. '
-                                . 'newsletter: {"title": "string (optional)", '
-                                . '"description": "string", "buttonText": "string '
-                                . '(default: Subscribe)", "actionUrl": "string '
-                                . '(default: /newsletter/subscribe)"} – all optional. '
-                                . 'html: {"title": "string (optional, internal only)",'
-                                . ' "html": "raw HTML string"}.',
-                        ],
+                        'content' => self::CONTENT_SCHEMA,
                         'position' => [
                             'type' => 'integer',
                             'description' => 'Sort position within the slot',
