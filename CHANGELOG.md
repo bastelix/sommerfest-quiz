@@ -809,6 +809,7 @@
 - *(media)* Add CSRF token to fetchJson and remove blur cleanup in replace picker
 - Synchronize all block types across contract files
 - Match CSS specificity for stat-strip column breakpoints
+- *(stat-strip)* Improve trust_bar and trust_band rendering
 
 ### Merge
 
@@ -993,6 +994,7 @@
 - Fix remaining phpcs errors
 - *(wiki)* Fix oversized headings, duplicate titles, and narrow content area
 - *(news)* Redesign landing news list and detail pages
+- Fix indentation in NamespacePageController try block
 
 ### Test
 
