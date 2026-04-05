@@ -996,6 +996,8 @@
 - *(wiki)* Fix oversized headings, duplicate titles, and narrow content area
 - *(news)* Redesign landing news list and detail pages
 - Fix indentation in NamespacePageController try block
+- *(hero)* Improve stat_tiles visual hierarchy and styling
+- Fix indentation in NamespacePageController try block
 
 ### Test
 
