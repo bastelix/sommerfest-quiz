@@ -1137,9 +1137,9 @@ function renderHeroStatTiles(block, options = {}) {
     const value = escapeHtml(tile.value || '');
     const label = escapeHtml(tile.label || '');
     return `<div>
-      <div class="cs-stat-tile uk-tile uk-tile-default uk-border-rounded uk-padding-small">
-        <div class="cs-stat-num">${value}</div>
-        <div class="uk-text-small uk-text-muted">${label}</div>
+      <div class="cs-stat-tile">
+        <div class="cs-stat-tile__value">${value}</div>
+        <div class="cs-stat-tile__label">${label}</div>
       </div>
     </div>`;
   }).join('');

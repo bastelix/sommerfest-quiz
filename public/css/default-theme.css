@@ -58,23 +58,36 @@
 
 /* Stat tiles inside hero */
 .default-theme .cs-stat-tile {
-  background: rgba(255, 255, 255, 0.07) !important;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  text-align: center;
-  padding: 1.2rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--card-radius, 0.5rem);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
-.default-theme .cs-stat-num {
-  font-size: clamp(2rem, 3.5vw, 2.8rem);
-  font-weight: 800;
+.default-theme .cs-stat-tile::before {
+  content: '';
+  display: block;
+  width: 2rem;
+  height: 3px;
+  background: var(--dt-accent-light, #58a6ff);
+  border-radius: 2px;
+  margin-bottom: 0.5rem;
+}
+.default-theme .cs-stat-tile__value {
+  font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+  font-weight: 700;
   font-family: var(--font-family-heading);
-  color: var(--dt-accent-light);
-  line-height: 1.1;
+  color: #fff;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
-.default-theme .cs-stat-tile .uk-text-small {
-  font-size: 0.82rem;
-}
-.default-theme .section[data-section-intent="hero"]:not([data-section-background-color-token]) .cs-stat-tile .uk-text-muted {
-  color: rgba(255, 255, 255, 0.65) !important;
+.default-theme .cs-stat-tile__label {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.4;
 }
 
 /* Hero CTA buttons (dark gradient variant only)
