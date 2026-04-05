@@ -899,6 +899,43 @@
   opacity: 0.62;
 }
 
+/* Trust bar – compact inline strip with dividers */
+.trust-bar__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  padding: 0.75rem 1rem;
+  margin: 0;
+  list-style: none;
+}
+
+.trust-bar__list > li {
+  padding: 0;
+}
+
+.trust-bar__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1.25rem;
+  border-right: 1px solid var(--border-muted, rgba(0, 0, 0, 0.1));
+}
+
+.trust-bar__list > li:last-child .trust-bar__item {
+  border-right: none;
+}
+
+.trust-bar__label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--section-text-color, var(--color-text, #1e293b));
+  white-space: nowrap;
+}
+
 /* Trust band – seamless strip variant (no borders, compact) */
 .section.trust-band {
   padding-top: 0 !important;
@@ -911,8 +948,8 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  padding: 16px 0;
-  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  gap: 1rem;
   margin: 0;
   list-style: none;
 }
@@ -924,17 +961,45 @@
 .trust-band__item {
   display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--surface-muted, #f8fafc);
+  border-radius: var(--card-radius, 0.5rem);
+  border: 1px solid var(--border-muted, rgba(0, 0, 0, 0.06));
+  white-space: nowrap;
+}
+
+.trust-band__label {
   font-size: 0.9rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--section-text-color, var(--color-text, #111827));
-  white-space: nowrap;
 }
 
 /* Override UIKit subnav-divider for trust-band context */
 .trust-band__list.uk-subnav-divider > :nth-child(n+2):not(.uk-first-column)::before {
   border-color: rgba(0, 0, 0, 0.12);
+}
+
+/* Responsive: trust bar & trust band */
+@media (max-width: 768px) {
+  .trust-bar__list {
+    gap: 0.5rem;
+  }
+
+  .trust-bar__item {
+    border-right: none;
+    padding: 0.25rem 0.75rem;
+  }
+
+  .trust-band__list {
+    gap: 0.5rem;
+  }
+
+  .trust-band__item {
+    padding: 0.375rem 0.75rem;
+  }
 }
 
 .stat-strip__grid {
