@@ -80,7 +80,7 @@ final class McpController
     /**
      * Handle a JSON-RPC batch (array of messages).
      *
-     * @param list<array> $batch
+     * @param list<mixed> $batch
      */
     private function handleBatch(Request $request, Response $response, array $batch): Response
     {
