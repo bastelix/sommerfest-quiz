@@ -810,6 +810,7 @@
 - Synchronize all block types across contract files
 - Match CSS specificity for stat-strip column breakpoints
 - *(stat-strip)* Improve trust_bar and trust_band rendering
+- Hide image placeholder in frontend when no image is set
 
 ### Merge
 
