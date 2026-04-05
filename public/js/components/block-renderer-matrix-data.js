@@ -2059,11 +2059,13 @@ function renderInfoMedia(block, variant, options = {}) {
   const hasMedia = !!media?.image;
   const mediaContent = hasMedia
     ? `<div class="uk-border-rounded uk-overflow-hidden uk-box-shadow-small"><img class="uk-width-1-1" src="${escapeAttribute(media.image)}" alt="${media?.alt ? escapeAttribute(media.alt) : ''}" loading="lazy"></div>`
-    : `<div class="uk-placeholder uk-text-center uk-border-rounded uk-box-shadow-small"><span class="uk-text-muted">Kein Bild ausgewählt</span></div>`;
+    : context === 'frontend'
+      ? ''
+      : `<div class="uk-placeholder uk-text-center uk-border-rounded uk-box-shadow-small"><span class="uk-text-muted">Kein Bild ausgewählt</span></div>`;
 
   const textColumn = `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${warnings.join('')}<div class="uk-article"${buildEditableAttributes(block, 'data.body', context, { type: 'richtext' })}>${bodyContent}</div></div>`;
 
-  const mediaColumnRequired = variant !== 'stacked';
+  const mediaColumnRequired = context !== 'frontend' && variant !== 'stacked';
   const mediaColumn = mediaColumnRequired || hasMedia ? `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${mediaContent}</div>` : '';
 
   const gridClass = variant === 'stacked' ? 'uk-grid uk-grid-small' : 'uk-grid uk-grid-large uk-flex-middle';
@@ -2115,11 +2117,14 @@ function renderInfoMediaSwitcher(block, options = {}) {
     .map(item => {
       const visual = item.media?.image
         ? `<div class="info-media-switcher__visual" data-module="${escapeAttribute(item.id.replace('module-', ''))}"><img src="${escapeAttribute(item.media.image)}" alt="${item.media?.alt ? escapeAttribute(item.media.alt) : ''}" loading="lazy"></div>`
-        : `<div class="info-media-switcher__visual" data-module="${escapeAttribute(item.id.replace('module-', ''))}"><div class="uk-placeholder uk-text-center uk-border-rounded"><span class="uk-text-muted">Kein Bild ausgewählt</span></div></div>`;
+        : context === 'frontend'
+          ? ''
+          : `<div class="info-media-switcher__visual" data-module="${escapeAttribute(item.id.replace('module-', ''))}"><div class="uk-placeholder uk-text-center uk-border-rounded"><span class="uk-text-muted">Kein Bild ausgewählt</span></div></div>`;
 
       const bullets = renderFeatureBullets(item.bullets);
 
-      return `<li><figure id="${escapeAttribute(item.id)}" class="info-media-switcher__figure"><div class="info-media-switcher__visual-wrap">${visual}</div><figcaption><h3 class="uk-h3">${escapeHtml(item.title)}</h3>${item.description ? `<p class="muted">${escapeHtml(item.description)}</p>` : ''}${bullets}</figcaption></figure></li>`;
+      const visualWrap = visual ? `<div class="info-media-switcher__visual-wrap">${visual}</div>` : '';
+      return `<li><figure id="${escapeAttribute(item.id)}" class="info-media-switcher__figure">${visualWrap}<figcaption><h3 class="uk-h3">${escapeHtml(item.title)}</h3>${item.description ? `<p class="muted">${escapeHtml(item.description)}</p>` : ''}${bullets}</figcaption></figure></li>`;
     })
     .join('');
 
