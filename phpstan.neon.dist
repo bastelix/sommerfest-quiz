@@ -7,3 +7,8 @@ parameters:
   ignoreErrors:
     - '#Call to function is_callable.+will always evaluate to true#'
     - '#Method App\\Service\\AwardService::join\(\) is unused#'
+    -
+      message: '#Property .+\:\:\$defaultNamespace is never read, only written#'
+      paths:
+        - src/Service/Mcp/
+      reportUnmatched: false

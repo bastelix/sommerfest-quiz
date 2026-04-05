@@ -83,26 +83,7 @@ final class PageTools
                     'properties' => [
                         'namespace' => self::NS_PROP,
                         'slug' => ['type' => 'string', 'description' => 'Page slug (URL path segment)'],
-                        'blocks' => [
-                            'type' => 'array',
-                            'description' => 'Array of block objects. Call get_block_contract for the full schema.',
-                            'items' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'id' => ['type' => 'string', 'description' => 'Unique block ID'],
-                                    'type' => [
-                                        'type' => 'string',
-                                        'description' => 'Block type (e.g. rich_text, hero)',
-                                    ],
-                                    'variant' => ['type' => 'string', 'description' => 'Block variant'],
-                                    'data' => ['type' => 'object', 'description' => 'Block-type-specific data'],
-                                    'tokens' => ['type' => 'object', 'description' => 'Optional design tokens'],
-                                    'sectionAppearance' => ['type' => 'string'],
-                                    'meta' => ['type' => 'object'],
-                                ],
-                                'required' => ['id', 'type', 'variant', 'data'],
-                            ],
-                        ],
+                        'blocks' => ['type' => 'array', 'description' => 'Array of block objects for the page content'],
                         'meta' => [
                             'type' => 'object',
                             'description' => 'Optional page metadata stored inline in the page content JSON',
@@ -115,20 +96,11 @@ final class PageTools
                         ],
                         'seo' => [
                             'type' => 'object',
-                            'description' => 'SEO configuration saved to the dedicated SEO table.',
-                            'properties' => [
-                                'metaTitle' => ['type' => 'string'],
-                                'metaDescription' => ['type' => 'string'],
-                                'canonicalUrl' => ['type' => 'string'],
-                                'robotsMeta' => ['type' => 'string'],
-                                'ogTitle' => ['type' => 'string'],
-                                'ogDescription' => ['type' => 'string'],
-                                'ogImage' => ['type' => 'string'],
-                                'schemaJson' => ['type' => 'string', 'description' => 'JSON-LD structured data'],
-                                'hreflang' => ['type' => 'string'],
-                                'domain' => ['type' => 'string'],
-                                'faviconPath' => ['type' => 'string'],
-                            ],
+                            'description' => 'SEO configuration saved to the dedicated '
+                                . 'SEO table. Supported fields: metaTitle, '
+                                . 'metaDescription, canonicalUrl, robotsMeta, ogTitle, '
+                                . 'ogDescription, ogImage, schemaJson, hreflang, '
+                                . 'domain, faviconPath',
                         ],
                         'language' => [
                             'type' => 'string',

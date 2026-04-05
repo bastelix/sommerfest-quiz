@@ -103,39 +103,8 @@ final class QuizTools
                         'description' => ['type' => 'string', 'description' => 'Optional catalog description'],
                         'questions' => [
                             'type' => 'array',
-                            'description' => 'Array of question objects.',
-                            'items' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'type' => [
-                                        'type' => 'string',
-                                        'description' => 'Question type (e.g. single, multiple, text)',
-                                    ],
-                                    'prompt' => ['type' => 'string', 'description' => 'The question text'],
-                                    'options' => [
-                                        'type' => 'array',
-                                        'items' => ['type' => 'string'],
-                                        'description' => 'Answer choices (for single/multiple)',
-                                    ],
-                                    'answers' => [
-                                        'type' => 'array',
-                                        'description' => 'Correct answer indices (0-based) or values',
-                                    ],
-                                    'explanation' => [
-                                        'type' => 'string',
-                                        'description' => 'Optional explanation shown after answering',
-                                    ],
-                                    'points' => [
-                                        'type' => 'integer',
-                                        'description' => 'Points awarded for correct answer (default 1)',
-                                    ],
-                                    'timeLimit' => [
-                                        'type' => 'integer',
-                                        'description' => 'Optional time limit in seconds',
-                                    ],
-                                ],
-                                'required' => ['type', 'prompt'],
-                            ],
+                            'description' => 'Array of question objects with type, prompt, '
+                                . 'options, answers, etc.',
                         ],
                     ],
                     'required' => ['event_uid', 'slug', 'questions'],
@@ -171,15 +140,10 @@ final class QuizTools
                         'total' => ['type' => 'integer', 'description' => 'Total number of questions answered'],
                         'wrong' => [
                             'type' => 'array',
-                            'items' => ['type' => 'integer'],
                             'description' => 'Optional array of 1-based indices of wrong answers',
                         ],
                         'answers' => [
                             'type' => 'array',
-                            'items' => [
-                                'type' => 'object',
-                                'description' => 'Per-question answer detail',
-                            ],
                             'description' => 'Optional per-question answer details',
                         ],
                     ],
