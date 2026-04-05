@@ -2629,13 +2629,13 @@ function renderStatStripTrustBar(block, options = {}) {
 
   const listItems = items.map(item => {
     const icon = typeof item.icon === 'string' && item.icon.trim()
-      ? `<span data-uk-icon="icon: ${escapeAttribute(item.icon)}; ratio: .75;" class="uk-margin-xsmall-right cs-blue"></span>`
+      ? `<span data-uk-icon="icon: ${escapeAttribute(item.icon)}; ratio: 1.25;" class="cs-blue"></span>`
       : '';
     const label = escapeHtml(item.label || '');
-    return `<li><span class="uk-text-small uk-text-muted">${icon}${label}</span></li>`;
+    return `<li><span class="trust-bar__item">${icon}<span class="trust-bar__label">${label}</span></span></li>`;
   }).join('');
 
-  const content = `<ul class="uk-subnav uk-subnav-divider uk-flex-center uk-margin-remove" data-uk-margin>${listItems}</ul>`;
+  const content = `<ul class="trust-bar__list" data-uk-margin>${listItems}</ul>`;
   return renderSection({ block, variant: 'trust_bar', content, sectionClass: 'uk-section-xsmall' });
 }
 
@@ -2650,10 +2650,10 @@ function renderStatStripTrustBand(block, options = {}) {
 
   const listItems = items.map(item => {
     const icon = typeof item.icon === 'string' && item.icon.trim()
-      ? `<span data-uk-icon="icon: ${escapeAttribute(item.icon)}; ratio: 1;" class="uk-margin-small-right cs-blue"></span>`
+      ? `<span data-uk-icon="icon: ${escapeAttribute(item.icon)}; ratio: 1.5;" class="cs-blue"></span>`
       : '';
     const label = escapeHtml(item.label || '');
-    return `<li><span class="trust-band__item">${icon}${label}</span></li>`;
+    return `<li><span class="trust-band__item">${icon}<span class="trust-band__label">${label}</span></span></li>`;
   }).join('');
 
   const content = `<ul class="uk-subnav uk-subnav-divider uk-flex-center uk-margin-remove trust-band__list" data-uk-margin>${listItems}</ul>`;

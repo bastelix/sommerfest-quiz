@@ -142,9 +142,6 @@
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
-.default-theme .section[data-block-variant="trust_bar"] .uk-subnav-divider > li {
-  padding-left: 1rem;
-}
 
 /* ── Blue icon accent ── */
 .default-theme .cs-blue {
