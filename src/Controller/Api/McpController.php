@@ -86,7 +86,12 @@ final class McpController
         // Spec: initialize MUST NOT be part of a batch
         foreach ($batch as $entry) {
             if (is_array($entry) && ($entry['method'] ?? '') === 'initialize') {
-                return $this->jsonRpcError($response, $entry['id'] ?? null, -32600, 'initialize must not be part of a batch');
+                return $this->jsonRpcError(
+                    $response,
+                    $entry['id'] ?? null,
+                    -32600,
+                    'initialize must not be part of a batch'
+                );
             }
         }
 
@@ -219,15 +224,7 @@ final class McpController
 
         $requiredScope = $this->getRequiredScope($name);
         if ($requiredScope !== null && !in_array($requiredScope, $scopes, true)) {
-            $payload = [
-                'jsonrpc' => '2.0',
-                'id' => $id,
-                'error' => ['code' => -32600, 'message' => 'Forbidden: missing required scope: ' . $requiredScope],
-            ];
-            $response->getBody()->write((string) json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-            return $response
-                ->withStatus(403)
-                ->withHeader('Content-Type', 'application/json');
+            return $this->jsonRpcForbidden($response, $id, $requiredScope);
         }
 
         $registry = $this->getRegistry($request);
@@ -297,5 +294,11 @@ final class McpController
         ];
         $response->getBody()->write((string) json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function jsonRpcForbidden(Response $response, mixed $id, string $scope): Response
+    {
+        return $this->jsonRpcError($response, $id, -32600, 'Forbidden: missing required scope: ' . $scope)
+            ->withStatus(403);
     }
 }
