@@ -181,179 +181,177 @@ final class NamespacePageController
         // Wrap all mutations in a transaction for atomicity
         $pdo->beginTransaction();
         try {
+            // Upsert page
+            $existing = $pages->findByKey($ns, $slug);
+            $contentJson = json_encode($content, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            if ($contentJson === false) {
+                return $this->json($response, ['error' => 'encode_failed'], 500);
+            }
 
-        // Upsert page
-        $existing = $pages->findByKey($ns, $slug);
-        $contentJson = json_encode($content, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        if ($contentJson === false) {
-            return $this->json($response, ['error' => 'encode_failed'], 500);
-        }
+            $language = isset($payload['language']) && is_string($payload['language'])
+                ? trim($payload['language']) : null;
+            $payloadBaseSlug = isset($payload['base_slug']) && is_string($payload['base_slug'])
+                ? trim($payload['base_slug']) : null;
 
-        $language = isset($payload['language']) && is_string($payload['language'])
-            ? trim($payload['language']) : null;
-        $payloadBaseSlug = isset($payload['base_slug']) && is_string($payload['base_slug'])
-            ? trim($payload['base_slug']) : null;
+            if ($existing === null) {
+                // Title is required for create(). API is blocks-first: use slug as safe default.
+                $pages->create($ns, $slug, $slug, $contentJson, 'api:v1', $language, $payloadBaseSlug);
+            } else {
+                $pages->save($ns, $slug, $contentJson);
+            }
 
-        if ($existing === null) {
-            // Title is required for create(). API is blocks-first: use slug as safe default.
-            $pages->create($ns, $slug, $slug, $contentJson, 'api:v1', $language, $payloadBaseSlug);
-        } else {
-            $pages->save($ns, $slug, $contentJson);
-        }
+            $page = $pages->findByKey($ns, $slug);
+            if ($page === null) {
+                return $this->json($response, ['error' => 'page_not_found_after_upsert'], 500);
+            }
 
-        $page = $pages->findByKey($ns, $slug);
-        if ($page === null) {
-            return $this->json($response, ['error' => 'page_not_found_after_upsert'], 500);
-        }
+            $pageId = $page->getId();
 
-        $pageId = $page->getId();
-
-        // Optional: page status/title/language/base_slug updates
-        if (
-            array_key_exists('status', $payload)
-            || array_key_exists('title', $payload)
-            || $language !== null
-            || $payloadBaseSlug !== null
-        ) {
-            $allowedStatus = ['draft', 'published'];
-            $newStatus = null;
-            if (array_key_exists('status', $payload)) {
-                $rawStatus = $payload['status'];
-                if (!is_string($rawStatus)) {
-                    return $this->json($response, ['error' => 'invalid_status'], 422);
-                }
-                $rawStatus = trim($rawStatus);
-                if ($rawStatus !== '') {
-                    if (!in_array($rawStatus, $allowedStatus, true)) {
+            // Optional: page status/title/language/base_slug updates
+            if (
+                array_key_exists('status', $payload)
+                || array_key_exists('title', $payload)
+                || $language !== null
+                || $payloadBaseSlug !== null
+            ) {
+                $allowedStatus = ['draft', 'published'];
+                $newStatus = null;
+                if (array_key_exists('status', $payload)) {
+                    $rawStatus = $payload['status'];
+                    if (!is_string($rawStatus)) {
                         return $this->json($response, ['error' => 'invalid_status'], 422);
                     }
-                    $newStatus = $rawStatus;
+                    $rawStatus = trim($rawStatus);
+                    if ($rawStatus !== '') {
+                        if (!in_array($rawStatus, $allowedStatus, true)) {
+                            return $this->json($response, ['error' => 'invalid_status'], 422);
+                        }
+                        $newStatus = $rawStatus;
+                    }
+                }
+
+                $newTitle = null;
+                if (array_key_exists('title', $payload)) {
+                    $rawTitle = $payload['title'];
+                    if ($rawTitle !== null && !is_string($rawTitle)) {
+                        return $this->json($response, ['error' => 'invalid_title'], 422);
+                    }
+                    if (is_string($rawTitle)) {
+                        $rawTitle = trim($rawTitle);
+                        $newTitle = $rawTitle === '' ? null : $rawTitle;
+                    }
+                }
+
+                if ($newStatus !== null || $newTitle !== null || $language !== null || $payloadBaseSlug !== null) {
+                    $fields = [];
+                    $params = [];
+                    if ($newStatus !== null) {
+                        $fields[] = 'status = ?';
+                        $params[] = $newStatus;
+                    }
+                    if ($newTitle !== null) {
+                        $fields[] = 'title = ?';
+                        $params[] = $newTitle;
+                    }
+                    if ($language !== null && $language !== '') {
+                        $fields[] = 'language = ?';
+                        $params[] = $language;
+                    }
+                    if ($payloadBaseSlug !== null && $payloadBaseSlug !== '') {
+                        $fields[] = 'base_slug = ?';
+                        $params[] = $payloadBaseSlug;
+                    }
+                    if ($fields !== []) {
+                        $fields[] = 'updated_at = CURRENT_TIMESTAMP';
+                        $params[] = $ns;
+                        $params[] = $slug;
+                        $stmt = $pdo->prepare(
+                            'UPDATE pages SET ' . implode(', ', $fields)
+                            . ' WHERE namespace = ? AND slug = ?'
+                        );
+                        $stmt->execute($params);
+                    }
                 }
             }
 
-            $newTitle = null;
-            if (array_key_exists('title', $payload)) {
-                $rawTitle = $payload['title'];
-                if ($rawTitle !== null && !is_string($rawTitle)) {
-                    return $this->json($response, ['error' => 'invalid_title'], 422);
+            // Optional: SEO
+            if (array_key_exists('seo', $payload) && is_array($payload['seo'])) {
+                if (!$this->hasScope($request, self::SCOPE_SEO_WRITE)) {
+                    return $this->json($response, ['error' => 'missing_scope', 'scope' => self::SCOPE_SEO_WRITE], 403);
                 }
-                if (is_string($rawTitle)) {
-                    $rawTitle = trim($rawTitle);
-                    $newTitle = $rawTitle === '' ? null : $rawTitle;
+                $seoPayload = $payload['seo'];
+                $seo = $this->seo ?? new PageSeoConfigService($pdo);
+
+                $cfg = new PageSeoConfig(
+                    $pageId,
+                    is_string($seoPayload['slug'] ?? null) ? (string) $seoPayload['slug'] : $slug,
+                    isset($seoPayload['metaTitle']) && is_string($seoPayload['metaTitle'])
+                        ? $seoPayload['metaTitle'] : null,
+                    isset($seoPayload['metaDescription']) && is_string($seoPayload['metaDescription'])
+                        ? $seoPayload['metaDescription'] : null,
+                    isset($seoPayload['canonicalUrl']) && is_string($seoPayload['canonicalUrl'])
+                        ? $seoPayload['canonicalUrl'] : null,
+                    isset($seoPayload['robotsMeta']) && is_string($seoPayload['robotsMeta'])
+                        ? $seoPayload['robotsMeta'] : null,
+                    isset($seoPayload['ogTitle']) && is_string($seoPayload['ogTitle'])
+                        ? $seoPayload['ogTitle'] : null,
+                    isset($seoPayload['ogDescription']) && is_string($seoPayload['ogDescription'])
+                        ? $seoPayload['ogDescription'] : null,
+                    isset($seoPayload['ogImage']) && is_string($seoPayload['ogImage'])
+                        ? $seoPayload['ogImage'] : null,
+                    isset($seoPayload['schemaJson']) && is_string($seoPayload['schemaJson'])
+                        ? $seoPayload['schemaJson'] : null,
+                    isset($seoPayload['hreflang']) && is_string($seoPayload['hreflang'])
+                        ? $seoPayload['hreflang'] : null,
+                    isset($seoPayload['domain']) && is_string($seoPayload['domain'])
+                        ? $seoPayload['domain'] : null,
+                    isset($seoPayload['faviconPath']) && is_string($seoPayload['faviconPath'])
+                        ? $seoPayload['faviconPath'] : null,
+                );
+
+                $seo->save($cfg);
+            }
+
+            // Optional: menu assignments (page-scoped by default)
+            if (array_key_exists('menuAssignments', $payload) && is_array($payload['menuAssignments'])) {
+                if (!$this->hasScope($request, self::SCOPE_MENU_WRITE)) {
+                    return $this->json($response, ['error' => 'missing_scope', 'scope' => self::SCOPE_MENU_WRITE], 403);
+                }
+                $menus = $this->menus ?? new CmsMenuDefinitionService($pdo);
+                foreach ($payload['menuAssignments'] as $assignment) {
+                    if (!is_array($assignment)) {
+                        continue;
+                    }
+
+                    $slot = is_string($assignment['slot'] ?? null) ? trim((string) $assignment['slot']) : '';
+                    $menuId = (int) ($assignment['menuId'] ?? 0);
+                    $locale = is_string($assignment['locale'] ?? null) ? (string) $assignment['locale'] : null;
+                    $isActive = (bool) ($assignment['isActive'] ?? true);
+                    $pageScoped = array_key_exists('pageScoped', $assignment) ? (bool) $assignment['pageScoped'] : true;
+
+                    if ($slot === '' || $menuId <= 0) {
+                        continue;
+                    }
+
+                    $scopePageId = $pageScoped ? $pageId : null;
+                    $existingAssignment = $menus->getAssignmentForSlot($ns, $slot, $locale, $scopePageId, false);
+                    if ($existingAssignment === null) {
+                        $menus->createAssignment($ns, $menuId, $scopePageId, $slot, $locale, $isActive);
+                    } else {
+                        $menus->updateAssignment(
+                            $ns,
+                            $existingAssignment->getId(),
+                            $menuId,
+                            $scopePageId,
+                            $slot,
+                            $locale,
+                            $isActive
+                        );
+                    }
                 }
             }
 
-            if ($newStatus !== null || $newTitle !== null || $language !== null || $payloadBaseSlug !== null) {
-                $fields = [];
-                $params = [];
-                if ($newStatus !== null) {
-                    $fields[] = 'status = ?';
-                    $params[] = $newStatus;
-                }
-                if ($newTitle !== null) {
-                    $fields[] = 'title = ?';
-                    $params[] = $newTitle;
-                }
-                if ($language !== null && $language !== '') {
-                    $fields[] = 'language = ?';
-                    $params[] = $language;
-                }
-                if ($payloadBaseSlug !== null && $payloadBaseSlug !== '') {
-                    $fields[] = 'base_slug = ?';
-                    $params[] = $payloadBaseSlug;
-                }
-                if ($fields !== []) {
-                    $fields[] = 'updated_at = CURRENT_TIMESTAMP';
-                    $params[] = $ns;
-                    $params[] = $slug;
-                    $stmt = $pdo->prepare(
-                        'UPDATE pages SET ' . implode(', ', $fields)
-                        . ' WHERE namespace = ? AND slug = ?'
-                    );
-                    $stmt->execute($params);
-                }
-            }
-        }
-
-        // Optional: SEO
-        if (array_key_exists('seo', $payload) && is_array($payload['seo'])) {
-            if (!$this->hasScope($request, self::SCOPE_SEO_WRITE)) {
-                return $this->json($response, ['error' => 'missing_scope', 'scope' => self::SCOPE_SEO_WRITE], 403);
-            }
-            $seoPayload = $payload['seo'];
-            $seo = $this->seo ?? new PageSeoConfigService($pdo);
-
-            $cfg = new PageSeoConfig(
-                $pageId,
-                is_string($seoPayload['slug'] ?? null) ? (string) $seoPayload['slug'] : $slug,
-                isset($seoPayload['metaTitle']) && is_string($seoPayload['metaTitle'])
-                    ? $seoPayload['metaTitle'] : null,
-                isset($seoPayload['metaDescription']) && is_string($seoPayload['metaDescription'])
-                    ? $seoPayload['metaDescription'] : null,
-                isset($seoPayload['canonicalUrl']) && is_string($seoPayload['canonicalUrl'])
-                    ? $seoPayload['canonicalUrl'] : null,
-                isset($seoPayload['robotsMeta']) && is_string($seoPayload['robotsMeta'])
-                    ? $seoPayload['robotsMeta'] : null,
-                isset($seoPayload['ogTitle']) && is_string($seoPayload['ogTitle'])
-                    ? $seoPayload['ogTitle'] : null,
-                isset($seoPayload['ogDescription']) && is_string($seoPayload['ogDescription'])
-                    ? $seoPayload['ogDescription'] : null,
-                isset($seoPayload['ogImage']) && is_string($seoPayload['ogImage'])
-                    ? $seoPayload['ogImage'] : null,
-                isset($seoPayload['schemaJson']) && is_string($seoPayload['schemaJson'])
-                    ? $seoPayload['schemaJson'] : null,
-                isset($seoPayload['hreflang']) && is_string($seoPayload['hreflang'])
-                    ? $seoPayload['hreflang'] : null,
-                isset($seoPayload['domain']) && is_string($seoPayload['domain'])
-                    ? $seoPayload['domain'] : null,
-                isset($seoPayload['faviconPath']) && is_string($seoPayload['faviconPath'])
-                    ? $seoPayload['faviconPath'] : null,
-            );
-
-            $seo->save($cfg);
-        }
-
-        // Optional: menu assignments (page-scoped by default)
-        if (array_key_exists('menuAssignments', $payload) && is_array($payload['menuAssignments'])) {
-            if (!$this->hasScope($request, self::SCOPE_MENU_WRITE)) {
-                return $this->json($response, ['error' => 'missing_scope', 'scope' => self::SCOPE_MENU_WRITE], 403);
-            }
-            $menus = $this->menus ?? new CmsMenuDefinitionService($pdo);
-            foreach ($payload['menuAssignments'] as $assignment) {
-                if (!is_array($assignment)) {
-                    continue;
-                }
-
-                $slot = is_string($assignment['slot'] ?? null) ? trim((string) $assignment['slot']) : '';
-                $menuId = (int) ($assignment['menuId'] ?? 0);
-                $locale = is_string($assignment['locale'] ?? null) ? (string) $assignment['locale'] : null;
-                $isActive = (bool) ($assignment['isActive'] ?? true);
-                $pageScoped = array_key_exists('pageScoped', $assignment) ? (bool) $assignment['pageScoped'] : true;
-
-                if ($slot === '' || $menuId <= 0) {
-                    continue;
-                }
-
-                $scopePageId = $pageScoped ? $pageId : null;
-                $existingAssignment = $menus->getAssignmentForSlot($ns, $slot, $locale, $scopePageId, false);
-                if ($existingAssignment === null) {
-                    $menus->createAssignment($ns, $menuId, $scopePageId, $slot, $locale, $isActive);
-                } else {
-                    $menus->updateAssignment(
-                        $ns,
-                        $existingAssignment->getId(),
-                        $menuId,
-                        $scopePageId,
-                        $slot,
-                        $locale,
-                        $isActive
-                    );
-                }
-            }
-        }
-
-        $pdo->commit();
-
+            $pdo->commit();
         } catch (\Throwable $e) {
             $pdo->rollBack();
             throw $e;
