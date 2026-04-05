@@ -10,6 +10,7 @@ use App\Support\RequestDatabase;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Psr7\Response as SlimResponse;
 
 final class McpController
 {
@@ -23,30 +24,18 @@ final class McpController
     public function handle(Request $request, Response $response): Response
     {
         $body = (string) $request->getBody();
-        $rpc = json_decode($body, true);
+        $decoded = json_decode($body, true);
 
-        if (!is_array($rpc) || !isset($rpc['jsonrpc']) || $rpc['jsonrpc'] !== '2.0') {
-            return $this->jsonRpcError($response, null, -32600, 'Invalid Request');
+        if (!is_array($decoded)) {
+            return $this->jsonRpcError($response, null, -32700, 'Parse error');
         }
 
-        $id = $rpc['id'] ?? null;
-        $method = isset($rpc['method']) && is_string($rpc['method']) ? $rpc['method'] : '';
-        $params = isset($rpc['params']) && is_array($rpc['params']) ? $rpc['params'] : [];
-
-        // Notifications and responses have no 'id' — return 202 Accepted per spec
-        $isNotification = $id === null && $method !== '';
-        $isResponse = isset($rpc['result']) || isset($rpc['error']);
-
-        if ($isNotification || $isResponse) {
-            return $this->handleNotificationOrResponse($request, $response, $method, $params);
+        // Batch detection: numeric array = batch of messages
+        if (array_is_list($decoded) && $decoded !== []) {
+            return $this->handleBatch($request, $response, $decoded);
         }
 
-        return match ($method) {
-            'initialize' => $this->handleInitialize($request, $response, $id, $params),
-            'tools/list' => $this->handleToolsList($request, $response, $id),
-            'tools/call' => $this->handleToolsCall($request, $response, $id, $params),
-            default => $this->jsonRpcError($response, $id, -32601, 'Method not found: ' . $method),
-        };
+        return $this->handleSingleMessage($request, $response, $decoded);
     }
 
     /**
@@ -85,6 +74,95 @@ final class McpController
         // Accept session termination request
         return $response->withStatus(200)
             ->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * Handle a JSON-RPC batch (array of messages).
+     *
+     * @param list<array> $batch
+     */
+    private function handleBatch(Request $request, Response $response, array $batch): Response
+    {
+        // Spec: initialize MUST NOT be part of a batch
+        foreach ($batch as $entry) {
+            if (is_array($entry) && ($entry['method'] ?? '') === 'initialize') {
+                return $this->jsonRpcError($response, $entry['id'] ?? null, -32600, 'initialize must not be part of a batch');
+            }
+        }
+
+        $results = [];
+        $hasRequests = false;
+
+        foreach ($batch as $entry) {
+            if (!is_array($entry)) {
+                $results[] = [
+                    'jsonrpc' => '2.0',
+                    'id' => null,
+                    'error' => ['code' => -32600, 'message' => 'Invalid Request'],
+                ];
+                $hasRequests = true;
+                continue;
+            }
+
+            $id = $entry['id'] ?? null;
+            $method = isset($entry['method']) && is_string($entry['method']) ? $entry['method'] : '';
+            $isNotification = $id === null && $method !== '';
+            $isResponse = isset($entry['result']) || isset($entry['error']);
+
+            // Notifications and responses produce no output
+            if ($isNotification || $isResponse) {
+                continue;
+            }
+
+            // This is a request (has id) — process and collect result
+            $hasRequests = true;
+            $singleResponse = new SlimResponse();
+            $singleResponse = $this->handleSingleMessage($request, $singleResponse, $entry);
+
+            $responseBody = (string) $singleResponse->getBody();
+            $parsed = json_decode($responseBody, true);
+            if (is_array($parsed)) {
+                $results[] = $parsed;
+            }
+        }
+
+        // If only notifications/responses → 202 Accepted
+        if (!$hasRequests) {
+            return $response->withStatus(202);
+        }
+
+        $response->getBody()->write((string) json_encode($results, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * Handle a single JSON-RPC message (request, notification, or response).
+     */
+    private function handleSingleMessage(Request $request, Response $response, array $rpc): Response
+    {
+        if (!isset($rpc['jsonrpc']) || $rpc['jsonrpc'] !== '2.0') {
+            return $this->jsonRpcError($response, null, -32600, 'Invalid Request');
+        }
+
+        $id = $rpc['id'] ?? null;
+        $method = isset($rpc['method']) && is_string($rpc['method']) ? $rpc['method'] : '';
+        $params = isset($rpc['params']) && is_array($rpc['params']) ? $rpc['params'] : [];
+
+        // Notifications and responses have no 'id' — return 202 Accepted per spec
+        $isNotification = $id === null && $method !== '';
+        $isResponse = isset($rpc['result']) || isset($rpc['error']);
+
+        if ($isNotification || $isResponse) {
+            return $this->handleNotificationOrResponse($request, $response, $method, $params);
+        }
+
+        return match ($method) {
+            'initialize' => $this->handleInitialize($request, $response, $id, $params),
+            'ping' => $this->jsonRpcResult($response, $id, []),
+            'tools/list' => $this->handleToolsList($request, $response, $id),
+            'tools/call' => $this->handleToolsCall($request, $response, $id, $params),
+            default => $this->jsonRpcError($response, $id, -32601, 'Method not found: ' . $method),
+        };
     }
 
     private function handleInitialize(Request $request, Response $response, mixed $id, array $params): Response
@@ -141,16 +219,15 @@ final class McpController
 
         $requiredScope = $this->getRequiredScope($name);
         if ($requiredScope !== null && !in_array($requiredScope, $scopes, true)) {
-            return $this->jsonRpcResult($response, $id, [
-                'content' => [[
-                    'type' => 'text',
-                    'text' => json_encode([
-                        'error' => 'missing_scope',
-                        'required' => $requiredScope,
-                    ]),
-                ]],
-                'isError' => true,
-            ]);
+            $payload = [
+                'jsonrpc' => '2.0',
+                'id' => $id,
+                'error' => ['code' => -32600, 'message' => 'Forbidden: missing required scope: ' . $requiredScope],
+            ];
+            $response->getBody()->write((string) json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            return $response
+                ->withStatus(403)
+                ->withHeader('Content-Type', 'application/json');
         }
 
         $registry = $this->getRegistry($request);
@@ -171,11 +248,14 @@ final class McpController
         return match ($toolName) {
             'list_pages', 'get_page_tree', 'get_block_contract' => 'cms:read',
             'upsert_page', 'delete_page' => 'cms:write',
-            'list_menus', 'list_menu_items' => 'menu:read',
+            'list_menus', 'list_menu_items', 'list_menu_assignments' => 'menu:read',
             'create_menu', 'update_menu', 'delete_menu',
-            'create_menu_item', 'update_menu_item', 'delete_menu_item' => 'menu:write',
-            'list_news', 'get_news' => 'news:read',
-            'create_news', 'update_news', 'delete_news' => 'news:write',
+            'create_menu_item', 'update_menu_item', 'delete_menu_item',
+            'create_menu_assignment', 'update_menu_assignment', 'delete_menu_assignment' => 'menu:write',
+            'list_news', 'get_news', 'list_news_categories' => 'news:read',
+            'create_news', 'update_news', 'delete_news',
+            'create_news_category', 'delete_news_category',
+            'assign_news_category', 'remove_news_category' => 'news:write',
             'list_footer_blocks', 'get_footer_layout' => 'footer:read',
             'create_footer_block', 'update_footer_block', 'delete_footer_block',
             'reorder_footer_blocks', 'update_footer_layout' => 'footer:write',
@@ -184,7 +264,8 @@ final class McpController
             'upsert_catalog', 'submit_result' => 'quiz:write',
             'export_namespace' => 'backup:read',
             'import_namespace' => 'backup:write',
-            'get_design_tokens', 'get_custom_css', 'list_design_presets', 'get_design_schema' => 'design:read',
+            'get_design_tokens', 'get_custom_css', 'list_design_presets',
+            'get_design_schema', 'get_design_manifest', 'validate_page_design' => 'design:read',
             'update_design_tokens', 'update_custom_css', 'import_design_preset', 'reset_design' => 'design:write',
             'get_wiki_settings', 'list_wiki_articles', 'get_wiki_article', 'get_wiki_article_versions' => 'wiki:read',
             'update_wiki_settings', 'create_wiki_article', 'update_wiki_article', 'delete_wiki_article',
@@ -192,7 +273,7 @@ final class McpController
             'list_tickets', 'get_ticket', 'list_ticket_comments' => 'ticket:read',
             'create_ticket', 'update_ticket', 'transition_ticket',
             'delete_ticket', 'add_ticket_comment', 'delete_ticket_comment' => 'ticket:write',
-            default => null,
+            default => null, // list_namespaces is intentionally public (discovery tool)
         };
     }
 
