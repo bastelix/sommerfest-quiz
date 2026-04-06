@@ -328,7 +328,7 @@ class ConfigServiceTest extends TestCase
             . " dashboard_fixed_height, dashboard_share_enabled,"
             . " dashboard_sponsor_enabled,"
             . " dashboard_visibility_start, dashboard_visibility_end "
-            "FROM config WHERE event_uid = 'dash-event'"
+            . "FROM config WHERE event_uid = 'dash-event'"
         )->fetch(PDO::FETCH_ASSOC);
         $this->assertIsArray($stored);
         $this->assertSame($modules, json_decode((string) $stored['dashboard_modules'], true));
