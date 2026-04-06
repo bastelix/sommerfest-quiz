@@ -1,5 +1,6 @@
 <?php
 
+use App\Application\Middleware\McpOriginMiddleware;
 use App\Application\Middleware\OAuthTokenAuthMiddleware;
 use App\Controller\Api\McpController;
 use App\Controller\Api\OAuthController;
@@ -7,6 +8,8 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 return function (\Slim\App $app): void {
+    $originMiddleware = new McpOriginMiddleware();
+
     // OAuth 2.0 Discovery (RFC 8414)
     $app->get('/.well-known/oauth-authorization-server', function (Request $request, Response $response): Response {
         return (new OAuthController())->metadata($request, $response);
@@ -32,15 +35,16 @@ return function (\Slim\App $app): void {
     });
 
     // MCP Endpoint — Streamable HTTP transport (POST, GET, DELETE)
+    // Origin validation middleware runs on all MCP routes (spec: MUST validate Origin)
     $app->post('/mcp', function (Request $request, Response $response): Response {
         return (new McpController())->handle($request, $response);
-    })->add(new OAuthTokenAuthMiddleware());
+    })->add(new OAuthTokenAuthMiddleware())->add($originMiddleware);
 
     $app->get('/mcp', function (Request $request, Response $response): Response {
         return (new McpController())->handleGet($request, $response);
-    });
+    })->add($originMiddleware);
 
     $app->delete('/mcp', function (Request $request, Response $response): Response {
         return (new McpController())->handleDelete($request, $response);
-    });
+    })->add($originMiddleware);
 };
