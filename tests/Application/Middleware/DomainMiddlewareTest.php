@@ -131,7 +131,14 @@ final class DomainMiddlewareTest extends TestCase
 
     private function createRequest(string $method, string $uri, array $headers = []): Request
     {
-        $uriObject = new Uri($uri);
+        $parts = parse_url($uri);
+        $uriObject = new Uri(
+            $parts['scheme'] ?? 'https',
+            $parts['host'] ?? 'localhost',
+            isset($parts['port']) ? (int) $parts['port'] : null,
+            $parts['path'] ?? '/',
+            $parts['query'] ?? ''
+        );
         $h = new Headers(array_merge(['Host' => [$uriObject->getHost()]], $headers));
         $streamFactory = new StreamFactory();
         $body = $streamFactory->createStream('');
