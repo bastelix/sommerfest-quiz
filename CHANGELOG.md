@@ -437,6 +437,7 @@
 - *(blocks)* Add distinct layout previews for timeline variants
 - *(auth)* Add name field to registration form
 - *(auth)* Redesign registration page with split-screen layout and Google OAuth
+- *(mcp)* Add session validation, pagination, and improve tool schemas
 
 ### Fix
 
@@ -812,6 +813,10 @@
 - *(stat-strip)* Improve trust_bar and trust_band rendering
 - Hide image placeholder in frontend when no image is set
 - *(test)* Add missing string concatenation operator in ConfigServiceTest
+- *(mcp)* Close scope gaps, add batch support, ping, origin validation
+- *(mcp)* Resolve PHPStan errors in batch handler
+- *(mcp)* Suppress false-positive PHPStan property.onlyWritten errors
+- Suppress pre-existing PHPStan errors via ignoreErrors
 
 ### Merge
 
@@ -1025,6 +1030,7 @@
 - *(onboarding)* Add Playwright E2E tests for onboarding wizard
 - Verify pre-commit hook runs
 - Add phpunit unit tests to pre-commit hook
+- *(mcp)* Add unit tests for controller and origin middleware
 
 ### Ui
 
