@@ -817,6 +817,7 @@
 - *(mcp)* Resolve PHPStan errors in batch handler
 - *(mcp)* Suppress false-positive PHPStan property.onlyWritten errors
 - Suppress pre-existing PHPStan errors via ignoreErrors
+- *(test)* Use correct Uri constructor signature in DomainMiddlewareTest
 
 ### Merge
 
