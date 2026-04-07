@@ -438,6 +438,7 @@
 - *(auth)* Add name field to registration form
 - *(auth)* Redesign registration page with split-screen layout and Google OAuth
 - *(mcp)* Add session validation, pagination, and improve tool schemas
+- *(blocks)* Extend block contract for seventhings-style design uplift
 
 ### Fix
 
