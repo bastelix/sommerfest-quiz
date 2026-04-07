@@ -89,7 +89,8 @@ const VARIANT_LABELS = {
   },
   content_slider: {
     words: 'Text-Slider',
-    images: 'Bild-Slider'
+    images: 'Bild-Slider',
+    'detail-split': 'Detail Split'
   },
   process_steps: {
     'numbered-vertical': 'Vertikaler Ablauf',
@@ -120,7 +121,8 @@ const VARIANT_LABELS = {
     trust_band: 'Trust-Band (unter Hero)'
   },
   proof: {
-    'metric-callout': 'Kennzahl-Highlight'
+    'metric-callout': 'Kennzahl-Highlight',
+    'logo-row': 'Logo-Band'
   },
   audience_spotlight: {
     tabs: 'Tabs',

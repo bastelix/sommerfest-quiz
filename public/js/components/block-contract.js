@@ -94,7 +94,7 @@ const schema = {
       "title": "Content slider block",
       "properties": {
         "type": { "const": "content_slider" },
-        "variant": { "enum": ["words", "images"] },
+        "variant": { "enum": ["words", "images", "detail-split"] },
         "data": { "$ref": "#/definitions/ContentSliderData" }
       },
       "required": ["type", "variant", "data"]
@@ -262,7 +262,7 @@ const schema = {
             {
               "properties": {
                 "variant": { "const": "logo-row" },
-                "data": { "$ref": "#/definitions/AudienceSpotlightData" }
+                "data": { "$ref": "#/definitions/LogoRowData" }
               },
               "required": ["variant", "data"]
             }
@@ -332,6 +332,10 @@ const schema = {
         "eyebrowAsTag": { "type": "boolean" },
         "headline": { "type": "string", "minLength": 1 },
         "subheadline": { "type": "string" },
+        "bullets": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "media": { "$ref": "#/definitions/Media" },
         "cta": { "$ref": "#/definitions/CallToActionGroup" },
         "video": { "$ref": "#/definitions/HeroVideo" },
@@ -429,7 +433,8 @@ const schema = {
               "author": { "$ref": "#/definitions/Author" },
               "source": { "type": "string" },
               "avatarInitials": { "type": "string" },
-              "inlineHtml": { "type": "string" }
+              "inlineHtml": { "type": "string" },
+              "rating": { "type": "integer", "minimum": 1, "maximum": 5 }
             }
           }
         }
@@ -453,6 +458,7 @@ const schema = {
         "subtitle": { "type": "string" },
         "body": { "type": "string" },
         "media": { "$ref": "#/definitions/Media" },
+        "cta": { "$ref": "#/definitions/CallToActionGroup" },
         "items": {
           "type": "array",
           "items": { "$ref": "#/definitions/InfoMediaItem" },
@@ -534,6 +540,34 @@ const schema = {
           "items": { "$ref": "#/definitions/AudienceCase" },
           "minItems": 1
         }
+      }
+    },
+    "LogoRowData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["logos"],
+      "properties": {
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "logos": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/LogoRowItem" }
+        },
+        "marquee": { "type": "boolean" },
+        "grayscale": { "type": "boolean" }
+      }
+    },
+    "LogoRowItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "alt"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "imageId": { "type": "string" },
+        "image": { "type": "string" },
+        "alt": { "type": "string", "minLength": 1 },
+        "href": { "type": "string" }
       }
     },
     "PackageSummaryData": {

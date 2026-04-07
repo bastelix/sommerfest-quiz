@@ -791,7 +791,77 @@ function renderContentSliderSlide(block, slide, index, variant, context = 'front
   return `<li class="content-slider__item"${itemId}>${cardContent}</li>`;
 }
 
+function renderContentSliderDetailSplitSlide(block, slide, index, context = 'frontend') {
+  if (!slide || typeof slide !== 'object') {
+    return '';
+  }
+  const labelAttributes = buildEditableAttributes(block, `data.slides.${index}.label`, context);
+  const bodyAttributes = buildEditableAttributes(block, `data.slides.${index}.body`, context, { type: 'richtext' });
+
+  const imageSrc = resolveContentSliderImage(slide);
+  const imageAlt = slide.imageAlt ? escapeAttribute(slide.imageAlt) : slide.label ? escapeAttribute(slide.label) : '';
+  const imageHtml = imageSrc
+    ? `<div class="content-slider-detail__media"><img class="uk-border-rounded uk-width-1-1" src="${escapeAttribute(imageSrc)}" alt="${imageAlt}" loading="lazy"></div>`
+    : '<div class="content-slider-detail__media content-slider-detail__media--empty"></div>';
+
+  const label = slide.label ? `<h3 class="uk-h2 uk-margin-remove-bottom"${labelAttributes}>${escapeHtml(slide.label)}</h3>` : '';
+  const body = slide.body
+    ? `<div class="uk-text-lead uk-margin-small-top"${bodyAttributes}>${slide.body}</div>`
+    : '';
+  const ctaButton = slide.link?.label && slide.link?.href
+    ? `<div class="uk-margin-medium-top"><a class="uk-button uk-button-primary" href="${escapeAttribute(slide.link.href)}">${escapeHtml(slide.link.label)}</a></div>`
+    : '';
+
+  const itemId = slide.id ? ` id="${escapeAttribute(slide.id)}"` : '';
+  return `<li class="content-slider-detail__item"${itemId}>` +
+    `<div class="uk-grid-large uk-flex-middle" data-uk-grid>` +
+      `<div class="uk-width-1-1 uk-width-1-2@m">${imageHtml}</div>` +
+      `<div class="uk-width-1-1 uk-width-1-2@m"><div class="content-slider-detail__body">${label}${body}${ctaButton}</div></div>` +
+    `</div>` +
+  `</li>`;
+}
+
+function renderContentSliderDetailSplit(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const slides = Array.isArray(block?.data?.slides) ? block.data.slides : [];
+  const header = renderContentSliderHeader(block, context);
+
+  if (!slides.length) {
+    return renderSection({
+      block,
+      variant: 'detail-split',
+      content: `${header}<div class="uk-alert-warning" role="alert">Keine Slides hinterlegt.</div>`,
+      sectionClass: 'content-slider-detail'
+    });
+  }
+
+  const items = slides
+    .map((slide, index) => renderContentSliderDetailSplitSlide(block, slide, index, context))
+    .filter(Boolean)
+    .join('');
+
+  const tabs = slides
+    .map((slide, index) => {
+      const label = slide?.label ? escapeHtml(slide.label) : `Slide ${index + 1}`;
+      return `<li><a href="#">${label}</a></li>`;
+    })
+    .join('');
+
+  const slider = `
+    <div class="content-slider-detail" data-uk-slider="finite: true">
+      <ul class="uk-subnav uk-subnav-pill uk-flex-center content-slider-detail__nav" data-uk-switcher="connect: .content-slider-detail__items">${tabs}</ul>
+      <div class="uk-position-relative uk-margin-medium-top">
+        <ul class="uk-switcher content-slider-detail__items">${items}</ul>
+      </div>
+    </div>`;
+
+  return renderSection({ block, variant: 'detail-split', content: `${header}${slider}`, sectionClass: 'content-slider-detail' });
+}
+
 function renderContentSlider(block, variant = 'words', options = {}) {
+  if (variant === 'detail-split') {
+    return renderContentSliderDetailSplit(block, options);
+  }
   const context = options?.context || 'frontend';
   const slides = Array.isArray(block?.data?.slides) ? block.data.slides : [];
 
@@ -881,6 +951,19 @@ function renderSubheadline(block, alignmentClass = '', context = 'frontend') {
   const alignment = alignmentClass ? ` ${alignmentClass}` : '';
   const editable = buildEditableAttributes(block, 'data.subheadline', context);
   return `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom${alignment}"${editable}>${escapeHtml(subheadline)}</p>`;
+}
+
+function renderHeroBullets(block, alignmentClass = '') {
+  const bullets = Array.isArray(block?.data?.bullets) ? block.data.bullets : [];
+  const items = bullets
+    .filter(text => typeof text === 'string' && text.trim() !== '')
+    .map(text => `<li><span class="hero-bullets__icon" data-uk-icon="icon: check; ratio: 0.9"></span><span class="hero-bullets__text">${escapeHtml(text)}</span></li>`)
+    .join('');
+  if (!items) {
+    return '';
+  }
+  const alignment = alignmentClass ? ` ${alignmentClass}` : '';
+  return `<ul class="hero-bullets uk-list uk-margin-medium-top${alignment}">${items}</ul>`;
 }
 
 const MEDIA_SIZE_MAP = {
@@ -1039,8 +1122,9 @@ function renderHeroCenteredCta(block, options = {}) {
   const eyebrow = renderEyebrow(block, 'uk-text-center', context);
   const headline = renderHeadline(block, 'uk-text-center', context);
   const subheadline = renderSubheadline(block, 'uk-text-center', context);
+  const bullets = renderHeroBullets(block, 'hero-bullets--center');
   const ctas = renderHeroCtas(block.data?.cta, 'uk-flex-center');
-  const content = `<div class="uk-width-1-1 uk-width-2-3@m uk-align-center uk-text-center">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  const content = `<div class="uk-width-1-1 uk-width-2-3@m uk-align-center uk-text-center">${eyebrow}${headline}${subheadline}${bullets}${ctas}</div>`;
   return renderHeroSection({ block, variant: 'centered_cta', content });
 }
 
@@ -1049,11 +1133,12 @@ function renderHeroMediaRight(block, options = {}) {
   const eyebrow = renderEyebrow(block, '', context);
   const headline = renderHeadline(block, '', context);
   const subheadline = renderSubheadline(block, '', context);
+  const bullets = renderHeroBullets(block);
   const ctas = renderHeroCtas(block.data?.cta);
   const media = renderHeroMedia(block.data?.media);
   const textColumnWidth = media ? 'uk-width-1-1 uk-width-1-2@m' : 'uk-width-1-1';
   const mediaColumn = media ? `<div class="uk-width-1-1 uk-width-1-2@m">${media}</div>` : '';
-  const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${bullets}${ctas}</div>`;
   const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${textColumn}${mediaColumn}</div>`;
   return renderHeroSection({ block, variant: 'media_right', content: grid });
 }
@@ -1063,11 +1148,12 @@ function renderHeroMediaLeft(block, options = {}) {
   const eyebrow = renderEyebrow(block, '', context);
   const headline = renderHeadline(block, '', context);
   const subheadline = renderSubheadline(block, '', context);
+  const bullets = renderHeroBullets(block);
   const ctas = renderHeroCtas(block.data?.cta);
   const media = renderHeroMedia(block.data?.media);
   const textColumnWidth = media ? 'uk-width-1-1 uk-width-1-2@m' : 'uk-width-1-1';
   const mediaColumn = media ? `<div class="uk-width-1-1 uk-width-1-2@m">${media}</div>` : '';
-  const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${bullets}${ctas}</div>`;
   const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${mediaColumn}${textColumn}</div>`;
   return renderHeroSection({ block, variant: 'media_left', content: grid });
 }
@@ -1077,11 +1163,12 @@ function renderHeroMediaVideo(block, options = {}) {
   const eyebrow = renderEyebrow(block, '', context);
   const headline = renderHeadline(block, '', context);
   const subheadline = renderSubheadline(block, '', context);
+  const bullets = renderHeroBullets(block);
   const ctas = renderHeroCtas(block.data?.cta);
   const media = renderHeroMediaVideoCard(block.data?.media, block.data?.video, block.data?.referenceLink);
   const textColumnWidth = media ? 'uk-width-1-1 uk-width-1-2@m' : 'uk-width-1-1';
   const mediaColumn = media ? `<div class="uk-width-1-1 uk-width-1-2@m">${media}</div>` : '';
-  const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${bullets}${ctas}</div>`;
   const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${textColumn}${mediaColumn}</div>`;
   return renderHeroSection({ block, variant: 'media_video', content: grid, sectionModifiers: 'hero-block hero-block--media-video' });
 }
@@ -1102,8 +1189,9 @@ function renderHeroSmall(block, options = {}) {
     ? `<h1 class="uk-heading-small uk-margin-small-top uk-text-center"${buildEditableAttributes(block, 'data.headline', context)}>${escapeHtml(block.data.headline || '')}</h1>`
     : '';
   const subheadline = renderSubheadline(block, 'uk-text-center', context);
+  const bullets = renderHeroBullets(block, 'hero-bullets--center');
   const ctas = renderHeroCtas(block.data?.cta, 'uk-flex-center');
-  const content = `<div class="uk-width-1-1 uk-width-2-3@m uk-align-center uk-text-center">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  const content = `<div class="uk-width-1-1 uk-width-2-3@m uk-align-center uk-text-center">${eyebrow}${headline}${subheadline}${bullets}${ctas}</div>`;
   return renderHeroSection({ block, variant: 'small', content, sectionModifiers: 'uk-section-small' });
 }
 
@@ -1112,6 +1200,7 @@ function renderHeroStatTiles(block, options = {}) {
   const eyebrow = renderEyebrow(block, '', context);
   const headline = renderHeadline(block, '', context);
   const subheadline = renderSubheadline(block, '', context);
+  const bullets = renderHeroBullets(block);
   const ctas = renderHeroCtas(block.data?.cta);
 
   const provenExpert = block.data?.provenExpert;
@@ -1152,7 +1241,7 @@ function renderHeroStatTiles(block, options = {}) {
       ? `<div class="cs-stat-tiles-compact uk-grid uk-grid-small uk-child-width-1-2 uk-margin-medium-top" data-uk-grid>${tiles}</div>`
       : '';
 
-    const textColumn = `<div class="uk-width-1-1 uk-width-1-2@m">${eyebrow}${headline}${subheadline}${ctas}${compactTiles}${provenExpertHtml}</div>`;
+    const textColumn = `<div class="uk-width-1-1 uk-width-1-2@m">${eyebrow}${headline}${subheadline}${bullets}${ctas}${compactTiles}${provenExpertHtml}</div>`;
     const videoColumn = videoCard ? `<div class="uk-width-1-1 uk-width-1-2@m">${videoCard}</div>` : '';
     const grid = `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid data-uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 150;">${textColumn}${videoColumn}</div>`;
     return renderHeroSection({ block, variant: 'stat_tiles', content: grid, sectionModifiers: 'hero-block--media-video hero-block--stat-tiles-video' });
@@ -1162,7 +1251,7 @@ function renderHeroStatTiles(block, options = {}) {
     ? `<div class="uk-grid uk-grid-small uk-child-width-1-2 uk-grid-match" data-uk-grid>${tiles}</div>`
     : '';
 
-  const textColumn = `<div class="uk-width-1-1 uk-width-1-2@m">${eyebrow}${headline}${subheadline}${ctas}${provenExpertHtml}</div>`;
+  const textColumn = `<div class="uk-width-1-1 uk-width-1-2@m">${eyebrow}${headline}${subheadline}${bullets}${ctas}${provenExpertHtml}</div>`;
   const tilesColumn = tilesGrid ? `<div class="uk-width-1-1 uk-width-1-2@m">${tilesGrid}</div>` : '';
   const grid = `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid data-uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 150;">${textColumn}${tilesColumn}</div>`;
   return renderHeroSection({ block, variant: 'stat_tiles', content: grid });
@@ -1877,6 +1966,20 @@ function renderContactForm(block, variant = 'default', options = {}) {
   return renderSection({ block, variant: normalizedVariant, content: gridContent });
 }
 
+function renderTestimonialRating(rating) {
+  const value = Number.isInteger(rating) ? rating : 0;
+  if (value < 1 || value > 5) {
+    return '';
+  }
+  const stars = [1, 2, 3, 4, 5]
+    .map(star => {
+      const cls = star <= value ? 'star-filled' : 'star-empty';
+      return `<span class="${cls}" data-uk-icon="icon: star; ratio: 0.85"></span>`;
+    })
+    .join('');
+  return `<div class="testimonial-rating" aria-label="${value} von 5 Sternen">${stars}</div>`;
+}
+
 function renderTestimonialSingle(block, options = {}) {
   const context = options?.context || 'frontend';
   const quote = block.data?.quote;
@@ -1948,7 +2051,8 @@ function renderTestimonialWall(block, options = {}) {
     const source = item.source || '';
     const inlineHtml = typeof item.inlineHtml === 'string' ? item.inlineHtml.trim() : '';
 
-    const quoteText = q ? `<blockquote class="uk-margin-remove"><p class="uk-margin-remove">\u201E${escapeHtml(q)}\u201C</p></blockquote>` : '';
+    const ratingHtml = renderTestimonialRating(item.rating);
+    const quoteText = q ? `<blockquote class="uk-margin-remove">${ratingHtml}<p class="uk-margin-remove">\u201E${escapeHtml(q)}\u201C</p></blockquote>` : ratingHtml;
     const authorParts = [];
     if (name) { authorParts.push(`<span class="uk-text-bold">${escapeHtml(name)}</span>`); }
     if (role) { authorParts.push(`<span class="uk-text-muted">${escapeHtml(role)}</span>`); }
@@ -1989,9 +2093,10 @@ function renderTestimonialSlider(block, options = {}) {
     const source = item.source || '';
     const initials = (item.avatarInitials || name.split(' ').map(w => w[0]).join('').substring(0, 2)).toUpperCase();
 
+    const ratingHtml = renderTestimonialRating(item.rating);
     const quoteText = q
-      ? `<p class="uk-text-small uk-text-italic uk-text-muted uk-margin-medium-bottom">${escapeHtml(q)}</p>`
-      : '';
+      ? `${ratingHtml}<p class="uk-text-small uk-text-italic uk-text-muted uk-margin-medium-bottom">${escapeHtml(q)}</p>`
+      : ratingHtml;
     const quoteDeco = '<div class="cs-quote-deco uk-position-top-right uk-position-small">\u201C</div>';
 
     const avatarHtml = `<div class="uk-width-auto"><div class="cs-avatar">${escapeHtml(initials)}</div></div>`;
@@ -2063,7 +2168,14 @@ function renderInfoMedia(block, variant, options = {}) {
       ? ''
       : `<div class="uk-placeholder uk-text-center uk-border-rounded uk-box-shadow-small"><span class="uk-text-muted">Kein Bild ausgewählt</span></div>`;
 
-  const textColumn = `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${warnings.join('')}<div class="uk-article"${buildEditableAttributes(block, 'data.body', context, { type: 'richtext' })}>${bodyContent}</div></div>`;
+  const ctaGroup = block.data?.cta;
+  const ctaPrimary = ctaGroup && (ctaGroup.primary || (ctaGroup.label && ctaGroup.href ? ctaGroup : null));
+  const ctaSecondary = ctaGroup?.secondary;
+  const ctaButtons = ctaGroup
+    ? renderCtaButtons(ctaPrimary, ctaSecondary, { alignment: '', margin: 'uk-margin-medium-top' })
+    : '';
+
+  const textColumn = `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${warnings.join('')}<div class="uk-article"${buildEditableAttributes(block, 'data.body', context, { type: 'richtext' })}>${bodyContent}</div>${ctaButtons}</div>`;
 
   const mediaColumnRequired = context !== 'frontend' && variant !== 'stacked';
   const mediaColumn = mediaColumnRequired || hasMedia ? `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${mediaContent}</div>` : '';
@@ -2702,26 +2814,68 @@ function renderProofMetricCallout(block, options = {}) {
 
 function renderProofLogoRow(block, options = {}) {
   const context = options?.context || 'frontend';
-  const header = renderSectionHeader(block, {
-    wrapperClass: 'uk-width-1-1 uk-text-center uk-margin-medium-bottom',
-    context
-  });
+  const data = block.data || {};
 
-  const cases = Array.isArray(block.data?.cases) ? block.data.cases : [];
-  const logos = cases
-    .map(item => {
-      const img = item.media?.image
-        ? `<img src="${escapeAttribute(item.media.image)}" alt="${item.media?.alt ? escapeAttribute(item.media.alt) : escapeAttribute(item.title || '')}" loading="lazy" style="max-height:48px;width:auto;">`
-        : `<span class="uk-text-bold">${escapeHtml(item.title || '')}</span>`;
-      return `<div>${img}</div>`;
-    })
-    .join('');
+  // Header from title/subtitle
+  const titleValue = typeof data.title === 'string' ? data.title : '';
+  const subtitleValue = typeof data.subtitle === 'string' ? data.subtitle : '';
+  let header = '';
+  if (titleValue || subtitleValue) {
+    const title = titleValue
+      ? `<p class="logo-row__title uk-text-meta uk-text-center uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(titleValue)}</p>`
+      : '';
+    const subtitle = subtitleValue
+      ? `<p class="logo-row__subtitle uk-text-center uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(subtitleValue)}</p>`
+      : '';
+    header = `<div class="uk-width-1-1 uk-margin-medium-bottom">${title}${subtitle}</div>`;
+  }
 
-  const grid = logos
-    ? `<div class="uk-flex uk-flex-center uk-flex-middle uk-flex-wrap" data-uk-grid>${logos}</div>`
-    : '';
+  // Backwards-compat: accept either `logos` (new) or legacy `cases`
+  let logos = Array.isArray(data.logos) ? data.logos : [];
+  if (!logos.length && Array.isArray(data.cases)) {
+    logos = data.cases.map((item, index) => ({
+      id: item?.id || `logo-${index}`,
+      imageId: item?.media?.imageId,
+      image: item?.media?.image,
+      alt: item?.media?.alt || item?.title || ''
+    }));
+  }
 
-  return renderSection({ block, variant: 'logo-row', content: `${header}${grid}` });
+  const renderLogo = (logo) => {
+    const src = (typeof logo.image === 'string' && logo.image)
+      || resolveBackgroundImage(logo.imageId)
+      || '';
+    const alt = escapeAttribute(logo.alt || '');
+    const inner = src
+      ? `<img class="logo-row__image" src="${escapeAttribute(src)}" alt="${alt}" loading="lazy">`
+      : `<span class="logo-row__placeholder uk-text-bold">${escapeHtml(logo.alt || logo.id || '')}</span>`;
+    return logo.href
+      ? `<a class="logo-row__item" href="${escapeAttribute(logo.href)}" rel="noopener" aria-label="${alt}">${inner}</a>`
+      : `<span class="logo-row__item">${inner}</span>`;
+  };
+
+  if (!logos.length) {
+    return renderSection({
+      block,
+      variant: 'logo-row',
+      content: `${header}<div class="uk-alert-warning" role="alert">Keine Logos hinterlegt.</div>`
+    });
+  }
+
+  const grayscale = data.grayscale === true ? ' logo-row--grayscale' : '';
+  const marquee = data.marquee === true;
+
+  let logosHtml;
+  if (marquee) {
+    // Duplicate items for seamless loop
+    const items = logos.map(renderLogo).join('');
+    logosHtml = `<div class="logo-row__marquee${grayscale}" aria-hidden="false"><div class="logo-row__track">${items}${items}</div></div>`;
+  } else {
+    const items = logos.map(renderLogo).join('');
+    logosHtml = `<div class="logo-row__grid${grayscale}">${items}</div>`;
+  }
+
+  return renderSection({ block, variant: 'logo-row', content: `${header}${logosHtml}`, sectionClass: 'logo-row' });
 }
 
 function renderAudienceSpotlightCard(item) {
@@ -2749,8 +2903,9 @@ function renderAudienceSpotlightCard(item) {
         .join('')}</ul></div>`
     : '';
 
-  const media = item.media?.image
-    ? `<div class="uk-card-media-top uk-border-rounded uk-overflow-hidden"><img src="${escapeAttribute(item.media.image)}" alt="${item.media.alt ? escapeAttribute(item.media.alt) : ''}" loading="lazy"></div>`
+  const cardMediaSrc = item.media?.image || resolveBackgroundImage(item.media?.imageId) || '';
+  const media = cardMediaSrc
+    ? `<div class="uk-card-media-top uk-border-rounded uk-overflow-hidden"><img src="${escapeAttribute(cardMediaSrc)}" alt="${item.media?.alt ? escapeAttribute(item.media.alt) : ''}" loading="lazy"></div>`
     : '';
 
   const content = `<div class="uk-card-body">${badge}${title}${lead}${body}${bulletList}${keyFactList}</div>`;
@@ -2817,8 +2972,9 @@ function renderAudienceSpotlightTabs(block, cases, context) {
         : '';
 
       const keyFactsCard = `<div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card"><h4 class="uk-heading-bullet">Key Facts</h4>${keyFactList}${pdfLink}</div>`;
-      const media = item.media?.image
-        ? `<div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top"><div class="usecase-visual"><img class="uk-border-rounded usecase-visual__image" src="${escapeAttribute(item.media.image)}" width="960" height="540" loading="lazy" decoding="async" alt="${item.media.alt ? escapeAttribute(item.media.alt) : ''}"></div></div>`
+      const mediaSrc = item.media?.image || resolveBackgroundImage(item.media?.imageId) || '';
+      const media = mediaSrc
+        ? `<div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top"><div class="usecase-visual"><img class="uk-border-rounded usecase-visual__image" src="${escapeAttribute(mediaSrc)}" width="960" height="540" loading="lazy" decoding="async" alt="${item.media?.alt ? escapeAttribute(item.media.alt) : ''}"></div></div>`
         : '';
       const highlight = `<div class="usecase-highlight">${keyFactsCard}${media}</div>`;
 
@@ -3561,7 +3717,8 @@ export const RENDERER_MATRIX = {
   },
   content_slider: {
     words: (block, options) => renderContentSlider(block, 'words', options),
-    images: (block, options) => renderContentSlider(block, 'images', options)
+    images: (block, options) => renderContentSlider(block, 'images', options),
+    'detail-split': (block, options) => renderContentSlider(block, 'detail-split', options)
   },
   cta: {
     full_width: renderCta,

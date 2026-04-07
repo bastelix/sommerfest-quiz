@@ -115,7 +115,8 @@
         "variant": {
           "enum": [
             "words",
-            "images"
+            "images",
+            "detail-split"
           ]
         },
         "data": {
@@ -450,7 +451,7 @@
                   "const": "logo-row"
                 },
                 "data": {
-                  "$ref": "#/definitions/AudienceSpotlightData"
+                  "$ref": "#/definitions/LogoRowData"
                 }
               },
               "required": [
@@ -679,6 +680,13 @@
         "subheadline": {
           "type": "string"
         },
+        "bullets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "USP bullet points rendered as a checkmark list under the subheadline."
+        },
         "media": {
           "$ref": "#/definitions/Media"
         },
@@ -875,6 +883,12 @@
               },
               "inlineHtml": {
                 "type": "string"
+              },
+              "rating": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5,
+                "description": "Star rating 1-5."
               }
             }
           },
@@ -921,6 +935,9 @@
         },
         "media": {
           "$ref": "#/definitions/Media"
+        },
+        "cta": {
+          "$ref": "#/definitions/CallToActionGroup"
         },
         "items": {
           "type": "array",
@@ -1077,6 +1094,65 @@
             "$ref": "#/definitions/AudienceCase"
           },
           "minItems": 1
+        }
+      }
+    },
+    "LogoRowData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "logos"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "logos": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/LogoRowItem"
+          }
+        },
+        "marquee": {
+          "type": "boolean",
+          "description": "Automatic horizontal scrolling marquee."
+        },
+        "grayscale": {
+          "type": "boolean",
+          "description": "Render logos in grayscale, full color on hover."
+        }
+      }
+    },
+    "LogoRowItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "alt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "imageId": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string",
+          "description": "Optional external fallback URL."
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "href": {
+          "type": "string",
+          "description": "Optional link to the customer site."
         }
       }
     },
