@@ -101,6 +101,8 @@
 - Add block rendering handbook for external editors
 - *(quiz)* Add eQuiz migration prompt for eForms framework
 - *(quiz)* Remove design prescriptions, add creative freedom guidelines
+- *(econtent)* Add session prompt with migration spec data
+- *(econtent)* Add migration prompt for content module to eforms
 
 ### Feat
 
