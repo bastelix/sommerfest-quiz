@@ -331,7 +331,7 @@ CREATE INDEX econtent_footer_blocks_slot_idx ON econtent_footer_blocks(slot, loc
 
 ### Block-Typen (21 Typen)
 
-Das Content-Feld einer Seite enthält ein JSON-Array von Blöcken. Jeder Block hat einen `type` und typ-spezifische Daten. Die Schema-Definition liegt in `block-contract.schema.json`.
+Das Content-Feld einer Seite enthält ein JSON-Array von Blöcken. Jeder Block hat einen `type` und typ-spezifische Daten. Die vollständige Schema-Referenz mit allen Varianten, Data-Definitionen und Shared Types liegt in **[docs/econtent-block-contract.md](econtent-block-contract.md)**. Die Quell-Schema-Definition liegt in `block-contract.schema.json`.
 
 | Typ | Beschreibung |
 |-----|-------------|
