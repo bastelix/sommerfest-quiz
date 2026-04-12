@@ -103,6 +103,7 @@
 - *(quiz)* Remove design prescriptions, add creative freedom guidelines
 - *(econtent)* Add session prompt with migration spec data
 - *(econtent)* Add migration prompt for content module to eforms
+- *(econtent)* Add block-contract schema reference document
 
 ### Feat
 
